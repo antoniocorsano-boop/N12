@@ -1,0 +1,14 @@
+hypothesis,segment,letter_from,letter_to,target_m,candidate_from,candidate_to,measured_m,delta_m,evidence_status,reason,next_check
+HYP_A_METRICA,C1,S,S',4.70,N025,N043,4.884,+0.184,CANDIDATO_METRICO_SOLO,"sequenza metrica completa vicina ma non ancora coerente con registro connessioni",riscontro su carpenteria originale + continuità percorso
+HYP_A_METRICA,C2,S',T,4.05,N043,N051,4.006,-0.044,CANDIDATO_METRICO_SOLO,"errore metrico contenuto",riscontro grafico
+HYP_A_METRICA,C3,T,U,1.20,N051,N033,1.229,+0.029,CANDIDATO_METRICO_SOLO,"segmento breve compatibile",verificare orientamento e nodo letterale
+HYP_A_METRICA,C4,U,V,5.80,N033,N049,6.062,+0.262,CANDIDATO_METRICO_SOLO,"campata lunga compatibile entro tolleranza grafica",verificare su tavola originale
+HYP_A_METRICA,C5,V,Z,2.90,N049,N001,2.905,+0.005,CANDIDATO_METRICO_SOLO,"miglior corrispondenza metrica singola",verificare continuità di percorso
+HYP_A_METRICA,C6,Z,A',1.20,N001,N008,1.376,+0.176,CANDIDATO_METRICO_SOLO,"connessione presente nel registro ma lunghezza grafica non coincide perfettamente",verifica grafica + eventuale nodo intermedio
+HYP_A_METRICA,C7,A',B',4.05,N008,N050,4.241,+0.191,CANDIDATO_METRICO_SOLO,"compatibile come tratto candidato",riscontro su carpenteria originale
+HYP_A_METRICA,C8,B',C',4.70,N050,N016,4.602,-0.098,CANDIDATO_METRICO_SOLO,"compatibile metricamente",riscontro su carpenteria originale
+HYP_B_CONNESSA,C1,S,S',4.70,N019,N102,5.027,+0.327,CANDIDATO_TOPOLOGICO_DEBOLE,"tratto esistente nel registro connessioni",troppo alto delta globale: non promuovere
+HYP_B_CONNESSA,C2,S',T,4.05,N102,N039,4.350,+0.300,CANDIDATO_TOPOLOGICO_DEBOLE,"tratto esistente nel registro connessioni",verificare ma inferiore a HYP_A
+HYP_B_CONNESSA,C3,T,U,1.20,N039,N031,1.189,-0.011,CANDIDATO_TOPOLOGICO_DEBOLE,"segmento breve ben compatibile",verificare posizione su pianta
+HYP_B_CONNESSA,C4,U,V,5.80,N031,N010,5.838,+0.038,CANDIDATO_TOPOLOGICO_DEBOLE,"tratto esistente e compatibile",verificare percorso letterale
+HYP_B_CONNESSA,C5,V,Z,2.90,N010,N025,2.195,-0.705,CANDIDATO_RESPINTO_PARZIALE,"errore eccessivo su C5",non usare per raccordo senza nuovi riscontri
