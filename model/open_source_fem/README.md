@@ -1,6 +1,6 @@
 # N12 — Modello FEM open source
 
-Target operativo: **OpenSeesPy**.
+Target operativo: **OpenSeesPy**, con fallback geometrico puro senza dipendenze native.
 
 ## Perché OpenSeesPy
 
@@ -10,7 +10,7 @@ Code_Aster resta utilizzabile come secondo target generale FEM, ma per questo pr
 
 ## Stato del modello
 
-Versione corrente: `M0-OS-0002`.
+Versione corrente: `M0-OS-0002` + `M0-G-EXPORT-FALLBACK`.
 
 Questo modello è una **geometria strutturale 3D preliminare con primo telaio candidato**, non ancora un modello di verifica. Include:
 
@@ -34,12 +34,13 @@ Non include ancora come elementi verificabili:
 
 ## File
 
-- `requirements.txt` — dipendenze Python.
+- `requirements.txt` — dipendenze Python per OpenSeesPy.
 - `opensees_m0_geometry.py` — costruzione del modello geometrico OpenSeesPy.
+- `generate_m0_geometry_exports.py` — fallback senza OpenSeesPy: genera CSV 3D e riepilogo anche se le DLL native OpenSeesPy non sono disponibili.
 - `exports/README.md` — cartella prevista per output CSV/VTK generati localmente.
-- `data/canonical/fem_section_placeholders.csv` — sezioni geometriche provvisorie/documentali usate dallo script.
+- `data/canonical/fem_section_placeholders.csv` — sezioni geometriche provvisorie/documentali usate dagli script.
 
-## Uso locale
+## Uso locale — OpenSeesPy
 
 ```bash
 cd N12
@@ -48,12 +49,6 @@ source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r model/open_source_fem/requirements.txt
 python model/open_source_fem/opensees_m0_geometry.py
 ```
-
-Output atteso:
-
-- `model/open_source_fem/exports/m0_nodes_3d.csv`
-- `model/open_source_fem/exports/m0_column_elements.csv`
-- `model/open_source_fem/exports/m0_telaio5_beam_elements.csv`
 
 Console attesa:
 
@@ -67,6 +62,33 @@ Telaio 5 hypothesis: HYP_A_METRICA
 Status: GEOMETRY_PLUS_T5_CANDIDATE / NOT_FOR_VERIFICATION
 ```
 
+## Uso locale — fallback senza OpenSeesPy
+
+Se su Windows OpenSeesPy non carica le DLL native, usare il fallback puro Python:
+
+```bash
+python model/open_source_fem/generate_m0_geometry_exports.py
+```
+
+Questo comando non richiede `pip install` e produce comunque:
+
+- `model/open_source_fem/exports/m0_nodes_3d.csv`
+- `model/open_source_fem/exports/m0_column_elements.csv`
+- `model/open_source_fem/exports/m0_telaio5_beam_elements.csv`
+- `model/open_source_fem/exports/m0_model_summary.txt`
+
+Console attesa:
+
+```text
+N12 M0-G export fallback
+Storey height: 3.20 m
+3D nodes: 135
+Column elements: 108
+Telaio 5 candidate beam elements: 38
+Telaio 5 hypothesis: HYP_A_METRICA
+Status: GEOMETRY_EXPORT_ONLY / NOT_FOR_VERIFICATION
+```
+
 ## Regola
 
-Il modello OpenSeesPy deve seguire i dati canonici del repository. Un valore `ND`, `INC` o `PLACEHOLDER` può servire per generare geometria, ma non può essere usato per diagnosi, verifica o progetto degli interventi.
+Il modello deve seguire i dati canonici del repository. Un valore `ND`, `INC` o `PLACEHOLDER` può servire per generare geometria, ma non può essere usato per diagnosi, verifica o progetto degli interventi.
