@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0003`
+Versione repository: `RM-0004`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -14,6 +14,8 @@ Versione repository: `RM-0003`
 | GEO-004 | topologia TAV.5 | abaco storico con almeno 57 nodi e coordinate X,Y | ABACO_TOPOLOGICO_TAV5_v11.csv | DOC-ARTEFATTO |
 | GEO-005 | topologia | 57 nodi / 38 connessioni / 10 componenti = sottoinsieme topologico storico, non assunto come universo geometrico completo | registri storici + presenza di riferimenti a ID superiori | DOC/INF-controllata |
 | GEO-006 | modello globale | ricostruzione geometrica primaria deve ora partire dalle carpenterie originali, verificando gli artefatti DXF/CSV contro di esse | SRC-001/SRC-002 | IN_CORSO |
+| GEO-007 | TAV.5 nodi fisici recuperati | recuperato nel repository il file canonico a 57 nodi topologici | `data/canonical/tav5_topology_nodes_57.csv` | PREDOC_TOPOLOGICO_RECUPERATO |
+| GEO-008 | TAV.5 connessioni candidate | recuperato registro connessioni TAV.5 v07 con 141 connessioni candidate; alcune richiamano nodi oltre N057 | `data/canonical/tav5_topology_connections_v07.csv` | INF_DA_QUOTARE |
 | COL-001 | pilastri | abaco verticale 27×5 | MATRICE_PILASTRI_27x5_v22.csv | DOC-ARTEFATTO |
 | COL-002 | pilastri corpo principale | famiglie 40×50 e 40×40 cm | relazione di calcolo | DOC-famiglia |
 | COL-003 | torrino scala | pilastri 30×40 cm | relazione di calcolo | DOC-famiglia |
@@ -30,7 +32,7 @@ Versione repository: `RM-0003`
 | FND-001 | fondazioni | 7 catene / 26 segmenti ricostruiti | consolidato fondazioni | DOC-ARTEFATTO |
 | M0G-001 | modello globale | coordinate/reticolo da ricostruire prioritariamente dalle tavole originali, usando DXF e abachi come confronto | gate corrente | IN_CORSO |
 | M0G-002 | livelli | quote Z definitive | non congelate | ND |
-| M0G-003 | raccordo Telaio 5 ↔ 57 nodi | geometria del Telaio 5 documentale, ma associazione agli ID dei 57 nodi non congelabile finché manca il dataset fisico dei 57 nodi nel ramo corrente | `docs/DECISIONI/M0G_RACCORDO_TELAIO5_57_NODI_v1.md` + `data/canonical/telaio5_raccordo_57_nodi_status.csv` | BLOCCATO_PARZIALE |
+| M0G-003 | raccordo Telaio 5 ↔ 57 nodi | dataset fisico dei 57 nodi recuperato; raccordo ancora da dimostrare mediante firma metrica, topologia e carpenterie originali | `docs/DECISIONI/M0G_RECUPERO_ABACO_57_NODI_v1.md` + `data/canonical/tav5_topology_nodes_57.csv` | SBLOCCATO_DATI_RECUPERATI |
 | MAT-001 | materiali | calcestruzzo/acciaio | da documentare/indagare | ND |
 | MAT-002 | conoscenza | LC/FC | da definire sul quadro conoscitivo | ND |
 
