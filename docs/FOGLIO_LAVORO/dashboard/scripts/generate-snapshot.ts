@@ -1,0 +1,371 @@
+import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
+import { join, basename } from "node:path";
+
+const FOGLIO = join(import.meta.dirname, "..", "..");
+
+function read(rel: string): string {
+  const p = join(FOGLIO, rel);
+  if (!existsSync(p)) throw new Error(`Missing: ${p}`);
+  return readFileSync(p, "utf-8");
+}
+
+interface MdTable {
+  headers: string[];
+  rows: string[][];
+}
+
+function parseMdTable(content: string, startLine: number): MdTable | null {
+  const lines = content.split("\n");
+  let i = startLine;
+  while (i < lines.length && !lines[i].trim().startsWith("|")) i++;
+  if (i >= lines.length) return null;
+
+  const parseRow = (line: string): string[] =>
+    line
+      .split("|")
+      .slice(1, -1)
+      .map((c) => c.trim());
+
+  const headers = parseRow(lines[i]);
+  i++;
+
+  if (i < lines.length && /^\|[\s\-:|]+\|$/.test(lines[i])) i++;
+
+  const rows: string[][] = [];
+  while (i < lines.length && lines[i].trim().startsWith("|")) {
+    const cells = parseRow(lines[i]);
+    if (cells.length === headers.length) rows.push(cells);
+    i++;
+  }
+
+  return { headers, rows };
+}
+
+function parseAllTables(content: string): MdTable[] {
+  const tables: MdTable[] = [];
+  const lines = content.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].trim().startsWith("|")) {
+      const t = parseMdTable(content, i);
+      if (t && t.rows.length > 0) {
+        tables.push(t);
+        while (i < lines.length && lines[i].trim().startsWith("|")) i++;
+        i--;
+      }
+    }
+  }
+  return tables;
+}
+
+/* ─── Evidences ─── */
+interface Evidence {
+  id: string;
+  scope: string;
+  description: string;
+  status: string;
+  source: string;
+  note: string;
+}
+
+function parseEvidences(): Evidence[] {
+  const md = read("REGISTRO_EVIDENZE.md");
+  const tables = parseAllTables(md);
+  const evs: Evidence[] = [];
+
+  for (const t of tables) {
+    if (t.headers[0] !== "ID") continue;
+    for (const row of t.rows) {
+      if (!row[0].startsWith("EV-")) continue;
+      evs.push({
+        id: row[0],
+        scope: row[1],
+        description: row[2],
+        status: row[3],
+        source: row[4],
+        note: row[5] ?? "",
+      });
+    }
+  }
+  return evs;
+}
+
+/* ─── Artifacts ─── */
+interface Artifact {
+  id: string;
+  name: string;
+  path: string;
+  status: string;
+  provenance: string;
+  front: string;
+  evidenceIds: string[];
+}
+
+function parseArtifacts(): Artifact[] {
+  const md = read("MATRICE_ARTEFATTI.md");
+  const tables = parseAllTables(md);
+  const arts: Artifact[] = [];
+
+  for (const t of tables) {
+    if (t.headers[0] !== "ID") continue;
+    for (const row of t.rows) {
+      if (
+        !row[0].startsWith("AP-") &&
+        !row[0].startsWith("AF-") &&
+        !row[0].startsWith("AD-") &&
+        !row[0].startsWith("AZ-") &&
+        !row[0].startsWith("AM-") &&
+        !row[0].startsWith("AT-") &&
+        !row[0].startsWith("FF-")
+      )
+        continue;
+
+      const evCell = row.length >= 7 ? row[6] : "—";
+      const evidenceIds =
+        evCell === "—" || evCell === ""
+          ? []
+          : evCell
+              .split(",")
+              .map((s) => s.trim())
+              .filter((s) => s.startsWith("EV-") && !s.includes("*"));
+
+      arts.push({
+        id: row[0],
+        name: row[1],
+        path: row[2],
+        status: row[3],
+        provenance: row[4],
+        front: row[5],
+        evidenceIds,
+      });
+    }
+  }
+  return arts;
+}
+
+/* ─── Residuals ─── */
+interface Residual {
+  id: string;
+  type: string;
+  front: string;
+  description: string;
+  state: string;
+  evidenceIds: string[];
+  dependencies: string[];
+}
+
+function parseResiduals(): Residual[] {
+  const md = read("RESIDUI.md");
+  const tables = parseAllTables(md);
+  const res: Residual[] = [];
+
+  for (const t of tables) {
+    if (t.headers[0] !== "ID") continue;
+    for (const row of t.rows) {
+      if (!row[0].startsWith("R-")) continue;
+
+      const evCell = row[5] ?? "—";
+      const evidenceIds =
+        evCell === "—" || evCell === ""
+          ? []
+          : evCell
+              .split(",")
+              .map((s) => s.trim())
+              .filter((s) => s.startsWith("EV-"));
+
+      const depCell = row[6] ?? "";
+      const dependencies =
+        depCell === "—" || depCell === ""
+          ? []
+          : depCell.split(",").map((s) => s.trim());
+
+      res.push({
+        id: row[0],
+        type: row[1],
+        front: row[2],
+        description: row[3],
+        state: row[4],
+        evidenceIds,
+        dependencies,
+      });
+    }
+  }
+  return res;
+}
+
+/* ─── Fronts ─── */
+interface Front {
+  id: string;
+  name: string;
+  status: string;
+  evidenceCount: number;
+  residualCount: number;
+  blockingResiduals: number;
+  nextAction: string;
+}
+
+function parseFronts(evidences: Evidence[], residuals: Residual[]): Front[] {
+  const frontDir = join(FOGLIO, "fronti");
+  const fronts: Front[] = [];
+
+  const defs: { id: string; name: string; nextAction: string }[] = [
+    { id: "F0", name: "Progetto / Committenza", nextAction: "Formalizzare committenza nel protocollo" },
+    { id: "F1", name: "Fonti / Quadro Conoscitivo", nextAction: "Verificare integrità archivio v25" },
+    { id: "F2", name: "Stato di fatto strutturale", nextAction: "Raccordo 57 nodi topologici" },
+    { id: "F3", name: "Modello globale M0-G", nextAction: "Normalizzare coordinate e costruire rete globale" },
+    { id: "F4", name: "Sezioni e armature M0-S/A", nextAction: "Completare M0-G prima di assegnare sezioni puntuali" },
+    { id: "F5", name: "Materiali, conoscenza, carichi", nextAction: "Raccogliere dati materiali e definire LC/FC" },
+    { id: "F6", name: "Diagnosi", nextAction: "In attesa di M0-G + M0-S completi" },
+    { id: "F7", name: "Interventi", nextAction: "In attesa di diagnosi" },
+    { id: "F8", name: "Verifica normativa M0-V", nextAction: "In attesa di M0-L e modello validato" },
+    { id: "F9", name: "Progettazione interventi M1", nextAction: "In attesa di M0-V e diagnosi" },
+    { id: "F10", name: "Esecuzione / Cantiere", nextAction: "Fuori scope fase R1" },
+    { id: "F11", name: "Post operam", nextAction: "Fuori scope fase R1" },
+    { id: "F12", name: "Fascicolo finale", nextAction: "Compilazione ultima dopo tutti i fronti" },
+  ];
+
+  for (const def of defs) {
+    const fPath = join(frontDir, `${def.id}_*.md`);
+    let status = "NOT STARTED";
+    if (existsSync(join(frontDir))) {
+      const files = readdirSync(frontDir).filter((f) => f.startsWith(def.id + "_"));
+      if (files.length > 0) {
+        const content = read(join("fronti", files[0]));
+        const statusMatch = content.match(/##\s*Stato\s*\n\s*(.+)/i);
+        if (statusMatch) status = statusMatch[1].trim();
+      }
+    }
+
+    const evCount = evidences.filter((e) => {
+      const src = e.source.toLowerCase();
+      return src.includes(def.id.toLowerCase());
+    }).length;
+
+    const resCount = residuals.filter((r) => r.front === def.id).length;
+    const blocking = residuals.filter(
+      (r) => r.front === def.id && (r.type === "BLOCCANTE" || r.type === "RISCHIO") && r.state !== "CHIUSO"
+    ).length;
+
+    fronts.push({
+      id: def.id,
+      name: def.name,
+      status,
+      evidenceCount: evCount,
+      residualCount: resCount,
+      blockingResiduals: blocking,
+      nextAction: def.nextAction,
+    });
+  }
+  return fronts;
+}
+
+/* ─── Pipeline ─── */
+function buildPipeline(): { id: string; name: string; fronts: string[]; status: string }[] {
+  return [
+    { id: "progetto", name: "Progetto", fronts: ["F0"], status: "PARTIAL" },
+    { id: "fonti", name: "Fonti", fronts: ["F1"], status: "ADVANCING" },
+    { id: "stato-fatto", name: "Stato di fatto", fronts: ["F2"], status: "ADVANCING" },
+    { id: "modello", name: "Modello", fronts: ["F3", "F4", "F5"], status: "IN CORSO" },
+    { id: "diagnosi", name: "Diagnosi", fronts: ["F6"], status: "BLOCKED" },
+    { id: "interventi", name: "Interventi", fronts: ["F7", "F8", "F9"], status: "BLOCKED" },
+    { id: "verifica", name: "Verifica", fronts: ["F8"], status: "BLOCKED" },
+    { id: "post-operam", name: "Post operam", fronts: ["F11"], status: "N/A" },
+    { id: "fascicolo", name: "Fascicolo", fronts: ["F12"], status: "BLOCKED" },
+  ];
+}
+
+/* ─── Next global action ─── */
+function nextGlobalAction(residuals: Residual[]): string {
+  const blocking = residuals
+    .filter((r) => r.type === "BLOCCANTE" && r.state === "BLOCCATO")
+    .sort((a, b) => a.id.localeCompare(b.id));
+  if (blocking.length === 0) return "Nessun residuo bloccante aperto";
+  const top = blocking[0];
+  return `${top.id}: ${top.description} — lavoro sul modello strutturale canonico, rispetta il gate M0-G.`;
+}
+
+/* ─── Evidence counts ─── */
+function evidenceCounts(evidences: Evidence[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const e of evidences) {
+    counts[e.status] = (counts[e.status] ?? 0) + 1;
+  }
+  return counts;
+}
+
+/* ─── Validation ─── */
+function validate(evidences: Evidence[], artifacts: Artifact[], residuals: Residual[]): void {
+  const errors: string[] = [];
+
+  const evIds = new Set<string>();
+  for (const e of evidences) {
+    if (evIds.has(e.id)) errors.push(`Duplicate evidence ID: ${e.id}`);
+    evIds.add(e.id);
+  }
+
+  const artIds = new Set<string>();
+  for (const a of artifacts) {
+    if (artIds.has(a.id)) errors.push(`Duplicate artifact ID: ${a.id}`);
+    artIds.add(a.id);
+    for (const evId of a.evidenceIds) {
+      if (!evIds.has(evId)) errors.push(`Artifact ${a.id} references missing evidence: ${evId}`);
+    }
+  }
+
+  const resIds = new Set<string>();
+  for (const r of residuals) {
+    if (resIds.has(r.id)) errors.push(`Duplicate residual ID: ${r.id}`);
+    resIds.add(r.id);
+    for (const evId of r.evidenceIds) {
+      if (!evIds.has(evId)) errors.push(`Residual ${r.id} references missing evidence: ${evId}`);
+    }
+  }
+
+  if (errors.length > 0) {
+    console.error("VALIDATION FAILED:");
+    for (const e of errors) console.error(`  ✗ ${e}`);
+    process.exit(1);
+  }
+}
+
+/* ─── Main ─── */
+console.log("Reading FOGLIO_LAVORO sources...");
+
+const evidences = parseEvidences();
+console.log(`  Evidences: ${evidences.length}`);
+
+const artifacts = parseArtifacts();
+console.log(`  Artifacts: ${artifacts.length}`);
+
+const residuals = parseResiduals();
+console.log(`  Residuals: ${residuals.length}`);
+
+validate(evidences, artifacts, residuals);
+console.log("  Validation: PASS");
+
+const fronts = parseFronts(evidences, residuals);
+const pipeline = buildPipeline();
+const nextAction = nextGlobalAction(residuals);
+const counts = evidenceCounts(evidences);
+
+const snapshot = {
+  project: {
+    name: "N12 — Edificio esistente in c.a. Ariano Irpino",
+    location: "Ariano Irpino (AV)",
+    target: "Modello completo EdiLus-EE",
+    currentGate: "M0-G (geometria globale)",
+    fascicoloVersion: "R1-A-0002 / R1-B RE-0001",
+    lastUpdate: new Date().toISOString().slice(0, 10),
+  },
+  pipeline,
+  fronts,
+  evidences,
+  artifacts,
+  residuals,
+  evidenceCounts: counts,
+  nextGlobalAction: nextAction,
+};
+
+const outPath = join(import.meta.dirname, "..", "src", "read-model", "r1-snapshot.json");
+writeFileSync(outPath, JSON.stringify(snapshot, null, 2) + "\n", "utf-8");
+console.log(`  Written: ${outPath}`);
+console.log("DONE");

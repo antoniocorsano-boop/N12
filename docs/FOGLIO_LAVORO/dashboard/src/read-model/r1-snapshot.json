@@ -8,128 +8,1150 @@
     "lastUpdate": "2026-08-17"
   },
   "pipeline": [
-    { "id": "progetto", "name": "Progetto", "fronts": ["F0"], "status": "PARTIAL" },
-    { "id": "fonti", "name": "Fonti", "fronts": ["F1"], "status": "ADVANCING" },
-    { "id": "stato-fatto", "name": "Stato di fatto", "fronts": ["F2"], "status": "ADVANCING" },
-    { "id": "modello", "name": "Modello", "fronts": ["F3", "F4", "F5"], "status": "IN CORSO" },
-    { "id": "diagnosi", "name": "Diagnosi", "fronts": ["F6"], "status": "BLOCKED" },
-    { "id": "interventi", "name": "Interventi", "fronts": ["F7", "F8", "F9"], "status": "BLOCKED" },
-    { "id": "verifica", "name": "Verifica", "fronts": ["F8"], "status": "BLOCKED" },
-    { "id": "post-operam", "name": "Post operam", "fronts": ["F11"], "status": "N/A" },
-    { "id": "fascicolo", "name": "Fascicolo", "fronts": ["F12"], "status": "BLOCKED" }
+    {
+      "id": "progetto",
+      "name": "Progetto",
+      "fronts": [
+        "F0"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "id": "fonti",
+      "name": "Fonti",
+      "fronts": [
+        "F1"
+      ],
+      "status": "ADVANCING"
+    },
+    {
+      "id": "stato-fatto",
+      "name": "Stato di fatto",
+      "fronts": [
+        "F2"
+      ],
+      "status": "ADVANCING"
+    },
+    {
+      "id": "modello",
+      "name": "Modello",
+      "fronts": [
+        "F3",
+        "F4",
+        "F5"
+      ],
+      "status": "IN CORSO"
+    },
+    {
+      "id": "diagnosi",
+      "name": "Diagnosi",
+      "fronts": [
+        "F6"
+      ],
+      "status": "BLOCKED"
+    },
+    {
+      "id": "interventi",
+      "name": "Interventi",
+      "fronts": [
+        "F7",
+        "F8",
+        "F9"
+      ],
+      "status": "BLOCKED"
+    },
+    {
+      "id": "verifica",
+      "name": "Verifica",
+      "fronts": [
+        "F8"
+      ],
+      "status": "BLOCKED"
+    },
+    {
+      "id": "post-operam",
+      "name": "Post operam",
+      "fronts": [
+        "F11"
+      ],
+      "status": "N/A"
+    },
+    {
+      "id": "fascicolo",
+      "name": "Fascicolo",
+      "fronts": [
+        "F12"
+      ],
+      "status": "BLOCKED"
+    }
   ],
   "fronts": [
-    { "id": "F0", "name": "Progetto / Committenza", "status": "PARTIAL", "evidenceCount": 2, "residualCount": 3, "blockingResiduals": 0, "nextAction": "Formalizzare committenza nel protocollo" },
-    { "id": "F1", "name": "Fonti / Quadro Conoscitivo", "status": "ADVANCING", "evidenceCount": 3, "residualCount": 2, "blockingResiduals": 0, "nextAction": "Verificare integrità archivio v25" },
-    { "id": "F2", "name": "Stato di fatto strutturale", "status": "ADVANCING", "evidenceCount": 14, "residualCount": 4, "blockingResiduals": 2, "nextAction": "Raccordo 57 nodi topologici" },
-    { "id": "F3", "name": "Modello globale M0-G", "status": "IN CORSO", "evidenceCount": 9, "residualCount": 6, "blockingResiduals": 5, "nextAction": "Normalizzare coordinate e costruire rete globale" },
-    { "id": "F4", "name": "Sezioni e armature M0-S/A", "status": "NOT STARTED", "evidenceCount": 5, "residualCount": 1, "blockingResiduals": 1, "nextAction": "Completare M0-G prima di assegnare sezioni puntuali" },
-    { "id": "F5", "name": "Materiali, conoscenza, carichi", "status": "NOT STARTED", "evidenceCount": 3, "residualCount": 2, "blockingResiduals": 2, "nextAction": "Raccogliere dati materiali e definire LC/FC" },
-    { "id": "F6", "name": "Diagnosi", "status": "BLOCKED", "evidenceCount": 0, "residualCount": 0, "blockingResiduals": 0, "nextAction": "In attesa di M0-G + M0-S completi" },
-    { "id": "F7", "name": "Interventi", "status": "BLOCKED", "evidenceCount": 0, "residualCount": 0, "blockingResiduals": 0, "nextAction": "In attesa di diagnosi" },
-    { "id": "F8", "name": "Verifica normativa M0-V", "status": "BLOCKED", "evidenceCount": 0, "residualCount": 0, "blockingResiduals": 0, "nextAction": "In attesa di M0-L e modello validato" },
-    { "id": "F9", "name": "Progettazione interventi M1", "status": "BLOCKED", "evidenceCount": 0, "residualCount": 0, "blockingResiduals": 0, "nextAction": "In attesa di M0-V e diagnosi" },
-    { "id": "F10", "name": "Esecuzione / Cantiere", "status": "N/A", "evidenceCount": 0, "residualCount": 0, "blockingResiduals": 0, "nextAction": "Fuori scope fase R1" },
-    { "id": "F11", "name": "Post operam", "status": "N/A", "evidenceCount": 0, "residualCount": 0, "blockingResiduals": 0, "nextAction": "Fuori scope fase R1" },
-    { "id": "F12", "name": "Fascicolo finale", "status": "BLOCKED", "evidenceCount": 0, "residualCount": 0, "blockingResiduals": 0, "nextAction": "Compilazione ultima dopo tutti i fronti" }
+    {
+      "id": "F0",
+      "name": "Progetto / Committenza",
+      "status": "NOT STARTED",
+      "evidenceCount": 0,
+      "residualCount": 0,
+      "blockingResiduals": 0,
+      "nextAction": "Formalizzare committenza nel protocollo"
+    },
+    {
+      "id": "F1",
+      "name": "Fonti / Quadro Conoscitivo",
+      "status": "NOT STARTED",
+      "evidenceCount": 0,
+      "residualCount": 4,
+      "blockingResiduals": 0,
+      "nextAction": "Verificare integrità archivio v25"
+    },
+    {
+      "id": "F2",
+      "name": "Stato di fatto strutturale",
+      "status": "NOT STARTED",
+      "evidenceCount": 0,
+      "residualCount": 1,
+      "blockingResiduals": 1,
+      "nextAction": "Raccordo 57 nodi topologici"
+    },
+    {
+      "id": "F3",
+      "name": "Modello globale M0-G",
+      "status": "NOT STARTED",
+      "evidenceCount": 0,
+      "residualCount": 6,
+      "blockingResiduals": 6,
+      "nextAction": "Normalizzare coordinate e costruire rete globale"
+    },
+    {
+      "id": "F4",
+      "name": "Sezioni e armature M0-S/A",
+      "status": "NOT STARTED",
+      "evidenceCount": 0,
+      "residualCount": 1,
+      "blockingResiduals": 1,
+      "nextAction": "Completare M0-G prima di assegnare sezioni puntuali"
+    },
+    {
+      "id": "F5",
+      "name": "Materiali, conoscenza, carichi",
+      "status": "NOT STARTED",
+      "evidenceCount": 0,
+      "residualCount": 2,
+      "blockingResiduals": 2,
+      "nextAction": "Raccogliere dati materiali e definire LC/FC"
+    },
+    {
+      "id": "F6",
+      "name": "Diagnosi",
+      "status": "NOT STARTED",
+      "evidenceCount": 0,
+      "residualCount": 0,
+      "blockingResiduals": 0,
+      "nextAction": "In attesa di M0-G + M0-S completi"
+    },
+    {
+      "id": "F7",
+      "name": "Interventi",
+      "status": "NOT STARTED",
+      "evidenceCount": 0,
+      "residualCount": 0,
+      "blockingResiduals": 0,
+      "nextAction": "In attesa di diagnosi"
+    },
+    {
+      "id": "F8",
+      "name": "Verifica normativa M0-V",
+      "status": "NOT STARTED",
+      "evidenceCount": 0,
+      "residualCount": 0,
+      "blockingResiduals": 0,
+      "nextAction": "In attesa di M0-L e modello validato"
+    },
+    {
+      "id": "F9",
+      "name": "Progettazione interventi M1",
+      "status": "NOT STARTED",
+      "evidenceCount": 0,
+      "residualCount": 0,
+      "blockingResiduals": 0,
+      "nextAction": "In attesa di M0-V e diagnosi"
+    },
+    {
+      "id": "F10",
+      "name": "Esecuzione / Cantiere",
+      "status": "NOT STARTED",
+      "evidenceCount": 0,
+      "residualCount": 0,
+      "blockingResiduals": 0,
+      "nextAction": "Fuori scope fase R1"
+    },
+    {
+      "id": "F11",
+      "name": "Post operam",
+      "status": "NOT STARTED",
+      "evidenceCount": 0,
+      "residualCount": 0,
+      "blockingResiduals": 0,
+      "nextAction": "Fuori scope fase R1"
+    },
+    {
+      "id": "F12",
+      "name": "Fascicolo finale",
+      "status": "NOT STARTED",
+      "evidenceCount": 0,
+      "residualCount": 0,
+      "blockingResiduals": 0,
+      "nextAction": "Compilazione ultima dopo tutti i fronti"
+    }
   ],
   "evidences": [
-    { "id": "EV-G01", "scope": "coordinate", "description": "27 catene verticali: X/Y in mm", "status": "VER_GEOMETRIC", "source": "CATENE_VERTICALI_PILASTRI_v20.csv", "note": "Coordinate geometriche, non baricentro" },
-    { "id": "EV-G02", "scope": "altezza", "description": "Interpiano estradosso-estradosso = 3.20 m", "status": "RIF", "source": "storey_height_status.csv", "note": "Corretta da utente 2026-08-16" },
-    { "id": "EV-G03", "scope": "topologia", "description": "57 nodi topologici TAV.5 con X/Y", "status": "PREDOC_TOPOLOGICO", "source": "ABACO_TOPOLOGICO_TAV5_v11.csv", "note": "Sottoinsieme topologico storico, NON universo geometrico completo" },
-    { "id": "EV-G04", "scope": "connettività", "description": "141 connessioni candidate TAV.5", "status": "INF_DA_QUOTARE", "source": "REGISTRO_CONNessioni_TAV5_v07.csv", "note": "Non verificabili come travi strutturali" },
-    { "id": "EV-G05", "scope": "allineamento", "description": "T5 ↔ TAV.5: HYP_A_METRICA", "status": "INF", "source": "telaio5_tav5_candidate_matrix_v1.csv", "note": "Non verificato senza overlay" },
-    { "id": "EV-G06", "scope": "fondazioni", "description": "7 catene / 26 segmenti", "status": "DOC-ARTEFATTO", "source": "consolidato fondazioni", "note": "Ricostruzione parziale" },
-    { "id": "EV-T01", "scope": "T1 percorso", "description": "I-L-M-N-O-P-Q-R, 7 campate", "status": "DOC", "source": "relazione di calcolo / consolidato v12", "note": "" },
-    { "id": "EV-T02", "scope": "T1 campate", "description": "4.70/5.10/3.25/2.40/2.90/5.30/4.70 m", "status": "DOC", "source": "relazione di calcolo / v12", "note": "" },
-    { "id": "EV-T03", "scope": "T1 G5", "description": "C2-C6", "status": "DOC", "source": "relazione di calcolo / v12", "note": "" },
-    { "id": "EV-T04", "scope": "T5 percorso", "description": "S-S'-T-U-V-Z-A'-B'-C', 8 campate", "status": "DOC", "source": "relazione di calcolo / v17", "note": "" },
-    { "id": "EV-T05", "scope": "T5 campate", "description": "4.70/4.05/1.20/5.80/2.90/1.20/4.05/4.70 m", "status": "DOC", "source": "relazione di calcolo / v17", "note": "" },
-    { "id": "EV-T06", "scope": "T5 G5", "description": "C2-C7 = 19.20 m", "status": "DOC", "source": "relazione di calcolo / v17", "note": "" },
-    { "id": "EV-T07", "scope": "T5 livelli", "description": "G1-G4: C1-C8 (28.60 m), G5: C2-C7 (19.20 m)", "status": "DOC", "source": "telaio_5.csv", "note": "Sezioni 25×70+140×20 per C3-C5" },
-    { "id": "EV-S01", "scope": "travi", "description": "20×45, 25×70, 30×45, 30×65, 120×20, 140×20 cm", "status": "DOC", "source": "relazione / consolidati", "note": "Sezioni note" },
-    { "id": "EV-S02", "scope": "T1 G2", "description": "Sezione non congelata", "status": "ND", "source": "stato M0 v18", "note": "" },
-    { "id": "EV-S03", "scope": "T5 G5", "description": "Sezione 20×45", "status": "DOC", "source": "relazione_calcolo_v17", "note": "" },
-    { "id": "EV-S04", "scope": "T5 G1-G4", "description": "Sezione 25×70 + 140×20 per C3-C5", "status": "DOC", "source": "RC-P13_v16", "note": "" },
-    { "id": "EV-S05", "scope": "pilastri corpo", "description": "Famiglie 40×50 e 40×40", "status": "DOC-famiglia", "source": "relazione di calcolo", "note": "Non assegnate a catene" },
-    { "id": "EV-S06", "scope": "torrino", "description": "Pilastri 30×40", "status": "DOC-famiglia", "source": "relazione di calcolo", "note": "Non assegnate a catene" },
-    { "id": "EV-M01", "scope": "materiali", "description": "Calcestruzzo / acciaio", "status": "ND", "source": "—", "note": "Da documentare/indagare" },
-    { "id": "EV-M02", "scope": "conoscenza", "description": "LC / FC", "status": "ND", "source": "—", "note": "Da definire sul quadro conoscitivo" },
-    { "id": "EV-L01", "scope": "T5 carichi storici", "description": "Carichi lineari G1-G3", "status": "DOC-STORICO", "source": "RC-P13 / v16", "note": "Dati storici, non normativi" },
-    { "id": "EV-P01", "scope": "abaco", "description": "27×5 = 135 posizioni", "status": "DOC-ARTEFATTO", "source": "MATRICE_PILASTRI_27x5_v22.csv", "note": "Matrice storica, assegnazione sezioni NON completa" },
-    { "id": "EV-P02", "scope": "fili fissi", "description": "Coppia asse_X_geom + asse_Y_geom", "status": "VER", "source": "decisione M0G_FILI_FISSI_v1", "note": "Riferimento geometrico verificato" },
-    { "id": "EV-P03", "scope": "sezione puntuale", "description": "Per catena e livello", "status": "ND", "source": "—", "note": "Da TAV.7 dopo univocità" },
-    { "id": "EV-F01", "scope": "M0-OS-0002", "description": "135 nodi, 108 colonne, 38 travi T5", "status": "PLACEHOLDER", "source": "opensees_m0_geometry.py", "note": "Geometrico, non di verifica" },
-    { "id": "EV-F02", "scope": "sezioni FEM", "description": "Col 40×40, Beam T5: 20×45/25×70/140×20", "status": "PLACEHOLDER_GEOMETRY_ONLY", "source": "fem_section_placeholders.csv", "note": "Materiali placeholder" },
-    { "id": "EV-F03", "scope": "vincoli", "description": "Base incastrata", "status": "PLACEHOLDER", "source": "opensees_m0_geometry.py", "note": "Prova geometrica" }
+    {
+      "id": "EV-G01",
+      "scope": "coordinate",
+      "description": "27 catene verticali: X/Y in mm",
+      "status": "VER_GEOMETRIC",
+      "source": "CATENE_VERTICALI_PILASTRI_v20.csv",
+      "note": "Coordinate geometriche, non baricentro"
+    },
+    {
+      "id": "EV-G02",
+      "scope": "altezza",
+      "description": "Interpiano estradosso-estradosso = 3.20 m",
+      "status": "RIF",
+      "source": "storey_height_status.csv",
+      "note": "Corretta da utente 2026-08-16"
+    },
+    {
+      "id": "EV-G03",
+      "scope": "topologia",
+      "description": "57 nodi topologici TAV.5 con X/Y",
+      "status": "PREDOC_TOPOLOGICO",
+      "source": "ABACO_TOPOLOGICO_TAV5_v11.csv",
+      "note": "Sottoinsieme topologico storico, NON universo geometrico completo. Riferimenti a ID > N057 noti"
+    },
+    {
+      "id": "EV-G04",
+      "scope": "connettività",
+      "description": "141 connessioni candidate TAV.5",
+      "status": "INF_DA_QUOTARE",
+      "source": "REGISTRO_CONNessioni_TAV5_v07.csv",
+      "note": "Non verificabili come travi strutturali"
+    },
+    {
+      "id": "EV-G05",
+      "scope": "allineamento",
+      "description": "T5 ↔ TAV.5: HYP_A_METRICA",
+      "status": "INF",
+      "source": "telaio5_tav5_candidate_matrix_v1.csv",
+      "note": "Non verificato senza overlay"
+    },
+    {
+      "id": "EV-G06",
+      "scope": "fondazioni",
+      "description": "7 catene / 26 segmenti",
+      "status": "DOC-ARTEFATTO",
+      "source": "consolidato fondazioni",
+      "note": "Ricostruzione parziale"
+    },
+    {
+      "id": "EV-T01",
+      "scope": "T1 percorso",
+      "description": "I-L-M-N-O-P-Q-R, 7 campate",
+      "status": "DOC",
+      "source": "relazione di calcolo / consolidato v12",
+      "note": ""
+    },
+    {
+      "id": "EV-T02",
+      "scope": "T1 campate",
+      "description": "4.70/5.10/3.25/2.40/2.90/5.30/4.70 m",
+      "status": "DOC",
+      "source": "relazione di calcolo / v12",
+      "note": ""
+    },
+    {
+      "id": "EV-T03",
+      "scope": "T1 G5",
+      "description": "C2-C6",
+      "status": "DOC",
+      "source": "relazione di calcolo / v12",
+      "note": ""
+    },
+    {
+      "id": "EV-T04",
+      "scope": "T5 percorso",
+      "description": "S-S'-T-U-V-Z-A'-B'-C', 8 campate",
+      "status": "DOC",
+      "source": "relazione di calcolo / v17",
+      "note": ""
+    },
+    {
+      "id": "EV-T05",
+      "scope": "T5 campate",
+      "description": "4.70/4.05/1.20/5.80/2.90/1.20/4.05/4.70 m",
+      "status": "DOC",
+      "source": "relazione di calcolo / v17",
+      "note": ""
+    },
+    {
+      "id": "EV-T06",
+      "scope": "T5 G5",
+      "description": "C2-C7 = 19.20 m",
+      "status": "DOC",
+      "source": "relazione di calcolo / v17",
+      "note": ""
+    },
+    {
+      "id": "EV-T07",
+      "scope": "T5 livelli",
+      "description": "G1-G4: C1-C8 (28.60 m), G5: C2-C7 (19.20 m)",
+      "status": "DOC",
+      "source": "telaio_5.csv",
+      "note": "Sezioni 25×70+140×20 per C3-C5"
+    },
+    {
+      "id": "EV-S01",
+      "scope": "travi",
+      "description": "20×45, 25×70, 30×45, 30×65, 120×20, 140×20 cm",
+      "status": "DOC",
+      "source": "relazione / consolidati",
+      "note": "Sezioni note"
+    },
+    {
+      "id": "EV-S02",
+      "scope": "T1 G2",
+      "description": "Sezione non congelata",
+      "status": "ND",
+      "source": "stato M0 v18",
+      "note": ""
+    },
+    {
+      "id": "EV-S03",
+      "scope": "T5 G5",
+      "description": "Sezione 20×45",
+      "status": "DOC",
+      "source": "relazione_calcolo_v17",
+      "note": ""
+    },
+    {
+      "id": "EV-S04",
+      "scope": "T5 G1-G4",
+      "description": "Sezione 25×70 + 140×20 per C3-C5",
+      "status": "DOC",
+      "source": "RC-P13_v16",
+      "note": ""
+    },
+    {
+      "id": "EV-S05",
+      "scope": "pilastri corpo",
+      "description": "Famiglie 40×50 e 40×40",
+      "status": "DOC-famiglia",
+      "source": "relazione di calcolo",
+      "note": "Non assegnate a catene"
+    },
+    {
+      "id": "EV-S06",
+      "scope": "torrino",
+      "description": "Pilastri 30×40",
+      "status": "DOC-famiglia",
+      "source": "relazione di calcolo",
+      "note": "Non assegnate a catene"
+    },
+    {
+      "id": "EV-M01",
+      "scope": "materiali",
+      "description": "Calcestruzzo / acciaio",
+      "status": "ND",
+      "source": "—",
+      "note": "Da documentare/indagare"
+    },
+    {
+      "id": "EV-M02",
+      "scope": "conoscenza",
+      "description": "LC / FC",
+      "status": "ND",
+      "source": "—",
+      "note": "Da definire sul quadro conoscitivo"
+    },
+    {
+      "id": "EV-L01",
+      "scope": "T5 carichi storici",
+      "description": "Carichi lineari G1-G3",
+      "status": "DOC-STORICO",
+      "source": "RC-P13 / v16",
+      "note": "Dati storici, non normativi"
+    },
+    {
+      "id": "EV-P01",
+      "scope": "abaco",
+      "description": "27×5 = 135 posizioni",
+      "status": "DOC-ARTEFATTO",
+      "source": "MATRICE_PILASTRI_27x5_v22.csv",
+      "note": "Matrice storica: 27 catene × 5 ordini. Continuità verticale disponibile, assegnazione sezioni NON completa"
+    },
+    {
+      "id": "EV-P02",
+      "scope": "fili fissi",
+      "description": "Coppia asse_X_geom + asse_Y_geom",
+      "status": "VER",
+      "source": "decisione M0G_FILI_FISSI_v1",
+      "note": "Riferimento geometrico verificato"
+    },
+    {
+      "id": "EV-P03",
+      "scope": "sezione puntuale",
+      "description": "Per catena e livello",
+      "status": "ND",
+      "source": "—",
+      "note": "Da TAV.7 dopo univocità"
+    },
+    {
+      "id": "EV-F01",
+      "scope": "M0-OS-0002",
+      "description": "135 nodi, 108 colonne, 38 travi T5",
+      "status": "PLACEHOLDER",
+      "source": "opensees_m0_geometry.py",
+      "note": "Geometrico, non di verifica. I 135 nodi FEM = 27 catene × 5 livelli: NON coincidono con i 57 nodi topologici TAV.5 (EV-G03)"
+    },
+    {
+      "id": "EV-F02",
+      "scope": "sezioni FEM",
+      "description": "Col 40×40, Beam T5: 20×45/25×70/140×20",
+      "status": "PLACEHOLDER_GEOMETRY_ONLY",
+      "source": "fem_section_placeholders.csv",
+      "note": "Materiali placeholder"
+    },
+    {
+      "id": "EV-F03",
+      "scope": "vincoli",
+      "description": "Base incastrata",
+      "status": "PLACEHOLDER",
+      "source": "opensees_m0_geometry.py",
+      "note": "Prova geometrica"
+    }
   ],
   "artifacts": [
-    { "id": "AP-00", "name": "Protocollo canonico", "path": "docs/PROTOCOLLO_CANONICO.md", "status": "ATTIVO", "provenance": "main", "front": "F0", "evidenceIds": [] },
-    { "id": "AP-01", "name": "Registro Master", "path": "docs/REGISTRO_MASTER.md", "status": "RM-0005", "provenance": "main→M0-G", "front": "F1/F2", "evidenceIds": [] },
-    { "id": "AP-02", "name": "Stato di ripresa", "path": "docs/STATO_RIPRESA.md", "status": "2026-08-16", "provenance": "M0-G", "front": "F0/F2", "evidenceIds": [] },
-    { "id": "AP-03", "name": "AGENTS.md", "path": "AGENTS.md", "status": "v1", "provenance": "R1-A", "front": "—", "evidenceIds": [] },
-    { "id": "AP-04", "name": "Fascicolo R1-A", "path": "docs/FOGLIO_LAVORO/FASCICOLO_R1A.md", "status": "R1-A-0002", "provenance": "R1-B", "front": "—", "evidenceIds": [] },
-    { "id": "AP-05", "name": "Registro Evidenze", "path": "docs/FOGLIO_LAVORO/REGISTRO_EVIDENZE.md", "status": "RE-0001", "provenance": "R1-A", "front": "—", "evidenceIds": [] },
-    { "id": "AP-06", "name": "Matrice Artefatti", "path": "docs/FOGLIO_LAVORO/MATRICE_ARTEFATTI.md", "status": "MA-0002", "provenance": "R1-B", "front": "—", "evidenceIds": [] },
-    { "id": "AP-07", "name": "Checklist Integrità", "path": "docs/FOGLIO_LAVORO/CHECKLIST_INTEGRITA_FONTE.md", "status": "CI-0001", "provenance": "R1-B", "front": "F1", "evidenceIds": [] },
-    { "id": "AP-08", "name": "Traceability", "path": "docs/FOGLIO_LAVORO/TRACEABILITY.md", "status": "TR-0001", "provenance": "R1-B", "front": "—", "evidenceIds": [] },
-    { "id": "AP-09", "name": "Residui", "path": "docs/FOGLIO_LAVORO/RESIDUI.md", "status": "RS-0001", "provenance": "R1-B", "front": "—", "evidenceIds": [] },
-    { "id": "AP-10", "name": "Gate Report R1-A", "path": "docs/FOGLIO_LAVORO/GATE_REPORT_R1A.md", "status": "GR-0001", "provenance": "R1-B", "front": "—", "evidenceIds": [] },
-    { "id": "AD-00", "name": "Nodi 27 catene", "path": "data/canonical/nodes.csv", "status": "VER_GEOMETRIC", "provenance": "M0-G", "front": "F2/F3", "evidenceIds": ["EV-G01", "EV-P02"] },
-    { "id": "AD-01", "name": "Fili fissi pilastri", "path": "data/canonical/column_fixed_lines.csv", "status": "VER", "provenance": "M0-G", "front": "F2", "evidenceIds": ["EV-P02"] },
-    { "id": "AD-02", "name": "Altezza interpiano", "path": "data/canonical/storey_height_status.csv", "status": "RIF", "provenance": "M0-G", "front": "F2/F3", "evidenceIds": ["EV-G02"] },
-    { "id": "AD-03", "name": "Telaio 5 geometria", "path": "data/canonical/telaio_5.csv", "status": "DOC", "provenance": "main→M0-G", "front": "F2/F3", "evidenceIds": ["EV-T07"] },
-    { "id": "AD-04", "name": "T5 candidati", "path": "data/canonical/telaio5_tav5_candidate_matrix_v1.csv", "status": "INF", "provenance": "M0-G", "front": "F3", "evidenceIds": ["EV-G05"] },
-    { "id": "AD-05", "name": "Topologia 57 nodi", "path": "data/canonical/tav5_topology_nodes_57.csv", "status": "PREDOC_TOPOLOGICO", "provenance": "M0-G", "front": "F2/F3", "evidenceIds": ["EV-G03"] },
-    { "id": "AD-06", "name": "141 connessioni", "path": "data/canonical/tav5_topology_connections_v07.csv", "status": "INF_DA_QUOTARE", "provenance": "M0-G", "front": "F2/F3", "evidenceIds": ["EV-G04"] },
-    { "id": "AD-07", "name": "Assegnazione pilastri", "path": "data/canonical/pillar_section_assignment_status.csv", "status": "ND", "provenance": "M0-G", "front": "F4", "evidenceIds": ["EV-P03"] },
-    { "id": "AD-08", "name": "Sezioni FEM placeholder", "path": "data/canonical/fem_section_placeholders.csv", "status": "PLACEHOLDER_GEOMETRY_ONLY", "provenance": "M0-G", "front": "F3", "evidenceIds": ["EV-F02"] },
-    { "id": "AD-09", "name": "Stato topologia M0G", "path": "data/canonical/m0g_topology_status.csv", "status": "VER/INF", "provenance": "M0-G", "front": "F3", "evidenceIds": ["EV-G01", "EV-G03", "EV-G04"] },
-    { "id": "AD-10", "name": "Raccordo T5 57 nodi", "path": "data/canonical/telaio5_raccordo_57_nodi_status.csv", "status": "IN_ALLINEAMENTO", "provenance": "M0-G", "front": "F3", "evidenceIds": ["EV-G05"] },
-    { "id": "AZ-00", "name": "Allineamento T5 ↔ TAV.5", "path": "docs/DECISIONI/M0G_ALLINEAMENTO_TELAIO5_TAV5_v1.md", "status": "IN ALLINEAMENTO", "provenance": "M0-G", "front": "F3", "evidenceIds": ["EV-G05"] },
-    { "id": "AZ-01", "name": "Correzione altezza", "path": "docs/DECISIONI/M0G_CORREZIONE_ALTEZZA_INTERPIANO_320_v1.md", "status": "CHIUSO", "provenance": "M0-G", "front": "F2/F3", "evidenceIds": ["EV-G02"] },
-    { "id": "AZ-02", "name": "Fili fissi", "path": "docs/DECISIONI/M0G_FILI_FISSI_v1.md", "status": "DOC", "provenance": "M0-G", "front": "F2", "evidenceIds": ["EV-P02"] },
-    { "id": "AZ-03", "name": "Raccordo T5 57 nodi", "path": "docs/DECISIONI/M0G_RACCORDO_TELAIO5_57_NODI_v1.md", "status": "BLOCCATO_PARZIALE", "provenance": "M0-G", "front": "F3", "evidenceIds": ["EV-G05"] },
-    { "id": "AZ-04", "name": "Recupero abaco 57 nodi", "path": "docs/DECISIONI/M0G_RECUPERO_ABACO_57_NODI_v1.md", "status": "RECUPERATO", "provenance": "M0-G", "front": "F2/F3", "evidenceIds": ["EV-G03"] },
-    { "id": "AZ-05", "name": "Pilastri TAV.7 gate", "path": "docs/DECISIONI/M0S_PILASTRI_TAV7_GATE_v1.md", "status": "IN CORSO", "provenance": "M0-G", "front": "F4", "evidenceIds": ["EV-P03"] },
-    { "id": "AM-00", "name": "Geometria OpenSeesPy", "path": "model/open_source_fem/opensees_m0_geometry.py", "status": "M0-OS-0002", "provenance": "M0-G", "front": "F3", "evidenceIds": ["EV-F01", "EV-F03"] },
-    { "id": "AM-01", "name": "Requirements FEM", "path": "model/open_source_fem/requirements.txt", "status": "OK", "provenance": "M0-G", "front": "F3", "evidenceIds": [] },
-    { "id": "AM-02", "name": "README FEM", "path": "model/open_source_fem/README.md", "status": "DOC", "provenance": "M0-G", "front": "F3", "evidenceIds": [] },
-    { "id": "AM-03", "name": "STATUS M0-G", "path": "model/M0-G/STATUS.md", "status": "IN CORSO", "provenance": "M0-G", "front": "F3", "evidenceIds": [] },
-    { "id": "AT-00", "name": "Tavole strutturali master", "path": "docs/TAVOLE/TAVOLE_STRUTTURALI_MASTER_v1.md", "status": "TAV-MASTER-0001", "provenance": "M0-G", "front": "F1", "evidenceIds": [] },
-    { "id": "AT-01", "name": "Cartiglio unico", "path": "docs/TAVOLE/CARTIGLIO_UNICO_v1.md", "status": "DOC", "provenance": "M0-G", "front": "F12", "evidenceIds": [] },
-    { "id": "AT-02", "name": "Piano editoriale", "path": "docs/PIANO_EDITORIALE_TAVOLE_CARTIGLIO_COPERTINA.md", "status": "DOC", "provenance": "M0-G", "front": "F12", "evidenceIds": [] }
+    {
+      "id": "AP-00",
+      "name": "Protocollo canonico",
+      "path": "docs/PROTOCOLLO_CANONICO.md",
+      "status": "ATTIVO",
+      "provenance": "main",
+      "front": "F0",
+      "evidenceIds": []
+    },
+    {
+      "id": "AP-01",
+      "name": "Registro Master",
+      "path": "docs/REGISTRO_MASTER.md",
+      "status": "RM-0005",
+      "provenance": "main→M0-G",
+      "front": "F1/F2",
+      "evidenceIds": []
+    },
+    {
+      "id": "AP-02",
+      "name": "Stato di ripresa",
+      "path": "docs/STATO_RIPRESA.md",
+      "status": "2026-08-16",
+      "provenance": "M0-G",
+      "front": "F0/F2",
+      "evidenceIds": []
+    },
+    {
+      "id": "AP-03",
+      "name": "AGENTS.md",
+      "path": "AGENTS.md",
+      "status": "v1",
+      "provenance": "R1-A",
+      "front": "—",
+      "evidenceIds": []
+    },
+    {
+      "id": "AP-04",
+      "name": "Fascicolo R1-A",
+      "path": "docs/FOGLIO_LAVORO/FASCICOLO_R1A.md",
+      "status": "R1-A-0002",
+      "provenance": "R1-B",
+      "front": "—",
+      "evidenceIds": []
+    },
+    {
+      "id": "AP-05",
+      "name": "Registro Evidenze",
+      "path": "docs/FOGLIO_LAVORO/REGISTRO_EVIDENZE.md",
+      "status": "RE-0001",
+      "provenance": "R1-A",
+      "front": "—",
+      "evidenceIds": []
+    },
+    {
+      "id": "AP-06",
+      "name": "Matrice Artefatti",
+      "path": "docs/FOGLIO_LAVORO/MATRICE_ARTEFATTI.md",
+      "status": "MA-0002",
+      "provenance": "R1-B",
+      "front": "—",
+      "evidenceIds": []
+    },
+    {
+      "id": "AP-07",
+      "name": "Checklist Integrità",
+      "path": "docs/FOGLIO_LAVORO/CHECKLIST_INTEGRITA_FONTE.md",
+      "status": "CI-0001",
+      "provenance": "R1-B",
+      "front": "F1",
+      "evidenceIds": []
+    },
+    {
+      "id": "AP-08",
+      "name": "Traceability",
+      "path": "docs/FOGLIO_LAVORO/TRACEABILITY.md",
+      "status": "TR-0001",
+      "provenance": "R1-B",
+      "front": "—",
+      "evidenceIds": []
+    },
+    {
+      "id": "AP-09",
+      "name": "Residui",
+      "path": "docs/FOGLIO_LAVORO/RESIDUI.md",
+      "status": "RS-0001",
+      "provenance": "R1-B",
+      "front": "—",
+      "evidenceIds": []
+    },
+    {
+      "id": "AP-10",
+      "name": "Gate Report R1-A",
+      "path": "docs/FOGLIO_LAVORO/GATE_REPORT_R1A.md",
+      "status": "GR-0001",
+      "provenance": "R1-B",
+      "front": "—",
+      "evidenceIds": []
+    },
+    {
+      "id": "AF-00",
+      "name": "Catalogo tavole originali",
+      "path": "docs/CATALOGO_TAVOLE_ORIGINALI.md",
+      "status": "DOC",
+      "provenance": "M0-G",
+      "front": "F1",
+      "evidenceIds": []
+    },
+    {
+      "id": "AF-01",
+      "name": "Manifest tavole",
+      "path": "data/canonical/tavole_originali_manifest.csv",
+      "status": "DOC",
+      "provenance": "M0-G",
+      "front": "F1",
+      "evidenceIds": []
+    },
+    {
+      "id": "AF-02",
+      "name": "Inventario artefatti storici",
+      "path": "archive/ARTEFATTI_STORICI.md",
+      "status": "DOC",
+      "provenance": "main→M0-G",
+      "front": "F1",
+      "evidenceIds": []
+    },
+    {
+      "id": "AD-00",
+      "name": "Nodi 27 catene",
+      "path": "data/canonical/nodes.csv",
+      "status": "VER_GEOMETRIC",
+      "provenance": "M0-G",
+      "front": "F2/F3",
+      "evidenceIds": [
+        "EV-G01",
+        "EV-P02"
+      ]
+    },
+    {
+      "id": "AD-01",
+      "name": "Fili fissi pilastri",
+      "path": "data/canonical/column_fixed_lines.csv",
+      "status": "VER",
+      "provenance": "M0-G",
+      "front": "F2",
+      "evidenceIds": [
+        "EV-P02"
+      ]
+    },
+    {
+      "id": "AD-02",
+      "name": "Altezza interpiano",
+      "path": "data/canonical/storey_height_status.csv",
+      "status": "RIF",
+      "provenance": "M0-G",
+      "front": "F2/F3",
+      "evidenceIds": [
+        "EV-G02"
+      ]
+    },
+    {
+      "id": "AD-03",
+      "name": "Telaio 5 geometria",
+      "path": "data/canonical/telaio_5.csv",
+      "status": "DOC",
+      "provenance": "main→M0-G",
+      "front": "F2/F3",
+      "evidenceIds": [
+        "EV-T07"
+      ]
+    },
+    {
+      "id": "AD-04",
+      "name": "T5 candidati",
+      "path": "data/canonical/telaio5_tav5_candidate_matrix_v1.csv",
+      "status": "INF",
+      "provenance": "M0-G",
+      "front": "F3",
+      "evidenceIds": [
+        "EV-G05"
+      ]
+    },
+    {
+      "id": "AD-05",
+      "name": "Topologia 57 nodi",
+      "path": "data/canonical/tav5_topology_nodes_57.csv",
+      "status": "PREDOC_TOPOLOGICO",
+      "provenance": "M0-G",
+      "front": "F2/F3",
+      "evidenceIds": [
+        "EV-G03"
+      ]
+    },
+    {
+      "id": "AD-06",
+      "name": "141 connessioni",
+      "path": "data/canonical/tav5_topology_connections_v07.csv",
+      "status": "INF_DA_QUOTARE",
+      "provenance": "M0-G",
+      "front": "F2/F3",
+      "evidenceIds": [
+        "EV-G04"
+      ]
+    },
+    {
+      "id": "AD-07",
+      "name": "Assegnazione pilastri",
+      "path": "data/canonical/pillar_section_assignment_status.csv",
+      "status": "ND",
+      "provenance": "M0-G",
+      "front": "F4",
+      "evidenceIds": [
+        "EV-P03"
+      ]
+    },
+    {
+      "id": "AD-08",
+      "name": "Sezioni FEM placeholder",
+      "path": "data/canonical/fem_section_placeholders.csv",
+      "status": "PLACEHOLDER_GEOMETRY_ONLY",
+      "provenance": "M0-G",
+      "front": "F3",
+      "evidenceIds": [
+        "EV-F02"
+      ]
+    },
+    {
+      "id": "AD-09",
+      "name": "Stato topologia M0G",
+      "path": "data/canonical/m0g_topology_status.csv",
+      "status": "VER/INF",
+      "provenance": "M0-G",
+      "front": "F3",
+      "evidenceIds": [
+        "EV-G01"
+      ]
+    },
+    {
+      "id": "AD-10",
+      "name": "Raccordo T5 57 nodi",
+      "path": "data/canonical/telaio5_raccordo_57_nodi_status.csv",
+      "status": "IN_ALLINEAMENTO",
+      "provenance": "M0-G",
+      "front": "F3",
+      "evidenceIds": [
+        "EV-G05"
+      ]
+    },
+    {
+      "id": "AD-11",
+      "name": "Telaio 5 (originale)",
+      "path": "data/canonical/telaio_5.csv",
+      "status": "DOC",
+      "provenance": "main",
+      "front": "F2/F3",
+      "evidenceIds": [
+        "EV-T07"
+      ]
+    },
+    {
+      "id": "AZ-00",
+      "name": "Allineamento T5 ↔ TAV.5",
+      "path": "docs/DECISIONI/M0G_ALLINEAMENTO_TELAIO5_TAV5_v1.md",
+      "status": "IN ALLINEAMENTO",
+      "provenance": "M0-G",
+      "front": "F3",
+      "evidenceIds": [
+        "EV-G05"
+      ]
+    },
+    {
+      "id": "AZ-01",
+      "name": "Correzione altezza",
+      "path": "docs/DECISIONI/M0G_CORREZIONE_ALTEZZA_INTERPIANO_320_v1.md",
+      "status": "CHIUSO",
+      "provenance": "M0-G",
+      "front": "F2/F3",
+      "evidenceIds": [
+        "EV-G02"
+      ]
+    },
+    {
+      "id": "AZ-02",
+      "name": "Fili fissi",
+      "path": "docs/DECISIONI/M0G_FILI_FISSI_v1.md",
+      "status": "DOC",
+      "provenance": "M0-G",
+      "front": "F2",
+      "evidenceIds": [
+        "EV-P02"
+      ]
+    },
+    {
+      "id": "AZ-03",
+      "name": "Raccordo T5 57 nodi",
+      "path": "docs/DECISIONI/M0G_RACCORDO_TELAIO5_57_NODI_v1.md",
+      "status": "BLOCCATO_PARZIALE",
+      "provenance": "M0-G",
+      "front": "F3",
+      "evidenceIds": [
+        "EV-G05"
+      ]
+    },
+    {
+      "id": "AZ-04",
+      "name": "Recupero abaco 57 nodi",
+      "path": "docs/DECISIONI/M0G_RECUPERO_ABACO_57_NODI_v1.md",
+      "status": "RECUPERATO",
+      "provenance": "M0-G",
+      "front": "F2/F3",
+      "evidenceIds": [
+        "EV-G03"
+      ]
+    },
+    {
+      "id": "AZ-05",
+      "name": "Pilastri TAV.7 gate",
+      "path": "docs/DECISIONI/M0S_PILASTRI_TAV7_GATE_v1.md",
+      "status": "IN CORSO",
+      "provenance": "M0-G",
+      "front": "F4",
+      "evidenceIds": [
+        "EV-P03"
+      ]
+    },
+    {
+      "id": "AM-00",
+      "name": "Geometria OpenSeesPy",
+      "path": "model/open_source_fem/opensees_m0_geometry.py",
+      "status": "M0-OS-0002",
+      "provenance": "M0-G",
+      "front": "F3",
+      "evidenceIds": [
+        "EV-F01"
+      ]
+    },
+    {
+      "id": "AM-01",
+      "name": "Requirements FEM",
+      "path": "model/open_source_fem/requirements.txt",
+      "status": "OK",
+      "provenance": "M0-G",
+      "front": "F3",
+      "evidenceIds": []
+    },
+    {
+      "id": "AM-02",
+      "name": "README FEM",
+      "path": "model/open_source_fem/README.md",
+      "status": "DOC",
+      "provenance": "M0-G",
+      "front": "F3",
+      "evidenceIds": []
+    },
+    {
+      "id": "AM-03",
+      "name": "STATUS M0-G",
+      "path": "model/M0-G/STATUS.md",
+      "status": "IN CORSO",
+      "provenance": "M0-G",
+      "front": "F3",
+      "evidenceIds": []
+    },
+    {
+      "id": "AM-04",
+      "name": "Exports README",
+      "path": "model/open_source_fem/exports/README.md",
+      "status": "PLACEHOLDER",
+      "provenance": "M0-G",
+      "front": "F3",
+      "evidenceIds": []
+    },
+    {
+      "id": "AT-00",
+      "name": "Tavole strutturali master",
+      "path": "docs/TAVOLE/TAVOLE_STRUTTURALI_MASTER_v1.md",
+      "status": "TAV-MASTER-0001",
+      "provenance": "M0-G",
+      "front": "F1",
+      "evidenceIds": []
+    },
+    {
+      "id": "AT-01",
+      "name": "Cartiglio unico",
+      "path": "docs/TAVOLE/CARTIGLIO_UNICO_v1.md",
+      "status": "DOC",
+      "provenance": "M0-G",
+      "front": "F12",
+      "evidenceIds": []
+    },
+    {
+      "id": "AT-02",
+      "name": "Piano editoriale",
+      "path": "docs/PIANO_EDITORIALE_TAVOLE_CARTIGLIO_COPERTINA.md",
+      "status": "DOC",
+      "provenance": "M0-G",
+      "front": "F12",
+      "evidenceIds": []
+    },
+    {
+      "id": "FF-00",
+      "name": "F0 Progetto",
+      "path": "docs/FOGLIO_LAVORO/fronti/F0_PROGETTO.md",
+      "status": "PARTIAL",
+      "provenance": "R1-A",
+      "front": "F0",
+      "evidenceIds": [
+        "EV-G01"
+      ]
+    },
+    {
+      "id": "FF-01",
+      "name": "F1 Fonti",
+      "path": "docs/FOGLIO_LAVORO/fronti/F1_FONDI.md",
+      "status": "ADVANCING",
+      "provenance": "R1-A",
+      "front": "F1",
+      "evidenceIds": []
+    },
+    {
+      "id": "FF-02",
+      "name": "F2 Stato di fatto",
+      "path": "docs/FOGLIO_LAVORO/fronti/F2_STATO_FATTO.md",
+      "status": "ADVANCING",
+      "provenance": "R1-A",
+      "front": "F2",
+      "evidenceIds": []
+    },
+    {
+      "id": "FF-03",
+      "name": "F3 Modello globale",
+      "path": "docs/FOGLIO_LAVORO/fronti/F3_MODELLO_GLOBALE.md",
+      "status": "IN CORSO",
+      "provenance": "R1-A",
+      "front": "F3",
+      "evidenceIds": []
+    },
+    {
+      "id": "FF-04",
+      "name": "F4 Sezioni/armature",
+      "path": "docs/FOGLIO_LAVORO/fronti/F4_SEZIONI_ARMATURE.md",
+      "status": "NOT STARTED",
+      "provenance": "R1-A",
+      "front": "F4",
+      "evidenceIds": [
+        "EV-P03"
+      ]
+    },
+    {
+      "id": "FF-05",
+      "name": "F5 Materiali/carichi",
+      "path": "docs/FOGLIO_LAVORO/fronti/F5_MATERIALI_CARICHI.md",
+      "status": "NOT STARTED",
+      "provenance": "R1-A",
+      "front": "F5",
+      "evidenceIds": []
+    },
+    {
+      "id": "FF-06",
+      "name": "F6 Diagnosi",
+      "path": "docs/FOGLIO_LAVORO/fronti/F6_DIAGNOSI.md",
+      "status": "BLOCKED",
+      "provenance": "R1-A",
+      "front": "F6",
+      "evidenceIds": []
+    },
+    {
+      "id": "FF-07",
+      "name": "F7 Interventi",
+      "path": "docs/FOGLIO_LAVORO/fronti/F7_INTERVENTI.md",
+      "status": "BLOCKED",
+      "provenance": "R1-A",
+      "front": "F7",
+      "evidenceIds": []
+    },
+    {
+      "id": "FF-08",
+      "name": "F8 Verifica",
+      "path": "docs/FOGLIO_LAVORO/fronti/F8_VERIFICA.md",
+      "status": "BLOCKED",
+      "provenance": "R1-A",
+      "front": "F8",
+      "evidenceIds": []
+    },
+    {
+      "id": "FF-09",
+      "name": "F9 Progettazione",
+      "path": "docs/FOGLIO_LAVORO/fronti/F9_PROGETTAZIONE.md",
+      "status": "BLOCKED",
+      "provenance": "R1-A",
+      "front": "F9",
+      "evidenceIds": []
+    },
+    {
+      "id": "FF-10",
+      "name": "F10 Esecuzione",
+      "path": "docs/FOGLIO_LAVORO/fronti/F10_ESECUZIONE.md",
+      "status": "N/A",
+      "provenance": "R1-A",
+      "front": "F10",
+      "evidenceIds": []
+    },
+    {
+      "id": "FF-11",
+      "name": "F11 Post operam",
+      "path": "docs/FOGLIO_LAVORO/fronti/F11_POST_OPERAM.md",
+      "status": "N/A",
+      "provenance": "R1-A",
+      "front": "F11",
+      "evidenceIds": []
+    },
+    {
+      "id": "FF-12",
+      "name": "F12 Fascicolo",
+      "path": "docs/FOGLIO_LAVORO/fronti/F12_FASCICOLO.md",
+      "status": "BLOCKED",
+      "provenance": "R1-A",
+      "front": "F12",
+      "evidenceIds": []
+    }
   ],
   "residuals": [
-    { "id": "R-1A-01", "type": "BLOCCANTE", "front": "F3", "description": "Raccordo 57 nodi topologici a coordinate canoniche", "state": "BLOCCATO", "evidenceIds": ["EV-G03", "EV-G04"], "dependencies": ["ABACO_TOPOLOGICO_TAV5_v11.csv verificato"] },
-    { "id": "R-1A-02", "type": "BLOCCANTE", "front": "F3", "description": "Quote Z definitive per tutti i livelli", "state": "APERTO", "evidenceIds": [], "dependencies": ["Sezioni/prospetti/tavole originali"] },
-    { "id": "R-1A-03", "type": "BLOCCANTE", "front": "F3", "description": "Connettività globale per impalcato", "state": "BLOCCATO", "evidenceIds": ["EV-G04"], "dependencies": ["R-1A-01"] },
-    { "id": "R-1A-04", "type": "BLOCCANTE", "front": "F3", "description": "Sagome/arretramenti impalcati", "state": "APERTO", "evidenceIds": [], "dependencies": ["Tavole architettoniche"] },
-    { "id": "R-1A-05", "type": "BLOCCANTE", "front": "F3", "description": "Raccordo geometrico fondazioni", "state": "BLOCCATO", "evidenceIds": ["EV-G06"], "dependencies": ["R-1A-01", "R-1A-03"] },
-    { "id": "R-1A-06", "type": "BLOCCANTE", "front": "F4", "description": "Sezioni puntuali pilastri per catena e livello", "state": "BLOCCATO", "evidenceIds": ["EV-S05", "EV-S06", "EV-P03"], "dependencies": ["TAV.7 estratto e verificato"] },
-    { "id": "R-1A-07", "type": "BLOCCANTE", "front": "F5", "description": "Materiali calcestruzzo/acciaio", "state": "APERTO", "evidenceIds": ["EV-M01"], "dependencies": ["Indagini o documentazione"] },
-    { "id": "R-1A-08", "type": "BLOCCANTE", "front": "F5", "description": "Livello di conoscenza LC/FC", "state": "APERTO", "evidenceIds": ["EV-M02"], "dependencies": ["Quadro conoscitivo"] },
-    { "id": "R-1A-09", "type": "RISCHIO", "front": "F3", "description": "Allineamento T5 ↔ TAV.5 non verificato", "state": "APERTO", "evidenceIds": ["EV-G05"], "dependencies": ["Overlay documentale TAV.5"] },
-    { "id": "R-1A-10", "type": "RISCHIO", "front": "F2", "description": "Topologia 57 nodi: riferimenti a ID > N057", "state": "APERTO", "evidenceIds": ["EV-G03"], "dependencies": ["Verifica completezza abaco"] },
-    { "id": "R-1B-01", "type": "CONFORMITA", "front": "F1", "description": "BOM mancante in tutti i CSV canonici", "state": "APERTO", "evidenceIds": [], "dependencies": [] },
-    { "id": "R-1B-02", "type": "CONFORMITA", "front": "F1", "description": "9/12 CSV mancano colonna source/provenienza", "state": "APERTO", "evidenceIds": [], "dependencies": [] },
-    { "id": "R-1B-03", "type": "CONFORMITA", "front": "F1", "description": "Nomi colonne stato non standardizzati", "state": "APERTO", "evidenceIds": [], "dependencies": [] },
-    { "id": "R-1B-04", "type": "CONFORMITA", "front": "F1", "description": "2 CSV usano delimiter ;", "state": "APERTO", "evidenceIds": [], "dependencies": [] }
+    {
+      "id": "R-1A-01",
+      "type": "BLOCCANTE",
+      "front": "F3",
+      "description": "Raccordo 57 nodi topologici a coordinate canoniche",
+      "state": "BLOCCATO",
+      "evidenceIds": [
+        "EV-G03",
+        "EV-G04"
+      ],
+      "dependencies": [
+        "ABACO_TOPOLOGICO_TAV5_v11.csv verificato"
+      ]
+    },
+    {
+      "id": "R-1A-02",
+      "type": "BLOCCANTE",
+      "front": "F3",
+      "description": "Quote Z definitive per tutti i livelli",
+      "state": "APERTO",
+      "evidenceIds": [],
+      "dependencies": [
+        "Sezioni/prospetti/tavole originali"
+      ]
+    },
+    {
+      "id": "R-1A-03",
+      "type": "BLOCCANTE",
+      "front": "F3",
+      "description": "Connettività globale per impalcato",
+      "state": "BLOCCATO",
+      "evidenceIds": [
+        "EV-G04"
+      ],
+      "dependencies": [
+        "R-1A-01"
+      ]
+    },
+    {
+      "id": "R-1A-04",
+      "type": "BLOCCANTE",
+      "front": "F3",
+      "description": "Sagome/arretramenti impalcati",
+      "state": "APERTO",
+      "evidenceIds": [],
+      "dependencies": [
+        "Tavole architettoniche"
+      ]
+    },
+    {
+      "id": "R-1A-05",
+      "type": "BLOCCANTE",
+      "front": "F3",
+      "description": "Raccordo geometrico fondazioni",
+      "state": "BLOCCATO",
+      "evidenceIds": [
+        "EV-G06"
+      ],
+      "dependencies": [
+        "R-1A-01",
+        "R-1A-03"
+      ]
+    },
+    {
+      "id": "R-1A-06",
+      "type": "BLOCCANTE",
+      "front": "F4",
+      "description": "Sezioni puntuali pilastri 40×50/40×40/30×40 per catena e livello",
+      "state": "BLOCCATO",
+      "evidenceIds": [
+        "EV-S05",
+        "EV-S06",
+        "EV-P03"
+      ],
+      "dependencies": [
+        "TAV.7 estratto e verificato"
+      ]
+    },
+    {
+      "id": "R-1A-07",
+      "type": "BLOCCANTE",
+      "front": "F5",
+      "description": "Materiali calcestruzzo/acciaio",
+      "state": "APERTO",
+      "evidenceIds": [
+        "EV-M01"
+      ],
+      "dependencies": [
+        "Indagini o documentazione"
+      ]
+    },
+    {
+      "id": "R-1A-08",
+      "type": "BLOCCANTE",
+      "front": "F5",
+      "description": "Livello di conoscenza LC/FC",
+      "state": "APERTO",
+      "evidenceIds": [
+        "EV-M02"
+      ],
+      "dependencies": [
+        "Quadro conoscitivo"
+      ]
+    },
+    {
+      "id": "R-1A-09",
+      "type": "RISCHIO",
+      "front": "F3",
+      "description": "Allineamento T5 ↔ TAV.5 non verificato",
+      "state": "APERTO",
+      "evidenceIds": [
+        "EV-G05"
+      ],
+      "dependencies": [
+        "Overlay documentale TAV.5"
+      ]
+    },
+    {
+      "id": "R-1A-10",
+      "type": "RISCHIO",
+      "front": "F2",
+      "description": "Topologia 57 nodi: riferimenti a ID > N057",
+      "state": "APERTO",
+      "evidenceIds": [
+        "EV-G03"
+      ],
+      "dependencies": [
+        "Verifica completezza abaco"
+      ]
+    },
+    {
+      "id": "R-1A-11",
+      "type": "OPERATIVO",
+      "front": "—",
+      "description": "PR Draft creata",
+      "state": "CHIUSO",
+      "evidenceIds": [],
+      "dependencies": []
+    },
+    {
+      "id": "R-1A-12",
+      "type": "OPERATIVO",
+      "front": "—",
+      "description": "File FOGLIO_LAVORO committati",
+      "state": "CHIUSO",
+      "evidenceIds": [],
+      "dependencies": []
+    },
+    {
+      "id": "R-1B-01",
+      "type": "CONFORMITA",
+      "front": "F1",
+      "description": "BOM mancante in tutti i CSV canonici",
+      "state": "APERTO",
+      "evidenceIds": [],
+      "dependencies": []
+    },
+    {
+      "id": "R-1B-02",
+      "type": "CONFORMITA",
+      "front": "F1",
+      "description": "9/12 CSV mancano colonna `source`/`provenienza`",
+      "state": "APERTO",
+      "evidenceIds": [],
+      "dependencies": []
+    },
+    {
+      "id": "R-1B-03",
+      "type": "CONFORMITA",
+      "front": "F1",
+      "description": "Nomi colonne stato non standardizzati (`stato`/`status`/`evidence_status`)",
+      "state": "APERTO",
+      "evidenceIds": [],
+      "dependencies": []
+    },
+    {
+      "id": "R-1B-04",
+      "type": "CONFORMITA",
+      "front": "F1",
+      "description": "2 CSV usano delimiter `;`",
+      "state": "APERTO",
+      "evidenceIds": [],
+      "dependencies": []
+    }
   ],
   "evidenceCounts": {
-    "DOC": 7,
-    "DOC-ARTEFATTO": 2,
-    "DOC-famiglia": 2,
-    "DOC-STORICO": 1,
-    "VER": 1,
     "VER_GEOMETRIC": 1,
     "RIF": 1,
     "PREDOC_TOPOLOGICO": 1,
     "INF_DA_QUOTARE": 1,
     "INF": 1,
-    "ND": 3,
+    "DOC-ARTEFATTO": 2,
+    "DOC": 10,
+    "ND": 4,
+    "DOC-famiglia": 2,
+    "DOC-STORICO": 1,
+    "VER": 1,
     "PLACEHOLDER": 2,
     "PLACEHOLDER_GEOMETRY_ONLY": 1
   },
-  "nextGlobalAction": "R-1A-01: Completare raccordo 57 nodi topologici — recuperare o verificare ABACO_TOPOLOGICO_TAV5_v11.csv. Questo è lavoro sul modello strutturale canonico e rispetta il gate M0-G."
+  "nextGlobalAction": "R-1A-01: Raccordo 57 nodi topologici a coordinate canoniche — lavoro sul modello strutturale canonico, rispetta il gate M0-G."
 }

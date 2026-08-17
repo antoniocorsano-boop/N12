@@ -148,3 +148,31 @@ tbody tr:hover { background: var(--surface-hover); }
   padding-top: 12px; border-bottom: none;
 }
 .residuals__closed { opacity: 0.5; }
+
+/* ---- responsive: tablet ---- */
+@media (max-width: 1024px) {
+  .r1-grid { grid-template-columns: 1fr; }
+  .r1-grid__left { order: 1; }
+  .r1-grid__right { order: 2; }
+  .pipeline { gap: 6px; }
+}
+
+/* ---- responsive: phone ---- */
+@media (max-width: 640px) {
+  body { font-size: 13px; }
+  .r1-workspace { padding: 12px; }
+  .r1-header h1 { font-size: 15px; }
+  .panel { padding: 12px; }
+  .panel h2 { font-size: 12px; }
+
+  table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  thead, tbody, tr, th, td { display: revert; }
+
+  .pipeline { flex-direction: column; align-items: stretch; }
+  .pipeline__stage { flex-direction: row; align-items: center; gap: 8px; }
+  .pipeline__arrow { transform: rotate(90deg); align-self: center; }
+
+  .action { max-width: 180px; }
+  .panel--identity dl { grid-template-columns: 1fr; gap: 2px 0; }
+  .panel--identity dt { margin-top: 6px; }
+}
