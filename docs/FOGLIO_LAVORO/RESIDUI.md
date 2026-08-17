@@ -46,7 +46,16 @@ Registro di tutti i residui aperti con stato, responsabilità, dipendenze e coll
 | R-1B-03 | CONFORMITA | F1 | Nomi colonne stato non standardizzati (`stato`/`status`/`evidence_status`) | APERTO | Non bloccante; sniffer tollera |
 | R-1B-04 | CONFORMITA | F1 | 2 CSV usano delimiter `;` | APERTO | Non bloccante; sniffer gestisce |
 
-## Mappa dipendenze
+## Residui M0-G-R1 (terrazza)
+
+| ID | Tipo | Front | Descrizione | Stato | Note |
+|----|------|-------|-------------|-------|------|
+| R-R1-01 | BLOCCANTE | F3 | N041: identità catena non determinata (assente dai dati canonici) | APERTO | Da ricercare nelle carpenterie originali |
+| R-R1-02 | DIAGNOSTICO | F5 | Copertura calcoli storici: porzione terrazza assente dai calcoli disponibili | APERTO | historicalCalculationCoverage = EXCLUDED |
+| R-R1-03 | OPERATIVO | F3 | N005: nodo orfano a G1 (nessuna trave, nessun segmento) | APERTO | Verificare se N005 è reale o errore di estrazione |
+| R-R1-04 | OPERATIVO | F3 | Solaio terrazza: geometria/spessore/armatura da recuperare | APERTO | Da carpenteria originale TAV-02S |
+
+## Mappa dipendenze (aggiornata)
 
 ```
 R-1A-01 (57 nodi) ← R-1A-03 (connettività) ← R-1A-05 (fondazioni)
@@ -54,6 +63,10 @@ R-1A-01 (57 nodi) ← R-1A-03 (connettività) ← R-1A-05 (fondazioni)
 R-1A-06 (sezioni pilastri) ← TAV.7 estratto
 R-1A-07 (materiali) ← indagini
 R-1A-08 (LC/FC) ← quadro conoscitivo
+R-R1-01 (N041) ← carpenteria originale (non calcoli)
+R-R1-02 (copertura calcoli) ← dato diagnostico, non bloccante
+R-R1-03 (N005 orfano) ← verifica carpenteria
+R-R1-04 (solaio terrazza) ← carpenteria TAV-02S
 ```
 
 ## Prossime azioni per residui bloccanti
