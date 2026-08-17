@@ -13,6 +13,7 @@ import StatoDiFatto from "./panels/StatoDiFatto";
 import ModelReadiness from "./panels/ModelReadiness";
 import AdapterStatusPanel from "./panels/AdapterStatus";
 import DiagnosticExport from "./panels/DiagnosticExport";
+import ValidationQueuePanel from "./panels/ValidationQueue";
 
 const data = snapshot as R1Snapshot;
 
@@ -49,7 +50,7 @@ function ModelView() {
 }
 
 export default function StructuralProfessionalWorkspace() {
-  const [activeTab, setActiveTab] = useState<"panoramica" | "edificio" | "modello" | "evidenze" | "residui" | "artefatti">("panoramica");
+  const [activeTab, setActiveTab] = useState<"panoramica" | "edificio" | "modello" | "validazione" | "evidenze" | "residui" | "artefatti">("panoramica");
 
   return (
     <div className="r1-workspace">
@@ -64,6 +65,9 @@ export default function StructuralProfessionalWorkspace() {
         {activeTab === "panoramica" && <Panoramica />}
         {activeTab === "edificio" && <StatoDiFatto snapshot={data} />}
         {activeTab === "modello" && <ModelView />}
+        {activeTab === "validazione" && (
+          <div className="r1-single-panel"><ValidationQueuePanel queue={data.validationQueue} /></div>
+        )}
         {activeTab === "evidenze" && (
           <div className="r1-single-panel"><Evidences evidences={data.evidences} /></div>
         )}

@@ -1,11 +1,12 @@
 import type { R1Snapshot } from "../read-model/types";
 
-type Tab = "panoramica" | "edificio" | "modello" | "evidenze" | "residui" | "artefatti";
+type Tab = "panoramica" | "edificio" | "modello" | "validazione" | "evidenze" | "residui" | "artefatti";
 
 const TABS: { id: Tab; label: string; available: boolean }[] = [
   { id: "panoramica", label: "Panoramica", available: true },
   { id: "edificio", label: "Stato di fatto", available: true },
   { id: "modello", label: "Modello", available: true },
+  { id: "validazione", label: "Validazione", available: true },
   { id: "evidenze", label: "Evidenze", available: true },
   { id: "residui", label: "Residui", available: true },
   { id: "artefatti", label: "Artefatti", available: true },
@@ -20,6 +21,7 @@ export default function Navigation({
   onTabChange: (tab: Tab) => void;
   snapshot: R1Snapshot;
 }) {
+  const unresolvedCount = snapshot.validationQueue.items.length;
   return (
     <nav className="nav">
       <div className="nav__tabs">
@@ -31,6 +33,9 @@ export default function Navigation({
             disabled={!tab.available}
           >
             {tab.label}
+            {tab.id === "validazione" && unresolvedCount > 0 && (
+              <span className="nav__badge">{unresolvedCount}</span>
+            )}
           </button>
         ))}
       </div>

@@ -145,21 +145,6 @@ export interface BuildingSnapshot {
   totalChainLevelEntities: number;
 }
 
-export interface R1Snapshot {
-  project: ProjectIdentity;
-  pipeline: PipelineStage[];
-  fronts: Front[];
-  evidences: Evidence[];
-  artifacts: Artifact[];
-  residuals: Residual[];
-  evidenceCounts: Record<string, number>;
-  nextGlobalAction: string;
-  building: BuildingSnapshot;
-  canonicalModel: CanonicalStructuralModel;
-  readiness: ReadinessMatrix;
-  adapters: AdapterStatus[];
-}
-
 /* ═══════════════════════════════════════════════════
    R1-E: Canonical Structural Model Contract
    ═══════════════════════════════════════════════════ */
@@ -269,4 +254,193 @@ export interface ReadinessMatrix {
   overallStatus: ReadinessLevel;
   m0GateBlocked: boolean;
   blockingReasons: string[];
+}
+
+/* ═══════════════════════════════════════════════════
+   R1-F: Intelligent Evidence Resolution
+   ═══════════════════════════════════════════════════ */
+
+/* ─── F1: Property Resolution Lifecycle ─── */
+export type ResolutionState =
+  | "UNKNOWN"        // property not yet investigated
+  | "SEARCHING"      // resolver actively querying sources
+  | "CANDIDATES"     // one or more candidates found
+  | "CONSISTENT"     // candidates agree, proposal ready
+  | "CONFLICT"       // candidates disagree, human needed
+  | "PROPOSED"       // resolver proposal awaiting validation
+  | "VALIDATED"      // human accepted proposal → canonical
+  | "REJECTED"       // human rejected proposal
+  | "IMPOSSIBLE"     // genuinely cannot be determined from sources
+  | "NOT_APPLICABLE"; // property doesn't apply to this element
+
+export interface ResolvedProperty {
+  key: string;
+  label: string;
+  layer: ModelLayer;
+  resolution: ResolutionState;
+  evidenceStatus: EvidenceStatus;
+  value: string | number | null;
+  candidates: PropertyCandidate[];
+  sourceIds: string[];
+  confidence: number; // 0-1, informational only
+  lastResolved: string;
+  humanNote?: string;
+}
+
+export interface PropertyCandidate {
+  id: string;
+  value: string | number;
+  evidenceStatus: EvidenceStatus;
+  sourceId: string;
+  sourceType: DocumentSourceType;
+  confidence: number;
+  reasoning: string; // how this candidate was derived
+  analogicalOrigin?: string; // if derived from similar element
+}
+
+/* ─── F2: Structural Knowledge Graph ─── */
+export type GraphNodeType =
+  | "building"
+  | "level"
+  | "chain"
+  | "column"
+  | "beam"
+  | "span"
+  | "frame"
+  | "node"
+  | "foundation"
+  | "document"
+  | "detail"
+  | "table";
+
+export type GraphEdgeType =
+  | "contains"       // building → level, level → column
+  | "part_of"        // column → chain, span → beam
+  | "same_chain"     // column_G1 → column_G2 (vertical continuity)
+  | "same_frame"     // column → frame, beam → frame
+  | "same_level"     // column → column (horizontal, same floor)
+  | "same_family"    // columns with same documented section type
+  | "connected_to"   // column → beam (structural connection)
+  | "documented_by"  // element → document
+  | "details"        // document → detail
+  | "analogous_to";  // element → similar element (inference path)
+
+export interface KnowledgeGraphNode {
+  id: string;
+  type: GraphNodeType;
+  name: string;
+  metadata: Record<string, string | number>;
+}
+
+export interface KnowledgeGraphEdge {
+  source: string;
+  target: string;
+  type: GraphEdgeType;
+  weight: number; // 0-1, strength of relationship
+  documented: boolean;
+}
+
+export interface StructuralKnowledgeGraph {
+  nodes: KnowledgeGraphNode[];
+  edges: KnowledgeGraphEdge[];
+}
+
+/* ─── F3: Document Knowledge Layer ─── */
+export type DocumentSourceType =
+  | "csv_canonical"
+  | "csv_derived"
+  | "decision"
+  | "evidence_register"
+  | "fronti"
+  | "fascicolo";
+
+export interface DocumentSource {
+  id: string;
+  name: string;
+  type: DocumentSourceType;
+  path: string;
+  description: string;
+  propertiesProvided: string[]; // which element properties this source can answer
+  elementTypes: GraphNodeType[]; // which element types this source covers
+  evidenceStatus: EvidenceStatus;
+}
+
+export interface DocumentKnowledgeLayer {
+  sources: DocumentSource[];
+  propertyIndex: Record<string, string[]>; // property → source IDs that can answer it
+  elementTypeIndex: Record<string, string[]>; // element type → source IDs that cover it
+}
+
+/* ─── F4: Query Plan ─── */
+export type QueryStrategy =
+  | "direct_lookup"    // exact match in a CSV
+  | "range_match"      // numeric range search
+  | "relational"       // traverse knowledge graph edges
+  | "analogical"       // find similar elements, borrow property
+  | "hierarchical"     // parent/child containment
+  | "document_search"; // search document metadata
+
+export interface QueryStep {
+  strategy: QueryStrategy;
+  sourceId: string;
+  description: string;
+  parameters: Record<string, string>;
+}
+
+export interface PropertyQueryPlan {
+  propertyKey: string;
+  elementId: string;
+  steps: QueryStep[];
+  expectedSources: string[];
+}
+
+/* ─── F5: Validation Queue ─── */
+export type QueueAction = "ACCEPT" | "REJECT" | "INSPECT" | "DEFER" | "REQUEST_EVIDENCE";
+
+export interface ValidationItem {
+  id: string;
+  entityId: string;
+  entityName: string;
+  propertyKey: string;
+  propertyLabel: string;
+  resolution: ResolutionState;
+  currentValue: string | number | null;
+  proposedValue: string | number | null;
+  evidenceStatus: EvidenceStatus;
+  candidates: PropertyCandidate[];
+  confidence: number;
+  reason: string; // why this needs human attention
+  relatedResiduals: string[];
+}
+
+export interface ValidationQueue {
+  items: ValidationItem[];
+  stats: {
+    total: number;
+    resolved: number;
+    proposed: number;
+    conflict: number;
+    impossible: number;
+    unknown: number;
+  };
+}
+
+/* ─── Extended R1Snapshot ─── */
+export interface R1Snapshot {
+  project: ProjectIdentity;
+  pipeline: PipelineStage[];
+  fronts: Front[];
+  evidences: Evidence[];
+  artifacts: Artifact[];
+  residuals: Residual[];
+  evidenceCounts: Record<string, number>;
+  nextGlobalAction: string;
+  building: BuildingSnapshot;
+  canonicalModel: CanonicalStructuralModel;
+  readiness: ReadinessMatrix;
+  adapters: AdapterStatus[];
+  knowledgeGraph: StructuralKnowledgeGraph;
+  documentLayer: DocumentKnowledgeLayer;
+  resolvedProperties: ResolvedProperty[];
+  validationQueue: ValidationQueue;
 }

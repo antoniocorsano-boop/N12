@@ -493,7 +493,7 @@ function buildCanonicalModel(building: ReturnType<typeof buildBuilding>, residua
 
   return {
     schemaVersion: "N12-CSM-0001",
-    generatedAt: new Date().toISOString(),
+    generatedAt: new Date().toISOString().slice(0, 10),
     sourceRevision: "e489225",
     gate: "M0-G",
     entities,
@@ -606,6 +606,222 @@ function buildAdapters(): any[] {
   ];
 }
 
+/* ─── Knowledge Graph (F2) ─── */
+function buildKnowledgeGraph(building: ReturnType<typeof buildBuilding>) {
+  const nodes: any[] = [];
+  const edges: any[] = [];
+
+  // Building node
+  nodes.push({ id: "N12", type: "building", name: "N12", metadata: {} });
+
+  // Level nodes
+  for (const lev of building.levels) {
+    nodes.push({ id: `N12.level.${lev.id}`, type: "level", name: lev.label, metadata: { height_m: lev.height_m } });
+    edges.push({ source: "N12", target: `N12.level.${lev.id}`, type: "contains", weight: 1, documented: true });
+  }
+
+  // Chain/column nodes
+  for (const chain of building.chains) {
+    const colId = `N12.column.${chain.chainId}`;
+    nodes.push({ id: colId, type: "column", name: `Pilastro ${chain.chainId}`, metadata: { x_mm: chain.coordinates.x_mm, y_mm: chain.coordinates.y_mm } });
+
+    // Link to building
+    edges.push({ source: "N12", target: colId, type: "contains", weight: 1, documented: true });
+
+    // Vertical continuity (same chain, different levels)
+    for (let i = 0; i < chain.levels.length - 1; i++) {
+      const above = `${colId}.${chain.levels[i].level}`;
+      const below = `${colId}.${chain.levels[i + 1].level}`;
+      edges.push({ source: above, target: below, type: "same_chain", weight: 0.9, documented: true });
+    }
+
+    // Level membership
+    for (const lev of chain.levels) {
+      const levColId = `${colId}.${lev.level}`;
+      edges.push({ source: `N12.level.${lev.level}`, target: levColId, type: "contains", weight: 1, documented: true });
+
+      // Frame membership
+      if (lev.frame) {
+        const frameId = `N12.frame.${lev.frame.value}`;
+        if (!nodes.find((n) => n.id === frameId)) {
+          nodes.push({ id: frameId, type: "frame", name: `Telaio ${lev.frame.value}`, metadata: {} });
+        }
+        edges.push({ source: levColId, target: frameId, type: "same_frame", weight: 0.8, documented: true });
+      }
+    }
+
+    // Same-level relationships (all columns on same floor)
+    for (const lev of chain.levels) {
+      edges.push({ source: colId, target: `N12.level.${lev.level}`, type: "same_level", weight: 0.5, documented: false });
+    }
+  }
+
+  // Frame nodes
+  for (const frame of building.frames) {
+    if (!nodes.find((n) => n.id === `N12.frame.${frame.id}`)) {
+      nodes.push({ id: `N12.frame.${frame.id}`, type: "frame", name: frame.name, metadata: {} });
+    }
+  }
+
+  return { nodes, edges };
+}
+
+/* ─── Document Knowledge Layer (F3) ─── */
+function buildDocumentLayer() {
+  const sources = [
+    { id: "DOC nodes.csv", name: "Nodi 27 catene", type: "csv_canonical" as const, path: "data/canonical/nodes.csv", description: "Coordinate X/Y delle 27 catene verticali", propertiesProvided: ["position", "axisX", "axisY", "chainId"], elementTypes: ["column" as const], evidenceStatus: "VER_GEOMETRIC" as const },
+    { id: "DOC column_fixed_lines.csv", name: "Fili fissi pilastri", type: "csv_canonical" as const, path: "data/canonical/column_fixed_lines.csv", description: "Fili fissi geometrici e sezioni documentate", propertiesProvided: ["section", "continuity", "fixedLine"], elementTypes: ["column" as const], evidenceStatus: "PREDOC_GEOMETRICO" as const },
+    { id: "DOC telaio_5.csv", name: "Telaio 5 geometria", type: "csv_canonical" as const, path: "data/canonical/telaio_5.csv", description: "Campate, sviluppi e sezioni di T5", propertiesProvided: ["section", "spans", "development", "frame"], elementTypes: ["column" as const, "beam" as const], evidenceStatus: "DOC" as const },
+    { id: "DOC storey_height_status.csv", name: "Altezza interpiano", type: "csv_canonical" as const, path: "data/canonical/storey_height_status.csv", description: "Altezza estradosso-estradosso 3.20m", propertiesProvided: ["height"], elementTypes: ["level" as const], evidenceStatus: "RIF" as const },
+    { id: "DOC pillar_section_assignment_status.csv", name: "Assegnazione pilastri", type: "csv_canonical" as const, path: "data/canonical/pillar_section_assignment_status.csv", description: "Stato assegnazione sezioni a 27 catene", propertiesProvided: ["section_assignment"], elementTypes: ["column" as const], evidenceStatus: "ND" as const },
+    { id: "DOC tav5_topology_nodes_57.csv", name: "Topologia 57 nodi", type: "csv_canonical" as const, path: "data/canonical/tav5_topology_nodes_57.csv", description: "57 nodi topologici TAV.5", propertiesProvided: ["topology"], elementTypes: ["node" as const], evidenceStatus: "PREDOC_TOPOLOGICO" as const },
+    { id: "DOC tav5_topology_connections_v07.csv", name: "141 connessioni", type: "csv_canonical" as const, path: "data/canonical/tav5_topology_connections_v07.csv", description: "Connessioni candidate TAV.5", propertiesProvided: ["connectivity"], elementTypes: ["beam" as const, "span" as const], evidenceStatus: "INF_DA_QUOTARE" as const },
+    { id: "DOC telaio5_tav5_candidate_matrix_v1.csv", name: "Candidati T5↔TAV.5", type: "csv_canonical" as const, path: "data/canonical/telaio5_tav5_candidate_matrix_v1.csv", description: "Matrice candidati allineamento T5 con TAV.5", propertiesProvided: ["alignment"], elementTypes: ["frame" as const], evidenceStatus: "INF" as const },
+    { id: "DOC fem_section_placeholders.csv", name: "Sezioni FEM placeholder", type: "csv_canonical" as const, path: "data/canonical/fem_section_placeholders.csv", description: "Sezioni placeholder per smoke-test FEM", propertiesProvided: ["section_fem"], elementTypes: ["column" as const, "beam" as const], evidenceStatus: "PLACEHOLDER_GEOMETRY_ONLY" as const },
+    { id: "REGISTRO_EVIDENZE", name: "Registro Evidenze", type: "evidence_register" as const, path: "docs/FOGLIO_LAVORO/REGISTRO_EVIDENZE.md", description: "28 evidenze strutturali con stato e fonte", propertiesProvided: [], elementTypes: ["column" as const, "beam" as const, "level" as const, "building" as const], evidenceStatus: "DOC" as const },
+    { id: "RESIDUI", name: "Residui", type: "fascicolo" as const, path: "docs/FOGLIO_LAVORO/RESIDUI.md", description: "16 residui aperti con dipendenze", propertiesProvided: [], elementTypes: ["column" as const, "beam" as const, "building" as const], evidenceStatus: "DOC" as const },
+  ];
+
+  const propertyIndex: Record<string, string[]> = {};
+  for (const src of sources) {
+    for (const prop of src.propertiesProvided) {
+      if (!propertyIndex[prop]) propertyIndex[prop] = [];
+      propertyIndex[prop].push(src.id);
+    }
+  }
+
+  const elementTypeIndex: Record<string, string[]> = {};
+  for (const src of sources) {
+    for (const et of src.elementTypes) {
+      if (!elementTypeIndex[et]) elementTypeIndex[et] = [];
+      elementTypeIndex[et].push(src.id);
+    }
+  }
+
+  return { sources, propertyIndex, elementTypeIndex };
+}
+
+/* ─── Resolved Properties (F4) ─── */
+function buildResolvedProperties(building: ReturnType<typeof buildBuilding>, docLayer: any) {
+  const resolved: any[] = [];
+
+  for (const chain of building.chains) {
+    for (const lev of chain.levels) {
+      const entityId = `N12.column.${lev.level}.${chain.chainId}`;
+
+      // Position — always resolved from nodes.csv
+      resolved.push({
+        key: `position_${lev.level}`, label: `Posizione ${lev.level}`, layer: "observed",
+        resolution: "VALIDATED", evidenceStatus: "VER_GEOMETRIC",
+        value: `${chain.coordinates.x_mm}, ${chain.coordinates.y_mm}`,
+        candidates: [{ id: "C-pos-1", value: `${chain.coordinates.x_mm}, ${chain.coordinates.y_mm}`, evidenceStatus: "VER_GEOMETRIC", sourceId: "DOC nodes.csv", sourceType: "csv_canonical", confidence: 1, reasoning: "Diretto da CATENE_VERTICALI_PILASTRI_v20.csv" }],
+        sourceIds: ["DOC nodes.csv"], confidence: 1, lastResolved: new Date().toISOString().slice(0, 10),
+      });
+
+      // Section — resolved if in T5, otherwise candidates from column_fixed_lines
+      if (lev.section) {
+        resolved.push({
+          key: `section_${lev.level}`, label: `Sezione ${lev.level}`, layer: "observed",
+          resolution: "VALIDATED", evidenceStatus: lev.section.status,
+          value: lev.section.value,
+          candidates: [{ id: "C-sec-1", value: lev.section.value, evidenceStatus: lev.section.status, sourceId: "DOC telaio_5.csv", sourceType: "csv_canonical", confidence: 0.9, reasoning: `Diretto da ${lev.section.source}` }],
+          sourceIds: ["DOC telaio_5.csv"], confidence: 0.9, lastResolved: new Date().toISOString().slice(0, 10),
+        });
+      } else {
+        // No section — try analogical resolution from same-frame columns
+        const sameFrameChains = building.chains.filter((c) =>
+          c.levels.some((l) => l.frame?.value && l.level === lev.level)
+        );
+        const analogicalCandidates = sameFrameChains
+          .filter((c) => c.nodeId !== chain.nodeId)
+          .slice(0, 3)
+          .map((c, i) => {
+            const cLev = c.levels.find((l) => l.level === lev.level);
+            return {
+              value: cLev?.section?.value ?? "ND",
+              status: cLev?.section?.status ?? "ND",
+              chain: c.chainId,
+            };
+          })
+          .filter((c) => c.value !== "ND");
+
+        const resolution = analogicalCandidates.length > 0 ? "CANDIDATES" : "UNKNOWN";
+        const candidates = analogicalCandidates.map((ac, i) => ({
+          id: `C-sec-analog-${i}`,
+          value: ac.value,
+          evidenceStatus: ac.status as any,
+          sourceId: "analogy",
+          sourceType: "csv_derived" as const,
+          confidence: 0.4,
+          reasoning: `Analogia con ${ac.chain} (stesso livello, stesso telaio documentato)`,
+          analogicalOrigin: ac.chain,
+        }));
+
+        resolved.push({
+          key: `section_${lev.level}`, label: `Sezione ${lev.level}`, layer: "observed",
+          resolution, evidenceStatus: "ND",
+          value: null, candidates, sourceIds: [], confidence: candidates.length > 0 ? 0.4 : 0,
+          lastResolved: new Date().toISOString().slice(0, 10),
+        });
+      }
+
+      // Material — always UNKNOWN (no source)
+      resolved.push({
+        key: `material_${lev.level}`, label: `Materiale ${lev.level}`, layer: "observed",
+        resolution: "UNKNOWN", evidenceStatus: "ND",
+        value: null, candidates: [], sourceIds: [], confidence: 0,
+        lastResolved: new Date().toISOString().slice(0, 10),
+      });
+
+      // Reinforcement — always UNKNOWN
+      resolved.push({
+        key: `reinforcement_${lev.level}`, label: `Armatura ${lev.level}`, layer: "observed",
+        resolution: "UNKNOWN", evidenceStatus: "ND",
+        value: null, candidates: [], sourceIds: [], confidence: 0,
+        lastResolved: new Date().toISOString().slice(0, 10),
+      });
+    }
+  }
+
+  return resolved;
+}
+
+/* ─── Validation Queue (F5) ─── */
+function buildValidationQueue(resolved: any[], residuals: any[]) {
+  const items = resolved
+    .filter((r) => r.resolution === "CANDIDATES" || r.resolution === "CONFLICT" || r.resolution === "UNKNOWN")
+    .map((r) => ({
+      id: `VQ-${r.key}`,
+      entityId: r.key.replace(/^(section|material|reinforcement)_/, "N12.column.*."),
+      entityName: r.key.replace(/_(section|material|reinforcement)$/, ""),
+      propertyKey: r.key,
+      propertyLabel: r.label,
+      resolution: r.resolution,
+      currentValue: r.value,
+      proposedValue: r.candidates.length > 0 ? r.candidates[0].value : null,
+      evidenceStatus: r.evidenceStatus,
+      candidates: r.candidates,
+      confidence: r.confidence,
+      reason: r.resolution === "UNKNOWN"
+        ? "Nessuna fonte documentale disponibile per questa proprietà"
+        : r.resolution === "CONFLICT"
+          ? "Le evidenze candidate sono in conflitto"
+          : `${r.candidates.length} candidati trovati, da validare`,
+      relatedResiduals: residuals.filter((res: any) => res.evidenceIds?.some((eid: string) => r.sourceIds.includes(eid))).map((res: any) => res.id),
+    }));
+
+  const stats = {
+    total: resolved.length,
+    resolved: resolved.filter((r) => r.resolution === "VALIDATED").length,
+    proposed: resolved.filter((r) => r.resolution === "PROPOSED").length,
+    conflict: resolved.filter((r) => r.resolution === "CONFLICT").length,
+    impossible: resolved.filter((r) => r.resolution === "IMPOSSIBLE").length,
+    unknown: resolved.filter((r) => r.resolution === "UNKNOWN").length,
+  };
+
+  return { items, stats };
+}
+
 /* ─── Validation ─── */
 function validate(evidences: Evidence[], artifacts: Artifact[], residuals: Residual[]): void {
   const errors: string[] = [];
@@ -680,6 +896,26 @@ console.log("Building adapter status...");
 const adapters = buildAdapters();
 console.log(`  Adapters: ${adapters.map((a) => `${a.id}=${a.state}`).join(", ")}`);
 
+console.log("Building structural knowledge graph...");
+const knowledgeGraph = buildKnowledgeGraph(building);
+console.log(`  Nodes: ${knowledgeGraph.nodes.length}, Edges: ${knowledgeGraph.edges.length}`);
+
+console.log("Building document knowledge layer...");
+const documentLayer = buildDocumentLayer();
+console.log(`  Sources: ${documentLayer.sources.length}`);
+
+console.log("Building resolved properties...");
+const resolvedProperties = buildResolvedProperties(building, documentLayer);
+console.log(`  Properties: ${resolvedProperties.length}`);
+console.log(`  Validated: ${resolvedProperties.filter((r) => r.resolution === "VALIDATED").length}`);
+console.log(`  Candidates: ${resolvedProperties.filter((r) => r.resolution === "CANDIDATES").length}`);
+console.log(`  Unknown: ${resolvedProperties.filter((r) => r.resolution === "UNKNOWN").length}`);
+
+console.log("Building validation queue...");
+const validationQueue = buildValidationQueue(resolvedProperties, residuals);
+console.log(`  Queue items: ${validationQueue.items.length}`);
+console.log(`  Stats: ${JSON.stringify(validationQueue.stats)}`);
+
 const snapshot = {
   project: {
     name: "N12 — Edificio esistente in c.a. Ariano Irpino",
@@ -700,6 +936,10 @@ const snapshot = {
   canonicalModel,
   readiness,
   adapters,
+  knowledgeGraph,
+  documentLayer,
+  resolvedProperties,
+  validationQueue,
 };
 
 const outPath = join(import.meta.dirname, "..", "src", "read-model", "r1-snapshot.json");
