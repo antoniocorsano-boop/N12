@@ -275,6 +275,7 @@ export type ResolutionState =
 
 export interface ResolvedProperty {
   key: string;
+  entityId?: string;
   label: string;
   layer: ModelLayer;
   resolution: ResolutionState;
@@ -285,6 +286,9 @@ export interface ResolvedProperty {
   confidence: number; // 0-1, informational only
   lastResolved: string;
   humanNote?: string;
+  searchHint?: string;
+  unknownClassification?: "DOCUMENT_SEARCHABLE" | "RELATION_SEARCHABLE" | "REQUIRES_HUMAN_INTERPRETATION" | "REQUIRES_NEW_EVIDENCE" | "NOT_REQUIRED_FOR_CURRENT_GATE";
+  requiredForGate?: boolean;
 }
 
 export interface PropertyCandidate {
@@ -410,6 +414,7 @@ export interface ValidationItem {
   candidates: PropertyCandidate[];
   confidence: number;
   reason: string; // why this needs human attention
+  searchHint?: string;
   relatedResiduals: string[];
 }
 
@@ -417,11 +422,13 @@ export interface ValidationQueue {
   items: ValidationItem[];
   stats: {
     total: number;
-    resolved: number;
+    validated: number;
+    candidates: number;
+    unknown: number;
     proposed: number;
     conflict: number;
     impossible: number;
-    unknown: number;
+    rejected: number;
   };
 }
 

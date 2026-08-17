@@ -711,73 +711,86 @@ function buildResolvedProperties(building: ReturnType<typeof buildBuilding>, doc
 
       // Position — always resolved from nodes.csv
       resolved.push({
-        key: `position_${lev.level}`, label: `Posizione ${lev.level}`, layer: "observed",
+        key: `position_${lev.level}_${chain.chainId}`, entityId, label: `Posizione ${chain.chainId} ${lev.level}`, layer: "observed",
         resolution: "VALIDATED", evidenceStatus: "VER_GEOMETRIC",
         value: `${chain.coordinates.x_mm}, ${chain.coordinates.y_mm}`,
-        candidates: [{ id: "C-pos-1", value: `${chain.coordinates.x_mm}, ${chain.coordinates.y_mm}`, evidenceStatus: "VER_GEOMETRIC", sourceId: "DOC nodes.csv", sourceType: "csv_canonical", confidence: 1, reasoning: "Diretto da CATENE_VERTICALI_PILASTRI_v20.csv" }],
+        candidates: [{ id: `C-pos-${chain.chainId}-${lev.level}`, value: `${chain.coordinates.x_mm}, ${chain.coordinates.y_mm}`, evidenceStatus: "VER_GEOMETRIC", sourceId: "DOC nodes.csv", sourceType: "csv_canonical", confidence: 1, reasoning: `Coordinate dirette da nodes.csv (catena ${chain.chainId})` }],
         sourceIds: ["DOC nodes.csv"], confidence: 1, lastResolved: new Date().toISOString().slice(0, 10),
       });
 
-      // Section — resolved if in T5, otherwise candidates from column_fixed_lines
-      if (lev.section) {
+      // Section — resolved ONLY if in T5 with actual value (not ND)
+      const hasRealSection = lev.section && lev.section.value && lev.section.value !== "ND";
+      if (hasRealSection) {
         resolved.push({
-          key: `section_${lev.level}`, label: `Sezione ${lev.level}`, layer: "observed",
+          key: `section_${lev.level}_${chain.chainId}`, entityId, label: `Sezione ${chain.chainId} ${lev.level}`, layer: "observed",
           resolution: "VALIDATED", evidenceStatus: lev.section.status,
           value: lev.section.value,
-          candidates: [{ id: "C-sec-1", value: lev.section.value, evidenceStatus: lev.section.status, sourceId: "DOC telaio_5.csv", sourceType: "csv_canonical", confidence: 0.9, reasoning: `Diretto da ${lev.section.source}` }],
+          candidates: [{ id: `C-sec-${chain.chainId}-${lev.level}`, value: lev.section.value, evidenceStatus: lev.section.status, sourceId: "DOC telaio_5.csv", sourceType: "csv_canonical", confidence: 0.9, reasoning: `Sezione documentata da telaio_5.csv (catena ${chain.chainId}, ${lev.level})` }],
           sourceIds: ["DOC telaio_5.csv"], confidence: 0.9, lastResolved: new Date().toISOString().slice(0, 10),
         });
       } else {
-        // No section — try analogical resolution from same-frame columns
+        // No section or ND — try analogical resolution from same-frame, same-level columns
         const sameFrameChains = building.chains.filter((c) =>
-          c.levels.some((l) => l.frame?.value && l.level === lev.level)
+          c.nodeId !== chain.nodeId &&
+          c.levels.some((l) => l.frame?.value && l.level === lev.level && l.section?.value && l.section.value !== "ND")
         );
         const analogicalCandidates = sameFrameChains
-          .filter((c) => c.nodeId !== chain.nodeId)
           .slice(0, 3)
-          .map((c, i) => {
+          .map((c) => {
             const cLev = c.levels.find((l) => l.level === lev.level);
             return {
-              value: cLev?.section?.value ?? "ND",
+              value: cLev?.section?.value ?? null,
               status: cLev?.section?.status ?? "ND",
               chain: c.chainId,
+              frame: cLev?.frame?.value ?? "?",
             };
           })
-          .filter((c) => c.value !== "ND");
+          .filter((c) => c.value && c.value !== "ND");
 
         const resolution = analogicalCandidates.length > 0 ? "CANDIDATES" : "UNKNOWN";
         const candidates = analogicalCandidates.map((ac, i) => ({
-          id: `C-sec-analog-${i}`,
+          id: `C-sec-analog-${chain.chainId}-${lev.level}-${i}`,
           value: ac.value,
           evidenceStatus: ac.status as any,
           sourceId: "analogy",
           sourceType: "csv_derived" as const,
           confidence: 0.4,
-          reasoning: `Analogia con ${ac.chain} (stesso livello, stesso telaio documentato)`,
+          reasoning: `Analogia con catena ${ac.chain} (livello ${lev.level}, telaio ${ac.frame})`,
           analogicalOrigin: ac.chain,
         }));
 
         resolved.push({
-          key: `section_${lev.level}`, label: `Sezione ${lev.level}`, layer: "observed",
+          key: `section_${lev.level}_${chain.chainId}`, entityId, label: `Sezione ${chain.chainId} ${lev.level}`, layer: "observed",
           resolution, evidenceStatus: "ND",
           value: null, candidates, sourceIds: [], confidence: candidates.length > 0 ? 0.4 : 0,
+          searchHint: resolution === "UNKNOWN"
+            ? "Cercare sezione in tavole originali o raccordi strutturali"
+            : "Candidato analogico da validare contro documentazione",
+          unknownClassification: resolution === "UNKNOWN" ? "DOCUMENT_SEARCHABLE" : undefined,
+          requiredForGate: false,
           lastResolved: new Date().toISOString().slice(0, 10),
         });
       }
 
-      // Material — always UNKNOWN (no source)
+      // Material — UNKNOWN (no source in current CSVs)
       resolved.push({
-        key: `material_${lev.level}`, label: `Materiale ${lev.level}`, layer: "observed",
+        key: `material_${lev.level}_${chain.chainId}`, entityId, label: `Materiale ${chain.chainId} ${lev.level}`, layer: "observed",
         resolution: "UNKNOWN", evidenceStatus: "ND",
         value: null, candidates: [], sourceIds: [], confidence: 0,
+        searchHint: "Verificare certificati fornitura, relazioni di prova, schede materiali negli archivi",
+        unknownClassification: "DOCUMENT_SEARCHABLE",
+        requiredForGate: false,
         lastResolved: new Date().toISOString().slice(0, 10),
       });
 
-      // Reinforcement — always UNKNOWN
+      // Reinforcement — UNKNOWN (no source in current CSVs)
       resolved.push({
-        key: `reinforcement_${lev.level}`, label: `Armatura ${lev.level}`, layer: "observed",
+        key: `reinforcement_${lev.level}_${chain.chainId}`, entityId, label: `Armatura ${chain.chainId} ${lev.level}`, layer: "observed",
         resolution: "UNKNOWN", evidenceStatus: "ND",
         value: null, candidates: [], sourceIds: [], confidence: 0,
+        searchHint: "Verificare calcoli di progetto originali, dettagli armatura, o indagini destructive",
+        unknownClassification: "REQUIRES_NEW_EVIDENCE",
+        requiredForGate: false,
         lastResolved: new Date().toISOString().slice(0, 10),
       });
     }
@@ -792,8 +805,8 @@ function buildValidationQueue(resolved: any[], residuals: any[]) {
     .filter((r) => r.resolution === "CANDIDATES" || r.resolution === "CONFLICT" || r.resolution === "UNKNOWN")
     .map((r) => ({
       id: `VQ-${r.key}`,
-      entityId: r.key.replace(/^(section|material|reinforcement)_/, "N12.column.*."),
-      entityName: r.key.replace(/_(section|material|reinforcement)$/, ""),
+      entityId: r.entityId ?? r.key,
+      entityName: r.label ?? r.key,
       propertyKey: r.key,
       propertyLabel: r.label,
       resolution: r.resolution,
@@ -802,8 +815,9 @@ function buildValidationQueue(resolved: any[], residuals: any[]) {
       evidenceStatus: r.evidenceStatus,
       candidates: r.candidates,
       confidence: r.confidence,
+      searchHint: r.searchHint,
       reason: r.resolution === "UNKNOWN"
-        ? "Nessuna fonte documentale disponibile per questa proprietà"
+        ? r.searchHint ?? "Nessuna fonte documentale disponibile per questa proprietà"
         : r.resolution === "CONFLICT"
           ? "Le evidenze candidate sono in conflitto"
           : `${r.candidates.length} candidati trovati, da validare`,
@@ -812,11 +826,13 @@ function buildValidationQueue(resolved: any[], residuals: any[]) {
 
   const stats = {
     total: resolved.length,
-    resolved: resolved.filter((r) => r.resolution === "VALIDATED").length,
+    validated: resolved.filter((r) => r.resolution === "VALIDATED").length,
+    candidates: resolved.filter((r) => r.resolution === "CANDIDATES").length,
+    unknown: resolved.filter((r) => r.resolution === "UNKNOWN").length,
     proposed: resolved.filter((r) => r.resolution === "PROPOSED").length,
     conflict: resolved.filter((r) => r.resolution === "CONFLICT").length,
     impossible: resolved.filter((r) => r.resolution === "IMPOSSIBLE").length,
-    unknown: resolved.filter((r) => r.resolution === "UNKNOWN").length,
+    rejected: resolved.filter((r) => r.resolution === "REJECTED").length,
   };
 
   return { items, stats };
@@ -914,7 +930,7 @@ console.log(`  Unknown: ${resolvedProperties.filter((r) => r.resolution === "UNK
 console.log("Building validation queue...");
 const validationQueue = buildValidationQueue(resolvedProperties, residuals);
 console.log(`  Queue items: ${validationQueue.items.length}`);
-console.log(`  Stats: ${JSON.stringify(validationQueue.stats)}`);
+console.log(`  Stats: validated=${validationQueue.stats.validated} candidates=${validationQueue.stats.candidates} unknown=${validationQueue.stats.unknown} proposed=${validationQueue.stats.proposed} conflict=${validationQueue.stats.conflict}`);
 
 const snapshot = {
   project: {

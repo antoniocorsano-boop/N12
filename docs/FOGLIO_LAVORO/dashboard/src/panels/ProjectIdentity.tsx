@@ -1,9 +1,8 @@
 import type { ProjectIdentity, ValidationQueue } from "../read-model/types";
 
 export default function ProjectIdentityPanel({ project, validationQueue }: { project: ProjectIdentity; validationQueue?: ValidationQueue }) {
-  const pct = validationQueue && validationQueue.stats.total > 0
-    ? Math.round((validationQueue.stats.resolved / validationQueue.stats.total) * 100)
-    : null;
+  const stats = validationQueue?.stats;
+  const total = stats?.total ?? 0;
 
   return (
     <section className="panel panel--identity">
@@ -22,13 +21,20 @@ export default function ProjectIdentityPanel({ project, validationQueue }: { pro
         <dt>Ultimo aggiornamento</dt>
         <dd>{project.lastUpdate}</dd>
       </dl>
-      {pct !== null && (
+      {stats && (
         <div className="identity__validation">
           <span className="identity__validation-label">Risoluzione proprietà</span>
-          <div className="identity__validation-bar">
-            <div className="identity__validation-fill" style={{ width: `${pct}%` }} />
+          <div className="identity__validation-breakdown">
+            <span className="identity__validation-item identity__validation-item--ok">
+              {stats.validated}/{total} validate
+            </span>
+            <span className="identity__validation-item identity__validation-item--warn">
+              {stats.candidates}/{total} candidati
+            </span>
+            <span className="identity__validation-item identity__validation-item--alert">
+              {stats.unknown}/{total} da ricercare
+            </span>
           </div>
-          <span className="identity__validation-pct">{pct}%</span>
         </div>
       )}
     </section>

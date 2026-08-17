@@ -1,6 +1,6 @@
 # Fascicolo R1-A — Workspace Professionale Strutturale
 
-Versione: `R1-A-0003` — 2026-08-17 (aggiornato R1-F)
+Versione: `R1-A-0004` — 2026-08-17 (aggiornato R1-G)
 
 ## Scope
 
@@ -73,6 +73,14 @@ Vedi `docs/FOGLIO_LAVORO/RESIDUI.md` per il registro completo con stato, dipende
 | Traceability | docs/FOGLIO_LAVORO/TRACEABILITY.md | TR-0001 |
 | Residui | docs/FOGLIO_LAVORO/RESIDUI.md | RS-0001 |
 | Gate Report R1-A | docs/FOGLIO_LAVORO/GATE_REPORT_R1A.md | GR-0001 |
+
+## Riferimenti R1-G
+
+| Deliverable | Path | Versione |
+|-------------|------|----------|
+| Gate Report R1-G | docs/FOGLIO_LAVORO/GATE_REPORT_R1G.md | GR-0003 |
+| Dashboard R1-G | docs/FOGLIO_LAVORO/dashboard/ | v3.0 |
+| Snapshot R1-G | docs/FOGLIO_LAVORO/dashboard/src/read-model/r1-snapshot.json | R1-G |
 
 ## Riferimenti R1-F
 
