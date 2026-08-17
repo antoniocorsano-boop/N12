@@ -32,8 +32,6 @@ export type ResidualState = "APERTO" | "IN CORSO" | "BLOCCATO" | "CHIUSO";
 
 export type ArtifactProvenance = "main" | "main→M0-G" | "M0-G" | "R1-A" | "R1-B";
 
-export type EntityType = "building" | "level" | "chain" | "frame";
-
 export interface ProjectIdentity {
   name: string;
   location: string;
@@ -157,4 +155,118 @@ export interface R1Snapshot {
   evidenceCounts: Record<string, number>;
   nextGlobalAction: string;
   building: BuildingSnapshot;
+  canonicalModel: CanonicalStructuralModel;
+  readiness: ReadinessMatrix;
+  adapters: AdapterStatus[];
+}
+
+/* ═══════════════════════════════════════════════════
+   R1-E: Canonical Structural Model Contract
+   ═══════════════════════════════════════════════════ */
+
+/* ─── E1: Persistent Identity ─── */
+export type EntityType =
+  | "building"
+  | "level"
+  | "chain"
+  | "column"
+  | "beam"
+  | "span"
+  | "foundation"
+  | "node";
+
+export interface CanonicalId {
+  raw: string;
+  entityType: EntityType;
+  level?: string;
+  frame?: string;
+  chain?: string;
+  span?: string;
+}
+
+/* ─── E2: Model Layers ─── */
+export type ModelLayer = "observed" | "analytical" | "intervention" | "results";
+
+/* ─── E3: Property with per-property provenance ─── */
+export interface CanonicalProperty {
+  key: string;
+  label: string;
+  layer: ModelLayer;
+  value: string | number | null;
+  status: EvidenceStatus;
+  source: string;
+  evidenceId?: string;
+  missingReason?: string;
+}
+
+/* ─── E4: Canonical Entity ─── */
+export interface CanonicalEntity {
+  id: CanonicalId;
+  name: string;
+  layer: ModelLayer;
+  properties: CanonicalProperty[];
+  parent?: string;
+  children?: string[];
+  evidenceIds: string[];
+  residualIds: string[];
+}
+
+/* ─── Canonical Structural Model ─── */
+export interface CanonicalStructuralModel {
+  schemaVersion: string;
+  generatedAt: string;
+  sourceRevision: string;
+  gate: string;
+  entities: CanonicalEntity[];
+  missingProperties: { entityId: string; property: string; reason: string }[];
+  blockingResiduals: string[];
+}
+
+/* ─── E5: Adapter Contracts ─── */
+export type AdapterState = "READY" | "BLOCKED" | "PARTIAL";
+
+export interface AdapterPropertyRequirement {
+  property: string;
+  required: boolean;
+  currentStatus: EvidenceStatus;
+  blocker?: string;
+}
+
+export interface AdapterStatus {
+  id: string;
+  name: string;
+  state: AdapterState;
+  description: string;
+  requiredProperties: AdapterPropertyRequirement[];
+  blockingProperties: string[];
+}
+
+/* ─── E6: Model Readiness Matrix ─── */
+export type ReadinessDomain =
+  | "geometria"
+  | "topologia"
+  | "sezioni"
+  | "armature"
+  | "materiali"
+  | "fondazioni"
+  | "carichi"
+  | "lc_fc";
+
+export type ReadinessLevel = "COMPLETO" | "PARZIALE" | "ND" | "BLOCCATO";
+
+export interface ReadinessCell {
+  domain: ReadinessDomain;
+  label: string;
+  level: ReadinessLevel;
+  available: number;
+  total: number;
+  missing: string[];
+  evidenceStatus: EvidenceStatus;
+}
+
+export interface ReadinessMatrix {
+  cells: ReadinessCell[];
+  overallStatus: ReadinessLevel;
+  m0GateBlocked: boolean;
+  blockingReasons: string[];
 }

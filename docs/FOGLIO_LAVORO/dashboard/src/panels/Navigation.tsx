@@ -1,10 +1,11 @@
 import type { R1Snapshot } from "../read-model/types";
 
-type Tab = "panoramica" | "edificio" | "evidenze" | "residui" | "artefatti";
+type Tab = "panoramica" | "edificio" | "modello" | "evidenze" | "residui" | "artefatti";
 
 const TABS: { id: Tab; label: string; available: boolean }[] = [
   { id: "panoramica", label: "Panoramica", available: true },
   { id: "edificio", label: "Stato di fatto", available: true },
+  { id: "modello", label: "Modello", available: true },
   { id: "evidenze", label: "Evidenze", available: true },
   { id: "residui", label: "Residui", available: true },
   { id: "artefatti", label: "Artefatti", available: true },

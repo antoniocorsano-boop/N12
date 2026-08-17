@@ -10,6 +10,9 @@ import Evidences from "./panels/Evidences";
 import Artifacts from "./panels/Artifacts";
 import Residuals from "./panels/Residuals";
 import StatoDiFatto from "./panels/StatoDiFatto";
+import ModelReadiness from "./panels/ModelReadiness";
+import AdapterStatusPanel from "./panels/AdapterStatus";
+import DiagnosticExport from "./panels/DiagnosticExport";
 
 const data = snapshot as R1Snapshot;
 
@@ -31,8 +34,22 @@ function Panoramica() {
   );
 }
 
+function ModelView() {
+  return (
+    <div className="r1-grid">
+      <div className="r1-grid__left">
+        <ModelReadiness readiness={data.readiness} />
+        <DiagnosticExport model={data.canonicalModel} />
+      </div>
+      <div className="r1-grid__right">
+        <AdapterStatusPanel adapters={data.adapters} />
+      </div>
+    </div>
+  );
+}
+
 export default function StructuralProfessionalWorkspace() {
-  const [activeTab, setActiveTab] = useState<"panoramica" | "edificio" | "evidenze" | "residui" | "artefatti">("panoramica");
+  const [activeTab, setActiveTab] = useState<"panoramica" | "edificio" | "modello" | "evidenze" | "residui" | "artefatti">("panoramica");
 
   return (
     <div className="r1-workspace">
@@ -46,6 +63,7 @@ export default function StructuralProfessionalWorkspace() {
       <main className="r1-main">
         {activeTab === "panoramica" && <Panoramica />}
         {activeTab === "edificio" && <StatoDiFatto snapshot={data} />}
+        {activeTab === "modello" && <ModelView />}
         {activeTab === "evidenze" && (
           <div className="r1-single-panel"><Evidences evidences={data.evidences} /></div>
         )}

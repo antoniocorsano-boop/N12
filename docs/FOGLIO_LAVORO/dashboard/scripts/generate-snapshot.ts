@@ -438,6 +438,174 @@ function buildBuilding() {
   };
 }
 
+/* ─── Canonical Structural Model (E4) ─── */
+function buildCanonicalModel(building: ReturnType<typeof buildBuilding>, residuals: Residual[]) {
+  const entities: any[] = [];
+  const missing: { entityId: string; property: string; reason: string }[] = [];
+
+  // Build entities from building chains
+  for (const chain of building.chains) {
+    // Column entity (observed layer)
+    const colProps: any[] = [
+      { key: "nodeId", label: "Nodo", layer: "observed", value: chain.nodeId, status: "VER_GEOMETRIC", source: "CATENE_VERTICALI_PILASTRI_v20.csv", evidenceId: "EV-G01" },
+      { key: "chainId", label: "Catena", layer: "observed", value: chain.chainId, status: "VER_GEOMETRIC", source: "CATENE_VERTICALI_PILASTRI_v20.csv", evidenceId: "EV-G01" },
+      { key: "axisX", label: "Asse X", layer: "observed", value: chain.axisX, status: "VER_GEOMETRIC", source: "CATENE_VERTICALI_PILASTRI_v20.csv", evidenceId: "EV-G01" },
+      { key: "axisY", label: "Asse Y", layer: "observed", value: chain.axisY, status: "VER_GEOMETRIC", source: "CATENE_VERTICALI_PILASTRI_v20.csv", evidenceId: "EV-G01" },
+      { key: "x_mm", label: "X (mm)", layer: "observed", value: chain.coordinates.x_mm, status: "VER_GEOMETRIC", source: "CATENE_VERTICALI_PILASTRI_v20.csv", evidenceId: "EV-G01" },
+      { key: "y_mm", label: "Y (mm)", layer: "observed", value: chain.coordinates.y_mm, status: "VER_GEOMETRIC", source: "CATENE_VERTICALI_PILASTRI_v20.csv", evidenceId: "EV-G01" },
+    ];
+
+    // Add level-specific properties
+    for (const lev of chain.levels) {
+      if (lev.section) {
+        colProps.push({ key: `section_${lev.level}`, label: `Sezione ${lev.level}`, layer: "observed", value: lev.section.value, status: lev.section.status, source: lev.section.source, evidenceId: lev.section.evidenceId });
+      } else {
+        const reason = "Sezione non documentata per questo livello";
+        colProps.push({ key: `section_${lev.level}`, label: `Sezione ${lev.level}`, layer: "observed", value: null, status: "ND", source: "—", missingReason: reason });
+        missing.push({ entityId: `N12.column.${lev.level}.${chain.chainId}`, property: `section_${lev.level}`, reason });
+      }
+      if (lev.frame) {
+        colProps.push({ key: `frame_${lev.level}`, label: `Trave ${lev.level}`, layer: "observed", value: lev.frame.value, status: lev.frame.status, source: lev.frame.source, evidenceId: lev.frame.evidenceId });
+      }
+      // Material: always ND (E4 — no completions)
+      colProps.push({ key: `material_${lev.level}`, label: `Materiale ${lev.level}`, layer: "observed", value: null, status: "ND", source: "—", missingReason: "Materiali non indagati" });
+      missing.push({ entityId: `N12.column.${lev.level}.${chain.chainId}`, property: `material_${lev.level}`, reason: "Materiali non indagati" });
+      // Reinforcement: always ND
+      colProps.push({ key: `reinforcement_${lev.level}`, label: `Armatura ${lev.level}`, layer: "observed", value: null, status: "ND", source: "—", missingReason: "Armature non documentate" });
+      missing.push({ entityId: `N12.column.${lev.level}.${chain.chainId}`, property: `reinforcement_${lev.level}`, reason: "Armature non documentate" });
+    }
+
+    entities.push({
+      id: { raw: `N12.column.*.${chain.chainId}`, entityType: "column", chain: chain.chainId },
+      name: `Pilastro ${chain.chainId}`,
+      layer: "observed",
+      properties: colProps,
+      parent: `N12.building.N12`,
+      evidenceIds: chain.evidenceIds,
+      residualIds: chain.residualIds,
+    });
+  }
+
+  // Missing properties summary
+  const blockingResiduals = residuals
+    .filter((r) => r.type === "BLOCCANTE" && r.state !== "CHIUSO")
+    .map((r) => r.id);
+
+  return {
+    schemaVersion: "N12-CSM-0001",
+    generatedAt: new Date().toISOString(),
+    sourceRevision: "e489225",
+    gate: "M0-G",
+    entities,
+    missingProperties: missing,
+    blockingResiduals,
+  };
+}
+
+/* ─── Readiness Matrix (E6) ─── */
+function buildReadiness(model: ReturnType<typeof buildCanonicalModel>, residuals: Residual[]) {
+  const chains = model.entities.filter((e: any) => e.id.entityType === "column");
+  const total = chains.length;
+  const levels = ["G1", "G2", "G3", "G4", "G5"];
+
+  function countForDomain(domain: string): { available: number; missing: string[]; status: string } {
+    let available = 0;
+    const miss: string[] = [];
+    for (const chain of chains) {
+      const props = chain.properties;
+      const relevant = props.filter((p: any) => p.key.includes(domain));
+      if (relevant.length === 0) {
+        miss.push(`${chain.name}: non applicabile`);
+        continue;
+      }
+      const hasDoc = relevant.some((p: any) => p.status.startsWith("DOC") || p.status.startsWith("VER") || p.status === "RIF");
+      const allNd = relevant.every((p: any) => p.status === "ND");
+      if (hasDoc) available++;
+      else if (allNd) miss.push(`${chain.name}: ND`);
+      else miss.push(`${chain.name}: parziale`);
+    }
+    const status = available === total ? "COMPLETO" : available > 0 ? "PARZIALE" : "ND";
+    return { available, missing: miss.slice(0, 5), status };
+  }
+
+  const geom = countForDomain("x_mm");
+  const sect = countForDomain("section");
+  const mat = countForDomain("material");
+  const reinf = countForDomain("reinforcement");
+
+  const cells = [
+    { domain: "geometria" as const, label: "Geometria", level: geom.status as any, available: geom.available, total, missing: geom.missing, evidenceStatus: "VER_GEOMETRIC" as const },
+    { domain: "topologia" as const, label: "Topologia", level: "ND" as const, available: 0, total, missing: ["57 nodi topologici: PREDOC_TOPOLOGICO, non verificati"], evidenceStatus: "PREDOC_TOPOLOGICO" as const },
+    { domain: "sezioni" as const, label: "Sezioni", level: sect.status as any, available: sect.available, total, missing: sect.missing, evidenceStatus: "DOC_PARZIALE" as const },
+    { domain: "armature" as const, label: "Armature", level: "ND" as const, available: 0, total, missing: ["Nessuna armatura documentata"], evidenceStatus: "ND" as const },
+    { domain: "materiali" as const, label: "Materiali", level: "ND" as const, available: 0, total, missing: ["Materiali non indagati"], evidenceStatus: "ND" as const },
+    { domain: "fondazioni" as const, label: "Fondazioni", level: "PARZIALE" as const, available: 7, total: 27, missing: ["7 catene fondazioni ricostruite, 20 mancanti"], evidenceStatus: "DOC-ARTEFATTO" as const },
+    { domain: "carichi" as const, label: "Carichi", level: "ND" as const, available: 0, total: 0, missing: ["Carichi non definiti"], evidenceStatus: "ND" as const },
+    { domain: "lc_fc" as const, label: "LC/FC", level: "ND" as const, available: 0, total: 0, missing: ["Livello di conoscenza non definito"], evidenceStatus: "ND" as const },
+  ];
+
+  const blockingReasons = residuals
+    .filter((r) => r.type === "BLOCCANTE" && r.state !== "CHIUSO")
+    .map((r) => `${r.id}: ${r.description}`);
+
+  return {
+    cells,
+    overallStatus: "BLOCCATO" as const,
+    m0GateBlocked: true,
+    blockingReasons,
+  };
+}
+
+/* ─── Adapter Status (E5) ─── */
+function buildAdapters(): any[] {
+  return [
+    {
+      id: "edilus",
+      name: "EdiLus-EE",
+      state: "BLOCKED",
+      description: "Esportazione modello EdiLus per verifica normativa",
+      requiredProperties: [
+        { property: "geometria", required: true, currentStatus: "VER_GEOMETRIC" },
+        { property: "sezioni", required: true, currentStatus: "DOC_PARZIALE", blocker: "Sezioni non assegnate a tutte le 27 catene" },
+        { property: "armature", required: true, currentStatus: "ND", blocker: "Armature non documentate" },
+        { property: "materiali", required: true, currentStatus: "ND", blocker: "Materiali non indagati" },
+        { property: "carichi", required: true, currentStatus: "ND", blocker: "Carichi non definiti" },
+        { property: "lc_fc", required: true, currentStatus: "ND", blocker: "LC/FC non definito" },
+      ],
+      blockingProperties: ["sezioni", "armature", "materiali", "carichi", "lc_fc"],
+    },
+    {
+      id: "bim_ifc",
+      name: "usBIM / IFC",
+      state: "BLOCKED",
+      description: "Esportazione modello BIM per coordinamento",
+      requiredProperties: [
+        { property: "geometria", required: true, currentStatus: "VER_GEOMETRIC" },
+        { property: "sezioni", required: true, currentStatus: "DOC_PARZIALE", blocker: "Sezioni non complete" },
+        { property: "materiali", required: false, currentStatus: "ND" },
+      ],
+      blockingProperties: ["sezioni"],
+    },
+    {
+      id: "fem",
+      name: "FEM (OpenSees / altro)",
+      state: "BLOCKED",
+      description: "Analisi numerica per verifiche sismiche",
+      requiredProperties: [
+        { property: "geometria", required: true, currentStatus: "VER_GEOMETRIC" },
+        { property: "topologia", required: true, currentStatus: "PREDOC_TOPOLOGICO", blocker: "57 nodi: PREDOC, non verificati" },
+        { property: "sezioni", required: true, currentStatus: "DOC_PARZIALE", blocker: "Sezioni non assegnate" },
+        { property: "armature", required: true, currentStatus: "ND", blocker: "Armature non documentate" },
+        { property: "materiali", required: true, currentStatus: "ND", blocker: "Materiali non indagati" },
+        { property: "connettivita", required: true, currentStatus: "INF_DA_QUOTARE", blocker: "141 connessioni candidate, non verificate" },
+        { property: "vincoli", required: true, currentStatus: "PLACEHOLDER", blocker: "Solo base incastrata (placeholder)" },
+        { property: "carichi", required: true, currentStatus: "ND", blocker: "Carichi non definiti" },
+      ],
+      blockingProperties: ["topologia", "sezioni", "armature", "materiali", "connettivita", "vincoli", "carichi"],
+    },
+  ];
+}
+
 /* ─── Validation ─── */
 function validate(evidences: Evidence[], artifacts: Artifact[], residuals: Residual[]): void {
   const errors: string[] = [];
@@ -499,6 +667,19 @@ console.log(`  Chains: ${building.chains.length}`);
 console.log(`  Levels: ${building.levels.length}`);
 console.log(`  Chain-level entities: ${building.totalChainLevelEntities}`);
 
+console.log("Building canonical structural model...");
+const canonicalModel = buildCanonicalModel(building, residuals);
+console.log(`  Entities: ${canonicalModel.entities.length}`);
+console.log(`  Missing properties: ${canonicalModel.missingProperties.length}`);
+
+console.log("Building readiness matrix...");
+const readiness = buildReadiness(canonicalModel, residuals);
+console.log(`  Overall: ${readiness.overallStatus} (M0-G blocked: ${readiness.m0GateBlocked})`);
+
+console.log("Building adapter status...");
+const adapters = buildAdapters();
+console.log(`  Adapters: ${adapters.map((a) => `${a.id}=${a.state}`).join(", ")}`);
+
 const snapshot = {
   project: {
     name: "N12 — Edificio esistente in c.a. Ariano Irpino",
@@ -516,6 +697,9 @@ const snapshot = {
   evidenceCounts: counts,
   nextGlobalAction: nextAction,
   building,
+  canonicalModel,
+  readiness,
+  adapters,
 };
 
 const outPath = join(import.meta.dirname, "..", "src", "read-model", "r1-snapshot.json");
