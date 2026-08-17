@@ -21,7 +21,7 @@ function Panoramica() {
   return (
     <div className="r1-grid">
       <div className="r1-grid__left">
-        <ProjectIdentityPanel project={data.project} />
+        <ProjectIdentityPanel project={data.project} validationQueue={data.validationQueue} />
         <NextAction action={data.nextGlobalAction} />
         <Fronts fronts={data.fronts} />
       </div>
