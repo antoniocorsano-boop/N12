@@ -1,0 +1,15 @@
+﻿handle;layer;type;text;x;y
+A0;S-TEXT-E;TEXT;TAV6_TRAVI - BASE DI DIGITALIZZAZIONE;450.0;17799.100172254773
+A1;S-TEXT-E;TEXT;Unita mm | modelspace 1:1 | armature travi - scala dichiarata 1:50;450.0;17619.100172254773
+A3;S-TEXT-E;TEXT;"S-SURV-DOC-E: dato documentato; S-RECON-INF-E: deduzione; S-VERIFY-E: da verificare.";450.0;17259.100172254773
+AD;S-TEXT-E;TEXT;"Schema riferito: tre ferri sagomati; passaggi inferiore/superiore alternati.";1700.0;16200.0
+AE;S-TEXT-E;TEXT;Regola empirica riferita: piegature circa a 1/6 e 1/5 della luce.;1700.0;16050.0
+AF;S-TEXT-E;TEXT;Diametro longitudinali riferito: Ø14.;1700.0;15900.0
+B0;S-TEXT-E;TEXT;"Staffe: passo riferito circa 15 cm; Ø10 ritenuto probabile, DA VERIFICARE.";1700.0;15750.0
+B1;S-TEXT-E;TEXT;Ferri di parete: riferiti assenti.;1700.0;15600.0
+B2;S-TEXT-E;TEXT;Copriferro: riferita perdita locale per deformazione staffe durante il getto.;1700.0;15450.0
+35F;S-NOTE-VER;TEXT;TRACCIAMENTO AUTOMATICO PRELIMINARE: layer S-TRACE-INF. NON USARE COME GEOMETRIA STRUTTURALE FINCHE' NON VALIDATO CONTRO QUOTE E TAVOLA.;3222.6;546.0
+60F;S-CHECK-VER;TEXT;CONTROLLO PER PROMOZIONE INF -> DOC;3219.4644125516907;17409.286432160807
+611;S-CHECK-VER;TEXT;2 elemento riconosciuto sulla carpenteria;3219.4644125516907;17039.644221830797
+612;S-CHECK-VER;TEXT;3 continuita' verificata con campata/impalcato;3219.4644125516907;16854.823116665793
+613;S-CHECK-VER;TEXT;4 sezione/armatura associata dalla tavola pertinente;3219.4644125516907;16670.00201150079
