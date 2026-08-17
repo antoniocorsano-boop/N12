@@ -1153,5 +1153,1957 @@
     "PLACEHOLDER": 2,
     "PLACEHOLDER_GEOMETRY_ONLY": 1
   },
-  "nextGlobalAction": "R-1A-01: Raccordo 57 nodi topologici a coordinate canoniche — lavoro sul modello strutturale canonico, rispetta il gate M0-G."
+  "nextGlobalAction": "R-1A-01: Raccordo 57 nodi topologici a coordinate canoniche — lavoro sul modello strutturale canonico, rispetta il gate M0-G.",
+  "building": {
+    "levels": [
+      {
+        "id": "G1",
+        "label": "Piano G1",
+        "height_m": 3.2,
+        "height_status": "RIF",
+        "chainCount": 27
+      },
+      {
+        "id": "G2",
+        "label": "Piano G2",
+        "height_m": 3.2,
+        "height_status": "RIF",
+        "chainCount": 27
+      },
+      {
+        "id": "G3",
+        "label": "Piano G3",
+        "height_m": 3.2,
+        "height_status": "RIF",
+        "chainCount": 27
+      },
+      {
+        "id": "G4",
+        "label": "Piano G4",
+        "height_m": 3.2,
+        "height_status": "RIF",
+        "chainCount": 27
+      },
+      {
+        "id": "G5",
+        "label": "Piano G5",
+        "height_m": 3.2,
+        "height_status": "RIF",
+        "chainCount": 27
+      }
+    ],
+    "chains": [
+      {
+        "nodeId": "N001",
+        "chainId": "X07-Y05",
+        "axisX": "X07",
+        "axisY": "Y05",
+        "coordinates": {
+          "x_mm": 33084.7,
+          "y_mm": 12210.4
+        },
+        "levels": [
+          {
+            "level": "G1",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G5",
+            "section": {
+              "value": "20x45",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C2-C7",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 19.2,
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            }
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07",
+          "EV-S05"
+        ],
+        "residualIds": [
+          "R-1A-06"
+        ]
+      },
+      {
+        "nodeId": "N002",
+        "chainId": "X09-Y05",
+        "axisX": "X09",
+        "axisY": "Y05",
+        "coordinates": {
+          "x_mm": 36500.9,
+          "y_mm": 12233.9
+        },
+        "levels": [
+          {
+            "level": "G1",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G5",
+            "section": {
+              "value": "20x45",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C2-C7",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 19.2,
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            }
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07",
+          "EV-S05"
+        ],
+        "residualIds": [
+          "R-1A-06"
+        ]
+      },
+      {
+        "nodeId": "N005",
+        "chainId": "X09-Y02",
+        "axisX": "X09",
+        "axisY": "Y02",
+        "coordinates": {
+          "x_mm": 36510.7,
+          "y_mm": 7839.7
+        },
+        "levels": [
+          {
+            "level": "G1",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G5",
+            "section": {
+              "value": "20x45",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C2-C7",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 19.2,
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            }
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07",
+          "EV-S05"
+        ],
+        "residualIds": [
+          "R-1A-06"
+        ]
+      },
+      {
+        "nodeId": "N006",
+        "chainId": "X07-Y01",
+        "axisX": "X07",
+        "axisY": "Y01",
+        "coordinates": {
+          "x_mm": 33159.8,
+          "y_mm": 5536.1
+        },
+        "levels": [
+          {
+            "level": "G1",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G5",
+            "section": {
+              "value": "20x45",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C2-C7",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 19.2,
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            }
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07",
+          "EV-S05"
+        ],
+        "residualIds": [
+          "R-1A-06"
+        ]
+      },
+      {
+        "nodeId": "N007",
+        "chainId": "X06-Y01",
+        "axisX": "X06",
+        "axisY": "Y01",
+        "coordinates": {
+          "x_mm": 31775,
+          "y_mm": 5536.1
+        },
+        "levels": [
+          {
+            "level": "G1",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G5",
+            "section": {
+              "value": "20x45",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C2-C7",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 19.2,
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            }
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07",
+          "EV-S05"
+        ],
+        "residualIds": [
+          "R-1A-06"
+        ]
+      },
+      {
+        "nodeId": "N003",
+        "chainId": "X04-Y13",
+        "axisX": "X04",
+        "axisY": "Y13",
+        "coordinates": {
+          "x_mm": 23776.6,
+          "y_mm": 25651.2
+        },
+        "levels": [
+          {
+            "level": "G1",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G5",
+            "section": {
+              "value": "20x45",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C2-C7",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 19.2,
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            }
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07",
+          "EV-S05"
+        ],
+        "residualIds": [
+          "R-1A-06"
+        ]
+      },
+      {
+        "nodeId": "N008",
+        "chainId": "X06-Y05",
+        "axisX": "X06",
+        "axisY": "Y05",
+        "coordinates": {
+          "x_mm": 31709.7,
+          "y_mm": 12151.3
+        },
+        "levels": [
+          {
+            "level": "G1",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G5",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07",
+          "EV-S05"
+        ],
+        "residualIds": [
+          "R-1A-06"
+        ]
+      },
+      {
+        "nodeId": "N004",
+        "chainId": "X06-Y12",
+        "axisX": "X06",
+        "axisY": "Y12",
+        "coordinates": {
+          "x_mm": 31530.1,
+          "y_mm": 23679
+        },
+        "levels": [
+          {
+            "level": "G1",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G5",
+            "section": {
+              "value": "20x45",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C2-C7",
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 19.2,
+              "status": "DOC",
+              "source": "relazione_calcolo_v17",
+              "evidenceId": "EV-T07"
+            }
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07",
+          "EV-S05"
+        ],
+        "residualIds": [
+          "R-1A-06"
+        ]
+      },
+      {
+        "nodeId": "N009",
+        "chainId": "X01-Y04",
+        "axisX": "X01",
+        "axisY": "Y04",
+        "coordinates": {
+          "x_mm": 8485.1,
+          "y_mm": 10543.7
+        },
+        "levels": [
+          {
+            "level": "G1",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G5",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07",
+          "EV-S05"
+        ],
+        "residualIds": [
+          "R-1A-06"
+        ]
+      },
+      {
+        "nodeId": "N010",
+        "chainId": "X13-Y06",
+        "axisX": "X13",
+        "axisY": "Y06",
+        "coordinates": {
+          "x_mm": 42889.2,
+          "y_mm": 12616.6
+        },
+        "levels": [
+          {
+            "level": "G1",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G5",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07",
+          "EV-S05"
+        ],
+        "residualIds": [
+          "R-1A-06"
+        ]
+      },
+      {
+        "nodeId": "N011",
+        "chainId": "X04-Y11",
+        "axisX": "X04",
+        "axisY": "Y11",
+        "coordinates": {
+          "x_mm": 23789.6,
+          "y_mm": 20627.2
+        },
+        "levels": [
+          {
+            "level": "G1",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G5",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07",
+          "EV-S05"
+        ],
+        "residualIds": [
+          "R-1A-06"
+        ]
+      },
+      {
+        "nodeId": "N012",
+        "chainId": "X04-Y09",
+        "axisX": "X04",
+        "axisY": "Y09",
+        "coordinates": {
+          "x_mm": 23789.6,
+          "y_mm": 17276.3
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2"
+          },
+          {
+            "level": "G3"
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N013",
+        "chainId": "X04-Y05",
+        "axisX": "X04",
+        "axisY": "Y05",
+        "coordinates": {
+          "x_mm": 23789.6,
+          "y_mm": 12151.3
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2"
+          },
+          {
+            "level": "G3"
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N014",
+        "chainId": "X04-Y02",
+        "axisX": "X04",
+        "axisY": "Y02",
+        "coordinates": {
+          "x_mm": 23789.6,
+          "y_mm": 7839.7
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2"
+          },
+          {
+            "level": "G3"
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N015",
+        "chainId": "X04-Y01",
+        "axisX": "X04",
+        "axisY": "Y01",
+        "coordinates": {
+          "x_mm": 23789.6,
+          "y_mm": 5536.1
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2"
+          },
+          {
+            "level": "G3"
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N016",
+        "chainId": "X05-Y12",
+        "axisX": "X05",
+        "axisY": "Y12",
+        "coordinates": {
+          "x_mm": 28419.4,
+          "y_mm": 23679
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2"
+          },
+          {
+            "level": "G3"
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "relazione_calcolo",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N017",
+        "chainId": "X05-Y11",
+        "axisX": "X05",
+        "axisY": "Y11",
+        "coordinates": {
+          "x_mm": 28419.4,
+          "y_mm": 20627.2
+        },
+        "levels": [
+          {
+            "level": "G1",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G5",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07",
+          "EV-S05"
+        ],
+        "residualIds": [
+          "R-1A-06"
+        ]
+      },
+      {
+        "nodeId": "N018",
+        "chainId": "X05-Y09",
+        "axisX": "X05",
+        "axisY": "Y09",
+        "coordinates": {
+          "x_mm": 28419.4,
+          "y_mm": 17276.3
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2"
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G4"
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N019",
+        "chainId": "X05-Y05",
+        "axisX": "X05",
+        "axisY": "Y05",
+        "coordinates": {
+          "x_mm": 28419.4,
+          "y_mm": 12151.3
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2"
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G4"
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N020",
+        "chainId": "X05-Y02",
+        "axisX": "X05",
+        "axisY": "Y02",
+        "coordinates": {
+          "x_mm": 28419.4,
+          "y_mm": 7839.7
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2"
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G4"
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N021",
+        "chainId": "X05-Y01",
+        "axisX": "X05",
+        "axisY": "Y01",
+        "coordinates": {
+          "x_mm": 28419.4,
+          "y_mm": 5536.1
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2"
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G4"
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N022",
+        "chainId": "X06-Y11",
+        "axisX": "X06",
+        "axisY": "Y11",
+        "coordinates": {
+          "x_mm": 31709.7,
+          "y_mm": 20627.2
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2"
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G4"
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N023",
+        "chainId": "X06-Y09",
+        "axisX": "X06",
+        "axisY": "Y09",
+        "coordinates": {
+          "x_mm": 31709.7,
+          "y_mm": 17276.3
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2"
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G4"
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N024",
+        "chainId": "X06-Y02",
+        "axisX": "X06",
+        "axisY": "Y02",
+        "coordinates": {
+          "x_mm": 31709.7,
+          "y_mm": 7839.7
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2"
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G4"
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N025",
+        "chainId": "X07-Y09",
+        "axisX": "X07",
+        "axisY": "Y09",
+        "coordinates": {
+          "x_mm": 33084.7,
+          "y_mm": 17276.3
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2"
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G4"
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N026",
+        "chainId": "X09-Y09",
+        "axisX": "X09",
+        "axisY": "Y09",
+        "coordinates": {
+          "x_mm": 36500.9,
+          "y_mm": 17276.3
+        },
+        "levels": [
+          {
+            "level": "G1"
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G3"
+          },
+          {
+            "level": "G4"
+          },
+          {
+            "level": "G5"
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07"
+        ],
+        "residualIds": []
+      },
+      {
+        "nodeId": "N027",
+        "chainId": "X13-Y09",
+        "axisX": "X13",
+        "axisY": "Y09",
+        "coordinates": {
+          "x_mm": 42889.2,
+          "y_mm": 17276.3
+        },
+        "levels": [
+          {
+            "level": "G1",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G2",
+            "section": {
+              "value": "25x70 + 140x20_C3-C5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "frame": {
+              "value": "T5",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "spans": {
+              "value": "C1-C8",
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            },
+            "development": {
+              "value": 28.6,
+              "status": "DOC",
+              "source": "RC-P13_v16",
+              "evidenceId": "EV-T07"
+            }
+          },
+          {
+            "level": "G3",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G4",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          },
+          {
+            "level": "G5",
+            "section": {
+              "value": "ND",
+              "status": "ND",
+              "source": "CATENE_VERTICALI_PILASTRI_v20 + MATRICE_PILASTRI_27x5_v22",
+              "evidenceId": "EV-S05"
+            }
+          }
+        ],
+        "evidenceIds": [
+          "EV-G01",
+          "EV-P02",
+          "EV-T07",
+          "EV-S05"
+        ],
+        "residualIds": [
+          "R-1A-06"
+        ]
+      }
+    ],
+    "frames": [
+      {
+        "id": "T5",
+        "name": "Telaio 5 (S-S'-T-U-V-Z-A'-B'-C')",
+        "levels": [
+          "G1",
+          "G2",
+          "G3",
+          "G4",
+          "G5"
+        ],
+        "documented": true,
+        "evidenceIds": [
+          "EV-T04",
+          "EV-T05",
+          "EV-T06",
+          "EV-T07"
+        ]
+      }
+    ],
+    "totalChainLevelEntities": 135
+  }
 }

@@ -1,12 +1,34 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
-import { join, basename } from "node:path";
+import { join } from "node:path";
 
+const ROOT = join(import.meta.dirname, "..", "..", "..", "..");
 const FOGLIO = join(import.meta.dirname, "..", "..");
+const CANONICAL = join(ROOT, "data", "canonical");
 
 function read(rel: string): string {
   const p = join(FOGLIO, rel);
-  if (!existsSync(p)) throw new Error(`Missing: ${p}`);
+  if (!existsSync(p)) throw new Error(`Missing FOGLIO: ${p}`);
   return readFileSync(p, "utf-8");
+}
+
+function readCanonical(filename: string): string {
+  const p = join(CANONICAL, filename);
+  if (!existsSync(p)) throw new Error(`Missing CANONICAL: ${p}`);
+  return readFileSync(p, "utf-8");
+}
+
+function parseCsv(content: string): { headers: string[]; rows: Record<string, string>[] } {
+  const lines = content.split("\n").filter((l) => l.trim());
+  if (lines.length < 2) return { headers: [], rows: [] };
+  const sep = lines[0].includes(";") ? ";" : ",";
+  const headers = lines[0].split(sep).map((h) => h.trim());
+  const rows = lines.slice(1).map((line) => {
+    const cells = line.split(sep).map((c) => c.trim().replace(/^"|"$/g, ""));
+    const row: Record<string, string> = {};
+    headers.forEach((h, i) => (row[h] = cells[i] ?? ""));
+    return row;
+  });
+  return { headers, rows };
 }
 
 interface MdTable {
@@ -292,6 +314,130 @@ function evidenceCounts(evidences: Evidence[]): Record<string, number> {
   return counts;
 }
 
+/* ─── Building data from canonical CSVs ─── */
+interface CsvRow {
+  [key: string]: string;
+}
+
+function buildBuilding() {
+  // 1. Read nodes (27 chains with coordinates)
+  const nodesCsv = parseCsv(readCanonical("nodes.csv"));
+  const nodesMap = new Map<string, CsvRow>();
+  for (const row of nodesCsv.rows) nodesMap.set(row.node_id, row);
+
+  // 2. Read column fixed lines (section data per chain)
+  const colCsv = parseCsv(readCanonical("column_fixed_lines.csv"));
+  const colMap = new Map<string, CsvRow>();
+  for (const row of colCsv.rows) colMap.set(row.column_chain_id, row);
+
+  // 3. Read telaio 5 (frame data)
+  const t5Csv = parseCsv(readCanonical("telaio_5.csv"));
+  const t5Levels = t5Csv.rows;
+
+  // 4. Read storey heights
+  const heightCsv = parseCsv(readCanonical("storey_height_status.csv"));
+  const heightRow = heightCsv.rows[0];
+  const storeyHeight = heightRow ? parseFloat(heightRow.value_m) || 3.2 : 3.2;
+  const heightStatus = (heightRow?.evidence_status ?? "RIF") as string;
+
+  // 5. Read pillar assignment status
+  const pillarCsv = parseCsv(readCanonical("pillar_section_assignment_status.csv"));
+  const pillarRow = pillarCsv.rows.find((r) => r.scope === "ALL_27_CHAINS");
+  const pillarStatus = pillarRow?.status ?? "ND";
+
+  // Build levels
+  const levels = ["G1", "G2", "G3", "G4", "G5"].map((id, i) => ({
+    id,
+    label: `Piano ${id}`,
+    height_m: storeyHeight,
+    height_status: heightStatus as any,
+    chainCount: 27,
+  }));
+
+  // Build chains from nodes
+  const chains = Array.from(nodesMap.values()).map((node) => {
+    const chainId = node.chain_id;
+    const nodeId = node.node_id;
+
+    // Find T5 data for this chain's node range
+    const nodeNum = parseInt(nodeId.replace("N", ""), 10);
+    const t5Level = t5Levels.find((t) => {
+      const range = t.nodi.split("-");
+      const lo = parseInt(range[0], 10);
+      const hi = parseInt(range[1], 10);
+      return nodeNum >= lo && nodeNum <= hi;
+    });
+
+    // Find column fixed line data
+    const colData = colMap.get(chainId);
+
+    // Map section data from T5 or column data
+    const sectionBase = colData?.section_base ?? "ND";
+    const sectionTop = colData?.section_top ?? "ND";
+    const continuity = colData?.continuity_status ?? "ND";
+
+    const evIds: string[] = ["EV-G01", "EV-P02"];
+    if (t5Level) evIds.push("EV-T07");
+    if (colData) evIds.push("EV-S05");
+
+    const levels_data = ["G1", "G2", "G3", "G4", "G5"].map((lev) => {
+      const inT5 = t5Level && t5Level.livello === lev;
+      return {
+        level: lev,
+        section: inT5
+          ? { value: t5Level.sezioni, status: "DOC" as const, source: t5Level.provenienza, evidenceId: "EV-T07" }
+          : colData
+            ? { value: sectionBase === "ND" ? "ND" : `${sectionBase}`, status: sectionBase === "ND" ? ("ND" as const) : ("DOC_PARZIALE" as const), source: colData.source_ref ?? "CATENE_VERTICALI_PILASTRI_v20", evidenceId: "EV-S05" }
+            : undefined,
+        frame: inT5
+          ? { value: "T5", status: "DOC" as const, source: t5Level.provenienza, evidenceId: "EV-T07" }
+          : undefined,
+        spans: inT5
+          ? { value: t5Level.campate, status: "DOC" as const, source: t5Level.provenienza, evidenceId: "EV-T07" }
+          : undefined,
+        development: inT5
+          ? { value: parseFloat(t5Level.sviluppo_m) || 0, status: "DOC" as const, source: t5Level.provenienza, evidenceId: "EV-T07" }
+          : undefined,
+      };
+    });
+
+    return {
+      nodeId,
+      chainId,
+      axisX: node.axis_x_geom,
+      axisY: node.axis_y_geom,
+      coordinates: { x_mm: parseFloat(node.x_mm) || 0, y_mm: parseFloat(node.y_mm) || 0 },
+      levels: levels_data,
+      evidenceIds: [...new Set(evIds)],
+      residualIds: [] as string[],
+    };
+  });
+
+  // Assign residuals to chains based on R-1A-06 (section assignment)
+  for (const chain of chains) {
+    const hasNd = chain.levels.some((l) => l.section?.value === "ND" || l.section?.status === "ND");
+    if (hasNd) chain.residualIds.push("R-1A-06");
+  }
+
+  // Build frames
+  const frames = [
+    {
+      id: "T5",
+      name: "Telaio 5 (S-S'-T-U-V-Z-A'-B'-C')",
+      levels: ["G1", "G2", "G3", "G4", "G5"],
+      documented: true,
+      evidenceIds: ["EV-T04", "EV-T05", "EV-T06", "EV-T07"],
+    },
+  ];
+
+  return {
+    levels,
+    chains,
+    frames,
+    totalChainLevelEntities: 27 * 5,
+  };
+}
+
 /* ─── Validation ─── */
 function validate(evidences: Evidence[], artifacts: Artifact[], residuals: Residual[]): void {
   const errors: string[] = [];
@@ -347,6 +493,12 @@ const pipeline = buildPipeline();
 const nextAction = nextGlobalAction(residuals);
 const counts = evidenceCounts(evidences);
 
+console.log("Building entity model from canonical CSVs...");
+const building = buildBuilding();
+console.log(`  Chains: ${building.chains.length}`);
+console.log(`  Levels: ${building.levels.length}`);
+console.log(`  Chain-level entities: ${building.totalChainLevelEntities}`);
+
 const snapshot = {
   project: {
     name: "N12 — Edificio esistente in c.a. Ariano Irpino",
@@ -363,6 +515,7 @@ const snapshot = {
   residuals,
   evidenceCounts: counts,
   nextGlobalAction: nextAction,
+  building,
 };
 
 const outPath = join(import.meta.dirname, "..", "src", "read-model", "r1-snapshot.json");
