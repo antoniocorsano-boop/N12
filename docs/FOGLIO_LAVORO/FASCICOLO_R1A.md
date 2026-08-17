@@ -1,6 +1,6 @@
 # Fascicolo R1-A — Workspace Professionale Strutturale
 
-Versione: `R1-A-0002` — 2026-08-17 (aggiornato R1-B)
+Versione: `R1-A-0003` — 2026-08-17 (aggiornato R1-F)
 
 ## Scope
 
@@ -74,9 +74,17 @@ Vedi `docs/FOGLIO_LAVORO/RESIDUI.md` per il registro completo con stato, dipende
 | Residui | docs/FOGLIO_LAVORO/RESIDUI.md | RS-0001 |
 | Gate Report R1-A | docs/FOGLIO_LAVORO/GATE_REPORT_R1A.md | GR-0001 |
 
+## Riferimenti R1-F
+
+| Deliverable | Path | Versione |
+|-------------|------|----------|
+| Gate Report R1-F | docs/FOGLIO_LAVORO/GATE_REPORT_R1F.md | GR-0002 |
+| Dashboard R1-F | docs/FOGLIO_LAVORO/dashboard/ | v2.0 |
+| Snapshot R1-F | docs/FOGLIO_LAVORO/dashboard/src/read-model/r1-snapshot.json | R1-F |
+
 ## Prossima azione globale
 
-R1-A-01: Completare raccordo 57 nodi topologici — recuperare o verificare `ABACO_TOPOLOGICO_TAV5_v11.csv` e costruire dataset canonico verificato contro TAV.5/TAV.7. Questo è lavoro sul modello strutturale canonico e rispetta il gate M0-G; non è attività di interfaccia R1.
+R1-F-01: Completare documentazione utente per la Validation Queue — definire come l'utente strutturale interagisce con i candidati analogici e come i risultati validati vengono propagati al modello canonico.
 
 ## Regole di questo workspace
 

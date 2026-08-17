@@ -1,6 +1,10 @@
-import type { ProjectIdentity } from "../read-model/types";
+import type { ProjectIdentity, ValidationQueue } from "../read-model/types";
 
-export default function ProjectIdentityPanel({ project }: { project: ProjectIdentity }) {
+export default function ProjectIdentityPanel({ project, validationQueue }: { project: ProjectIdentity; validationQueue?: ValidationQueue }) {
+  const pct = validationQueue && validationQueue.stats.total > 0
+    ? Math.round((validationQueue.stats.resolved / validationQueue.stats.total) * 100)
+    : null;
+
   return (
     <section className="panel panel--identity">
       <h2>Progetto</h2>
@@ -18,6 +22,15 @@ export default function ProjectIdentityPanel({ project }: { project: ProjectIden
         <dt>Ultimo aggiornamento</dt>
         <dd>{project.lastUpdate}</dd>
       </dl>
+      {pct !== null && (
+        <div className="identity__validation">
+          <span className="identity__validation-label">Risoluzione proprietà</span>
+          <div className="identity__validation-bar">
+            <div className="identity__validation-fill" style={{ width: `${pct}%` }} />
+          </div>
+          <span className="identity__validation-pct">{pct}%</span>
+        </div>
+      )}
     </section>
   );
 }

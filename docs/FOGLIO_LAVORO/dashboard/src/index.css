@@ -68,6 +68,18 @@ body {
 .panel--identity dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px; }
 .panel--identity dt { color: var(--text-dim); font-weight: 500; }
 .panel--identity .gate { color: var(--accent); font-weight: 600; }
+.identity__validation {
+  margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--border);
+  display: flex; gap: 8px; align-items: center;
+}
+.identity__validation-label { font-size: 11px; color: var(--text-dim); min-width: 100px; }
+.identity__validation-bar {
+  flex: 1; height: 8px; background: var(--surface-hover); border-radius: 4px; overflow: hidden;
+}
+.identity__validation-fill {
+  height: 100%; background: var(--green); border-radius: 4px; transition: width 0.3s ease;
+}
+.identity__validation-pct { font-size: 12px; font-weight: 600; color: var(--green); min-width: 32px; }
 
 /* ---- next action ---- */
 .next-action {
