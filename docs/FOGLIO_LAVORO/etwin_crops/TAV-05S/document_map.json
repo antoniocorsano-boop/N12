@@ -1,0 +1,929 @@
+{
+  "map_id": "DM-TAV-05S-001",
+  "document_id": "TAV-05S",
+  "version": 1,
+  "regions": [
+    {
+      "region_id": "R-TAV-05S-TITLE",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "region_type": "TITLE_BLOCK",
+      "label": "Cartiglio",
+      "coords": {
+        "bbox_native": {
+          "x0": 0,
+          "y0": 2586.1059999999998,
+          "x1": 1683.7,
+          "y1": 3007.1
+        },
+        "bbox_normalized": {
+          "x0": 0,
+          "y0": 0.86,
+          "x1": 1.0,
+          "y1": 1.0
+        },
+        "pixel_coords": null,
+        "dxf_coords": null
+      },
+      "evidence_status": "ND",
+      "source_text": ""
+    },
+    {
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "region_type": "PLAN",
+      "label": "Pianta strutturale",
+      "coords": {
+        "bbox_native": {
+          "x0": 0,
+          "y0": 0,
+          "x1": 1683.7,
+          "y1": 2556.035
+        },
+        "bbox_normalized": {
+          "x0": 0,
+          "y0": 0,
+          "x1": 1.0,
+          "y1": 0.85
+        },
+        "pixel_coords": null,
+        "dxf_coords": null
+      },
+      "evidence_status": "ND",
+      "source_text": ""
+    }
+  ],
+  "tiles": [
+    {
+      "tile_id": "T-R-TAV-05S-TITLE-00",
+      "region_id": "R-TAV-05S-TITLE",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 0.0,
+          "y0": 2586.11,
+          "x1": 463.02,
+          "y1": 3007.1
+        },
+        "bbox_normalized": {
+          "x0": 0.0,
+          "y0": 0.0,
+          "x1": 0.275,
+          "y1": 1.0
+        },
+        "pixel_coords": {
+          "x": 0,
+          "y": 0,
+          "width": 1929,
+          "height": 1754,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-TITLE-01",
+      "region_id": "R-TAV-05S-TITLE",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 378.83,
+          "y0": 2586.11,
+          "x1": 883.94,
+          "y1": 3007.1
+        },
+        "bbox_normalized": {
+          "x0": 0.225,
+          "y0": 0.0,
+          "x1": 0.525,
+          "y1": 1.0
+        },
+        "pixel_coords": {
+          "x": 1578,
+          "y": 0,
+          "width": 2104,
+          "height": 1754,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-TITLE-02",
+      "region_id": "R-TAV-05S-TITLE",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 799.76,
+          "y0": 2586.11,
+          "x1": 1304.87,
+          "y1": 3007.1
+        },
+        "bbox_normalized": {
+          "x0": 0.475,
+          "y0": 0.0,
+          "x1": 0.775,
+          "y1": 1.0
+        },
+        "pixel_coords": {
+          "x": 3332,
+          "y": 0,
+          "width": 2104,
+          "height": 1754,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-TITLE-03",
+      "region_id": "R-TAV-05S-TITLE",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 1220.68,
+          "y0": 2586.11,
+          "x1": 1683.7,
+          "y1": 3007.1
+        },
+        "bbox_normalized": {
+          "x0": 0.725,
+          "y0": 0.0,
+          "x1": 1.0,
+          "y1": 1.0
+        },
+        "pixel_coords": {
+          "x": 5086,
+          "y": 0,
+          "width": 1929,
+          "height": 1754,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-00",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 0.0,
+          "y0": 0.0,
+          "x1": 463.02,
+          "y1": 468.61
+        },
+        "bbox_normalized": {
+          "x0": 0.0,
+          "y0": 0.0,
+          "x1": 0.275,
+          "y1": 0.183333
+        },
+        "pixel_coords": {
+          "x": 0,
+          "y": 0,
+          "width": 1929,
+          "height": 1952,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-01",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 378.83,
+          "y0": 0.0,
+          "x1": 883.94,
+          "y1": 468.61
+        },
+        "bbox_normalized": {
+          "x0": 0.225,
+          "y0": 0.0,
+          "x1": 0.525,
+          "y1": 0.183333
+        },
+        "pixel_coords": {
+          "x": 1578,
+          "y": 0,
+          "width": 2104,
+          "height": 1952,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-02",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 799.76,
+          "y0": 0.0,
+          "x1": 1304.87,
+          "y1": 468.61
+        },
+        "bbox_normalized": {
+          "x0": 0.475,
+          "y0": 0.0,
+          "x1": 0.775,
+          "y1": 0.183333
+        },
+        "pixel_coords": {
+          "x": 3332,
+          "y": 0,
+          "width": 2104,
+          "height": 1952,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-03",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 1220.68,
+          "y0": 0.0,
+          "x1": 1683.7,
+          "y1": 468.61
+        },
+        "bbox_normalized": {
+          "x0": 0.725,
+          "y0": 0.0,
+          "x1": 1.0,
+          "y1": 0.183333
+        },
+        "pixel_coords": {
+          "x": 5086,
+          "y": 0,
+          "width": 1929,
+          "height": 1952,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-04",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 0.0,
+          "y0": 383.41,
+          "x1": 463.02,
+          "y1": 894.61
+        },
+        "bbox_normalized": {
+          "x0": 0.0,
+          "y0": 0.15,
+          "x1": 0.275,
+          "y1": 0.35
+        },
+        "pixel_coords": {
+          "x": 0,
+          "y": 1597,
+          "width": 1929,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-05",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 378.83,
+          "y0": 383.41,
+          "x1": 883.94,
+          "y1": 894.61
+        },
+        "bbox_normalized": {
+          "x0": 0.225,
+          "y0": 0.15,
+          "x1": 0.525,
+          "y1": 0.35
+        },
+        "pixel_coords": {
+          "x": 1578,
+          "y": 1597,
+          "width": 2104,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-06",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 799.76,
+          "y0": 383.41,
+          "x1": 1304.87,
+          "y1": 894.61
+        },
+        "bbox_normalized": {
+          "x0": 0.475,
+          "y0": 0.15,
+          "x1": 0.775,
+          "y1": 0.35
+        },
+        "pixel_coords": {
+          "x": 3332,
+          "y": 1597,
+          "width": 2104,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-07",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 1220.68,
+          "y0": 383.41,
+          "x1": 1683.7,
+          "y1": 894.61
+        },
+        "bbox_normalized": {
+          "x0": 0.725,
+          "y0": 0.15,
+          "x1": 1.0,
+          "y1": 0.35
+        },
+        "pixel_coords": {
+          "x": 5086,
+          "y": 1597,
+          "width": 1929,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-08",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 0.0,
+          "y0": 809.41,
+          "x1": 463.02,
+          "y1": 1320.62
+        },
+        "bbox_normalized": {
+          "x0": 0.0,
+          "y0": 0.316667,
+          "x1": 0.275,
+          "y1": 0.516667
+        },
+        "pixel_coords": {
+          "x": 0,
+          "y": 3372,
+          "width": 1929,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-09",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 378.83,
+          "y0": 809.41,
+          "x1": 883.94,
+          "y1": 1320.62
+        },
+        "bbox_normalized": {
+          "x0": 0.225,
+          "y0": 0.316667,
+          "x1": 0.525,
+          "y1": 0.516667
+        },
+        "pixel_coords": {
+          "x": 1578,
+          "y": 3372,
+          "width": 2104,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-10",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 799.76,
+          "y0": 809.41,
+          "x1": 1304.87,
+          "y1": 1320.62
+        },
+        "bbox_normalized": {
+          "x0": 0.475,
+          "y0": 0.316667,
+          "x1": 0.775,
+          "y1": 0.516667
+        },
+        "pixel_coords": {
+          "x": 3332,
+          "y": 3372,
+          "width": 2104,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-11",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 1220.68,
+          "y0": 809.41,
+          "x1": 1683.7,
+          "y1": 1320.62
+        },
+        "bbox_normalized": {
+          "x0": 0.725,
+          "y0": 0.316667,
+          "x1": 1.0,
+          "y1": 0.516667
+        },
+        "pixel_coords": {
+          "x": 5086,
+          "y": 3372,
+          "width": 1929,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-12",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 0.0,
+          "y0": 1235.42,
+          "x1": 463.02,
+          "y1": 1746.62
+        },
+        "bbox_normalized": {
+          "x0": 0.0,
+          "y0": 0.483333,
+          "x1": 0.275,
+          "y1": 0.683333
+        },
+        "pixel_coords": {
+          "x": 0,
+          "y": 5147,
+          "width": 1929,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-13",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 378.83,
+          "y0": 1235.42,
+          "x1": 883.94,
+          "y1": 1746.62
+        },
+        "bbox_normalized": {
+          "x0": 0.225,
+          "y0": 0.483333,
+          "x1": 0.525,
+          "y1": 0.683333
+        },
+        "pixel_coords": {
+          "x": 1578,
+          "y": 5147,
+          "width": 2104,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-14",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 799.76,
+          "y0": 1235.42,
+          "x1": 1304.87,
+          "y1": 1746.62
+        },
+        "bbox_normalized": {
+          "x0": 0.475,
+          "y0": 0.483333,
+          "x1": 0.775,
+          "y1": 0.683333
+        },
+        "pixel_coords": {
+          "x": 3332,
+          "y": 5147,
+          "width": 2104,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-15",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 1220.68,
+          "y0": 1235.42,
+          "x1": 1683.7,
+          "y1": 1746.62
+        },
+        "bbox_normalized": {
+          "x0": 0.725,
+          "y0": 0.483333,
+          "x1": 1.0,
+          "y1": 0.683333
+        },
+        "pixel_coords": {
+          "x": 5086,
+          "y": 5147,
+          "width": 1929,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-16",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 0.0,
+          "y0": 1661.42,
+          "x1": 463.02,
+          "y1": 2172.63
+        },
+        "bbox_normalized": {
+          "x0": 0.0,
+          "y0": 0.65,
+          "x1": 0.275,
+          "y1": 0.85
+        },
+        "pixel_coords": {
+          "x": 0,
+          "y": 6922,
+          "width": 1929,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-17",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 378.83,
+          "y0": 1661.42,
+          "x1": 883.94,
+          "y1": 2172.63
+        },
+        "bbox_normalized": {
+          "x0": 0.225,
+          "y0": 0.65,
+          "x1": 0.525,
+          "y1": 0.85
+        },
+        "pixel_coords": {
+          "x": 1578,
+          "y": 6922,
+          "width": 2104,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-18",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 799.76,
+          "y0": 1661.42,
+          "x1": 1304.87,
+          "y1": 2172.63
+        },
+        "bbox_normalized": {
+          "x0": 0.475,
+          "y0": 0.65,
+          "x1": 0.775,
+          "y1": 0.85
+        },
+        "pixel_coords": {
+          "x": 3332,
+          "y": 6922,
+          "width": 2104,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-19",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 1220.68,
+          "y0": 1661.42,
+          "x1": 1683.7,
+          "y1": 2172.63
+        },
+        "bbox_normalized": {
+          "x0": 0.725,
+          "y0": 0.65,
+          "x1": 1.0,
+          "y1": 0.85
+        },
+        "pixel_coords": {
+          "x": 5086,
+          "y": 6922,
+          "width": 1929,
+          "height": 2130,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-20",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 0.0,
+          "y0": 2087.43,
+          "x1": 463.02,
+          "y1": 2556.03
+        },
+        "bbox_normalized": {
+          "x0": 0.0,
+          "y0": 0.816667,
+          "x1": 0.275,
+          "y1": 1.0
+        },
+        "pixel_coords": {
+          "x": 0,
+          "y": 8697,
+          "width": 1929,
+          "height": 1952,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-21",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 378.83,
+          "y0": 2087.43,
+          "x1": 883.94,
+          "y1": 2556.03
+        },
+        "bbox_normalized": {
+          "x0": 0.225,
+          "y0": 0.816667,
+          "x1": 0.525,
+          "y1": 1.0
+        },
+        "pixel_coords": {
+          "x": 1578,
+          "y": 8697,
+          "width": 2104,
+          "height": 1952,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-22",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 799.76,
+          "y0": 2087.43,
+          "x1": 1304.87,
+          "y1": 2556.03
+        },
+        "bbox_normalized": {
+          "x0": 0.475,
+          "y0": 0.816667,
+          "x1": 0.775,
+          "y1": 1.0
+        },
+        "pixel_coords": {
+          "x": 3332,
+          "y": 8697,
+          "width": 2104,
+          "height": 1952,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-23",
+      "region_id": "R-TAV-05S-PLAN",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "coords": {
+        "bbox_native": {
+          "x0": 1220.68,
+          "y0": 2087.43,
+          "x1": 1683.7,
+          "y1": 2556.03
+        },
+        "bbox_normalized": {
+          "x0": 0.725,
+          "y0": 0.816667,
+          "x1": 1.0,
+          "y1": 1.0
+        },
+        "pixel_coords": {
+          "x": 5086,
+          "y": 8697,
+          "width": 1929,
+          "height": 1952,
+          "dpi": 300
+        },
+        "dxf_coords": null
+      },
+      "overlap_fraction": 0.1,
+      "read_status": "NOT_READ",
+      "generation_method": "adaptive_grid"
+    }
+  ],
+  "created_at": "2026-08-17T22:39:49",
+  "notes": "Generated at 300 DPI, tile size ~2000px, overlap 10%"
+}
