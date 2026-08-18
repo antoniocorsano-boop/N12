@@ -1,0 +1,2 @@
+scaffold_id,xy_source,level_source,support_count,level_count,generated_joint_count,section_assignment,column_element_creation,status,evidence_status,notes
+T05-3D-SCAFFOLD-V1,tav05_etabs_joints_m0g_v1.csv,m0g_storey_levels_v1.csv,34,4,136,ND,NOT_AUTHORIZED,READY_GEOMETRY_ONLY,MIS+RIF,"Cartesian product of 34 verified support XY coordinates with L0-L3 relative Z levels; no column frame elements created and no storey-specific section inherited automatically"
