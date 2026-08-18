@@ -96,6 +96,22 @@ Conseguenza ETABS: la linea verticale del pilastro resta sul joint del filo fiss
 
 Una riduzione, ad esempio `40x50 -> 40x40`, deve quindi essere classificata prima come risega rispetto al filo fisso: puo' essere centrata, monolaterale o con faccia mantenuta. La scelta NON puo' essere dedotta dalla sola variazione numerica della sezione; va letta dalle carpenterie/particolari.
 
+### G-16 Posizione del filo fisso per pilastri d'angolo e di facciata
+La posizione del filo fisso dipende dal ruolo planimetrico del pilastro rispetto al perimetro dell'edificio e NON deve essere assimilata automaticamente al baricentro della sezione.
+
+Per il modello N.12 si assume come regola di lettura, da verificare puntualmente sulle carpenterie:
+- PILASTRO D'ANGOLO: il filo fisso coincide con lo SPIGOLO ESTERNO del pilastro, cioe' con l'intersezione dei due bordi esterni di facciata;
+- PILASTRO DI FACCIATA: il filo fisso giace sul BORDO ESTERNO della sezione e, lungo quel bordo, passa per la MEZZERIA del lato;
+- PILASTRO INTERNO: la posizione del filo fisso non viene dedotta per analogia e resta quella documentata dal reticolo/fili della tavola.
+
+Conseguenze per le riseghe verticali:
+- nei pilastri d'angolo, lo spigolo esterno resta invariato in X/Y e la sezione cresce o si riduce verso l'interno, salvo evidenza contraria;
+- nei pilastri di facciata, il bordo esterno resta invariato e la risega si sviluppa prevalentemente verso l'interno; se cambia anche la larghezza lungo facciata, va verificato se la mezzeria sul bordo esterno resta fissa oppure se esiste una risega laterale documentata;
+- il baricentro della sezione puo' quindi traslare fra i livelli pur restando invariato il filo fisso;
+- in ETABS il joint verticale resta sul filo fisso e la sezione viene collocata tramite insertion point/offset coerente con il ruolo ANGOLARE/FACCIATA/INTERNO.
+
+Questa regola prevale su qualunque precedente assunzione di risega centrata o filo baricentrico non documentato.
+
 ## Caso di test TAV-05S
 - Pilastro 18: rettangolo numerato, sezione 30x110 documentata, fili fissi interni visibili -> ELEMENTO_VERTICALE.
 - Pilastri ordinari: numero interno + quote esterne 30/45, 40/40, ecc. -> quote del pilastro solo se chiaramente riferite al rettangolo numerato.
@@ -107,6 +123,8 @@ Una riduzione, ad esempio `40x50 -> 40x40`, deve quindi essere classificata prim
 - Catena P09-P16 -> seguire la trave 120x20 lungo il percorso continuo, introducendo un nodo di cambio/intersezione se necessario fra P12 e P13.
 - Trave da P05 verso est -> termina sul nodo trave-trave della catena P09-P16; NON collegare direttamente P12-P04.
 - Nel confronto G4->G3 il filo fisso del pilastro resta verticalmente invariato; una sezione diversa viene trattata come risega/variazione di footprint, non come traslazione del joint.
+- Pilastro d'angolo -> conservare lo spigolo esterno come filo fisso; la risega si legge rispetto a quello spigolo.
+- Pilastro di facciata -> conservare il punto medio del lato sul bordo esterno come filo fisso; la variazione di sezione non va recentrata sul baricentro.
 - Forme trapezoidali di bordo nella zona del cornicione -> CORNICIONE, non nodi/elementi verticali/offset.
 
 ## Regola di apprendimento
