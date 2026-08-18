@@ -1,0 +1,13 @@
+section_id,element_class,b_cm,h_cm,etabs_shape,evidence_status,confidence,notes
+COL_40x40,COLUMN,40,40,RECTANGULAR,DOC,HIGH,"Pilastro rettangolare"
+COL_30x45,COLUMN,30,45,RECTANGULAR,DOC,HIGH,"Pilastro rettangolare"
+COL_30x50,COLUMN,30,50,RECTANGULAR,DOC,HIGH,"Pilastro rettangolare"
+COL_30x110,COLUMN,30,110,RECTANGULAR,DOC,HIGH,"Pilastro largo modellato come Frame Column; non shell"
+BM_25x70,BEAM,25,70,RECTANGULAR,DOC,HIGH,"Trave emergente"
+BM_50x120,BEAM,50,120,RECTANGULAR,DOC,HIGH,"Trave emergente"
+BM_120x20,BEAM,120,20,RECTANGULAR,DOC,HIGH,"Trave a spessore; h coincide con solaio strutturale"
+BM_50x20,BEAM,50,20,RECTANGULAR,DOC,HIGH,"Trave a spessore"
+BM_30x20,BEAM,30,20,RECTANGULAR,DOC,HIGH,"Trave a spessore"
+BM_70x20,BEAM,70,20,RECTANGULAR,DOC,HIGH,"Trave a spessore"
+BM_NDx70,BEAM,,70,RECTANGULAR,PARTIAL,HIGH,"Altezza documentata; larghezza ND: non creare property definitiva"
+BM_ND,BEAM,,,RECTANGULAR,ND,HIGH,"Topologia certa; sezione non attribuita"
