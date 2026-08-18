@@ -1,0 +1,7 @@
+rule_id,pattern,context,classification,node_creation,required_checks,status
+G-01,"rettangolo/quadrato con numero interno","sostegno + coerenza abaco pilastri",ELEMENTO_VERTICALE,CANDIDATO,"continuita verticale; sezione; fili fissi",CANONICAL
+G-02,"rettangolo senza numero interno","lungo una trave; spesso con quote b/h",SEZIONE_TRAVE,NO,"continuita trave; quote sezione",CANONICAL
+G-03,"linee sottili incrociate nel sostegno numerato","attraversano il simbolo del pilastro/setto",FILI_FISSI,NO,"coordinate raster; continuita con altri sostegni",CANONICAL
+G-04,"sezione fortemente rettangolare es. 30x110","sostegno numerato",SOSTEGNO_LARGO,NO_POINT_COLLAPSE,"4 facce; orientamento; offset; attacchi travi",CANONICAL
+G-05,"trave che termina su sostegno largo","attacco su faccia fisica",ATTACCO_TRAVE_SOSTEGNO,EDGE_ENDPOINT,"faccia; offset; quota planimetrica",CANONICAL
+G-06,"forma geometricamente simile senza contesto sufficiente","qualsiasi",NON_CLASSIFICARE,NO,"contesto; identificativo; tavole incrociate",CANONICAL
