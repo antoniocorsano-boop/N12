@@ -1,0 +1,8 @@
+gate_id,check,status,evidence,action_if_fail
+T5-RB-01,"historic stations ordered S,S',T,U,V,Z,A',B',C'",PASS,"telaio5_historic_node_stations_v1.csv",STOP_REBIND
+T5-RB-02,"total development G1-G4 = 28.60 m",PASS,"telaio_5.csv; telaio5_dimensional_chain_control_v1.csv",STOP_REBIND
+T5-RB-03,"historical 57-node artifact available",PASS,"tav5_topology_nodes_57.csv recovered; PREDOC_TOPOLOGICO",KEEP_AS_BRIDGE_ONLY
+T5-RB-04,"current support set available",PASS,"tav05_fixed_lines_numeric_v7.csv; 34 supports",CONTINUE
+T5-RB-05,"true fixed-line semantics audited for ANGLE/FACADE supports",PENDING,"G16 + tav05_fixed_line_semantic_reaudit_gate_v1.csv",NO_VERTICAL_PROMOTION
+T5-RB-06,"station-to-current-support mapping verified on original TAV-05S",PENDING,"requires graphical/topological cross-check",KEEP_CANDIDATE
+T5-RB-07,"local corrections preserve 28.60 m total",HARD_GATE,"dimensional_chain_policy_v1.csv",REJECT_CORRECTION
