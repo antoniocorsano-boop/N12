@@ -1,0 +1,8 @@
+record_id,tavola_id,object_id,action,section_doc,fixed_u_px,fixed_v_px,evidence_status,confidence,supersedes,source_basis,notes
+SC-T05-P22P,TAV-05S,P22',ADD,40x40,2107,5744,DOC,HIGH,,"TAV-05S: numero 22' interno con quote esterne 40x40; TAV-07A IV ordine: 22' nel gruppo 40x40","Pilastro distinto da P22; filo misurato sul raster nativo"
+SC-T05-P31,TAV-05S,P31,ADD,40x40,449,4123,DOC,HIGH,,"TAV-05S: numero 31 interno con quote esterne 40x40; TAV-07A IV ordine: 31 nel gruppo 40x40","Pilastro omesso nel registro precedente; filo misurato sul raster nativo"
+SC-T05-P33,TAV-05S,P33,RELABEL,40x40,461,5900,DOC,HIGH,P35,"TAV-05S: numero interno letto 33; TAV-07A IV ordine include 33 e non 35","La precedente identificazione P35 e' SUPERATA"
+SC-T05-P11,TAV-05S,P11,SECTION_CORRECTION,30x50,3156,4271,DOC,HIGH,v6:P11,"TAV-07A IV ordine: PILASTRI 11-14 associati alla sezione 30x50","Corregge 30x45"
+SC-T05-P12,TAV-05S,P12,SECTION_CORRECTION,30x45,3160,4785,DOC,HIGH,v6:P12,"TAV-07A IV ordine: P12 nel gruppo 30x45","Corregge 40x45"
+SC-T05-P14,TAV-05S,P14,SECTION_CORRECTION,30x50,2996,5583,DOC,HIGH,v6:P14,"TAV-07A IV ordine: PILASTRI 11-14 associati alla sezione 30x50","Corregge 30x45"
+SC-T05-P27,TAV-05S,P27,SECTION_COMPLETION,40x40,1748,5758,DOC,HIGH,v6:P27,"TAV-07A IV ordine: P27 nel gruppo 40x40; TAV-05S quota esterna 40 gia' leggibile","Chiude la seconda dimensione prima ND"
