@@ -1,0 +1,10 @@
+station,letter,support_id,historic_chainage_m,provisional_chainage_m,chainage_residual_m,local_span_historic_m,local_span_provisional_m,local_span_residual_m,status,evidence_status,notes
+ST0,S,P17,0.000,0.000,0.000,,, ,ANCHOR,INF,"Origine locale del Telaio 5; mapping candidato forte"
+ST1,S',P18,4.700,4.762,0.062,4.700,4.762,0.062,CHECK_FIXEDLINE_OFFSET,INF,"P18 30x110; residuo plausibilmente sensibile a nodo storico/fisso/footprint"
+ST2,T,P19,8.750,8.878,0.128,4.050,4.116,0.066,CHECK_NODE_REFERENCE,INF,"P19 40x40; residuo cumulato ancora contenuto"
+ST3,U,P20,9.950,9.924,-0.026,1.200,1.046,-0.154,PRIORITY_REVIEW,INF,"Campata breve: scarto relativo elevato; non correggere per scala"
+ST4,V,P21,15.750,15.708,-0.042,5.800,5.784,-0.016,GOOD_MATCH,INF,"Campata lunga quasi coincidente"
+ST5,Z,P22,18.650,18.626,-0.024,2.900,2.918,0.018,GOOD_MATCH,INF,"Compatibilita metrica alta"
+ST6,A',P22P,19.850,19.620,-0.230,1.200,0.994,-0.206,PRIORITY_REVIEW,INF,"Campata breve 22-22 primo: nodo storico non coincidente automaticamente con riferimenti planimetrici correnti"
+ST7,B',P23,23.900,24.002,0.102,4.050,4.382,0.332,PRIORITY_REVIEW,INF,"P23 30x110; forte sensibilita a eccentricita e riferimento di nodo/fisso"
+ST8,C',P24,28.600,28.738,0.138,4.700,4.736,0.036,END_GATE_FAIL_PROVISIONAL,INF,"Sviluppo provvisorio 28.738 m; target documentale immutabile 28.600 m"
