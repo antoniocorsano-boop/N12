@@ -1,0 +1,46 @@
+name: Render N12 HiRes Sources
+
+on:
+  push:
+    branches: [work/m0g-source-recovery]
+    paths:
+      - 'scripts/render_hires_sources.py'
+      - '.github/workflows/render-hires.yml'
+      - 'docs/PROTOCOLLO_LETTURA_TAVOLE_HIRES.md'
+  workflow_dispatch:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install renderer
+        run: pip install pymupdf pillow
+      - name: Render native sources and tiles
+        run: python scripts/render_hires_sources.py --out artifacts/hires --tile-size 2400 --overlap 0.125
+      - name: Verify source hashes
+        run: |
+          python - <<'PY'
+          import json,sys
+          p=json.load(open('artifacts/hires/hires_index.json'))
+          expected={
+            'TAV-01S':'abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8',
+            'TAV-01A':'bba85f508f31cb09b1278f317036debea2a22c0e9858bb8c4b1d4fcab855daeb',
+          }
+          bad=[]
+          for s in p['sources']:
+            if s['pdf_sha256'] != expected[s['source_id']]: bad.append((s['source_id'],s['pdf_sha256']))
+          if bad:
+            print('HASH_MISMATCH',bad); sys.exit(1)
+          print('SOURCE_HASH_GATE=PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: n12-hires-foundations
+          path: artifacts/hires
+          retention-days: 30
