@@ -7,6 +7,14 @@ on:
       - 'scripts/render_hires_sources.py'
       - '.github/workflows/render-hires.yml'
       - 'docs/PROTOCOLLO_LETTURA_TAVOLE_HIRES.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/render_hires_sources.py'
+      - '.github/workflows/render-hires.yml'
+      - 'docs/PROTOCOLLO_LETTURA_TAVOLE_HIRES.md'
+      - 'data/canonical/hires_reading_registry.csv'
+      - 'data/canonical/hires_evidence_log.csv'
   workflow_dispatch:
 
 jobs:
