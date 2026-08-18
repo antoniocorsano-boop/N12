@@ -1,0 +1,11 @@
+gate_id,scope,status,blocking_for,evidence_basis,required_next_action,notes
+V01,G4_PLANAR_BASELINE,PASS,,"tav05_etabs_planar_baseline_v1.csv; tav05_etabs_planar_readiness_gate_v1.csv","none","G4 planimetria verificata"
+V02,G1_SOURCE_IDENTIFICATION,PASS,,"m0s1a_level_sheet_crosswalk.csv d521f11","rebinding TAV-02S","Fonte strutturale identificata"
+V03,G2_SOURCE_IDENTIFICATION,PASS,,"m0s1a_level_sheet_crosswalk.csv d521f11","rebinding TAV-03S","Fonte strutturale identificata"
+V04,G3_SOURCE_IDENTIFICATION,PASS,,"m0s1a_level_sheet_crosswalk.csv d521f11","rebinding TAV-04S","Fonte strutturale identificata"
+V05,G1_G4_TOPOLOGY_EQUIVALENCE,PENDING,"G4_TO_G1_FRAME_REPLICATION","TAV-02S not yet rebound","compare support census + beam paths + sections","No equivalence by analogy"
+V06,G2_G4_TOPOLOGY_EQUIVALENCE,PENDING,"G4_TO_G2_FRAME_REPLICATION","TAV-03S not yet rebound","compare support census + beam paths + sections","No equivalence by analogy"
+V07,G3_G4_TOPOLOGY_EQUIVALENCE,PENDING,"G4_TO_G3_FRAME_REPLICATION","TAV-04S not yet rebound","compare support census + beam paths + sections","No equivalence by analogy"
+V08,G5_ROOF_EQUIVALENCE,NOT_APPLICABLE,"G4_TO_G5_FRAME_REPLICATION","TAV-06S is carpenteria copertura","model roof separately","Copertura distinta"
+V09,RELATIVE_Z_L0_L3,PASS,,"storey height 3.20 m RIF user-confirmed","retain relative levels 0/3.20/6.40/9.60","Absolute elevations still pending"
+V10,VERTICAL_COLUMN_CREATION,PENDING,"ETABS_3D_COLUMNS","G1-G3 rebinding incomplete","resolve presentAtLevels and section changes for each support","Do not extrude 34 G4 supports blindly"
