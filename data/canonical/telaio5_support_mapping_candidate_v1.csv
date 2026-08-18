@@ -1,0 +1,10 @@
+station,label,target_chainage_m,support_id,current_m0g_x_m,current_m0g_y_m,prev_segment_target_m,prev_segment_current_m,segment_delta_m,mapping_status,evidence_status,confidence,basis,notes
+ST00,S,0.00,P17,11.6290,8.8804,,,,CANDIDATO_FORTE,INF,HIGH,"ordine topologico + firma metrica completa + percorso semplice 9 supporti","inizio candidato; non DOC fino a verifica fili fissi"
+ST01,S',4.70,P18,11.9023,4.1262,4.70,4.762,+0.062,CANDIDATO_FORTE,INF,HIGH,"P17-P18 connessione verificata T05-C032; firma metrica","sostegno 30x110; correggere attachment/fixed-line semantico"
+ST02,T,8.75,P19,12.4001,0.0402,4.05,4.116,+0.066,CANDIDATO_FORTE,INF,HIGH,"P18-P19 connessione verificata T05-C034; firma metrica",""
+ST03,U,9.95,P20,12.3443,-1.0045,1.20,1.046,-0.154,CANDIDATO_FORTE,INF,HIGH,"P19-P20 connessione verificata T05-C035; segmento breve nella posizione attesa","sezione trave chiusa per override; geometria da reaudit fili"
+ST04,V,15.75,P21,10.4147,-6.4571,5.80,5.784,-0.016,CANDIDATO_FORTE,INF,HIGH,"P20-P21 connessione verificata T05-C043; firma metrica quasi esatta",""
+ST05,Z,18.65,P22,10.4191,-9.3752,2.90,2.918,+0.018,CANDIDATO_FORTE,INF,HIGH,"P21-P22 connessione verificata T05-C014; firma metrica quasi esatta",""
+ST06,A',19.85,P22P,10.4267,-10.3692,1.20,0.994,-0.206,CANDIDATO_FORTE,INF,HIGH,"P22-P22P connessione verificata T05-C015; presenza distinta del pilastro 22 primo","segmento molto sensibile alla semantica nodo/faccia/filo"
+ST07,B',23.90,P23,9.9499,-14.7253,4.05,4.382,+0.332,CANDIDATO_FORTE,INF,HIGH,"P22P-P23 connessione verificata T05-C016; ordine coerente","sostegno 30x110; massimo delta locale, priorita reaudit"
+ST08,C',28.60,P24,9.6419,-19.4517,4.70,4.736,+0.036,CANDIDATO_FORTE,INF,HIGH,"P23-P24 connessione verificata T05-C017; chiusura firma metrica","sviluppo M0-G provvisorio percorso=28.739 m; hard gate storico=28.600 m"
