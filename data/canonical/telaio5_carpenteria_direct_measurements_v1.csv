@@ -1,0 +1,10 @@
+segment,from_support,to_support,du_px,dv_px,distance_px,scale_x_px_per_m,scale_y_px_per_m,measured_m,measurement_basis,status,evidence_status,notes
+C1,P17,P18,47,746,747.479,158.23,156.95,4.7624,"TAV-05S native raster; raw support reference coordinates; anisotropic raster scale",DIRECT_RASTER_MEASURE,MIS,"Nessuna calibrazione sulle luci del telaio storico"
+C2,P18,P19,82,641,646.224,158.23,156.95,4.1169,"TAV-05S native raster; raw support reference coordinates; anisotropic raster scale",DIRECT_RASTER_MEASURE,MIS,"Nessuna calibrazione sulle luci del telaio storico"
+C3,P19,P20,-8,164,164.195,158.23,156.95,1.0461,"TAV-05S native raster; raw support reference coordinates; anisotropic raster scale",DIRECT_RASTER_MEASURE,MIS,"Tratto corto; sensibile a nodo storico vs riferimento interno"
+C4,P20,P21,-301,857,908.323,158.23,156.95,5.7822,"TAV-05S native raster; raw support reference coordinates; anisotropic raster scale",DIRECT_RASTER_MEASURE,MIS,"Nessuna calibrazione sulle luci del telaio storico"
+C5,P21,P22,3,458,458.010,158.23,156.95,2.9182,"TAV-05S native raster; raw support reference coordinates; anisotropic raster scale",DIRECT_RASTER_MEASURE,MIS,"Nessuna calibrazione sulle luci del telaio storico"
+C6,P22,P22P,2,156,156.013,158.23,156.95,0.9940,"TAV-05S native raster; raw support reference coordinates; anisotropic raster scale",DIRECT_RASTER_MEASURE,MIS,"Tratto corto; sensibile a nodo storico vs riferimento interno"
+C7,P22P,P23,-72,684,687.779,158.23,156.95,4.3818,"TAV-05S native raster; raw support reference coordinates; anisotropic raster scale",DIRECT_RASTER_MEASURE,MIS,"P23 sostegno 30x110; verificare posizione del nodo storico rispetto al footprint"
+C8,P23,P24,-45,742,743.363,158.23,156.95,4.7362,"TAV-05S native raster; raw support reference coordinates; anisotropic raster scale",DIRECT_RASTER_MEASURE,MIS,"P23 sostegno 30x110; misura raster indipendente dal telaio storico"
+TOTAL,P17,P24,,,4501.385,158.23,156.95,28.7376,"somma delle otto misure dirette TAV-05S",DIRECT_RASTER_MEASURE,MIS,"Da non forzare a 28.60 m; il confronto col telaio storico e' un controllo successivo"
