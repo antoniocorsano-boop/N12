@@ -1,0 +1,10 @@
+frame_id,level,station_label,station_m,support_id,binding_status,evidence_status,confidence,source_basis,notes
+T5,G4,S,0.00,P17,VERIFIED,RIF+DOC,HIGH,"planimetria quotata utente + tav05_topology_connections_consolidated_v6.csv","Identita nodo-supporto verificata per forma/percorso; station_m e' ascissa/proiezione documentale, non lunghezza euclidea del frame"
+T5,G4,S',4.70,P18,VERIFIED,RIF+DOC,HIGH,"planimetria quotata utente + tav05_topology_connections_consolidated_v6.csv","Supporto largo 30x110; posizione 2D/fisso da mantenere separata dalla station_m"
+T5,G4,T,8.75,P19,VERIFIED,RIF+DOC,HIGH,"planimetria quotata utente + tav05_topology_connections_consolidated_v6.csv","station_m documentale; non correggere coordinate 2D per far coincidere la distanza euclidea"
+T5,G4,U,9.95,P20,VERIFIED,RIF+DOC,HIGH,"planimetria quotata utente + tav05_topology_connections_consolidated_v6.csv","Cambio locale di geometria della poligonale; station_m resta proiezione lungo asse di riferimento"
+T5,G4,V,15.75,P21,VERIFIED,RIF+DOC,HIGH,"planimetria quotata utente + tav05_topology_connections_consolidated_v6.csv","Identita verificata"
+T5,G4,Z,18.65,P22,VERIFIED,RIF+DOC,HIGH,"planimetria quotata utente + tav05_topology_connections_consolidated_v6.csv","Identita verificata"
+T5,G4,A',19.85,P22P,VERIFIED,RIF+DOC,HIGH,"planimetria quotata utente + tav05_topology_connections_consolidated_v6.csv","P22P = pilastro 22 primo; station_m non coincide necessariamente con fixed-line coordinate M0-G correnti"
+T5,G4,B',23.90,P23,VERIFIED,RIF+DOC,HIGH,"planimetria quotata utente + tav05_topology_connections_consolidated_v6.csv","Supporto largo 30x110; station_m documentale separata da footprint/offset"
+T5,G4,C',28.60,P24,VERIFIED,RIF+DOC,HIGH,"planimetria quotata utente + tav05_topology_connections_consolidated_v6.csv","Estremo della catena; HARD GATE globale 28.60 m"
