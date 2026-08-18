@@ -1,0 +1,11 @@
+record_id,former_connection_id,support_i,support_j,former_section,qa_status,evidence_status,source_basis,action,notes
+FP-T05-001,T05-C004,P32,P29,120x20,FALSE_POSITIVE_TOPOLOGY,DOC,"raster locale: P32 e P29 sono pilastri isolati rispetto al simbolo 120/20 centrale; nessuna linea raggiunge i supporti",REMOVE_CONNECTION,"quota/simbolo conservati come elemento non ancora attribuito"
+FP-T05-002,T05-C010,P29,P26,120x20,FALSE_POSITIVE_TOPOLOGY,DOC,"raster locale: simbolo 120/20 verticale tra i due pilastri ma senza continuita' ai simboli P29/P26",REMOVE_CONNECTION,""
+FP-T05-003,T05-C011,P26,P21,120x20,FALSE_POSITIVE_TOPOLOGY,DOC,"raster locale: simbolo 120/20 non raggiunge P26 o P21",REMOVE_CONNECTION,""
+FP-T05-004,T05-C020,P10,P02,50x20,FALSE_POSITIVE_TOPOLOGY,DOC,"raster locale: P10 e' isolato; la trave/simbolo 50/20 parte a destra senza raggiungere P10",REMOVE_CONNECTION,""
+FP-T05-005,T05-C022,P11,P03,30x20,FALSE_POSITIVE_TOPOLOGY,DOC,"raster locale: P11 isolato; simbolo 30/20 non raggiunge il pilastro",REMOVE_CONNECTION,""
+FP-T05-006,T05-C024,P12,P04,50x20,FALSE_POSITIVE_TOPOLOGY,DOC,"raster locale: P12 isolato; la linea 50/20 corre su altro allineamento verso P05/P04",REMOVE_CONNECTION,""
+FP-T05-007,T05-C026,P14,P06,50x20,FALSE_POSITIVE_TOPOLOGY,DOC,"raster locale: P14 isolato; simbolo 50/20 non raggiunge P14",REMOVE_CONNECTION,""
+FP-T05-008,T05-C028,P15,P07,50x20,FALSE_POSITIVE_TOPOLOGY,DOC,"raster locale: P15 isolato; simbolo 50/20 non raggiunge P15",REMOVE_CONNECTION,""
+FP-T05-009,T05-C033,P18,P10,120x20,FALSE_POSITIVE_TOPOLOGY,DOC,"raster locale: P10 isolato; simbolo 120/20 adiacente non costituisce collegamento P18-P10",REMOVE_CONNECTION,""
+FP-T05-010,T05-C036,P20,P11,70x20,FALSE_POSITIVE_TOPOLOGY,DOC,"raster locale: P11 isolato; simbolo 70/20 non raggiunge P11",REMOVE_CONNECTION,""
