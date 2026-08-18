@@ -1,0 +1,7 @@
+support_id,tavola_id,incident_degree_v2,completeness_status,evidence_status,confidence,source_basis,notes
+P12,TAV-05S,1,DEGREE1_CONFIRMED,DOC,HIGH,"crop P12-P14: linea verticale adiacente non attraversa il simbolo/fili del pilastro 12; unica trave incidente confermata P12-P04","Non aggiungere connessioni per prossimita' grafica"
+P13,TAV-05S,0,NO_DIRECT_BEAM_CONFIRMED,DOC,MEDIUM,"crop P12-P14 e controllo locale: pilastro 13 numerato presente; le linee strutturali adiacenti non attestano direttamente sul simbolo/fili","Da confrontare con altre carpenterie/telai, ma nessuna connessione TAV-05S va inventata"
+P14,TAV-05S,1,DEGREE1_CONFIRMED,DOC,HIGH,"crop P12-P14: unica trave incidente confermata P14-P06; linea verticale adiacente offset rispetto al pilastro","Grado 1 reale sulla tavola"
+P15,TAV-05S,1,DEGREE1_CONFIRMED,DOC,HIGH,"crop P15-P16: unica trave incidente confermata P15-P07; linea verticale adiacente non passa nel pilastro","Grado 1 reale sulla tavola"
+P16,TAV-05S,1,DEGREE1_CONFIRMED,DOC,HIGH,"crop P15-P16: unica trave incidente confermata P16-P08; nessuna seconda connessione documentata","Grado 1 reale sulla tavola"
+P05,TAV-05S,2,RECOVERED_IN_V2,DOC,HIGH,"verifica raster: P04-P05 e P05-P06 sostituiscono il precedente salto P04-P06","Omissione del consolidato v1 chiusa"
