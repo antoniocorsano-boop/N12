@@ -1,0 +1,4 @@
+support_id,tavola_id,section_doc,orientation,long_axis,fixed_u_px,fixed_v_px,u_min_px,v_min_px,u_max_px,v_max_px,node_A_id,node_A_u_px,node_A_v_px,node_B_id,node_B_u_px,node_B_v_px,status,notes
+P18,TAV-05S,30x110,HORIZONTAL,U,2329,3468,2240,3443,2413,3489,P18-A,2240,3466,P18-B,2413,3466,MIS,"Due nodi alle mezzerie delle facce corte lungo asse lungo; filo fisso centrale conservato come riferimento"
+P23,TAV-05S,30x110,HORIZONTAL,U,2035,6428,1945,6405,2118,6450,P23-A,1945,6428,P23-B,2118,6428,MIS,"Due nodi di estremita' sull'asse lungo; attacchi travi da associare alla faccia/nodo corretto"
+P30,TAV-05S,30x110,VERTICAL,V,1204,5834,1177,5748,1228,5921,P30-A,1203,5748,P30-B,1203,5921,MIS,"Setto orientato ortogonalmente a P18/P23; due nodi alle estremita' dell'asse lungo"
