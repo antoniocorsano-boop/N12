@@ -68,6 +68,20 @@ Questa regola prevale sui precedenti schemi planimetrici che mostravano travi ap
 ### G-12 Continuita' della trave a spessore
 La presenza di un richiamo grafico `20`, `50`, `70`, `120` non costituisce da sola la topologia della trave, ma neppure la interrompe. La connettivita' si verifica sulla linea strutturale continua e sui sostegni attraversati/attestati. Il simbolo di sezione puo' essere distaccato dal pilastro e restare comunque riferito al tratto continuo. Non si elimina una trave solo perche' il piccolo simbolo di sezione non tocca il rettangolo del pilastro.
 
+### G-13 Simbolo di sezione trasversale all'asse reale della trave a spessore
+Nelle carpenterie storiche il rettangolo quotato `b x h` di una trave a spessore puo' essere disegnato TRASVERSALMENTE alla direzione reale della trave. Il lato lungo del piccolo rettangolo e la quota `b` NON indicano quindi la direzione dell'asse della trave.
+
+L'asse reale deve essere ricostruito seguendo la linea strutturale continua attraverso i sostegni e gli eventuali cambi di direzione. Caso canonico TAV-05S: la trave a spessore `120x20` che parte dalla zona del P09 prosegue lungo la catena fino a P16; i richiami `120/20` sono simboli di sezione trasversali al percorso e non segmenti orizzontali autonomi.
+
+Conseguenza operativa: prima di creare un frame ETABS si determina il percorso della trave; solo dopo si associa la sezione letta dal simbolo trasversale.
+
+### G-14 Termine trave su altra trave e nodi di intersezione non-pilastro
+Una trave puo' terminare su un'altra trave senza raggiungere un pilastro numerato. In tal caso il punto di intersezione e' un nodo strutturale trave-trave e deve essere registrato esplicitamente, distinto dai pilastri.
+
+Caso canonico TAV-05S: la trave `50x20` che parte da P05 verso est termina sulla trave a spessore principale che intercetta, in corrispondenza della catena P09-P16; NON va prolungata artificialmente fino a P12 o P04.
+
+Nel modello analitico il nodo di intersezione puo' diventare un joint ETABS, con coordinate MIS e provenienza esplicita, senza essere promosso a pilastro.
+
 ## Caso di test TAV-05S
 - Pilastro 18: rettangolo numerato, sezione 30x110 documentata, fili fissi interni visibili -> ELEMENTO_VERTICALE.
 - Pilastri ordinari: numero interno + quote esterne 30/45, 40/40, ecc. -> quote del pilastro solo se chiaramente riferite al rettangolo numerato.
@@ -75,7 +89,9 @@ La presenza di un richiamo grafico `20`, `50`, `70`, `120` non costituisce da so
 - Due linee ravvicinate con richiamo `20` in una trave a spessore -> SIMBOLO_SPESSORE_SOLAI0, non bordi planimetrici della trave.
 - Trave emergente documentata con `h=70` -> sezione canonica `25x70` per dato consolidato.
 - Trave ortogonale incidente su P18/P23/P30 -> mantenere asse trave ortogonale e rappresentare l'eccentricita' mediante offset, non inclinando la trave verso il filo fisso.
-- Il simbolo di una trave a spessore puo' essere graficamente separato dal pilastro: la topologia deriva dalla continuita' strutturale del tratto, non dal contatto del simbolo.
+- Il simbolo di una trave a spessore puo' essere graficamente separato dal pilastro e trasversale all'asse reale: la topologia deriva dalla continuita' strutturale del percorso.
+- Catena P09-P16 -> seguire la trave 120x20 lungo il percorso continuo, introducendo un nodo di cambio/intersezione se necessario fra P12 e P13.
+- Trave da P05 verso est -> termina sul nodo trave-trave della catena P09-P16; NON collegare direttamente P12-P04.
 - Forme trapezoidali di bordo nella zona del cornicione -> CORNICIONE, non nodi/elementi verticali/offset.
 
 ## Regola di apprendimento
