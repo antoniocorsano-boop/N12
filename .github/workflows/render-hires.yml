@@ -39,16 +39,20 @@ jobs:
           expected={
             'TAV-01S':'abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8',
             'TAV-01A':'bba85f508f31cb09b1278f317036debea2a22c0e9858bb8c4b1d4fcab855daeb',
+            'TAV-05S':'2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580',
+            'TAV-07A':'38a0cce18dcda0b9a36d8473f0d428735c4b89934975d551d4bfffd24fe54a2b',
           }
           bad=[]
           for s in p['sources']:
-            if s['pdf_sha256'] != expected[s['source_id']]: bad.append((s['source_id'],s['pdf_sha256']))
+            sid=s['source_id']
+            if sid not in expected or s['pdf_sha256'] != expected[sid]:
+              bad.append((sid,s['pdf_sha256'],expected.get(sid)))
           if bad:
             print('HASH_MISMATCH',bad); sys.exit(1)
           print('SOURCE_HASH_GATE=PASS')
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: n12-hires-foundations
+          name: n12-hires-structural
           path: artifacts/hires
           retention-days: 30
