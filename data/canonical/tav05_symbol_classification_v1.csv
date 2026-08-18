@@ -1,6 +1,6 @@
 symbol_id,tavola_id,object_id,classification,id_status,section_b_cm,section_h_cm,section_status,u_min_px,v_min_px,u_max_px,v_max_px,fixed_u_px,fixed_v_px,coord_status,node_policy,notes
 T05-P18,TAV-05S,18,ELEMENTO_VERTICALE,DOC,30,110,DOC,2240,3443,2413,3489,2329,3468,MIS,SUPPORT_WITH_FACES,"Numero interno 18; fili fissi sottili documentati; non collassare a punto; conservare quattro facce"
-T05-P17,TAV-05S,17,ELEMENTO_VERTICALE,DOC,40,40,DOC,,,,,,,PENDING_MEASURE,SUPPORT_WITH_FACES,"Esempio positivo: quadrato numerato con linee di riferimento; coordinate puntuali da seconda passata"
-T05-P25,TAV-05S,25,ELEMENTO_VERTICALE,DOC,40,40,DOC,,,,,,,PENDING_MEASURE,SUPPORT_WITH_FACES,"Esempio positivo: quadrato numerato; non confondere con rettangoli di sezione trave adiacenti"
+T05-P17,TAV-05S,17,ELEMENTO_VERTICALE,DOC,40,40,DOC,2240,2683,2307,2746,2282,2722,MIS,SUPPORT_WITH_FACES,"Fili fissi misurati sull'intersezione delle linee sottili che attraversano il simbolo numerato"
+T05-P25,TAV-05S,25,ELEMENTO_VERTICALE,DOC,40,40,DOC,1707,4080,1770,4142,1738,4121,MIS,SUPPORT_WITH_FACES,"Fili fissi misurati direttamente sul simbolo numerato; non confondere con rettangoli di sezione trave adiacenti"
 T05-BS-001,TAV-05S,,SEZIONE_TRAVE,DOC,25,70,DOC,1823,4082,1933,4118,,,MIS,NO_NODE,"Rettangolo non numerato lungo trave; convenzione grafica di sezione trasversale 25x70"
 T05-BS-002,TAV-05S,,SEZIONE_TRAVE,DOC,25,70,DOC,416,4566,450,4673,,,MIS,NO_NODE,"Rettangolo non numerato lungo trave; non e' pilastro/setto"
