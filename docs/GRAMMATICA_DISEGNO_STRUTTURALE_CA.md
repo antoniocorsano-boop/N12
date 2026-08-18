@@ -48,11 +48,34 @@ Per ogni zona della carpenteria si applica obbligatoriamente questa sequenza:
 
 In caso di ambiguita' la quota resta non attribuita (`ND`) e non viene assegnata per vicinanza geometrica o per analogia con altri tratti.
 
+### G-10 Travi emergenti alte 70 cm — base consolidata 25 cm
+Per la TAV-05S e per il modello corrente N.12, quando un tratto e' semanticamente riconosciuto come TRAVE_EMERGENTE e la sua altezza documentata e' `h=70 cm`, la base canonica consolidata e' `b=25 cm`. La sezione viene quindi registrata come `25x70 cm`. Questa regola e' un dato consolidato di progetto (RIF) e non va estesa a travi con altezza diversa o a travi a spessore.
+
+Conseguenza operativa: i precedenti record `NDx70` relativi a travi emergenti della TAV-05S sono SUPERATI e diventano `25x70` mantenendo la provenienza composita `DOC(h=70)+RIF(b=25)`.
+
+### G-11 Sostegni larghi e falsa inclinazione delle travi
+Il filo fisso di un sostegno largo 30x110 (P18, P23, P30 nella TAV-05S) NON obbliga l'asse della trave a passare per quel punto. Una trave ortogonale nel disegno non deve diventare inclinata nel modello solo per connettersi al joint del filo fisso.
+
+Nel modello ETABS:
+- il pilastro largo mantiene un solo joint analitico sul filo fisso;
+- l'asse reale/documentato della trave viene preservato;
+- la non concorrenza fra asse trave e joint del sostegno viene rappresentata con Frame Joint Offset, insertion geometry o equivalente offset rigido esplicito;
+- due travi incidenti sullo stesso sostegno largo possono avere punti/facce di attestazione diversi;
+- e' vietato ruotare artificialmente la trave verso il filo fisso del sostegno.
+
+Questa regola prevale sui precedenti schemi planimetrici che mostravano travi apparentemente oblique presso P18/P23/P30.
+
+### G-12 Continuita' della trave a spessore
+La presenza di un richiamo grafico `20`, `50`, `70`, `120` non costituisce da sola la topologia della trave, ma neppure la interrompe. La connettivita' si verifica sulla linea strutturale continua e sui sostegni attraversati/attestati. Il simbolo di sezione puo' essere distaccato dal pilastro e restare comunque riferito al tratto continuo. Non si elimina una trave solo perche' il piccolo simbolo di sezione non tocca il rettangolo del pilastro.
+
 ## Caso di test TAV-05S
 - Pilastro 18: rettangolo numerato, sezione 30x110 documentata, fili fissi interni visibili -> ELEMENTO_VERTICALE.
 - Pilastri ordinari: numero interno + quote esterne 30/45, 40/40, ecc. -> quote del pilastro solo se chiaramente riferite al rettangolo numerato.
 - Trave senza numero con quote esterne -> attribuire le quote al tratto prima di dedurre la sezione.
 - Due linee ravvicinate con richiamo `20` in una trave a spessore -> SIMBOLO_SPESSORE_SOLAI0, non bordi planimetrici della trave.
+- Trave emergente documentata con `h=70` -> sezione canonica `25x70` per dato consolidato.
+- Trave ortogonale incidente su P18/P23/P30 -> mantenere asse trave ortogonale e rappresentare l'eccentricita' mediante offset, non inclinando la trave verso il filo fisso.
+- Il simbolo di una trave a spessore puo' essere graficamente separato dal pilastro: la topologia deriva dalla continuita' strutturale del tratto, non dal contatto del simbolo.
 - Forme trapezoidali di bordo nella zona del cornicione -> CORNICIONE, non nodi/elementi verticali/offset.
 
 ## Regola di apprendimento
