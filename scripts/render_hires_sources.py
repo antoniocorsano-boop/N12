@@ -1,5 +1,5 @@
 from __future__ import annotations
-import argparse, hashlib, json, math, subprocess
+import argparse, hashlib, json, subprocess
 from pathlib import Path
 import fitz
 from PIL import Image
@@ -8,6 +8,8 @@ DEFAULT_COMMIT='d521f11a6989664a54409ab0df064903d8986564'
 SOURCES={
  'TAV-01S':'archive/documentazione_originaria/tavola1-2.pdf',
  'TAV-01A':'archive/documentazione_originaria/tavola1-3.pdf',
+ 'TAV-05S':'archive/documentazione_originaria/tavola 5.pdf',
+ 'TAV-07A':'archive/documentazione_originaria/tavola7.pdf',
 }
 
 def sha256(path: Path) -> str:
@@ -32,7 +34,6 @@ def extract_native(pdf_path: Path, out_png: Path):
         pix=page.get_pixmap(matrix=fitz.Matrix(4,4), alpha=False)
         pix.save(out_png)
         return {'method':'render_4x','width':pix.width,'height':pix.height,'image_count':0}
-    # choose largest embedded image by pixel area
     best=max(imgs, key=lambda row: row[2]*row[3])
     xref=best[0]
     info=doc.extract_image(xref)
