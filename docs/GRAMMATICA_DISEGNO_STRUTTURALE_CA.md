@@ -8,10 +8,10 @@ Prima si determina il significato del simbolo nel linguaggio del disegno tecnico
 
 ## Regole canoniche
 ### G-01 Pilastro o setto numerato
-Un rettangolo/quadrato con numero identificativo interno, posto in corrispondenza di un sostegno e coerente con l'abaco dei pilastri, e' un elemento verticale candidato. I pilastri sono riconoscibili primariamente dal NUMERO identificativo; le quote della sezione possono essere poste ESTERNAMENTE al simbolo e quindi non devono essere confuse con quote di travi o con quote planimetriche adiacenti. Deve essere validato con continuita' verticale e sezione documentata.
+Un rettangolo/quadrato con numero identificativo interno, posto in corrispondenza di un sostegno e coerente con l'abaco dei pilastri, e' un elemento verticale candidato. Il numero interno e' il discriminante principale. Le dimensioni della sezione del pilastro possono essere riportate all'esterno del simbolo e non devono essere confuse con quote di travi adiacenti. Deve essere validato con continuita' verticale e sezione documentata.
 
-### G-02 Sezione trasversale di trave
-Una trave e' identificata dal suo sviluppo nel reticolo strutturale e dalle quote di sezione poste esternamente o accanto alla rappresentazione simbolica. I piccoli rettangoli/linee che accompagnano la trave possono essere rappresentazioni SIMBOLICHE della sezione e non devono essere interpretati come un contorno planimetrico in scala. NON generano nodi, NON generano catene verticali e NON sono pilastri.
+### G-02 Trave priva di numero e quote esterne
+La trave non e' identificata da un numero interno come il pilastro. Le sue dimensioni possono essere riportate esternamente al tratto mediante quote o richiami grafici. La classificazione della sezione deve derivare dall'attribuzione delle quote al tratto di trave, non dalla sola forma di un piccolo rettangolo o di due linee locali.
 
 ### G-03 Fili fissi
 Le linee sottili di riferimento che attraversano un pilastro/setto numerato definiscono i fili fissi documentati. L'intersezione dei fili viene rilevata numericamente in coordinate pagina/raster e mantenuta distinta dal baricentro geometrico della sezione, salvo coincidenza verificata.
@@ -28,27 +28,31 @@ Una forma non diventa pilastro, setto, trave o nodo per sola somiglianza geometr
 ### G-07 Cornicione
 Le forme trapezoidali rappresentate sul bordo esterno dell'impalcato, quando inserite nella continuita' del bordo/sbalzo e prive di identificativo di pilastro, sono rappresentazioni del cornicione. NON sono nodi, NON sono shell, NON sono setti, NON sono offset del pilastro e NON devono generare punti di connessione FEM del sostegno. La loro geometria appartiene al sistema di bordo/sbalzo dell'impalcato e va letta separatamente rispetto alla rete pilastri-travi.
 
-### G-08 Trave a spessore — rappresentazione simbolica e larghezza variabile
-Una trave a spessore e' definita dal fatto che la sua altezza coincide con lo spessore strutturale dell'impalcato/solaio. La sua larghezza NON e' implicita e deve essere letta dalla quota specifica della trave.
+### G-08 Trave a spessore — larghezza variabile documentata
+Una trave a spessore e' definita dal fatto che la sua altezza e' pari allo spessore strutturale dell'impalcato/solaio; la denominazione NON implica una larghezza planimetrica fissa. La larghezza deve essere letta caso per caso dalle quote esterne associate alla specifica trave o da altra evidenza documentale. Nessun valore puo' essere esteso per analogia.
 
-Nelle carpenterie storiche la rappresentazione della trave a spessore puo' essere SIMBOLICA: le linee che indicano lo spessore del solaio o il piccolo rettangolo di sezione servono a comunicare la sezione strutturale, non necessariamente a disegnare in scala la larghezza planimetrica reale della trave. Pertanto NON si deve ricavare la larghezza reale misurando in pixel il piccolo simbolo di sezione.
+Le linee ravvicinate che richiamano lo spessore del solaio sono una convenzione grafica simbolica: NON vanno interpretate come i bordi planimetrici reali della trave e la loro distanza sul raster NON determina la larghezza `b` della trave.
 
-Per la modellazione si usa la coppia di quote documentata della singola trave: `b_doc x h_doc`, con `h_doc` pari allo spessore strutturale del solaio per le travi a spessore. Solo dopo si ricostruisce la banda planimetrica coerente con `b_doc`, usando fili fissi, assi, attacchi ai pilastri e quote generali della carpenteria. L'asse analitico ETABS deriva dal filo/asse documentato; in assenza di un filo esplicito, la mezzeria della banda ricostruita e' un'inferenza da dichiarare, non un fatto grafico direttamente misurato.
+Per il modello ETABS la geometria della trave a spessore viene ricostruita solo dopo avere attribuito correttamente la larghezza documentata `b_doc` al tratto. L'asse analitico viene poi definito coerentemente con il filo di riferimento/documentato del tratto e con la posizione reale rispetto ai sostegni; non deriva automaticamente dalla mezzeria di due linee simboliche del solaio.
 
-Conseguenza operativa: i precedenti tentativi di dedurre `b` o l'asse della trave dalla distanza in pixel tra le linee del simbolo di sezione sono SUPERATI.
+Conseguenza operativa: qualunque attachment point o larghezza di trave ricavato misurando direttamente piccoli rettangoli, coppie di linee simboliche o distanze locali non esplicitamente quotate e' PRELIMINARE/SUPERATO e deve essere rivalidato.
 
-### G-09 Gerarchia di lettura pilastri/travi
-1. Se il simbolo contiene un NUMERO identificativo -> candidato PILASTRO/SOSTEGNO.
-2. Le quote esterne immediatamente associate al pilastro numerato possono descriverne la sezione.
-3. Un elemento lineare senza numero che collega sostegni -> candidato TRAVE.
-4. Le quote esterne associate alla trave descrivono la sezione della trave; per le travi a spessore il richiamo allo spessore del solaio e' convenzionale/simbolico.
-5. Le quote non vengono associate per sola vicinanza geometrica: devono essere attribuite semanticamente all'oggetto corretto.
+### G-09 Gerarchia di attribuzione delle quote
+Per ogni zona della carpenteria si applica obbligatoriamente questa sequenza:
+1. individuare il pilastro tramite il numero interno;
+2. attribuire al pilastro le eventuali quote esterne immediatamente riferite al suo rettangolo;
+3. individuare il tratto di trave privo di numero che collega i sostegni;
+4. attribuire al tratto le quote esterne che seguono il suo orientamento o il suo richiamo grafico;
+5. distinguere le linee simboliche dello spessore del solaio dalle quote di base/larghezza della trave;
+6. solo dopo formare la sezione `b x h` e promuoverla a DOC.
+
+In caso di ambiguita' la quota resta non attribuita (`ND`) e non viene assegnata per vicinanza geometrica o per analogia con altri tratti.
 
 ## Caso di test TAV-05S
-- Pilastro 18: rettangolo numerato, sezione 30x110 documentata anche tramite quote esterne, fili fissi interni visibili -> ELEMENTO_VERTICALE.
-- Pilastro numerato con quote esterne -> le quote possono appartenere al pilastro; non promuoverle automaticamente a sezione di una trave vicina.
-- Trave senza numero con quote esterne -> le quote descrivono la sezione della trave se il contesto grafico conferma l'associazione.
-- Linee/rettangolo simbolico di trave a spessore -> indicazione di sezione e spessore solaio; non contorno planimetrico da misurare in pixel.
+- Pilastro 18: rettangolo numerato, sezione 30x110 documentata, fili fissi interni visibili -> ELEMENTO_VERTICALE.
+- Pilastri ordinari: numero interno + quote esterne 30/45, 40/40, ecc. -> quote del pilastro solo se chiaramente riferite al rettangolo numerato.
+- Trave senza numero con quote esterne -> attribuire le quote al tratto prima di dedurre la sezione.
+- Due linee ravvicinate con richiamo `20` in una trave a spessore -> SIMBOLO_SPESSORE_SOLAI0, non bordi planimetrici della trave.
 - Forme trapezoidali di bordo nella zona del cornicione -> CORNICIONE, non nodi/elementi verticali/offset.
 
 ## Regola di apprendimento
