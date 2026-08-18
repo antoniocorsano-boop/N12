@@ -82,6 +82,20 @@ Caso canonico TAV-05S: la trave `50x20` che parte da P05 verso est termina sulla
 
 Nel modello analitico il nodo di intersezione puo' diventare un joint ETABS, con coordinate MIS e provenienza esplicita, senza essere promosso a pilastro.
 
+### G-15 Continuita' verticale dei fili fissi e riseghe di sezione
+Nel rebinding fra impalcati il filo fisso di ciascun pilastro e' il riferimento verticale primario e deve restare sulla stessa coordinata planimetrica X/Y fra i livelli, salvo evidenza documentale esplicita di cambio di filo.
+
+Una variazione di sezione del pilastro NON implica spostamento del filo fisso. Le eventuali riseghe vengono rappresentate come variazioni dell'ingombro fisico rispetto al medesimo filo, registrando per ogni livello:
+- sezione `b x h`;
+- orientamento della sezione;
+- distanza del filo fisso dalle quattro facce (`N`, `S`, `E`, `W`);
+- tipo di risega: `NONE`, `MONOLATERALE`, `BILATERALE`, `ROTATION_OR_SECTION_CHANGE`, `ND`;
+- eventuale variazione del baricentro fisico rispetto al filo fisso.
+
+Conseguenza ETABS: la linea verticale del pilastro resta sul joint del filo fisso; la diversa posizione delle facce ai vari livelli viene gestita tramite insertion point/offset della sezione e tramite gli attachment delle travi. E' vietato inclinare il pilastro o spostare i joint superiori per inseguire il baricentro della sezione ridotta.
+
+Una riduzione, ad esempio `40x50 -> 40x40`, deve quindi essere classificata prima come risega rispetto al filo fisso: puo' essere centrata, monolaterale o con faccia mantenuta. La scelta NON puo' essere dedotta dalla sola variazione numerica della sezione; va letta dalle carpenterie/particolari.
+
 ## Caso di test TAV-05S
 - Pilastro 18: rettangolo numerato, sezione 30x110 documentata, fili fissi interni visibili -> ELEMENTO_VERTICALE.
 - Pilastri ordinari: numero interno + quote esterne 30/45, 40/40, ecc. -> quote del pilastro solo se chiaramente riferite al rettangolo numerato.
@@ -92,6 +106,7 @@ Nel modello analitico il nodo di intersezione puo' diventare un joint ETABS, con
 - Il simbolo di una trave a spessore puo' essere graficamente separato dal pilastro e trasversale all'asse reale: la topologia deriva dalla continuita' strutturale del percorso.
 - Catena P09-P16 -> seguire la trave 120x20 lungo il percorso continuo, introducendo un nodo di cambio/intersezione se necessario fra P12 e P13.
 - Trave da P05 verso est -> termina sul nodo trave-trave della catena P09-P16; NON collegare direttamente P12-P04.
+- Nel confronto G4->G3 il filo fisso del pilastro resta verticalmente invariato; una sezione diversa viene trattata come risega/variazione di footprint, non come traslazione del joint.
 - Forme trapezoidali di bordo nella zona del cornicione -> CORNICIONE, non nodi/elementi verticali/offset.
 
 ## Regola di apprendimento
