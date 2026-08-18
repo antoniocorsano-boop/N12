@@ -1,53 +1,51 @@
-# Regola canonica — sostegni larghi e collegamento delle travi (ETABS-aligned)
+# Regola canonica — sostegni larghi e collegamento delle travi secondo ETABS
 
 ## Campo di applicazione
-Pilastro/setto con dimensione longitudinale tale da ricevere travi in punti distinti della stessa sezione, con caso pilota TAV-05S: pilastri 18, 23, 30 di sezione documentata 30x110 cm.
+Elementi verticali larghi che ricevono travi in punti distinti della stessa sezione. Caso pilota TAV-05S: elementi 18, 23, 30 di sezione documentata 30x110 cm.
 
-## Principio generale
-La geometria fisica resta governata dalle tavole originali. La geometria analitica viene costruita secondo la logica ETABS.
+## Autorita' documentale
+Nelle tavole/abachi originari gli elementi 18, 23 e 30 sono identificati come pilastri. La sezione 30x110 non autorizza da sola a riclassificarli come Wall/Shell.
 
-Un sostegno largo non viene ridotto a un singolo nodo geometrico e non riceve automaticamente due nodi alle sole estremita'. I nodi analitici sono generati dove richiesto dalla reale connettivita' delle travi e dalla discretizzazione dell'elemento verticale.
+Pertanto:
+- geometria fisica e denominazione derivano dalle tavole originali;
+- l'idealizzazione analitica ETABS viene scelta successivamente;
+- default candidato: Frame Column con sezione 30x110 e corretta posizione/insertion point;
+- alternativa Wall/Shell solo se funzione strutturale, continuita' verticale e documentazione la giustificano.
 
-Si conservano sempre:
+## Regola geometrica
+Un sostegno largo non viene ridotto prematuramente a un singolo punto di attacco.
+
+Si conservano:
 1. filo fisso documentato/misurato `F`;
 2. ingombro reale della sezione;
 3. orientamento dell'asse lungo;
-4. quattro facce fisiche della sezione;
-5. per ogni trave convergente, il proprio filo/asse documentale;
-6. il punto di attestazione fisica della trave sul sostegno;
-7. il nodo analitico ETABS corrispondente e l'eventuale offset/constraint necessario.
+4. quattro facce fisiche;
+5. per ogni trave convergente, il proprio filo analitico/documentato;
+6. il punto di attacco `Patt` come intersezione tra filo della trave e contorno fisico del sostegno.
 
-## Regola ETABS per i nodi
-Per ogni trave convergente:
-- si rileva il filo reale/documentato della trave sulla carpenteria;
-- si prolunga tale filo fino all'intersezione con la geometria fisica del sostegno;
-- il punto cosi' ottenuto e' il `beam_attachment_point`;
-- se piu' travi condividono la stessa coordinata di attacco, possono condividere lo stesso nodo analitico;
-- se le coordinate di attacco sono distinte, restano nodi analitici distinti;
-- non si forza la trave al baricentro del sostegno per comodita' di modellazione.
+I vecchi punti A/B alle estremita' dell'asse lungo restano solo riferimenti geometrici storici e NON sono nodi analitici obbligatori.
 
-I punti A/B alle estremita' del lato lungo non sono piu' nodi obbligatori. Possono esistere solo quando coincidono con reali punti di attacco, vertici necessari alla discretizzazione o nodi richiesti dalla mesh.
+## Politica ETABS
+### Caso Frame Column
+- il frame della trave mantiene il proprio filo reale/documentato;
+- quando il filo della trave non coincide con il nodo/asse analitico della colonna, usare Frame Insertion Point / Frame Joint Offsets coerenti con la geometria;
+- ETABS tratta i Frame Joint Offsets come completamente rigidi;
+- non traslare il filo della trave al centro della colonna solo per semplificare il modello.
 
-## Traduzione nel modello ETABS
-### Se il sostegno e' modellato come frame/column
-ETABS consente Frame Joint Offsets / Insertion Point quando la trave non entra nel centro del pilastro. Gli offset di joint sono trattati come completamente rigidi. Gli End Length Offsets restano concettualmente distinti e servono a rappresentare la dimensione finita/sovrapposizione dei membri lungo l'asse del frame.
+### Caso Wall/Shell, se successivamente giustificato
+- il punto della trave deve corrispondere alla reale intersezione con il bordo del pannello;
+- possono essere usati nodi sul bordo/mesh e, dove appropriato, Auto Edge Constraints;
+- evitare Auto Edge Constraints lungo bordi co-lineari con frame quando servono risultati locali affidabili del frame, come avverte la documentazione CSI.
 
-### Se il sostegno e' modellato come shell/wall
-Le travi che arrivano lungo un bordo dello shell devono essere connesse alla corretta posizione analitica. ETABS dispone di Auto Edge Constraints per collegare elementi che si attestano sul bordo di uno shell anche quando non coincidono con un vertice originario del pannello. La mesh dello shell deve essere compatibile con i punti di attacco rilevanti.
-
-## Politica N12
-- TAV-05S e le altre carpenterie definiscono geometria fisica, fili e attacchi;
-- ETABS definisce la modalita' di idealizzazione analitica;
-- nessun `rigid link`, joint offset o edge constraint viene introdotto prima di avere misurato il punto fisico di attacco;
-- il modello analitico deve poter risalire sempre a `tavola -> sostegno -> trave -> filo -> attachment point`;
-- eventuale semplificazione successiva deve essere esplicita, versionata e verificata.
+## Distinzione da End Length Offsets
+I Frame Joint Offsets/Inserting Point definiscono l'eccentricita' geometrica dell'asse analitico rispetto al nodo/cardinal point. Gli End Length Offsets descrivono invece la zona di sovrapposizione/rigid-end lungo l'asse del frame. Non vanno confusi.
 
 ## Stati
-- identita' e sezione: DOC quando leggibili sulle tavole/abachi;
-- filo fisso e attachment point in pixel: MIS;
-- trasformazione metrica: da validare con quote documentali;
-- connessione analitica ETABS: VER solo dopo controllo della connettivita' e degli offset;
-- due nodi A/B predefiniti: SUPERATO come regola generale.
+- identita' e sezione: DOC quando leggibili su tavole/abachi;
+- fili e contorni pixel: MIS;
+- punto di attacco trave-sostegno: MIS/DOC dopo lettura del filo della trave;
+- rappresentazione analitica Frame/Shell: VER solo dopo controllo della funzione strutturale e continuita';
+- trasformazione metrica: da validare con quote documentali.
 
 ## Caso TAV-05S
-P18, P23 e P30 sono 30x110 documentati. Il precedente file `data/canonical/tav05_wide_support_nodes_v1.csv` conserva A/B/F come storico geometrico; A/B non sono piu' nodi obbligatori del modello. I futuri dataset devono registrare i `beam_attachment_point` effettivi derivati dai fili delle travi.
+P18, P23 e P30 sono 30x110 documentati. I file di geometria conservano F e contorno. I punti di attacco ETABS vengono invece generati dai fili delle travi nel file `data/canonical/tav05_etabs_attachment_points_v1.csv`.
