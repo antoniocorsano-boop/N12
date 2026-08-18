@@ -1,0 +1,10 @@
+segment_id,tavola_id,support_ref,direction,support_to_if_verified,beam_type,section_b_cm,section_h_cm,section_status,confidence,source_basis,supersedes,notes
+T05-P18-E,TAV-05S,P18,E,ND,TRAVE_A_SPESSORE,120,20,REVIEW_REQUIRED,MEDIUM,"precedente associazione 120x20 da riesaminare contro audit simboli completo",v1:T05-P18-E,"Non usare per asse ETABS finche' il simbolo specifico non e' associato senza ambiguita' al tratto"
+T05-P18-S,TAV-05S,P18,S,P19,TRAVE_EMERGENTE,25,70,DOC,HIGH,"simbolo 70|25 direttamente sul tratto; orientamento strutturale noto come 25x70 emergente",v1:T05-P18-S,"Confermato"
+T05-P23-E,TAV-05S,P23,E,ND,TRAVE_A_SPESSORE,50,20,REVIEW_REQUIRED,MEDIUM,"coppia 50|20 presente nella zona ma associazione al singolo tratto da rifissare",v1:T05-P23-E,"Non usare ancora per asse ETABS definitivo"
+T05-P27-W,TAV-05S,P27,W,P30,TRAVE_EMERGENTE,25,70,DOC,HIGH,"simbolo 70|25 sul tratto P30-P27",v1:T05-P27-W,"Confermato"
+T05-P27-E,TAV-05S,P27,E,P22,TRAVE_EMERGENTE,25,70,DOC,HIGH,"simbolo 70|25 sul tratto P27-P22",v1:T05-P27-E,"Confermato"
+T05-P27-N,TAV-05S,P27,N,ND,ND,ND,ND,REVIEW_REQUIRED,LOW,"precedente 50x20 non confermato in modo univoco dopo full-scan",v1:T05-P27-N,"Sezione da riassociare dal simbolo corretto"
+T05-P30-E,TAV-05S,P30,E,P27,TRAVE_EMERGENTE,25,70,DOC,HIGH,"stesso tratto P30-P27 con simbolo 70|25",v1:T05-P30-E,"Confermato; cornicione escluso"
+T05-P22-W,TAV-05S,P22,W,P27,TRAVE_EMERGENTE,25,70,DOC,HIGH,"stesso tratto P27-P22 con simbolo 70|25",v1:T05-P22-W,"Confermato"
+T05-P22-N,TAV-05S,P22,N,ND,ND,ND,ND,REVIEW_REQUIRED,LOW,"precedente 50x20 non confermato in modo univoco dopo full-scan",v1:T05-P22-N,"Sezione da riassociare dal simbolo corretto"
