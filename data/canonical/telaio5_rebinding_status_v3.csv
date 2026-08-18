@@ -1,0 +1,8 @@
+gate_id,scope,check,status,evidence_status,notes
+T5-RB-01,Telaio 5,"mapping S-S'-T-U-V-Z-A'-B'-C' -> P17-P18-P19-P20-P21-P22-P22P-P23-P24",PASS,RIF+DOC,"Verificato dalla planimetria quotata fornita dall'utente e dalla continuita topologica TAV-05S"
+T5-RB-02,Telaio 5,"stazioni documentali 0.00/4.70/8.75/9.95/15.75/18.65/19.85/23.90/28.60 m",PASS,DOC,"Trattate come ascisse/proiezioni lungo riferimento documentale"
+T5-RB-03,Telaio 5,"sviluppo/stazione estrema 28.60 m",PASS_HARD_GATE,DOC,"Non riscalare la carpenteria per imporre il totale"
+T5-RB-04,Telaio 5,"uso delle distanze euclidee P17-P24 come confronto diretto con le campate storiche",SUPERSEDED,INF,"Metodo errato nei tratti obliqui/cambi di direzione; mantenere solo come misura geometrica 2D"
+T5-RB-05,Telaio 5,"coordinate 2D vere dei fili fissi dei supporti",PENDING,MIS+RIF,"Reaudit semantico ancora aperto: angolo=spigolo esterno; facciata=mezzeria bordo esterno; interno=documentale"
+T5-RB-06,Telaio 5,"footprint e offset trave-pilastro per P18/P23 e P22P",PENDING,DOC+MIS,"Da ricostruire sulla carpenteria senza alterare le station_m documentali"
+T5-RB-07,Telaio 5,"rebinding 1D storico-supporti",CLOSED,RIF+DOC,"Identita e stazioni chiuse; residuo confinato alla geometria 2D/offset"
