@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0013`
+Versione repository: `RM-0014`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -32,8 +32,9 @@ Versione repository: `RM-0013`
 | BEAM-005 | Telaio 5 | campate 4.70 / 4.05 / 1.20 / 5.80 / 2.90 / 1.20 / 4.05 / 4.70 m | relazione di calcolo / v17 | DOC |
 | BEAM-006 | Telaio 5 G5 | C2-C7 = 19.20 m | relazione di calcolo / v17 | DOC |
 | BEAM-007 | Telaio 5 ↔ TAV.5 | il telaio esiste e va allineato per sovrapposizione di sistemi; matrice candidati creata, nessuna promozione a VER senza overlay | `docs/DECISIONI/M0G_ALLINEAMENTO_TELAIO5_TAV5_v1.md` + `data/canonical/telaio5_tav5_candidate_matrix_v1.csv` | IN_ALLINEAMENTO |
-| BEAM-008 | copertura | travi di colmo da modellare come membri espliciti del telaio di copertura | `FRAME_WELL_FORMEDNESS_GATE.md` + conferma utente | RIF / BINDING_PENDENTE |
-| BEAM-009 | copertura | travi di gronda da modellare come membri espliciti del telaio di copertura | `FRAME_WELL_FORMEDNESS_GATE.md` + conferma utente | RIF / BINDING_PENDENTE |
+| BEAM-008 | copertura | TAV-06S mostra tre distinte diciture `LINEA DI COLMO`, una per ciascun ramo di copertura; numero dei colmi chiuso documentalmente, estremi/supporti ancora da legare | `ETW_ROOF_RIDGE_EAVES_REGISTER_v1.csv` + TAV-06S HiRes | DOC_GEOMETRY / ENDPOINT_BINDING_PENDENTE |
+| BEAM-009 | copertura | bordi di gronda/falda leggibili geometricamente sulla TAV-06S; la loro promozione a singole travi di gronda richiede binding degli estremi e dei supporti | `ETW_ROOF_RIDGE_EAVES_REGISTER_v1.csv` + TAV-06S HiRes | DOC_GEOMETRY + RIF_MEMBER / BINDING_PENDENTE |
+| BEAM-010 | torrino scala | copertura del torrino resta sottosistema distinto dalla copertura principale a tre colmi | foto campo + `ETW_ROOF_RIDGE_EAVES_REGISTER_v1.csv` | PHOTO_RIF_PRIMARY / BINDING_PENDENTE |
 | SEC-001 | travi | sezioni note: 20×45, 25×70, 30×45, 30×65, 120×20, 140×20 cm | relazione / consolidati | DOC |
 | SEC-002 | Telaio 1 G2 | sezione non congelata | stato M0 v18 | ND |
 | LOAD-001 | Telaio 5 | carichi lineari storici G1-G3 disponibili | RC-P13 / v16 | DOC-STORICO |
@@ -44,7 +45,7 @@ Versione repository: `RM-0013`
 | M0G-004 | altezza interpiano | altezza di piano estradosso-estradosso corretta a 3.20 m | `data/canonical/storey_height_status.csv` + `docs/DECISIONI/M0G_CORREZIONE_ALTEZZA_INTERPIANO_320_v1.md` | RIF_UTENTE_CORRETTO |
 | TOPO-001 | primo livello | unico terrazzo in questo ambito: aggiunta strutturale successiva al telaio originario, realizzata al primo livello con pilastri e travi aggiunti innestati ai corrispondenti nodi del telaio preesistente; riferiti monconi/elementi di ancoraggio al nodo; tali armature non sono presenti nelle tavole originarie | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + conferma utente 2026-08-19 | RIF / AGGIUNTA_SUCCESSIVA / BINDING_NODI_PENDENTE |
 | TOPO-002 | sottotetto | piano superiore/sottotetto a pianta ridotta con tre appartamenti dotati di terrazzo; foto campo conferma per la vista acquisita volume superiore arretrato, terrazzo/setback e torrino emergente | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + `ETW_UPPER_FLOOR_PHOTO_EVIDENCE_v1.md` | RIF + PHOTO_RIF_PRIMARY / BINDING_PENDENTE |
-| TOPO-003 | copertura | tre ali / tre colmi da preservare come rami distinti della topologia di copertura; foto conferma almeno per la vista acquisita copertura principale a falde e copertura distinta del torrino | `FRAME_WELL_FORMEDNESS_GATE.md` + `ETW_UPPER_FLOOR_PHOTO_EVIDENCE_v1.md` | RIF/DOC-CONTEXT + PHOTO_RIF_PRIMARY / BINDING_PENDENTE |
+| TOPO-003 | copertura | tre ali / tre colmi documentati sulla TAV-06S; foto conferma almeno per la vista acquisita copertura principale a falde e copertura distinta del torrino | `ETW_ROOF_RIDGE_EAVES_REGISTER_v1.csv` + `ETW_UPPER_FLOOR_PHOTO_EVIDENCE_v1.md` | DOC_GEOMETRY + PHOTO_RIF_PRIMARY / ENDPOINT_BINDING_PENDENTE |
 | TOPO-004 | G1↔G2 | registrazione controllata TAV-02S/G1 → TAV-03S/G2 completata: 1046 match, 510 inlier, rapporto 0.4876, RMSE 1.05 px @100 DPI; 186 candidati differenziali | GitHub Actions run `32277543302` + `ETW_FIRST_LEVEL_TERRACE_G12_CANDIDATES_v1.csv` | INF_CONTROLLATA / REVIEW_IN_CORSO |
 | TOPO-005 | terrazzo legacy ETW-1 | il precedente `terrace_probe.py` su TAV-05S/G4 è SUPERATO per l'identificazione del terrazzo del primo livello; resta solo provenienza ETW-1/TAV-05S. Il conflitto coordinate N039 è residuo aperto | `ETW_LEGACY_TERRACE_BINDING_AUDIT_v1.md` | SUPERATO_PER_TERRAZZO_PRIMO_LIVELLO |
 | TOPO-006 | terrazzo primo livello / armature | la ricerca delle armature dell'aggiunta nelle tavole originarie è chiusa come non applicabile: intervento successivo; dettagli di barre/diametri/lunghezze di ancoraggio restano ND salvo diversa documentazione o rilievo | conferma utente 2026-08-19 | RIF_CRONOLOGIA / ND_DETTAGLIO |
