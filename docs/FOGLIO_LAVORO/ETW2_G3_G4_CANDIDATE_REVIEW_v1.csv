@@ -1,0 +1,7 @@
+candidate_id,area_px,bbox_norm_page_g4_frame,review_status,structural_disposition,evidence,notes
+ETW2-G34-CAND-420,51375,"0.651386/0.295309/0.906647/0.340085",REVIEWED,GEOMETRY_CHANGE,"registered G4/G3 crop; DOC_RASTER","Upper perimeter: G3 has orthogonal beam return and projecting polygonal perimeter; G4 has straight 25x70 perimeter beam"
+ETW2-G34-CAND-536,23227,"0.613618/0.356925/0.732340/0.368259",REVIEWED,SECTION_CHANGE,"registered G4/G3 crop; DOC_RASTER","Homologous wide beam 140 cm in G3 versus 120 cm in G4"
+ETW2-G34-CAND-551,22810,"0.826691/0.361475/0.873154/0.385419",REVIEWED,MATCH_FALSE_POSITIVE,"registered G4/G3 crop","Both drawings show same 25x70 edge beam configuration; raster difference attributable to registration/scan variation"
+ETW2-G34-CAND-556,82298,"0.644688/0.368658/0.926600/0.464753",REVIEWED,GEOMETRY_CHANGE_PLUS_SECTION_CHANGE,"registered G4/G3 crop; DOC_RASTER","G3 shows right-side extension with visible 150 dimension and a 140 cm wide beam; G4 lacks extension and homologous beam reads 120 cm"
+ETW2-G34-CAND-738,37588,"0.694429/0.489096/0.878285/0.520303",REVIEWED,MATCH_FALSE_POSITIVE,"registered G4/G3 crop","Central member geometry and 50x20 annotation substantially coincide; no structural change promoted"
+ETW2-G34-CAND-781,25177,"0.824838/0.509209/0.920757/0.572661",REVIEWED,GEOMETRY_CHANGE,"registered G4/G3 crop; DOC_RASTER","Distinct lower right-side outward beam extension and polygonal perimeter present in G3, absent in G4"
