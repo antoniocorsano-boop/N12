@@ -2,10 +2,13 @@
 ETW-2: Floor Differential Reconstruction.
 
 Applies the validated ETW-1 document engine to G1-G4 carpenteria sheets
-without assuming a typical floor. This module performs only source-safe
-preparation: registry validation, deterministic DocumentMaps and a common
-normalized registration frame. It does not promote structural identities or
-write canonical structural data.
+without assuming a typical floor. Task 1-2 deliberately generate metadata
+only: deterministic DocumentMaps and a common normalized registration frame.
+High-resolution raster rendering is deferred to Task 3 and performed only for
+homologous regions needed by the evidence sweep.
+
+This module does not promote structural identities or write canonical
+structural data.
 """
 from __future__ import annotations
 
@@ -16,7 +19,7 @@ from pathlib import Path
 from model.etwin.document_map import build_document_map
 from model.etwin.document_registry import load_registry
 
-CROPS_DIR = Path("docs/FOGLIO_LAVORO/etwin_crops")
+CROPS_DIR = Path("docs") / "FOGLIO_LAVORO" / "etwin_crops"
 ETW2_DIR = CROPS_DIR / "ETW-2"
 
 LEVEL_DOCS = {
@@ -40,11 +43,12 @@ def _json_ready(obj):
         return obj
 
 
-def prepare_floor_maps(render_tiles: bool = True) -> dict[str, dict]:
+def prepare_floor_maps(render_tiles: bool = False) -> dict[str, dict]:
     """Build deterministic ETW DocumentMaps for G1-G4.
 
-    Existing files are not treated as evidence of equality. Every level gets
-    its own map from the original source PDF, with identical rendering policy.
+    Task 1-2 are metadata-only by default. Every level gets its own map from
+    the original source PDF using the same geometric policy, but no tile PNGs
+    are rendered until Task 3 requests an evidence region.
     """
     documents = {d.document_id: d for d in load_registry()}
     missing = [doc_id for doc_id in LEVEL_DOCS.values() if doc_id not in documents]
@@ -76,10 +80,11 @@ def prepare_floor_maps(render_tiles: bool = True) -> dict[str, dict]:
             "sha256": doc.sha256,
             "page_width_pts": doc.page_width_pts,
             "page_height_pts": doc.page_height_pts,
-            "document_map": str(map_path.as_posix()),
+            "document_map": map_path.as_posix(),
             "dpi": MAP_DPI,
             "target_tile_px": TARGET_TILE_PX,
             "overlap_fraction": OVERLAP_FRACTION,
+            "tile_rasterization": "DEFERRED_TO_TASK3",
             "regions": len(doc_map.regions),
             "tiles": len(doc_map.tiles),
         }
@@ -105,6 +110,12 @@ def build_floor_registration(map_summary: dict[str, dict]) -> dict:
             "source_round_trip_required": True,
             "identity_from_proximity_forbidden": True,
         },
+        "render_policy": {
+            "task_1_2": "metadata_only",
+            "task_3": "on_demand_homologous_region_tiles",
+            "default_dpi": MAP_DPI,
+            "escalation_dpi": 600,
+        },
         "comparison_statuses": [
             "MATCH",
             "SECTION_CHANGE",
@@ -124,7 +135,7 @@ def build_floor_registration(map_summary: dict[str, dict]) -> dict:
     }
 
 
-def main(render_tiles: bool = True) -> dict:
+def main(render_tiles: bool = False) -> dict:
     ETW2_DIR.mkdir(parents=True, exist_ok=True)
     maps = prepare_floor_maps(render_tiles=render_tiles)
     registration = build_floor_registration(maps)
@@ -135,10 +146,11 @@ def main(render_tiles: bool = True) -> dict:
     )
     print(f"ETW-2 registration written: {output}")
     for level, info in maps.items():
-        print(f"{level}: {info['document_id']} -> {info['tiles']} tiles")
+        print(f"{level}: {info['document_id']} -> {info['tiles']} metadata tiles")
+    print("Task 1-2 rendering policy: metadata only")
     print("First evidence sweep: G4/TAV-05S <-> G3/TAV-04S")
     return registration
 
 
 if __name__ == "__main__":
-    main(render_tiles=True)
+    main(render_tiles=False)
