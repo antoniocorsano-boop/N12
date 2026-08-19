@@ -8,6 +8,8 @@ DEFAULT_COMMIT='d521f11a6989664a54409ab0df064903d8986564'
 SOURCES={
  'TAV-01S':'archive/documentazione_originaria/tavola1-2.pdf',
  'TAV-01A':'archive/documentazione_originaria/tavola1-3.pdf',
+ 'TAV-02S':'archive/documentazione_originaria/tavola2-2.pdf',
+ 'TAV-03S':'archive/documentazione_originaria/tavola3-2.pdf',
  'TAV-04ARCH':'archive/documentazione_originaria/tavola 4.pdf',
  'TAV-04S':'archive/documentazione_originaria/tavola4-2.pdf',
  'TAV-05S':'archive/documentazione_originaria/tavola 5.pdf',
