@@ -13,6 +13,7 @@ SOURCES={
  'TAV-04ARCH':'archive/documentazione_originaria/tavola 4.pdf',
  'TAV-04S':'archive/documentazione_originaria/tavola4-2.pdf',
  'TAV-05S':'archive/documentazione_originaria/tavola 5.pdf',
+ 'TAV-06S':'archive/documentazione_originaria/tavola 6-1.pdf',
  'TAV-07A':'archive/documentazione_originaria/tavola7.pdf',
 }
 
