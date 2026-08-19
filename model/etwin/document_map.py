@@ -20,7 +20,7 @@ from model.etwin.document_engine import (
 )
 from model.etwin.document_registry import load_registry
 
-CROPS_DIR = Path(r"docs\FOGLIO_LAVORO\etwin_crops")
+CROPS_DIR = Path("docs") / "FOGLIO_LAVORO" / "etwin_crops"
 
 
 def create_semantic_regions(doc: OriginalDocument) -> list[SemanticRegion]:
@@ -30,7 +30,6 @@ def create_semantic_regions(doc: OriginalDocument) -> list[SemanticRegion]:
     w = doc.page_width_pts
     h = doc.page_height_pts
 
-    # Title block (cartiglio) — typically bottom 12-15% of page
     cartiglio_h = h * 0.14
     regions.append(SemanticRegion(
         region_id=f"R-{doc.document_id}-TITLE",
@@ -44,7 +43,6 @@ def create_semantic_regions(doc: OriginalDocument) -> list[SemanticRegion]:
         ),
     ))
 
-    # Main plan area — typically top 85% of page
     plan_h = h * 0.85
     regions.append(SemanticRegion(
         region_id=f"R-{doc.document_id}-PLAN",
@@ -68,49 +66,36 @@ def generate_adaptive_tiles(
     overlap_fraction: float = 0.10,
     max_subdivisions: int = 3,
 ) -> list[Tile]:
-    """Generate adaptive tile grid for a semantic region.
-    
-    Strategy:
-    1. Start with coarse tiles at target_tile_px
-    2. If a tile would be smaller than minimum, don't subdivide further
-    3. Add deterministic overlap between adjacent tiles
-    """
+    """Generate adaptive tile grid for a semantic region."""
     tiles = []
     bbox = region.coords.bbox_native
 
-    # Convert region size to pixels at given DPI
     scale = dpi / 72.0
     region_px_w = int(bbox.width * scale)
     region_px_h = int(bbox.height * scale)
 
-    # Calculate grid dimensions
     cols = max(1, (region_px_w + target_tile_px - 1) // target_tile_px)
     rows = max(1, (region_px_h + target_tile_px - 1) // target_tile_px)
 
-    # Tile size in PDF points
     tile_w_pts = bbox.width / cols
     tile_h_pts = bbox.height / rows
 
-    # Overlap in PDF points
     overlap_x = tile_w_pts * overlap_fraction
     overlap_y = tile_h_pts * overlap_fraction
 
     tile_idx = 0
     for row in range(rows):
         for col in range(cols):
-            # Compute tile bbox with overlap
             x0 = bbox.x0 + col * tile_w_pts - (overlap_x if col > 0 else 0)
             y0 = bbox.y0 + row * tile_h_pts - (overlap_y if row > 0 else 0)
             x1 = bbox.x0 + (col + 1) * tile_w_pts + (overlap_x if col < cols - 1 else 0)
             y1 = bbox.y0 + (row + 1) * tile_h_pts + (overlap_y if row < rows - 1 else 0)
 
-            # Clamp to region bounds
             x0 = max(x0, bbox.x0)
             y0 = max(y0, bbox.y0)
             x1 = min(x1, bbox.x1)
             y1 = min(y1, bbox.y1)
 
-            # Pixel coordinates
             px_x = int((x0 - bbox.x0) * scale)
             px_y = int((y0 - bbox.y0) * scale)
             px_w = int((x1 - x0) * scale)
@@ -144,19 +129,15 @@ def render_tile(pdf_path: str, tile: Tile, output_dir: Path) -> Path:
     pdf = pdfium.PdfDocument(pdf_path)
     page = pdf[0]
 
-    bbox = tile.coords.bbox_native
     dpi = tile.coords.pixel_coords.dpi
     scale = dpi / 72.0
 
-    # Render full page
     bitmap = page.render(scale=scale)
     img = bitmap.to_pil()
 
-    # Crop tile region
     px = tile.coords.pixel_coords
     crop = img.crop((px.x, px.y, px.x + px.width, px.y + px.height))
 
-    # Save
     output_dir.mkdir(parents=True, exist_ok=True)
     tile_path = output_dir / f"{tile.tile_id}.png"
     crop.save(str(tile_path), "PNG")
@@ -175,13 +156,11 @@ def build_document_map(
     """Build complete DocumentMap for a document."""
     print(f"\n--- Building DocumentMap for {doc.document_id} ---")
 
-    # Create semantic regions
     regions = create_semantic_regions(doc)
     print(f"  Semantic regions: {len(regions)}")
     for r in regions:
         print(f"    {r.region_id}: {r.region_type.value} ({r.label})")
 
-    # Generate tiles for each region
     all_tiles = []
     for region in regions:
         tiles = generate_adaptive_tiles(region, dpi, target_tile_px, overlap_fraction)
@@ -190,20 +169,17 @@ def build_document_map(
 
     print(f"  Total tiles: {len(all_tiles)}")
 
-    # Render tiles if requested
     if render_tiles:
         pdf_path = doc.file_path
-        tile_dir = CROPS_DIR / doc.document_id / f"page1"
+        tile_dir = CROPS_DIR / doc.document_id / "page1"
         print(f"  Rendering tiles to: {tile_dir}")
 
         for i, tile in enumerate(all_tiles):
-            tile_path = render_tile(pdf_path, tile, tile_dir)
-            # Update tile read status
+            render_tile(pdf_path, tile, tile_dir)
             tile.read_status = TileReadStatus.NOT_READ
             if (i + 1) % 5 == 0 or i == len(all_tiles) - 1:
                 print(f"    Rendered {i+1}/{len(all_tiles)} tiles")
 
-    # Build DocumentMap
     doc_map = DocumentMap(
         map_id=f"DM-{doc.document_id}-001",
         document_id=doc.document_id,
@@ -222,10 +198,8 @@ def main():
     print("TASK 3: ADAPTIVE DOCUMENT MAP GENERATOR")
     print("=" * 60)
 
-    # Load registry
     documents = load_registry()
 
-    # Select tavola 5 (TAV-05S, carpenteria G4) as primary test
     target_doc = None
     for doc in documents:
         if doc.document_id == "TAV-05S":
@@ -240,7 +214,6 @@ def main():
     print(f"File: {target_doc.file_path}")
     print(f"Size: {target_doc.page_width_mm:.0f}x{target_doc.page_height_mm:.0f}mm")
 
-    # Build document map
     doc_map = build_document_map(
         target_doc,
         dpi=300,
@@ -249,13 +222,11 @@ def main():
         render_tiles=True,
     )
 
-    # Save map
     map_dir = CROPS_DIR / target_doc.document_id
     map_path = map_dir / "document_map.json"
     save_json(doc_map, map_path)
     print(f"\nDocumentMap saved: {map_path}")
 
-    # Summary
     print(f"\n--- Summary ---")
     print(f"  Document: {doc_map.document_id}")
     print(f"  Regions: {len(doc_map.regions)}")
