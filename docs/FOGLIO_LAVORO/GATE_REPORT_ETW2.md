@@ -1,7 +1,7 @@
 # ETW-2 GATE REPORT — Floor Differential Reconstruction
 
 **Gate:** ETW-2  
-**Status:** IN PROGRESS — G3↔G4 DIFFERENTIAL SCAN ACTIVE  
+**Status:** IN PROGRESS — G3↔G4 DIFFERENTIAL SCAN 50% REVIEWED  
 **Parent gate:** ETW-1 = PASS  
 **Branch:** `feat/structural-professional-workspace-r1`
 
@@ -59,38 +59,47 @@ Target pair:
 
 `G4 / TAV-05S ↔ G3 / TAV-04S`
 
-### Confirmed differential findings
+### Review progress
+
+- raster candidates generated: **60**;
+- candidates explicitly reviewed: **30 / 60**;
+- confirmed structural differences currently in matrix: **15**;
+- ambiguous readings remain unpromoted;
+- duplicates and false positives are logged explicitly.
+
+### Confirmed differential families
 
 Recorded in `ETW2_FLOOR_DIFFERENCE_MATRIX_v1.csv`.
 
-1. `ETW2-DIFF-001` — `BEAM_02`: G3 **140 cm** → G4 **120 cm** — `SECTION_CHANGE`.
-2. `ETW2-DIFF-002` — `BEAM_03`: G3 **140 cm** → G4 **120 cm** — `SECTION_CHANGE`.
-3. `ETW2-DIFF-003` — candidate `CAND-536`: third homologous wide beam, G3 **140 cm** → G4 **120 cm** — `SECTION_CHANGE`.
-4. `ETW2-DIFF-004` — candidate `CAND-420`: upper perimeter configuration differs — G3 has an orthogonal beam return plus projecting polygonal perimeter; G4 has a straight 25×70 perimeter beam and no corresponding projection — `GEOMETRY_CHANGE`.
-5. `ETW2-DIFF-005` — candidate `CAND-556`: right-side mid-level outward beam/perimeter extension with visible 150 dimension in G3, absent in G4 — `GEOMETRY_CHANGE`.
-6. `ETW2-DIFF-006` — candidate `CAND-781`: distinct lower right-side outward beam extension plus polygonal perimeter in G3, absent in G4 — `GEOMETRY_CHANGE`.
+**Section/dimension changes — 8 rows**
+- repeated wide-beam change **140 cm in G3 → 120 cm in G4** at several homologous locations;
+- repeated registered vertical-element dimension change **50 → 45**, with the orthogonal readable dimension remaining **30**, at three distinct locations.
+
+**Geometry/topology changes — 7 rows**
+- upper, right-side and lower-right beam/slab-perimeter projections or orthogonal returns present in G3 and absent or differently configured in G4;
+- local 25-deep / 70-wide edge-beam return geometry differs at one registered location.
 
 All source readings are `DOC_RASTER`; cross-level correspondence is `VER_PARZIALE`; affected persistent structural IDs remain `CANDIDATE` until bound to the canonical model.
 
 ### Candidate-review control
 
-`ETW2_G3_G4_CANDIDATE_REVIEW_v1.csv` records both positive and negative reviews.
-
-Reviewed false positives include:
-- `CAND-551`: same 25×70 edge-beam configuration on both sheets → `MATCH_FALSE_POSITIVE`;
-- `CAND-738`: same central member geometry and 50×20 annotation → `MATCH_FALSE_POSITIVE`.
+`ETW2_G3_G4_CANDIDATE_REVIEW_v1.csv` now records **30 reviewed candidates**, including:
+- confirmed `SECTION_CHANGE` / `GEOMETRY_CHANGE` findings;
+- `MATCH_FALSE_POSITIVE` cases caused by scan contrast, folds, text or subpixel registration;
+- `DUPLICATE_OF_CONFIRMED` cases where multiple raster components belong to one structural finding;
+- `UNRESOLVED_READING` / `UNRESOLVED_ANNOTATION` cases that remain blocked rather than being guessed.
 
 This confirms that the raster difference is functioning as a locator rather than an automatic classifier.
 
-**Status: PASS for multiple end-to-end G3↔G4 differences; full-sheet sweep still open.**
+**Status: PASS for repeated end-to-end G3↔G4 differences; half-sheet candidate review completed.**
 
 ## Task 4 — Floor Difference Matrix
 
-Matrix now contains 6 confirmed G3↔G4 difference rows:
-- 3 `SECTION_CHANGE`;
-- 3 `GEOMETRY_CHANGE`.
+Matrix now contains **15 confirmed G3↔G4 difference rows**:
+- **8 `SECTION_CHANGE` / dimension-change rows**;
+- **7 `GEOMETRY_CHANGE` rows**.
 
-The candidate-review log is maintained separately so rejected raster differences remain traceable.
+The candidate-review log is maintained separately so rejected and ambiguous raster differences remain traceable.
 
 **Status: OPEN / PARTIAL.**
 
@@ -102,15 +111,15 @@ The candidate-review log is maintained separately so rejected raster differences
 | ETW2-R02 | G3↔G4 raster registration | RESOLVED for comparison | — |
 | ETW2-R03 | First G4/G3 difference | RESOLVED | — |
 | ETW2-R04 | Complete Floor Difference Matrix G1–G4 | OPEN | floor signatures / TypicalFloorGroup |
-| ETW2-R05..R10 | Bind confirmed G3↔G4 difference candidates to persistent structural IDs | OPEN | identity-level promotion only |
-| ETW2-R11 | Complete review of remaining G3↔G4 raster candidates | OPEN | full G3↔G4 differential coverage |
+| ETW2-R05..R19 | Bind confirmed G3↔G4 difference candidates to persistent structural IDs | OPEN | identity-level promotion only |
+| ETW2-R20 | Review remaining 30 G3↔G4 raster candidates | OPEN | full G3↔G4 differential coverage |
 
 ## Gate status
 
 **ETW-2 remains IN PROGRESS because the full G1–G4 Floor Difference Matrix is not complete.**
 
-The former M0-S1B tooling block is removed. The current workflow now separates:
+The former M0-S1B tooling block is removed. The current workflow separates:
 
-`raster candidate → human/visual review → DOC_RASTER property reading → VER_PARZIALE cross-floor correspondence → later persistent-ID binding`.
+`raster candidate → visual review → DOC_RASTER property reading → VER_PARZIALE cross-floor correspondence → later persistent-ID binding`.
 
 This prevents both OCR loss and automatic promotion from image similarity.
