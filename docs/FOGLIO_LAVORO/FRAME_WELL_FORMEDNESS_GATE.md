@@ -11,7 +11,7 @@ A structural claim may be promoted from document-level evidence to a persistent 
 
 Image similarity, raster proximity or section-symbol resemblance alone MUST NOT establish persistent structural identity.
 
-The building is not required to be vertically prismatic. A well-formed framed model may contain documented terraces, setbacks, roof frames, ridge/eaves beams and deliberate column terminations. These are modeled explicitly as structural topology, never repaired automatically into a fictitious regular frame.
+The building is not required to be vertically prismatic. A well-formed framed model may contain documented terraces, setbacks, roof frames, ridge/eaves beams, deliberate column terminations and local framed extensions. These are modeled explicitly as structural topology, never repaired automatically into a fictitious regular frame.
 
 ## Mandatory checks
 
@@ -72,15 +72,31 @@ Required entities/checks:
 
 Current building-specific ridge/eaves requirement is `RIF` pending source-by-source binding.
 
-### WF-09 TERRACE_AND_SETBACK_TOPOLOGY
-Terraces and setbacks are first-class structural regions, not missing slab errors.
-The eTwin must preserve:
-- a ground-floor terrace region (`TERRACE_PT`) as a dedicated structural/architectural boundary to be reconciled with the ground-floor framing evidence;
-- upper/sub-roof terrace regions associated with the three reduced-plan apartments;
-- beam/slab perimeter changes caused by terraces/setbacks;
-- explicit absence of slab or frame continuation where documented.
+### WF-09 FIRST_LEVEL_TERRACE_LOCAL_FRAME_EXTENSION
+There is one terrace in this lower-level scope and it is located at the **first level**. It must be modeled as a local extension of the framed system, not as a detached terrace slab or as a ground-floor terrace.
 
-No `TypicalFloorGroup` may erase these local topology variants.
+Current user-reported configuration (`RIF`, documentary binding pending):
+- added columns were introduced to support the terrace extension;
+- added beams were introduced with the terrace frame;
+- those added beams are connected/embedded into the corresponding pre-existing structural node;
+- anchorage stubs/monconi at the node are reported as part of the connection detail.
+
+Well-formedness requirements:
+1. every added terrace column must resolve to a support/base condition and to the terrace-frame node above;
+2. every added terrace beam must resolve to explicit endpoints;
+3. the connection to the original frame must resolve to the corresponding pre-existing node, never merely to a nearby raster location;
+4. the original-frame node and the added-frame node must be represented as one structural connection or as two explicitly related connection entities, depending on documentary evidence;
+5. anchorage/monconi are connection/reinforcement properties, not independent frame members;
+6. added members must remain distinct from the ordinary original-frame genealogy, while participating in the same well-formed global graph;
+7. exact member IDs, node IDs, sections, anchorage lengths/counts and construction chronology remain `ND`/`RIF` until source-bound.
+
+The terrace extension therefore follows:
+
+`existing frame node -> documented anchorage/interface -> added beam(s) -> added terrace node(s) -> added column(s)/supports`.
+
+It MUST NOT be represented as:
+
+`terrace outline -> invented beams/columns by geometric closure`.
 
 ### WF-10 SUBROOF_REDUCED_PLAN_AND_COLUMN_TERMINATION
 The sub-roof / upper residential level is a reduced-plan floor with three apartments and terraces (`RIF`, pending documentary binding).
@@ -96,8 +112,8 @@ Rules:
 - the exact three-per-wing chain identities must be resolved from carpenteria/roof/sub-roof evidence before becoming canonical;
 - missing upper columns are not automatically `ELEMENT_REMOVED`; they are `EXPECTED_TERMINATION_CANDIDATE` until documentary/topological reconciliation.
 
-### WF-11 TOPOLOGY VARIANT PRECEDENCE
-When ordinary-floor regularity conflicts with documentary evidence for terrace, setback, roof or column termination, the documented local topology variant prevails.
+### WF-11 TOPOLOGY_VARIANT_PRECEDENCE
+When ordinary-floor regularity conflicts with documentary evidence for first-level terrace extension, setback, roof or column termination, the documented local topology variant prevails.
 
 Order of reasoning:
 `persistent frame position -> level presence -> local topology override -> section/property`.
@@ -122,13 +138,16 @@ Promotion from `VER_PARZIALE` to persistent structural identity requires `FRAME_
 For upper-level absence, promotion to a canonical termination additionally requires:
 `resolved chain + level-presence evidence + local roof/terrace topology + terminationReason`.
 
+For first-level terrace added members, promotion additionally requires:
+`resolved original node + resolved added member endpoints + support path + source evidence for connection/anchorage`.
+
 ## Building-specific topology constraints currently carried forward
 
 | Constraint | Current state | Modeling consequence |
 |---|---|---|
 | Roof has ridge and eaves beams | RIF / source binding pending | Explicit roof-frame beams; no flat-floor surrogate |
 | Three roof ridges / three wings | RIF/DOC context, exact entity binding pending | Preserve three independent roof-frame branches |
-| Ground-floor terrace | RIF | Dedicated `TerraceRegion`; reconcile slab/frame perimeter |
+| First-level terrace is a local frame extension | RIF | Added columns/beams + explicit node connection/anchorage; not a detached slab and not a ground-floor terrace |
 | Sub-roof/upper level has three apartments with terraces | RIF | Reduced-plan `FloorVariant`; no ordinary-floor extrusion |
 | Three upper columns absent/terminated per wing | RIF | `EXPECTED_TERMINATION_CANDIDATE`; exact chain IDs ND |
 
@@ -139,4 +158,4 @@ Therefore their well-formedness status is initially `BLOCKED_IDENTITY`, not `PAS
 
 The next operation is to bind each candidate position to one of the 27 verified vertical chains in `data/canonical/column_fixed_lines.csv` using registered document position + surrounding topology + source evidence. No binding by proximity alone is allowed.
 
-The subsequent upper-level/roof pass must then determine which chains continue, terminate or are absent in each of the three wings, jointly with ridge/eaves and terrace topology.
+The subsequent lower/first-level pass must separately resolve the terrace extension genealogy and identify the original-frame node(s) receiving the added beams. The upper-level/roof pass must determine which chains continue, terminate or are absent in each of the three wings, jointly with ridge/eaves and terrace topology.
