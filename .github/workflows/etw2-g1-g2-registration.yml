@@ -7,6 +7,7 @@ on:
       - feat/structural-professional-workspace-r1
     paths:
       - 'model/etwin/floor_pair_registration.py'
+      - 'model/etwin/frame_extension_probe.py'
       - 'model/etwin/document_registry.py'
       - 'archive/documentazione_originaria/tavola2-2.pdf'
       - 'archive/documentazione_originaria/tavola3-2.pdf'
@@ -16,6 +17,7 @@ on:
       - main
     paths:
       - 'model/etwin/floor_pair_registration.py'
+      - 'model/etwin/frame_extension_probe.py'
       - 'model/etwin/document_registry.py'
       - 'archive/documentazione_originaria/tavola2-2.pdf'
       - 'archive/documentazione_originaria/tavola3-2.pdf'
@@ -44,6 +46,12 @@ jobs:
           --target-level G2 --target-id TAV-03S
           --out docs/FOGLIO_LAVORO/etwin_crops/ETW-2/G1_G2_registered
 
+      - name: Directional frame-extension probe
+        run: >-
+          python -m model.etwin.frame_extension_probe
+          --registration-dir docs/FOGLIO_LAVORO/etwin_crops/ETW-2/G1_G2_registered
+          --pair-code G12
+
       - name: Validate outputs
         shell: bash
         run: |
@@ -51,10 +59,13 @@ jobs:
           root='docs/FOGLIO_LAVORO/etwin_crops/ETW-2/G1_G2_registered'
           test -f "$root/registration_result.json"
           test -f "$root/difference_candidates.json"
+          test -f "$root/directional_candidates.json"
           test -f "$root/TARGET.png"
           test -f "$root/SOURCE_REGISTERED_TO_TARGET.png"
           test -f "$root/ABSDIFF.png"
           test -f "$root/DIFF_THRESHOLD.png"
+          test -f "$root/SOURCE_ONLY.png"
+          test -f "$root/TARGET_ONLY.png"
 
       - name: Upload comparison
         uses: actions/upload-artifact@v4
