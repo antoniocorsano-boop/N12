@@ -1,0 +1,9 @@
+gate_id,check,status,evidence_status,notes
+RG-01,"TAV-04ARCH↔TAV-05S co-registration quality sufficient for local support/perimeter inspection",PASS,MIS,"46/66 inliers; RMSE 3.76 px; p95 6.37 px."
+RG-02,"Seven G3→G4 section-change supports identified",PASS,DOC,"P10 P13 P15 P20 P22 P26 P29."
+RG-03,"Architectural role classified for all seven section-change supports",PASS,MIS,"P10/P15/P29 facade; P13/P20/P22/P26 internal."
+RG-04,"Facade-rule fixed-line consequence applicable",PASS,RIF+MIS,"Applicable only to P10/P15/P29 under canonical G-16 rule."
+RG-05,"Internal-support retained face inferred by analogy",FORBIDDEN,RIF,"P13/P20/P22/P26 require documentary/metric fixed-line evidence."
+RG-06,"Exact dN/dS/dE/dW for P10/P15/P29",PENDING,MIS_REQUIRED,"Measure physical footprint edges against the registered exterior border and raw structural references."
+RG-07,"Exact retained face / risega geometry for internal reductions",PENDING,DOC_OR_MIS_REQUIRED,"Use structural graphic fixed lines/footprints; do not assume centered reduction."
+RG-08,"ETABS/EdiLus offset propagation",HOLD,DOC+MIS,"Release only after RG-06/RG-07."
