@@ -4,6 +4,9 @@ The registration is a controlled geometric inference used only to compare
 homologous document regions. It never promotes structural identity or source
 status. SIFT + RANSAC estimates a projective transform at low resolution;
 the transform is normalized and reapplied at 300 DPI for evidence crops.
+
+The binary raster difference is used only to build a review queue of geometric
+candidates. Candidate extraction does not classify structural change.
 """
 from __future__ import annotations
 
@@ -22,6 +25,8 @@ TARGET_ID = "TAV-05S"  # G4
 FIT_DPI = 100
 EVIDENCE_DPI = 300
 OVERVIEW_BBOX_NORM = (0.45, 0.0, 1.0, 0.65)
+DIFF_THRESHOLD = 35
+MAX_CANDIDATES = 60
 
 
 def render_gray(path: str, dpi: int) -> np.ndarray:
@@ -88,6 +93,61 @@ def crop_norm(img, bbox):
     return img[p[1]:p[3], p[0]:p[2]], p
 
 
+def extract_difference_candidates(diff_bin: np.ndarray) -> list[dict]:
+    """Create a review queue from the binary difference image.
+
+    The queue is intentionally epistemically weak: components are candidate
+    locations only. Very small noise and page-edge/fold artifacts are filtered,
+    while candidate bboxes remain in the registered G4 overview frame.
+    """
+    h, w = diff_bin.shape[:2]
+
+    # Remove isolated scan noise and join short nearby strokes only enough to
+    # make review regions stable. This is not a structural segmentation.
+    kernel_open = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    kernel_close = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 9))
+    clean = cv2.morphologyEx(diff_bin, cv2.MORPH_OPEN, kernel_open)
+    clean = cv2.morphologyEx(clean, cv2.MORPH_CLOSE, kernel_close)
+
+    n, labels, stats, centroids = cv2.connectedComponentsWithStats(clean, connectivity=8)
+    candidates = []
+    overview_x0, overview_y0, overview_x1, overview_y1 = OVERVIEW_BBOX_NORM
+
+    for idx in range(1, n):
+        x, y, cw, ch, area = [int(v) for v in stats[idx]]
+        if area < 180 or cw < 12 or ch < 12:
+            continue
+        # Reject page edges / crop borders and long fold-like lines.
+        if x <= 6 or y <= 6 or x + cw >= w - 6 or y + ch >= h - 6:
+            continue
+        if (cw > 0.85 * w and ch < 45) or (ch > 0.85 * h and cw < 45):
+            continue
+
+        cx, cy = centroids[idx]
+        bbox_overview = [x / w, y / h, (x + cw) / w, (y + ch) / h]
+        bbox_page = [
+            overview_x0 + bbox_overview[0] * (overview_x1 - overview_x0),
+            overview_y0 + bbox_overview[1] * (overview_y1 - overview_y0),
+            overview_x0 + bbox_overview[2] * (overview_x1 - overview_x0),
+            overview_y0 + bbox_overview[3] * (overview_y1 - overview_y0),
+        ]
+        candidates.append({
+            "candidate_id": f"ETW2-G34-CAND-{idx:03d}",
+            "status": "REVIEW_REQUIRED",
+            "classification": "UNCLASSIFIED_RASTER_DIFFERENCE",
+            "area_px": area,
+            "bbox_px_overview": [x, y, x + cw, y + ch],
+            "bbox_norm_overview": [round(v, 6) for v in bbox_overview],
+            "bbox_norm_page_g4_frame": [round(v, 6) for v in bbox_page],
+            "centroid_px_overview": [round(float(cx), 2), round(float(cy), 2)],
+            "source": "OVERVIEW_DIFF_THRESHOLD.png",
+            "promotion_allowed": False,
+        })
+
+    candidates.sort(key=lambda c: c["area_px"], reverse=True)
+    return candidates[:MAX_CANDIDATES]
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     docs = {d.document_id: d for d in load_registry()}
@@ -107,18 +167,31 @@ def main():
     target_crop, target_px = crop_norm(dst_hi, OVERVIEW_BBOX_NORM)
     source_crop, source_px = crop_norm(warped_src, OVERVIEW_BBOX_NORM)
     diff = cv2.absdiff(target_crop, source_crop)
-    _, diff_bin = cv2.threshold(diff, 35, 255, cv2.THRESH_BINARY)
+    _, diff_bin = cv2.threshold(diff, DIFF_THRESHOLD, 255, cv2.THRESH_BINARY)
 
     cv2.imwrite(str(OUT / "OVERVIEW_G4_TARGET.png"), target_crop)
     cv2.imwrite(str(OUT / "OVERVIEW_G3_REGISTERED_TO_G4.png"), source_crop)
     cv2.imwrite(str(OUT / "OVERVIEW_ABSDIFF.png"), diff)
     cv2.imwrite(str(OUT / "OVERVIEW_DIFF_THRESHOLD.png"), diff_bin)
 
+    candidates = extract_difference_candidates(diff_bin)
+    (OUT / "difference_candidates.json").write_text(
+        json.dumps({
+            "schema": "ETW2-G3-G4-DIFFERENCE-CANDIDATES-1",
+            "status": "REVIEW_REQUIRED",
+            "source_registration_status": "INF_CONTROLLED_REGISTRATION",
+            "count": len(candidates),
+            "candidates": candidates,
+            "interpretation": "Candidate locations only; no structural classification or evidence promotion.",
+        }, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
     changed_fraction = float(np.count_nonzero(diff_bin) / diff_bin.size)
     mean_absdiff = float(diff.mean())
 
     result = {
-        "schema": "ETW2-G3-G4-RASTER-REGISTRATION-1",
+        "schema": "ETW2-G3-G4-RASTER-REGISTRATION-2",
         "status": "INF_CONTROLLED_REGISTRATION",
         "source": {"level": "G3", "document_id": SOURCE_ID, "sha256": src_doc.sha256},
         "target": {"level": "G4", "document_id": TARGET_ID, "sha256": dst_doc.sha256},
@@ -136,6 +209,8 @@ def main():
         "overview_pixel_bbox": list(target_px),
         "mean_absdiff": mean_absdiff,
         "changed_pixel_fraction_threshold35": changed_fraction,
+        "difference_candidate_count": len(candidates),
+        "difference_candidates_file": str((OUT / "difference_candidates.json").as_posix()),
         "interpretation": "Raster difference is a candidate locator only; structural changes require visual/entity evidence.",
         "identity_promotion": False,
         "property_promotion": False,
