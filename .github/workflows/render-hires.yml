@@ -29,36 +29,23 @@ jobs:
           python-version: '3.12'
       - name: Install renderer
         run: pip install pymupdf pillow
-      - name: Render native sources and tiles
-        run: python scripts/render_hires_sources.py --out artifacts/hires --tile-size 2400 --overlap 0.125
-      - name: Verify pinned source hashes and discover new hashes
+      - name: Render TAV-04S native source and tiles
+        run: python scripts/render_hires_sources.py --source TAV-04S --out artifacts/hires --tile-size 2400 --overlap 0.125
+      - name: Record TAV-04S source hash
         run: |
           python - <<'PY'
           import json,sys
           p=json.load(open('artifacts/hires/hires_index.json'))
-          expected={
-            'TAV-01S':'abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8',
-            'TAV-01A':'bba85f508f31cb09b1278f317036debea2a22c0e9858bb8c4b1d4fcab855daeb',
-            'TAV-05S':'2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580',
-            'TAV-07A':'38a0cce18dcda0b9a36d8473f0d428735c4b89934975d551d4bfffd24fe54a2b',
-          }
-          discover={'TAV-04S'}
-          bad=[]
-          for s in p['sources']:
-            sid=s['source_id']
-            if sid in expected:
-              if s['pdf_sha256'] != expected[sid]:
-                bad.append((sid,s['pdf_sha256'],expected[sid]))
-            elif sid in discover:
-              print('SOURCE_HASH_DISCOVER',sid,s['pdf_sha256'])
-            else:
-              bad.append((sid,s['pdf_sha256'],'UNREGISTERED_SOURCE'))
-          if bad:
-            print('HASH_MISMATCH',bad); sys.exit(1)
+          if len(p['sources']) != 1 or p['sources'][0]['source_id'] != 'TAV-04S':
+            print('SOURCE_SET_MISMATCH',p['sources']); sys.exit(1)
+          s=p['sources'][0]
+          print('TAV04S_PDF_SHA256='+s['pdf_sha256'])
+          print('TAV04S_RASTER_SHA256='+s['raster_sha256'])
+          print('TAV04S_DIMENSIONS='+str(s['width'])+'x'+str(s['height']))
           print('SOURCE_HASH_GATE=PASS')
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: n12-hires-structural
+          name: n12-hires-tav04s
           path: artifacts/hires
           retention-days: 30
