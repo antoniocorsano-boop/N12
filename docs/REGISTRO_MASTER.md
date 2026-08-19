@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0010`
+Versione repository: `RM-0011`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -22,6 +22,8 @@ Versione repository: `RM-0010`
 | COL-003 | torrino scala | pilastri 30×40 cm | relazione di calcolo | DOC-famiglia |
 | COL-004 | fili fissi/orientamento | da determinare e congelare livello per livello sulle carpenterie originali, con controllo di continuità verticale | TAV-01S..06S | IN_CORSO |
 | COL-005 | sottotetto / piano ridotto | al livello superiore risultano assenti/terminati tre pilastri per ciascuna ala; le esatte catene verticali non sono ancora identificate | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + conferma utente | RIF / IDENTITA_ND |
+| COL-006 | TAV-06S / copertura | nella carpenteria di copertura sono rappresentati i pilastri che proseguono effettivamente fino alla copertura; presenza/assenza a posizione G4 risolta diventa evidenza di continuità/terminazione verticale | conferma utente 2026-08-19 + `ETW_G4_G5_ROOF_TRANSITION_v1.csv` | RIF_REGOLA_LETTURA / BINDING_IN_CORSO |
+| COL-007 | torrino scala / copertura | TAV-06S può contenere pilastri locali/addizionali del torrino scala non appartenenti alle 27 catene ordinarie; vanno separati dalla popolazione di prosecuzione del telaio principale | conferma utente 2026-08-19 + foto ultimo piano/torrino | RIF / IDENTITA_ND |
 | BEAM-001 | Telaio 1 | percorso I-L-M-N-O-P-Q-R; 7 campate | relazione di calcolo / consolidato v12 | DOC |
 | BEAM-002 | Telaio 1 | campate 4.70 / 5.10 / 3.25 / 2.40 / 2.90 / 5.30 / 4.70 m | relazione di calcolo / v12 | DOC |
 | BEAM-003 | Telaio 1 G5 | C2-C6 | relazione di calcolo / v12 | DOC |
@@ -45,7 +47,7 @@ Versione repository: `RM-0010`
 | TOPO-004 | G1↔G2 | registrazione controllata TAV-02S/G1 → TAV-03S/G2 completata: 1046 match, 510 inlier, rapporto 0.4876, RMSE 1.05 px @100 DPI; 186 candidati differenziali | GitHub Actions run `32277543302` + `ETW_FIRST_LEVEL_TERRACE_G12_CANDIDATES_v1.csv` | INF_CONTROLLATA / REVIEW_IN_CORSO |
 | TOPO-005 | terrazzo legacy ETW-1 | il precedente `terrace_probe.py` su TAV-05S/G4 è SUPERATO per l'identificazione del terrazzo del primo livello; resta solo provenienza ETW-1/TAV-05S. Il conflitto coordinate N039 è residuo aperto | `ETW_LEGACY_TERRACE_BINDING_AUDIT_v1.md` | SUPERATO_PER_TERRAZZO_PRIMO_LIVELLO |
 | TOPO-006 | terrazzo primo livello / armature | la ricerca delle armature dell'aggiunta nelle tavole originarie è chiusa come non applicabile: intervento successivo; dettagli di barre/diametri/lunghezze di ancoraggio restano ND salvo diversa documentazione o rilievo | conferma utente 2026-08-19 | RIF_CRONOLOGIA / ND_DETTAGLIO |
-| TOPO-007 | G4↔G5 / transizione copertura | confronto controllato TAV-05S/G4 → TAV-06S/G5 predisposto con registrazione + directional probe per setback, membri di copertura e terminazioni di catene | workflow `ETW2 G4 G5 Roof Transition` | IN_ESECUZIONE / NO_PROMOTION |
+| TOPO-007 | G4↔G5 / transizione copertura | confronto controllato TAV-05S/G4 → TAV-06S/G5 completato per registrazione e directional probe; la lettura della TAV-06S ora usa lo split main-frame continuations vs stair-tower/local upper columns | `ETW_G4_G5_ROOF_TRANSITION_v1.csv` + workflow run `32286265838` | REVIEW_TOPOLOGICA_IN_CORSO |
 | MAT-001 | materiali | calcestruzzo/acciaio | da documentare/indagare | ND |
 | MAT-002 | conoscenza | LC/FC | da definire sul quadro conoscitivo | ND |
 
