@@ -1,0 +1,59 @@
+name: ETW2 G4 G3 Evidence Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/structural-professional-workspace-r1
+    paths:
+      - 'model/etwin/floor_probe.py'
+      - 'model/etwin/document_registry.py'
+      - 'archive/documentazione_originaria/tavola4-2.pdf'
+      - 'archive/documentazione_originaria/tavola 5.pdf'
+      - '.github/workflows/etw2-floor-probe.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'model/etwin/floor_probe.py'
+      - 'model/etwin/document_registry.py'
+      - 'archive/documentazione_originaria/tavola4-2.pdf'
+      - 'archive/documentazione_originaria/tavola 5.pdf'
+      - '.github/workflows/etw2-floor-probe.yml'
+
+jobs:
+  g4-g3-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip pypdfium2 Pillow
+
+      - name: Run targeted probe
+        run: python -m model.etwin.floor_probe
+
+      - name: Validate probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          root='docs/FOGLIO_LAVORO/etwin_crops/ETW-2/G4_G3_probe'
+          test -f "$root/probe_manifest.json"
+          for region in TERRACE_OVERVIEW BEAM_01 BEAM_02 BEAM_03 SLAB_TERRACE DETAIL_STRUCT; do
+            test -f "$root/${region}_G4_TAV-05S.png"
+            test -f "$root/${region}_G3_TAV-04S.png"
+          done
+
+      - name: Upload probe evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: etw2-g4-g3-probe
+          path: docs/FOGLIO_LAVORO/etwin_crops/ETW-2/G4_G3_probe/
+          retention-days: 14
