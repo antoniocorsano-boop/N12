@@ -56,6 +56,23 @@ Current memory gate: `PASS_WITH_WARNING` only because the original Telaio 5 user
 
 Historical immutable source commit: `d521f11a6989664a54409ab0df064903d8986564`.
 
+## HiRes source recovery — operationally resolved
+
+TAV-04S can now be recovered without relying on chat/runtime download support:
+`git show immutable_commit:path` is executed inside GitHub Actions by `scripts/render_hires_sources.py`, which extracts the native raster and overlapping HiRes tiles. The workflow artifact is then downloadable through the GitHub connector.
+
+Targeted single-source workflow:
+- workflow: `.github/workflows/render-hires.yml`
+- renderer: `scripts/render_hires_sources.py --source TAV-04S`
+- successful run: `32223583877`
+- artifact: `9354759992` / `n12-hires-tav04s`
+- TAV-04S PDF SHA256: `2b878bcefde54ff2b42bafa2a4fdc8a8420bd71514a7e6966a864f009ade685e`
+- native raster SHA256: `46c39e6db16a51b7805db3a2e29b08f47e5809be0ad7d17d7eff5d3533c95b1c`
+- native raster: `5732 x 8780 px`
+- manifest: `data/canonical/tav04s_hires_render_manifest_v1.csv`
+
+Therefore TAV-04S is not an access residual anymore. The same targeted workflow is the preferred recovery mechanism for future immutable binary source PDFs.
+
 ## Current G4 baseline
 
 TAV-05S topology is the current best consolidated planar baseline.
@@ -94,57 +111,62 @@ Documental 1D stations:
 
 Hard gate: total projected extent = `28.60 m`.
 
-Important correction: these dimensions are projected/station dimensions along the historical reference, not necessarily Euclidean lengths of the polyline segments in plan. Previous direct Euclidean residual comparisons are superseded as a validation method.
+These dimensions are projected/station dimensions along the historical reference, not necessarily Euclidean lengths of the polyline segments in plan. Previous direct Euclidean residual comparisons are superseded as a validation method.
 
 Persistent evidence aid:
 - `evidence/derived/telaio5_plan_trace_v1.svg`
 - original current JPEG metadata: 1152×1536 px; SHA256 `6961c6f0d16f51a98488726cce770687f3baf162cfd0581e342014883d38c041`.
 
-Key files:
-- `data/canonical/telaio5_support_mapping_verified_v1.csv`
-- `data/canonical/telaio5_station_support_binding_v1.csv`
-- `data/canonical/telaio5_projection_dimension_policy_v1.csv`
-- `data/canonical/telaio5_projection_stations_v1.csv`
+## G3↔G4 rebinding — support identity and sections complete
 
-## G3↔G4 rebinding
+TAV-04S has been visually recovered and read at native resolution. All 34 G4 supports have a same-number, same-plan-position support on G3, including distinct `P22P = 22'`.
 
-G3 source is NOT missing. Canonical source is TAV-04S `tavola4-2.pdf`, historical blob `7807c32f52e8d6fcefad8abe7eac79ad9dd65efa` at immutable commit `d521f11...`.
+Canonical complete crosswalk:
+- `data/canonical/g3_g4_support_crosswalk_v1.csv`
+- `data/canonical/g3_support_sections_tav04s_v1.csv`
 
-Current crosswalk scaffold:
-`data/canonical/g3_g4_support_crosswalk_v1.csv`
+G3 support sections read from TAV-04S are complete for P01–P33 + P22P.
 
-Historical 27 vertical chains exist and are `VER_5_LEVELS` but `PREDOC_GEOMETRICO`; they are recovery aids only and must not be auto-mapped to current P01–P33/P22P.
+Section changes G3 → G4 occur only at:
+- P10: `30x50 → 30x45`
+- P13: `30x50 → 30x45`
+- P15: `30x50 → 30x45`
+- P20: `50x50 → 40x40`
+- P22: `30x50 → 30x45`
+- P26: `30x50 → 30x45`
+- P29: `30x50 → 30x45`
 
-### Telaio 5 vertical binding now closed as scaffold
+All other support sections remain unchanged between G3 and G4.
 
-The historic multipiano frame proves that G3 and G4 share the same nine named alignments `S-S'-T-U-V-Z-A'-B'-C'`. Combined with the verified G4 mapping, the vertical alignment scaffold is now fixed as:
-`P17-P18-P19-P20-P21-P22-P22P-P23-P24` across G3↔G4.
+Telaio 5 subset:
+- P17 40x40 → 40x40
+- P18 30x110 → 30x110
+- P19 40x40 → 40x40
+- P20 50x50 → 40x40
+- P21 30x45 → 30x45
+- P22 30x50 → 30x45
+- P22P 40x40 → 40x40
+- P23 30x110 → 30x110
+- P24 40x40 → 40x40
 
-Canonical files:
-- `data/canonical/g3_g4_telaio5_vertical_binding_v1.csv`
-- `data/canonical/g3_g4_telaio5_vertical_binding_gate_v1.csv`
+For P18 and P21 one dimension is confirmed by direct label and the second by direct graphic measurement of the footprint against the labelled dimension; evidence is `DOC+MIS`, not silently promoted to pure DOC.
 
-Evidence level: `RIF+DOC / HIGH` for vertical identity of the alignment only. This does NOT propagate G4 section, centroid, footprint or role into G3.
+### Remaining G3↔G4 work
 
-Still pending from TAV-04S visual reading:
-1. G3 section for each of the nine supports;
-2. orientation and footprint around the fixed line;
-3. risega/section-change classification;
-4. beam attachments to physical faces;
-5. final G3 fixed-line coordinates where the source gives a stronger construction reference.
+The former source/section block is closed. Remaining work is geometric around the fixed line:
+1. determine orientation of each rectangular/wide footprint on G3 and compare with G4;
+2. for P10/P13/P15/P20/P22/P26/P29 classify risega as unilateral/bilateral/other and identify retained face(s);
+3. determine `dN/dS/dE/dW` from the fixed line at both levels;
+4. update physical beam attachment offsets where footprint changes;
+5. only after those checks create verified G3–G4 vertical column segments for ETABS/EdiLus.
 
-Current environment limitation: GitHub connector exposes the immutable PDF identity/blob but rejects binary content; current runtime network cannot resolve GitHub raw URLs; File Library search did not locate an indexed `tavola4-2.pdf` copy. This is an environment-access block, not a missing project source.
-
-Next structural action:
-- continue source recovery for a visual TAV-04S rendering without asking the user to reproduce work;
-- in parallel extend frame-specific G3↔G4 vertical bindings only where historic frame identity independently proves continuity;
-- never propagate sections/footprints without DOC source reading.
+Historical 27 vertical chains remain `PREDOC_GEOMETRICO` recovery aids only; they are no longer needed to establish G3/G4 support identity or section, but may still help cross-check fixed-line continuity.
 
 ## Architectural perimeter residual
 
 Candidate pairing for G4 perimeter cross-check: TAV-04 architectural drawing, inferred from documentary ordering. This pairing is `INF/HIGH`, not DOC until visually verified.
 
-Do not promote P17–P24 roles ANGLE/FACADE/INTERNAL without the perimeter check. This residual does not block G3↔G4 structural rebinding.
+Do not promote roles ANGLE/FACADE/INTERNAL without the perimeter check. This residual does not block structural G3↔G4 risega analysis where the fixed line is directly visible/documented.
 
 ## 3D rules
 
@@ -166,4 +188,4 @@ Do not invent later heights.
 
 ## Continuity requirement
 
-Any agent continuing from here must reconstruct state from repository memory before asking the user to reproduce a source or before rebuilding an artifact already indexed. Search repository + immutable history + File Library recovery pointers before declaring an elaborato missing.
+Any agent continuing from here must reconstruct state from repository memory before asking the user to reproduce a source or before rebuilding an artifact already indexed. Search repository + immutable history + File Library recovery pointers + targeted GitHub Actions source renderer before declaring an elaborato missing or inaccessible.
