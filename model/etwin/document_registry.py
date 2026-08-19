@@ -12,8 +12,8 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 from model.etwin.document_engine import OriginalDocument
 
-MANIFEST_PATH = Path(r"data\canonical\tavole_originali_manifest.csv")
-ARCHIVE_DIR = Path(r"archive\documentazione_originaria")
+MANIFEST_PATH = Path("data") / "canonical" / "tavole_originali_manifest.csv"
+ARCHIVE_DIR = Path("archive") / "documentazione_originaria"
 
 
 def compute_sha256(path: Path) -> str:
@@ -40,7 +40,6 @@ def load_registry(manifest_path: Path = MANIFEST_PATH,
                 print(f"  WARNING: {file_path} not found, skipping")
                 continue
 
-            # Verify SHA256
             actual_sha = compute_sha256(file_path)
             expected_sha = row['sha256']
             sha_ok = actual_sha == expected_sha
@@ -49,7 +48,6 @@ def load_registry(manifest_path: Path = MANIFEST_PATH,
                 print(f"    Expected: {expected_sha}")
                 print(f"    Actual:   {actual_sha}")
 
-            # Get page count and dimensions using pypdfium2
             import pypdfium2 as pdfium
             pdf = pdfium.PdfDocument(str(file_path))
             page = pdf[0]
@@ -96,7 +94,6 @@ def main():
     print(f"\nLoaded: {len(documents)} documents")
     print()
 
-    # Summary table
     print(f"{'ID':<12} {'Type':<28} {'Pages':>5} {'Size':>8} {'Dims (mm)':<16}")
     print("-" * 75)
     for doc in documents:
@@ -104,13 +101,11 @@ def main():
         size_kb = doc.file_size_bytes / 1024
         print(f"{doc.document_id:<12} {doc.discipline:<28} {doc.page_count:>5} {size_kb:>7.0f}K {dims:<16}")
 
-    # Verify all SHAs
     all_sha_ok = all("SHA256_verified=True" in doc.notes for doc in documents)
     print(f"\nSHA256 verification: {'ALL OK' if all_sha_ok else 'MISMATCHES FOUND'}")
 
-    # Save registry
     from model.etwin.document_engine import save_json
-    output_path = Path(r"docs\FOGLIO_LAVORO\etwin_crops\document_registry.json")
+    output_path = Path("docs") / "FOGLIO_LAVORO" / "etwin_crops" / "document_registry.json"
     save_json([d.to_dict() for d in documents], output_path)
     print(f"Registry saved: {output_path}")
 
