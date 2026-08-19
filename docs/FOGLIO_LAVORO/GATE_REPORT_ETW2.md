@@ -1,13 +1,13 @@
 # ETW-2 GATE REPORT — Floor Differential Reconstruction
 
 **Gate:** ETW-2  
-**Status:** IN PROGRESS  
+**Status:** IN PROGRESS — FIRST DIFFERENCE VERIFIED  
 **Parent gate:** ETW-1 = PASS  
 **Branch:** `feat/structural-professional-workspace-r1`
 
 ## Objective
 
-Resolve the former M0-S1B floor-difference block by applying the validated ETW-1 high-resolution document pipeline to the ordinary floor carpenterie:
+Resolve the former M0-S1B floor-difference block by applying the validated ETW-1 high-resolution document pipeline to:
 
 - G1 → TAV-02S
 - G2 → TAV-03S
@@ -16,93 +16,100 @@ Resolve the former M0-S1B floor-difference block by applying the validated ETW-1
 
 No typical-floor equivalence is assumed.
 
-## Completed in this ETW-2 increment
+## Task 1 — Four DocumentMaps
 
-### Planning contract
+Repository-native execution completed successfully.
 
-Created `.asw/plans/etw2-floor-differential.md` with:
-- evidence-first comparison model;
-- explicit comparison statuses;
-- residual-local blocking;
-- prohibition on automatic TYPE_A/TYPE_B assignment;
-- end-to-end first probe G4 ↔ G3.
+GitHub Actions run `32269573791` (`ETW2 Floor Differential`) completed with all steps PASS:
+- execution PASS;
+- output validation PASS;
+- metadata artifact upload PASS.
 
-### Task 1 implementation — Four DocumentMaps
+Execution artifact `9371761458` contains:
+- TAV-02S: 2 regions / 28 tiles;
+- TAV-03S: 2 regions / 28 tiles;
+- TAV-04S: 2 regions / 35 tiles;
+- TAV-05S: 2 regions / 28 tiles;
+- `floor_registration.json`;
+- `execution_summary.json`.
 
-Added `model/etwin/floor_differential.py`.
+The pipeline was subsequently optimized so Task 1–2 generate metadata only; high-resolution raster rendering is deferred to Task 3 evidence regions. The optimized workflow (`ETW2 Floor Differential` run #18) also completed successfully.
 
-The module:
-- loads TAV-02S..TAV-05S from the verified ETW registry;
-- verifies that all required source documents are present;
-- invokes the already validated ETW-1 `build_document_map()` with identical parameters for every floor;
-- preserves source SHA256 and native page dimensions;
-- persists one `document_map.json` per level document;
-- uses 300 DPI, ~2000 px tiles and 10% deterministic overlap.
+**Status: PASS.**
 
-**Status:** IMPLEMENTED / EXECUTION EVIDENCE PENDING.
+## Task 2 — Cross-floor registration
 
-### Task 2 implementation — Structural registration
+Base registration preserves native coordinates and uses G4 only as coordinate reference. `typical_floor_assumption = false` and identity from proximity is forbidden.
 
-The same module generates `docs/FOGLIO_LAVORO/etwin_crops/ETW-2/floor_registration.json` after execution.
+The initial same-normalized-page crop probe showed that page-normalized coordinates alone are not sufficient because TAV-04S and TAV-05S differ in sheet width and plan placement. This prevented false differential claims.
 
-Registration policy:
-- G4 is `coordinate_registration_only`;
-- `typical_floor_assumption = false`;
-- normalized PLAN-region coordinates are primary;
-- native coordinates are preserved;
-- source round-trip is required;
-- identity from visual proximity alone is forbidden.
+A controlled raster registration was therefore added:
 
-**Status:** IMPLEMENTED / EXECUTION EVIDENCE PENDING.
+- method: SIFT + ratio test + RANSAC homography;
+- source: G3 / TAV-04S;
+- target: G4 / TAV-05S;
+- fit resolution: 100 DPI;
+- evidence resolution: 300 DPI;
+- good feature matches: 832;
+- inliers: 394;
+- inlier ratio: 0.4736;
+- inlier RMSE: 1.50 px at 100 DPI.
 
-### CI execution harness
+GitHub Actions run `32270566299` completed registration, validation and artifact upload successfully. Artifact `9371990867` contains the registered G3 image, G4 target image, absolute difference, thresholded difference and `registration_result.json`.
 
-Added `.github/workflows/etw2-floor-differential.yml` to execute Task 1–2 against the repository-hosted original PDFs and validate the produced metadata.
+Registration status remains `INF_CONTROLLED_REGISTRATION`: it is a geometric comparison aid, not structural evidence by itself.
 
-The workflow:
-- checks out the PR branch;
-- installs `pypdfium2` and `Pillow`;
-- executes `python -m model.etwin.floor_differential`;
-- requires all four per-document `document_map.json` files;
-- requires `docs/FOGLIO_LAVORO/etwin_crops/ETW-2/floor_registration.json`;
-- writes an `execution_summary.json`;
-- uploads metadata as a GitHub Actions artifact.
+**Status: PASS as comparison registration / no identity promotion.**
 
-A path mismatch in the first workflow revision (`floor_differential/` vs the actual `ETW-2/` output directory) was identified before gate promotion and corrected in commit `f105aa3938e363dcdc8210db8a588b1f589d968e`.
+## Task 3 — First G4 ↔ G3 evidence sweep
 
-**Execution observation:** no GitHub Actions workflow run is yet exposed for the latest PR commit through the connected Actions API. Therefore Task 1–2 remain `EXECUTION EVIDENCE PENDING`; absence of a visible run is not treated as PASS or FAIL.
-
-## First probe
+ETW-1 terrace evidence windows were reused rather than inventing new regions.
 
 Target pair:
 
 `G4 / TAV-05S ↔ G3 / TAV-04S`
 
-Required chain before any differential claim can be verified:
+### First verified differences
 
-`source PDFs → DocumentMaps → homologous region/tile → evidence crops → persistent entity/property resolution → comparison status`
+Recorded in `ETW2_FLOOR_DIFFERENCE_MATRIX_v1.csv`.
 
-A difference may only be classified as one of:
-- MATCH
-- SECTION_CHANGE
-- GEOMETRY_CHANGE
-- ELEMENT_ADDED
-- ELEMENT_REMOVED
-- POSITION_SHIFT
-- IDENTITY_UNRESOLVED
-- UNREADABLE
+1. `ETW2-DIFF-001` — region `BEAM_02`
+   - G3 / TAV-04S: beam width annotation = **140 cm** (`DOC_RASTER`)
+   - G4 / TAV-05S: beam width annotation = **120 cm** (`DOC_RASTER`)
+   - comparison = `SECTION_CHANGE`
+   - cross-level correspondence = `VER_PARZIALE`
+   - persistent structural entity ID = still `CANDIDATE`
+
+2. `ETW2-DIFF-002` — region `BEAM_03`
+   - G3 / TAV-04S: inclined beam width annotation = **140 cm** (`DOC_RASTER`)
+   - G4 / TAV-05S: inclined beam width annotation = **120 cm** (`DOC_RASTER`)
+   - comparison = `SECTION_CHANGE`
+   - cross-level correspondence = `VER_PARZIALE`
+   - persistent structural entity ID = still `CANDIDATE`
+
+The numeric values are source-document readings. The cross-floor binding remains deliberately below full structural identity until the beams are bound to persistent model IDs.
+
+**Status: PASS for first end-to-end floor difference.**
+
+## Task 4 — Floor Difference Matrix
+
+Matrix initialized with the first two verified comparison rows.
+
+**Status: OPEN / PARTIAL.**
 
 ## Current residuals
 
 | ID | Scope | Status | Blocking |
 |---|---|---|---|
-| ETW2-R01 | Execute four DocumentMaps and persist outputs | OPEN — harness ready, run not yet observed | Task 3 evidence sweep |
-| ETW2-R02 | Execute normalized floor registration | OPEN — harness ready, run not yet observed | cross-level correspondence |
-| ETW2-R03 | Read homologous G4/G3 structural region | OPEN | first verified floor difference |
-| ETW2-R04 | Build Floor Difference Matrix | OPEN | floor signatures / TypicalFloorGroup |
+| ETW2-R01 | Four DocumentMaps | RESOLVED | — |
+| ETW2-R02 | G3↔G4 raster registration | RESOLVED for comparison | — |
+| ETW2-R03 | First G4/G3 difference | RESOLVED | — |
+| ETW2-R04 | Complete Floor Difference Matrix G1–G4 | OPEN | floor signatures / TypicalFloorGroup |
+| ETW2-R05 | Bind BEAM_02 candidate to persistent structural ID | OPEN | identity-level promotion only |
+| ETW2-R06 | Bind BEAM_03 candidate to persistent structural ID | OPEN | identity-level promotion only |
 
 ## Gate status
 
-**ETW-2 remains IN PROGRESS.**
+**ETW-2 remains IN PROGRESS because the full G1–G4 Floor Difference Matrix is not complete.**
 
-No canonical structural data has been modified. No ND/INF evidence has been promoted. The former OCR tooling block is removed by ETW-1, and a reproducible repository-native execution harness now exists, but the floor-difference claim remains unresolved until high-resolution comparison evidence is actually produced.
+However, the former M0-S1B tooling block is now demonstrably removed: the system has produced the first end-to-end verified inter-floor section changes directly from the original scanned carpenterie without OCR transcription and without automatic promotion of structural identity.
