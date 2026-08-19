@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0005`
+Versione repository: `RM-0006`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -20,6 +20,7 @@ Versione repository: `RM-0005`
 | COL-002 | pilastri corpo principale | famiglie 40×50 e 40×40 cm | relazione di calcolo | DOC-famiglia |
 | COL-003 | torrino scala | pilastri 30×40 cm | relazione di calcolo | DOC-famiglia |
 | COL-004 | fili fissi/orientamento | da determinare e congelare livello per livello sulle carpenterie originali, con controllo di continuità verticale | TAV-01S..06S | IN_CORSO |
+| COL-005 | sottotetto / piano ridotto | al livello superiore risultano assenti/terminati tre pilastri per ciascuna ala; le esatte catene verticali non sono ancora identificate | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + conferma utente | RIF / IDENTITA_ND |
 | BEAM-001 | Telaio 1 | percorso I-L-M-N-O-P-Q-R; 7 campate | relazione di calcolo / consolidato v12 | DOC |
 | BEAM-002 | Telaio 1 | campate 4.70 / 5.10 / 3.25 / 2.40 / 2.90 / 5.30 / 4.70 m | relazione di calcolo / v12 | DOC |
 | BEAM-003 | Telaio 1 G5 | C2-C6 | relazione di calcolo / v12 | DOC |
@@ -27,6 +28,8 @@ Versione repository: `RM-0005`
 | BEAM-005 | Telaio 5 | campate 4.70 / 4.05 / 1.20 / 5.80 / 2.90 / 1.20 / 4.05 / 4.70 m | relazione di calcolo / v17 | DOC |
 | BEAM-006 | Telaio 5 G5 | C2-C7 = 19.20 m | relazione di calcolo / v17 | DOC |
 | BEAM-007 | Telaio 5 ↔ TAV.5 | il telaio esiste e va allineato per sovrapposizione di sistemi; matrice candidati creata, nessuna promozione a VER senza overlay | `docs/DECISIONI/M0G_ALLINEAMENTO_TELAIO5_TAV5_v1.md` + `data/canonical/telaio5_tav5_candidate_matrix_v1.csv` | IN_ALLINEAMENTO |
+| BEAM-008 | copertura | travi di colmo da modellare come membri espliciti del telaio di copertura | `FRAME_WELL_FORMEDNESS_GATE.md` + conferma utente | RIF / BINDING_PENDENTE |
+| BEAM-009 | copertura | travi di gronda da modellare come membri espliciti del telaio di copertura | `FRAME_WELL_FORMEDNESS_GATE.md` + conferma utente | RIF / BINDING_PENDENTE |
 | SEC-001 | travi | sezioni note: 20×45, 25×70, 30×45, 30×65, 120×20, 140×20 cm | relazione / consolidati | DOC |
 | SEC-002 | Telaio 1 G2 | sezione non congelata | stato M0 v18 | ND |
 | LOAD-001 | Telaio 5 | carichi lineari storici G1-G3 disponibili | RC-P13 / v16 | DOC-STORICO |
@@ -35,6 +38,9 @@ Versione repository: `RM-0005`
 | M0G-002 | livelli | quote Z definitive | non congelate | ND |
 | M0G-003 | raccordo Telaio 5 ↔ 57 nodi | dataset fisico dei 57 nodi recuperato; raccordo ora in allineamento mediante firma metrica, topologia e carpenterie originali | `docs/DECISIONI/M0G_RECUPERO_ABACO_57_NODI_v1.md` + `data/canonical/tav5_topology_nodes_57.csv` | IN_ALLINEAMENTO |
 | M0G-004 | altezza interpiano | altezza di piano estradosso-estradosso corretta a 3.20 m | `data/canonical/storey_height_status.csv` + `docs/DECISIONI/M0G_CORREZIONE_ALTEZZA_INTERPIANO_320_v1.md` | RIF_UTENTE_CORRETTO |
+| TOPO-001 | piano terra | terrazzo al piano terra da conservare come regione/topologia locale, non assorbita da un piano tipo | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + conferma utente | RIF / BINDING_PENDENTE |
+| TOPO-002 | sottotetto | piano superiore/sottotetto a pianta ridotta con tre appartamenti dotati di terrazzo | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + conferma utente | RIF / BINDING_PENDENTE |
+| TOPO-003 | copertura | tre ali / tre colmi da preservare come rami distinti della topologia di copertura | `FRAME_WELL_FORMEDNESS_GATE.md` + quadro fonti progetto | RIF/DOC-CONTEXT / BINDING_PENDENTE |
 | MAT-001 | materiali | calcestruzzo/acciaio | da documentare/indagare | ND |
 | MAT-002 | conoscenza | LC/FC | da definire sul quadro conoscitivo | ND |
 
