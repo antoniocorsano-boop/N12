@@ -16,7 +16,7 @@ P14,30x50,G4,P14,30x50,MATCH,SAME,NUMBER+PLAN_POSITION_MATCH,DOC,HIGH,"TAV-04S s
 P15,30x45,G4,P15,30x50,MATCH,SECTION_REDUCTION,NUMBER+PLAN_POSITION_MATCH,DOC,HIGH,"TAV-04S support 15 30x50 + TAV-05S support 15 30x45","Long side reduces 50 to 45 cm; retained face pending."
 P16,40x40,G4,P16,40x40,MATCH,SAME,NUMBER+PLAN_POSITION_MATCH,DOC,HIGH,"TAV-04S support 16 + TAV-05S support 16","Section unchanged."
 P17,40x40,G4,P17,40x40,MATCH,SAME,VERTICAL_IDENTITY_VERIFIED,DOC+RIF,HIGH,"TAV-04S support 17 + Telaio5 vertical binding","Telaio5 S; section unchanged."
-P18,30x110,G4,P18,30x110,MATCH,SAME,VERTICAL_IDENTITY_VERIFIED,DOC+MIS+RIF,HIGH,"TAV-04S support 18 + graphic long-side measurement + Telaio5 binding","Telaio5 S'; wide support; match by fixed-line identity, never centroid."
+P18,30x110,G4,P18,30x110,MATCH,SAME,VERTICAL_IDENTITY_VERIFIED,DOC+RIF,HIGH,"TAV-04S support 18 labels 30/110 + Telaio5 binding","Telaio5 S'; wide support; both G3 dimensions directly readable. Match by fixed-line identity, never centroid."
 P19,40x40,G4,P19,40x40,MATCH,SAME,VERTICAL_IDENTITY_VERIFIED,DOC+RIF,HIGH,"TAV-04S support 19 + Telaio5 binding","Telaio5 T; section unchanged."
 P20,40x40,G4,P20,50x50,MATCH,SECTION_REDUCTION,VERTICAL_IDENTITY_VERIFIED,DOC+RIF,HIGH,"TAV-04S support 20 50x50 + TAV-05S support 20 40x40","Telaio5 U; 50x50 to 40x40. Risega face retention pending."
 P21,30x45,G4,P21,30x45,MATCH,SAME,VERTICAL_IDENTITY_VERIFIED,DOC+MIS+RIF,HIGH,"TAV-04S support 21 + measured long side + Telaio5 binding","Telaio5 V; section unchanged."
