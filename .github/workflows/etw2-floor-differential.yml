@@ -10,6 +10,14 @@ on:
       - 'data/canonical/tavole_originali_manifest.csv'
       - 'archive/documentazione_originaria/**'
       - '.github/workflows/etw2-floor-differential.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'model/etwin/**'
+      - 'data/canonical/tavole_originali_manifest.csv'
+      - 'archive/documentazione_originaria/**'
+      - '.github/workflows/etw2-floor-differential.yml'
 
 jobs:
   etw2-task1-task2:
