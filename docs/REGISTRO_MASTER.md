@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0006`
+Versione repository: `RM-0007`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -38,7 +38,7 @@ Versione repository: `RM-0006`
 | M0G-002 | livelli | quote Z definitive | non congelate | ND |
 | M0G-003 | raccordo Telaio 5 ↔ 57 nodi | dataset fisico dei 57 nodi recuperato; raccordo ora in allineamento mediante firma metrica, topologia e carpenterie originali | `docs/DECISIONI/M0G_RECUPERO_ABACO_57_NODI_v1.md` + `data/canonical/tav5_topology_nodes_57.csv` | IN_ALLINEAMENTO |
 | M0G-004 | altezza interpiano | altezza di piano estradosso-estradosso corretta a 3.20 m | `data/canonical/storey_height_status.csv` + `docs/DECISIONI/M0G_CORREZIONE_ALTEZZA_INTERPIANO_320_v1.md` | RIF_UTENTE_CORRETTO |
-| TOPO-001 | piano terra | terrazzo al piano terra da conservare come regione/topologia locale, non assorbita da un piano tipo | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + conferma utente | RIF / BINDING_PENDENTE |
+| TOPO-001 | primo livello | unico terrazzo in questo ambito: estensione locale del telaio realizzata al primo livello con pilastri aggiunti e travi aggiunte innestate ai corrispondenti nodi del telaio preesistente; riferiti monconi/elementi di ancoraggio al nodo | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + correzione/conferma utente | RIF / BINDING_NODI_PENDENTE |
 | TOPO-002 | sottotetto | piano superiore/sottotetto a pianta ridotta con tre appartamenti dotati di terrazzo | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + conferma utente | RIF / BINDING_PENDENTE |
 | TOPO-003 | copertura | tre ali / tre colmi da preservare come rami distinti della topologia di copertura | `FRAME_WELL_FORMEDNESS_GATE.md` + quadro fonti progetto | RIF/DOC-CONTEXT / BINDING_PENDENTE |
 | MAT-001 | materiali | calcestruzzo/acciaio | da documentare/indagare | ND |
