@@ -62,28 +62,49 @@ Historical immutable source commit: `d521f11a6989664a54409ab0df064903d8986564`.
 Immutable PDFs can be recovered without relying on chat/runtime binary support. `git show immutable_commit:path` runs inside GitHub Actions through `scripts/render_hires_sources.py`; the action extracts the native raster and overlapping tiles and returns a downloadable artifact.
 
 TAV-04S / G3:
-- successful run: `32223583877`
-- artifact: `9354759992` / `n12-hires-tav04s`
-- PDF SHA256: `2b878bcefde54ff2b42bafa2a4fdc8a8420bd71514a7e6966a864f009ade685e`
-- native raster SHA256: `46c39e6db16a51b7805db3a2e29b08f47e5809be0ad7d17d7eff5d3533c95b1c`
-- native raster: `5732 x 8780 px`
+- run `32223583877`; artifact `9354759992` / `n12-hires-tav04s`;
+- PDF SHA256 `2b878bcefde54ff2b42bafa2a4fdc8a8420bd71514a7e6966a864f009ade685e`;
+- raster SHA256 `46c39e6db16a51b7805db3a2e29b08f47e5809be0ad7d17d7eff5d3533c95b1c`;
+- native raster `5732 x 8780 px`.
 
 TAV-04 architectural:
-- successful run: `32224976349`
-- artifact: `9355209425` / `n12-hires-tav04arch`
-- PDF SHA256: `87972049435ea9bac6df76b62da67de097a1299f55dadbcb0dcf65526a3f0948`
-- native raster SHA256: `2580d649761a09689a478a522eb691bde6714441af0ed59bb23e51da6248f9e5`
-- native raster: `4680 x 8298 px`
+- run `32224976349`; artifact `9355209425` / `n12-hires-tav04arch`;
+- PDF SHA256 `87972049435ea9bac6df76b62da67de097a1299f55dadbcb0dcf65526a3f0948`;
+- raster SHA256 `2580d649761a09689a478a522eb691bde6714441af0ed59bb23e51da6248f9e5`;
+- native raster `4680 x 8298 px`.
+
+TAV-05S / G4:
+- run `32225800144`; artifact `9355479921` / `n12-hires-tav05s`;
+- PDF SHA256 `2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580`;
+- raster SHA256 `5cd429cfa6692e644efb875e0aef7130f669b5d024d496ea278574e0b4c8849d`;
+- native raster `4680 x 8353 px`.
 
 Source access is therefore not a current residual.
+
+## TAV-04ARCH ↔ TAV-05S co-registration — verified
+
+Canonical sheet registration: `data/canonical/tav04arch_tav05s_registration_v1.csv`.
+
+Independent ORB feature matching + RANSAC gives:
+- 66 accepted matches;
+- 46 inliers;
+- inlier ratio 0.69697;
+- scale 1.01033;
+- rotation 0.67624°;
+- RMSE 3.76 px;
+- median 3.33 px;
+- p95 6.37 px.
+
+Status: `MIS / HIGH / PASS`.
+This closes the old inferential pairing problem. The transform is for sheet co-registration and architectural-support comparison only; it is NOT an M0-G metric transform.
 
 ## Current G4 baseline
 
 TAV-05S topology is the current best consolidated planar baseline.
 
 Support census: 34 supports including distinct `P22P` = 22'.
-Current support registry: `data/canonical/tav05_fixed_lines_numeric_v7.csv`.
-Important caveat: its numeric points were produced before the latest semantic reaudit of construction fixed lines. They remain measured graphic references, NOT automatically final construction fixed lines.
+Current raw-reference registry: `data/canonical/tav05_fixed_lines_numeric_v7.csv`.
+Important caveat: its points remain measured graphic references, NOT automatically final construction fixed lines.
 
 Wide supports:
 - P18 = 30x110, long side X
@@ -123,7 +144,7 @@ Persistent evidence aid:
 
 ## G3↔G4 rebinding — support identity and sections verified
 
-TAV-04S has been recovered and read at native resolution. All 34 G4 supports have a same-number, same-plan-position support on G3, including distinct `P22P = 22'`.
+All 34 G4 supports have a same-number, same-plan-position support on G3, including distinct `P22P = 22'`.
 
 Canonical files:
 - `data/canonical/g3_g4_support_crosswalk_v1.csv`
@@ -141,39 +162,49 @@ Section changes G3 → G4 occur only at:
 
 All other 27 support sections remain unchanged.
 
-Telaio 5 subset:
-- P17 40x40 → 40x40
-- P18 30x110 → 30x110
-- P19 40x40 → 40x40
-- P20 50x50 → 40x40
-- P21 30x45 → 30x45
-- P22 30x50 → 30x45
-- P22P 40x40 → 40x40
-- P23 30x110 → 30x110
-- P24 40x40 → 40x40
+Evidence audit correction:
+- P18 = `30x110` is `DOC/HIGH` because both 30 and 110 are directly readable on TAV-04S HiRes.
+- P21 = `30x45` remains `DOC+MIS/HIGH` because 30 is written and 45 is measured from the footprint.
 
-Evidence correction from audit:
-- P18 = `30x110` is **DOC/HIGH** because both 30 and 110 are directly readable on TAV-04S HiRes.
-- P21 = `30x45` remains **DOC+MIS/HIGH**: 30 is directly written; 45 is obtained by direct footprint measurement.
+## Risega / support-role state
 
-### Remaining G3↔G4 work
+Canonical files:
+- `data/canonical/g3_g4_risega_support_roles_v1.csv`
+- `data/canonical/g3_g4_risega_role_gate_v1.csv`
+- `data/canonical/g3_g4_facade_risega_offsets_v1.csv`
 
-Identity and section layers are closed. Remaining work is geometric around the fixed line:
-1. determine orientation of each rectangular/wide footprint on G3 and compare with G4;
-2. for P10/P13/P15/P20/P22/P26/P29 classify risega as unilateral/bilateral/other and identify retained face(s);
-3. determine `dN/dS/dE/dW` from the fixed line at both levels;
-4. update physical beam attachment offsets where footprint changes;
-5. only after those checks create verified G3–G4 vertical column geometry for ETABS/EdiLus.
+Registered architectural-role classification for the seven section-change supports:
+- P10 = FACADE, exterior `V_NEG`, HIGH
+- P13 = INTERNAL, HIGH
+- P15 = FACADE, exterior `V_POS`, HIGH
+- P20 = INTERNAL, HIGH
+- P22 = INTERNAL, HIGH
+- P26 = INTERNAL, HIGH
+- P29 = FACADE, exterior `U_NEG`, HIGH
+
+Facade reductions are now geometrically resolved under G-16:
+- P10: 30x50 → 30x45; exterior `V_NEG` retained; 5 cm unilateral reduction on interior `V_POS` side.
+- P15: 30x50 → 30x45; exterior `V_POS` retained; 5 cm unilateral reduction on interior `V_NEG` side.
+- P29: 30x50 → 30x45 with U as long axis; exterior `U_NEG` retained; 5 cm unilateral reduction on interior `U_POS` side.
+
+These section offsets are expressed relative to the semantic facade fixed line and do not replace M0-G coordinates.
+
+Still open for the four INTERNAL reductions P13/P20/P22/P26:
+- documentary/metric fixed-line position;
+- retained face(s) / unilateral-vs-bilateral risega;
+- exact beam attachment consequences.
+Do not assume centered reduction or centroid continuity.
+
+## Remaining geometric work
+
+1. extend semantic `ANGLE/FACADE/INTERNAL` support-role registry beyond the seven risega supports where useful for the global model;
+2. determine true construction fixed lines for internal supports from documentary/metric evidence;
+3. close P13/P20/P22/P26 risega geometry;
+4. determine final `dN/dS/dE/dW` or equivalent local offsets for all supports needed by the model;
+5. revalidate beam-to-physical-face attachments where footprints change;
+6. only then create verified G3–G4 vertical column geometry for ETABS/EdiLus.
 
 Historical 27 vertical chains remain `PREDOC_GEOMETRICO` recovery aids only.
-
-## Architectural perimeter state
-
-TAV-04 architectural is now recovered and visually inspected. Its overall building geometry is compatible with the structural G4 layout, so the former source-access/visual-inspection residual is superseded.
-
-What remains open is **exact co-registration**, not source availability. Until TAV-04ARCH is geometrically registered to TAV-05S, do not promote individual supports to `ANGLE/FACADE/INTERNAL` and do not apply the exterior-corner/exterior-edge fixed-line rule to final coordinates.
-
-Current residual: `RES-G4-ARCH-001` in `memory/OPEN_RESIDUALS.csv`.
 
 ## 3D rules
 
@@ -196,6 +227,6 @@ Do not invent later heights.
 ## Latest audit
 
 Canonical verification report: `memory/VERIFICATION_AUDIT_2026-08-19.md`.
-Verdict: **PASS WITH OPEN GEOMETRIC RESIDUALS**.
+Current verdict: **PASS WITH OPEN FIXED-LINE / INTERNAL-RISEGA RESIDUALS**.
 
 Any agent continuing from here must reconstruct state from repository memory before asking the user to reproduce a source or before rebuilding an artifact already indexed. Search repository + immutable history + File Library recovery pointers + targeted GitHub Actions source renderer before declaring an elaborato missing or inaccessible.
