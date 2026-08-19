@@ -1,7 +1,7 @@
 # ETW-2 GATE REPORT — Floor Differential Reconstruction
 
 **Gate:** ETW-2  
-**Status:** IN PROGRESS — G3↔G4 DIFFERENTIAL SCAN 50% REVIEWED  
+**Status:** IN PROGRESS — G3↔G4 DIFFERENTIAL SCAN COMPLETE  
 **Parent gate:** ETW-1 = PASS  
 **Branch:** `feat/structural-professional-workspace-r1`
 
@@ -20,88 +20,70 @@ No typical-floor equivalence is assumed.
 
 Repository-native execution completed successfully.
 
-GitHub Actions run `32269573791` (`ETW2 Floor Differential`) completed with all steps PASS. Artifact `9371761458` contains:
-- TAV-02S: 2 regions / 28 tiles;
-- TAV-03S: 2 regions / 28 tiles;
-- TAV-04S: 2 regions / 35 tiles;
-- TAV-05S: 2 regions / 28 tiles;
-- `floor_registration.json`;
-- `execution_summary.json`.
-
-The pipeline was subsequently optimized so Task 1–2 generate metadata only; high-resolution raster rendering is deferred to Task 3 evidence regions. The optimized workflow also completed successfully.
+GitHub Actions run `32269573791` completed with execution, validation and metadata artifact upload PASS. Artifact `9371761458` contains the four DocumentMaps and floor registration metadata. The metadata-only optimized workflow also passed.
 
 **Status: PASS.**
 
-## Task 2 — Cross-floor registration
+## Task 2 — G3↔G4 controlled registration
 
-Page-normalized coordinates alone were rejected as insufficient because TAV-04S and TAV-05S differ in sheet width and plan placement.
+Page-normalized coordinates alone were rejected as insufficient. Controlled registration uses SIFT + ratio test + RANSAC homography, source G3/TAV-04S → target G4/TAV-05S, fit 100 DPI and evidence 300 DPI.
 
-Controlled raster registration:
-- method: SIFT + ratio test + RANSAC homography;
-- source: G3 / TAV-04S;
-- target: G4 / TAV-05S;
-- fit resolution: 100 DPI;
-- evidence resolution: 300 DPI;
+Observed quality:
 - good matches: 832;
 - inliers: 394;
 - inlier ratio: 0.4736;
 - inlier RMSE: 1.50 px at 100 DPI.
 
-Registration remains `INF_CONTROLLED_REGISTRATION`: it is a comparison aid, never structural evidence by itself.
+Registration remains `INF_CONTROLLED_REGISTRATION`; it is a comparison aid only.
 
-A raster-difference candidate queue was added in commit `7a262b09e0ff503f2dfab9200dfb3d776d8110b9`. GitHub Actions run `32271392783` completed successfully and produced `difference_candidates.json` with 60 review candidates. Every candidate is `REVIEW_REQUIRED` and `promotion_allowed=false`.
+A difference-candidate queue produced **60 REVIEW_REQUIRED candidates**, with automatic promotion forbidden.
 
-**Status: PASS as comparison registration / no identity promotion.**
+**Status: PASS for comparison registration / no identity promotion.**
 
 ## Task 3 — G4 ↔ G3 evidence sweep
 
-Target pair:
+Target pair: `G4 / TAV-05S ↔ G3 / TAV-04S`.
 
-`G4 / TAV-05S ↔ G3 / TAV-04S`
-
-### Review progress
+### Review completion
 
 - raster candidates generated: **60**;
-- candidates explicitly reviewed: **30 / 60**;
-- confirmed structural differences currently in matrix: **15**;
+- candidates explicitly reviewed: **60 / 60**;
+- confirmed distinct structural differences in `ETW2_FLOOR_DIFFERENCE_MATRIX_v1.csv`: **15**;
 - ambiguous readings remain unpromoted;
-- duplicates and false positives are logged explicitly.
+- duplicate raster components are not double-counted;
+- folds, text, scan contrast and subpixel-registration responses are explicitly logged as false positives.
 
 ### Confirmed differential families
 
-Recorded in `ETW2_FLOOR_DIFFERENCE_MATRIX_v1.csv`.
-
 **Section/dimension changes — 8 rows**
-- repeated wide-beam change **140 cm in G3 → 120 cm in G4** at several homologous locations;
-- repeated registered vertical-element dimension change **50 → 45**, with the orthogonal readable dimension remaining **30**, at three distinct locations.
+- repeated wide-beam change **140 cm in G3 → 120 cm in G4** at homologous registered locations;
+- repeated registered vertical-element dimension change **50 → 45**, with orthogonal readable dimension **30** unchanged, at three distinct locations.
 
 **Geometry/topology changes — 7 rows**
 - upper, right-side and lower-right beam/slab-perimeter projections or orthogonal returns present in G3 and absent or differently configured in G4;
-- local 25-deep / 70-wide edge-beam return geometry differs at one registered location.
+- local 25-deep / 70-wide edge-beam return geometry differs at registered locations.
 
-All source readings are `DOC_RASTER`; cross-level correspondence is `VER_PARZIALE`; affected persistent structural IDs remain `CANDIDATE` until bound to the canonical model.
+All source property readings are `DOC_RASTER`. Cross-level correspondence is `VER_PARZIALE`. Persistent structural IDs remain `CANDIDATE` until later entity binding.
 
 ### Candidate-review control
 
-`ETW2_G3_G4_CANDIDATE_REVIEW_v1.csv` now records **30 reviewed candidates**, including:
-- confirmed `SECTION_CHANGE` / `GEOMETRY_CHANGE` findings;
-- `MATCH_FALSE_POSITIVE` cases caused by scan contrast, folds, text or subpixel registration;
-- `DUPLICATE_OF_CONFIRMED` cases where multiple raster components belong to one structural finding;
-- `UNRESOLVED_READING` / `UNRESOLVED_ANNOTATION` cases that remain blocked rather than being guessed.
+`ETW2_G3_G4_CANDIDATE_REVIEW_v1.csv` now records all 60 dispositions, including:
+- confirmed `SECTION_CHANGE` / `GEOMETRY_CHANGE`;
+- `MATCH_FALSE_POSITIVE`;
+- `DUPLICATE_OF_CONFIRMED`;
+- `UNRESOLVED_READING` / `UNRESOLVED_ANNOTATION`.
 
-This confirms that the raster difference is functioning as a locator rather than an automatic classifier.
-
-**Status: PASS for repeated end-to-end G3↔G4 differences; half-sheet candidate review completed.**
+**Status: PASS — full G3↔G4 raster candidate sweep complete.**
 
 ## Task 4 — Floor Difference Matrix
 
-Matrix now contains **15 confirmed G3↔G4 difference rows**:
-- **8 `SECTION_CHANGE` / dimension-change rows**;
-- **7 `GEOMETRY_CHANGE` rows**.
+Current matrix contains **15 confirmed G3↔G4 difference rows**:
+- **8 section/dimension changes**;
+- **7 geometry/topology changes**.
 
-The candidate-review log is maintained separately so rejected and ambiguous raster differences remain traceable.
+G3↔G4 candidate review is complete. The next comparison pair is **G3↔G2**.
 
-**Status: OPEN / PARTIAL.**
+**Status: OPEN / PARTIAL for G1–G4.**
 
 ## Current residuals
 
@@ -111,15 +93,14 @@ The candidate-review log is maintained separately so rejected and ambiguous rast
 | ETW2-R02 | G3↔G4 raster registration | RESOLVED for comparison | — |
 | ETW2-R03 | First G4/G3 difference | RESOLVED | — |
 | ETW2-R04 | Complete Floor Difference Matrix G1–G4 | OPEN | floor signatures / TypicalFloorGroup |
-| ETW2-R05..R19 | Bind confirmed G3↔G4 difference candidates to persistent structural IDs | OPEN | identity-level promotion only |
-| ETW2-R20 | Review remaining 30 G3↔G4 raster candidates | OPEN | full G3↔G4 differential coverage |
+| ETW2-R05..R19 | Bind confirmed G3↔G4 candidates to persistent structural IDs | OPEN | identity-level promotion only |
+| ETW2-R20 | Review 60 G3↔G4 raster candidates | RESOLVED | — |
+| ETW2-R21 | Execute controlled G2↔G3 registration and evidence sweep | OPEN | next pair differential coverage |
 
 ## Gate status
 
-**ETW-2 remains IN PROGRESS because the full G1–G4 Floor Difference Matrix is not complete.**
+**ETW-2 remains IN PROGRESS because G2↔G3 and G1↔G2 are not yet complete.**
 
-The former M0-S1B tooling block is removed. The current workflow separates:
+The G3↔G4 differential stage is complete at raster-candidate level. The validated workflow is now:
 
-`raster candidate → visual review → DOC_RASTER property reading → VER_PARZIALE cross-floor correspondence → later persistent-ID binding`.
-
-This prevents both OCR loss and automatic promotion from image similarity.
+`DocumentMap → controlled registration → raster candidate → visual review → DOC_RASTER property reading → VER_PARZIALE correspondence → persistent-ID binding later`.
