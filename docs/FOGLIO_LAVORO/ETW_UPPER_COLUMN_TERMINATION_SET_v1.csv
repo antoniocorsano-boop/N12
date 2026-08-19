@@ -1,0 +1,12 @@
+record_id,support_id,iv_order_presence,tav06s_roof_presence,vertical_result,evidence_state,wing_binding,confidence,source_basis,notes
+ETW-UCT-001,P01,DOC,ABSENT,TERMINATES_BELOW_ROOF,DOC_RASTER+DOC_IV_ORDER+RIF_RULE,UNRESOLVED,HIGH,"TAV-07A IV-order schedule + TAV-06S direct reading + user reading rule","One of nine exact upper terminations"
+ETW-UCT-002,P08,DOC,ABSENT,TERMINATES_BELOW_ROOF,DOC_RASTER+DOC_IV_ORDER+RIF_RULE,UNRESOLVED,HIGH,"TAV-07A IV-order schedule + TAV-06S direct reading + user reading rule","One of nine exact upper terminations"
+ETW-UCT-003,P09,DOC,ABSENT,TERMINATES_BELOW_ROOF,DOC_RASTER+DOC_IV_ORDER+RIF_RULE,UNRESOLVED,HIGH,"TAV-07A IV-order schedule + TAV-06S direct reading + user reading rule","One of nine exact upper terminations"
+ETW-UCT-004,P16,DOC,ABSENT,TERMINATES_BELOW_ROOF,DOC_RASTER+DOC_IV_ORDER+RIF_RULE,UNRESOLVED,HIGH,"TAV-07A IV-order schedule + TAV-06S direct reading + user reading rule","One of nine exact upper terminations"
+ETW-UCT-005,P17,DOC,ABSENT,TERMINATES_BELOW_ROOF,DOC_RASTER+DOC_IV_ORDER+RIF_RULE,UNRESOLVED,HIGH,"TAV-07A IV-order schedule + TAV-06S direct reading + user reading rule","One of nine exact upper terminations"
+ETW-UCT-006,P21,DOC,ABSENT,TERMINATES_BELOW_ROOF,DOC_RASTER+DOC_IV_ORDER+RIF_RULE,UNRESOLVED,HIGH,"TAV-07A IV-order schedule + TAV-06S direct reading + user reading rule","One of nine exact upper terminations"
+ETW-UCT-007,P31,DOC,ABSENT,TERMINATES_BELOW_ROOF,DOC_RASTER+DOC_IV_ORDER+RIF_RULE,UNRESOLVED,HIGH,"TAV-07A IV-order schedule + TAV-06S direct reading + user reading rule","One of nine exact upper terminations"
+ETW-UCT-008,P32,DOC,ABSENT,TERMINATES_BELOW_ROOF,DOC_RASTER+DOC_IV_ORDER+RIF_RULE,UNRESOLVED,HIGH,"TAV-07A IV-order schedule + TAV-06S direct reading + user reading rule","One of nine exact upper terminations"
+ETW-UCT-009,P33,DOC,ABSENT,TERMINATES_BELOW_ROOF,DOC_RASTER+DOC_IV_ORDER+RIF_RULE,UNRESOLVED,HIGH,"TAV-07A IV-order schedule + TAV-06S direct reading + user reading rule","One of nine exact upper terminations"
+ETW-UCT-CHECK,ALL,34,25_PRESENT,9_TERMINATIONS,DOC_RASTER+DOC_IV_ORDER+RIF_RULE,"3_PER_WING_PENDING_ASSIGNMENT",HIGH,"34 IV-order supports minus 25 numbered roof supports","Count closure exactly matches user-reported 3 terminations x 3 wings; wing identity must still be topology-bound"
+ETW-UCT-TOWER,STAIR_TOWER,NA,UNRESOLVED,LOCAL_UPPER_COLUMN_SEARCH_OPEN,RIF+PHOTO,SEPARATE_GENEALOGY,MEDIUM,"user clarification + upper-floor/tower photo","No additional stair-tower-only numbered support has yet been resolved; do not invent one"
