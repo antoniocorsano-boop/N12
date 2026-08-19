@@ -115,13 +115,30 @@ Current crosswalk scaffold:
 
 Historical 27 vertical chains exist and are `VER_5_LEVELS` but `PREDOC_GEOMETRICO`; they are recovery aids only and must not be auto-mapped to current P01–P33/P22P.
 
-Current next structural action:
-1. recover/render TAV-04S from immutable Git source;
-2. identify G3 supports from the source itself;
-3. cross-bind G3↔G4 by fixed line first, not centroid;
-4. record section/orientation and footprint delta/risega;
-5. classify each mapping MATCH / G3_ONLY / G4_ONLY / AMBIGUOUS;
-6. only then create verified vertical column segments.
+### Telaio 5 vertical binding now closed as scaffold
+
+The historic multipiano frame proves that G3 and G4 share the same nine named alignments `S-S'-T-U-V-Z-A'-B'-C'`. Combined with the verified G4 mapping, the vertical alignment scaffold is now fixed as:
+`P17-P18-P19-P20-P21-P22-P22P-P23-P24` across G3↔G4.
+
+Canonical files:
+- `data/canonical/g3_g4_telaio5_vertical_binding_v1.csv`
+- `data/canonical/g3_g4_telaio5_vertical_binding_gate_v1.csv`
+
+Evidence level: `RIF+DOC / HIGH` for vertical identity of the alignment only. This does NOT propagate G4 section, centroid, footprint or role into G3.
+
+Still pending from TAV-04S visual reading:
+1. G3 section for each of the nine supports;
+2. orientation and footprint around the fixed line;
+3. risega/section-change classification;
+4. beam attachments to physical faces;
+5. final G3 fixed-line coordinates where the source gives a stronger construction reference.
+
+Current environment limitation: GitHub connector exposes the immutable PDF identity/blob but rejects binary content; current runtime network cannot resolve GitHub raw URLs; File Library search did not locate an indexed `tavola4-2.pdf` copy. This is an environment-access block, not a missing project source.
+
+Next structural action:
+- continue source recovery for a visual TAV-04S rendering without asking the user to reproduce work;
+- in parallel extend frame-specific G3↔G4 vertical bindings only where historic frame identity independently proves continuity;
+- never propagate sections/footprints without DOC source reading.
 
 ## Architectural perimeter residual
 
