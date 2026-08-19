@@ -14,6 +14,29 @@ Complete the existing-RC building dossier and produce a traceable global model s
 
 Residuals are explicit and non-blocking. Never silently promote inference to DOC.
 
+## Repository memory — mandatory bootstrap
+
+Operational continuity MUST NOT depend on the current chat or on `/mnt/data`.
+
+Before any structural work, read in this order:
+1. `AGENTS.md`
+2. `memory/PROJECT_STATE.md`
+3. `memory/SOURCE_REGISTRY.csv`
+4. `memory/ARTIFACT_INDEX.csv`
+5. `memory/OPEN_RESIDUALS.csv`
+6. `memory/REGENERATION_RECIPES.csv`
+7. `memory/FILE_LIBRARY_RECOVERY.csv`
+8. `memory/MEMORY_GATE_STATUS.csv`
+
+Persistence contract:
+- immutable originals → Git commit:path + blob SHA;
+- canonical text/data → repository path + version/commit;
+- derived raster/QA → deterministic regeneration recipe;
+- chat/user evidence → repository trace/metadata + recovery pointer until the exact binary is Git-archived;
+- `AT_RISK`, uncontracted `RUNTIME_ONLY`, and `CHAT_ONLY` are forbidden by `scripts/check_repository_memory.py`.
+
+Current memory gate: `PASS_WITH_WARNING` only because the original Telaio 5 user JPEG is not pixel-archived in Git. Its structural content is persisted in `evidence/derived/telaio5_plan_trace_v1.svg`, together with dimensions/SHA256 and File Library recovery pointers. This source remains `RIF` and the SVG is not a DOC substitute.
+
 ## Source hierarchy
 
 1. Original high-resolution structural drawings.
@@ -73,6 +96,10 @@ Hard gate: total projected extent = `28.60 m`.
 
 Important correction: these dimensions are projected/station dimensions along the historical reference, not necessarily Euclidean lengths of the polyline segments in plan. Previous direct Euclidean residual comparisons are superseded as a validation method.
 
+Persistent evidence aid:
+- `evidence/derived/telaio5_plan_trace_v1.svg`
+- original current JPEG metadata: 1152×1536 px; SHA256 `6961c6f0d16f51a98488726cce770687f3baf162cfd0581e342014883d38c041`.
+
 Key files:
 - `data/canonical/telaio5_support_mapping_verified_v1.csv`
 - `data/canonical/telaio5_station_support_binding_v1.csv`
@@ -122,4 +149,4 @@ Do not invent later heights.
 
 ## Continuity requirement
 
-Any agent continuing from here must read `AGENTS.md` and the files in `memory/` before asking the user to reproduce a source or before rebuilding an artifact already listed in the repository memory.
+Any agent continuing from here must reconstruct state from repository memory before asking the user to reproduce a source or before rebuilding an artifact already indexed. Search repository + immutable history + File Library recovery pointers before declaring an elaborato missing.
