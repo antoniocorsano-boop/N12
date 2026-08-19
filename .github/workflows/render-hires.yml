@@ -31,13 +31,13 @@ jobs:
         run: pip install pymupdf pillow
       - name: Render TAV-03S G2 native source and tiles
         run: python scripts/render_hires_sources.py --source TAV-03S --out artifacts/TAV-03S --tile-size 2400 --overlap 0.125
-      - name: Render TAV-02S G1 native source and tiles
-        run: python scripts/render_hires_sources.py --source TAV-02S --out artifacts/TAV-02S --tile-size 2400 --overlap 0.125
-      - name: Record lower-storey source hashes
+      - name: Render TAV-06S G5 native source and tiles
+        run: python scripts/render_hires_sources.py --source TAV-06S --out artifacts/TAV-06S --tile-size 2400 --overlap 0.125
+      - name: Record adjacent-level source hashes
         run: |
           python - <<'PY'
           import json,sys
-          for sid in ('TAV-03S','TAV-02S'):
+          for sid in ('TAV-03S','TAV-06S'):
             p=json.load(open(f'artifacts/{sid}/hires_index.json'))
             if len(p['sources']) != 1 or p['sources'][0]['source_id'] != sid:
               print('SOURCE_SET_MISMATCH',sid,p['sources']); sys.exit(1)
@@ -49,6 +49,6 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: n12-hires-g1-g2
+          name: n12-hires-g2-g5
           path: artifacts
           retention-days: 30
