@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0009`
+Versione repository: `RM-0010`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -8,6 +8,7 @@ Versione repository: `RM-0009`
 | SRC-002 | carpenterie | TAV-01S/02S/03S/04S/05S e TAV-06S copertura diventano fonte primaria per maglia, pilastri, travi e fili fissi | tavole originali | DOC-PRIMARIA |
 | SRC-003 | armature | TAV-01A/02A/034A/05A/06A/07A disponibili per sezioni, armature e particolari del progetto originario; non sono attese le armature della successiva aggiunta del terrazzo al primo livello | tavole originali + conferma utente 2026-08-19 | DOC_ORIGINALE / LIMITE_NOTO |
 | SRC-004 | controllo geometrico | tavole architettoniche, prospetto e sezioni disponibili per controllo incrociato | TAV-01/02/03/04/05E/06E | DOC |
+| SRC-005 | foto ultimo piano/torrino | foto di campo dell'ultimo livello e torrino scala acquisita; hash SHA-256 c84764fcda31e2f203797dacf19ea87b1ed8496f529b8a4e29967153a198d6c5, 1152×1536 px | `ETW_UPPER_FLOOR_PHOTO_EVIDENCE_v1.md` | PHOTO_RIF_PRIMARY |
 | GEO-001 | TAV.5 | carpenteria vettorializzata storicamente in DXF 1:1 | pacchetto DXF strutturale v25 | DOC-ARTEFATTO |
 | GEO-002 | TAV.6 | travi vettorializzate storicamente in DXF | pacchetto DXF strutturale v25 | DOC-ARTEFATTO |
 | GEO-003 | TAV.7 | pilastri vettorializzati storicamente in DXF | pacchetto DXF strutturale v25 | DOC-ARTEFATTO |
@@ -39,11 +40,12 @@ Versione repository: `RM-0009`
 | M0G-003 | raccordo Telaio 5 ↔ 57 nodi | dataset fisico dei 57 nodi recuperato; raccordo ora in allineamento mediante firma metrica, topologia e carpenterie originali | `docs/DECISIONI/M0G_RECUPERO_ABACO_57_NODI_v1.md` + `data/canonical/tav5_topology_nodes_57.csv` | IN_ALLINEAMENTO |
 | M0G-004 | altezza interpiano | altezza di piano estradosso-estradosso corretta a 3.20 m | `data/canonical/storey_height_status.csv` + `docs/DECISIONI/M0G_CORREZIONE_ALTEZZA_INTERPIANO_320_v1.md` | RIF_UTENTE_CORRETTO |
 | TOPO-001 | primo livello | unico terrazzo in questo ambito: aggiunta strutturale successiva al telaio originario, realizzata al primo livello con pilastri e travi aggiunti innestati ai corrispondenti nodi del telaio preesistente; riferiti monconi/elementi di ancoraggio al nodo; tali armature non sono presenti nelle tavole originarie | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + conferma utente 2026-08-19 | RIF / AGGIUNTA_SUCCESSIVA / BINDING_NODI_PENDENTE |
-| TOPO-002 | sottotetto | piano superiore/sottotetto a pianta ridotta con tre appartamenti dotati di terrazzo | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + conferma utente | RIF / BINDING_PENDENTE |
-| TOPO-003 | copertura | tre ali / tre colmi da preservare come rami distinti della topologia di copertura | `FRAME_WELL_FORMEDNESS_GATE.md` + quadro fonti progetto | RIF/DOC-CONTEXT / BINDING_PENDENTE |
+| TOPO-002 | sottotetto | piano superiore/sottotetto a pianta ridotta con tre appartamenti dotati di terrazzo; foto campo conferma per la vista acquisita volume superiore arretrato, terrazzo/setback e torrino emergente | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + `ETW_UPPER_FLOOR_PHOTO_EVIDENCE_v1.md` | RIF + PHOTO_RIF_PRIMARY / BINDING_PENDENTE |
+| TOPO-003 | copertura | tre ali / tre colmi da preservare come rami distinti della topologia di copertura; foto conferma almeno per la vista acquisita copertura principale a falde e copertura distinta del torrino | `FRAME_WELL_FORMEDNESS_GATE.md` + `ETW_UPPER_FLOOR_PHOTO_EVIDENCE_v1.md` | RIF/DOC-CONTEXT + PHOTO_RIF_PRIMARY / BINDING_PENDENTE |
 | TOPO-004 | G1↔G2 | registrazione controllata TAV-02S/G1 → TAV-03S/G2 completata: 1046 match, 510 inlier, rapporto 0.4876, RMSE 1.05 px @100 DPI; 186 candidati differenziali | GitHub Actions run `32277543302` + `ETW_FIRST_LEVEL_TERRACE_G12_CANDIDATES_v1.csv` | INF_CONTROLLATA / REVIEW_IN_CORSO |
 | TOPO-005 | terrazzo legacy ETW-1 | il precedente `terrace_probe.py` su TAV-05S/G4 è SUPERATO per l'identificazione del terrazzo del primo livello; resta solo provenienza ETW-1/TAV-05S. Il conflitto coordinate N039 è residuo aperto | `ETW_LEGACY_TERRACE_BINDING_AUDIT_v1.md` | SUPERATO_PER_TERRAZZO_PRIMO_LIVELLO |
 | TOPO-006 | terrazzo primo livello / armature | la ricerca delle armature dell'aggiunta nelle tavole originarie è chiusa come non applicabile: intervento successivo; dettagli di barre/diametri/lunghezze di ancoraggio restano ND salvo diversa documentazione o rilievo | conferma utente 2026-08-19 | RIF_CRONOLOGIA / ND_DETTAGLIO |
+| TOPO-007 | G4↔G5 / transizione copertura | confronto controllato TAV-05S/G4 → TAV-06S/G5 predisposto con registrazione + directional probe per setback, membri di copertura e terminazioni di catene | workflow `ETW2 G4 G5 Roof Transition` | IN_ESECUZIONE / NO_PROMOTION |
 | MAT-001 | materiali | calcestruzzo/acciaio | da documentare/indagare | ND |
 | MAT-002 | conoscenza | LC/FC | da definire sul quadro conoscitivo | ND |
 
