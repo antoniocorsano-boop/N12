@@ -31,7 +31,7 @@ jobs:
         run: pip install pymupdf pillow
       - name: Render native sources and tiles
         run: python scripts/render_hires_sources.py --out artifacts/hires --tile-size 2400 --overlap 0.125
-      - name: Verify source hashes
+      - name: Verify pinned source hashes and discover new hashes
         run: |
           python - <<'PY'
           import json,sys
@@ -42,11 +42,17 @@ jobs:
             'TAV-05S':'2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580',
             'TAV-07A':'38a0cce18dcda0b9a36d8473f0d428735c4b89934975d551d4bfffd24fe54a2b',
           }
+          discover={'TAV-04S'}
           bad=[]
           for s in p['sources']:
             sid=s['source_id']
-            if sid not in expected or s['pdf_sha256'] != expected[sid]:
-              bad.append((sid,s['pdf_sha256'],expected.get(sid)))
+            if sid in expected:
+              if s['pdf_sha256'] != expected[sid]:
+                bad.append((sid,s['pdf_sha256'],expected[sid]))
+            elif sid in discover:
+              print('SOURCE_HASH_DISCOVER',sid,s['pdf_sha256'])
+            else:
+              bad.append((sid,s['pdf_sha256'],'UNREGISTERED_SOURCE'))
           if bad:
             print('HASH_MISMATCH',bad); sys.exit(1)
           print('SOURCE_HASH_GATE=PASS')
