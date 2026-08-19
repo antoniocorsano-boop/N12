@@ -27,7 +27,7 @@ Versione repository: `RM-0008`
 | BEAM-004 | Telaio 5 | percorso S-S'-T-U-V-Z-A'-B'-C' | relazione di calcolo / v17 | DOC |
 | BEAM-005 | Telaio 5 | campate 4.70 / 4.05 / 1.20 / 5.80 / 2.90 / 1.20 / 4.05 / 4.70 m | relazione di calcolo / v17 | DOC |
 | BEAM-006 | Telaio 5 G5 | C2-C7 = 19.20 m | relazione di calcolo / v17 | DOC |
-| BEAM-007 | Telaio 5 ↔ TAV.5 | il telaio esiste e va allineato per sovrapposizione di sistemi; matrice candidati creata, nessuna promozione a VER senza overlay | `docs/DECISIONI/M0G_ALLINEAMENTO_TELAIO5_TAV5_v1.md` + `data/canonical/telaio5_topology_nodes_57.csv` | IN_ALLINEAMENTO |
+| BEAM-007 | Telaio 5 ↔ TAV.5 | il telaio esiste e va allineato per sovrapposizione di sistemi; matrice candidati creata, nessuna promozione a VER senza overlay | `docs/DECISIONI/M0G_ALLINEAMENTO_TELAIO5_TAV5_v1.md` + `data/canonical/telaio5_tav5_candidate_matrix_v1.csv` | IN_ALLINEAMENTO |
 | BEAM-008 | copertura | travi di colmo da modellare come membri espliciti del telaio di copertura | `FRAME_WELL_FORMEDNESS_GATE.md` + conferma utente | RIF / BINDING_PENDENTE |
 | BEAM-009 | copertura | travi di gronda da modellare come membri espliciti del telaio di copertura | `FRAME_WELL_FORMEDNESS_GATE.md` + conferma utente | RIF / BINDING_PENDENTE |
 | SEC-001 | travi | sezioni note: 20×45, 25×70, 30×45, 30×65, 120×20, 140×20 cm | relazione / consolidati | DOC |
