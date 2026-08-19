@@ -69,11 +69,13 @@ def main():
     ap.add_argument('--out',default='artifacts/hires')
     ap.add_argument('--tile-size',type=int,default=2400)
     ap.add_argument('--overlap',type=float,default=0.125)
+    ap.add_argument('--source',choices=sorted(SOURCES),help='Render only one source ID')
     args=ap.parse_args()
     out=Path(args.out); srcdir=out/'sources'; rasterdir=out/'raster'; tiledir=out/'tiles'
     for d in (srcdir,rasterdir,tiledir): d.mkdir(parents=True,exist_ok=True)
+    selected={args.source:SOURCES[args.source]} if args.source else SOURCES
     index={'commit':args.commit,'tile_size':args.tile_size,'overlap':args.overlap,'sources':[]}
-    for sid,rpath in SOURCES.items():
+    for sid,rpath in selected.items():
         pdf=srcdir/f'{sid}.pdf'; git_extract(args.commit,rpath,pdf)
         raster=rasterdir/f'{sid}_native.png'
         meta=extract_native(pdf,raster)
