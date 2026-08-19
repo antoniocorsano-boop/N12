@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0014`
+Versione repository: `RM-0015`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -35,6 +35,7 @@ Versione repository: `RM-0014`
 | BEAM-008 | copertura | TAV-06S mostra tre distinte diciture `LINEA DI COLMO`, una per ciascun ramo di copertura; numero dei colmi chiuso documentalmente, estremi/supporti ancora da legare | `ETW_ROOF_RIDGE_EAVES_REGISTER_v1.csv` + TAV-06S HiRes | DOC_GEOMETRY / ENDPOINT_BINDING_PENDENTE |
 | BEAM-009 | copertura | bordi di gronda/falda leggibili geometricamente sulla TAV-06S; la loro promozione a singole travi di gronda richiede binding degli estremi e dei supporti | `ETW_ROOF_RIDGE_EAVES_REGISTER_v1.csv` + TAV-06S HiRes | DOC_GEOMETRY + RIF_MEMBER / BINDING_PENDENTE |
 | BEAM-010 | torrino scala | copertura del torrino resta sottosistema distinto dalla copertura principale a tre colmi | foto campo + `ETW_ROOF_RIDGE_EAVES_REGISTER_v1.csv` | PHOTO_RIF_PRIMARY / BINDING_PENDENTE |
+| BEAM-011 | mansarde / terrazzo superiore | foto mostra banda/bordo orizzontale sporgente davanti alla parete arretrata del volume mansardato; l'utente riferisce che travi sporgevano dai pilastri alla linea di inizio terrazzo e furono successivamente allungate per aumentare la superficie utile delle mansarde | `ETW_UPPER_ATTIC_TERRACE_EXTENSION_v1.md` + foto campo + conferma utente 2026-08-20 | PHOTO_GEOMETRY + RIF_CRONOLOGIA / BINDING_PENDENTE |
 | SEC-001 | travi | sezioni note: 20×45, 25×70, 30×45, 30×65, 120×20, 140×20 cm | relazione / consolidati | DOC |
 | SEC-002 | Telaio 1 G2 | sezione non congelata | stato M0 v18 | ND |
 | LOAD-001 | Telaio 5 | carichi lineari storici G1-G3 disponibili | RC-P13 / v16 | DOC-STORICO |
@@ -50,6 +51,7 @@ Versione repository: `RM-0014`
 | TOPO-005 | terrazzo legacy ETW-1 | il precedente `terrace_probe.py` su TAV-05S/G4 è SUPERATO per l'identificazione del terrazzo del primo livello; resta solo provenienza ETW-1/TAV-05S. Il conflitto coordinate N039 è residuo aperto | `ETW_LEGACY_TERRACE_BINDING_AUDIT_v1.md` | SUPERATO_PER_TERRAZZO_PRIMO_LIVELLO |
 | TOPO-006 | terrazzo primo livello / armature | la ricerca delle armature dell'aggiunta nelle tavole originarie è chiusa come non applicabile: intervento successivo; dettagli di barre/diametri/lunghezze di ancoraggio restano ND salvo diversa documentazione o rilievo | conferma utente 2026-08-19 | RIF_CRONOLOGIA / ND_DETTAGLIO |
 | TOPO-007 | G4↔G5 / transizione copertura | confronto controllato TAV-05S/G4 → TAV-06S/G5 completato per registrazione e directional probe; support-presence reconciliation chiude 25 continuità e 9 terminazioni | `ETW_G4_G5_ROOF_TRANSITION_v1.csv` + `ETW_TAV06S_ROOF_SUPPORT_INVENTORY_v1.csv` + workflow run `32286265838` | VER_PARZIALE |
+| TOPO-008 | mansarde / ampliamento successivo | bordo attuale delle mansarde non coincide necessariamente con il telaio originario: distinguere linea pilastri/nodi originari, primo tratto di trave sporgente e prolungamento successivo che ha ampliato la superficie utile | `ETW_UPPER_ATTIC_TERRACE_EXTENSION_v1.md` | PHOTO_GEOMETRY + RIF / GENEALOGIA_DA_BINDING |
 | MAT-001 | materiali | calcestruzzo/acciaio | da documentare/indagare | ND |
 | MAT-002 | conoscenza | LC/FC | da definire sul quadro conoscitivo | ND |
 
