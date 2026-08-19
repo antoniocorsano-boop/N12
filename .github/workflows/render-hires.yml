@@ -29,23 +29,23 @@ jobs:
           python-version: '3.12'
       - name: Install renderer
         run: pip install pymupdf pillow
-      - name: Render TAV-04S native source and tiles
-        run: python scripts/render_hires_sources.py --source TAV-04S --out artifacts/hires --tile-size 2400 --overlap 0.125
-      - name: Record TAV-04S source hash
+      - name: Render TAV-04 architectural native source and tiles
+        run: python scripts/render_hires_sources.py --source TAV-04ARCH --out artifacts/hires --tile-size 2400 --overlap 0.125
+      - name: Record TAV-04 architectural source hash
         run: |
           python - <<'PY'
           import json,sys
           p=json.load(open('artifacts/hires/hires_index.json'))
-          if len(p['sources']) != 1 or p['sources'][0]['source_id'] != 'TAV-04S':
+          if len(p['sources']) != 1 or p['sources'][0]['source_id'] != 'TAV-04ARCH':
             print('SOURCE_SET_MISMATCH',p['sources']); sys.exit(1)
           s=p['sources'][0]
-          print('TAV04S_PDF_SHA256='+s['pdf_sha256'])
-          print('TAV04S_RASTER_SHA256='+s['raster_sha256'])
-          print('TAV04S_DIMENSIONS='+str(s['width'])+'x'+str(s['height']))
+          print('TAV04ARCH_PDF_SHA256='+s['pdf_sha256'])
+          print('TAV04ARCH_RASTER_SHA256='+s['raster_sha256'])
+          print('TAV04ARCH_DIMENSIONS='+str(s['width'])+'x'+str(s['height']))
           print('SOURCE_HASH_GATE=PASS')
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: n12-hires-tav04s
+          name: n12-hires-tav04arch
           path: artifacts/hires
           retention-days: 30
