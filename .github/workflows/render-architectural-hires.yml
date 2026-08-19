@@ -40,3 +40,5 @@ jobs:
           name: n12-hires-tav04arch
           path: artifacts/hires
           retention-days: 30
+
+# Trigger checkpoint: 2026-08-19 G4 perimeter audit
