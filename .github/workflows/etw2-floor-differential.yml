@@ -45,7 +45,7 @@ jobs:
           for id in TAV-02S TAV-03S TAV-04S TAV-05S; do
             test -f "docs/FOGLIO_LAVORO/etwin_crops/${id}/document_map.json"
           done
-          test -f docs/FOGLIO_LAVORO/etwin_crops/floor_differential/floor_registration.json
+          test -f docs/FOGLIO_LAVORO/etwin_crops/ETW-2/floor_registration.json
           python - <<'PY'
           import json
           from pathlib import Path
@@ -58,9 +58,10 @@ jobs:
                   'regions': len(data.get('regions', [])),
                   'tiles': len(data.get('tiles', [])),
               }
-          reg = json.loads((root / 'floor_differential' / 'floor_registration.json').read_text(encoding='utf-8'))
+          etw2 = root / 'ETW-2'
+          reg = json.loads((etw2 / 'floor_registration.json').read_text(encoding='utf-8'))
           out = {'document_maps': summary, 'registration': reg}
-          Path('docs/FOGLIO_LAVORO/etwin_crops/floor_differential/execution_summary.json').write_text(
+          (etw2 / 'execution_summary.json').write_text(
               json.dumps(out, indent=2, ensure_ascii=False), encoding='utf-8'
           )
           print(json.dumps(out, indent=2, ensure_ascii=False))
@@ -75,6 +76,6 @@ jobs:
             docs/FOGLIO_LAVORO/etwin_crops/TAV-03S/document_map.json
             docs/FOGLIO_LAVORO/etwin_crops/TAV-04S/document_map.json
             docs/FOGLIO_LAVORO/etwin_crops/TAV-05S/document_map.json
-            docs/FOGLIO_LAVORO/etwin_crops/floor_differential/floor_registration.json
-            docs/FOGLIO_LAVORO/etwin_crops/floor_differential/execution_summary.json
+            docs/FOGLIO_LAVORO/etwin_crops/ETW-2/floor_registration.json
+            docs/FOGLIO_LAVORO/etwin_crops/ETW-2/execution_summary.json
           retention-days: 14
