@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0019`
+Versione repository: `RM-0020`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -38,8 +38,10 @@ Versione repository: `RM-0019`
 | BEAM-011 | mansarde / terrazzo superiore | TAV-06E documenta lo sbalzo originario dell'ultimo impalcato oltre la linea degli appoggi; la foto mostra il bordo attuale e l'utente riferisce il successivo allungamento delle travi per aumentare la superficie utile delle mansarde | `ETW_UPPER_ATTIC_TERRACE_EXTENSION_v1.md` + `ETW_UPPER_CANTILEVER_RECONCILIATION_v1.csv` + foto campo | DOC_GEOMETRY_ORIGINALE + RIF_PROLUNGAMENTO / MEMBER_ID_PENDENTE |
 | BEAM-012 | mansarde / genealogia elementi | creati candidati di genealogia senza falsi ID documentali: WING-A support line P28/P29/P30, WING-B P02/P10/P18; WING-C resta transizione composita. G4 beam IDs sono solo evidenza di asse/localizzazione e non vengono rinominati come travi a sbalzo superiori | `ETW_UPPER_CANTILEVER_BEAM_GENEALOGY_CANDIDATES_v1.csv` + `ETW_UPPER_CANTILEVER_WELL_FORMEDNESS_RULE_v1.md` | VER_PARZIALE / EXACT_UPPER_MEMBER_ID_ND |
 | BEAM-013 | copertura / gerarchia portante | le linee di colmo sono interne ai campi di falda e non coincidono con una fila di pilastri; load path canonico: supporto → linea di appoggio/gronda → elemento inclinato/falda → colmo | `ETW_ROOF_SUPPORT_FIELD_BINDING_v1.csv` + `ETW_ROOF_RIDGE_EAVES_REGISTER_v1.csv` | DOC_GEOMETRY / LOAD_PATH_RULE_CLOSED |
+| BEAM-014 | copertura / scheletro G5 | rilasciato scheletro analitico di 28 segmenti P→P esclusivamente topologico; nessuna sezione o rigidezza assegnata senza binding documentale puntuale | `ETW_G5_ROOF_ANALYTICAL_SKELETON_RELEASE_v1.csv` + `ETW_G5_ROOF_SECTION_ATTRIBUTION_GATE_v1.csv` | TOPOLOGY_READY / SECTION_HOLD |
 | SEC-001 | travi | sezioni note: 20×45, 25×70, 30×45, 30×65, 120×20, 140×20 cm | relazione / consolidati | DOC |
 | SEC-002 | Telaio 1 G2 | sezione non congelata | stato M0 v18 | ND |
+| SEC-003 | copertura G5 | famiglie documentali disponibili: Telaio 5 G5 = 20×45; Telaio 1 G5 = 30×45. Il binding delle famiglie ai singoli AG5-001…028 resta aperto; vietata attribuzione per analogia/prossimità | `ETW_G5_ROOF_SECTION_ATTRIBUTION_GATE_v1.csv` + relazione storica / M0 | DOC_FAMILY / POINTWISE_BINDING_HOLD |
 | LOAD-001 | Telaio 5 | carichi lineari storici G1-G3 disponibili | RC-P13 / v16 | DOC-STORICO |
 | FND-001 | fondazioni | 7 catene / 26 segmenti ricostruiti | consolidato fondazioni | DOC-ARTEFATTO |
 | M0G-001 | modello globale | coordinate/reticolo da ricostruire prioritariamente dalle tavole originali, usando DXF e abachi come confronto | gate corrente | IN_CORSO |
@@ -58,6 +60,7 @@ Versione repository: `RM-0019`
 | TOPO-009 | G4→G5 / grafo strutturale di transizione | assemblato grafo esplicito per i tre rami: supporti che continuano, set di terminazione, genealogia degli sbalzi originari e rami di colmo; WING-C resta composita e non viene regolarizzata artificialmente | `ETW_UPPER_TRANSITION_STRUCTURAL_GRAPH_v1.csv` | VER_PARZIALE / FEM_GENERATION_BLOCKED_ON_IDS_AND_ENDPOINTS |
 | TOPO-010 | upper chain binding | gate esplicito P-support→catena persistente: P17=S e P21=V sono già frame-bound; altri upper P-ID restano con crosswalk N-ID pendente; il residuo non blocca l'uso degli assi P calibrati | `ETW_UPPER_PERSISTENT_CHAIN_BINDING_v1.csv` | PARTIAL_BINDING / NONBLOCKING_LEGACY_CROSSWALK |
 | TOPO-011 | copertura / campi di falda | TAV-06S scomposta in tre campi strutturali di copertura con supporti numerati direttamente leggibili; i rami possono condividere nodi di raccordo e non sono insiemi esclusivi. Simboli non numerati restano fuori dalla popolazione principale e non vengono promossi a pilastri torrino | `ETW_ROOF_SUPPORT_FIELD_BINDING_v1.csv` | DOC_RASTER / PARTIAL_SUPPORT_FIELD_BINDING |
+| TOPO-012 | copertura / recupero sezioni | `ABACO_TRAVI_TAV6_v23.csv` e `ASSOCIAZIONE_TRAVI_TAV5_TAV6_v25.csv` risultano registrati storicamente ma non recuperati fisicamente nel ramo corrente/File Library; recupero prioritario prima di nuova ricostruzione manuale | `archive/ARTEFATTI_STORICI.md` + `ETW_G5_ROOF_SECTION_ATTRIBUTION_GATE_v1.csv` | DOC_ARTEFATTO_REGISTERED / PHYSICAL_RECOVERY_OPEN |
 | MAT-001 | materiali | calcestruzzo/acciaio | da documentare/indagare | ND |
 | MAT-002 | conoscenza | LC/FC | da definire sul quadro conoscitivo | ND |
 
