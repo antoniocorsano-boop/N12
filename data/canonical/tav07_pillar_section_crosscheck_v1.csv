@@ -1,0 +1,4 @@
+section_id,section_cm,b_cm,h_cm,scope,source,status,assignment_rule,note
+P40x50,40x50,40,50,corpo principale,"M0 catalogo sezioni + TAV-07 pillar detail sheet",DOC_FAMILY,"assign only after matching TAV-07 detail/symbol to specific TAV-02S pillar",family documented; node assignment still ND
+P40x40,40x40,40,40,corpo principale,"M0 catalogo sezioni + TAV-07 pillar detail sheet",DOC_FAMILY,"assign only after matching TAV-07 detail/symbol to specific TAV-02S pillar",family documented; node assignment still ND
+P30x40,30x40,30,40,torrino scala,"M0 catalogo sezioni + TAV-07 pillar detail sheet",DOC_FAMILY,"restrict to stair-tower pillars unless direct evidence extends it",family documented; node assignment still ND
