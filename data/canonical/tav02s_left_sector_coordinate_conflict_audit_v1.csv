@@ -1,0 +1,6 @@
+item,previous_claim,direct_documentary_check,verdict,action
+ROW_Y980_LEFT,"31=(0.00,9.80); 28=(3.45,9.80)","TAV-02S left-sector chain shows 31->32=6.25 m and 32->33=4.95 m; previous row placement incompatible",CONFLICT,"superseded tav02s_nodes_row_y980_v1.csv"
+ROW_Y1395_LEFT,"32=(0.00,13.95); 29=(3.45,13.95)","TAV-02S left-sector chain shows 31->32=6.25 m and 32->33=4.95 m; previous row placement incompatible",CONFLICT,"superseded tav02s_nodes_row_y1395_v1.csv"
+LEFT_LONGITUDINAL_CHAIN,"31->32=6.25; 32->33=4.95","directly readable on TAV-02S high-resolution left dimension chain",KEEP,DOC
+LEFT_TRANSVERSE_CHAIN,"F0->F1=4.70; F1->F2=3.45; F2->F3=2.10","directly readable on TAV-02S lower-left dimension chain",KEEP,DOC
+NODE24_GLOBAL_TIE,"24=(6.90,28.13)","derived from 24->16=6.45, 16->8=4.65 and common lower reference line; independent of conflicting 31/32 row assignment",KEEP_WITH_RECHECK,"retain as current tie but do not propagate Y to rows 31-33 until absolute longitudinal raccordo is found"
