@@ -1,5 +1,5 @@
 residual_id,residual_type,candidate_ref,candidate_x_m,candidate_y_m,status,evidence,required_closure,note
-13,NUMBERED_PILLAR,,,ND_COORD,TAV-02S lower-right transition + foundation topology,READ_DIRECT_TAV02S,"Identity stable; coordinate not to interpolate or map from topological N013 without proof"
+13,NUMBERED_PILLAR,DOC_DIRECT,13.35,15.20,DOC_CLOSED,"TAV-02S hires direct reading: pillar 13 aligned with pillar 14; centreline distance 13-14 = 2.90 m; pillar 14 = (13.35,18.10)",NONE,"Closed directly from quoted centreline geometry; not interpolated"
 19,NUMBERED_PILLAR,,,CONFLICT_REOPENED,TAV-02S left-sector reconciliation,READ_DIRECT_TAV02S,"Previous coordinate assignment superseded; topological N019 is not automatically pillar 19"
 20,NUMBERED_PILLAR,,,CONFLICT_REOPENED,TAV-02S left-sector reconciliation,READ_DIRECT_TAV02S,"Previous coordinate assignment superseded; topological N020 is not automatically pillar 20"
 LETTER_SET_a_b_c_d,TERRACE_ADDED_PILLAR_SET,TERR-C01,36.5009,12.2339,INF_STRONG,"pt_terrace_pillar_candidate_crosswalk_v1.csv; TAV5 DXF terrace probe",MAP_ONE_OF_a_b_c_d_ON_TAV02S,"Candidate position; exact letter unresolved"
