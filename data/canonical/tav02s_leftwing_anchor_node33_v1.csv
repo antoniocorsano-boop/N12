@@ -1,9 +1,2 @@
-record_type,group_id,node_id,local_axis_position_m,relative_to_node33_m,evidence,status,note
-ANCHOR,LEFT_WING,33,0.00,0.00,TAV-02S high-resolution original,DOC_ANCHOR,"nodo 33 comune tra ala sinistra e maglia principale; usato come origine locale del raccordo"
-NODE,LEFT_WING,32,4.95,-4.95,"TAV-02S high-resolution original: quota direttamente leggibile 4.95",DOC_QUOTATO_CORRETTO,"rettifica del precedente 4.65: sulla TAV-02S la quota 32→33 è 4.95 m"
-NODE,LEFT_WING,31,11.20,-11.20,"TAV-02S high-resolution original: 6.25+4.95",DOC_QUOTATO_CORRETTO,"31→32=6.25 m; 32→33=4.95 m"
-AXIS,LEFT_WING,BD,15.25,-15.25,"TAV-02S high-resolution original: 4.05+6.25+4.95",DOC_QUOTATO,"asse precedente al gruppo 25/28/31; identificazione b/d da verificare separatamente"
-AXIS,LEFT_WING,AC,19.95,-19.95,"TAV-02S high-resolution original: 4.70+4.05+6.25+4.95",DOC_QUOTATO,"asse ancora più esterno; identificazione a/c da verificare separatamente"
-GROUP,LEFT_WING,25/28/31,11.20,-11.20,"TAV-02S numbering + high-resolution dimensions",DOC_RECONCILED,"gruppo di nodi sul medesimo filo locale"
-GROUP,LEFT_WING,26/29/32,4.95,-4.95,"TAV-02S numbering + high-resolution dimensions",DOC_RECONCILED,"gruppo di nodi sul medesimo filo locale"
-GROUP,LEFT_WING,27/30/33,0.00,0.00,"TAV-02S numbering + high-resolution dimensions",DOC_RECONCILED,"filo locale di raccordo; contiene nodo 33"
+record_type,status,reason,source,note
+SUPERSEDED,SUPERSEDED_INVALID,"Il precedente schema ancorato al nodo 33 combinava correttamente alcune quote locali ma associava in modo errato le terne di nodi ai fili. La TAV-02S ad alta risoluzione mostra invece le righe globali corrette: a-b-17-9-1; c-d-18-10-2; 31-28-19-11-3; 32-29-20-12-5-4. Non usare le progressive relative di questa versione.",TAV-02S_tavola2-2.pdf,"File mantenuto come tombstone; la nuova ricostruzione parte dalle righe corrette e dalle quote dirette"
