@@ -74,23 +74,27 @@ def validate() -> int:
 
     beams = rows(BEAM_REGISTER)
     for i, r in enumerate(beams, start=2):
-        status_value = (r.get("status") or r.get("beam_status") or "").strip()
+        status_value = (r.get("canonical_status") or "").strip()
         if status_value and status_value not in ALLOWED_BEAM:
-            errors.append(f"beams line {i}: invalid status={status_value}")
+            errors.append(f"beams line {i}: invalid canonical_status={status_value}")
 
         if status_value == "BEAM_DOC":
-            source = (r.get("source") or "").upper()
             evidence = (r.get("evidence_status") or "").strip()
-            continuity = (r.get("graphic_continuity") or "").strip().upper()
+            continuity = (r.get("continuity_status") or "").strip().upper()
             node_i = (r.get("node_i") or "").strip()
             node_j = (r.get("node_j") or "").strip()
+            source_primary = (r.get("source_tile_primary") or "").upper()
+            source_cross = (r.get("source_tile_crosscheck") or "").upper()
+            source = f"{source_primary} {source_cross}"
 
             if not node_i or not node_j:
                 errors.append(f"beams line {i}: BEAM_DOC without both endpoints")
             if evidence not in {"DOC_DIRECT", "DOC_CROSS_TILE", "DOC_ALIGN"}:
                 errors.append(f"beams line {i}: BEAM_DOC with non-documentary evidence={evidence}")
-            if continuity not in {"YES", "CONFIRMED", "CROSS_TILE_CONFIRMED"}:
-                errors.append(f"beams line {i}: BEAM_DOC without confirmed graphic continuity")
+            if continuity not in {"YES", "CONFIRMED", "CROSS_TILE_CONFIRMED", "DOC_CONTINUOUS"}:
+                errors.append(f"beams line {i}: BEAM_DOC without confirmed continuity_status")
+            if not source_primary:
+                errors.append(f"beams line {i}: BEAM_DOC without source_tile_primary")
             if any(marker in source for marker in BLOCKING_SOURCE_MARKERS):
                 errors.append(f"beams line {i}: BEAM_DOC references blocked/superseded source")
 
