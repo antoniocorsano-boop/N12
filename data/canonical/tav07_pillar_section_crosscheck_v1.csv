@@ -1,4 +1,8 @@
-section_id,section_cm,b_cm,h_cm,scope,source,status,assignment_rule,note
-P40x50,40x50,40,50,corpo principale,"M0 catalogo sezioni + TAV-07 pillar detail sheet",DOC_FAMILY,"assign only after matching TAV-07 detail/symbol to specific TAV-02S pillar",family documented; node assignment still ND
-P40x40,40x40,40,40,corpo principale,"M0 catalogo sezioni + TAV-07 pillar detail sheet",DOC_FAMILY,"assign only after matching TAV-07 detail/symbol to specific TAV-02S pillar",family documented; node assignment still ND
-P30x40,30x40,30,40,torrino scala,"M0 catalogo sezioni + TAV-07 pillar detail sheet",DOC_FAMILY,"restrict to stair-tower pillars unless direct evidence extends it",family documented; node assignment still ND
+record_type,section_id,section_cm,b_cm,h_cm,scope,source,status,assignment_rule,note
+LEGACY_FAMILY,P40x50,40x50,40,50,corpo principale,"M0 catalogo sezioni",DOC_FAMILY_LEGACY,"do not assign directly; use order-specific TAV-07 catalog",family historically documented but insufficient for first-order assignment
+LEGACY_FAMILY,P40x40,40x40,40,40,corpo principale,"M0 catalogo sezioni",DOC_FAMILY_LEGACY,"do not assign directly; verify order-specific TAV-07 detail",family appears in later orders; not sufficient to characterize I ordine
+LEGACY_FAMILY,P30x40,30x40,30,40,torrino scala,"M0 catalogo sezioni",DOC_FAMILY_LEGACY,"restrict to stair-tower only after direct sheet match",family historically documented but not a substitute for TAV-07 order-specific reading
+ORDER_SPECIFIC,I-A,40x50,40,50,I ordine,"TAV-07 direct reading",DOC_DIRECT,"assign only after matching TAV-02S symbol/position to I-order detail",reinforcement 4Φ18+2Φ16 lunghi + 8Φ18 monconi; staffe Φ6/20
+ORDER_SPECIFIC,I-B,50x40,50,40,I ordine,"TAV-07 direct reading",DOC_DIRECT,"assign only after matching TAV-02S symbol/position to I-order detail",same 40x50 family rotated 90 degrees; orientation is structural data
+ORDER_SPECIFIC,I-C,30x110,30,110,I ordine,"TAV-07 direct reading",DOC_DIRECT,"no automatic reassignment to another family",reinforcement 12Φ14 lunghi; staffe Φ8/15
+ORDER_SPECIFIC,I-D,30x30,30,30,I ordine,"TAV-07 direct reading",DOC_DIRECT,"no automatic reassignment to another family",reinforcement 4Φ14 lunghi + 8Φ18 monconi; staffe Φ6/15
