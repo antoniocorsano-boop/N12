@@ -1,0 +1,50 @@
+name: M0 Solver Neutral Package
+
+on:
+  push:
+    branches: [feat/structural-professional-workspace-r1]
+    paths:
+      - 'scripts/build_m0_analytical_graph.py'
+      - 'scripts/build_solver_neutral_frame_package.py'
+      - 'docs/FOGLIO_LAVORO/M0_3D_PARAMETER_PACK_v1.csv'
+      - 'docs/FOGLIO_LAVORO/ETW_G5_ANALYTICAL_COLUMN_RELEASE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/ETW_G5_ROOF_ANALYTICAL_SKELETON_RELEASE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/ETW_FIRST_LEVEL_TERRACE_LOCAL_SUBGRAPH_v1.csv'
+      - '.github/workflows/m0-solver-neutral.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-adapter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Symbolic adapter must pass
+        run: python scripts/build_solver_neutral_frame_package.py --check
+      - name: Build solver-neutral package
+        run: python scripts/build_solver_neutral_frame_package.py
+      - name: Numeric export must remain blocked while ND exist
+        run: |
+          if python scripts/build_solver_neutral_frame_package.py --require-numeric; then
+            echo 'ERROR: numeric export unexpectedly became READY'
+            exit 1
+          else
+            echo 'NUMERIC_EXPORT_BLOCKED_EXPECTED=PASS'
+          fi
+      - name: Show preflight
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('data/generated/m0_solver_neutral_frame_package_v1.json'))
+          print(json.dumps(p['preflight'], indent=2))
+          assert p['preflight']['symbolic_status']=='PASS'
+          assert p['preflight']['numeric_status']=='BLOCKED_EXPECTED'
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: n12-m0-solver-neutral-frame-v1
+          path: data/generated/m0_solver_neutral_frame_package_v1.json
+          retention-days: 30
