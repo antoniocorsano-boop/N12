@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0005`
+Versione repository: `RM-0006`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -20,6 +20,9 @@ Versione repository: `RM-0005`
 | COL-002 | pilastri corpo principale | famiglie 40×50 e 40×40 cm | relazione di calcolo | DOC-famiglia |
 | COL-003 | torrino scala | pilastri 30×40 cm | relazione di calcolo | DOC-famiglia |
 | COL-004 | fili fissi/orientamento | da determinare e congelare livello per livello sulle carpenterie originali, con controllo di continuità verticale | TAV-01S..06S | IN_CORSO |
+| COL-005 | pilastri PT | introdotto registro canonico separato per coordinate geometriche di riferimento, centro baricentrico, sezione, orientamento e provenienza; vietato assumere il filo fisso come centro senza verifica dell'offset | `data/canonical/pt_pillars_coordinate_status_v1.csv` + `docs/PT_PILLARS_CANONICAL_PROTOCOL_v1.md` | IN_RICONCILIAZIONE |
+| COL-006 | pilastri terrazzo a-b-c-d | presenti nelle carpenterie originarie ma non considerati nei calcoli originari; appartengono allo stato costruito e vanno modellati separatamente dal modello storico | `data/canonical/pt_pillars_coordinate_status_v1.csv` + conferma utente 2026-08-20 | DOC/RIF-CONFERMATO |
+| COL-007 | coordinate PT | rilevata non coincidenza di alcune associazioni `node_id → coordinate/fixed_line` tra dataset canonici correnti; nessuna coordinata viene promossa a centro pilastro prima della riconciliazione sulla tavola originaria | `nodes.csv`; `column_fixed_lines.csv`; `tav5_topology_nodes_57.csv` | RESIDUO_ATTIVO |
 | BEAM-001 | Telaio 1 | percorso I-L-M-N-O-P-Q-R; 7 campate | relazione di calcolo / consolidato v12 | DOC |
 | BEAM-002 | Telaio 1 | campate 4.70 / 5.10 / 3.25 / 2.40 / 2.90 / 5.30 / 4.70 m | relazione di calcolo / v12 | DOC |
 | BEAM-003 | Telaio 1 G5 | C2-C6 | relazione di calcolo / v12 | DOC |
