@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0009`
+Versione repository: `RM-0010`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -31,6 +31,7 @@ Versione repository: `RM-0009`
 | COL-009 | trasformazione coordinate DXF→canonico | sui quattro candidati terrazzo la differenza tra coordinate testuali DXF baseline e riferimenti canonici è circa (-120 mm, -120 mm), coerente per tutti e quattro; trasformazione valida come raccordo geometrico candidato, non come centro pilastro | `data/canonical/pt_terrace_pillar_candidate_crosswalk_v1.csv` | VER_GEOMETRIC_CANDIDATE |
 | COL-010 | armature/sezioni TAV7 | inventario derivato TAV7 conferma sezione 40×40 documentata in più dettagli ma vieta l'associazione automatica ai 27 pilastri; associazione puntuale resta da leggere sulla fonte | `M0S_DXF_TEXT_MEANINGFUL_TAV7.csv` @ d521f11 | DOC_PARZIALE/VER |
 | COL-011 | fonte primaria pilastri PT | per la disposizione planimetrica dei pilastri che sostengono il piano terra/1° impalcato usare TAV-02S `tavola2-2.pdf`; TAV-01S resta carpenteria fondazioni. L'overlay grafico PT deve essere eseguito su TAV-02S, con verifica incrociata su TAV-01S per gli appoggi/fondazioni | `m0s1a_level_sheet_crosswalk.csv` @ d521f11 | DOC |
+| COL-012 | catene di quota TAV-02S | lette direttamente sulla scansione originale le principali distanze fra linee di riferimento dei nodi/fili: TOP 3.45-3.45-5.50-5.60 m; RIGHT 4.70-5.10-4.15-4.15-5.33-4.70 m; LEFT_WING 4.70-4.05-6.25-4.95 m; BOTTOM_LEFT 4.70-3.45-2.10 m; BOTTOM_RIGHT 6.45-4.65 m. Coordinate cumulative archiviate separatamente; non ancora baricentri dei pilastri | `data/canonical/tav02s_dimension_chains_v1.csv` + TAV-02S originale | DOC_QUOTATO |
 | BEAM-001 | Telaio 1 | percorso I-L-M-N-O-P-Q-R; 7 campate | relazione di calcolo / consolidato v12 | DOC |
 | BEAM-002 | Telaio 1 | campate 4.70 / 5.10 / 3.25 / 2.40 / 2.90 / 5.30 / 4.70 m | relazione di calcolo / v12 | DOC |
 | BEAM-003 | Telaio 1 G5 | C2-C6 | relazione di calcolo / v12 | DOC |
