@@ -8,12 +8,85 @@ from pathlib import Path
 from build_m0_analytical_graph import build as build_m0
 
 ROOT = Path(__file__).resolve().parents[1]
-PARAMS = ROOT / "docs" / "FOGLIO_LAVORO" / "M0_3D_PARAMETER_PACK_v1.csv"
+FL = ROOT / "docs" / "FOGLIO_LAVORO"
+PARAMS = FL / "M0_3D_PARAMETER_PACK_v1.csv"
+UPPER_Z = FL / "M0_UPPER_Z_SCENARIO_v1.csv"
 
 
 def read_params() -> dict[str, dict[str, str]]:
     with PARAMS.open(newline="", encoding="utf-8") as f:
         return {row["parameter_id"]: row for row in csv.DictReader(f)}
+
+
+def read_upper_z_rules() -> tuple[list[dict[str, str]], dict[str, dict[str, str]]]:
+    with UPPER_Z.open(newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    by_roof_support: dict[str, dict[str, str]] = {}
+    for row in rows:
+        if not row["z_rule_id"].startswith("UZ-00"):
+            continue
+        if row["node_scope"] == "ROOF_RIDGE" or row["node_scope"] == "ROOF_EAVE_OR_PERIMETER":
+            for support_id in row["node_ids"].split(";"):
+                by_roof_support[support_id] = row
+    return rows, by_roof_support
+
+
+def numeric_param(params: dict[str, dict[str, str]], parameter_id: str) -> float | None:
+    row = params.get(parameter_id)
+    if not row:
+        return None
+    if not row["status"].startswith("READY"):
+        return None
+    try:
+        return float(row["value"])
+    except (TypeError, ValueError):
+        return None
+
+
+def apply_z_resolution(graph: dict, params: dict[str, dict[str, str]], roof_rules: dict[str, dict[str, str]]) -> None:
+    """Map every symbolic z_ref to a numeric value or explicit base+offset expression."""
+    z_g1 = numeric_param(params, "Z-G1")
+    for node in graph["nodes"]:
+        if "z_m" in node:
+            continue
+        ref = node.get("z_ref")
+        if not ref:
+            continue
+
+        if ref == "Z_G1":
+            if z_g1 is None:
+                node["z_expression"] = {"base_parameter": "Z-G1", "offset_m": 0.0}
+            else:
+                node["z_m"] = z_g1
+                node["z_resolved_from"] = "Z-G1"
+            continue
+
+        if node["id"].startswith("V_ORDER:"):
+            support_id = node["id"].split(":", 1)[1]
+            node["z_expression"] = {
+                "base_parameter": "Z-V-ORDER",
+                "offset_m": 0.0,
+                "rule": "UZ-001",
+                "support_id": support_id,
+            }
+            continue
+
+        if node["id"].startswith("ROOF:"):
+            support_id = node["id"].split(":", 1)[1]
+            rule = roof_rules.get(support_id)
+            if rule is None:
+                node["z_unmapped_ref"] = ref
+                continue
+            node["z_expression"] = {
+                "base_parameter": rule["base_parameter"],
+                "offset_m": float(rule["offset_m"]),
+                "rule": rule["z_rule_id"],
+                "support_id": support_id,
+                "scenario_status": rule["status"],
+            }
+            continue
+
+        node["z_unmapped_ref"] = ref
 
 
 def unresolved_numeric_requirements(graph: dict, params: dict[str, dict[str, str]]) -> list[str]:
@@ -35,9 +108,15 @@ def unresolved_numeric_requirements(graph: dict, params: dict[str, dict[str, str
             else:
                 required.add(raw)
 
-    # Any symbolic Z blocks numeric export.
-    if any("z_ref" in node and "z_m" not in node for node in graph["nodes"]):
-        required.add("Z-UPPER-SYMBOLIC-NODES")
+    # Every remaining symbolic Z must be represented by a known base parameter.
+    for node in graph["nodes"]:
+        expr = node.get("z_expression")
+        if expr:
+            base = expr["base_parameter"]
+            if numeric_param(params, base) is None:
+                required.add(base)
+        if "z_unmapped_ref" in node:
+            required.add("Z-UNMAPPED:" + node["z_unmapped_ref"])
 
     return sorted(required)
 
@@ -45,6 +124,8 @@ def unresolved_numeric_requirements(graph: dict, params: dict[str, dict[str, str
 def build_package() -> dict:
     graph = build_m0()
     params = read_params()
+    z_rows, roof_rules = read_upper_z_rules()
+    apply_z_resolution(graph, params, roof_rules)
     unresolved = unresolved_numeric_requirements(graph, params)
 
     package = {
@@ -58,11 +139,13 @@ def build_package() -> dict:
             "automatic_material_defaults": False,
             "automatic_fixed_base": False,
             "automatic_section_inheritance": False,
+            "upper_z_single_base_parameter": "Z-V-ORDER",
         },
         "nodes": graph["nodes"],
         "frame_elements": graph["elements"],
         "excluded_local": graph["blocked_local"],
         "parameters": list(params.values()),
+        "upper_z_rules": z_rows,
         "preflight": {
             "symbolic_status": "PASS",
             "numeric_status": "READY" if not unresolved else "BLOCKED_EXPECTED",
@@ -83,6 +166,11 @@ def validate(package: dict) -> None:
     assert len(package["excluded_local"]) == 7
     assert package["preflight"]["counts"]["roof_columns"] == 25
     assert package["preflight"]["counts"]["roof_beams"] == 31
+    assert not any("z_unmapped_ref" in n for n in package["nodes"]), "unmapped symbolic Z reference"
+    roof_nodes = [n for n in package["nodes"] if n["id"].startswith("ROOF:")]
+    assert len(roof_nodes) == 25
+    assert all(n.get("z_expression", {}).get("base_parameter") == "Z-V-ORDER" for n in roof_nodes)
+    assert all(n.get("z_expression", {}).get("offset_m") in {2.4, 3.4} for n in roof_nodes)
 
 
 def main() -> None:
