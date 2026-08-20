@@ -1,11 +1,2 @@
-entity_id,u_local_m,v_local_m,u_basis,v_basis,evidence,status,note
-32,0.00,0.00,"local origin","ROW_32_33","TAV-02S high-resolution",DOC_LOCAL_COORD,"origine locale settore sinistro"
-33,4.95,0.00,"quota diretta 32->33 = 4.95","ROW_32_33","TAV-02S quota 4.95",DOC_LOCAL_COORD,"secondo punto dell'asse u"
-29,0.00,4.70,"allineamento diretto con 32","32->29 = 4.70","TAV-02S q3 crop",DOC_LOCAL_COORD,"colonna di riferimento sinistra"
-30,,4.70,"u non ancora quotato direttamente","ROW_29_30","TAV-02S q3 crop",DOC_ROW_COORD,"ordinata locale certa; ascissa da chiudere"
-26,0.00,8.15,"allineamento diretto con 32-29","29->26 = 3.45","TAV-02S q3 crop",DOC_LOCAL_COORD,"colonna di riferimento sinistra"
-27,,8.15,"u non ancora quotato direttamente","ROW_26_27","TAV-02S q3 crop",DOC_ROW_COORD,"ordinata locale certa; ascissa da chiudere"
-24,0.00,10.25,"allineamento diretto con 32-29-26","26->24 = 2.10","TAV-02S q3 crop",DOC_LOCAL_COORD,"colonna di riferimento sinistra"
-21,,10.25,"u non ancora quotato direttamente","ROW_21_22_23_24","TAV-02S q3 high-resolution",DOC_ROW_COORD,"identità e ordinata locale certe"
-22,,10.25,"u non ancora quotato direttamente","ROW_21_22_23_24","TAV-02S q3 high-resolution",DOC_ROW_COORD,"identità e ordinata locale certe"
-23,,10.25,"u non ancora quotato direttamente","ROW_21_22_23_24","TAV-02S q3 high-resolution",DOC_ROW_COORD,"identità e ordinata locale certe"
+record_type,status,reason,source,note
+SUPERSEDED,SUPERSEDED_AXIS_SWAP,"Il file v1 invertiva i due assi locali a causa della lettura su ritaglio ruotato di 90 gradi. Nella pianta originale la catena 4.70-3.45-2.10 m è trasversale tra colonne; la quota 4.95 m è longitudinale tra i nodi 32 e 33 sul medesimo filo.",TAV-02S_tavola2-2.pdf,"Non usare le coordinate u/v di v1; sostituito da tav02s_left_sector_local_grid_v2.csv"
