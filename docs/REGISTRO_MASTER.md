@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0007`
+Versione repository: `RM-0008`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -8,6 +8,7 @@ Versione repository: `RM-0007`
 | SRC-002 | carpenterie | TAV-01S/02S/03S/04S/05S e TAV-06S copertura diventano fonte primaria per maglia, pilastri, travi e fili fissi | tavole originali | DOC-PRIMARIA |
 | SRC-003 | armature | TAV-01A/02A/034A/05A/06A/07A disponibili per sezioni, armature e particolari | tavole originali | DOC |
 | SRC-004 | controllo geometrico | tavole architettoniche, prospetto e sezioni disponibili per controllo incrociato | TAV-01/02/03/04/05E/06E | DOC |
+| SRC-005 | raccordo livelli→carpenterie | `m0s1a_level_sheet_crosswalk.csv` documenta: fondazioni=TAV-01S/`tavola1-2.pdf`; piano terra/1° impalcato=G1=TAV-02S/`tavola2-2.pdf`; G2=TAV-03S; G3=TAV-04S; G4=TAV-05S; G5=TAV-06S | `data/canonical/m0s1a_level_sheet_crosswalk.csv` @ d521f11 | DOC |
 | GEO-001 | TAV.5 | carpenteria vettorializzata storicamente in DXF 1:1 | pacchetto DXF strutturale v25 | DOC-ARTEFATTO |
 | GEO-002 | TAV.6 | travi vettorializzate storicamente in DXF | pacchetto DXF strutturale v25 | DOC-ARTEFATTO |
 | GEO-003 | TAV.7 | pilastri vettorializzati storicamente in DXF | pacchetto DXF strutturale v25 | DOC-ARTEFATTO |
@@ -27,6 +28,7 @@ Versione repository: `RM-0007`
 | COL-008 | terrazzo / candidati DXF | baseline ETW-1 associa alla regione terrazzo i nodi N002, N005, N039 e N041; N041 resta esplicitamente candidato. Creato crosswalk separato senza forzare `a-b-c-d ↔ N...` | `data/canonical/pt_terrace_pillar_candidate_crosswalk_v1.csv`; ETW-1 | INF_CONTROLLATA |
 | COL-009 | trasformazione coordinate DXF→canonico | sui quattro candidati terrazzo la differenza tra coordinate testuali DXF baseline e riferimenti canonici è circa (-120 mm, -120 mm), coerente per tutti e quattro; trasformazione valida come raccordo geometrico candidato, non come centro pilastro | `data/canonical/pt_terrace_pillar_candidate_crosswalk_v1.csv` | VER_GEOMETRIC_CANDIDATE |
 | COL-010 | armature/sezioni TAV7 | inventario derivato TAV7 conferma sezione 40×40 documentata in più dettagli ma vieta l'associazione automatica ai 27 pilastri; associazione puntuale resta da leggere sulla fonte | `M0S_DXF_TEXT_MEANINGFUL_TAV7.csv` @ d521f11 | DOC_PARZIALE/VER |
+| COL-011 | fonte primaria pilastri PT | per la disposizione planimetrica dei pilastri che sostengono il piano terra/1° impalcato usare TAV-02S `tavola2-2.pdf`; TAV-01S resta carpenteria fondazioni. L'overlay grafico PT deve essere eseguito su TAV-02S, con verifica incrociata su TAV-01S per gli appoggi/fondazioni | `m0s1a_level_sheet_crosswalk.csv` @ d521f11 | DOC |
 | BEAM-001 | Telaio 1 | percorso I-L-M-N-O-P-Q-R; 7 campate | relazione di calcolo / consolidato v12 | DOC |
 | BEAM-002 | Telaio 1 | campate 4.70 / 5.10 / 3.25 / 2.40 / 2.90 / 5.30 / 4.70 m | relazione di calcolo / v12 | DOC |
 | BEAM-003 | Telaio 1 G5 | C2-C6 | relazione di calcolo / v12 | DOC |
