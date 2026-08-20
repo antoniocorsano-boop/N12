@@ -166,9 +166,11 @@ def main() -> None:
             "isolated_nodes": len(isolated),
         },
         "roof_beam_components": [sorted(c) for c in components],
-        "bridge_finding": {
-            "status": "UNRESOLVED_B_TO_AC_SOURCE_BRIDGE",
-            "policy": "DO_NOT_INVENT_MEMBER",
+        "level_transition_finding": {
+            "status": "G4_COUPLING_VIA_P21_DOCUMENTED_V_ORDER_MEMBER_PENDING",
+            "g4_verified_links": ["P20-P21", "P26-P21", "P21-P13", "P21-P22"],
+            "p21_vertical_status": "PRESENT_V_ORDER_ABSENT_ROOF",
+            "policy": "DO_NOT_INVENT_G5_BRIDGE",
             "source_register": "docs/FOGLIO_LAVORO/M0_G5_ROOF_COMPONENT_CONNECTIVITY_v1.csv",
         },
         "scenario": {
@@ -187,7 +189,8 @@ def main() -> None:
         "warnings": [
             "This is not an assessment model and does not resolve any PARAMETRIC_ND section.",
             "Fixed bases, E/nu and Z-V-ORDER=0 are smoke-only scenario assumptions.",
-            "The G5 beam graph has two source-bound components; no fictitious B-to-AC bridge is added.",
+            "The G5 beam graph has two source-bound components; documented G4 coupling through terminating P21 exists below them.",
+            "Exact V-order beam coupling remains a separate source-binding task; no fictitious G5 bridge is added.",
             "All 25 roof XY coordinates are calibrated fixed-line analytical axes, not automatic section centroids."
         ],
     }
