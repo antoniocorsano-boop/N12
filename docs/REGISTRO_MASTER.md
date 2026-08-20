@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0026`
+Versione repository: `RM-0027`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -71,7 +71,7 @@ Versione repository: `RM-0026`
 | TOPO-015 | V° ordine → copertura | catena dei conteggi chiusa 34 IV ordine → 26 V ordine → 25 copertura. Otto supporti sono assenti già dal V ordine; P21 è l'unico supporto presente al V ordine e assente da TAV-06S | `ETW_TAV07A_V_ORDER_CROSSCHECK_v1.csv` + `ETW_UPPER_COLUMN_TERMINATION_SET_v1.csv` | DOC / VERTICAL_TRANSITION_DEPTH_CLOSED |
 | TOPO-016 | G2↔G3 / catene verticali | quattro verticali source-bound P13/P20/P22/P26 sono rilasciate analiticamente G2→G3; candidato raster 8459 resta insieme `{P13,P22,P26}`, 7074 esclude P20, 6500 irrisolto, 7993 aggregato | `ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv` + `ETW2_G2_G3_WELL_FORMEDNESS_v1.csv` + recupero HiRes | PARTIAL_PASS_NONBLOCKING |
 | TOPO-017 | terrazzo primo livello / limite probatorio | le differenze G1↔G2 possono localizzare la geometria originaria e la linea ricevente, ma non chiudono da sole cronologia di ripresa o dettaglio dei fori/ferri/monconi | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + `ETW_FIRST_LEVEL_TERRACE_FRAME_EXTENSION_v1.csv` | RULE_CLOSED / CONNECTION_DETAIL_OPEN |
-| TOPO-018 | terrazzo primo livello / receiver binding | zona G1 con ritorno 150 cm contro 70 cm omologo G2 localizzata tramite registrazione controllata; la proiezione verso TAV-05S porta alla rosa locale dominata da P15 (supporto DOC 40×50) e la topologia verificata identifica `P23-P15` come linea ricevente originaria candidata. Il ritorno si innesta sulla linea prima del pilastro: P15 è solo support reference, mentre il punto di innesto resta nodo locale anonimo/ND | `ETW_FIRST_LEVEL_TERRACE_RECEIVER_BINDING_v1.csv` + `FRAME_WELL_FORMEDNESS_GATE.md` + `tav05_topology_connections_consolidated_v6.csv` | DOC_GEOMETRY + MIS_REGISTRATION + VER_PARZIALE / EXACT_INSERTION_NODE_ND |
+| TOPO-018 | terrazzo primo livello / receiver binding | TAV-02S nativa HiRes documenta direttamente il ritorno da 150 cm che si stacca in posizione intermedia dalla linea strutturale compresa tra i supporti numerati 8 e 16; la topologia TAV-05S verifica `P08-P16` (`T05-C030`) come trave originaria 25×70. Il nodo esatto d'innesto resta locale/anonimo ND. Il precedente binding di prossimità `P15 / P23-P15` è SUPERATO e mantenuto solo come audit trail | `ETW_FIRST_LEVEL_TERRACE_RECEIVER_BINDING_v1.csv` + `FRAME_WELL_FORMEDNESS_GATE.md` + `tav05_topology_connections_consolidated_v6.csv` + TAV-02S native HiRes | DOC_NATIVE_GEOMETRY + DOC_TOPOLOGY + VER_PARZIALE / RECEIVER_MEMBER_RESOLVED_INSERTION_NODE_ND |
 | MAT-001 | materiali | calcestruzzo/acciaio | da documentare/indagare | ND |
 | MAT-002 | conoscenza | LC/FC | da definire sul quadro conoscitivo | ND |
 
