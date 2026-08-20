@@ -64,3 +64,7 @@ OBS-R03C01-022,TAV-02S_L1_R03C01,,,PILLAR_SYMBOL,22,,,YES,DOC_DIRECT,evidence/hi
 OBS-R03C01-022-S,TAV-02S_L1_R03C01,,,TEXT_OR_CALLOUT,22,,,50x40,,DOC_DIRECT,evidence/hires/TAV-02S/tiles/TAV-02S_L1_R03C01.png,"sezione scritta: 50 orizzontale, 40 verticale"
 OBS-R03C01-022P,TAV-02S_L1_R03C01,,,PILLAR_SYMBOL,22',,,YES,DOC_DIRECT,evidence/hires/TAV-02S/tiles/TAV-02S_L1_R03C01.png,"identificativo 22' leggibile direttamente; apostrofo/prime inequivocabile; entita distinta da 22"
 OBS-R03C01-022P-S,TAV-02S_L1_R03C01,,,TEXT_OR_CALLOUT,22',,,50x40,,DOC_DIRECT,evidence/hires/TAV-02S/tiles/TAV-02S_L1_R03C01.png,"sezione scritta: 50 orizzontale, 40 verticale"
+OBS-R03C02-015,TAV-02S_L1_R03C02,,,PILLAR_SYMBOL,15,,,YES,DOC_DIRECT,evidence/hires/TAV-02S/tiles/TAV-02S_L1_R03C02.png,"identificativo 15 leggibile direttamente nel simbolo"
+OBS-R03C02-015-S,TAV-02S_L1_R03C02,,,TEXT_OR_CALLOUT,15,,,50x40,,DOC_DIRECT,evidence/hires/TAV-02S/tiles/TAV-02S_L1_R03C02.png,"sezione scritta 50 orizzontale, 40 verticale"
+OBS-R03C03-015,TAV-02S_L1_R03C03,,,PILLAR_SYMBOL,15,,,YES,DOC_CROSS_TILE,evidence/hires/TAV-02S/tiles/TAV-02S_L1_R03C03.png,"seconda lettura coerente di 15 nell'area sovrapposta"
+OBS-R03C03-015-S,TAV-02S_L1_R03C03,,,TEXT_OR_CALLOUT,15,,,50x40,,DOC_CROSS_TILE,evidence/hires/TAV-02S/tiles/TAV-02S_L1_R03C03.png,"sezione 15 riletta coerentemente 50x40"
