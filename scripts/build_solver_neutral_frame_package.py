@@ -92,12 +92,10 @@ def apply_z_resolution(graph: dict, params: dict[str, dict[str, str]], roof_rule
 def unresolved_numeric_requirements(graph: dict, params: dict[str, dict[str, str]]) -> list[str]:
     required: set[str] = set()
 
-    # Global numeric requirements.
     for pid, row in params.items():
         if row["solver_policy"] == "REQUIRE_FOR_NUMERIC" and row["status"] in {"PARAMETRIC_ND", "BLOCKED_LOCAL"}:
             required.add(pid)
 
-    # Resolve section parameters actually referenced by M0 elements.
     for element in graph["elements"]:
         section = element.get("section") or {}
         if section.get("status") == "PARAMETRIC_ND":
@@ -108,7 +106,6 @@ def unresolved_numeric_requirements(graph: dict, params: dict[str, dict[str, str
             else:
                 required.add(raw)
 
-    # Every remaining symbolic Z must be represented by a known base parameter.
     for node in graph["nodes"]:
         expr = node.get("z_expression")
         if expr:
@@ -162,15 +159,21 @@ def validate(package: dict) -> None:
     assert package["adapter_policy"]["blocked_local_excluded"] is True
     assert package["adapter_policy"]["automatic_fixed_base"] is False
     assert package["adapter_policy"]["automatic_material_defaults"] is False
-    assert len(package["frame_elements"]) == 63
+    assert len(package["frame_elements"]) == 69
     assert len(package["excluded_local"]) == 7
+    assert package["preflight"]["counts"]["v_order_t5_beams"] == 6
     assert package["preflight"]["counts"]["roof_columns"] == 25
     assert package["preflight"]["counts"]["roof_beams"] == 31
     assert not any("z_unmapped_ref" in n for n in package["nodes"]), "unmapped symbolic Z reference"
     roof_nodes = [n for n in package["nodes"] if n["id"].startswith("ROOF:")]
+    v_order_nodes = [n for n in package["nodes"] if n["id"].startswith("V_ORDER:")]
     assert len(roof_nodes) == 25
-    assert all(n.get("z_expression", {}).get("base_parameter") == "Z-V-ORDER" for n in roof_nodes)
+    assert len(v_order_nodes) == 26
+    assert all(n.get("z_expression", {}).get("base_parameter") == "Z-V-ORDER" for n in roof_nodes + v_order_nodes)
     assert all(n.get("z_expression", {}).get("offset_m") in {2.4, 3.4} for n in roof_nodes)
+    assert all(n.get("z_expression", {}).get("offset_m") == 0.0 for n in v_order_nodes)
+    assert any(n["id"] == "V_ORDER:P21" for n in v_order_nodes)
+    assert not any(n["id"] == "ROOF:P21" for n in roof_nodes)
 
 
 def main() -> None:
