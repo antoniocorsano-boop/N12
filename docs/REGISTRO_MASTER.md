@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0016`
+Versione repository: `RM-0017`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -53,6 +53,7 @@ Versione repository: `RM-0016`
 | TOPO-006 | terrazzo primo livello / armature | la ricerca delle armature dell'aggiunta nelle tavole originarie è chiusa come non applicabile: intervento successivo; dettagli di barre/diametri/lunghezze di ancoraggio restano ND salvo diversa documentazione o rilievo | conferma utente 2026-08-19 | RIF_CRONOLOGIA / ND_DETTAGLIO |
 | TOPO-007 | G4↔G5 / transizione copertura | confronto controllato TAV-05S/G4 → TAV-06S/G5 completato per registrazione e directional probe; support-presence reconciliation chiude 25 continuità e 9 terminazioni | `ETW_G4_G5_ROOF_TRANSITION_v1.csv` + `ETW_TAV06S_ROOF_SUPPORT_INVENTORY_v1.csv` + workflow run `32286265838` | VER_PARZIALE |
 | TOPO-008 | mansarde / ampliamento successivo | bordo attuale delle mansarde non coincide necessariamente con il telaio originario: distinguere linea pilastri/nodi originari, sbalzo originario documentato e prolungamento successivo che ha ampliato la superficie utile | `ETW_UPPER_ATTIC_TERRACE_EXTENSION_v1.md` + `ETW_UPPER_CANTILEVER_WELL_FORMEDNESS_RULE_v1.md` | DOC_GEOMETRY + RIF_CRONOLOGIA / GENEALOGIA_PARZIALE |
+| TOPO-009 | G4→G5 / grafo strutturale di transizione | assemblato grafo esplicito per i tre rami: supporti che continuano, set di terminazione, genealogia degli sbalzi originari e rami di colmo; WING-C resta composita e non viene regolarizzata artificialmente | `ETW_UPPER_TRANSITION_STRUCTURAL_GRAPH_v1.csv` | VER_PARZIALE / FEM_GENERATION_BLOCKED_ON_IDS_AND_ENDPOINTS |
 | MAT-001 | materiali | calcestruzzo/acciaio | da documentare/indagare | ND |
 | MAT-002 | conoscenza | LC/FC | da definire sul quadro conoscitivo | ND |
 
