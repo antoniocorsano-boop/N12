@@ -78,3 +78,5 @@ jobs:
           name: n12-hires-structural-sources
           path: artifacts
           retention-days: 30
+
+# PT mesh validation rerun requested 2026-08-20
