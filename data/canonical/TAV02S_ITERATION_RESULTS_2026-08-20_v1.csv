@@ -1,0 +1,11 @@
+result_id,source_scope,entity_or_measure,result_type,value,state,derivation_rule,note
+ITER-001,UNBOUND_Q01,18,PILLAR_ID,18,SUPPORTED,"direct written identifier","numero 18 leggibile nel settore inferiore"
+ITER-002,UNBOUND_Q01,18,SECTION_DIMENSION_PARTIAL,110,SUPPORTED,"direct written dimension","lato lungo 110 cm leggibile; altra dimensione ND; vietata sezione completa inferita"
+ITER-003,UNBOUND_Q01,19,PILLAR_ID_SECTION,40x50,SUPPORTED,"direct number + written section","coordinate non derivate"
+ITER-004,UNBOUND_Q01,20,PILLAR_ID_SECTION,50x40,SUPPORTED,"direct number + written section","coordinate non derivate"
+ITER-005,UNBOUND_Q01,local_dimension,DIMENSION,3.25,SUPPORTED,"direct written dimension","corregge la precedente lettura 2.25"
+ITER-006,UNBOUND_Q01,local_dimension,DIMENSION,2.40,SUPPORTED,"direct written dimension","associazione ai riferimenti ancora aperta"
+ITER-007,UNBOUND_Q01,local_dimension,DIMENSION,2.90,SUPPORTED,"direct written dimension","associazione ai riferimenti ancora aperta"
+ITER-008,UNBOUND_CURRENT_VIEWS,15-17,VISIBILITY,NOT_VISIBLE,OPEN,"negative observation only","nessuna deduzione da dataset storico"
+ITER-009,UNBOUND_CURRENT_VIEWS,21-33,VISIBILITY,NOT_VISIBLE,OPEN,"negative observation only","richiede lettura diretta dei tile pertinenti"
+ITER-010,UNBOUND_CURRENT_VIEWS,a-d,VISIBILITY,NOT_VISIBLE,OPEN,"negative observation only","richiede lettera leggibile su fonte primaria"
