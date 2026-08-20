@@ -4,6 +4,7 @@ from pathlib import Path
 import fitz
 from PIL import Image
 
+# TAV-02S hires persistence trigger: 2026-08-20
 DEFAULT_COMMIT='d521f11a6989664a54409ab0df064903d8986564'
 SOURCES={
  'TAV-01S':'archive/documentazione_originaria/tavola1-2.pdf',
