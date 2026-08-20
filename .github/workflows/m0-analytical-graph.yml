@@ -101,7 +101,9 @@ jobs:
           assert rw['status']=='PASS' and rw['assessment_grade'] is False
           assert rw['counts']['roof_beam_components']==2
           assert rw['counts']['isolated_nodes']==0
-          assert rw['bridge_finding']['status']=='UNRESOLVED_B_TO_AC_SOURCE_BRIDGE'
+          assert rw['level_transition_finding']['status']=='G4_COUPLING_VIA_P21_DOCUMENTED_V_ORDER_MEMBER_PENDING'
+          assert rw['level_transition_finding']['p21_vertical_status']=='PRESENT_V_ORDER_ABSENT_ROOF'
+          assert rw['level_transition_finding']['policy']=='DO_NOT_INVENT_G5_BRIDGE'
           PY
       - uses: actions/upload-artifact@v4
         with:
