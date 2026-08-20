@@ -1,2 +1,2 @@
 evidence_id,entity_id,identifier,section_written,state,source_scope,source_kind,binding_status,note
-P21-EV-001,21,21,40x50,SUPPORTED,TAV-02S raster derivative n21_22_wide_zoom.png,DERIVED_RASTER,UNBOUND_TILE,"numero 21 e sezione 40x50 leggibili nel ritaglio derivato dal raster TAV-02S; non CURRENT finche il ritaglio non e legato a uno o piu tile HiRes persistenti"
+P21-EV-001,21,21,40x50,SUPPORTED,TAV-02S raster derivative n21_22_wide_zoom.png,DERIVED_RASTER,CANDIDATE_TILE_R03C01,"numero 21 e sezione 40x50 leggibili nel ritaglio derivato dal raster TAV-02S; TAV-02S_L1_R03C01 e il tile candidato prioritario per continuita topologica del filo x=6.90 e presenza persistente di 17 e 22; non CURRENT finche il binding grafico diretto non e chiuso"
