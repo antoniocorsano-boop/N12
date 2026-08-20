@@ -1,6 +1,2 @@
-sequence_order,entity,group_members,distance_from_previous_m,relative_to_anchor33_m,source,status,note
-0,ANCHOR_33,33,,0.00,"TAV-02S high-resolution original",DOC_ANCHOR,"origine locale sul filo 27/30/33"
-1,FILO_G2,"26/29/32",4.95,-4.95,"TAV-02S high-resolution original",DOC_RECONCILED,"quota 32→33 letta direttamente 4.95 m; rettifica del precedente 4.65"
-2,FILO_G1,"25/28/31",6.25,-11.20,"TAV-02S high-resolution original",DOC_RECONCILED,"31→32=6.25 m"
-3,FILO_PREV1,"asse precedente",4.05,-15.25,"TAV-02S high-resolution original",DOC_QUOTATO,"asse precedente al gruppo 25/28/31; identità b/d non promossa qui"
-4,FILO_PREV2,"asse più esterno",4.70,-19.95,"TAV-02S high-resolution original",DOC_QUOTATO,"asse esterno; identità a/c non promossa qui"
+record_type,status,reason,source,note
+SUPERSEDED,SUPERSEDED_INVALID,"La riconciliazione v2 associava correttamente alcune quote ma a gruppi nodali errati. Dopo la rilettura ad alta risoluzione della TAV-02S, le righe certe sono: a-b-17-9-1; c-d-18-10-2; 31-28-19-11-3; 32-29-20-12-5-4. Le precedenti aggregazioni 25/28/31, 26/29/32, 27/30/33 non devono essere riutilizzate.",TAV-02S_tavola2-2.pdf,"File mantenuto come tombstone; ricostruzione nuova da quote dirette e righe corrette"
