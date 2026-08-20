@@ -13,6 +13,7 @@ on:
       - 'docs/FOGLIO_LAVORO/M0_3D_PARAMETER_PACK_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_UPPER_Z_SCENARIO_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_UPPER_Z_DOCUMENT_RECONCILIATION_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_G5_ROOF_AXIS_XY_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_B_SMOKE_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_AC_SENSITIVITY_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv'
@@ -32,6 +33,7 @@ on:
       - 'docs/FOGLIO_LAVORO/M0_3D_PARAMETER_PACK_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_UPPER_Z_SCENARIO_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_UPPER_Z_DOCUMENT_RECONCILIATION_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_G5_ROOF_AXIS_XY_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_B_SMOKE_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_AC_SENSITIVITY_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv'
@@ -86,6 +88,8 @@ jobs:
           print('nodes=',len(g['nodes']))
           print('elements=',len(g['elements']))
           print('blocked_local=',len(g['blocked_local']))
+          assert g['validation']['counts']['roof_nodes_xy_ready']==25
+          assert g['validation']['counts']['v_order_nodes_xy_ready']==25
           assert p['preflight']['symbolic_status']=='PASS'
           assert p['preflight']['numeric_status']=='BLOCKED_EXPECTED'
           assert s['status']=='PASS'
