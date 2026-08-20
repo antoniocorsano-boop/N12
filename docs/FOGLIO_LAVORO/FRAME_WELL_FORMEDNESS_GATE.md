@@ -78,16 +78,17 @@ There is one terrace in this lower-level scope and it is located at the **first 
 Current user-reported configuration (`RIF`, documentary binding pending):
 - added columns were introduced to support the terrace extension;
 - added beams were introduced with the terrace frame;
-- those added beams are connected/embedded into the corresponding pre-existing structural node;
+- those added beams are connected/embedded into the corresponding pre-existing structural node/member;
 - anchorage stubs/monconi at the node are reported as part of the connection detail.
 
 Current partial source binding (`ETW_FIRST_LEVEL_TERRACE_RECEIVER_BINDING_v1.csv`):
-- TAV-02S/G1 documents a local return/projection of 150 cm in the terrace candidate zone;
+- TAV-02S/G1 native HiRes documents a local return/projection of 150 cm;
 - the homologous TAV-03S/G2 geometry reduces to 70 cm, confirming a level-specific G1 geometry change;
-- registered localization maps the zone near support `P15`, whose G1 section is DOC `40x50`;
-- verified TAV-05S topology identifies `P23-P15` as the leading original receiving beam-line candidate;
-- the visible 150 cm return joins the horizontal structural line before the visible support, so the exact insertion point MUST remain a separate anonymous/local node until pointwise evidence closes it;
-- `P15` is therefore a support reference, not yet the exact terrace insertion node.
+- in the native TAV-02S source, support labels `8` and `16` bound the same original structural line carrying the 150 cm branch;
+- verified TAV-05S topology independently identifies `P08-P16` (`T05-C030`) as an original 25x70 beam;
+- the visible 150 cm branch leaves the member at an intermediate point, not at P08 or P16;
+- the previous registration-only localization to `P15 / P23-P15` is SUPERSEDED by the native HiRes support numbering and MUST NOT be used for terrace genealogy;
+- the exact terrace insertion point remains a separate anonymous/local beam junction until pointwise evidence closes it.
 
 Well-formedness requirements:
 1. every added terrace column must resolve to a support/base condition and to the terrace-frame node above;
@@ -97,8 +98,9 @@ Well-formedness requirements:
 5. anchorage/monconi are connection/reinforcement properties, not independent frame members;
 6. added members must remain distinct from the ordinary original-frame genealogy, while participating in the same well-formed global graph;
 7. exact added member IDs, exact insertion node ID, sections, anchorage lengths/counts and construction chronology remain `ND`/`RIF` until source-bound;
-8. nearest-support identity is forbidden: `local terrace insertion node = P15` is not allowed solely from registration distance;
-9. current admissible partial model is `original receiving member candidate P23-P15 -> local/anonymous terrace insertion node -> added terrace beam(s)` with P15 retained as the nearest verified support reference.
+8. nearest-support identity is forbidden: the local terrace insertion node MUST NOT be collapsed onto P08, P16 or any other nearby P-ID solely from raster distance;
+9. current admissible partial model is `P08 -> local/anonymous terrace insertion node -> P16` on the original member, with the added terrace branch connected to that local node;
+10. superseded registration-only bindings must remain auditable but excluded from model generation.
 
 The terrace extension therefore follows:
 
@@ -178,7 +180,7 @@ For stair-tower/local upper columns, promotion additionally requires:
 For first-level terrace added members, promotion additionally requires:
 `resolved original receiving node/member + resolved added member endpoints + support path + source evidence for connection/anchorage`.
 
-A terrace insertion point may remain an anonymous/local structural node while its receiving original member is partially resolved. It MUST NOT inherit the nearest P-ID until pointwise node identity is independently demonstrated.
+A terrace insertion point may remain an anonymous/local structural node while its receiving original member is resolved. It MUST NOT inherit either endpoint P-ID until pointwise node identity is independently demonstrated.
 
 ## Building-specific topology constraints currently carried forward
 
@@ -186,7 +188,7 @@ A terrace insertion point may remain an anonymous/local structural node while it
 |---|---|---|
 | Roof has ridge and eaves beams | RIF / source binding pending | Explicit roof-frame beams; no flat-floor surrogate |
 | Three roof ridges / three wings | RIF/DOC context, exact entity binding pending | Preserve three independent roof-frame branches |
-| First-level terrace is a local frame extension | DOC local G1 geometry + MIS registration + RIF chronology / receiver partial | Receiving original beam-line candidate `P23-P15`; P15 support reference; exact insertion node remains local/ND |
+| First-level terrace is a local frame extension | DOC native G1 geometry + DOC original topology + RIF chronology / receiver member resolved | Original receiving beam `P08-P16`; exact insertion node remains local/ND; P15 binding SUPERSEDED |
 | Sub-roof/upper level has three apartments with terraces | RIF | Reduced-plan `FloorVariant`; no ordinary-floor extrusion |
 | Three upper columns absent/terminated per wing | RIF | exact chain IDs pending; TAV-06S presence/absence now used as direct level-presence evidence |
 | TAV-06S may contain additional stair-tower columns | RIF | split roof supports into main-frame continuations vs stair-tower/local upper columns |
@@ -198,4 +200,4 @@ Therefore their well-formedness status is initially `BLOCKED_IDENTITY`, not `PAS
 
 The next operation is to bind each candidate position to one of the 27 verified vertical chains in `data/canonical/column_fixed_lines.csv` using registered document position + surrounding topology + source evidence. No binding by proximity alone is allowed.
 
-The lower/first-level pass has now partially resolved the terrace receiver genealogy to `P23-P15` as the leading original receiving-member candidate with `P15` as local support reference; the exact insertion node remains unresolved and must not be collapsed onto P15. The upper-level/roof pass must classify every TAV-06S support as main-frame continuation, stair-tower/local-upper column, or unresolved, and determine which ordinary chains terminate below roof.
+The lower/first-level pass has now resolved the terrace's original receiving member to `P08-P16` from native TAV-02S numbering plus verified TAV-05S topology; the exact insertion node remains an anonymous/local beam junction and must not be collapsed onto P08 or P16. The upper-level/roof pass must classify every TAV-06S support as main-frame continuation, stair-tower/local-upper column, or unresolved, and determine which ordinary chains terminate below roof.
