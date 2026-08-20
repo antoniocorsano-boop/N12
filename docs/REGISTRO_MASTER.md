@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0008`
+Versione repository: `RM-0009`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -9,6 +9,8 @@ Versione repository: `RM-0008`
 | SRC-003 | armature | TAV-01A/02A/034A/05A/06A/07A disponibili per sezioni, armature e particolari | tavole originali | DOC |
 | SRC-004 | controllo geometrico | tavole architettoniche, prospetto e sezioni disponibili per controllo incrociato | TAV-01/02/03/04/05E/06E | DOC |
 | SRC-005 | raccordo livelli→carpenterie | `m0s1a_level_sheet_crosswalk.csv` documenta: fondazioni=TAV-01S/`tavola1-2.pdf`; piano terra/1° impalcato=G1=TAV-02S/`tavola2-2.pdf`; G2=TAV-03S; G3=TAV-04S; G4=TAV-05S; G5=TAV-06S | `data/canonical/m0s1a_level_sheet_crosswalk.csv` @ d521f11 | DOC |
+| SRC-006 | archivio remoto alta risoluzione | creato ramo permanente `archive/originali-alta-risoluzione` contenente i 18 PDF originali in `archive/documentazione_originaria/`; indice operativo con percorso remoto, Git blob SHA, byte, SHA-256, classe e livello | `data/canonical/tavole_originali_remote_index_v1.csv` + ramo archivio | DOC_PRIMARY_IMMUTABLE |
+| SRC-007 | verifica integrità originali | i 18 PDF ricaricati dall'utente il 2026-08-20 coincidono byte-per-byte con il patrimonio storico: 18/18 SHA-256 identici al manifesto canonico; nessuna versione concorrente | confronto SHA-256 sessione 2026-08-20 + `tavole_originali_manifest.csv` | VERIFIED_18_OF_18 |
 | GEO-001 | TAV.5 | carpenteria vettorializzata storicamente in DXF 1:1 | pacchetto DXF strutturale v25 | DOC-ARTEFATTO |
 | GEO-002 | TAV.6 | travi vettorializzate storicamente in DXF | pacchetto DXF strutturale v25 | DOC-ARTEFATTO |
 | GEO-003 | TAV.7 | pilastri vettorializzati storicamente in DXF | pacchetto DXF strutturale v25 | DOC-ARTEFATTO |
