@@ -5,8 +5,10 @@ on:
     branches: [feat/structural-professional-workspace-r1]
     paths:
       - 'scripts/build_m0_analytical_graph.py'
+      - 'scripts/build_solver_neutral_frame_package.py'
       - 'docs/FOGLIO_LAVORO/M0_STRUCTURAL_ENTITY_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ANALYTICAL_GRAPH_MANIFEST_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_3D_PARAMETER_PACK_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW_G5_ANALYTICAL_COLUMN_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW_G5_ROOF_ANALYTICAL_SKELETON_RELEASE_v1.csv'
@@ -16,8 +18,10 @@ on:
     branches: [main]
     paths:
       - 'scripts/build_m0_analytical_graph.py'
+      - 'scripts/build_solver_neutral_frame_package.py'
       - 'docs/FOGLIO_LAVORO/M0_STRUCTURAL_ENTITY_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ANALYTICAL_GRAPH_MANIFEST_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_3D_PARAMETER_PACK_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW_G5_ANALYTICAL_COLUMN_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW_G5_ROOF_ANALYTICAL_SKELETON_RELEASE_v1.csv'
@@ -37,18 +41,36 @@ jobs:
         run: python scripts/build_m0_analytical_graph.py --check
       - name: Build M0 analytical graph
         run: python scripts/build_m0_analytical_graph.py
-      - name: Show graph summary
+      - name: Validate solver-neutral symbolic package
+        run: python scripts/build_solver_neutral_frame_package.py --check
+      - name: Build solver-neutral symbolic package
+        run: python scripts/build_solver_neutral_frame_package.py
+      - name: Confirm numeric export is explicitly blocked while ND remain
+        run: |
+          if python scripts/build_solver_neutral_frame_package.py --require-numeric; then
+            echo 'ERROR: numeric export unexpectedly became READY'
+            exit 1
+          else
+            echo 'NUMERIC_EXPORT_BLOCKED_EXPECTED=PASS'
+          fi
+      - name: Show graph and solver-neutral summaries
         run: |
           python - <<'PY'
           import json
-          p=json.load(open('data/generated/m0_analytical_graph_v1.json'))
-          print(json.dumps(p['validation'], indent=2))
-          print('nodes=',len(p['nodes']))
-          print('elements=',len(p['elements']))
-          print('blocked_local=',len(p['blocked_local']))
+          g=json.load(open('data/generated/m0_analytical_graph_v1.json'))
+          p=json.load(open('data/generated/m0_solver_neutral_frame_package_v1.json'))
+          print('M0_GRAPH',json.dumps(g['validation'], indent=2))
+          print('SOLVER_NEUTRAL',json.dumps(p['preflight'], indent=2))
+          print('nodes=',len(g['nodes']))
+          print('elements=',len(g['elements']))
+          print('blocked_local=',len(g['blocked_local']))
+          assert p['preflight']['symbolic_status']=='PASS'
+          assert p['preflight']['numeric_status']=='BLOCKED_EXPECTED'
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: n12-m0-analytical-graph-v1
-          path: data/generated/m0_analytical_graph_v1.json
+          name: n12-m0-analytical-and-solver-neutral-v1
+          path: |
+            data/generated/m0_analytical_graph_v1.json
+            data/generated/m0_solver_neutral_frame_package_v1.json
           retention-days: 30
