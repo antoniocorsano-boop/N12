@@ -1,0 +1,6 @@
+node_id,x_local_m,y_local_m,chain_id,read_status,sequence_check,source,status
+33,0.00,0.00,MAIN_X_TOP,DOC_READ_WITH_SEQUENCE_CHECK,"top row sequence 33-25-17-9-1; lower row confirms 34-26-18-10-2",TAV-02S_tavola2-2.pdf,DOC_QUOTATO
+25,3.45,0.00,MAIN_X_TOP,DOC_READ_WITH_SEQUENCE_CHECK,"top row sequence 33-25-17-9-1; lower row confirms 34-26-18-10-2",TAV-02S_tavola2-2.pdf,DOC_QUOTATO
+17,6.90,0.00,MAIN_X_TOP,DOC_READ,"digit legible on high-resolution crop; sequence consistent",TAV-02S_tavola2-2.pdf,DOC_QUOTATO
+9,12.40,0.00,MAIN_X_TOP,DOC_READ,"digit legible on high-resolution crop; sequence consistent",TAV-02S_tavola2-2.pdf,DOC_QUOTATO
+1,18.00,0.00,MAIN_X_TOP,DOC_READ,"digit legible on high-resolution crop; coincides with top node of right chain",TAV-02S_tavola2-2.pdf,DOC_QUOTATO
