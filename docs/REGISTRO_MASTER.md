@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0027`
+Versione repository: `RM-0028`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -11,6 +11,7 @@ Versione repository: `RM-0027`
 | SRC-005 | foto ultimo piano/torrino | foto di campo dell'ultimo livello e torrino scala acquisita; hash SHA-256 c84764fcda31e2f203797dacf19ea87b1ed8496f529b8a4e29967153a198d6c5, 1152×1536 px | `ETW_UPPER_FLOOR_PHOTO_EVIDENCE_v1.md` | PHOTO_RIF_PRIMARY |
 | SRC-006 | TAV-06A HiRes | tavola armature copertura recuperata dal PDF immutabile con renderer standard; run 32318018007, artifact 9388794158, raster 2868×16917, SHA-256 4e38082a13ae544edcccfc644f911301db06ca0e869ef9ff19701119024d5753 | `ETW_TAV06A_ROOF_BEAM_BINDING_v1.csv` + `ETW_TAV06A_HIRES_REVIEW_STATUS_v1.csv` | DOC_SOURCE + MIS_RENDER / FIRST_PASS_COMPLETE |
 | SRC-007 | TAV-07A HiRes | tavola pilastri/armature recuperata dal PDF immutabile con renderer standard; run 32319877682, artifact 9389393002 | `ETW_TAV07A_V_ORDER_CROSSCHECK_v1.csv` | DOC_SOURCE + MIS_RENDER / V_ORDER_READ_COMPLETE |
+| SRC-008 | TAV-01S HiRes | carpenteria fondazioni recuperata dal PDF immutabile con renderer standard; run 32342918446, artifact 9396980286, raster 6624×9436, PDF SHA-256 abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8, raster SHA-256 2d63e43fe7b66f61342e747772013a5d9ba5336a78454e01f96aff440f9b2daa | `ETW_FIRST_LEVEL_TERRACE_FOUNDATION_SUPPORT_AUDIT_v1.csv` | DOC_SOURCE + MIS_RENDER / LOCAL_AUDIT_COMPLETE |
 | GEO-001 | TAV.5 | carpenteria vettorializzata storicamente in DXF 1:1 | pacchetto DXF strutturale v25 | DOC-ARTEFATTO |
 | GEO-002 | TAV.6 | travi vettorializzate storicamente in DXF | pacchetto DXF strutturale v25 | DOC-ARTEFATTO |
 | GEO-003 | TAV.7 | pilastri vettorializzati storicamente in DXF | pacchetto DXF strutturale v25 | DOC-ARTEFATTO |
@@ -48,6 +49,7 @@ Versione repository: `RM-0027`
 | SEC-004 | copertura G5 / residui | 16/31 sezioni di trave restano ND ma sono ora classificate membro-per-membro con shortcut proibiti e discriminatore richiesto; residuo non bloccante globale | `ETW_G5_BEAM_SECTION_RESIDUALS_v1.csv` | CONTROLLED_RESIDUAL / NONBLOCKING_GLOBAL |
 | LOAD-001 | Telaio 5 | carichi lineari storici G1-G3 disponibili | RC-P13 / v16 | DOC-STORICO |
 | FND-001 | fondazioni | 7 catene / 26 segmenti ricostruiti | consolidato fondazioni | DOC-ARTEFATTO |
+| FND-002 | terrazzo primo livello / fondazione locale | TAV-01S documenta la linea di fondazione P16-P08 da 4,65 m ma non mostra un nodo/fondazione intermedio alla stazione del terrazzo né una estensione/supporto verso l'esterno. L'assenza vale solo per il progetto originario; il supporto as-built riferito resta da localizzare e il tipo di fondazione è ND | `ETW_FIRST_LEVEL_TERRACE_FOUNDATION_SUPPORT_AUDIT_v1.csv` + TAV-01S HiRes | DOC_NEGATIVE_ORIGINAL + RIF_AS_BUILT / FOUNDATION_GENEALOGY_OPEN |
 | M0G-001 | modello globale | ricostruzione geometrica primaria deve ora partire dalle carpenterie originali, usando DXF e abachi come confronto | gate corrente | IN_CORSO |
 | M0G-002 | livelli | quote Z definitive | non congelate globalmente; G1-G3 verticali source-bound usano 3.20/6.40/9.60 m dove già rilasciato | registri verticali HiRes | ND_GLOBAL / PARTIAL_RELEASE |
 | M0G-003 | raccordo Telaio 5 ↔ 57 nodi | catalogo 57 nodi recuperato; vecchio blocco per artefatto mancante superato; raccordo S…C'→P17…P24 recuperato e verificato, mentre il ponte finale verso N-ID/catene legacy resta da chiudere | `data/canonical/telaio5_raccordo_57_nodi_status.csv` + `tav5_topology_nodes_57.csv` + recupero HiRes | IN_ALLINEAMENTO / ARTIFACT_BLOCK_SUPERATO |
@@ -71,7 +73,8 @@ Versione repository: `RM-0027`
 | TOPO-015 | V° ordine → copertura | catena dei conteggi chiusa 34 IV ordine → 26 V ordine → 25 copertura. Otto supporti sono assenti già dal V ordine; P21 è l'unico supporto presente al V ordine e assente da TAV-06S | `ETW_TAV07A_V_ORDER_CROSSCHECK_v1.csv` + `ETW_UPPER_COLUMN_TERMINATION_SET_v1.csv` | DOC / VERTICAL_TRANSITION_DEPTH_CLOSED |
 | TOPO-016 | G2↔G3 / catene verticali | quattro verticali source-bound P13/P20/P22/P26 sono rilasciate analiticamente G2→G3; candidato raster 8459 resta insieme `{P13,P22,P26}`, 7074 esclude P20, 6500 irrisolto, 7993 aggregato | `ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv` + `ETW2_G2_G3_WELL_FORMEDNESS_v1.csv` + recupero HiRes | PARTIAL_PASS_NONBLOCKING |
 | TOPO-017 | terrazzo primo livello / limite probatorio | le differenze G1↔G2 possono localizzare la geometria originaria e la linea ricevente, ma non chiudono da sole cronologia di ripresa o dettaglio dei fori/ferri/monconi | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + `ETW_FIRST_LEVEL_TERRACE_FRAME_EXTENSION_v1.csv` | RULE_CLOSED / CONNECTION_DETAIL_OPEN |
-| TOPO-018 | terrazzo primo livello / receiver binding | TAV-02S nativa HiRes documenta direttamente il ritorno da 150 cm che si stacca in posizione intermedia dalla linea strutturale compresa tra i supporti numerati 8 e 16; la topologia TAV-05S verifica `P08-P16` (`T05-C030`) come trave originaria 25×70. Il nodo esatto d'innesto resta locale/anonimo ND. Il precedente binding di prossimità `P15 / P23-P15` è SUPERATO e mantenuto solo come audit trail | `ETW_FIRST_LEVEL_TERRACE_RECEIVER_BINDING_v1.csv` + `FRAME_WELL_FORMEDNESS_GATE.md` + `tav05_topology_connections_consolidated_v6.csv` + TAV-02S native HiRes | DOC_NATIVE_GEOMETRY + DOC_TOPOLOGY + VER_PARZIALE / RECEIVER_MEMBER_RESOLVED_INSERTION_NODE_ND |
+| TOPO-018 | terrazzo primo livello / receiver e sottografo | TAV-02S nativa HiRes documenta il ritorno da 150 cm che si stacca dalla trave originaria P16-P08=25×70; la stazione del nodo locale `ETW-FLT-N01` è MIS 3,20 m da P16 / 1,45 m da P08 sulla campata DOC 4,65 m. Il ramo `ETW-FLT-N01→ETW-FLT-N02` è lungo 1,50 m DOC. Il precedente binding `P15/P23-P15` è SUPERATO | `ETW_FIRST_LEVEL_TERRACE_RECEIVER_BINDING_v1.csv` + `ETW_FIRST_LEVEL_TERRACE_LOCAL_SUBGRAPH_v1.csv` + TAV-02S native HiRes + `T05-C030` | DOC_NATIVE_GEOMETRY + DOC_TOPOLOGY + MIS_RASTER / LOCAL_SUBGRAPH_GEOMETRY_READY |
+| TOPO-019 | terrazzo primo livello / supporto esterno | TAV-01S non mostra, sul tratto P16-P08, né nodo di fondazione alla stazione 3,20 m né estensione/fondazione verso il nodo esterno `ETW-FLT-N02`. Ciò documenta solo l'assenza nel progetto originario; i pilastri aggiunti riferiti e le loro fondazioni restano da localizzare nello stato as-built | `ETW_FIRST_LEVEL_TERRACE_FOUNDATION_SUPPORT_AUDIT_v1.csv` + TAV-01S HiRes + fascicolo tecnico | DOC_NEGATIVE_ORIGINAL + RIF_AS_BUILT / SUPPORT_BASE_ND_NONBLOCKING |
 | MAT-001 | materiali | calcestruzzo/acciaio | da documentare/indagare | ND |
 | MAT-002 | conoscenza | LC/FC | da definire sul quadro conoscitivo | ND |
 
