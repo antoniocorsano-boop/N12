@@ -1,0 +1,3 @@
+pair_id,members,anchor_group,anchor_y_m,backward_chain_m,derived_pair_y_m,status,evidence,rule,note
+PAIR-BD,"b;d","25;28;31",12.23,4.05,8.18,INF_METRIC_ANCHORED,"TAV.1A chain [a/c]-4.70-[b/d]-4.05-[25/28/31] + tav02s_left_sector_global_grid_v2 R1=12.23","Y(b/d)=Y(25/28/31)-4.05","ordinate di coppia ancorata metricamente; X e identita individuali ancora ND"
+PAIR-AC,"a;c","25;28;31",12.23,8.75,3.48,INF_METRIC_ANCHORED,"TAV.1A chain [a/c]-4.70-[b/d]-4.05-[25/28/31] + tav02s_left_sector_global_grid_v2 R1=12.23","Y(a/c)=Y(25/28/31)-4.05-4.70","ordinate di coppia ancorata metricamente; X e identita individuali ancora ND"
