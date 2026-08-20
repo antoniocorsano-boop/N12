@@ -17,6 +17,7 @@ on:
       - 'docs/FOGLIO_LAVORO/M0_G5_ROOF_AXIS_XY_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_G5_ROOF_COMPONENT_CONNECTIVITY_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW_V_ORDER_T5_COUPLING_BINDING_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_V_ORDER_T5_AXIS_XY_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_B_SMOKE_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_AC_SENSITIVITY_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv'
@@ -40,6 +41,7 @@ on:
       - 'docs/FOGLIO_LAVORO/M0_G5_ROOF_AXIS_XY_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_G5_ROOF_COMPONENT_CONNECTIVITY_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW_V_ORDER_T5_COUPLING_BINDING_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_V_ORDER_T5_AXIS_XY_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_B_SMOKE_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_AC_SENSITIVITY_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv'
@@ -94,10 +96,12 @@ jobs:
           print('SOLVER_NEUTRAL',json.dumps(p['preflight'], indent=2))
           print('ROOF_AC_SENSITIVITY',json.dumps(ac['summary'], indent=2))
           print('ROOF_WIDE',json.dumps(rw, indent=2))
+          assert g['validation']['counts']['v_order_t5_beams']==6
           assert g['validation']['counts']['roof_nodes_xy_ready']==25
-          assert g['validation']['counts']['v_order_nodes_xy_ready']==25
+          assert g['validation']['counts']['v_order_nodes_xy_ready']==26
           assert p['preflight']['symbolic_status']=='PASS'
           assert p['preflight']['numeric_status']=='BLOCKED_EXPECTED'
+          assert p['preflight']['counts']['v_order_t5_beams']==6
           assert s['status']=='PASS' and s['assessment_grade'] is False
           assert ac['status']=='PASS' and ac['assessment_grade'] is False
           assert rw['status']=='PASS' and rw['assessment_grade'] is False
