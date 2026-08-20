@@ -35,11 +35,13 @@ jobs:
         run: python scripts/render_hires_sources.py --source TAV-06E --out artifacts/TAV-06E --tile-size 2400 --overlap 0.125
       - name: Render TAV-06A roof reinforcement source and tiles
         run: python scripts/render_hires_sources.py --source TAV-06A --out artifacts/TAV-06A --tile-size 2400 --overlap 0.125
+      - name: Render TAV-07A structural details source and tiles
+        run: python scripts/render_hires_sources.py --source TAV-07A --out artifacts/TAV-07A --tile-size 2400 --overlap 0.125
       - name: Record source hashes
         run: |
           python - <<'PY'
           import json,sys
-          for sid in ('TAV-05E','TAV-06E','TAV-06A'):
+          for sid in ('TAV-05E','TAV-06E','TAV-06A','TAV-07A'):
             p=json.load(open(f'artifacts/{sid}/hires_index.json'))
             if len(p['sources']) != 1 or p['sources'][0]['source_id'] != sid:
               print('SOURCE_SET_MISMATCH',sid,p['sources']); sys.exit(1)
@@ -51,6 +53,6 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: n12-hires-elevations-and-roof-armature
+          name: n12-hires-elevations-roof-armature-tav07a
           path: artifacts
           retention-days: 30
