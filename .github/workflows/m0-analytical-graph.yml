@@ -15,6 +15,7 @@ on:
       - 'docs/FOGLIO_LAVORO/M0_UPPER_Z_SCENARIO_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_UPPER_Z_DOCUMENT_RECONCILIATION_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_G5_ROOF_AXIS_XY_RELEASE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_G5_ROOF_COMPONENT_CONNECTIVITY_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_B_SMOKE_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_AC_SENSITIVITY_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv'
@@ -36,6 +37,7 @@ on:
       - 'docs/FOGLIO_LAVORO/M0_UPPER_Z_SCENARIO_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_UPPER_Z_DOCUMENT_RECONCILIATION_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_G5_ROOF_AXIS_XY_RELEASE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_G5_ROOF_COMPONENT_CONNECTIVITY_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_B_SMOKE_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_AC_SENSITIVITY_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv'
@@ -97,8 +99,9 @@ jobs:
           assert s['status']=='PASS' and s['assessment_grade'] is False
           assert ac['status']=='PASS' and ac['assessment_grade'] is False
           assert rw['status']=='PASS' and rw['assessment_grade'] is False
-          assert rw['counts']['connected_components']==1
+          assert rw['counts']['roof_beam_components']==2
           assert rw['counts']['isolated_nodes']==0
+          assert rw['bridge_finding']['status']=='UNRESOLVED_B_TO_AC_SOURCE_BRIDGE'
           PY
       - uses: actions/upload-artifact@v4
         with:
