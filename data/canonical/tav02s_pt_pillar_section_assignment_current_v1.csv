@@ -22,7 +22,7 @@ pillar_id,section_cm,orientation_class,tav07_section_id,assignment_status,eviden
 21,40x50,40x50,,SUPPORTED,"DERIVED_RASTER_N21_22_WIDE; candidate TAV-02S_L1_R03C01","numero e sezione leggibili; non CURRENT finche il binding al tile persistente non e chiuso"
 22,50x40,50x40,,DOC_DIRECT,"TAV-02S_L1_R03C01","lettura diretta su tile persistente"
 22',50x40,50x40,,DOC_DIRECT,"TAV-02S_L1_R03C01","entita distinta da 22; apostrofo inequivocabile; lettura diretta su tile persistente"
-23,30x110,30x110,I-03,DOC_DIRECT,"TAV-02S quota 30x110 + TAV.7 I ordine","sezione speciale; orientamento da mantenere congelato finche non si chiude il confronto con la lettura 110x30 del registro iterazione"
+23,30x110,110x30,I-03,DOC_DIRECT,"TAV-02S_L1_R04C01: 110 orizzontale e 30 verticale; TAV.7 I ordine: famiglia I-03 30x110","famiglia I-03 confermata; orientamento planimetrico ruotato di 90 gradi rispetto al catalogo"
 24,40x50,40x50,,DOC_DIRECT,"TAV-02S_L1_R03C01","lettura diretta su tile persistente"
 25,50x40,50x40,,DOC_DIRECT,"TAV-02S_L1_R02C01","lettura diretta su tile persistente"
 26,50x40,50x40,,DOC_DIRECT,"TAV-02S_L1_R03C01","lettura diretta su tile persistente"
