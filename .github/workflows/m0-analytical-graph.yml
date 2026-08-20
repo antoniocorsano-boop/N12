@@ -7,11 +7,14 @@ on:
       - 'scripts/build_m0_analytical_graph.py'
       - 'scripts/build_solver_neutral_frame_package.py'
       - 'scripts/run_roof_b_opensees_smoke.py'
+      - 'scripts/run_roof_ac_section_sensitivity.py'
       - 'docs/FOGLIO_LAVORO/M0_STRUCTURAL_ENTITY_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ANALYTICAL_GRAPH_MANIFEST_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_3D_PARAMETER_PACK_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_UPPER_Z_SCENARIO_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_UPPER_Z_DOCUMENT_RECONCILIATION_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_B_SMOKE_CORE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_ROOF_AC_SENSITIVITY_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW_G5_ANALYTICAL_COLUMN_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW_G5_ROOF_ANALYTICAL_SKELETON_RELEASE_v1.csv'
@@ -23,11 +26,14 @@ on:
       - 'scripts/build_m0_analytical_graph.py'
       - 'scripts/build_solver_neutral_frame_package.py'
       - 'scripts/run_roof_b_opensees_smoke.py'
+      - 'scripts/run_roof_ac_section_sensitivity.py'
       - 'docs/FOGLIO_LAVORO/M0_STRUCTURAL_ENTITY_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ANALYTICAL_GRAPH_MANIFEST_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_3D_PARAMETER_PACK_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_UPPER_Z_SCENARIO_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_UPPER_Z_DOCUMENT_RECONCILIATION_v1.csv'
       - 'docs/FOGLIO_LAVORO/M0_ROOF_B_SMOKE_CORE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_ROOF_AC_SENSITIVITY_CORE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW_G5_ANALYTICAL_COLUMN_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW_G5_ROOF_ANALYTICAL_SKELETON_RELEASE_v1.csv'
@@ -63,6 +69,8 @@ jobs:
           fi
       - name: Run isolated WING-B OpenSeesPy smoke
         run: python scripts/run_roof_b_opensees_smoke.py
+      - name: Run WING-A/C section sensitivity
+        run: python scripts/run_roof_ac_section_sensitivity.py
       - name: Show graph and solver-neutral summaries
         run: |
           python - <<'PY'
@@ -70,9 +78,11 @@ jobs:
           g=json.load(open('data/generated/m0_analytical_graph_v1.json'))
           p=json.load(open('data/generated/m0_solver_neutral_frame_package_v1.json'))
           s=json.load(open('data/generated/roof_b_opensees_smoke_v1.json'))
+          ac=json.load(open('data/generated/roof_ac_section_sensitivity_v1.json'))
           print('M0_GRAPH',json.dumps(g['validation'], indent=2))
           print('SOLVER_NEUTRAL',json.dumps(p['preflight'], indent=2))
           print('ROOF_B_SMOKE',json.dumps(s, indent=2))
+          print('ROOF_AC_SENSITIVITY',json.dumps(ac['summary'], indent=2))
           print('nodes=',len(g['nodes']))
           print('elements=',len(g['elements']))
           print('blocked_local=',len(g['blocked_local']))
@@ -80,12 +90,15 @@ jobs:
           assert p['preflight']['numeric_status']=='BLOCKED_EXPECTED'
           assert s['status']=='PASS'
           assert s['assessment_grade'] is False
+          assert ac['status']=='PASS'
+          assert ac['assessment_grade'] is False
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: n12-m0-analytical-solver-neutral-and-roof-b-smoke-v1
+          name: n12-m0-analytical-solver-neutral-roof-smoke-sensitivity-v1
           path: |
             data/generated/m0_analytical_graph_v1.json
             data/generated/m0_solver_neutral_frame_package_v1.json
             data/generated/roof_b_opensees_smoke_v1.json
+            data/generated/roof_ac_section_sensitivity_v1.json
           retention-days: 30
