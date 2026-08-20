@@ -1,0 +1,8 @@
+residual_id,residual_type,candidate_ref,candidate_x_m,candidate_y_m,status,evidence,required_closure,note
+13,NUMBERED_PILLAR,,,ND_COORD,TAV-02S lower-right transition + foundation topology,READ_DIRECT_TAV02S,"Identity stable; coordinate not to interpolate or map from topological N013 without proof"
+19,NUMBERED_PILLAR,,,CONFLICT_REOPENED,TAV-02S left-sector reconciliation,READ_DIRECT_TAV02S,"Previous coordinate assignment superseded; topological N019 is not automatically pillar 19"
+20,NUMBERED_PILLAR,,,CONFLICT_REOPENED,TAV-02S left-sector reconciliation,READ_DIRECT_TAV02S,"Previous coordinate assignment superseded; topological N020 is not automatically pillar 20"
+a,TERRACE_ADDED_PILLAR,TERR-C01,36.5009,12.2339,INF_CANDIDATE,"pt_terrace_pillar_candidate_crosswalk_v1.csv; TAV5 DXF terrace probe",MAP_LETTER_ON_TAV02S,"Candidate position only; no a/b/c/d letter assignment yet"
+a,TERRACE_ADDED_PILLAR,TERR-C02,36.5107,7.8397,INF_CANDIDATE,"pt_terrace_pillar_candidate_crosswalk_v1.csv; TAV5 DXF terrace probe",MAP_LETTER_ON_TAV02S,"Candidate position only; placeholder residual a represents unresolved letter set"
+a,TERRACE_ADDED_PILLAR,TERR-C03,42.8827,19.6433,INF_CANDIDATE,"pt_terrace_pillar_candidate_crosswalk_v1.csv; TAV5 DXF terrace probe",MAP_LETTER_ON_TAV02S,"Candidate position only; placeholder residual a represents unresolved letter set"
+a,TERRACE_ADDED_PILLAR,TERR-C04,33.9992,18.4025,INF_CANDIDATE,"pt_terrace_pillar_candidate_crosswalk_v1.csv; TAV5 DXF terrace probe",MAP_LETTER_ON_TAV02S,"Candidate position only; weaker fourth candidate; placeholder residual a represents unresolved letter set"
