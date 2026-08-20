@@ -31,6 +31,8 @@ jobs:
         run: pip install pymupdf pillow
       - name: Render TAV-01S foundation source and tiles
         run: python scripts/render_hires_sources.py --source TAV-01S --out artifacts/TAV-01S --tile-size 2400 --overlap 0.125
+      - name: Render TAV-02S PT carpentry source and tiles
+        run: python scripts/render_hires_sources.py --source TAV-02S --out artifacts/TAV-02S --tile-size 2400 --overlap 0.125
       - name: Render TAV-05E elevation source and tiles
         run: python scripts/render_hires_sources.py --source TAV-05E --out artifacts/TAV-05E --tile-size 2400 --overlap 0.125
       - name: Render TAV-06E elevation source and tiles
@@ -43,7 +45,7 @@ jobs:
         run: |
           python - <<'PY'
           import json,sys
-          for sid in ('TAV-01S','TAV-05E','TAV-06E','TAV-06A','TAV-07A'):
+          for sid in ('TAV-01S','TAV-02S','TAV-05E','TAV-06E','TAV-06A','TAV-07A'):
             p=json.load(open(f'artifacts/{sid}/hires_index.json'))
             if len(p['sources']) != 1 or p['sources'][0]['source_id'] != sid:
               print('SOURCE_SET_MISMATCH',sid,p['sources']); sys.exit(1)
@@ -55,6 +57,6 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: n12-hires-foundation-elevations-roof-armature-tav07a
+          name: n12-hires-structural-sources
           path: artifacts
           retention-days: 30
