@@ -1,0 +1,43 @@
+name: M0 Analytical Graph
+
+on:
+  push:
+    branches: [feat/structural-professional-workspace-r1]
+    paths:
+      - 'scripts/build_m0_analytical_graph.py'
+      - 'docs/FOGLIO_LAVORO/M0_STRUCTURAL_ENTITY_RELEASE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_ANALYTICAL_GRAPH_MANIFEST_v1.csv'
+      - 'docs/FOGLIO_LAVORO/ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/ETW_G5_ANALYTICAL_COLUMN_RELEASE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/ETW_G5_ROOF_ANALYTICAL_SKELETON_RELEASE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/ETW_FIRST_LEVEL_TERRACE_LOCAL_SUBGRAPH_v1.csv'
+      - '.github/workflows/m0-analytical-graph.yml'
+  workflow_dispatch:
+
+jobs:
+  build-m0:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate M0 release
+        run: python scripts/build_m0_analytical_graph.py --check
+      - name: Build M0 analytical graph
+        run: python scripts/build_m0_analytical_graph.py
+      - name: Show graph summary
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('data/generated/m0_analytical_graph_v1.json'))
+          print(json.dumps(p['validation'], indent=2))
+          print('nodes=',len(p['nodes']))
+          print('elements=',len(p['elements']))
+          print('blocked_local=',len(p['blocked_local']))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: n12-m0-analytical-graph-v1
+          path: data/generated/m0_analytical_graph_v1.json
+          retention-days: 30
