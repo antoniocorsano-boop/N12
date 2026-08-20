@@ -1,0 +1,9 @@
+support_id,m0g_x_m,m0g_y_m,coord_status,confidence,transform_ref,vertical_level_policy,source_basis,notes
+P18,11.9023,4.1262,MIS_CALIBRATED,HIGH,M0G-T05-V1,V_ORDER_AXIS_READY,"PR10 data/canonical/tav05_nodes_m0g_v1.csv + ETW_V_ORDER_T5_COUPLING_BINDING_v1.csv","Fixed-line analytical axis; not automatic section centroid."
+P19,12.4001,0.0402,MIS_CALIBRATED,HIGH,M0G-T05-V1,V_ORDER_AXIS_READY,"PR10 data/canonical/tav05_nodes_m0g_v1.csv + ETW_V_ORDER_T5_COUPLING_BINDING_v1.csv",""
+P20,12.3443,-1.0045,MIS_CALIBRATED,HIGH,M0G-T05-V1,V_ORDER_AXIS_READY,"PR10 data/canonical/tav05_nodes_m0g_v1.csv + ETW_V_ORDER_T5_COUPLING_BINDING_v1.csv",""
+P21,10.4147,-6.4571,MIS_CALIBRATED,HIGH,M0G-T05-V1,V_ORDER_AXIS_READY_TERMINATES_BEFORE_ROOF,"PR10 data/canonical/tav05_nodes_m0g_v1.csv + TAV-07A V-order presence + TAV-06S roof absence","P21 is explicitly allowed at V_ORDER and explicitly forbidden at ROOF."
+P22,10.4191,-9.3752,MIS_CALIBRATED,HIGH,M0G-T05-V1,V_ORDER_AXIS_READY,"PR10 data/canonical/tav05_nodes_m0g_v1.csv + ETW_V_ORDER_T5_COUPLING_BINDING_v1.csv",""
+P22P,10.4267,-10.3692,MIS_CALIBRATED,HIGH,M0G-T05-V1,V_ORDER_AXIS_READY,"PR10 data/canonical/tav05_nodes_m0g_v1.csv + ETW_V_ORDER_T5_COUPLING_BINDING_v1.csv","P22P remains distinct from P22."
+P23,9.9499,-14.7253,MIS_CALIBRATED,HIGH,M0G-T05-V1,V_ORDER_AXIS_READY,"PR10 data/canonical/tav05_nodes_m0g_v1.csv + ETW_V_ORDER_T5_COUPLING_BINDING_v1.csv",""
+V5-T5-XY-GATE,NA,NA,NA,NA,NA,PASS,"M0G-T05-V1 calibrated fixed lines","Seven V-order T5 supports are released for analytical XY; roof population remains 25 and excludes P21."
