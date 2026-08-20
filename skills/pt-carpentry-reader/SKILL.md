@@ -8,13 +8,21 @@ Ricostruire e replicare carpenterie storiche in c.a. da tavole raster/PDF ad alt
 
 I dataset canonici esistenti NON sono assunti come verità iniziale. Sono ipotesi versionate da rivalidare contro le evidenze primarie.
 
-Sequenza obbligatoria:
+La gerarchia interna della lettura del disegno è obbligatoria:
 
-`crop originale -> osservazione diretta -> confronto con claim corrente -> match/conflitto -> seconda evidenza -> promozione / riapertura / tombstone`
+`MISURE SCRITTE -> LETTERE/NUMERI/ID -> TESTI E SIGLE -> SIMBOLI -> GEOMETRIA GRAFICA -> INFERENZA`.
 
-Per la geometria strutturale la lettura semantica resta:
+Le misure numeriche scritte sulla tavola e gli identificativi alfanumerici leggibili hanno priorità sulla misura ricavata dalla scala raster, sulla posizione apparente dei segni e sulle ricostruzioni geometriche precedenti.
 
-`quota -> filo/riferimento -> simbolo pilastro -> contorno/asse trave -> campo solaio -> connessione strutturale`
+Se una quota scritta o un ID leggibile contraddice una geometria ricostruita, la geometria viene riaperta. Se il testo è illeggibile o ambiguo, non viene completato per analogia: resta `UNCERTAIN/ND`.
+
+Sequenza obbligatoria di rivalidazione:
+
+`crop originale -> lettura misure e ID -> osservazione semantica -> confronto con claim corrente -> match/conflitto -> seconda evidenza -> promozione / riapertura / tombstone`.
+
+Per la geometria strutturale la lettura resta:
+
+`quota -> filo/riferimento -> simbolo pilastro -> contorno/asse trave -> campo solaio -> connessione strutturale`.
 
 Una relazione tra due nodi diventa `BEAM_DOC` solo dopo verifica grafica diretta e controllo delle sovrapposizioni tra crop.
 
@@ -46,20 +54,23 @@ Il Master è un output rigenerabile dai soli claim `CURRENT`, non una fonte supe
 - `data/canonical/TAV02S_READING_RESIDUALS_v1.csv`
 - `data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv`
 
-Procedura di riferimento:
+Procedure di riferimento:
 
 - `docs/PROCEDURES/CANONICAL_DATASET_ITERATIVE_REVALIDATION_v1.md`
 - `docs/PROCEDURES/PT_CARPENTRY_REPLICATION_FROM_HIRES_v1.md`
 
 ## Precedenza delle evidenze
 
-1. PDF/raster originale ad alta risoluzione.
-2. Crop con coordinate raster note.
-3. Quota leggibile direttamente.
-4. Continuità grafica osservata su crop sovrapposti.
-5. Raccordo con altra tavola originale.
-6. Dataset storico.
-7. Inferenza.
+1. quota/misura numerica direttamente leggibile nel PDF/crop originale;
+2. lettera, numero, ID, sigla o testo direttamente leggibile;
+3. simbolo grafico inequivoco associato a misura/ID;
+4. continuità grafica verificata sul crop e sui crop sovrapposti;
+5. raccordo con altra tavola originale;
+6. dataset storico;
+7. misura ricavata dalla scala raster;
+8. inferenza.
+
+Il PDF/raster originale è il supporto primario, ma al suo interno **testo e quote esplicite prevalgono sulla geometria apparente**.
 
 Qualsiasi record marcato `SUPERSEDED`, `CONFLICT`, `REOPENED`, `REVOKED` o `TOMBSTONE` non può promuovere nuovi dati canonici.
 
@@ -67,22 +78,24 @@ Qualsiasi record marcato `SUPERSEDED`, `CONFLICT`, `REOPENED`, `REVOKED` o `TOMB
 
 Ogni informazione va ridotta a una proposizione verificabile, per esempio:
 
-- `node 19 belongs to row Y=...`
-- `pillar 23 section is 30x110`
-- `beam exists between node i and node j`
 - `dimension segment equals 4.05 m`
-- `symbol is a pillar`
+- `symbol label is 19`
+- `pillar label is a/b/c/d`
+- `node 19 belongs to row defined by quoted chain ...`
+- `pillar 23 section text is 30x110`
+- `beam exists between node i and node j`
 
 Per ogni claim:
 
-1. leggere il record storico e la provenienza;
-2. individuare il/i crop pertinenti;
-3. osservare il crop senza usare il record come guida interpretativa;
-4. registrare l'osservazione;
-5. classificare `MATCH`, `PARTIAL_MATCH`, `CONFLICT`, `NOT_VISIBLE`;
-6. cercare una seconda evidenza indipendente per coordinate/topologia;
-7. aggiornare `CANONICAL_REVALIDATION_LEDGER_v1.csv`;
-8. promuovere a `CURRENT` solo dopo cross-validation e assenza di conflitti aperti.
+1. leggere prima tutte le misure e gli identificativi alfanumerici nel crop, senza consultare il valore storico;
+2. registrare tali letture come osservazioni primarie;
+3. classificare i simboli collegati a quelle letture;
+4. solo dopo leggere il record storico e la sua provenienza;
+5. confrontare osservazione e record;
+6. classificare `MATCH`, `PARTIAL_MATCH`, `CONFLICT`, `NOT_VISIBLE`;
+7. cercare una seconda evidenza indipendente per coordinate/topologia;
+8. aggiornare `CANONICAL_REVALIDATION_LEDGER_v1.csv`;
+9. promuovere a `CURRENT` solo dopo cross-validation e assenza di conflitti aperti.
 
 Stati di validazione:
 
@@ -101,6 +114,9 @@ Un record solo `SUPPORTED` non può generare nuovi dati derivati.
 
 Usare una delle seguenti classi:
 
+- `DIMENSION_VALUE`
+- `ALPHANUMERIC_ID`
+- `TEXT_OR_CALLOUT`
 - `PILLAR_SYMBOL`
 - `BEAM_CONTOUR`
 - `BEAM_AXIS_OR_REFERENCE`
@@ -111,9 +127,10 @@ Usare una delle seguenti classi:
 - `GRID_OR_FIXED_LINE`
 - `EDGE_OR_CANTILEVER`
 - `STAIR_OR_OPENING`
-- `TEXT_OR_CALLOUT`
 - `REBAR_SYMBOL`
 - `UNCERTAIN`
+
+`DIMENSION_VALUE` e `ALPHANUMERIC_ID` sono classi prioritarie: devono essere registrate prima dell'interpretazione della geometria strutturale.
 
 ## Gate di promozione a BEAM_DOC
 
@@ -125,39 +142,47 @@ Una connessione può essere promossa solo se:
 - se attraversa il confine di un crop, è confermata nel crop sovrapposto;
 - non esiste un audit canonico che abbia riaperto quella relazione;
 - la provenienza viene registrata;
-- gli endpoint usati sono almeno `CROSS_VALIDATED` se la trave dipende dalle loro coordinate.
+- gli endpoint usati sono almeno `CROSS_VALIDATED` se la trave dipende dalle loro coordinate;
+- non contraddice quote o identificativi alfanumerici leggibili.
 
 In caso contrario usare `TO_VERIFY_BEAM`, `UNCERTAIN` o `CONFLICT`.
 
 ## Procedura per ciascun crop
 
 1. Leggere `tile_id`, `u0,v0,u1,v1` da `hires_index.json`.
-2. Classificare i segni grafici senza assumere corretti i nodi storici.
-3. Trascrivere le quote esattamente come leggibili.
-4. Generare osservazioni semantiche.
-5. Solo dopo, confrontare le osservazioni con i claim dei dataset correnti.
-6. Registrare match e conflitti nel ledger.
-7. Verificare i claim nel crop sovrapposto o in altra fonte indipendente.
-8. Applicare i gate di promozione.
-9. Aggiornare osservazioni, travi documentate e residui.
-10. Aggiornare lo stato del crop.
-11. Rigenerare i dataset canonici solo dai claim `CURRENT`.
+2. Trascrivere **prima** tutte le quote/misure numeriche leggibili.
+3. Trascrivere **poi** lettere, numeri, ID, sigle e testi leggibili.
+4. Registrare posizione raster e leggibilità di ciascuna misura/ID.
+5. Classificare i simboli grafici senza assumere corretti i nodi storici.
+6. Generare osservazioni semantiche.
+7. Solo dopo, confrontare le osservazioni con i claim dei dataset correnti.
+8. Registrare match e conflitti nel ledger.
+9. Verificare i claim nel crop sovrapposto o in altra fonte indipendente.
+10. Applicare i gate di promozione.
+11. Aggiornare osservazioni, travi documentate e residui.
+12. Aggiornare lo stato del crop.
+13. Rigenerare i dataset canonici solo dai claim `CURRENT`.
 
 ## Ordine standard N12
 
-`R01C01 -> R01C02 -> R01C03 -> R02C01 -> R02C02 -> R02C03 -> R03C01 -> R03C02 -> R03C03 -> R04C01 -> R04C02 -> R04C03`
+`R01C01 -> R01C02 -> R01C03 -> R02C01 -> R02C02 -> R02C03 -> R03C01 -> R03C02 -> R03C03 -> R04C01 -> R04C02 -> R04C03`.
 
 C02 e C03 della stessa riga sono fortemente sovrapposti: trattarli come controllo incrociato e non duplicare entità.
 
-## Regole per i fili e i centri
+## Regole per quote, fili e centri
+
+Una quota scritta è un dato documentale prioritario. La sua associazione ai riferimenti estremi deve però essere letta correttamente dalle linee di quota e di richiamo.
 
 Le coordinate ottenute dalle quote sono riferimenti geometrici finché il crop non dimostra il significato del riferimento. Non assumere automaticamente che siano baricentri dei pilastri. La trasformazione filo/asse -> centro richiede sezione, orientamento ed eventuale offset documentato.
+
+È vietato sostituire una quota scritta con una misura in pixel quando entrambe sono disponibili. La misura raster può servire solo come controllo di coerenza o per localizzare un elemento non quotato.
 
 ## Gestione residui
 
 Ogni residuo deve contenere:
 
 - crop e posizione raster;
+- misura/ID coinvolto, se presente;
 - elementi coinvolti;
 - problema preciso;
 - alternative compatibili;
@@ -171,6 +196,7 @@ I residui non bloccano la scansione globale.
 La skill considera chiusa la replica PT quando esistono:
 
 - 12 crop revisionati;
+- registro completo di misure e ID leggibili;
 - registro semantico completo;
 - claim geometrici/topologici necessari almeno `CROSS_VALIDATED`;
 - travi `BEAM_DOC` con provenienza;
