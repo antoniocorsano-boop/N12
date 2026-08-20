@@ -1,0 +1,4 @@
+frame_id,connection_id,old_section_id,new_section_id,assignment_status,evidence_status,confidence,source_basis,notes
+F-T05-015,T05-C015,BM_ND,BM_25x70,READY,RIF,HIGH,"dato consolidato utente","P22-P22' chiuso"
+F-T05-025A,T05-C025A,BM_ND,BM_25x70,READY,RIF,HIGH,"dato consolidato utente","P04-P05 chiuso"
+F-T05-035,T05-C035,BM_ND,BM_25x70,READY,RIF,HIGH,"dato consolidato utente","P19-P20 chiuso"

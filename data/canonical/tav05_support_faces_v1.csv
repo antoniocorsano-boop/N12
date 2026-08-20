@@ -1,0 +1,4 @@
+object_id,tavola_id,section_doc,orientation,u_west_px,u_east_px,v_north_px,v_south_px,fixed_u_px,fixed_v_px,edge_status,attachment_rule,notes
+P18,TAV-05S,30x110,HORIZONTAL,2240,2413,3443,3489,2329,3468,MIS,"registrare per ogni trave la faccia effettiva W/E/N/S e l'eventuale offset dal filo fisso","Bordi spessi della sezione separati numericamente dalle linee sottili di riferimento"
+P23,TAV-05S,30x110,HORIZONTAL,1945,2118,6405,6450,2035,6428,MIS,"registrare per ogni trave la faccia effettiva W/E/N/S e l'eventuale offset dal filo fisso","Misura raffinata da raster nativo; non usare il baricentro come sostituto del filo fisso"
+P30,TAV-05S,30x110,VERTICAL,1177,1228,5748,5921,1204,5834,MIS,"registrare per ogni trave la faccia effettiva W/E/N/S e l'eventuale offset dal filo fisso","Stessa sezione 30x110 ruotata; l'orientamento modifica le facce disponibili per gli attacchi"

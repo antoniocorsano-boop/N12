@@ -1,0 +1,6 @@
+group_id,tavola_id,order_id,support_ids,section_b_cm,section_h_cm,evidence_status,confidence,source_basis,notes
+IV-G1,TAV-07A,IV,"1;2;3;4;5;6;7;8;17;19;20;22;22';24;25;27;28;31;32;33",40,40,DOC,HIGH,"TAV.7 PILASTRI IV ORDINE; elenco manoscritto accanto alla sezione 40x40","Conferma esistenza di 22',31,33; P35 non compare in questo gruppo"
+IV-G2,TAV-07A,IV,"9;16",40,40,DOC,HIGH,"TAV.7 PILASTRI IV ORDINE; elenco accanto alla seconda sezione 40x40","Gruppo armatura distinto ma stessa sezione 40x40"
+IV-G3,TAV-07A,IV,"18;23;30",30,110,DOC,HIGH,"TAV.7 PILASTRI IV ORDINE; sezione 30x110","Confermato"
+IV-G4,TAV-07A,IV,"10;12;13;15;21;26;29",30,45,DOC,HIGH,"TAV.7 PILASTRI IV ORDINE; sezione 30x45","Corregge P12 precedentemente letto 40x45; conferma anche P15"
+IV-G5,TAV-07A,IV,"11;14",30,50,DOC,HIGH,"TAV.7 PILASTRI IV ORDINE; sezione 30x50","Corregge P11 e P14 precedentemente letti 30x45"

@@ -1,0 +1,8 @@
+source_id,repository_path,git_sha,availability,visual_review_status,likely_scope,replication_use,notes
+SRC-T04,"archive/documentazione_originaria/tavola 4.pdf",19eb4bb4e1e9535b65f60e29170e289c63b8130d,LOCATED,PENDING_RENDER,carpenteria precedente,TBD,"Binary PDF located in historical commit d521f11; connector does not expose renderable bytes in current session"
+SRC-T05,"archive/documentazione_originaria/tavola 5.pdf",ec32cd621877e9037cb26ebc083164140a8e3e68,LOCATED,ALREADY_RECOVERED_AS_TAV05S,source_plane,BASELINE,"Current TAV-05S analytical baseline derived from this source family"
+SRC-T05-3,"archive/documentazione_originaria/tavola 5-3.pdf",111542c26192dac0a3a801eb5f2e5d5cdbffe3d3,LOCATED,PENDING_RENDER,related_carpetry,TBD,"Requires visual comparison before any floor replication"
+SRC-T06,"archive/documentazione_originaria/tavola 6.pdf",c3048472adfdaa5b1e902f84c20ccfb20d679b1f,LOCATED,PENDING_RENDER,upper_carpetry,TBD,"Requires visual comparison before any floor replication"
+SRC-T06-1,"archive/documentazione_originaria/tavola 6-1.pdf",7deb698aa368c07362c0ed18d72842c94e7263e7,LOCATED,PENDING_RENDER,upper_carpetry_detail,TBD,"Requires visual comparison before any floor replication"
+SRC-T02-3,"archive/documentazione_originaria/tavola 2-3.pdf",99eb8e6a7a19655398d783cc650ca903667a7ec4,LOCATED,PENDING_RENDER,lower_level_or_detail,TBD,"Source present; scope must be identified from title block"
+SRC-T03,"archive/documentazione_originaria/tavola 3.pdf",e9a821c698357b777d2ddc330e8aef319c1353d5,LOCATED,PENDING_RENDER,lower_or_intermediate_carpetry,TBD,"Source present; scope must be identified from title block"

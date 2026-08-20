@@ -1,0 +1,4 @@
+support_id,tavola_id,section_cm,orientation_long_axis,joint_x_m,joint_y_m,x_min_m,x_max_m,y_min_m,y_max_m,footprint_width_x_m,footprint_height_y_m,evidence_status,confidence,source_basis,notes
+P18,TAV-05S,30x110,X,11.9023,4.1262,11.3393,12.4333,3.9922,4.2852,1.0940,0.2930,MIS,HIGH,"raster footprint approx u=2240..2413 v=3443..3489 + M0-G calibration","110 cm lungo X; filo fisso non assunto baricentrico"
+P23,TAV-05S,30x110,X,9.9499,-14.7253,9.3809,10.4749,-14.8653,-14.5783,1.0940,0.2870,MIS,HIGH,"raster footprint approx u=1945..2118 v=6405..6450 + M0-G calibration","110 cm lungo X; filo fisso non assunto baricentrico"
+P30,TAV-05S,30x110,Y,4.7170,-10.9201,4.5460,4.8690,-11.4741,-10.3721,0.3230,1.1020,MIS,HIGH,"raster footprint approx u=1177..1228 v=5748..5921 + M0-G calibration","110 cm lungo Y; filo fisso non assunto baricentrico"

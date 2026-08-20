@@ -1,0 +1,2 @@
+support_id,connection_id,attachment_face,attachment_u_px,attachment_v_px,joint_u_px,joint_v_px,offset_du_px,offset_dv_px,offset_status,confidence,source_basis,notes
+P22P,T05-C013,W,2068,5758,2107,5744,-39,14,MIS_RASTER,HIGH,"raster TAV-05S: faccia sinistra P22 primo x~2068; asse trave P27-P22 primo alla quota v~5758; joint sul filo fisso 2107,5744","La trave resta orizzontale; non spostare il joint P22P. Convertire offset in M0-G/ETABS con la trasformazione T05 vigente."

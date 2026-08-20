@@ -1,0 +1,36 @@
+support_id,status,reason,next_action
+P01,VERIFIED_V3,,
+P02,VERIFIED_V3,,
+P03,VERIFIED_V3,,
+P04,VERIFIED_V3,,
+P05,VERIFIED_V3,,
+P06,VERIFIED_V3,,
+P07,VERIFIED_V3,,
+P08,VERIFIED_V3,,
+P09,VERIFIED_V3,,
+P10,VERIFIED_V3,,
+P11,VERIFIED_V3,,
+P12,MISSING_FROM_V3,"Numerazione attesa ma non ancora verificata sul raster originale","localizzare simbolo numerato e rilevare filo fisso"
+P13,VERIFIED_V3,,
+P14,VERIFIED_V3,,
+P15,MISSING_FROM_V3,"Numerazione attesa ma non ancora verificata sul raster originale","localizzare simbolo numerato e rilevare filo fisso"
+P16,MISSING_FROM_V3,"Candidato visibile in settore centrale; identita' da chiudere sul raster","ritaglio L2 dedicato e misura"
+P17,VERIFIED_V3,,
+P18,VERIFIED_V3_WIDE_2NODE,,
+P19,VERIFIED_V3,,
+P20,VERIFIED_V3,,
+P21,VERIFIED_V3,,
+P22,VERIFIED_V3,,
+P23,VERIFIED_V3_WIDE_2NODE,,
+P24,MISSING_FROM_V3,"Numerazione attesa ma non ancora verificata sul raster originale","localizzare simbolo numerato e rilevare filo fisso"
+P25,VERIFIED_V3,,
+P26,VERIFIED_V3,,
+P27,MISSING_FROM_V3,"Numerazione attesa ma non ancora verificata sul raster originale","localizzare simbolo numerato e rilevare filo fisso"
+P28,VERIFIED_V3,,
+P29,VERIFIED_V3,,
+P30,VERIFIED_V3_WIDE_2NODE,,
+P31,MISSING_FROM_V3,"Numerazione attesa ma non ancora verificata sul raster originale","localizzare simbolo numerato e rilevare filo fisso"
+P32,VERIFIED_V3,,
+P33,MISSING_FROM_V3,"Numerazione attesa ma non ancora verificata sul raster originale","localizzare simbolo numerato e rilevare filo fisso"
+P34,MISSING_FROM_V3,"Numerazione attesa ma non ancora verificata sul raster originale","localizzare simbolo numerato e rilevare filo fisso"
+P35,VERIFIED_V3,,

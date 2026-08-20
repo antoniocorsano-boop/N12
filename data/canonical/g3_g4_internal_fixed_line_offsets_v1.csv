@@ -1,0 +1,5 @@
+support_id,status,canonical_status,source_basis,notes
+P13,HOLD,HOLD,"g3_g4_internal_fixedline_gate_v2.csv","U and V remain unqualified."
+P20,SUPERSEDED,PARTIAL_U_ONLY,"g3_g4_internal_u_fixedline_geometry_v1.csv; g3_g4_internal_fixedline_gate_v2.csv","Earlier V top-face interpretation is rejected. Canonical U offsets are G3 30/0 cm and G4 20/20 cm; V remains HOLD."
+P22,SUPERSEDED,PARTIAL_U_ONLY,"g3_g4_internal_u_fixedline_geometry_v1.csv; g3_g4_internal_fixedline_gate_v2.csv","Earlier V bottom-face interpretation is rejected. Canonical U offsets are G3 30/20 cm and G4 30/15 cm; V remains HOLD."
+P26,HOLD,HOLD,"g3_g4_internal_fixedline_gate_v2.csv","U and V remain unqualified."

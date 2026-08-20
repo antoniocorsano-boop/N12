@@ -1,0 +1,6 @@
+recovery_id,title,file_library_id,search_query,role,status,notes
+FL-N12-V17,Ripresa analisi fondazioni.txt,file_0000000022d0820abe934d790610a2d3,"Telaio 5 G5 ancoraggio planimetrico v17",HISTORICAL_HANDOFF,AVAILABLE,"Contains v17 handoff and reference to Ariano_Irpino_Consolidato_v17_Telaio5_G5_Pianta.zip"
+FL-N12-V18,Ariano_Irpino_M0_Input_EdiLus_v18.xlsx,file_000000000d30820aa20f290de3770160,"Ariano Irpino M0 Input EdiLus v18",HISTORICAL_DATA_PACKAGE,AVAILABLE,"Sheets include Telaio5, sections, historic loads, foundations and residual gates; historical states must be reconciled with newer repo canonical data"
+FL-N12-FASCICOLO,Fascicolo_tecnico_operativo_Ariano_Irpino_v2.pdf,file_00000000d4b481f4be84f8e1a8ccb615,"Fascicolo tecnico operativo Ariano Irpino v2",TECHNICAL_DOSSIER,AVAILABLE,"Preliminary dossier; not a substitute for current canonical registers"
+FL-N12-SKILL,SKILL.md,file_0000000082c481f49e05ae7c6cb3eabb,"analisi edifici esistenti ca SKILL",METHOD_SKILL,AVAILABLE,"Methodological continuity fallback"
+FL-N12-T5PLAN-HANDOFF,Ripresa analisi fondazioni.txt,file_0000000022d0820abe934d790610a2d3,"S-S'-T-U-V-Z-A'-B'-C' pianta",EVIDENCE_RECOVERY_POINTER,AVAILABLE,"Semantic recovery pointer for the Telaio 5 plan interpretation; exact source image remains RIF and is represented persistently by evidence/derived/telaio5_plan_trace_v1.svg"

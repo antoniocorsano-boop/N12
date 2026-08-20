@@ -1,0 +1,7 @@
+level_id,relative_z_m,storey_height_from_below_m,z_status,evidence_status,source_basis,model_use,notes
+L0,0.00,,REFERENCE_DATUM,MODEL_REFERENCE,"relative datum selected for controlled extrusion",GEOMETRIC_REFERENCE,"Not an absolute survey elevation"
+L1,3.20,3.20,RIF_CONFIRMED,RIF,"user-confirmed 3.20 m; historical storey_height_status.csv",GEOMETRIC_SCAFFOLD,"Absolute elevation still ND"
+L2,6.40,3.20,RIF_CONFIRMED,RIF,"user-confirmed next storey also 3.20 m",GEOMETRIC_SCAFFOLD,"Cumulative relative Z only"
+L3,9.60,3.20,RIF_CONFIRMED,RIF,"user-confirmed third consecutive storey also 3.20 m",GEOMETRIC_SCAFFOLD,"Cumulative relative Z only"
+L4,,,ND,ND,"no verified storey height currently bound to source",BLOCKED,"Do not extrapolate 3.20 m automatically"
+L5,,,ND,ND,"no verified storey height currently bound to source",BLOCKED,"Upper level/roof geometry requires dedicated source verification"

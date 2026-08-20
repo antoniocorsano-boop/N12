@@ -2,6 +2,19 @@
 
 Repository canonico per la ricostruzione, modellazione e verifica dell'edificio esistente in cemento armato e per la preparazione del modello EdiLus-EE.
 
+## Avvio obbligatorio
+
+Prima di lavorare sul progetto leggere `AGENTS.md`. La memoria operativa persistente e' in `memory/`:
+
+- `memory/PROJECT_STATE.md` — stato canonico corrente e prossima azione;
+- `memory/SOURCE_REGISTRY.csv` — fonti originali con riferimenti Git immutabili;
+- `memory/ARTIFACT_INDEX.csv` — indice degli elaborati, posizione e rigenerabilita';
+- `memory/OPEN_RESIDUALS.csv` — residui espliciti e non bloccanti.
+
+La chat e il runtime temporaneo non sono memoria canonica. Un elaborato utile deve essere versionato, puntato da un riferimento Git immutabile oppure reso deterministicamente rigenerabile.
+
+Protocollo completo: `docs/REPOSITORY_MEMORY_PROTOCOL.md`.
+
 ## Obiettivo
 
 Costruire un fascicolo tecnico riproducibile e versionato che colleghi in modo tracciabile:
@@ -23,16 +36,11 @@ Un dato `ND`, `INC` o `INF` non viene promosso a `DOC` per analogia o convenienz
 
 ## Stato corrente
 
-- obiettivo corrente: **M0-G globale — intero modello tridimensionale**;
-- Telai 1 e 5: ricostruzione avanzata dalla relazione di calcolo;
-- TAV.5/TAV.6/TAV.7: esistono artefatti DXF storici 1:1;
-- topologia storica: 57 nodi / 38 connessioni / 10 componenti, da interpretare come sottoinsieme selezionato e non necessariamente come universo geometrico completo;
-- abaco verticale: 27×5 disponibile negli artefatti storici;
-- fondazioni: topologia e armature già parzialmente consolidate;
-- target applicativo: modello completo EdiLus-EE, non singoli telai isolati.
+Lo stato operativo dettagliato non viene duplicato qui: usare `memory/PROJECT_STATE.md` come snapshot canonico corrente.
 
 ## Struttura del repository
 
+- `memory/` — bootstrap di continuita', stato, fonti, elaborati e residui;
 - `docs/` — protocollo, decisioni, registro master e documentazione tecnica;
 - `data/raw/` — inventario e riferimenti alle fonti originali immutabili;
 - `data/canonical/` — dataset canonici correnti;
@@ -47,4 +55,4 @@ Un dato `ND`, `INC` o `INF` non viene promosso a `DOC` per analogia o convenienz
 
 ## Principio di continuità
 
-Prima di procedere con una nuova informazione utile, aggiornare il patrimonio canonico con provenienza, stato di evidenza e versione. Git è la fonte di verità dello stato consolidato; ZIP e fotografie originali restano fonti/evidenze e non sostituiscono il Registro Master.
+Prima di procedere con una nuova informazione utile, aggiornare il patrimonio canonico con provenienza, stato di evidenza e versione. Git e' la fonte di verita' dello stato consolidato; ZIP e fotografie originali restano fonti/evidenze e non sostituiscono il Registro Master.

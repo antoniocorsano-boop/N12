@@ -1,0 +1,8 @@
+gate_id,check,status,evidence_status,notes
+IF-01,"P13 global reticolo provides supporting alignment evidence",SUPPORTING_ONLY,MIS,"No explicit continuous construction line through P13; canonical 2D fixed line remains HOLD."
+IF-02,"P20 U fixed-line component qualified",PASS,DOC+MIS,"Canonical source g3_g4_internal_fixedline_gate_v2.csv. V remains HOLD."
+IF-03,"P22 U fixed-line component qualified",PASS,DOC+MIS,"Canonical source g3_g4_internal_fixedline_gate_v2.csv. V remains HOLD."
+IF-04,"P26 global reticolo provides supporting alignment evidence",SUPPORTING_ONLY,MIS,"Repeated support alignment is visible, but no independent construction line through P26; canonical 2D fixed line remains HOLD."
+IF-05,"Exact G3/G4 face offsets for currently qualified components",PARTIAL,DOC+MIS,"P20 U offsets and P22 U offsets are already canonical; do not generate V offsets until V is qualified."
+IF-06,"Risega/reshape classification",PARTIAL,DOC+MIS,"P20 U-direction reshape and P22 U-direction unilateral reduction are closed; P13/P26 and V components remain HOLD."
+IF-07,"Beam attachment offset update",HOLD,DOC+MIS,"Release only for connections whose required offset component is qualified; otherwise retain residual."

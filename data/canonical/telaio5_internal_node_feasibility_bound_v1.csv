@@ -1,0 +1,9 @@
+segment,support_i,support_j,section_i_cm,section_j_cm,required_relative_correction_cm,conservative_max_bound_cm,bound_result,status,evidence_status,notes
+C1,P17,P18,40x40,30x110,6.2,85.3,WITHIN_BOUND,BOUND_ONLY,INF,"Bound ottenuto come somma delle semidiagonali; non identifica la posizione reale del nodo"
+C2,P18,P19,30x110,40x40,6.7,85.3,WITHIN_BOUND,BOUND_ONLY,INF,"Compatibile in senso puramente geometrico"
+C3,P19,P20,40x40,40x40,15.4,56.6,WITHIN_BOUND,BOUND_ONLY,INF,"Residuo significativo ma non incompatibile con nodi interni non baricentrici"
+C4,P20,P21,40x40,30x45,1.8,55.3,WITHIN_BOUND,BOUND_ONLY,INF,"Residuo basso"
+C5,P21,P22,30x45,30x45,1.8,54.1,WITHIN_BOUND,BOUND_ONLY,INF,"Residuo basso"
+C6,P22,P22P,30x45,40x40,20.6,55.3,WITHIN_BOUND,BOUND_ONLY,INF,"Da verificare sulla carpenteria: posizione reale nodo interno e direzione del telaio"
+C7,P22P,P23,40x40,30x110,33.2,85.3,WITHIN_BOUND,BOUND_ONLY,INF,"Residuo maggiore; P23 largo rende possibile un forte offset ma serve evidenza grafica"
+C8,P23,P24,30x110,40x40,3.6,85.3,WITHIN_BOUND,BOUND_ONLY,INF,"Residuo basso"
