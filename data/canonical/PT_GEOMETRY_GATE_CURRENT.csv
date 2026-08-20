@@ -11,14 +11,14 @@ entity_id,entity_type,x_global_m,y_global_m,geometry_status,source_basis,residua
 10,NUMBERED_PILLAR,12.40,4.70,CLOSED_DOC_ALIGN,PT_MASTER_CURRENT.csv + alignment,NONE
 11,NUMBERED_PILLAR,12.40,9.80,CLOSED_DOC_ALIGN,PT_MASTER_CURRENT.csv + alignment,NONE
 12,NUMBERED_PILLAR,12.40,13.95,CLOSED_DOC_ALIGN,PT_MASTER_CURRENT.csv + alignment,NONE
-13,NUMBERED_PILLAR,,,OPEN_DIRECT_READ,identity visible in TAV-02S lower-right transition,read exact coordinates directly; DO NOT INTERPOLATE
+13,NUMBERED_PILLAR,13.35,15.20,CLOSED_DOC,TAV-02S native HiRes; same alignment as 14; direct 2.90 m axis spacing,NONE
 14,NUMBERED_PILLAR,13.35,18.10,CLOSED_DOC,PT_MASTER_CURRENT.csv + lower-right chain,NONE
 15,NUMBERED_PILLAR,13.35,23.43,CLOSED_DOC_ALIGN,PT_MASTER_CURRENT.csv + cross-tie to 23,NONE
 16,NUMBERED_PILLAR,13.35,28.13,CLOSED_DOC_ALIGN,PT_MASTER_CURRENT.csv + bottom chain,NONE
 17,NUMBERED_PILLAR,6.90,0.00,CLOSED_DOC,PT_MASTER_CURRENT.csv + TAV-02S quoted chains,NONE
 18,NUMBERED_PILLAR,6.90,4.70,CLOSED_DOC_ALIGN,PT_MASTER_CURRENT.csv + alignment,NONE
-19,NUMBERED_PILLAR,,,OPEN_CONFLICT,previous Y=9.80 superseded during left-sector reconciliation,re-read exact coordinates directly; DO NOT RESTORE SUPERSEDED VALUE
-20,NUMBERED_PILLAR,,,OPEN_CONFLICT,previous Y=13.95 superseded during left-sector reconciliation,re-read exact coordinates directly; DO NOT RESTORE SUPERSEDED VALUE
+19,NUMBERED_PILLAR,6.90,8.75,CLOSED_DOC,TAV-02S native HiRes + documented 4.05 m left-wing chain from node 18,NONE
+20,NUMBERED_PILLAR,6.90,9.80,CLOSED_DOC_ALIGN,TAV-02S native HiRes direct row/alignment reading,NONE
 21,NUMBERED_PILLAR,6.90,12.23,CLOSED_DOC,PT_MASTER_CURRENT.csv + left-sector row alignment,NONE
 22,NUMBERED_PILLAR,6.90,18.48,CLOSED_DOC,PT_MASTER_CURRENT.csv + left-sector row alignment,NONE
 23,NUMBERED_PILLAR,6.90,23.43,CLOSED_DOC,PT_MASTER_CURRENT.csv + direct horizontal reference to 15,NONE
@@ -32,7 +32,7 @@ entity_id,entity_type,x_global_m,y_global_m,geometry_status,source_basis,residua
 31,NUMBERED_PILLAR,-3.35,12.23,CLOSED_DOC,PT_MASTER_CURRENT.csv + row tie,NONE
 32,NUMBERED_PILLAR,-3.35,18.48,CLOSED_DOC,PT_MASTER_CURRENT.csv + row tie,NONE
 33,NUMBERED_PILLAR,-3.35,23.43,CLOSED_DOC,PT_MASTER_CURRENT.csv + row tie,NONE
-a,TERRACE_ADDED_PILLAR,,,OPEN_DIRECT_READ,TAV-02S ID + TAV.1A parallel-chain signature 4.70+4.05+6.25+4.65,locate directly in PT carpenteria; do not assign from grouped foundation notation alone
-b,TERRACE_ADDED_PILLAR,,,OPEN_DIRECT_READ,TAV-02S ID + TAV.1A parallel-chain signature 4.70+4.05+6.25+4.65,locate directly in PT carpenteria; do not assign from grouped foundation notation alone
-c,TERRACE_ADDED_PILLAR,,,OPEN_DIRECT_READ,TAV-02S ID + TAV.1A parallel-chain signature 4.70+4.05+6.25+4.65,locate directly in PT carpenteria; do not assign from grouped foundation notation alone
-d,TERRACE_ADDED_PILLAR,,,OPEN_DIRECT_READ,TAV-02S ID + TAV.1A parallel-chain signature 4.70+4.05+6.25+4.65,locate directly in PT carpenteria; do not assign from grouped foundation notation alone
+a,TERRACE_ADDED_PILLAR,,,OPEN_SOURCE_BINDING,user-confirmed physical added pillar; first-level terrace genealogy source-bound to P16-P08 region; exact pillar locus not documentary-bound,bind from current-state survey/photo or explicit later carpenteria; do not reuse legacy TAV-05S TERR-C candidates
+b,TERRACE_ADDED_PILLAR,,,OPEN_SOURCE_BINDING,user-confirmed physical added pillar; first-level terrace genealogy source-bound to P16-P08 region; exact pillar locus not documentary-bound,bind from current-state survey/photo or explicit later carpenteria; do not reuse legacy TAV-05S TERR-C candidates
+c,TERRACE_ADDED_PILLAR,,,OPEN_SOURCE_BINDING,user-confirmed physical added pillar; first-level terrace genealogy source-bound to P16-P08 region; exact pillar locus not documentary-bound,bind from current-state survey/photo or explicit later carpenteria; do not reuse legacy TAV-05S TERR-C candidates
+d,TERRACE_ADDED_PILLAR,,,OPEN_SOURCE_BINDING,user-confirmed physical added pillar; first-level terrace genealogy source-bound to P16-P08 region; exact pillar locus not documentary-bound,bind from current-state survey/photo or explicit later carpenteria; do not reuse legacy TAV-05S TERR-C candidates
