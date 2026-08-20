@@ -1,0 +1,10 @@
+node_id,u_local_m,v_local_m,row_group,filo_group,u_basis,v_basis,source,status,note
+31,-11.20,0.00,"31/32/33","25/28/31","33→32=4.95; 32→31=6.25","row 31/32/33 origin","TAV-02S high-resolution original",DOC_2D_LOCAL,"coordinate locali, non ancora ruotate/traslate nel sistema globale"
+32,-4.95,0.00,"31/32/33","26/29/32","33→32=4.95","row 31/32/33 origin","TAV-02S high-resolution original",DOC_2D_LOCAL,"coordinate locali, non ancora ruotate/traslate nel sistema globale"
+33,0.00,0.00,"31/32/33","27/30/33","anchor 33","row 31/32/33 origin","TAV-02S high-resolution original",DOC_2D_LOCAL_ANCHOR,"origine locale 2D"
+28,-11.20,4.70,"28/29/30","25/28/31","same filo as 31","31/32/33→28/29/30=4.70","TAV-02S high-resolution original",DOC_2D_LOCAL,"prima riga ortogonale"
+29,-4.95,4.70,"28/29/30","26/29/32","same filo as 32","31/32/33→28/29/30=4.70","TAV-02S high-resolution original",DOC_2D_LOCAL,"prima riga ortogonale"
+30,0.00,4.70,"28/29/30","27/30/33","same filo as 33","31/32/33→28/29/30=4.70","TAV-02S high-resolution original",DOC_2D_LOCAL,"prima riga ortogonale"
+25,-11.20,8.15,"25/26/27","25/28/31","same filo as 28/31","4.70+3.45","TAV-02S high-resolution original",DOC_2D_LOCAL,"seconda riga ortogonale"
+26,-4.95,8.15,"25/26/27","26/29/32","same filo as 29/32","4.70+3.45","TAV-02S high-resolution original",DOC_2D_LOCAL,"seconda riga ortogonale"
+27,0.00,8.15,"25/26/27","27/30/33","same filo as 30/33","4.70+3.45","TAV-02S high-resolution original",DOC_2D_LOCAL,"seconda riga ortogonale"
