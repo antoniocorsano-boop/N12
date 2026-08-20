@@ -1,5 +1,5 @@
 pillar_id,section_cm,orientation_class,tav07_section_id,evidence,status,note
-23,30x110,30x110,I-03,"TAV-02S high-res: simbolo pilastro 23 quotato 30 e 110; confronto con catalogo TAV.7 I ordine",DOC_DIRECT,"sezione speciale; identificazione geometrica univoca"
+23,30x110,110x30,I-03,"TAV-02S persistent tile R04C01: 110 horizontal, 30 vertical; TAV.7 I ordine defines family I-03 as 30x110",DOC_DIRECT,"same I-03 family rotated 90 degrees in plan; section family unchanged, orientation recorded separately"
 30,30x110,30x110,I-03,"TAV-02S high-res: simbolo pilastro 30 quotato 30 e 110; confronto con catalogo TAV.7 I ordine",DOC_DIRECT,"sezione speciale; seconda occorrenza documentale"
 31,50x40,50x40,I-02,"TAV-02S high-res left sector: simbolo 31 quotato 50 orizzontale e 40 verticale",DOC_DIRECT,"famiglia 40x50 ruotata"
 32,40x50,40x50,I-01,"TAV-02S high-res left sector: simbolo 32 quotato 40 orizzontale e 50 verticale",DOC_DIRECT,"famiglia 40x50"
