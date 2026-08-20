@@ -1,0 +1,11 @@
+entity_id,u_local_m,v_local_m,u_basis,v_basis,evidence,status,note
+32,0.00,0.00,"origine locale colonna C0","origine longitudinale","TAV-02S originale ad alta risoluzione",DOC_LOCAL_COORD,"origine locale settore sinistro"
+33,0.00,4.95,"stesso filo di 32","quota diretta 32->33 = 4.95 m","TAV-02S quota 4.95",DOC_QUOTATO,"stessa ascissa locale di 32"
+28,4.70,0.00,"prima campata trasversale = 4.70 m","allineamento grafico documentale con 32","TAV-02S q3 alta risoluzione",DOC_ALIGN,"identità leggibile; quota u diretta dalla catena inferiore"
+30,4.70,4.95,"prima campata trasversale = 4.70 m","allineamento grafico documentale con 33","TAV-02S q3 alta risoluzione",DOC_ALIGN,"coppia verticale 28/30 sul secondo filo"
+26,8.15,0.00,"4.70+3.45 m","allineamento grafico documentale con 32/28","TAV-02S q3 alta risoluzione",DOC_ALIGN,"terzo filo trasversale"
+27,8.15,4.95,"4.70+3.45 m","allineamento grafico documentale con 33/30","TAV-02S q3 alta risoluzione",DOC_ALIGN,"coppia verticale 26/27"
+21,10.25,,"4.70+3.45+2.10 m","coordinata longitudinale da catena verticale interna","TAV-02S q3 alta risoluzione",DOC_U_ONLY,"sul quarto filo trasversale"
+22,10.25,,"4.70+3.45+2.10 m","coordinata longitudinale da catena verticale interna","TAV-02S q3 alta risoluzione",DOC_U_ONLY,"sul quarto filo trasversale"
+23,10.25,,"4.70+3.45+2.10 m","coordinata longitudinale da catena verticale interna","TAV-02S q3 alta risoluzione",DOC_U_ONLY,"sul quarto filo trasversale"
+24,10.25,,"4.70+3.45+2.10 m","coordinata longitudinale da catena verticale interna","TAV-02S q3 alta risoluzione",DOC_U_ONLY,"sul quarto filo trasversale"
