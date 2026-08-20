@@ -1,0 +1,11 @@
+record_type,group_id,node_id,local_axis_position_m,relative_to_node33_m,evidence,status,note
+ANCHOR,LEFT_WING,33,0.00,0.00,TAV-02S high-resolution original,DOC_ANCHOR,"nodo 33 comune tra ala sinistra e maglia principale; usato come origine locale del raccordo"
+NODE,LEFT_WING,32,4.95,-4.95,TAV-02S quota 4.95 + lettura numerazione,DOC_QUOTATO,"progressiva locale rispetto al nodo 33; proiezione X/Y globale non ancora assegnata"
+NODE,LEFT_WING,31,11.20,-11.20,TAV-02S quote 6.25+4.95 + lettura numerazione,DOC_QUOTATO,"progressiva locale rispetto al nodo 33; proiezione X/Y globale non ancora assegnata"
+AXIS,LEFT_WING,PREV,15.25,-15.25,TAV-02S quote 4.05+6.25+4.95,DOC_QUOTATO,"asse precedente al nodo 31; identificatore nodale non ancora assegnato"
+ROW,LEFT_WING,30,,0.00,TAV-02S lettura numerazione + allineamento con 33,DOC_TOPOLOGICO,"stesso allineamento locale del nodo 33; distanza ortogonale da ricavare dalla catena trasversale"
+ROW,LEFT_WING,29,, -4.95,TAV-02S lettura numerazione + allineamento con 32,DOC_TOPOLOGICO,"stesso allineamento locale del nodo 32; distanza ortogonale da ricavare dalla catena trasversale"
+ROW,LEFT_WING,28,, -11.20,TAV-02S lettura numerazione + allineamento con 31,DOC_TOPOLOGICO,"stesso allineamento locale del nodo 31; distanza ortogonale da ricavare dalla catena trasversale"
+ROW,LEFT_WING,27,,0.00,TAV-02S lettura numerazione + allineamento con 33,DOC_TOPOLOGICO,"riga superiore del gruppo 25-26-27; distanza ortogonale da ricavare"
+ROW,LEFT_WING,26,, -4.95,TAV-02S lettura numerazione + allineamento con 32,DOC_TOPOLOGICO,"riga superiore del gruppo 25-26-27; distanza ortogonale da ricavare"
+ROW,LEFT_WING,25,, -11.20,TAV-02S lettura numerazione + allineamento con 31,DOC_TOPOLOGICO,"riga superiore del gruppo 25-26-27; distanza ortogonale da ricavare"
