@@ -1,7 +1,7 @@
 node_id,x_local_m,y_local_m,source,evidence,status,note
-36,0.00,13.95,TAV-02S tavola2-2.pdf,"lettura su scansione ad alta risoluzione + continuità numerica verticale",DOC_VERIFIED,"quarta riga del blocco superiore"
-28,3.45,13.95,TAV-02S tavola2-2.pdf,"lettura su scansione ad alta risoluzione + continuità numerica verticale",DOC_VERIFIED,"quarta riga del blocco superiore"
-20,6.90,13.95,TAV-02S tavola2-2.pdf,"lettura su scansione ad alta risoluzione + continuità numerica verticale",DOC_VERIFIED,"quarta riga del blocco superiore"
+32,0.00,13.95,TAV-02S tavola2-2.pdf,"lettura diretta su ritaglio ad alta risoluzione + allineamento con 31 sopra e 33 sotto",DOC_VERIFIED,"corretta precedente errata lettura 36"
+29,3.45,13.95,TAV-02S tavola2-2.pdf,"lettura diretta su ritaglio ad alta risoluzione + allineamento con 28 sopra e 30 sotto",DOC_VERIFIED,"corretta precedente errata lettura 28"
+20,6.90,13.95,TAV-02S tavola2-2.pdf,"lettura diretta/continuità grafica",DOC_VERIFIED,"quarta riga del blocco superiore"
 12,12.40,13.95,TAV-02S tavola2-2.pdf,"lettura diretta/rafforzata dalla continuità numerica",DOC_VERIFIED,"quarta riga del blocco superiore"
 5,16.10,13.95,TAV-02S tavola2-2.pdf,"quota interna 1.90 m a sinistra del nodo 4",DOC_DIRECT_OFFSET,"nodo decentrato sulla stessa ordinata del nodo 4"
 4,18.00,13.95,TAV-02S tavola2-2.pdf,"lettura diretta sulla catena verticale destra",DOC_DIRECT,"quarta riga del blocco superiore"
