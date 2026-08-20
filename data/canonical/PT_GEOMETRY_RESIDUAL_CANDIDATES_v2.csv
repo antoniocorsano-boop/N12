@@ -1,6 +1,6 @@
 residual_id,residual_type,candidate_ref,candidate_x_m,candidate_y_m,status,evidence,required_closure,note
 13,NUMBERED_PILLAR,DOC_DIRECT,13.35,15.20,DOC_CLOSED,"TAV-02S hires direct reading: pillar 13 aligned with pillar 14; centreline distance 13-14 = 2.90 m; pillar 14 = (13.35,18.10)",NONE,"Closed directly from quoted centreline geometry; not interpolated"
-19,NUMBERED_PILLAR,,,CONFLICT_REOPENED,TAV-02S left-sector reconciliation,READ_DIRECT_TAV02S,"Previous coordinate assignment superseded; topological N019 is not automatically pillar 19"
+19,NUMBERED_PILLAR,DOC_DIRECT,6.90,8.75,DOC_CLOSED,"TAV-02S hires + documented LEFT_WING chain: pillar 19 lies on X=6.90 row; 18->19 = 4.05 m; pillar 18 = (6.90,4.70)",NONE,"Closed from quoted chain; hires raster used as alignment check"
 20,NUMBERED_PILLAR,DOC_DIRECT,6.90,9.80,DOC_CLOSED,"TAV-02S hires direct alignment: horizontal centreline common with 17-18 gives X=6.90; vertical centreline common with pillars 3/11 gives Y=9.80",NONE,"Closed by direct centreline alignment on original hires carpenteria"
 LETTER_SET_a_b_c_d,TERRACE_ADDED_PILLAR_SET,TERR-C01,36.5009,12.2339,INF_STRONG,"pt_terrace_pillar_candidate_crosswalk_v1.csv; TAV5 DXF terrace probe",MAP_ONE_OF_a_b_c_d_ON_TAV02S,"Candidate position; exact letter unresolved"
 LETTER_SET_a_b_c_d,TERRACE_ADDED_PILLAR_SET,TERR-C02,36.5107,7.8397,INF_STRONG,"pt_terrace_pillar_candidate_crosswalk_v1.csv; TAV5 DXF terrace probe",MAP_ONE_OF_a_b_c_d_ON_TAV02S,"Candidate position; exact letter unresolved"
