@@ -1,0 +1,5 @@
+section_id,order,width_cm,height_cm,orientation_class,reinforcement_readable,stirrups_readable,source,status,note
+I-01,I,40,50,40x50,"4Φ18 lunghi; 2Φ16 lunghi; 8Φ18 monconi","Φ6/20","TAV.7 originale alta risoluzione",DOC_DIRECT,"prima sezione del gruppo Pilastri I ordine"
+I-02,I,50,40,50x40,"4Φ18 lunghi; 2Φ16 lunghi; 8Φ18 monconi","Φ6/20","TAV.7 originale alta risoluzione",DOC_DIRECT,"stessa famiglia geometrica 40x50 ruotata di 90 gradi"
+I-03,I,30,110,30x110,"12Φ14 lunghi","Φ8/15","TAV.7 originale alta risoluzione",DOC_DIRECT,"elemento allungato speciale; non assegnare per analogia"
+I-04,I,30,30,30x30,"4Φ14 lunghi; monconi presenti ma diametro/numero da rileggere","Φ6/15","TAV.7 originale alta risoluzione",DOC_DIRECT_PARTIAL,"sezione quadrata speciale; armatura trasversale leggibile, dettaglio monconi da verificare"
