@@ -1,0 +1,6 @@
+node_id,x_local_m,y_local_m,source,evidence,status,note
+35,0.00,9.80,TAV-02S tavola2-2.pdf,"lettura su scansione ad alta risoluzione + continuità numerica con righe Y=0.00 e Y=4.70",DOC_VERIFIED,"terza riga del blocco superiore"
+27,3.45,9.80,TAV-02S tavola2-2.pdf,"lettura su scansione ad alta risoluzione + continuità numerica",DOC_VERIFIED,"terza riga del blocco superiore"
+19,6.90,9.80,TAV-02S tavola2-2.pdf,"lettura su scansione ad alta risoluzione + continuità numerica",DOC_VERIFIED,"terza riga del blocco superiore"
+11,12.40,9.80,TAV-02S tavola2-2.pdf,"lettura diretta sulla scansione ad alta risoluzione",DOC_DIRECT,"terza riga del blocco superiore"
+3,18.00,9.80,TAV-02S tavola2-2.pdf,"lettura diretta sulla scansione ad alta risoluzione",DOC_DIRECT,"terza riga del blocco superiore"
