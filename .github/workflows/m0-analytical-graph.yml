@@ -12,6 +12,17 @@ on:
       - 'docs/FOGLIO_LAVORO/ETW_G5_ROOF_ANALYTICAL_SKELETON_RELEASE_v1.csv'
       - 'docs/FOGLIO_LAVORO/ETW_FIRST_LEVEL_TERRACE_LOCAL_SUBGRAPH_v1.csv'
       - '.github/workflows/m0-analytical-graph.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/build_m0_analytical_graph.py'
+      - 'docs/FOGLIO_LAVORO/M0_STRUCTURAL_ENTITY_RELEASE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/M0_ANALYTICAL_GRAPH_MANIFEST_v1.csv'
+      - 'docs/FOGLIO_LAVORO/ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/ETW_G5_ANALYTICAL_COLUMN_RELEASE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/ETW_G5_ROOF_ANALYTICAL_SKELETON_RELEASE_v1.csv'
+      - 'docs/FOGLIO_LAVORO/ETW_FIRST_LEVEL_TERRACE_LOCAL_SUBGRAPH_v1.csv'
+      - '.github/workflows/m0-analytical-graph.yml'
   workflow_dispatch:
 
 jobs:
