@@ -13,6 +13,8 @@ G23 = FL / "ETW2_G2_G3_SOURCE_BOUND_CHAIN_BRIDGE_v1.csv"
 G5_COL = FL / "ETW_G5_ANALYTICAL_COLUMN_RELEASE_v1.csv"
 G5_BEAM = FL / "ETW_G5_ROOF_ANALYTICAL_SKELETON_RELEASE_v1.csv"
 G5_XY = FL / "M0_G5_ROOF_AXIS_XY_RELEASE_v1.csv"
+V5_T5 = FL / "ETW_V_ORDER_T5_COUPLING_BINDING_v1.csv"
+V5_XY = FL / "M0_V_ORDER_T5_AXIS_XY_RELEASE_v1.csv"
 TERRACE = FL / "ETW_FIRST_LEVEL_TERRACE_LOCAL_SUBGRAPH_v1.csv"
 ENTITY_RELEASE = FL / "M0_STRUCTURAL_ENTITY_RELEASE_v1.csv"
 
@@ -66,10 +68,24 @@ def read_g5_xy() -> dict[str, tuple[float, float]]:
     return out
 
 
+def read_v5_xy() -> dict[str, tuple[float, float]]:
+    out: dict[str, tuple[float, float]] = {}
+    for row in read_csv(V5_XY):
+        p = row["support_id"]
+        if not re.fullmatch(r"P\d{2}P?", p):
+            continue
+        assert row["coord_status"] == "MIS_CALIBRATED", (p, row["coord_status"])
+        assert row["vertical_level_policy"].startswith("V_ORDER_AXIS_READY"), (p, row["vertical_level_policy"])
+        out[p] = (float(row["m0g_x_m"]), float(row["m0g_y_m"]))
+    assert set(out) == {"P18", "P19", "P20", "P21", "P22", "P22P", "P23"}, set(out)
+    return out
+
+
 def build() -> dict:
     nodes: dict[str, dict] = {}
     elements: list[dict] = []
     g5_xy = read_g5_xy()
+    v5_xy = read_v5_xy()
 
     # 1) Four source-bound G2 -> G3 verticals.
     for row in read_csv(G23):
@@ -125,7 +141,35 @@ def build() -> dict:
             }
         )
 
-    # 3) Thirty-one roof beams. Endpoint topology and XY are source-bound; 16 sections stay parametric.
+    # 3) Explicit documentary V-order T5 chain C2-C7 through P21.
+    v5_rows = [r for r in read_csv(V5_T5) if re.fullmatch(r"ETW-V5-T5-\d{3}", r["record_id"])]
+    assert len(v5_rows) == 6, len(v5_rows)
+    for row in v5_rows:
+        pi, pj = row["from_support"], row["to_support"]
+        assert pi in v5_xy and pj in v5_xy, (pi, pj)
+        for p in (pi, pj):
+            x, y = v5_xy[p]
+            add_node(nodes, f"V_ORDER:{p}", support_id=p, x_m=x, y_m=y, z_ref=f"Z_V_ORDER_{p}", coord_state="XY_CALIBRATED_Z_PARAMETRIC")
+        elements.append(
+            {
+                "id": row["record_id"],
+                "kind": "V_ORDER_BEAM",
+                "scope": "V_ORDER_T5",
+                "frame_id": row["frame_id"],
+                "segment_id": row["segment_id"],
+                "node_i": f"V_ORDER:{pi}",
+                "node_j": f"V_ORDER:{pj}",
+                "section": {"status": "READY", "value": row["section_cm"]},
+                "release_class": "READY",
+                "evidence_state": row["evidence_state"],
+                "xy_policy": "M0G_T05_V1_CALIBRATED_FIXED_LINE_AXIS",
+                "z_policy": "Z_V_ORDER_SINGLE_DATUM_PARAMETRIC",
+                "source": V5_T5.relative_to(ROOT).as_posix(),
+                "xy_source": V5_XY.relative_to(ROOT).as_posix(),
+            }
+        )
+
+    # 4) Thirty-one roof beams. Endpoint topology and XY are source-bound; 16 sections stay parametric.
     for row in read_csv(G5_BEAM):
         eid = row["analytical_id"]
         if not re.fullmatch(r"AG5-\d{3}", eid):
@@ -158,7 +202,7 @@ def build() -> dict:
             }
         )
 
-    # 4) First-level terrace receiver split + documentary 1.50 m branch.
+    # 5) First-level terrace receiver split + documentary 1.50 m branch.
     terrace_rows = {r["entity_id"]: r for r in read_csv(TERRACE)}
     for eid in ("ETW-FLT-E01", "ETW-FLT-E02", "ETW-FLT-E03"):
         row = terrace_rows[eid]
@@ -224,14 +268,17 @@ def build() -> dict:
 def validate(graph: dict) -> None:
     elements = graph["elements"]
     verticals = [e for e in elements if e["scope"] == "G2_G3"]
+    v_order_beams = [e for e in elements if e["kind"] == "V_ORDER_BEAM"]
     roof_columns = [e for e in elements if e["kind"] == "ROOF_SUPPORT_COLUMN"]
     roof_beams = [e for e in elements if e["kind"] == "ROOF_BEAM"]
     terrace = [e for e in elements if e["scope"] == "G1_TERRACE"]
 
     assert len(verticals) == 4, f"expected 4 G2-G3 verticals, got {len(verticals)}"
+    assert len(v_order_beams) == 6, f"expected 6 V-order T5 beams, got {len(v_order_beams)}"
     assert len(roof_columns) == 25, f"expected 25 roof columns, got {len(roof_columns)}"
     assert len(roof_beams) == 31, f"expected 31 roof beams, got {len(roof_beams)}"
     assert len(terrace) == 3, f"expected 3 terrace beam segments, got {len(terrace)}"
+    assert all(e["section"]["value"] == "20x45" for e in v_order_beams)
 
     assert all(e.get("node_i") != "ROOF:P21" and e.get("node_j") != "ROOF:P21" for e in roof_columns), "P21 must not be extruded as roof column"
     assert all(not re.fullmatch(r"N\d{3}", n["id"].split(":")[-1]) for n in graph["nodes"]), "legacy N-ID leaked into M0 node identity"
@@ -241,12 +288,14 @@ def validate(graph: dict) -> None:
     roof_nodes = [n for n in graph["nodes"] if n["id"].startswith("ROOF:")]
     v_order_nodes = [n for n in graph["nodes"] if n["id"].startswith("V_ORDER:")]
     assert len(roof_nodes) == 25, len(roof_nodes)
-    assert len(v_order_nodes) == 25, len(v_order_nodes)
+    assert len(v_order_nodes) == 26, len(v_order_nodes)
     assert all("x_m" in n and "y_m" in n for n in roof_nodes + v_order_nodes)
-    assert all(n["support_id"] != "P21" for n in roof_nodes + v_order_nodes)
+    assert all(n["support_id"] != "P21" for n in roof_nodes)
+    assert [n["support_id"] for n in v_order_nodes].count("P21") == 1
     roof_by_p = {n["support_id"]: n for n in roof_nodes}
     v_by_p = {n["support_id"]: n for n in v_order_nodes}
-    assert set(roof_by_p) == set(v_by_p)
+    assert set(roof_by_p).issubset(set(v_by_p))
+    assert set(v_by_p) - set(roof_by_p) == {"P21"}
     for p in roof_by_p:
         assert roof_by_p[p]["x_m"] == v_by_p[p]["x_m"]
         assert roof_by_p[p]["y_m"] == v_by_p[p]["y_m"]
@@ -260,6 +309,7 @@ def validate(graph: dict) -> None:
         "status": "PASS",
         "counts": {
             "g2_g3_verticals": len(verticals),
+            "v_order_t5_beams": len(v_order_beams),
             "roof_columns": len(roof_columns),
             "roof_beams": len(roof_beams),
             "roof_nodes_xy_ready": len(roof_nodes),
