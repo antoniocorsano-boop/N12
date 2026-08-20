@@ -1,7 +1,2 @@
-node_id,x_local_m,y_local_m,source,evidence,status,note
-32,0.00,13.95,TAV-02S tavola2-2.pdf,"lettura diretta su ritaglio ad alta risoluzione + allineamento con 31 sopra e 33 sotto",DOC_VERIFIED,"corretta precedente errata lettura 36"
-29,3.45,13.95,TAV-02S tavola2-2.pdf,"lettura diretta su ritaglio ad alta risoluzione + allineamento con 28 sopra e 30 sotto",DOC_VERIFIED,"corretta precedente errata lettura 28"
-20,6.90,13.95,TAV-02S tavola2-2.pdf,"lettura diretta/continuità grafica",DOC_VERIFIED,"quarta riga del blocco superiore"
-12,12.40,13.95,TAV-02S tavola2-2.pdf,"lettura diretta/rafforzata dalla continuità numerica",DOC_VERIFIED,"quarta riga del blocco superiore"
-5,16.10,13.95,TAV-02S tavola2-2.pdf,"quota interna 1.90 m a sinistra del nodo 4",DOC_DIRECT_OFFSET,"nodo decentrato sulla stessa ordinata del nodo 4"
-4,18.00,13.95,TAV-02S tavola2-2.pdf,"lettura diretta sulla catena verticale destra",DOC_DIRECT,"quarta riga del blocco superiore"
+record_type,status,reason,source,note
+SUPERSEDED,SUPERSEDED_CONFLICT,"Le coordinate precedentemente attribuite a 32 e 29 sulla riga Y=13.95 sono incompatibili con la catena documentale del settore sinistro: 31->32=6.25 m e 32->33=4.95 m. Il file non deve più essere usato per le coordinate del blocco sinistro.",TAV-02S_tavola2-2.pdf,"Restano validi nodo 4, nodo 5 e le relazioni del settore destro se confermati da file canonici indipendenti; per il settore sinistro usare tav02s_pt_nodes_evidence_v2.csv e i registri locali aggiornati."
