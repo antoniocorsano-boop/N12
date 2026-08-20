@@ -1,6 +1,6 @@
 # Registro Master N12
 
-Versione repository: `RM-0017`
+Versione repository: `RM-0018`
 
 | ID | Ambito | Dato canonico / stato | Evidenza | Stato |
 |---|---|---|---|---|
@@ -43,8 +43,9 @@ Versione repository: `RM-0017`
 | FND-001 | fondazioni | 7 catene / 26 segmenti ricostruiti | consolidato fondazioni | DOC-ARTEFATTO |
 | M0G-001 | modello globale | coordinate/reticolo da ricostruire prioritariamente dalle tavole originali, usando DXF e abachi come confronto | gate corrente | IN_CORSO |
 | M0G-002 | livelli | quote Z definitive | non congelate | ND |
-| M0G-003 | raccordo Telaio 5 ↔ 57 nodi | dataset fisico dei 57 nodi recuperato; raccordo ora in allineamento mediante firma metrica, topologia e carpenterie originali | `docs/DECISIONI/M0G_RECUPERO_ABACO_57_NODI_v1.md` + `data/canonical/tav5_topology_nodes_57.csv` | IN_ALLINEAMENTO |
+| M0G-003 | raccordo Telaio 5 ↔ 57 nodi | catalogo 57 nodi recuperato; vecchio blocco per artefatto mancante superato; raccordo S…C'→P17…P24 recuperato e verificato, mentre il ponte finale verso N-ID/catene legacy resta da chiudere | `data/canonical/telaio5_raccordo_57_nodi_status.csv` + `tav5_topology_nodes_57.csv` + recupero HiRes | IN_ALLINEAMENTO / ARTIFACT_BLOCK_SUPERATO |
 | M0G-004 | altezza interpiano | altezza di piano estradosso-estradosso corretta a 3.20 m | `data/canonical/storey_height_status.csv` + `docs/DECISIONI/M0G_CORREZIONE_ALTEZZA_INTERPIANO_320_v1.md` | RIF_UTENTE_CORRETTO |
+| M0G-005 | assi G4→G5 | rilasciato sottoinsieme core di assi analitici `AX-Pxx` nel sistema calibrato M0G-T05-V1 per 9 terminazioni e 6 supporti di attacco principali; crosswalk verso le vecchie 27 catene resta residuo separato e non bloccante | `ETW_G4_G5_P_AXIS_RELEASE_CORE_v1.csv` + recupero `m0g_transform_tav05_v1.csv` | MIS_CALIBRATED / ANALYTICAL_AXIS_RELEASE_CORE |
 | TOPO-001 | primo livello | unico terrazzo in questo ambito: aggiunta strutturale successiva al telaio originario, realizzata al primo livello con pilastri e travi aggiunti innestati ai corrispondenti nodi del telaio preesistente; riferiti monconi/elementi di ancoraggio al nodo; tali armature non sono presenti nelle tavole originarie | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + conferma utente 2026-08-19 | RIF / AGGIUNTA_SUCCESSIVA / BINDING_NODI_PENDENTE |
 | TOPO-002 | sottotetto | piano superiore/sottotetto a pianta ridotta con tre appartamenti dotati di terrazzo; foto campo conferma per la vista acquisita volume superiore arretrato, terrazzo/setback e torrino emergente | `ETW_TOPOLOGY_VARIANTS_REGISTER_v1.csv` + `ETW_UPPER_FLOOR_PHOTO_EVIDENCE_v1.md` | RIF + PHOTO_RIF_PRIMARY / BINDING_PENDENTE |
 | TOPO-003 | copertura | tre ali / tre colmi documentati sulla TAV-06S; foto conferma almeno per la vista acquisita copertura principale a falde e copertura distinta del torrino | `ETW_ROOF_RIDGE_EAVES_REGISTER_v1.csv` + `ETW_UPPER_FLOOR_PHOTO_EVIDENCE_v1.md` | DOC_GEOMETRY + PHOTO_RIF_PRIMARY / ENDPOINT_BINDING_PENDENTE |
@@ -54,6 +55,7 @@ Versione repository: `RM-0017`
 | TOPO-007 | G4↔G5 / transizione copertura | confronto controllato TAV-05S/G4 → TAV-06S/G5 completato per registrazione e directional probe; support-presence reconciliation chiude 25 continuità e 9 terminazioni | `ETW_G4_G5_ROOF_TRANSITION_v1.csv` + `ETW_TAV06S_ROOF_SUPPORT_INVENTORY_v1.csv` + workflow run `32286265838` | VER_PARZIALE |
 | TOPO-008 | mansarde / ampliamento successivo | bordo attuale delle mansarde non coincide necessariamente con il telaio originario: distinguere linea pilastri/nodi originari, sbalzo originario documentato e prolungamento successivo che ha ampliato la superficie utile | `ETW_UPPER_ATTIC_TERRACE_EXTENSION_v1.md` + `ETW_UPPER_CANTILEVER_WELL_FORMEDNESS_RULE_v1.md` | DOC_GEOMETRY + RIF_CRONOLOGIA / GENEALOGIA_PARZIALE |
 | TOPO-009 | G4→G5 / grafo strutturale di transizione | assemblato grafo esplicito per i tre rami: supporti che continuano, set di terminazione, genealogia degli sbalzi originari e rami di colmo; WING-C resta composita e non viene regolarizzata artificialmente | `ETW_UPPER_TRANSITION_STRUCTURAL_GRAPH_v1.csv` | VER_PARZIALE / FEM_GENERATION_BLOCKED_ON_IDS_AND_ENDPOINTS |
+| TOPO-010 | upper chain binding | gate esplicito P-support→catena persistente: P17=S e P21=V sono già frame-bound; altri upper P-ID restano con crosswalk N-ID pendente; il residuo non blocca l'uso degli assi P calibrati | `ETW_UPPER_PERSISTENT_CHAIN_BINDING_v1.csv` | PARTIAL_BINDING / NONBLOCKING_LEGACY_CROSSWALK |
 | MAT-001 | materiali | calcestruzzo/acciaio | da documentare/indagare | ND |
 | MAT-002 | conoscenza | LC/FC | da definire sul quadro conoscitivo | ND |
 
