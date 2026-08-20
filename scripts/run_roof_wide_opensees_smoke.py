@@ -15,6 +15,10 @@ G = E / (2.0 * (1.0 + NU))
 DEFAULT_ND_SECTION = "30x45"
 LOAD_N = -1000.0
 TARGETS = ("P11", "P14", "P26")
+EXPECTED_COMPONENTS = {
+    frozenset({"P02", "P03", "P04", "P10", "P11", "P12", "P18", "P19", "P20", "P25", "P26", "P27", "P28", "P29", "P30"}),
+    frozenset({"P05", "P06", "P07", "P13", "P14", "P15", "P22", "P22P", "P23", "P24"}),
+}
 
 
 def section_props(section_cm: str) -> tuple[float, float, float, float]:
@@ -33,12 +37,29 @@ def section_props(section_cm: str) -> tuple[float, float, float, float]:
 def z_local(node: dict) -> float:
     expr = node.get("z_expression")
     if expr:
-        # Local smoke datum sets Z-V-ORDER=0 by definition.
         assert expr["base_parameter"] == "Z-V-ORDER"
         return float(expr["offset_m"])
     if "z_m" in node:
         return float(node["z_m"])
     raise AssertionError(f"unresolved roof-wide Z for {node['id']}")
+
+
+def graph_components(adjacency: dict[str, set[str]]) -> list[set[str]]:
+    unseen = set(adjacency)
+    components: list[set[str]] = []
+    while unseen:
+        start = next(iter(unseen))
+        comp: set[str] = set()
+        stack = [start]
+        while stack:
+            p = stack.pop()
+            if p in comp:
+                continue
+            comp.add(p)
+            stack.extend(adjacency[p] - comp)
+        unseen -= comp
+        components.append(comp)
+    return sorted(components, key=lambda c: (-len(c), sorted(c)))
 
 
 def main() -> None:
@@ -57,6 +78,20 @@ def main() -> None:
     support_ids = sorted({e["node_j"].split(":", 1)[1] for e in cols})
     assert len(support_ids) == 25 and "P21" not in support_ids
     assert all("x_m" in nodes[f"ROOF:{p}"] and "y_m" in nodes[f"ROOF:{p}"] for p in support_ids)
+
+    adjacency = {p: set() for p in support_ids}
+    for e in beams:
+        pi = e["node_i"].split(":", 1)[1]
+        pj = e["node_j"].split(":", 1)[1]
+        adjacency[pi].add(pj)
+        adjacency[pj].add(pi)
+    isolated = sorted(p for p, adj in adjacency.items() if not adj)
+    components = graph_components(adjacency)
+    component_sets = {frozenset(c) for c in components}
+    if isolated:
+        raise SystemExit("ISOLATED_ROOF_NODES: " + ",".join(isolated))
+    if component_sets != EXPECTED_COMPONENTS:
+        raise SystemExit("UNEXPECTED_ROOF_COMPONENTS: " + json.dumps([sorted(c) for c in components]))
 
     ops.wipe()
     ops.model("basic", "-ndm", 3, "-ndf", 6)
@@ -77,8 +112,7 @@ def main() -> None:
     ele_tag = 1
     for e in cols:
         p = e["node_j"].split(":", 1)[1]
-        sec = e["section"]["value"]
-        a, iy, iz, j = section_props(sec)
+        a, iy, iz, j = section_props(e["section"]["value"])
         ops.element("elasticBeamColumn", ele_tag, base_tag[p], roof_tag[p], a, E, G, j, iy, iz, 1)
         ele_tag += 1
 
@@ -96,7 +130,6 @@ def main() -> None:
         ops.element("elasticBeamColumn", ele_tag, roof_tag[pi], roof_tag[pj], a, E, G, j, iy, iz, 2)
         ele_tag += 1
 
-    # Independent tiny load cases are accumulated in one linear pattern only for integrity smoke.
     ops.timeSeries("Linear", 1)
     ops.pattern("Plain", 1, 1)
     for p in TARGETS:
@@ -119,29 +152,6 @@ def main() -> None:
             raise SystemExit(f"NONFINITE_DISPLACEMENT {p}: {disp}")
         response[p] = disp
 
-    # Graph-level connectivity on the 25 roof support nodes.
-    adjacency = {p: set() for p in support_ids}
-    for e in beams:
-        pi = e["node_i"].split(":", 1)[1]
-        pj = e["node_j"].split(":", 1)[1]
-        adjacency[pi].add(pj)
-        adjacency[pj].add(pi)
-    seen = set()
-    stack = [support_ids[0]]
-    while stack:
-        p = stack.pop()
-        if p in seen:
-            continue
-        seen.add(p)
-        stack.extend(adjacency[p] - seen)
-    components = 1 if len(seen) == len(support_ids) else None
-    isolated = sorted(p for p, adj in adjacency.items() if not adj)
-    if isolated:
-        raise SystemExit("ISOLATED_ROOF_NODES: " + ",".join(isolated))
-    if len(seen) != len(support_ids):
-        remaining = sorted(set(support_ids) - seen)
-        raise SystemExit("DISCONNECTED_ROOF_GRAPH: " + ",".join(remaining))
-
     result = {
         "schema": "n12.roof_wide.opensees_smoke.v1",
         "status": "PASS",
@@ -152,8 +162,14 @@ def main() -> None:
             "roof_beams": len(beams),
             "roof_nodes": len(support_ids),
             "scenario_section_beams": len(scenario_sections),
-            "connected_components": components,
+            "roof_beam_components": len(components),
             "isolated_nodes": len(isolated),
+        },
+        "roof_beam_components": [sorted(c) for c in components],
+        "bridge_finding": {
+            "status": "UNRESOLVED_B_TO_AC_SOURCE_BRIDGE",
+            "policy": "DO_NOT_INVENT_MEMBER",
+            "source_register": "docs/FOGLIO_LAVORO/M0_G5_ROOF_COMPONENT_CONNECTIVITY_v1.csv",
         },
         "scenario": {
             "v_order_local_datum_m": 0.0,
@@ -171,6 +187,7 @@ def main() -> None:
         "warnings": [
             "This is not an assessment model and does not resolve any PARAMETRIC_ND section.",
             "Fixed bases, E/nu and Z-V-ORDER=0 are smoke-only scenario assumptions.",
+            "The G5 beam graph has two source-bound components; no fictitious B-to-AC bridge is added.",
             "All 25 roof XY coordinates are calibrated fixed-line analytical axes, not automatic section centroids."
         ],
     }
