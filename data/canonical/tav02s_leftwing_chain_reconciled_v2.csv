@@ -1,0 +1,6 @@
+sequence_order,entity,group_members,distance_from_previous_m,relative_to_anchor33_m,source,status,note
+0,ANCHOR_33,33,,0.00,"TAV-02S high-resolution",DOC_ANCHOR,"origine locale sul filo 27/30/33"
+1,FILO_G2,"26/29/32",4.65,-4.65,"TAV-02S + TAV.1A verified chain",DOC_RECONCILED,"quota corretta 4.65 m"
+2,FILO_G1,"25/28/31",6.25,-10.90,"TAV-02S + TAV.1A verified chain",DOC_RECONCILED,"firma 6.25 m confermata"
+3,FILO_BD,"b/d",4.05,-14.95,"TAV.1A verified chain",DOC_CROSSCHECK,"presente nello stato costruito/fondazioni; raccordo planimetrico da confermare su TAV-02S"
+4,FILO_AC,"a/c",4.70,-19.65,"TAV.1A verified chain",DOC_CROSSCHECK,"pilastri aggiunti terrazzo; raccordo planimetrico da confermare su TAV-02S"
