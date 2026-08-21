@@ -7,33 +7,30 @@
   "authoritative_method": "skills/pt-raster-grid-reconstructor/SKILL.md",
   "semantic_method": "skills/pt-carpentry-reader/SKILL.md",
   "primary_source": "TAV-02S native raster/PDF",
-  "primary_raster_manifest": "analysis/source_renders/TAV02S/manifest.txt",
   "source_size_px": [4680, 8609],
-  "known_tiling": {"rows": 4, "cols": 3, "overlap": 0.06},
   "tile_registration": "data/canonical/TAV02S_TILE_TO_NATIVE_REGISTRATION_v1.csv",
   "geometry_master_status": "SUSPENDED",
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
   "blocking_gate": "data/canonical/PT_PIXEL_REGISTRATION_GATE_v1.csv",
   "completed_subphases": [
-    {"phase":"G1-A","status":"COMPLETED_WITH_COORDINATE_REVOCATION","run_record":"analysis/pt_raster_candidates/EXTRACTION_RUN_v1.csv","candidate_count":1185,"authority":"AUTO_CANDIDATE_NON_AUTHORITATIVE"},
-    {"phase":"G1-A-REGISTRATION","status":"COMPLETED","artifact":"data/canonical/TAV02S_TILE_TO_NATIVE_REGISTRATION_v1.csv","direct_tiles":10,"derived_low_information_tiles":["r1_c3","r4_c1"]},
-    {"phase":"G1-B/PIXEL-REGISTRY","status":"COMPLETE","artifact":"data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv","classification":"data/canonical/PT_G1_PIXEL_ACCEPTANCE_CLASSIFICATION_v1.csv","support_count":38,"expected_count":38,"supports":"P1-P33 + P22-prime + a-b-c-d","metric_status":"UNVALIDATED_G2"},
+    {"phase":"G1-B/PIXEL-REGISTRY","status":"COMPLETE","artifact":"data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv","support_count":38,"expected_count":38,"supports":"P1-P33 + P22-prime + a-b-c-d","metric_status":"UNVALIDATED_G2"},
     {"phase":"G1-B/EXTENDED-SUPPORTS","status":"COMPLETE_G1","artifact":"data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv","class_A":["P23"],"class_B":["P18","P30"]},
-    {"phase":"G2/METRIC-CONSTRAINT-NETWORK","status":"AUDITED_WITH_CONFLICTS","artifact":"data/canonical/PT_GCP_METRIC_NETWORK_v1.csv","constraint_audit":"analysis/pt_raster_candidates/G2_METRIC_CONSTRAINT_AUDIT_v1.csv","connectivity_audit":"analysis/pt_raster_candidates/G2_NETWORK_CONNECTIVITY_AUDIT_v1.csv","robust_raster_scale_px_per_m":158.023,"diagnostic_only":["22-22-prime approx 1.18 m MIS"],"hard_conflicts":["25-19=2.10 inherited binding","27-22=2.10 inherited binding"],"reference_pending":["17-18","33-30","30-27","18-19","23-15"],"network_state":"FIVE_HARD_COMPONENTS_PLUS_ISOLATED_OR_REFERENCE_PENDING"},
-    {"phase":"G2/HARD-COMPONENT-SOLUTION","status":"LOCAL_COMPONENTS_SOLVED_GLOBAL_OPEN","connectivity":"data/canonical/PT_G2_CONNECTIVITY_AUDIT_v1.csv","local_coordinates":"data/canonical/PT_G2_COMPONENT_LOCAL_COORDINATES_v1.csv","hard_raster_audit":"data/canonical/PT_G2_HARD_CONSTRAINT_RASTER_AUDIT_v1.csv","hard_component_count":5,"hard_only_median_scale_px_per_m":158.103,"watch_constraints":["26-21 transverse raster offset"],"rule":"Component-local coordinates are not PT global coordinates and must never substitute PT_METRIC_SUPPORT_CENTERS_v1.csv."}
+    {"phase":"G2/METRIC-CONSTRAINT-NETWORK","status":"AUDITED_REBOUND_IN_PROGRESS","artifact":"data/canonical/PT_GCP_METRIC_NETWORK_v1.csv","robust_raster_scale_px_per_m":158.023,"diagnostic_only":["22-22-prime approx 1.18 m MIS"],"revoked_bindings":["25-19=2.10","27-22=2.10"],"documentary_rebind_candidates":["27-22-prime=2.10 pending extension-line confirmation"],"reference_pending":["17-18","33-30","30-27","18-19","23-15"]},
+    {"phase":"G2/HARD-COMPONENT-SOLUTION","status":"LOCAL_COMPONENTS_SOLVED_GLOBAL_OPEN","connectivity":"data/canonical/PT_G2_CONNECTIVITY_AUDIT_v1.csv","local_coordinates":"data/canonical/PT_G2_COMPONENT_LOCAL_COORDINATES_v1.csv","hard_raster_audit":"data/canonical/PT_G2_HARD_CONSTRAINT_RASTER_AUDIT_v1.csv","hard_component_count":5,"hard_only_median_scale_px_per_m":158.103,"rule":"Component-local coordinates are not PT global coordinates."},
+    {"phase":"G2/SOURCE-REBIND-AUDIT","status":"SAVED","artifact":"analysis/pt_raster_candidates/G2_SOURCE_REBIND_AUDIT_v1.csv","source_confirmed":["P27 aligns with P22-prime, not P22","P25-P19 cannot correspond to 2.10 m"],"still_open":["trace 2.10 extension lines for 27-22-prime","reallocate unbound 2.10 formerly attached to 25-19","resolve center/axis/face references for P18/P23/P30"]}
   ],
   "next_action": {
     "phase": "G2-SOURCE-REBIND",
-    "task": "Rileggere direttamente sulla TAV-02S le linee di estensione e i riferimenti che possono connettere le cinque componenti: priorita 25-19=2.10 e 27-22/22-prime=2.10; per P18/P23/P30 determinare se le quote sono riferite a centro, asse o faccia. Cercare inoltre quote documentali di ponte per i blocchi 13-14 e 24-16-8. Aggiungere ponti metrici soltanto quando documentati; non creare ancora PT_METRIC_SUPPORT_CENTERS_v1.csv.",
+    "task": "Trace directly on TAV-02S the extension lines for the 2.10 m values and extended-support dimensions. Confirm or reject the candidate 27-22-prime=2.10; locate the true endpoints of the 2.10 value revoked from 25-19. Resolve center/axis/face references for P18/P23/P30 and search documentary bridges between the five hard components. Do not create global metric support centers before these bridges are documented.",
     "pixel_registry": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "metric_network": "data/canonical/PT_GCP_METRIC_NETWORK_v1.csv",
+    "source_rebind_audit": "analysis/pt_raster_candidates/G2_SOURCE_REBIND_AUDIT_v1.csv",
     "component_connectivity": "data/canonical/PT_G2_CONNECTIVITY_AUDIT_v1.csv",
     "component_local_coordinates": "data/canonical/PT_G2_COMPONENT_LOCAL_COORDINATES_v1.csv",
-    "hard_constraint_raster_audit": "data/canonical/PT_G2_HARD_CONSTRAINT_RASTER_AUDIT_v1.csv",
     "target_outputs_after_G2_closure": ["data/canonical/PT_METRIC_SUPPORT_CENTERS_v1.csv","data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv"],
     "forbidden_inputs": ["metric X/Y from PT_MASTER_CURRENT.csv","historical grid coordinates used as self-confirmation","raster px/m scale used as replacement for written dimension","unbound dimension text assigned by proximity","centroid assumption for extended support when quote reference is not explicit","component-local coordinates presented as global PT coordinates"]
   },
-  "blocking_residuals": ["G2 conflict 25-19=2.10","G2 conflict 27-22=2.10 versus observed 27-22-prime alignment","G2 reference semantics for P18/P23/P30","G2 missing documentary bridges between five hard components","G2 isolated/reference-pending supports outside hard components","PXG-005 beam-face nodes later gate","G6 documentary beam vectorization","G9 overlay QA"],
+  "blocking_residuals": ["G2 unbound 2.10 formerly associated with 25-19","G2 27-22-prime documentary extension-line confirmation","G2 reference semantics for P18/P23/P30","G2 missing documentary bridges between five hard components","G2 isolated/reference-pending supports outside hard components","PXG-005 beam-face nodes later gate","G6 documentary beam vectorization","G9 overlay QA"],
   "anti_restart_rule": "Reopen only conflicting claims or artifacts. Never restart a domain solely because a session lacks context.",
   "completion_condition": "PT master geometry may be regenerated only after G2 network is connected or explicitly reference-resolved, G3 metric solve and residual audit, physical support vectors, documentary beam vectors, analytical nodes and reproducible overlay QA are available and valid."
 }
