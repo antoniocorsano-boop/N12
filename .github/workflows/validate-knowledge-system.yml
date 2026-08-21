@@ -46,6 +46,9 @@ jobs:
       - name: Validate carpenteria semantic registries
         run: python skills/pt-carpentry-reader/runner.py validate
 
+      - name: Validate G1-B raster support bindings
+        run: python scripts/validate_pt_raster_support_bindings.py
+
       - name: Report PT raster reconstruction gate
         run: python skills/pt-raster-grid-reconstructor/runner.py status
 
