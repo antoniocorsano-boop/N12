@@ -32,3 +32,5 @@ HIST-PT-GRID1,data/canonical/PT_GRID_REBUILD_FROM_QUOTES_v1.csv,PT_GEOMETRY,HIST
 HIST-PT-GRID2,data/canonical/PT_GRID_REBUILD_FROM_QUOTES_v2.csv,PT_GEOMETRY,HISTORICAL_GRID,HISTORICAL,HISTORICAL_ONLY,NO,none,,Do not use as geometry input
 HIST-PT-MESH3,data/canonical/PT_HIRES_MESH_RECONSTRUCTION_v3.csv,PT_GEOMETRY,HISTORICAL_EVIDENCE,HISTORICAL,HISTORICAL_ONLY,NO,claim-level recovery only,,Superseded historical reconstruction
 HIST-PT-MESH4,data/canonical/PT_HIRES_MESH_RECONSTRUCTION_v4.csv,PT_GEOMETRY,HISTORICAL_EVIDENCE,HISTORICAL,SUPERSEDED,NO,none,PT_HIRES_MESH_RECONSTRUCTION_v5.csv,Known 5.45 misread superseded
+RUN-PT-G1A,scripts/extract_pt_raster_candidates.py,PT_GEOMETRY,ASSISTIVE_EXTRACTOR,DERIVED,CURRENT,NO,GitHub Actions + visual QA,,OpenCV candidate localization only; never semantic authority
+DATA-PT-G1A,analysis/pt_raster_candidates/EXTRACTION_RUN_v1.csv,PT_GEOMETRY,EXTRACTION_RUN,DERIVED,CURRENT,NO,workflow run 32462991062,,12 tiles processed; 1185 non-authoritative geometric candidates; semantic binding required
