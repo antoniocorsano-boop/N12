@@ -6,12 +6,17 @@ SYS-004,knowledge/ARTIFACT_REGISTRY.csv,SYSTEM,REGISTRY,CANONICAL,CURRENT,YES,sc
 SYS-005,docs/PROTOCOLLO_CANONICO.md,SYSTEM,PROTOCOL,PROCEDURE,CURRENT,YES,manual+system-validator,,General evidence/model gate policy
 SYS-006,docs/REGISTRO_MASTER.md,SYSTEM,HUMAN_REGISTER,CANONICAL,CURRENT,YES,manual+claim-ledger,,Human-readable project register; not a substitute for domain gates
 SYS-007,data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv,SYSTEM,CLAIM_LEDGER,CLAIM_LEDGER,CURRENT,YES,pt-carpentry-reader validate,,Claim-level history and revalidation
+SYS-008,docs/KNOWLEDGE_SYSTEM_v1.md,SYSTEM,ARCHITECTURE,PROCEDURE,CURRENT,YES,manual+system-validator,,Human-readable knowledge architecture
+SYS-009,docs/STATO_RIPRESA.md,SYSTEM,HUMAN_STATE,DERIVED,CURRENT,NO,compare with knowledge/CURRENT_STATE.json,knowledge/CURRENT_STATE.json,Human-readable mirror of machine state
+SYS-010,docs/MASTER_DATA_UPDATE_PROTOCOL.md,SYSTEM,UPDATE_PROTOCOL,PROCEDURE,CURRENT,YES,manual+system-validator,,Gated canonical update protocol; supersedes master-first interpretation
+SYS-011,scripts/validate_knowledge_system.py,SYSTEM,VALIDATOR,DERIVED,CURRENT,NO,python execution,,Validates manifest registry authority and state contracts
+SYS-012,.github/workflows/validate-knowledge-system.yml,SYSTEM,CI_WORKFLOW,DERIVED,CURRENT,NO,GitHub Actions,,Automatic knowledge-system and semantic registry validation
 SRC-T02-001,analysis/source_renders/TAV02S/manifest.txt,PT_GEOMETRY,SOURCE_MANIFEST,SOURCE_PRIMARY,CURRENT,YES,system-validator,,Native raster metadata 4680x8609; 4x3 tiling; overlap 0.06
 PROC-PT-001,docs/PROCEDURES/CANONICAL_DATASET_ITERATIVE_REVALIDATION_v1.md,PT_GEOMETRY,PROCEDURE,PROCEDURE,CURRENT,YES,manual,,Claim-level revalidation rules
 PROC-PT-002,docs/PT_RASTER_RECONSTRUCTION_PROTOCOL_v1.md,PT_GEOMETRY,PROCEDURE,PROCEDURE,CURRENT,YES,manual,,Raster to metric reconstruction protocol
 SKILL-PT-001,skills/pt-carpentry-reader/SKILL.md,PT_GEOMETRY,SKILL,SKILL,CURRENT,YES,skills/pt-carpentry-reader/runner.py validate,,Semantic reading and claim validation
 SKILL-PT-002,skills/pt-raster-grid-reconstructor/SKILL.md,PT_GEOMETRY,SKILL,SKILL,CURRENT,YES,skills/pt-raster-grid-reconstructor/runner.py validate,,Raster centers metric network and analytical nodes
-RUN-PT-001,skills/pt-carpentry-reader/runner.py,PT_GEOMETRY,VALIDATOR,DERIVED,CURRENT,NO,python execution,,Semantic registry validator
+RUN-PT-001,skills/pt-carpentry-reader/runner.py,PT_GEOMETRY,VALIDATOR,DERIVED,CURRENT,NO,python execution,,Semantic registry validator; PROVISIONAL_DOC is non-promoted candidate state
 RUN-PT-002,skills/pt-raster-grid-reconstructor/runner.py,PT_GEOMETRY,VALIDATOR,DERIVED,CURRENT,NO,python execution,,Geometry gate validator
 GATE-PT-001,data/canonical/PT_PIXEL_REGISTRATION_GATE_v1.csv,PT_GEOMETRY,GATE,CANONICAL,CURRENT,YES,system-validator,,Current blocking geometry gate
 DATA-PT-OLDMASTER,data/canonical/PT_MASTER_CURRENT.csv,PT_GEOMETRY,MASTER,HISTORICAL,SUSPENDED,NO,PT raster reconstruction gate,,Preserved for provenance; metric coordinates not geometric authority
@@ -20,7 +25,7 @@ DATA-PT-METRIC,data/canonical/PT_HIRES_METRIC_BINDINGS_v1.csv,PT_GEOMETRY,EVIDEN
 DATA-PT-SECTIONS,data/canonical/PT_PILLAR_SECTIONS_HIRES_CURRENT_v2.csv,PT_SECTIONS,DOMAIN_DATA,CANONICAL,CURRENT,YES,source/claim validation,,Sections/orientations separate from suspended XY geometry
 DATA-PT-CROPS,data/canonical/TAV02S_CROP_REVIEW_REGISTER_v1.csv,PT_GEOMETRY,REVIEW_REGISTER,OBSERVATION,CURRENT,YES,pt-carpentry-reader validate,,12 crop review state
 DATA-PT-OBS,data/canonical/TAV02S_SYMBOL_OBSERVATIONS_v1.csv,PT_GEOMETRY,OBSERVATIONS,OBSERVATION,CURRENT,CONDITIONAL,pt-carpentry-reader validate,,Primary semantic observations
-DATA-PT-BEAMS,data/canonical/TAV02S_BEAMS_DOC_CURRENT_v1.csv,PT_GEOMETRY,BEAM_CLAIMS,CANONICAL,CURRENT,YES,pt-carpentry-reader validate,,Only BEAM_DOC rows satisfying skill gate may feed geometry
+DATA-PT-BEAMS,data/canonical/TAV02S_BEAMS_DOC_CURRENT_v1.csv,PT_GEOMETRY,BEAM_CLAIMS,CANONICAL,CURRENT,CONDITIONAL,pt-carpentry-reader validate,,PROVISIONAL_DOC rows cannot feed geometry; only BEAM_DOC after cross-validation may feed canonical
 DATA-PT-RES,data/canonical/TAV02S_READING_RESIDUALS_v1.csv,PT_GEOMETRY,RESIDUAL_REGISTER,CANONICAL,CURRENT,NO,pt-carpentry-reader validate,,Open semantic reading residuals
 HIST-PT-GRID1,data/canonical/PT_GRID_REBUILD_FROM_QUOTES_v1.csv,PT_GEOMETRY,HISTORICAL_GRID,HISTORICAL,HISTORICAL_ONLY,NO,none,,Do not use as geometry input
 HIST-PT-GRID2,data/canonical/PT_GRID_REBUILD_FROM_QUOTES_v2.csv,PT_GEOMETRY,HISTORICAL_GRID,HISTORICAL,HISTORICAL_ONLY,NO,none,,Do not use as geometry input
