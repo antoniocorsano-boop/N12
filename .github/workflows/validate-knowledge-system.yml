@@ -11,7 +11,7 @@ on:
       - 'docs/**'
       - 'data/canonical/**'
       - 'skills/**'
-      - 'scripts/validate_knowledge_system.py'
+      - 'scripts/**'
       - '.github/workflows/validate-knowledge-system.yml'
   pull_request:
     paths:
@@ -20,7 +20,8 @@ on:
       - 'docs/**'
       - 'data/canonical/**'
       - 'skills/**'
-      - 'scripts/validate_knowledge_system.py'
+      - 'scripts/**'
+      - '.github/workflows/validate-knowledge-system.yml'
 
 jobs:
   knowledge-contracts:
@@ -36,6 +37,9 @@ jobs:
 
       - name: Validate knowledge architecture
         run: python scripts/validate_knowledge_system.py
+
+      - name: Validate agent bootstrap
+        run: python scripts/agent_bootstrap.py > /tmp/n12-agent-bootstrap.json
 
       - name: Validate carpenteria semantic registries
         run: python skills/pt-carpentry-reader/runner.py validate
