@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
   "updated_at": "2026-08-21",
-  "gate": "M0-G/PT-RASTER-G4",
-  "status": "ACTIVE",
-  "objective": "Completare la geometria fisica PT e passare alla vettorializzazione documentale delle travi mantenendo separati supporti fisici e nodi analitici.",
+  "gate": "M0-G/PT-RASTER-G2",
+  "status": "REOPENED_CONFLICT",
+  "objective": "Rivalidare selettivamente il reticolo metrico PT usando la topologia documentale delle travi come controllo indipendente, senza riaprire G1 e senza usare il Master storico.",
   "authoritative_method": "skills/pt-raster-grid-reconstructor/SKILL.md",
   "semantic_method": "skills/pt-carpentry-reader/SKILL.md",
   "primary_source": "TAV-02S native raster/PDF",
@@ -12,21 +12,24 @@
   "geometry_master_status": "SUSPENDED",
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
   "completed_subphases": [
-    {"phase":"G1/PIXEL-SUPPORT-REGISTRY","status":"COMPLETE","artifact":"data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv","support_count":38},
-    {"phase":"G2/METRIC-NETWORK","status":"COMPLETE_WITH_PROVENANCE","working_solution":"data/canonical/PT_G2_SUPPORT_COORDINATES_WORKING_v1.csv","numeric_center_count":38,"fully_documentary_or_axis_supported_count":28,"reference_supported_non_MIS_count":2,"centers_with_MIS_component_count":8,"old_master_used":false},
-    {"phase":"G3/METRIC-SUPPORT-CENTERS","status":"PASS_WITH_WATCHES","centers":"data/canonical/PT_METRIC_SUPPORT_CENTERS_v1.csv","residuals":"data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv","audit":"analysis/pt_raster_candidates/G3_METRIC_SUPPORT_CENTERS_AUDIT_v1.csv","support_count":38,"rms_px":9.792,"median_px":6.621,"max_px":24.014,"watch_supports":["P19","P25","d"]},
-    {"phase":"G4/PHYSICAL-SUPPORT-FOOTPRINTS","status":"COMPLETE","artifact":"data/canonical/PT_METRIC_SUPPORT_FOOTPRINTS_v1.csv","audit":"data/canonical/PT_PHYSICAL_SUPPORT_GEOMETRY_AUDIT_v1.csv","support_count":38,"extended_supports":["P18","P23","P30"],"analytical_nodes_authorized":false,"rule":"Physical support centers/faces are distinct from future beam-face analytical nodes."}
+    {"phase":"G1/PIXEL-SUPPORT-REGISTRY","status":"COMPLETE_STABLE","artifact":"data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv","support_count":38,"reopen":false},
+    {"phase":"G2/METRIC-NETWORK","status":"REOPENED_SELECTIVELY","working_solution":"data/canonical/PT_G2_SUPPORT_COORDINATES_WORKING_v1.csv","conflict_trigger":"documentary beam topology from G6","blocking_conflict":"P4-P6-P7 structural run is straight in TAV-02S while current metric X assigns P4=18.00 and P6/P7=16.10","rule":"Do not repair by raster fitting or by inventing diagonal beams."},
+    {"phase":"G3/METRIC-SUPPORT-CENTERS","status":"SUSPENDED_DERIVED_PENDING_G2","artifact":"data/canonical/PT_METRIC_SUPPORT_CENTERS_v1.csv","preserve_for_provenance":true},
+    {"phase":"G4/PHYSICAL-SUPPORT-FOOTPRINTS","status":"SUSPENDED_DERIVED_PENDING_G2","artifact":"data/canonical/PT_METRIC_SUPPORT_FOOTPRINTS_v1.csv","preserve_for_provenance":true},
+    {"phase":"G6/DOCUMENTARY-BEAM-VECTORIZATION","status":"PAUSED_ON_G2_CONFLICT","working_vector_artifact":"data/canonical/PT_VECTOR_BEAMS_v1.csv","semantic_audit":"analysis/pt_raster_candidates/G6_BEAM_SEMANTIC_CORRECTION_AUDIT_v1.csv","conflict_audit":"analysis/pt_raster_candidates/G6_TO_G2_TOPOLOGY_CONFLICT_AUDIT_v1.csv","canonical_use":false}
   ],
   "next_action": {
-    "phase": "G6-DOCUMENTARY-BEAM-VECTORIZATION",
-    "task": "Vectorize actual beam runs directly from TAV-02S using only documentary beam symbols/edges and already established physical support footprints. Treat 70x25, 120x20, 65x30 and similar rectangles as beam-section callouts, not supports. For each beam store source tile, observed direction, section, support-face endpoints or unresolved endpoint, and evidence state. Do not snap beams to support centers; terminate them on physical faces when the source proves the connection. No analytical nodes until beam vectors are cross-validated.",
-    "support_footprints": "data/canonical/PT_METRIC_SUPPORT_FOOTPRINTS_v1.csv",
-    "beam_claims": "data/canonical/TAV02S_BEAMS_DOC_CURRENT_v1.csv",
+    "phase": "G2-TOPOLOGY-CONSTRAINED-REVALIDATION",
+    "task": "Re-read the TAV-02S beam runs that independently constrain metric axes. Priority 1: P4-P6-P7 straight structural run in r3_c3; determine which prior axis/dimension binding placed P6/P7 on X_R2 and correct only that claim. Priority 2: review P12-P5 against MIS Y(P12) and P19-P21 against MIS_WATCH X(P19). Priority 3: keep P30/P23/P18 physical centers but define beam axes to their faces independently of centroids. Recompute G2/G3 only after these source checks.",
     "pixel_registry": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
-    "target_outputs": ["data/canonical/PT_VECTOR_BEAMS_v1.csv","data/canonical/PT_VECTOR_BEAMS_AUDIT_v1.csv"],
-    "forbidden_inputs": ["metric X/Y from PT_MASTER_CURRENT.csv","beam lines invented from nearest supports","beam-section callouts treated as supports","snapping beam endpoints to support centers instead of faces","analytical nodalization before beam evidence is validated"]
+    "metric_network": "data/canonical/PT_GCP_METRIC_NETWORK_v1.csv",
+    "axis_alignment_network": "data/canonical/PT_G2_AXIS_ALIGNMENT_NETWORK_v1.csv",
+    "beam_claims": "data/canonical/TAV02S_BEAMS_DOC_CURRENT_v1.csv",
+    "beam_working_vectors": "data/canonical/PT_VECTOR_BEAMS_v1.csv",
+    "conflict_audit": "analysis/pt_raster_candidates/G6_TO_G2_TOPOLOGY_CONFLICT_AUDIT_v1.csv",
+    "forbidden_inputs": ["metric X/Y from PT_MASTER_CURRENT.csv","invented diagonal beam used to hide axis conflict","moving documentary coordinates solely to reduce raster residual","centroid-to-centroid vectorization for extended supports","promoting provisional beam claims without source review"]
   },
-  "blocking_residuals": ["G6 documentary beam vectorization","beam endpoint face semantics for extended supports P18/P23/P30","P19/P25/d overlay WATCH review","PXG-005 analytical beam-face nodes","G9 overlay QA"],
-  "anti_restart_rule": "Reopen only conflicting claims or artifacts. Never restart a domain solely because a session lacks context.",
-  "completion_condition": "PT_MASTER_CURRENT may be regenerated only after metric centers, physical support footprints, documentary beam vectors, analytical beam-face nodes and reproducible overlay QA are complete and valid."
+  "blocking_residuals": ["G2 P4-P6-P7 axis conflict","G2/G6 P12-P5 source review","G2/G6 P19-P21 source review","extended-support beam-axis-to-face semantics for P18/P23/P30","recompute G3 residuals after G2 correction","resume G6 documentary beam vectorization","PXG-005 analytical nodes","G9 overlay QA"],
+  "anti_restart_rule": "Reopen only conflicting claims or artifacts. G1 remains stable. Preserve superseded G2-G4 artifacts for provenance and never restart the entire PT reconstruction solely because G6 exposed a local inconsistency.",
+  "completion_condition": "PT_MASTER_CURRENT may be regenerated only after the topology-constrained G2 revalidation, recomputed G3/G4, documentary beam vectors, analytical beam-face nodes and reproducible overlay QA are complete and valid."
 }
