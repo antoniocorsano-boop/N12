@@ -8,6 +8,11 @@ on:
       - 'scripts/extract_pt_raster_candidates.py'
       - 'analysis/source_renders/TAV02S/**'
       - '.github/workflows/pt-raster-candidate-extraction.yml'
+  pull_request:
+    paths:
+      - 'scripts/extract_pt_raster_candidates.py'
+      - 'analysis/source_renders/TAV02S/**'
+      - '.github/workflows/pt-raster-candidate-extraction.yml'
   workflow_dispatch:
 
 jobs:
