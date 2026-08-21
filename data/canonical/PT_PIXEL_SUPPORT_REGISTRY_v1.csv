@@ -1,0 +1,3 @@
+support_id,u_native_px,v_native_px,registration_state,evidence_class,primary_binding_id,primary_tile,crosscheck_tile,crosscheck_delta_px,geometry_kind,section_geometry_status,canonical_status,may_feed_metric_network,note
+28,1260.05,4205.15,CROSS_VALIDATED,DOC_DIRECT_RASTER,BIND-R2C1-P28-001,r2_c1,r3_c1,0.66,SUPPORT_SYMBOL_CENTER,SECTION_SEPARATE,CURRENT,YES,"Centro raster nativo ricavato dal simbolo completo e verificato su tile sovrapposto; nessuna coordinata metrica storica usata."
+31,518.30,4206.86,CROSS_VALIDATED,DOC_DIRECT_RASTER,BIND-R2C1-P31-001,r2_c1,r3_c1,0.60,SUPPORT_SYMBOL_CENTER,SECTION_SEPARATE,CURRENT,YES,"Centro raster nativo ricavato dal simbolo completo e verificato su tile sovrapposto; nessuna coordinata metrica storica usata."
