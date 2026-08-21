@@ -16,107 +16,25 @@
   "suspension_reason": "Le coordinate metriche precedenti non dispongono ancora di un registro pixel completo e riproducibile dei sostegni/facce sul raster nativo.",
   "blocking_gate": "data/canonical/PT_PIXEL_REGISTRATION_GATE_v1.csv",
   "completed_subphases": [
-    {
-      "phase": "G1-A",
-      "status": "COMPLETED_WITH_COORDINATE_REVOCATION",
-      "method": "OpenCV assistive geometric candidate extraction on 12 persistent TAV-02S raster tiles",
-      "run_record": "analysis/pt_raster_candidates/EXTRACTION_RUN_v1.csv",
-      "candidate_count": 1185,
-      "authority": "AUTO_CANDIDATE_NON_AUTHORITATIVE",
-      "revocation": "analysis/pt_raster_candidates/G1A_COORDINATE_REVOCATION_v1.csv",
-      "rule": "Candidate coordinates are tile-local only; former direct global offsets are revoked."
-    },
-    {
-      "phase": "G1-A-REGISTRATION",
-      "status": "COMPLETED",
-      "artifact": "data/canonical/TAV02S_TILE_TO_NATIVE_REGISTRATION_v1.csv",
-      "method": "SIFT + RANSAC tile-to-overview registration; overview-to-native exact image-size scale",
-      "direct_tiles": 10,
-      "derived_low_information_tiles": ["r1_c3", "r4_c1"],
-      "direct_rmse_overview_px_range": [0.1104, 0.2219]
-    },
-    {
-      "phase": "G1-B/BATCH-LEFT-28-33-01",
-      "status": "SAVED_WORKING_REVIEWED",
-      "ledger": "data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv",
-      "cross_validated_bindings": ["P28", "P31"],
-      "direct_visual_bindings": ["P29", "P30", "P32", "P33"],
-      "extended_supports": ["P30"]
-    },
-    {
-      "phase": "G1-B/PARTIAL-PIXEL-REGISTRY-01",
-      "status": "CURRENT_PARTIAL",
-      "artifact": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
-      "promoted_supports": ["P28", "P31"],
-      "promoted_count": 2,
-      "rule": "Registry is intentionally partial. File existence does not imply G1 completion."
-    },
-    {
-      "phase": "G1-B/BATCH-AUDIT-25-33-02",
-      "status": "SAVED",
-      "artifact": "analysis/pt_raster_candidates/G1B_BATCH_AUDIT_25_33_v1.csv",
-      "confirmed_not_promoted": ["P29", "P30", "P32", "P33"],
-      "unresolved": ["P25", "P26", "P27"]
-    },
-    {
-      "phase": "G1-B/EXTENDED-SUPPORT-P30-01",
-      "status": "SAVED_WORKING",
-      "artifact": "data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv",
-      "support": "P30",
-      "native_center_px": [1265.81, 5916.13],
-      "native_footprint_px": [[1244.30, 5823.19], [1287.28, 5823.19], [1287.32, 6009.06], [1244.34, 6009.06]]
-    },
-    {
-      "phase": "G1-B/BATCH-CENTER-21-24-03",
-      "status": "SAVED_WORKING_DIRECT_RASTER_REBOUND",
-      "artifact": "analysis/pt_raster_candidates/G1B_BATCH_AUDIT_21_24_v1.csv",
-      "direct_working_bindings": ["P21", "P22", "P22'", "P24"],
-      "extended_supports_registered": ["P23"],
-      "coordinate_bindings_promoted": [],
-      "source_resolution": "Historical R03C01 naming is not equivalent to current r3_c1. Current clean r3_c2 directly contains P21, P22, P22-prime, P23 and P24.",
-      "metric_consistency": "P22-prime to P22 pixel separation is consistent with the prior ~1.18 m MIS observation; 1.20 m remains non-DOC until a direct written binding is found.",
-      "rule": "Direct current-raster bindings remain working until independent crosscheck."
-    },
-    {
-      "phase": "G1-B/EXTENDED-SUPPORT-P23-01",
-      "status": "SAVED_WORKING",
-      "artifact": "data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv",
-      "support": "P23",
-      "native_center_px": [2076.60, 6491.39],
-      "native_footprint_px": [[1987.62, 6468.89], [2165.58, 6468.89], [2165.58, 6513.89], [1987.62, 6513.89]],
-      "rule": "P23 is one physical extended support. Do not collapse it to one analytical node; beam-face nodes are a later gated derivation."
-    }
+    {"phase":"G1-A","status":"COMPLETED_WITH_COORDINATE_REVOCATION","run_record":"analysis/pt_raster_candidates/EXTRACTION_RUN_v1.csv","candidate_count":1185,"authority":"AUTO_CANDIDATE_NON_AUTHORITATIVE","revocation":"analysis/pt_raster_candidates/G1A_COORDINATE_REVOCATION_v1.csv"},
+    {"phase":"G1-A-REGISTRATION","status":"COMPLETED","artifact":"data/canonical/TAV02S_TILE_TO_NATIVE_REGISTRATION_v1.csv","method":"SIFT + RANSAC tile-to-overview registration; overview-to-native exact image-size scale","direct_tiles":10,"derived_low_information_tiles":["r1_c3","r4_c1"]},
+    {"phase":"G1-B/PARTIAL-PIXEL-REGISTRY","status":"CURRENT_PARTIAL","artifact":"data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv","promoted_supports":["P25","P28","P31"],"promoted_count":3,"rule":"File existence does not imply G1 completion; only gate-compliant cross-validated bindings may promote."},
+    {"phase":"G1-B/LEFT-AND-CENTER-WORKING","status":"SAVED","working_ledger":"data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv","working_not_promoted":["P21","P22","P22'","P23","P26","P27","P29","P30","P32","P33"],"unresolved":["P24"],"correction":"The temporary P24 binding on r3_c2 was reread as P27 and removed before canonical promotion."},
+    {"phase":"G1-B/EXTENDED-SUPPORTS","status":"SAVED_WORKING","artifact":"data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv","supports":["P23","P30"],"rule":"Physical footprints remain distinct from analytical nodes and require independent crosscheck before face-node derivation."},
+    {"phase":"G1-B/BATCH-AUDIT-25-33","status":"SAVED","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_25_33_v1.csv"},
+    {"phase":"G1-B/BATCH-AUDIT-21-24","status":"SAVED_WITH_CORRECTION","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_21_24_v1.csv","direct_working_bindings":["P21","P22","P22'","P23"],"unresolved":["P24"],"source_resolution":"Historical R03C01 naming is not equivalent to current r3_c1. Spatial rebinding is performed only on clean current raster tiles."}
   ],
   "next_action": {
     "phase": "G1-B",
-    "task": "Cross-validare P21/P22/P22-prime/P23/P24 ove possibile sulle sovrapposizioni o con una seconda registrazione indipendente; in parallelo chiudere P25-P27 sul raster pulito. Poi proseguire sistematicamente verso P19-P20 e P15-P18.",
+    "task": "Localizzare P24 sul raster pulito e cross-validare ove possibile P21/P22/P22-prime/P23/P26/P27; poi proseguire sistematicamente con P19-P20 e P15-P18. P25 P28 P31 sono gia canonici nel registro pixel.",
     "working_ledger": "data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv",
     "extended_support_ledger": "data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv",
-    "batch_audits": ["analysis/pt_raster_candidates/G1B_BATCH_AUDIT_25_33_v1.csv", "analysis/pt_raster_candidates/G1B_BATCH_AUDIT_21_24_v1.csv"],
     "partial_canonical_registry": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "target_output": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
-    "forbidden_inputs": [
-      "metric X/Y from PT_MASTER_CURRENT.csv",
-      "historical grid coordinates used as self-confirmation",
-      "automatic candidate shape used as pillar classification without semantic review",
-      "section dimension used as structural support ID",
-      "revoked u_global_px/v_global_px from early G1-A extraction",
-      "historical/current tile-name equality used as spatial binding"
-    ]
+    "forbidden_inputs": ["metric X/Y from PT_MASTER_CURRENT.csv","historical grid coordinates used as self-confirmation","automatic candidate shape used as pillar classification without semantic review","section dimension used as structural support ID","revoked u_global_px/v_global_px from early G1-A extraction","historical/current tile-name equality used as spatial binding"]
   },
-  "blocking_residuals": [
-    "PXG-002 PILLAR_CENTERS",
-    "PXG-003 EXTENDED_SUPPORTS",
-    "PXG-004 TERRACE_A_D",
-    "PXG-005 BEAM_FACE_NODES",
-    "PXG-006 METRIC_TRANSFORM"
-  ],
-  "non_blocking_knowledge_to_preserve": [
-    "written dimensions and IDs already observed, subject to claim-level validation",
-    "documented pillar sections/orientations when independently supported",
-    "historical frame/calculation evidence",
-    "foundation evidence and other domains not implicated in PT coordinate conflict"
-  ],
+  "blocking_residuals": ["PXG-002 PILLAR_CENTERS","PXG-003 EXTENDED_SUPPORTS","PXG-004 TERRACE_A_D","PXG-005 BEAM_FACE_NODES","PXG-006 METRIC_TRANSFORM"],
+  "non_blocking_knowledge_to_preserve": ["written dimensions and IDs already observed, subject to claim-level validation","documented pillar sections/orientations when independently supported","historical frame/calculation evidence","foundation evidence and other domains not implicated in PT coordinate conflict"],
   "anti_restart_rule": "Reopen only conflicting claims or artifacts. Never restart a domain solely because a session lacks context.",
   "completion_condition": "PT master geometry may be regenerated only after pixel registry, metric constraint network, residual audit, physical support vectors, documentary beam vectors, analytical nodes and reproducible overlay QA are available and valid."
 }
