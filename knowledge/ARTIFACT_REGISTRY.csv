@@ -1,0 +1,28 @@
+artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validation_method,replaces_or_relates,note
+SYS-001,AGENTS.md,SYSTEM,ENTRYPOINT,PROCEDURE,CURRENT,YES,scripts/validate_knowledge_system.py,,Mandatory agent entrypoint
+SYS-002,knowledge/KNOWLEDGE_MANIFEST.json,SYSTEM,MANIFEST,CANONICAL,CURRENT,YES,scripts/validate_knowledge_system.py,,Machine-readable system contract
+SYS-003,knowledge/CURRENT_STATE.json,SYSTEM,STATE,CANONICAL,CURRENT,YES,scripts/validate_knowledge_system.py,docs/STATO_RIPRESA.md,Primary machine-readable resume state
+SYS-004,knowledge/ARTIFACT_REGISTRY.csv,SYSTEM,REGISTRY,CANONICAL,CURRENT,YES,scripts/validate_knowledge_system.py,,Authority catalog; unregistered defaults non-authoritative
+SYS-005,docs/PROTOCOLLO_CANONICO.md,SYSTEM,PROTOCOL,PROCEDURE,CURRENT,YES,manual+system-validator,,General evidence/model gate policy
+SYS-006,docs/REGISTRO_MASTER.md,SYSTEM,HUMAN_REGISTER,CANONICAL,CURRENT,YES,manual+claim-ledger,,Human-readable project register; not a substitute for domain gates
+SYS-007,data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv,SYSTEM,CLAIM_LEDGER,CLAIM_LEDGER,CURRENT,YES,pt-carpentry-reader validate,,Claim-level history and revalidation
+SRC-T02-001,analysis/source_renders/TAV02S/manifest.txt,PT_GEOMETRY,SOURCE_MANIFEST,SOURCE_PRIMARY,CURRENT,YES,system-validator,,Native raster metadata 4680x8609; 4x3 tiling; overlap 0.06
+PROC-PT-001,docs/PROCEDURES/CANONICAL_DATASET_ITERATIVE_REVALIDATION_v1.md,PT_GEOMETRY,PROCEDURE,PROCEDURE,CURRENT,YES,manual,,Claim-level revalidation rules
+PROC-PT-002,docs/PT_RASTER_RECONSTRUCTION_PROTOCOL_v1.md,PT_GEOMETRY,PROCEDURE,PROCEDURE,CURRENT,YES,manual,,Raster to metric reconstruction protocol
+SKILL-PT-001,skills/pt-carpentry-reader/SKILL.md,PT_GEOMETRY,SKILL,SKILL,CURRENT,YES,skills/pt-carpentry-reader/runner.py validate,,Semantic reading and claim validation
+SKILL-PT-002,skills/pt-raster-grid-reconstructor/SKILL.md,PT_GEOMETRY,SKILL,SKILL,CURRENT,YES,skills/pt-raster-grid-reconstructor/runner.py validate,,Raster centers metric network and analytical nodes
+RUN-PT-001,skills/pt-carpentry-reader/runner.py,PT_GEOMETRY,VALIDATOR,DERIVED,CURRENT,NO,python execution,,Semantic registry validator
+RUN-PT-002,skills/pt-raster-grid-reconstructor/runner.py,PT_GEOMETRY,VALIDATOR,DERIVED,CURRENT,NO,python execution,,Geometry gate validator
+GATE-PT-001,data/canonical/PT_PIXEL_REGISTRATION_GATE_v1.csv,PT_GEOMETRY,GATE,CANONICAL,CURRENT,YES,system-validator,,Current blocking geometry gate
+DATA-PT-OLDMASTER,data/canonical/PT_MASTER_CURRENT.csv,PT_GEOMETRY,MASTER,HISTORICAL,SUSPENDED,NO,PT raster reconstruction gate,,Preserved for provenance; metric coordinates not geometric authority
+DATA-PT-QUOTES,data/canonical/PT_HIRES_MESH_RECONSTRUCTION_v5.csv,PT_GEOMETRY,EVIDENCE,OBSERVATION,SUPPORTED,CONDITIONAL,claim-level revalidation,,Use only individual rivalidated dimensions/topology; not whole-file authority
+DATA-PT-METRIC,data/canonical/PT_HIRES_METRIC_BINDINGS_v1.csv,PT_GEOMETRY,EVIDENCE,OBSERVATION,SUPPORTED,CONDITIONAL,claim-level revalidation,,Local raster metric observations including 22-prime candidate
+DATA-PT-SECTIONS,data/canonical/PT_PILLAR_SECTIONS_HIRES_CURRENT_v2.csv,PT_SECTIONS,DOMAIN_DATA,CANONICAL,CURRENT,YES,source/claim validation,,Sections/orientations separate from suspended XY geometry
+DATA-PT-CROPS,data/canonical/TAV02S_CROP_REVIEW_REGISTER_v1.csv,PT_GEOMETRY,REVIEW_REGISTER,OBSERVATION,CURRENT,YES,pt-carpentry-reader validate,,12 crop review state
+DATA-PT-OBS,data/canonical/TAV02S_SYMBOL_OBSERVATIONS_v1.csv,PT_GEOMETRY,OBSERVATIONS,OBSERVATION,CURRENT,CONDITIONAL,pt-carpentry-reader validate,,Primary semantic observations
+DATA-PT-BEAMS,data/canonical/TAV02S_BEAMS_DOC_CURRENT_v1.csv,PT_GEOMETRY,BEAM_CLAIMS,CANONICAL,CURRENT,YES,pt-carpentry-reader validate,,Only BEAM_DOC rows satisfying skill gate may feed geometry
+DATA-PT-RES,data/canonical/TAV02S_READING_RESIDUALS_v1.csv,PT_GEOMETRY,RESIDUAL_REGISTER,CANONICAL,CURRENT,NO,pt-carpentry-reader validate,,Open semantic reading residuals
+HIST-PT-GRID1,data/canonical/PT_GRID_REBUILD_FROM_QUOTES_v1.csv,PT_GEOMETRY,HISTORICAL_GRID,HISTORICAL,HISTORICAL_ONLY,NO,none,,Do not use as geometry input
+HIST-PT-GRID2,data/canonical/PT_GRID_REBUILD_FROM_QUOTES_v2.csv,PT_GEOMETRY,HISTORICAL_GRID,HISTORICAL,HISTORICAL_ONLY,NO,none,,Do not use as geometry input
+HIST-PT-MESH3,data/canonical/PT_HIRES_MESH_RECONSTRUCTION_v3.csv,PT_GEOMETRY,HISTORICAL_EVIDENCE,HISTORICAL,HISTORICAL_ONLY,NO,claim-level recovery only,,Superseded historical reconstruction
+HIST-PT-MESH4,data/canonical/PT_HIRES_MESH_RECONSTRUCTION_v4.csv,PT_GEOMETRY,HISTORICAL_EVIDENCE,HISTORICAL,SUPERSEDED,NO,none,PT_HIRES_MESH_RECONSTRUCTION_v5.csv,Known 5.45 misread superseded
