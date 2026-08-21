@@ -27,21 +27,24 @@
     },
     {
       "phase": "G1-B/BATCH-R03C01-01",
-      "status": "SAVED_WORKING",
+      "status": "SAVED_WORKING_REVIEWED",
       "ledger": "data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv",
-      "confirmed_bindings": ["P30 -> R3_C1-C0051", "P33 -> R3_C1-C0057"],
-      "rule": "Only direct raster semantic bindings are saved; unresolved symbols remain unresolved and old metric coordinates are not consulted."
+      "confirmed_bindings": [],
+      "candidate_bindings": ["P30 ? R3_C1-C0051", "P33 ? R3_C1-C0057"],
+      "audit_result": "Initial visual confirmation was revoked because nearby numerals may be section dimensions/candidate annotations rather than structural IDs.",
+      "rule": "No binding is promotable until the support ID is read directly from the original raster or independently cross-validated."
     }
   ],
   "next_action": {
     "phase": "G1-B",
-    "task": "Continuare tile-per-tile l'associazione support_id -> candidato raster, con priorita a R03C01/R03C02 e controllo cross-tile; registrare P18/P23/P30 come sostegni estesi con contorni/facce prima della promozione.",
+    "task": "Continuare tile-per-tile l'associazione support_id -> candidato raster usando identificativi strutturali direttamente leggibili; dare priorita a supporti gia osservati semanticamente (22, 22-prime, 15 e relativi cross-tile) e non usare forma/sezione come prova di identita.",
     "working_ledger": "data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv",
     "target_output": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "forbidden_inputs": [
       "metric X/Y from PT_MASTER_CURRENT.csv",
       "historical grid coordinates used as self-confirmation",
-      "automatic candidate shape used as pillar classification without semantic review"
+      "automatic candidate shape used as pillar classification without semantic review",
+      "section dimension used as structural support ID"
     ]
   },
   "blocking_residuals": [
