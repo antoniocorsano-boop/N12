@@ -5,7 +5,7 @@
   "canonical_branch": "work/m0-global-model",
   "entrypoint": "AGENTS.md",
   "objective": "Fascicolo strutturale completo, modello M0 globale, modello EdiLus-EE validato e verifiche dell'edificio esistente in c.a.",
-  "current_gate": "M0-G/PT-RASTER-G1",
+  "current_gate": "M0-G/PT-RASTER-G1-B",
   "current_domain": "PT_GEOMETRY_FROM_TAV02S",
   "state_file": "knowledge/CURRENT_STATE.json",
   "artifact_registry": "knowledge/ARTIFACT_REGISTRY.csv",
@@ -50,6 +50,9 @@
     "pixel_gate": "data/canonical/PT_PIXEL_REGISTRATION_GATE_v1.csv",
     "old_master": "data/canonical/PT_MASTER_CURRENT.csv",
     "old_master_geometry_authority": "SUSPENDED",
+    "current_subphase": "G1-B_SEMANTIC_SUPPORT_BINDING",
+    "assistive_candidate_extractor": "scripts/extract_pt_raster_candidates.py",
+    "candidate_run_record": "analysis/pt_raster_candidates/EXTRACTION_RUN_v1.csv",
     "required_pipeline": [
       "PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
       "PT_GCP_METRIC_NETWORK_v1.csv",
