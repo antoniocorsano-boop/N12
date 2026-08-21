@@ -37,5 +37,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pt-raster-geometric-candidates-v1
-          path: analysis/pt_raster_candidates/
+          path: |
+            analysis/pt_raster_candidates/
+            analysis/source_renders/TAV02S/*.jpg
+            analysis/source_renders/TAV02S/manifest.txt
           if-no-files-found: error
