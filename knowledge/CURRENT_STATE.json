@@ -3,7 +3,7 @@
   "updated_at": "2026-08-21",
   "gate": "M0-G/PT-MASTER-CURRENT",
   "status": "COMPLETE_WITH_PROVENANCE_WATCHES",
-  "objective": "Mantenere come geometria PT corrente il Master rigenerato da TAV-02S attraverso G1-G9, con supporti fisici, travi e nodi analitici di faccia tracciabili e provenienza DOC/SUPPORTED/MIS/WATCH preservata.",
+  "objective": "Mantenere come geometria PT corrente il Master rigenerato da TAV-02S attraverso G1-G9 e usare il relativo handoff canonico per l'integrazione verticale del modello strutturale.",
   "authoritative_method": "skills/pt-raster-grid-reconstructor/SKILL.md",
   "semantic_method": "skills/pt-carpentry-reader/SKILL.md",
   "primary_source": "TAV-02S native raster/PDF",
@@ -21,21 +21,23 @@
     {"phase":"G7/PHYSICAL-SUPPORT-VECTORS","status":"COMPLETE","artifact":"data/canonical/PT_VECTOR_SUPPORTS_v1.csv","support_count":38,"center_is_analytical_node":false},
     {"phase":"G7/ANALYTICAL-BEAM-FACE-NODES","status":"COMPLETE_PASS_WITH_WATCHES","artifact":"data/canonical/PT_ANALYTICAL_NODES_v1.csv","audit":"data/canonical/PT_ANALYTICAL_NODES_AUDIT_v1.csv","node_count":98,"watch_node_count":32,"extended_support_nodes":{"P18":2,"P23":2,"P30":3},"centroid_substitution_count":0},
     {"phase":"G9/FINAL-OVERLAY-QA","status":"PASS_WITH_PROVENANCE_WATCHES","artifact":"data/canonical/PT_OVERLAY_QA_v1.csv","support_count":38,"beam_count":49,"node_count":98,"topology_reject_count":0},
-    {"phase":"MASTER-REGENERATION","status":"COMPLETE_CURRENT","master":"data/canonical/PT_MASTER_CURRENT.csv","audit":"data/canonical/PT_MASTER_REGENERATION_AUDIT_v1.csv","historical_snapshot":"data/canonical/PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv","support_rows":38,"linked_analytical_nodes":98,"effective_beam_members":49,"changed_or_completed_support_coordinates":25,"unchanged_support_coordinates":13,"topology_reject_count":0,"authority_override":"knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv"}
+    {"phase":"MASTER-REGENERATION","status":"COMPLETE_CURRENT","master":"data/canonical/PT_MASTER_CURRENT.csv","audit":"data/canonical/PT_MASTER_REGENERATION_AUDIT_v1.csv","historical_snapshot":"data/canonical/PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv","support_rows":38,"linked_analytical_nodes":98,"effective_beam_members":49,"changed_or_completed_support_coordinates":25,"unchanged_support_coordinates":13,"topology_reject_count":0,"authority_override":"knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv"},
+    {"phase":"PT-GEOMETRY-HANDOFF","status":"CURRENT","artifact":"data/canonical/PT_GEOMETRY_HANDOFF_v1.json","rule":"Downstream consumers use current Master + physical support vectors + beam-face analytical nodes; no centroid collapse and no provenance loss."}
   ],
   "next_action": {
-    "phase": "PT-GEOMETRY-HANDOFF",
-    "task": "Use PT_MASTER_CURRENT as the current PT geometry source for downstream structural modelling and storey integration. Consume PT_VECTOR_SUPPORTS_v1 for physical support extents, PT_ANALYTICAL_NODES_v1 for beam-face joints and the effective 49-member G6 topology. Preserve all MIS/WATCH evidence flags downstream. Reopen only individual PT claims if a contradictory primary-source observation is found; do not restart G1-G9 wholesale.",
-    "master": "data/canonical/PT_MASTER_CURRENT.csv",
+    "phase": "STOREY-CONTINUITY-MAP",
+    "task": "Build the vertical support/storey continuity map starting from PT_GEOMETRY_HANDOFF_v1.json. Read canonical storey heights and upper-storey carpenteries before any extrusion. Classify each PT support as CONTINUES, CHANGES_SECTION, TERMINATES, LATER_ADDITION or NEEDS_SOURCE_CHECK at each level. Preserve a-b-c-d as terrace additions absent from the original historical calculation model, and treat attic/roof/torrino topology as source-specific rather than copied from PT.",
+    "pt_handoff": "data/canonical/PT_GEOMETRY_HANDOFF_v1.json",
+    "pt_master": "data/canonical/PT_MASTER_CURRENT.csv",
     "support_vectors": "data/canonical/PT_VECTOR_SUPPORTS_v1.csv",
     "analytical_nodes": "data/canonical/PT_ANALYTICAL_NODES_v1.csv",
     "beam_vectors": "data/canonical/PT_VECTOR_BEAMS_v2.csv",
     "beam_patch": "data/canonical/PT_VECTOR_BEAMS_G6_PATCH_v1.csv",
-    "overlay_qa": "data/canonical/PT_OVERLAY_QA_v1.csv",
-    "master_regeneration_audit": "data/canonical/PT_MASTER_REGENERATION_AUDIT_v1.csv",
-    "forbidden_inputs": ["PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv as current geometry","historical pre-G1-G9 coordinates as self-confirmation","collapsing P18/P23/P30 face nodes to centroids","dropping MIS/WATCH provenance","reintroducing B-029/B-044 or duplicate B-037 as physical members"]
+    "required_first_reads": ["data/canonical/storey_height_status.csv","upper-storey carpenteria/topology artifacts already present in the repository"],
+    "target_outputs": ["data/canonical/STOREY_SUPPORT_CONTINUITY_v1.csv","data/canonical/STOREY_LEVELS_CURRENT_v1.csv"],
+    "forbidden_inputs": ["blind extrusion of all 38 PT supports","PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv as current geometry","collapsing P18/P23/P30 face nodes to centroids","dropping MIS/WATCH provenance","assuming terrace a-b-c-d belong to the original historical calculation model"]
   },
   "non_blocking_provenance_watches": ["P19 metric center/face nodes","P25 raster residual","d raster residual","P12 MIS Y and dependent nodes","P18/P23/P30 MIS-supported center components","P22-prime/P27 MIS-supported row"],
-  "anti_restart_rule": "G1-G9 and Master regeneration are stable checkpoints. Reopen only conflicting individual claims or artifacts supported by direct primary-source evidence.",
-  "completion_condition": "PT geometry reconstruction is complete. Downstream models must preserve the current Master, physical support faces, 98 analytical face nodes, 49 effective beam members and all evidence/provenance states."
+  "anti_restart_rule": "PT G1-G9, Master regeneration and PT handoff are stable checkpoints. Reopen only conflicting individual claims or artifacts supported by direct primary-source evidence.",
+  "completion_condition": "PT geometry reconstruction is complete. The next model phase must establish source-backed vertical/storey continuity without cloning PT topology into upper levels by assumption."
 }
