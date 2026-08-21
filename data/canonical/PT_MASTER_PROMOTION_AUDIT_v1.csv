@@ -1,0 +1,10 @@
+audit_id,scope,status,evidence,note
+MPA-001,GEOMETRY_1_33,PASS,"PT_GEOMETRY_GATE_CURRENT reconciled with HiRes residual closures","P13 P19 P20 closed; P22-prime remains explicit MIS/ND documentary coordinate"
+MPA-002,TERRACE_a_d,PASS_WITH_RESIDUALS,"TAV-02S v5 rows c-a-17 / d-b-18 and 3.45/4.70 m chains","Coordinates source-derived; sections and original-calculation armatures remain ND"
+MPA-003,PILLAR_SECTIONS,PASS_WITH_RESIDUALS,"PT_PILLAR_SECTIONS_HIRES_CURRENT_v2","P7/P8 section ND; P18 110xND; a-d section ND; all preserved as residuals"
+MPA-004,SPECIAL_SUPPORT_FACES,PASS,"PT_SUPPORT_FACE_BINDINGS_v1 + PT_HIRES_FACE_BINDING_GATE_v2","P23 and P30 preserved as extended rectangles; beams clipped to physical faces"
+MPA-005,CENTRAL_11_14,PASS,"PT_SUPPORT_FACE_BINDINGS_v1 SFB-008..013","Broken local chain resolved geometrically from documented centers/sections/topology"
+MPA-006,ANTI_FALSE_NODE,PASS,"PT_HIRES_OVERLAY_AUDIT_v1 OVR-009","Beam section callouts 70x25 120x20 65x30 etc do not create pillar nodes"
+MPA-007,P22_PRIME,PASS_RESIDUAL,"PT_HIRES_METRIC_BINDINGS_v1","Distinct 50x40 support retained; 1.18 m MIS compatible with 1.20 m but not promoted to DOC"
+MPA-008,CENTRAL_20_21,PASS_NONBLOCKING,"PT_HIRES_OVERLAY_AUDIT_v1 OVR-008","Topology supported; 65x30 remains beam-section callout; face detail can remain residual without altering node set"
+MPA-009,MASTER_PROMOTION,READY,"MPA-001..008","Promotion authorized with explicit residuals; no unresolved item changes global support identity or principal mesh topology"
