@@ -51,12 +51,21 @@
       "promoted_supports": ["P28", "P31"],
       "promoted_count": 2,
       "rule": "Registry is intentionally partial. File existence does not imply G1 completion; only CROSS_VALIDATED support bindings are promoted."
+    },
+    {
+      "phase": "G1-B/BATCH-AUDIT-25-33-02",
+      "status": "SAVED",
+      "artifact": "analysis/pt_raster_candidates/G1B_BATCH_AUDIT_25_33_v1.csv",
+      "confirmed_not_promoted": ["P29", "P30", "P32", "P33"],
+      "unresolved": ["P25", "P26", "P27"],
+      "rule": "No support is promoted merely because a candidate shape exists. Direct semantic ID binding and current G1 cross-validation criteria remain mandatory."
     }
   ],
   "next_action": {
     "phase": "G1-B",
-    "task": "Continuare sistematicamente per tile l'associazione support_id -> centro/contorno raster. Chiudere prima P29/P30/P32/P33 con cross-check o evidenza equivalente; poi completare P25-P27 e P21-P24 nel settore sinistro/centrale.",
+    "task": "Rileggere sistematicamente P25-P27 sul raster sorgente e registrare solo associazioni support_id-contorno direttamente leggibili; in parallelo completare footprint/facce P30. Dopo il settore sinistro proseguire con P21-P24.",
     "working_ledger": "data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv",
+    "batch_audit": "analysis/pt_raster_candidates/G1B_BATCH_AUDIT_25_33_v1.csv",
     "partial_canonical_registry": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "target_output": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "forbidden_inputs": [
