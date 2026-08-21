@@ -1,41 +1,73 @@
 # Stato di ripresa N12
 
-Data: 2026-08-16
+Data: 2026-08-21
 
-## Fonte di verità
+## Fonte di verità operativa
 
-Repository GitHub `antoniocorsano-boop/N12`.
+Repository GitHub `antoniocorsano-boop/N12`, ramo di lavoro `work/m0-global-model`.
 
-## Gate corrente
+Lo stato macchina autoritativo è:
 
-`M0-G` — determinazione della geometria globale tridimensionale dell'intero edificio esistente in c.a.
+`knowledge/CURRENT_STATE.json`
 
-## Acquisito
+Questo documento è la vista umana sintetica e non deve divergere dal file macchina.
 
-- protocollo canonico e Registro Master attivi;
-- relazione di calcolo parzialmente trascritta e riconciliata;
-- Telaio 1 discretizzato: I-L-M-N-O-P-Q-R, 7 campate, G5=C2-C6;
-- Telaio 5 discretizzato: S-S'-T-U-V-Z-A'-B'-C', 8 campate, G5=C2-C7;
-- famiglie di sezioni di travi documentate;
-- famiglie di pilastri corpo principale 40×50 / 40×40 e torrino 30×40 documentate a livello di famiglia;
-- fondazioni: 7 catene / 26 segmenti e armature parzialmente consolidate;
-- artefatti storici TAV.5/TAV.6/TAV.7 e abachi v11-v25 individuati come sorgenti prioritarie;
-- abaco verticale pilastri 27×5 individuato.
+## Gate globale
 
-## Da chiudere nel gate M0-G
+`M0-G` — geometria globale tridimensionale dell'intero edificio esistente in c.a.
 
-- normalizzazione completa coordinate nodali;
-- connettività globale per livello;
-- raccordo dei 27 pilastri alle coordinate planimetriche e ai cinque livelli;
-- sagome/arretramenti di tutti gli impalcati;
-- quote Z definitive;
-- raccordo geometrico delle fondazioni;
-- controllo indipendente mediante firme metriche dei Telai 1 e 5.
+## Sotto-gate corrente
 
-## Gate successivi
+`M0-G/PT-RASTER-G1` — registrazione indipendente sul raster TAV-02S dei centri/sagome dei sostegni del piano terra.
 
-`M0-S` sezioni → `M0-A` armature → `M0-M` materiali/LC/FC → `M0-L` carichi/masse → `M0-V` validazione → modello EdiLus-EE.
+## Decisione corrente
 
-## Regola di continuità
+Le coordinate geometriche contenute nel precedente `data/canonical/PT_MASTER_CURRENT.csv` sono **SUSPENDED come autorità geometrica**. Restano conservate per provenienza, ma non possono essere usate per confermare sé stesse.
 
-Ogni avanzamento viene prima registrato nel repository remoto con provenienza e stato di evidenza. Gli ZIP storici sono fonti immutabili; il repository contiene lo stato canonico corrente.
+La ricostruzione PT riparte dalle fonti senza perdere il patrimonio validato:
+
+`raster/ID/simbologia -> centri pixel -> quote documentali -> rete metrica -> supporti fisici -> travi documentate -> nodi analitici -> overlay QA -> nuovo Master`.
+
+Le sezioni/orientamenti documentati e gli altri domini indipendenti non vengono annullati dalla sospensione delle coordinate PT.
+
+## Prossima azione autorizzata
+
+Creare e validare:
+
+`data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv`
+
+registrando direttamente dal raster nativo:
+
+- P1-P33;
+- P22';
+- a, b, c, d;
+- contorni/facce dei sostegni estesi quando leggibili.
+
+È vietato usare come input le coordinate metriche del vecchio Master.
+
+## Skill attive
+
+- `skills/pt-carpentry-reader/SKILL.md`
+- `skills/pt-raster-grid-reconstructor/SKILL.md`
+
+## Regola sostegno/nodo
+
+Un sostegno fisico non coincide necessariamente con un solo nodo analitico. Per pilastri-setti o supporti estesi, travi incidenti in punti differenti generano nodi distinti associati allo stesso `support_id`.
+
+## Sistema di continuità
+
+Ogni agente deve iniziare da `AGENTS.md`, quindi leggere:
+
+1. `knowledge/KNOWLEDGE_MANIFEST.json`;
+2. `knowledge/CURRENT_STATE.json`;
+3. `knowledge/ARTIFACT_REGISTRY.csv`.
+
+Un file non registrato è non autoritativo per impostazione predefinita.
+
+## Validazione
+
+Eseguire prima della chiusura di ogni avanzamento:
+
+`python scripts/validate_knowledge_system.py`
+
+Il gate PT resta aperto finché non sono soddisfatti anche i controlli della skill `pt-raster-grid-reconstructor` e l'overlay semantico sul raster.
