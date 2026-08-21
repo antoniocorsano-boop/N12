@@ -10,6 +10,7 @@
   "primary_raster_manifest": "analysis/source_renders/TAV02S/manifest.txt",
   "source_size_px": [4680, 8609],
   "known_tiling": {"rows": 4, "cols": 3, "overlap": 0.06},
+  "tile_registration": "data/canonical/TAV02S_TILE_TO_NATIVE_REGISTRATION_v1.csv",
   "geometry_master_status": "SUSPENDED",
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
   "suspension_reason": "Le coordinate metriche precedenti non dispongono ancora di un registro pixel completo e riproducibile dei sostegni/facce sul raster nativo.",
@@ -17,34 +18,44 @@
   "completed_subphases": [
     {
       "phase": "G1-A",
-      "status": "COMPLETED",
+      "status": "COMPLETED_WITH_COORDINATE_REVOCATION",
       "method": "OpenCV assistive geometric candidate extraction on 12 persistent TAV-02S raster tiles",
       "run_record": "analysis/pt_raster_candidates/EXTRACTION_RUN_v1.csv",
-      "workflow_run_id": 32462991062,
-      "artifact_id": 9439609767,
       "candidate_count": 1185,
-      "authority": "AUTO_CANDIDATE_NON_AUTHORITATIVE"
+      "authority": "AUTO_CANDIDATE_NON_AUTHORITATIVE",
+      "revocation": "analysis/pt_raster_candidates/G1A_COORDINATE_REVOCATION_v1.csv",
+      "rule": "Candidate coordinates are tile-local only; former direct global offsets are revoked."
     },
     {
-      "phase": "G1-B/BATCH-R03C01-01",
+      "phase": "G1-A-REGISTRATION",
+      "status": "COMPLETED",
+      "artifact": "data/canonical/TAV02S_TILE_TO_NATIVE_REGISTRATION_v1.csv",
+      "method": "SIFT + RANSAC tile-to-overview registration; overview-to-native exact image-size scale",
+      "direct_tiles": 10,
+      "derived_low-information_tiles": ["r1_c3", "r4_c1"],
+      "direct_rmse_overview_px_range": [0.1104, 0.2219]
+    },
+    {
+      "phase": "G1-B/BATCH-LEFT-28-33-01",
       "status": "SAVED_WORKING_REVIEWED",
       "ledger": "data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv",
-      "confirmed_bindings": [],
-      "candidate_bindings": ["P30 ? R3_C1-C0051", "P33 ? R3_C1-C0057"],
-      "audit_result": "Initial visual confirmation was revoked because nearby numerals may be section dimensions/candidate annotations rather than structural IDs.",
-      "rule": "No binding is promotable until the support ID is read directly from the original raster or independently cross-validated."
+      "cross_validated_bindings": ["P28", "P31"],
+      "direct_visual_bindings": ["P29", "P30", "P32", "P33"],
+      "extended_supports": ["P30"],
+      "rule": "Only cross-validated rows may currently promote. Single-tile visual bindings remain working until cross-check; P30 additionally requires face/footprint registration."
     }
   ],
   "next_action": {
     "phase": "G1-B",
-    "task": "Continuare tile-per-tile l'associazione support_id -> candidato raster usando identificativi strutturali direttamente leggibili; dare priorita a supporti gia osservati semanticamente (22, 22-prime, 15 e relativi cross-tile) e non usare forma/sezione come prova di identita.",
+    "task": "Continuare sistematicamente per tile l'associazione support_id -> centro/contorno raster. Priorita: completare il settore sinistro e poi catena centrale/destra, usando sempre ID direttamente leggibili e cross-tile quando disponibile.",
     "working_ledger": "data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv",
     "target_output": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "forbidden_inputs": [
       "metric X/Y from PT_MASTER_CURRENT.csv",
       "historical grid coordinates used as self-confirmation",
       "automatic candidate shape used as pillar classification without semantic review",
-      "section dimension used as structural support ID"
+      "section dimension used as structural support ID",
+      "revoked u_global_px/v_global_px from early G1-A extraction"
     ]
   },
   "blocking_residuals": [
