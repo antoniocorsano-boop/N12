@@ -17,25 +17,26 @@
   "completed_subphases": [
     {"phase":"G1-A","status":"COMPLETED_WITH_COORDINATE_REVOCATION","run_record":"analysis/pt_raster_candidates/EXTRACTION_RUN_v1.csv","candidate_count":1185,"authority":"AUTO_CANDIDATE_NON_AUTHORITATIVE","revocation":"analysis/pt_raster_candidates/G1A_COORDINATE_REVOCATION_v1.csv"},
     {"phase":"G1-A-REGISTRATION","status":"COMPLETED","artifact":"data/canonical/TAV02S_TILE_TO_NATIVE_REGISTRATION_v1.csv","direct_tiles":10,"derived_low_information_tiles":["r1_c3","r4_c1"]},
-    {"phase":"G1-B/PARTIAL-PIXEL-REGISTRY","status":"CURRENT_PARTIAL","artifact":"data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv","promoted_supports":["P9","P11","P12","P13","P14","P15","P23","P25","P28","P31"],"promoted_count":10,"rule":"File existence does not imply G1 completion; only gate-compliant cross-validated bindings may promote."},
-    {"phase":"G1-B/WORKING-BINDINGS","status":"SAVED","working_ledger":"data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv","working_not_promoted":["P10","P16","P17","P18","P19","P20","P21","P22","P22'","P24","P26","P27","P29","P30","P32","P33"]},
+    {"phase":"G1-B/PARTIAL-PIXEL-REGISTRY","status":"CURRENT_PARTIAL","artifact":"data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv","promoted_supports":["P3","P7","P9","P11","P12","P13","P14","P15","P23","P25","P28","P31"],"promoted_count":12,"rule":"File existence does not imply G1 completion; only gate-compliant cross-validated bindings may promote."},
+    {"phase":"G1-B/WORKING-BINDINGS","status":"SAVED","working_ledger":"data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv","working_not_promoted":["P1","P2","P4","P5","P6","P8","P10","P16","P17","P18","P19","P20","P21","P22","P22'","P24","P26","P27","P29","P30","P32","P33"]},
     {"phase":"G1-B/EXTENDED-SUPPORTS","status":"PARTIAL","artifact":"data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv","cross_validated":["P23"],"working_only":["P18","P30"],"rule":"Physical support footprints remain distinct from analytical nodes."},
-    {"phase":"G1-B/BATCH-AUDIT-9-14","status":"SAVED","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_9_14_v1.csv","promoted":["P9","P11","P12","P13","P14"],"working":["P10"],"note":"P10 direct ID is secure but its available overlap residual ~2.04 px exceeds the conservative promotion threshold."},
+    {"phase":"G1-B/BATCH-AUDIT-1-8","status":"SAVED","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_1_8_v1.csv","promoted":["P3","P7"],"working":["P1","P2","P4","P5","P6","P8"],"section_updates":{"P7":"50x40","P8":"40x50"}},
+    {"phase":"G1-B/BATCH-AUDIT-9-14","status":"SAVED","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_9_14_v1.csv","promoted":["P9","P11","P12","P13","P14"],"working":["P10"]},
     {"phase":"G1-B/BATCH-AUDIT-15-16","status":"SAVED","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_15_16_v1.csv","promoted":["P15"],"working":["P16"]},
     {"phase":"G1-B/BATCH-AUDIT-17-20","status":"SAVED","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_17_20_v1.csv","direct_working_bindings":["P17","P19","P20"],"extended_working":["P18"]},
     {"phase":"G1-B/BATCH-AUDIT-21-24","status":"SAVED_WITH_CORRECTION","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_21_24_v1.csv","direct_working_bindings":["P21","P22","P22'","P24"],"extended_cross_validated":["P23"]},
     {"phase":"G1-B/BATCH-AUDIT-25-33","status":"SAVED","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_25_33_v1.csv","promoted":["P25","P28","P31"],"working":["P26","P27","P29","P30","P32","P33"]}
   ],
   "next_action": {
-    "phase": "G1-B",
-    "task": "Proseguire con P1-P8 direttamente sui raster puliti. In parallelo cercare un secondo riscontro per P10 e per gli altri binding working; non usare le coordinate metriche del Master storico.",
+    "phase": "G1-B-CROSSCHECK",
+    "task": "Terminata la prima scansione sistematica P1-P33 e P22-prime. Ora chiudere i binding working mediante overlap/seconda evidenza indipendente; poi acquisire a-b-c-d e completare P18/P30 come supporti estesi. Non passare a G2 finché PXG-002 e PXG-003 non sono completi.",
     "working_ledger": "data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv",
     "extended_support_ledger": "data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv",
     "partial_canonical_registry": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "target_output": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "forbidden_inputs": ["metric X/Y from PT_MASTER_CURRENT.csv","historical grid coordinates used as self-confirmation","automatic candidate shape used as pillar classification without semantic review","section dimension used as structural support ID","revoked u_global_px/v_global_px from early G1-A extraction","historical/current tile-name equality used as spatial binding"]
   },
-  "blocking_residuals": ["PXG-002 PILLAR_CENTERS","PXG-003 EXTENDED_SUPPORTS P18/P30","PXG-004 TERRACE_A_D","PXG-005 BEAM_FACE_NODES","PXG-006 METRIC_TRANSFORM"],
+  "blocking_residuals": ["PXG-002 remaining working support centers","PXG-003 EXTENDED_SUPPORTS P18/P30","PXG-004 TERRACE_A_D","PXG-005 BEAM_FACE_NODES","PXG-006 METRIC_TRANSFORM"],
   "anti_restart_rule": "Reopen only conflicting claims or artifacts. Never restart a domain solely because a session lacks context.",
   "completion_condition": "PT master geometry may be regenerated only after pixel registry, metric constraint network, residual audit, physical support vectors, documentary beam vectors, analytical nodes and reproducible overlay QA are available and valid."
 }
