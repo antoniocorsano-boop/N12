@@ -1,0 +1,6 @@
+audit_id,beam_id,old_binding_or_note,current_decision,evidence_status,canonical_effect,note
+G6-BCOR-001,B-016,"P25-P19 continuity annotated with 2.10 m","KEEP beam continuity; REVOKE 2.10 m span attribution",DOC_CONTINUITY,NO_METRIC_SPAN_FROM_2_10,"The 2.10 value is a reference-line dimension elsewhere; it is not the P25-P19 spacing."
+G6-BCOR-002,B-022,"P27-P22 endpoint and 2.10 m note","REBIND endpoint to P22-prime; REMOVE 2.10 m span attribution",DOC_CONTINUITY_REBOUND,USE_P27_TO_P22_PRIME,"P27 and P22-prime share the observed structural row; P22 lies on a different row."
+G6-BCOR-003,B-031,"P23-P15 continuity annotated with 6.45 m","KEEP beam continuity; REVOKE 6.45 m span attribution",DOC_CONTINUITY,NO_METRIC_SPAN_FROM_6_45,"Full r4_c2 review proves 6.45 belongs to P24-P16."
+G6-BCOR-004,B-037,"duplicate physical run P7-P8 also represented by B-012","KEEP documentary duplicate for provenance; mark for analytical deduplication",DOC_CONTINUITY,DEDUP_AT_ANALYTICAL_TOPOLOGY,"No second physical beam should be created from the duplicate claim."
+G6-BCOR-005,B-047,"P22-P22-prime center spacing approximately 1.18 m","KEEP beam continuity; retain length evidence as MIS only",DOC_CONTINUITY_MIS_LENGTH,NO_DOC_LENGTH_PROMOTION,"Beam existence is documentary; spacing is measured/calibrated and must not be promoted to written dimension."
