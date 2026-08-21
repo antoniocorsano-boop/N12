@@ -2,6 +2,14 @@
 
 Questo file è il punto di ingresso obbligatorio per qualunque agente, script o sessione che operi sul repository N12.
 
+## 0. Bootstrap rapido
+
+Per ottenere in JSON il gate corrente, la prossima azione e gli artefatti autorizzati/condizionati/bloccati eseguire:
+
+`python scripts/agent_bootstrap.py`
+
+Il bootstrap non sostituisce la lettura delle skill del dominio: serve a impedire che un agente inizi dal file sbagliato.
+
 ## 1. Ordine di lettura obbligatorio
 
 Prima di produrre, modificare o promuovere dati leggere nell'ordine:
