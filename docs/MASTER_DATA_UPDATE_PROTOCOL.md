@@ -1,37 +1,64 @@
-# Protocollo permanente di aggiornamento dei file Master
+# Protocollo permanente di aggiornamento dei dati canonici
+
+## Stato
+
+SUPERSEDE la precedente regola “Master unico sempre autoritativo”.
+
+Il sistema corrente è governato da:
+
+`AGENTS.md -> knowledge/KNOWLEDGE_MANIFEST.json -> knowledge/CURRENT_STATE.json -> knowledge/ARTIFACT_REGISTRY.csv -> gate/skill di dominio`.
 
 ## Regola vincolante
-Ogni nuova informazione utile prodotta da una qualunque elaborazione deve essere registrata nello stesso passaggio anche nel relativo file Master corrente del dominio interessato.
 
-I file specialistici di analisi restano come evidenza e tracciabilità, ma non costituiscono da soli lo stato canonico corrente.
+Ogni nuova informazione utile deve essere registrata nello stesso ciclo di lavoro con:
 
-## Stato canonico PT
-Per il piano terra il file Master corrente è:
+- artefatto/evidenza;
+- provenienza;
+- stato `DOC/MIS/RIF/INF/INC/ND` quando applicabile;
+- stato di validazione;
+- eventuale claim nel ledger;
+- ruolo/autorità dell'artefatto nel registry;
+- eventuale aggiornamento dello stato di ripresa.
 
-`data/canonical/PT_MASTER_CURRENT.csv`
+## Master di dominio
 
-Deve contenere, per ogni pilastro/nodo pertinente:
-- identificativo;
-- tipologia;
-- coordinate globali X,Y;
-- stato delle coordinate;
-- sezione;
-- orientamento;
-- identificativo del dettaglio TAV.7;
-- stato dell'assegnazione;
-- provenienza/evidenza;
-- residui e note.
+Un Master è una **vista canonica derivata e gated**, non automaticamente la fonte superiore a tutte le evidenze.
 
-## Procedura obbligatoria ad ogni nuova elaborazione
-1. leggere il Master corrente prima di iniziare;
-2. produrre il file specialistico dell'elaborazione, se necessario;
-3. aggiornare immediatamente il Master con i nuovi dati confermati;
-4. non cancellare le incertezze: marcarle come ND, CONFLICT, RESIDUAL o SUPERSEDED secondo il caso;
-5. non promuovere inferenze a DOC;
-6. mantenere nei campi di evidenza il riferimento alla tavola, quota o elaborazione da cui deriva il dato;
-7. considerare il Master come unico punto di ripresa operativa per le elaborazioni successive.
+Un Master può essere:
+
+- `CURRENT` — ammesso dal gate del dominio;
+- `SUSPENDED` — conservato ma non utilizzabile come autorità per la proprietà sospesa;
+- `HISTORICAL_ONLY` — solo provenienza/storia;
+- `SUPERSEDED` — sostituito da una versione meglio supportata.
+
+È vietato usare un valore contenuto in un Master sospeso per confermare lo stesso valore.
+
+## Separazione delle proprietà
+
+Coordinate, identità, sezioni, orientamenti, armature, travi, fondazioni, materiali e carichi hanno provenienza e gate separabili.
+
+La sospensione della geometria XY di un elemento non annulla automaticamente una sezione documentata indipendentemente. Analogamente, una sezione non documentata non invalida automaticamente la posizione raster osservata.
+
+## Procedura obbligatoria
+
+1. leggere `AGENTS.md` e lo stato corrente;
+2. individuare nel registry gli artefatti autorizzati per il task;
+3. acquisire/analizzare l'evidenza primaria;
+4. aggiornare osservazioni e claim senza sovrascrivere la storia;
+5. applicare il gate specifico della skill;
+6. aggiornare un Master solo se il gate autorizza la promozione;
+7. aggiornare `knowledge/ARTIFACT_REGISTRY.csv` se cambia ruolo/stato di un artefatto;
+8. aggiornare `knowledge/CURRENT_STATE.json` se cambia il punto di ripresa;
+9. eseguire `python scripts/validate_knowledge_system.py`.
+
+## Stato PT corrente
+
+`data/canonical/PT_MASTER_CURRENT.csv` è attualmente `SUSPENDED` come autorità delle coordinate geometriche PT.
+
+L'output autorizzato del gate corrente è `data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv`, ottenuto direttamente dal raster TAV-02S senza usare le vecchie coordinate X/Y come input.
 
 ## Principio di continuità
-La chat e i file intermedi sono strumenti di elaborazione. Il repository, attraverso i file Master correnti, è la memoria tecnica persistente e canonica del progetto.
 
-Questa regola si applica anche ai domini successivi: fondazioni, travi, solai, livelli, materiali, armature, carichi, degrado e verifiche. Per ogni dominio va mantenuto un file Master corrente oppure, quando il modello sarà maturo, una vista Master unica derivata in modo controllato dai Master di dominio.
+La memoria tecnica persistente non è un singolo CSV ma il sistema coordinato di fonti, osservazioni, claim, registri canonici, manifest, stato e skill.
+
+Un agente deve riaprire il minimo insieme di claim coinvolti in un conflitto, non ricostruire un intero dominio già documentato.
