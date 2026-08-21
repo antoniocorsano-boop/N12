@@ -18,20 +18,22 @@
     {"phase":"G4/PHYSICAL-SUPPORT-FOOTPRINTS","status":"COMPLETE","artifact":"data/canonical/PT_METRIC_SUPPORT_FOOTPRINTS_v1.csv","support_count":38,"extended_supports":["P18","P23","P30"]},
     {"phase":"G6/BEAM-CLAIM-REVALIDATION","status":"SOURCE_RESIDUALS_CLOSED","base_claims":"data/canonical/TAV02S_BEAMS_DOC_CURRENT_v2.csv","patch":"data/canonical/TAV02S_BEAMS_DOC_G6_PATCH_v1.csv","source_closure":"analysis/pt_raster_candidates/G6_SOURCE_CLOSURE_B029_B044_v1.csv","effective_topology":"49 physical members; B-029 and B-044 revoked; B-037 documentary duplicate only; B-052 P19-P20 added","resolved":["B-010 P5-P6 rebound","B-016 span-note correction","B-022 P27-P22-prime rebound","B-029 revoked and B-052 added","B-031 6.45 note revoked","B-044 revoked"]},
     {"phase":"G6/BEAM-FACE-VECTORS","status":"WORKING_V2_READY_FOR_RASTER_QA","base_vectors":"data/canonical/PT_VECTOR_BEAMS_v2.csv","patch":"data/canonical/PT_VECTOR_BEAMS_G6_PATCH_v1.csv","audit":"data/canonical/PT_VECTOR_BEAMS_AUDIT_v2.csv","physical_vector_count":49,"extended_face_vectors":{"P18":["B-006","B-038"],"P23":["B-031","B-035"],"P30":["B-020","B-021","B-026"]},"analytical_nodes_authorized":false},
+    {"phase":"G6/BEAM-VECTOR-RASTER-QA-PRIORITY","status":"16_OF_49_REVIEWED","artifact":"data/canonical/PT_VECTOR_BEAMS_RASTER_QA_v1.csv","reviewed_beams":["B-001","B-002","B-005","B-006","B-020","B-021","B-026","B-031","B-035","B-038","B-040","B-048","B-049","B-050","B-051","B-052"],"topology_reject_count":0,"metric_watch_rule":"MIS-derived support centers may retain WATCH even when source face/topology is PASS","priority_groups":["P18","P23","P30","P19-P20-P21","P11-P12-P13-P14","terrace"]},
     {"phase":"G6/V1-HISTORY","status":"SUPERSEDED_DIAGNOSTIC","artifact":"data/canonical/PT_VECTOR_BEAMS_v1.csv","canonical_use":false}
   ],
   "next_action": {
-    "phase": "G6-BEAM-VECTOR-RASTER-QA",
-    "task": "Overlay/check the 49 effective beam vectors against the registered TAV-02S raster tile-by-tile. Verify line direction and face endpoint for each member, with priority on P18/P23/P30 multi-face attachments, P19-P20/P20-P21, the 120x20 bent chain P11-P12-P13-P14, and terrace a-b-c-d runs. Record per-beam PASS/WATCH/REJECT. Do not create analytical nodes until the vector QA has no unresolved topology conflicts.",
+    "phase": "G6-BEAM-VECTOR-RASTER-QA-REMAINING",
+    "task": "Complete raster QA for the remaining 33 effective physical beam members tile-by-tile. Preserve separate topology_face_qa and metric_overlay_qa judgments. Use registered source raster and the frozen metric-to-raster transform only as diagnostic projection. Do not shift documentary geometry to improve raster fit. After all 49 members are reviewed, produce PT_RASTER_TO_METRIC_DIAGNOSTIC_v1.csv and only then authorize analytical beam-face nodes if no topology REJECT remains.",
     "support_footprints": "data/canonical/PT_METRIC_SUPPORT_FOOTPRINTS_v1.csv",
     "beam_claims_v2": "data/canonical/TAV02S_BEAMS_DOC_CURRENT_v2.csv",
     "beam_claim_patch": "data/canonical/TAV02S_BEAMS_DOC_G6_PATCH_v1.csv",
     "beam_vectors_v2": "data/canonical/PT_VECTOR_BEAMS_v2.csv",
     "beam_vector_patch": "data/canonical/PT_VECTOR_BEAMS_G6_PATCH_v1.csv",
+    "beam_raster_qa": "data/canonical/PT_VECTOR_BEAMS_RASTER_QA_v1.csv",
     "target_outputs": ["data/canonical/PT_VECTOR_BEAMS_RASTER_QA_v1.csv","data/canonical/PT_RASTER_TO_METRIC_DIAGNOSTIC_v1.csv"],
-    "forbidden_inputs": ["metric X/Y from PT_MASTER_CURRENT.csv","invented member from nearest supports","centroid snapping for extended supports","treating section callouts as nodes","analytical nodalization before vector raster QA"]
+    "forbidden_inputs": ["metric X/Y from PT_MASTER_CURRENT.csv","invented member from nearest supports","centroid snapping for extended supports","treating section callouts as nodes","analytical nodalization before complete vector raster QA","moving documentary geometry solely to reduce scan residuals"]
   },
-  "blocking_residuals": ["G6 beam-vector raster QA","P19/P25/d overlay WATCH review","PXG-005 analytical beam-face nodes","G9 final overlay QA"],
+  "blocking_residuals": ["33 remaining G6 beam-vector raster QA members","P19/P25/d overlay WATCH review","PXG-005 analytical beam-face nodes","G9 final overlay QA"],
   "anti_restart_rule": "Reopen only beam claims or metric claims contradicted by direct primary-source evidence. Preserve all superseded artifacts for provenance.",
-  "completion_condition": "PT_MASTER_CURRENT may be regenerated only after beam-vector raster QA, analytical beam-face nodes and reproducible final overlay QA are complete and valid."
+  "completion_condition": "PT_MASTER_CURRENT may be regenerated only after complete beam-vector raster QA, analytical beam-face nodes and reproducible final overlay QA are complete and valid."
 }
