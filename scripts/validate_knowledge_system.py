@@ -40,6 +40,51 @@ def exists_rel(rel: str) -> bool:
     return (ROOT / rel).exists()
 
 
+def validate_registry_rows(rows, label: str, *, allow_override_paths: bool = False):
+    errors: list[str] = []
+    required_cols = {
+        "artifact_id", "path", "domain", "artifact_type", "authority", "status",
+        "may_feed_canonical", "validation_method", "replaces_or_relates", "note"
+    }
+    if not rows:
+        errors.append(f"{label} is empty")
+        return errors
+    if not required_cols.issubset(rows[0].keys()):
+        errors.append(f"{label} missing columns: {sorted(required_cols - set(rows[0].keys()))}")
+        return errors
+
+    ids = [r.get("artifact_id", "").strip() for r in rows]
+    paths = [r.get("path", "").strip() for r in rows]
+    if len(ids) != len(set(ids)):
+        errors.append(f"duplicate artifact_id in {label}")
+    if not allow_override_paths and len(paths) != len(set(paths)):
+        errors.append(f"duplicate path in {label}")
+
+    for i, r in enumerate(rows, start=2):
+        aid = r.get("artifact_id", "").strip() or f"line-{i}"
+        rel = r.get("path", "").strip()
+        authority = r.get("authority", "").strip()
+        status = r.get("status", "").strip()
+        feed = r.get("may_feed_canonical", "").strip()
+
+        if not rel:
+            errors.append(f"{label} {aid}: empty path")
+            continue
+        if not exists_rel(rel):
+            errors.append(f"{label} {aid}: registered path does not exist: {rel}")
+        if authority not in ALLOWED_AUTHORITIES:
+            errors.append(f"{label} {aid}: invalid authority={authority}")
+        if status not in ALLOWED_STATUSES:
+            errors.append(f"{label} {aid}: invalid status={status}")
+        if feed not in ALLOWED_FEED:
+            errors.append(f"{label} {aid}: invalid may_feed_canonical={feed}")
+        if status in BLOCKED_FEED_STATUSES and feed != "NO":
+            errors.append(f"{label} {aid}: blocked status {status} must have may_feed_canonical=NO")
+        if authority == "HISTORICAL" and feed != "NO":
+            errors.append(f"{label} {aid}: HISTORICAL authority must not feed canonical")
+    return errors
+
+
 def validate() -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -68,47 +113,37 @@ def validate() -> tuple[list[str], list[str]]:
         errors.append(f"invalid artifact registry CSV: {exc}")
         return errors, warnings
 
-    required_cols = {
-        "artifact_id", "path", "domain", "artifact_type", "authority", "status",
-        "may_feed_canonical", "validation_method", "replaces_or_relates", "note"
-    }
-    if not rows:
-        errors.append("artifact registry is empty")
-        return errors, warnings
-    if not required_cols.issubset(rows[0].keys()):
-        errors.append(f"artifact registry missing columns: {sorted(required_cols - set(rows[0].keys()))}")
+    errors.extend(validate_registry_rows(rows, "artifact registry"))
 
-    ids = [r.get("artifact_id", "").strip() for r in rows]
-    paths = [r.get("path", "").strip() for r in rows]
-    if len(ids) != len(set(ids)):
-        errors.append("duplicate artifact_id in registry")
-    if len(paths) != len(set(paths)):
-        errors.append("duplicate path in registry")
+    patch_rows = []
+    patch_rel = manifest.get("artifact_registry_patch")
+    if patch_rel:
+        patch_path = ROOT / patch_rel
+        if not patch_path.exists():
+            errors.append(f"artifact registry patch missing: {patch_rel}")
+        else:
+            try:
+                patch_rows = load_registry(patch_path)
+                errors.extend(
+                    validate_registry_rows(
+                        patch_rows, "artifact registry patch", allow_override_paths=True
+                    )
+                )
+            except Exception as exc:
+                errors.append(f"invalid artifact registry patch CSV: {exc}")
 
+    base_ids = {r.get("artifact_id", "").strip() for r in rows}
+    patch_ids = {r.get("artifact_id", "").strip() for r in patch_rows}
+    if base_ids & patch_ids:
+        errors.append(
+            "artifact registry patch reuses base artifact_id(s): "
+            + ", ".join(sorted(base_ids & patch_ids))
+        )
+
+    # Patch rows intentionally override base rows by path while preserving the base registry as history.
     by_path = {r.get("path", "").strip(): r for r in rows}
-
-    for i, r in enumerate(rows, start=2):
-        aid = r.get("artifact_id", "").strip() or f"line-{i}"
-        rel = r.get("path", "").strip()
-        authority = r.get("authority", "").strip()
-        status = r.get("status", "").strip()
-        feed = r.get("may_feed_canonical", "").strip()
-
-        if not rel:
-            errors.append(f"{aid}: empty path")
-            continue
-        if not exists_rel(rel):
-            errors.append(f"{aid}: registered path does not exist: {rel}")
-        if authority not in ALLOWED_AUTHORITIES:
-            errors.append(f"{aid}: invalid authority={authority}")
-        if status not in ALLOWED_STATUSES:
-            errors.append(f"{aid}: invalid status={status}")
-        if feed not in ALLOWED_FEED:
-            errors.append(f"{aid}: invalid may_feed_canonical={feed}")
-        if status in BLOCKED_FEED_STATUSES and feed != "NO":
-            errors.append(f"{aid}: blocked status {status} must have may_feed_canonical=NO")
-        if authority == "HISTORICAL" and feed != "NO":
-            errors.append(f"{aid}: HISTORICAL authority must not feed canonical")
+    for r in patch_rows:
+        by_path[r.get("path", "").strip()] = r
 
     if manifest.get("entrypoint") != "AGENTS.md":
         errors.append("manifest entrypoint must be AGENTS.md")
@@ -139,24 +174,44 @@ def validate() -> tuple[list[str], list[str]]:
             errors.append(f"active procedure not registered: {rel}")
 
     pt = manifest.get("pt_geometry", {})
+    current_master = pt.get("current_master")
     old_master = pt.get("old_master")
-    if old_master:
+
+    if current_master:
+        r = by_path.get(current_master)
+        if not r:
+            errors.append(f"current PT master not registered: {current_master}")
+        else:
+            if r.get("authority") != "CANONICAL":
+                errors.append("PT current master must have CANONICAL authority")
+            if r.get("status") != "CURRENT":
+                errors.append("PT current master must have CURRENT status")
+            if r.get("may_feed_canonical") != "YES":
+                errors.append("PT current master must be allowed to feed canonical")
+        if state.get("geometry_master_status") != "CURRENT":
+            errors.append("CURRENT_STATE geometry_master_status must be CURRENT after Master promotion")
+    elif old_master:
         r = by_path.get(old_master)
         if not r:
             errors.append(f"old PT master not registered: {old_master}")
         else:
             if r.get("status") != "SUSPENDED":
-                errors.append("PT old master must be SUSPENDED while pixel gate is open")
+                errors.append("PT old master must be SUSPENDED while raster reconstruction gate is open")
             if r.get("may_feed_canonical") != "NO":
                 errors.append("PT old master must not feed canonical while suspended")
-    if state.get("geometry_master_status") != "SUSPENDED":
-        errors.append("CURRENT_STATE geometry_master_status must be SUSPENDED at PT-RASTER-G1")
+        if state.get("geometry_master_status") != "SUSPENDED":
+            errors.append("CURRENT_STATE geometry_master_status must be SUSPENDED while historical Master is blocked")
+    else:
+        errors.append("pt_geometry must declare either old_master or current_master")
 
     gate_path = state.get("blocking_gate")
-    if not gate_path or not exists_rel(gate_path):
-        errors.append(f"blocking gate missing: {gate_path}")
-    elif gate_path not in by_path:
-        errors.append(f"blocking gate is not registered: {gate_path}")
+    if gate_path:
+        if not exists_rel(gate_path):
+            errors.append(f"blocking gate missing: {gate_path}")
+        elif gate_path not in by_path:
+            errors.append(f"blocking gate is not registered: {gate_path}")
+    elif state.get("status") not in {"COMPLETE", "COMPLETE_WITH_PROVENANCE_WATCHES"}:
+        errors.append("blocking_gate may be omitted only for a completed state")
 
     output = state.get("next_action", {}).get("output")
     if output and exists_rel(output):
@@ -166,7 +221,7 @@ def validate() -> tuple[list[str], list[str]]:
     missing_pipeline = [name for name in required_pipeline if not (ROOT / "data" / "canonical" / name).exists()]
     if missing_pipeline:
         warnings.append(
-            "PT geometry gate intentionally open; missing pipeline artifacts: " + ", ".join(missing_pipeline)
+            "PT geometry pipeline incomplete; missing artifacts: " + ", ".join(missing_pipeline)
         )
 
     agents_text = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
