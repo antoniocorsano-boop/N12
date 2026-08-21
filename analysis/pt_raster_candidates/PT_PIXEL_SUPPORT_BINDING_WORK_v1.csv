@@ -1,0 +1,7 @@
+support_id,primary_tile,u_local_px,v_local_px,bbox_x,bbox_y,bbox_w,bbox_h,u_native_px,v_native_px,semantic_method,crosscheck_tile,crosscheck_u_native_px,crosscheck_v_native_px,crosscheck_delta_px,validation_state,authority,note
+31,r2_c1,519.5,2185.0,481,2154,77,62,518.30,4206.86,OUTER_SYMBOL_UNION+raster_ID,r3_c1,518.15,4206.28,0.60,CROSS_VALIDATED,WORKING_NON_CANONICAL,"ID 31 directly readable; cross-tile agreement after tile->overview->native registration"
+28,r2_c1,1261.0,2183.0,1226,2152,70,62,1260.05,4205.15,OUTER_SYMBOL_UNION+raster_ID,r3_c1,1260.41,4205.71,0.66,CROSS_VALIDATED,WORKING_NON_CANONICAL,"ID 28 directly readable; cross-tile agreement"
+32,r3_c1,511.5,1028.5,483,992,57,73,510.40,5202.53,OUTER_SYMBOL_UNION+raster_ID,,,,,OBSERVED,WORKING_NON_CANONICAL,"ID 32 directly readable; center from full outer symbol union"
+29,r3_c1,1263.0,1024.0,1227,996,72,56,1262.14,5198.42,OUTER_SYMBOL_UNION+raster_ID,,,,,OBSERVED,WORKING_NON_CANONICAL,"ID 29 directly readable; center from full outer symbol union"
+33,r3_c1,524.0,1809.0,485,1779,78,60,523.31,5983.11,OUTER_SYMBOL+raster_ID,,,,,OBSERVED,WORKING_NON_CANONICAL,"ID 33 directly readable; outer symbol detected as one candidate"
+30,r3_c1,1266.5,1742.0,1245,1649,43,186,1265.81,5916.13,EXTENDED_SUPPORT_UNION+raster_ID,,,,,OBSERVED,WORKING_NON_CANONICAL,"ID 30 directly readable inside elongated physical support; full outer footprint retained; section 30x110 is not collapsed to point geometry"
