@@ -12,6 +12,7 @@ on:
       - 'data/canonical/**'
       - 'skills/**'
       - 'scripts/**'
+      - 'analysis/source_renders/TAV02S/**'
       - '.github/workflows/validate-knowledge-system.yml'
   pull_request:
     paths:
@@ -21,6 +22,7 @@ on:
       - 'data/canonical/**'
       - 'skills/**'
       - 'scripts/**'
+      - 'analysis/source_renders/TAV02S/**'
       - '.github/workflows/validate-knowledge-system.yml'
 
 jobs:
@@ -46,3 +48,16 @@ jobs:
 
       - name: Report PT raster reconstruction gate
         run: python skills/pt-raster-grid-reconstructor/runner.py status
+
+      - name: Install OpenCV for G1 candidate extraction
+        run: pip install --disable-pip-version-check opencv-python-headless==4.10.0.84 numpy
+
+      - name: Extract G1 non-authoritative raster candidates
+        run: python scripts/extract_pt_raster_candidates.py
+
+      - name: Upload G1 raster candidate review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pt-raster-geometric-candidates-v1
+          path: analysis/pt_raster_candidates/
+          if-no-files-found: error
