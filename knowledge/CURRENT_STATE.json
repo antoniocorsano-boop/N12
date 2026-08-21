@@ -15,23 +15,23 @@
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
   "blocking_gate": "data/canonical/PT_PIXEL_REGISTRATION_GATE_v1.csv",
   "completed_subphases": [
-    {"phase":"G1-A","status":"COMPLETED_WITH_COORDINATE_REVOCATION","run_record":"analysis/pt_raster_candidates/EXTRACTION_RUN_v1.csv","candidate_count":1185,"authority":"AUTO_CANDIDATE_NON_AUTHORITATIVE","revocation":"analysis/pt_raster_candidates/G1A_COORDINATE_REVOCATION_v1.csv"},
+    {"phase":"G1-A","status":"COMPLETED_WITH_COORDINATE_REVOCATION","run_record":"analysis/pt_raster_candidates/EXTRACTION_RUN_v1.csv","candidate_count":1185,"authority":"AUTO_CANDIDATE_NON_AUTHORITATIVE"},
     {"phase":"G1-A-REGISTRATION","status":"COMPLETED","artifact":"data/canonical/TAV02S_TILE_TO_NATIVE_REGISTRATION_v1.csv","direct_tiles":10,"derived_low_information_tiles":["r1_c3","r4_c1"]},
-    {"phase":"G1-B/ACCEPTANCE-POLICY","status":"CURRENT","artifact":"docs/PT_G1_PIXEL_ACCEPTANCE_POLICY_v1.md","classes":{"A":"CROSS_VALIDATED","B":"DIRECT_REGISTERED","C":"WORKING_ONLY"},"rule":"G1 records native-pixel observations; metric validation occurs in G2-G4."},
     {"phase":"G1-B/PIXEL-REGISTRY","status":"COMPLETE","artifact":"data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv","classification":"data/canonical/PT_G1_PIXEL_ACCEPTANCE_CLASSIFICATION_v1.csv","support_count":38,"expected_count":38,"supports":"P1-P33 + P22-prime + a-b-c-d","metric_status":"UNVALIDATED_G2"},
-    {"phase":"G1-B/EXTENDED-SUPPORTS","status":"COMPLETE_G1","artifact":"data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv","class_A":["P23"],"class_B":["P18","P30"],"rule":"Footprints may feed metric support geometry but cannot create analytical nodes until beam-face binding."},
-    {"phase":"G1-B/TERRACE-A-D","status":"COMPLETE_G1","artifact":"data/canonical/PT_TERRACE_SUPPORT_BINDINGS_WORKING_v1.csv","supports":["a","b","c","d"],"sections":{"a":"30x30","b":"30x30","c":"30x30","d":"30x30"},"historical_calculation":"ABSENT"},
-    {"phase":"G2/METRIC-CONSTRAINT-NETWORK","status":"STARTED","artifact":"data/canonical/PT_GCP_METRIC_NETWORK_v1.csv","hard_constraints_source":"claim-level documented quote bindings","diagnostic_only":["22-22-prime approx 1.18 m MIS"]}
+    {"phase":"G1-B/EXTENDED-SUPPORTS","status":"COMPLETE_G1","artifact":"data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv","class_A":["P23"],"class_B":["P18","P30"]},
+    {"phase":"G2/METRIC-CONSTRAINT-NETWORK","status":"AUDITED_WITH_CONFLICTS","artifact":"data/canonical/PT_GCP_METRIC_NETWORK_v1.csv","constraint_audit":"analysis/pt_raster_candidates/G2_METRIC_CONSTRAINT_AUDIT_v1.csv","connectivity_audit":"analysis/pt_raster_candidates/G2_NETWORK_CONNECTIVITY_AUDIT_v1.csv","robust_raster_scale_px_per_m":158.023,"diagnostic_only":["22-22-prime approx 1.18 m MIS"],"hard_conflicts":["25-19=2.10 inherited binding","27-22=2.10 inherited binding"],"reference_pending":["17-18","33-30","30-27","18-19","23-15"],"network_state":"FIVE_HARD_COMPONENTS_PLUS_ISOLATED_OR_REFERENCE_PENDING"}
   ],
   "next_action": {
-    "phase": "G2",
-    "task": "Completare e validare la rete delle quote documentali, definire assi locali convenzionali e verificare a quali riferimenti puntano le linee di quota. Poi risolvere la rete metrica con residui espliciti in G3 senza usare X/Y del Master storico.",
+    "phase": "G2-SOURCE-REBIND",
+    "task": "Rileggere direttamente sulla TAV-02S le linee di estensione e i riferimenti delle quote che hanno prodotto conflitti: 25-19=2.10 e 27-22=2.10. Verificare se il secondo caso appartiene a 27-22-prime. Per P18/P23/P30 determinare se le quote sono riferite a centro, asse o faccia. Aggiungere ponti metrici solo quando documentati; non creare ancora PT_METRIC_SUPPORT_CENTERS_v1.csv.",
     "pixel_registry": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "metric_network": "data/canonical/PT_GCP_METRIC_NETWORK_v1.csv",
-    "target_outputs": ["data/canonical/PT_METRIC_SUPPORT_CENTERS_v1.csv","data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv"],
-    "forbidden_inputs": ["metric X/Y from PT_MASTER_CURRENT.csv","historical grid coordinates used as self-confirmation","automatic candidate shape used as structural semantics","revoked u_global_px/v_global_px from early G1-A extraction","unbound dimension text assigned to supports by proximity only"]
+    "constraint_audit": "analysis/pt_raster_candidates/G2_METRIC_CONSTRAINT_AUDIT_v1.csv",
+    "connectivity_audit": "analysis/pt_raster_candidates/G2_NETWORK_CONNECTIVITY_AUDIT_v1.csv",
+    "target_outputs_after_G2_closure": ["data/canonical/PT_METRIC_SUPPORT_CENTERS_v1.csv","data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv"],
+    "forbidden_inputs": ["metric X/Y from PT_MASTER_CURRENT.csv","historical grid coordinates used as self-confirmation","raster px/m scale used as replacement for written dimension","unbound dimension text assigned by proximity","centroid assumption for extended support when quote reference is not explicit"]
   },
-  "blocking_residuals": ["G2 quote-reference binding completeness","PXG-005 BEAM_FACE_NODES later gate","PXG-006 metric solve/residual audit","G6 documentary beam vectorization","G9 overlay QA"],
+  "blocking_residuals": ["G2 conflict 25-19=2.10","G2 conflict 27-22=2.10 versus observed 27-22-prime alignment","G2 reference semantics for P18/P23/P30","G2 global network connectivity","PXG-005 beam-face nodes later gate","G6 documentary beam vectorization","G9 overlay QA"],
   "anti_restart_rule": "Reopen only conflicting claims or artifacts. Never restart a domain solely because a session lacks context.",
-  "completion_condition": "PT master geometry may be regenerated only after metric network solve and residual audit, physical support vectors, documentary beam vectors, analytical nodes and reproducible overlay QA are available and valid."
+  "completion_condition": "PT master geometry may be regenerated only after G2 network is connected or explicitly reference-resolved, G3 metric solve and residual audit, physical support vectors, documentary beam vectors, analytical nodes and reproducible overlay QA are available and valid."
 }
