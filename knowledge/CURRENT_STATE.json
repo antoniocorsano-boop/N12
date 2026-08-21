@@ -32,7 +32,7 @@
       "artifact": "data/canonical/TAV02S_TILE_TO_NATIVE_REGISTRATION_v1.csv",
       "method": "SIFT + RANSAC tile-to-overview registration; overview-to-native exact image-size scale",
       "direct_tiles": 10,
-      "derived_low-information_tiles": ["r1_c3", "r4_c1"],
+      "derived_low_information_tiles": ["r1_c3", "r4_c1"],
       "direct_rmse_overview_px_range": [0.1104, 0.2219]
     },
     {
@@ -68,14 +68,24 @@
       "native_center_px": [1265.81, 5916.13],
       "native_footprint_px": [[1244.30, 5823.19], [1287.28, 5823.19], [1287.32, 6009.06], [1244.34, 6009.06]],
       "rule": "P30 is a physical extended support. Its footprint is retained explicitly and may not feed analytical nodes until independent cross-check."
+    },
+    {
+      "phase": "G1-B/BATCH-AUDIT-21-24-03",
+      "status": "SAVED_WITH_SOURCE_RESIDUAL",
+      "artifact": "analysis/pt_raster_candidates/G1B_BATCH_AUDIT_21_24_v1.csv",
+      "semantic_identity_documented": ["P22", "P22'"],
+      "coordinate_bindings_promoted": [],
+      "unresolved": ["P21", "P23", "P24"],
+      "source_residual": "The semantic observations for P22/P22' cite evidence/hires/TAV-02S/tiles/TAV-02S_L1_R03C01.png, which is absent from the current branch.",
+      "rule": "Semantic observations remain valid as observations; native-pixel coordinates are not promoted until the ID-to-raster binding is reproducible against the current persistent source."
     }
   ],
   "next_action": {
     "phase": "G1-B",
-    "task": "Rileggere sistematicamente P25-P27 sul raster sorgente e registrare solo associazioni support_id-contorno direttamente leggibili; cercare un cross-check indipendente per P29/P30/P32/P33. Dopo il settore sinistro proseguire con P21-P24.",
+    "task": "Rigenerare dal raster nativo persistente un ritaglio equivalente per P22/P22' e riallacciare gli ID documentati allo spazio pixel registrato corrente; localizzare direttamente P21/P23/P24 e completare la sagoma estesa di P23. Mantenere in parallelo P25-P27 irrisolti finche gli ID non sono leggibili senza ambiguita.",
     "working_ledger": "data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv",
     "extended_support_ledger": "data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv",
-    "batch_audit": "analysis/pt_raster_candidates/G1B_BATCH_AUDIT_25_33_v1.csv",
+    "batch_audits": ["analysis/pt_raster_candidates/G1B_BATCH_AUDIT_25_33_v1.csv", "analysis/pt_raster_candidates/G1B_BATCH_AUDIT_21_24_v1.csv"],
     "partial_canonical_registry": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "target_output": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "forbidden_inputs": [
@@ -83,7 +93,8 @@
       "historical grid coordinates used as self-confirmation",
       "automatic candidate shape used as pillar classification without semantic review",
       "section dimension used as structural support ID",
-      "revoked u_global_px/v_global_px from early G1-A extraction"
+      "revoked u_global_px/v_global_px from early G1-A extraction",
+      "semantic observation whose cited source is missing used alone as native-pixel coordinate evidence"
     ]
   },
   "blocking_residuals": [
@@ -91,7 +102,8 @@
     "PXG-003 EXTENDED_SUPPORTS",
     "PXG-004 TERRACE_A_D",
     "PXG-005 BEAM_FACE_NODES",
-    "PXG-006 METRIC_TRANSFORM"
+    "PXG-006 METRIC_TRANSFORM",
+    "SOURCE_RESIDUAL TAV-02S_L1_R03C01 cited HiRes tile absent from current branch"
   ],
   "non_blocking_knowledge_to_preserve": [
     "written dimensions and IDs already observed, subject to claim-level validation",
