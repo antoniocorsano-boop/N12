@@ -1,0 +1,11 @@
+audit_id,source_tile_or_crop,dimension_text,endpoint_i,endpoint_j,classification,evidence_status,decision,note
+G2-LM-001,r2_c2,5.50,P9 axis,P17 axis,DIMENSION,DOC_DIRECT_RASTER,CONFIRMS_EXISTING,"Quota vera con linea di estensione; conferma G2-TOP-X3 17-9=5.50."
+G2-LM-002,r2_c2,3.45,P17 axis,a axis,DIMENSION,DOC_DIRECT_RASTER,CONFIRMS_EXISTING,"Quota vera; conferma il legame a-17=3.45."
+G2-LM-003,r2_c2,3.45,c axis,a axis,DIMENSION,DOC_DIRECT_RASTER,CONFIRMS_EXISTING,"Quota vera del terrazzo; conferma c-a=3.45."
+G2-LM-004,r3_c2,3.25,LEFT_REFERENCE_LINE,INTERMEDIATE_REFERENCE_LINE,DIMENSION,DOC_DIRECT_RASTER,KEEP_REFERENCE_ONLY,"La catena e reale ma il riferimento intermedio attraversa geometria di trave/asse non identificata come centro di sostegno; non assegnare P11-P12 per prossimita."
+G2-LM-005,r3_c2,2.40,INTERMEDIATE_REFERENCE_LINE,P13 axis,DIMENSION,DOC_DIRECT_RASTER,KEEP_REFERENCE_ONLY,"Il lato destro termina sull'asse P13; il lato sinistro resta una reference entity non legata a un support_id. Non promuovere come P12-P13."
+G2-LM-006,r3_c2,2.90,P13 axis,P14 axis,DIMENSION,DOC_DIRECT_RASTER,HARD_CONFIRMED,"Quota asse-asse direttamente leggibile; conferma G2-P13-BIND."
+G2-LM-007,r2_c2/P18,110x30,P18 physical footprint,P18 centerlines,EXTENDED_SUPPORT_SYMBOL,DOC_DIRECT_RASTER,CENTERLINES_OBSERVED,"P18 mostra asse longitudinale e trasversale interni al sostegno 110x30. Questo definisce il centro fisico ma non prova che quote adiacenti terminino sul centro."
+G2-LM-008,r3_c1/P30,30x110,P30 physical footprint,P30 centerline,EXTENDED_SUPPORT_SYMBOL,DOC_DIRECT_RASTER,CENTERLINE_OBSERVED,"P30 mantiene sagoma estesa e asse interno osservabile; le quote 33-30 e 30-27 restano REFERENCE_PENDING finche le linee di estensione non sono tracciate."
+G2-LM-009,r3_c2/r4_c2/P23,110x30,P23 physical footprint,P23 axis,EXTENDED_SUPPORT_SYMBOL,DOC_DIRECT_RASTER,CENTERLINE_OBSERVED,"P23 ha asse fisico osservabile; la quota 23-15 resta non hard per endpoint semantico non ancora dimostrato."
+G2-LM-010,left-mid sectors,,C2_LEFT,C1_MAIN_RIGHT,CONNECTIVITY_RESULT,SOURCE_REVIEW,NO_NEW_BRIDGE_FOUND,"Nessuna nuova quota supporto-supporto leggibile collega ancora la maglia sinistra alla componente principale. Non usare raster scale o vecchio Master per colmare il vuoto."
