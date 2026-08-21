@@ -15,14 +15,12 @@ REQUIRED = {
     "crosscheck_tile","crosscheck_delta_px","may_promote_to_pixel_registry","note"
 }
 
-# G1-B state model:
-# - CONFIRMED_* = direct semantic/raster observation, never promotable by itself.
-# - CROSS_VALIDATED* = independently checked observation; may promote to pixel registry.
-# - EXTENDED variants preserve the fact that one physical support is not a point node.
 ALLOWED_STATES = {
     "CONFIRMED_VISUAL",
     "CONFIRMED_VISUAL_REBOUND",
     "CONFIRMED_VISUAL_EXTENDED",
+    "DIRECT_REGISTERED",
+    "DIRECT_REGISTERED_EXTENDED",
     "CROSS_VALIDATED",
     "CROSS_VALIDATED_EXTENDED",
     "CANDIDATE",
@@ -30,14 +28,31 @@ ALLOWED_STATES = {
     "UNRESOLVED",
     "CONFLICT",
 }
-PROMOTABLE = {"CROSS_VALIDATED", "CROSS_VALIDATED_EXTENDED"}
+PROMOTABLE = {
+    "DIRECT_REGISTERED",
+    "DIRECT_REGISTERED_EXTENDED",
+    "CROSS_VALIDATED",
+    "CROSS_VALIDATED_EXTENDED",
+}
 CONFIRMED = {
     "CONFIRMED_VISUAL",
     "CONFIRMED_VISUAL_REBOUND",
     "CONFIRMED_VISUAL_EXTENDED",
+    "DIRECT_REGISTERED",
+    "DIRECT_REGISTERED_EXTENDED",
     "CROSS_VALIDATED",
     "CROSS_VALIDATED_EXTENDED",
 }
+
+
+def load_registration_states() -> dict[str, str]:
+    if not REGISTRATION.exists():
+        return {}
+    with REGISTRATION.open("r", encoding="utf-8-sig", newline="") as fh:
+        return {
+            (r.get("tile_id") or "").strip(): (r.get("registration_status") or "").strip()
+            for r in csv.DictReader(fh)
+        }
 
 
 def main() -> int:
@@ -48,6 +63,8 @@ def main() -> int:
         return 0
     if not REGISTRATION.exists():
         errors.append("missing tile-to-native registration")
+
+    registration_states = load_registration_states()
 
     with LEDGER.open("r", encoding="utf-8-sig", newline="") as fh:
         rows = list(csv.DictReader(fh))
@@ -62,6 +79,7 @@ def main() -> int:
     binding_ids: set[str] = set()
     candidate_keys: set[tuple[str,str]] = set()
     cross_validated = 0
+    direct_registered = 0
     confirmed_visual = 0
     extended = 0
 
@@ -84,7 +102,7 @@ def main() -> int:
             errors.append(f"line {i}: invalid binding_state={state}")
 
         if promote == "YES" and state not in PROMOTABLE:
-            errors.append(f"line {i}: only cross-validated states may be marked YES, got {state}")
+            errors.append(f"line {i}: only G1 class A/B states may be marked YES, got {state}")
 
         if state in CONFIRMED:
             if not support or not candidate or not tile:
@@ -102,7 +120,7 @@ def main() -> int:
                 except (ValueError, TypeError):
                     errors.append(f"line {i}: invalid numeric field {field}={row.get(field)}")
 
-        if state in PROMOTABLE:
+        if state.startswith("CROSS_VALIDATED"):
             cross_validated += 1
             if not (row.get("crosscheck_tile") or "").strip():
                 errors.append(f"line {i}: {state} without crosscheck_tile")
@@ -110,7 +128,18 @@ def main() -> int:
                 float(row.get("crosscheck_delta_px", ""))
             except (ValueError, TypeError):
                 errors.append(f"line {i}: {state} without numeric crosscheck_delta_px")
-        elif state.startswith("CONFIRMED_VISUAL"):
+
+        if state.startswith("DIRECT_REGISTERED"):
+            direct_registered += 1
+            if registration_states.get(tile) != "DIRECT_SIFT_RANSAC":
+                errors.append(
+                    f"line {i}: {state} requires tile with DIRECT_SIFT_RANSAC registration, "
+                    f"got {registration_states.get(tile) or 'UNKNOWN'} for {tile}"
+                )
+            if (row.get("crosscheck_tile") or "").strip():
+                errors.append(f"line {i}: {state} should not masquerade as cross-tile validation")
+
+        if state.startswith("CONFIRMED_VISUAL"):
             confirmed_visual += 1
 
         if state.endswith("EXTENDED"):
@@ -123,8 +152,11 @@ def main() -> int:
         return 1
 
     print("PT_RASTER_SUPPORT_BINDINGS_VALIDATION = PASS")
-    print(f"rows={len(rows)} cross_validated={cross_validated} confirmed_visual={confirmed_visual} extended={extended}")
-    print("Only CROSS_VALIDATED and CROSS_VALIDATED_EXTENDED rows may enter the pixel registry at the current G1-B gate.")
+    print(
+        f"rows={len(rows)} cross_validated={cross_validated} "
+        f"direct_registered={direct_registered} confirmed_visual={confirmed_visual} extended={extended}"
+    )
+    print("G1 Class A CROSS_VALIDATED and Class B DIRECT_REGISTERED may enter the pixel registry; metric validation remains in G2-G4.")
     return 0
 
 
