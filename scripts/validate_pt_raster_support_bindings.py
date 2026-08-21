@@ -14,8 +14,30 @@ REQUIRED = {
     "u_native_px","v_native_px","binding_state","evidence_class","source_registration",
     "crosscheck_tile","crosscheck_delta_px","may_promote_to_pixel_registry","note"
 }
-ALLOWED_STATES = {"CONFIRMED_VISUAL","CROSS_VALIDATED","CANDIDATE","REJECTED_SYMBOL","UNRESOLVED","CONFLICT"}
-PROMOTABLE = {"CROSS_VALIDATED"}
+
+# G1-B state model:
+# - CONFIRMED_* = direct semantic/raster observation, never promotable by itself.
+# - CROSS_VALIDATED* = independently checked observation; may promote to pixel registry.
+# - EXTENDED variants preserve the fact that one physical support is not a point node.
+ALLOWED_STATES = {
+    "CONFIRMED_VISUAL",
+    "CONFIRMED_VISUAL_REBOUND",
+    "CONFIRMED_VISUAL_EXTENDED",
+    "CROSS_VALIDATED",
+    "CROSS_VALIDATED_EXTENDED",
+    "CANDIDATE",
+    "REJECTED_SYMBOL",
+    "UNRESOLVED",
+    "CONFLICT",
+}
+PROMOTABLE = {"CROSS_VALIDATED", "CROSS_VALIDATED_EXTENDED"}
+CONFIRMED = {
+    "CONFIRMED_VISUAL",
+    "CONFIRMED_VISUAL_REBOUND",
+    "CONFIRMED_VISUAL_EXTENDED",
+    "CROSS_VALIDATED",
+    "CROSS_VALIDATED_EXTENDED",
+}
 
 
 def main() -> int:
@@ -41,6 +63,7 @@ def main() -> int:
     candidate_keys: set[tuple[str,str]] = set()
     cross_validated = 0
     confirmed_visual = 0
+    extended = 0
 
     for i, row in enumerate(rows, start=2):
         bid = (row.get("binding_id") or "").strip()
@@ -61,9 +84,9 @@ def main() -> int:
             errors.append(f"line {i}: invalid binding_state={state}")
 
         if promote == "YES" and state not in PROMOTABLE:
-            errors.append(f"line {i}: only CROSS_VALIDATED may be marked YES, got {state}")
+            errors.append(f"line {i}: only cross-validated states may be marked YES, got {state}")
 
-        if state in {"CONFIRMED_VISUAL","CROSS_VALIDATED"}:
+        if state in CONFIRMED:
             if not support or not candidate or not tile:
                 errors.append(f"line {i}: confirmed binding missing support/candidate/tile")
             if not source_registration:
@@ -79,16 +102,19 @@ def main() -> int:
                 except (ValueError, TypeError):
                     errors.append(f"line {i}: invalid numeric field {field}={row.get(field)}")
 
-        if state == "CROSS_VALIDATED":
+        if state in PROMOTABLE:
             cross_validated += 1
             if not (row.get("crosscheck_tile") or "").strip():
-                errors.append(f"line {i}: CROSS_VALIDATED without crosscheck_tile")
+                errors.append(f"line {i}: {state} without crosscheck_tile")
             try:
                 float(row.get("crosscheck_delta_px", ""))
             except (ValueError, TypeError):
-                errors.append(f"line {i}: CROSS_VALIDATED without numeric crosscheck_delta_px")
-        elif state == "CONFIRMED_VISUAL":
+                errors.append(f"line {i}: {state} without numeric crosscheck_delta_px")
+        elif state.startswith("CONFIRMED_VISUAL"):
             confirmed_visual += 1
+
+        if state.endswith("EXTENDED"):
+            extended += 1
 
     if errors:
         print("PT_RASTER_SUPPORT_BINDINGS_VALIDATION = FAIL")
@@ -97,8 +123,8 @@ def main() -> int:
         return 1
 
     print("PT_RASTER_SUPPORT_BINDINGS_VALIDATION = PASS")
-    print(f"rows={len(rows)} cross_validated={cross_validated} confirmed_visual={confirmed_visual}")
-    print("Only CROSS_VALIDATED rows may enter the pixel registry at the current G1-B gate.")
+    print(f"rows={len(rows)} cross_validated={cross_validated} confirmed_visual={confirmed_visual} extended={extended}")
+    print("Only CROSS_VALIDATED and CROSS_VALIDATED_EXTENDED rows may enter the pixel registry at the current G1-B gate.")
     return 0
 
 
