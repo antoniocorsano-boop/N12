@@ -5,14 +5,14 @@
   "canonical_branch": "work/m0-global-model",
   "entrypoint": "AGENTS.md",
   "objective": "Fascicolo strutturale completo, modello M0 globale, modello EdiLus-EE validato e verifiche dell'edificio esistente in c.a.",
-  "current_gate": "M0-G/PT-RASTER-G1-B",
+  "current_gate": "M0-G/PT-RASTER-G2",
   "current_domain": "PT_GEOMETRY_FROM_TAV02S",
   "state_file": "knowledge/CURRENT_STATE.json",
   "artifact_registry": "knowledge/ARTIFACT_REGISTRY.csv",
   "human_master_register": "docs/REGISTRO_MASTER.md",
   "revalidation_ledger": "data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv",
   "evidence_states": ["DOC", "MIS", "RIF", "INF", "INC", "ND"],
-  "validation_states": ["UNREVIEWED", "OBSERVED", "SUPPORTED", "CROSS_VALIDATED", "CURRENT", "RESIDUAL", "CONFLICT", "REOPENED", "SUPERSEDED", "TOMBSTONE", "HISTORICAL_ONLY", "SUSPENDED"],
+  "validation_states": ["UNREVIEWED", "OBSERVED", "SUPPORTED", "CROSS_VALIDATED", "DIRECT_REGISTERED", "CURRENT", "RESIDUAL", "CONFLICT", "REOPENED", "SUPERSEDED", "TOMBSTONE", "HISTORICAL_ONLY", "SUSPENDED"],
   "authority_classes": ["SOURCE_PRIMARY", "SOURCE_REFERENCE", "OBSERVATION", "CLAIM_LEDGER", "CANONICAL", "DERIVED", "PROCEDURE", "SKILL", "HISTORICAL"],
   "default_unregistered_policy": "UNREGISTERED_NON_AUTHORITATIVE",
   "source_priority": [
@@ -43,14 +43,18 @@
   "active_procedures": [
     "docs/PROTOCOLLO_CANONICO.md",
     "docs/PROCEDURES/CANONICAL_DATASET_ITERATIVE_REVALIDATION_v1.md",
-    "docs/PT_RASTER_RECONSTRUCTION_PROTOCOL_v1.md"
+    "docs/PT_RASTER_RECONSTRUCTION_PROTOCOL_v1.md",
+    "docs/PT_G1_PIXEL_ACCEPTANCE_POLICY_v1.md"
   ],
   "pt_geometry": {
     "primary_raster_manifest": "analysis/source_renders/TAV02S/manifest.txt",
     "pixel_gate": "data/canonical/PT_PIXEL_REGISTRATION_GATE_v1.csv",
     "old_master": "data/canonical/PT_MASTER_CURRENT.csv",
     "old_master_geometry_authority": "SUSPENDED",
-    "current_subphase": "G1-B_SEMANTIC_SUPPORT_BINDING",
+    "current_subphase": "G2_DOCUMENTED_METRIC_CONSTRAINT_NETWORK",
+    "g1_pixel_registry": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
+    "g1_acceptance_classification": "data/canonical/PT_G1_PIXEL_ACCEPTANCE_CLASSIFICATION_v1.csv",
+    "g2_metric_network": "data/canonical/PT_GCP_METRIC_NETWORK_v1.csv",
     "assistive_candidate_extractor": "scripts/extract_pt_raster_candidates.py",
     "candidate_run_record": "analysis/pt_raster_candidates/EXTRACTION_RUN_v1.csv",
     "required_pipeline": [
