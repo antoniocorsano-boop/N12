@@ -8,6 +8,7 @@
   "semantic_method": "skills/pt-carpentry-reader/SKILL.md",
   "primary_source": "TAV-02S native raster/PDF",
   "source_size_px": [4680, 8609],
+  "blocking_gate": "data/canonical/PT_PIXEL_REGISTRATION_GATE_v1.csv",
   "geometry_master_status": "SUSPENDED",
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
   "completed_subphases": [
