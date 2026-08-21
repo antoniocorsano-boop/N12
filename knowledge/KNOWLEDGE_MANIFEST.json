@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "project": "N12",
+  "repository": "antoniocorsano-boop/N12",
+  "canonical_branch": "work/m0-global-model",
+  "entrypoint": "AGENTS.md",
+  "objective": "Fascicolo strutturale completo, modello M0 globale, modello EdiLus-EE validato e verifiche dell'edificio esistente in c.a.",
+  "current_gate": "M0-G/PT-RASTER-G1",
+  "current_domain": "PT_GEOMETRY_FROM_TAV02S",
+  "state_file": "knowledge/CURRENT_STATE.json",
+  "artifact_registry": "knowledge/ARTIFACT_REGISTRY.csv",
+  "human_master_register": "docs/REGISTRO_MASTER.md",
+  "revalidation_ledger": "data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv",
+  "evidence_states": ["DOC", "MIS", "RIF", "INF", "INC", "ND"],
+  "validation_states": ["UNREVIEWED", "OBSERVED", "SUPPORTED", "CROSS_VALIDATED", "CURRENT", "RESIDUAL", "CONFLICT", "REOPENED", "SUPERSEDED", "TOMBSTONE", "HISTORICAL_ONLY", "SUSPENDED"],
+  "authority_classes": ["SOURCE_PRIMARY", "SOURCE_REFERENCE", "OBSERVATION", "CLAIM_LEDGER", "CANONICAL", "DERIVED", "PROCEDURE", "SKILL", "HISTORICAL"],
+  "default_unregistered_policy": "UNREGISTERED_NON_AUTHORITATIVE",
+  "source_priority": [
+    "written_dimension_or_explicit_text_on_primary_source",
+    "alphanumeric_id_on_primary_source",
+    "unambiguous_symbol_on_primary_source",
+    "cross_validated_graphical_continuity",
+    "independent_original_source_crosscheck",
+    "validated_canonical_claim",
+    "historical_dataset",
+    "raster_scale_measurement",
+    "inference"
+  ],
+  "active_skills": [
+    {
+      "id": "pt-carpentry-reader",
+      "path": "skills/pt-carpentry-reader/SKILL.md",
+      "runner": "skills/pt-carpentry-reader/runner.py",
+      "role": "semantic reading and claim revalidation of TAV-02S"
+    },
+    {
+      "id": "pt-raster-grid-reconstructor",
+      "path": "skills/pt-raster-grid-reconstructor/SKILL.md",
+      "runner": "skills/pt-raster-grid-reconstructor/runner.py",
+      "role": "independent raster support registration, metric network and analytical nodalization"
+    }
+  ],
+  "active_procedures": [
+    "docs/PROTOCOLLO_CANONICO.md",
+    "docs/PROCEDURES/CANONICAL_DATASET_ITERATIVE_REVALIDATION_v1.md",
+    "docs/PT_RASTER_RECONSTRUCTION_PROTOCOL_v1.md"
+  ],
+  "pt_geometry": {
+    "primary_raster_manifest": "analysis/source_renders/TAV02S/manifest.txt",
+    "pixel_gate": "data/canonical/PT_PIXEL_REGISTRATION_GATE_v1.csv",
+    "old_master": "data/canonical/PT_MASTER_CURRENT.csv",
+    "old_master_geometry_authority": "SUSPENDED",
+    "required_pipeline": [
+      "PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
+      "PT_GCP_METRIC_NETWORK_v1.csv",
+      "PT_METRIC_SUPPORT_CENTERS_v1.csv",
+      "PT_METRIC_NETWORK_RESIDUALS_v1.csv",
+      "PT_RASTER_TO_METRIC_DIAGNOSTIC_v1.csv",
+      "PT_VECTOR_SUPPORTS_v1.csv",
+      "PT_VECTOR_BEAMS_v1.csv",
+      "PT_ANALYTICAL_NODES_v1.csv",
+      "PT_OVERLAY_QA_v1.csv"
+    ],
+    "master_promotion_rule": "all pipeline artifacts present and valid plus semantic raster overlay QA"
+  },
+  "validation": {
+    "system_validator": "scripts/validate_knowledge_system.py",
+    "workflow": ".github/workflows/validate-knowledge-system.yml",
+    "automatic_validation_scope": "manifest integrity, registered path existence, authority/state consistency, entrypoint and skill contracts",
+    "semantic_validation_scope": "source reading, raster semantics, metric residual acceptance and overlay approval remain skill gates"
+  }
+}
