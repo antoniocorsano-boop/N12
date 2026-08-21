@@ -1,0 +1,36 @@
+name: PT Raster Candidate Extraction
+
+on:
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - 'scripts/extract_pt_raster_candidates.py'
+      - 'analysis/source_renders/TAV02S/**'
+      - '.github/workflows/pt-raster-candidate-extraction.yml'
+  workflow_dispatch:
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install OpenCV
+        run: pip install --disable-pip-version-check opencv-python-headless==4.10.0.84 numpy
+
+      - name: Extract non-authoritative geometric candidates
+        run: python scripts/extract_pt_raster_candidates.py
+
+      - name: Upload review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pt-raster-geometric-candidates-v1
+          path: analysis/pt_raster_candidates/
+          if-no-files-found: error
