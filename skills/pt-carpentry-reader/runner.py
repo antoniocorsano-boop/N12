@@ -23,7 +23,33 @@ ALLOWED_OBS = {
     "SUPERSEDED",
 }
 
-ALLOWED_BEAM = {"BEAM_DOC", "TO_VERIFY_BEAM", "CONFLICT", "SUPERSEDED"}
+# PROVISIONAL_DOC is an observed/documentary candidate state. It is explicitly
+# NOT equivalent to BEAM_DOC and cannot be used as a promoted canonical beam.
+ALLOWED_BEAM = {
+    "BEAM_DOC",
+    "PROVISIONAL_DOC",
+    "TO_VERIFY_BEAM",
+    "CONFLICT",
+    "SUPERSEDED",
+}
+
+DOCUMENTARY_BEAM_EVIDENCE = {
+    "DOC_DIRECT",
+    "DOC_CROSS_TILE",
+    "DOC_ALIGN",
+    "DOC_CONTINUITY",
+    "DOC_SECTION_BOUND",
+    "DOC_CONTINUITY_MIS_LENGTH",
+}
+
+CONFIRMED_CONTINUITY = {
+    "YES",
+    "CONFIRMED",
+    "CONTINUOUS",
+    "CROSS_TILE_CONFIRMED",
+    "DOC_CONTINUOUS",
+}
+
 BLOCKING_SOURCE_MARKERS = {"SUPERSEDED", "CONFLICT", "REVOKED"}
 
 
@@ -75,28 +101,37 @@ def validate() -> int:
     beams = rows(BEAM_REGISTER)
     for i, r in enumerate(beams, start=2):
         status_value = (r.get("canonical_status") or "").strip()
+        evidence = (r.get("evidence_status") or "").strip()
+        continuity = (r.get("continuity_status") or "").strip().upper()
+        node_i = (r.get("node_i") or "").strip()
+        node_j = (r.get("node_j") or "").strip()
+        source_primary = (r.get("source_tile_primary") or "").strip()
+        source_cross = (r.get("source_tile_crosscheck") or "").strip()
+        source = f"{source_primary} {source_cross}".upper()
+
         if status_value and status_value not in ALLOWED_BEAM:
             errors.append(f"beams line {i}: invalid canonical_status={status_value}")
+            continue
 
-        if status_value == "BEAM_DOC":
-            evidence = (r.get("evidence_status") or "").strip()
-            continuity = (r.get("continuity_status") or "").strip().upper()
-            node_i = (r.get("node_i") or "").strip()
-            node_j = (r.get("node_j") or "").strip()
-            source_primary = (r.get("source_tile_primary") or "").upper()
-            source_cross = (r.get("source_tile_crosscheck") or "").upper()
-            source = f"{source_primary} {source_cross}"
-
+        # Both documentary candidate and promoted beam records must at least be
+        # traceable to endpoints, a primary source and a continuous line.
+        if status_value in {"PROVISIONAL_DOC", "BEAM_DOC"}:
             if not node_i or not node_j:
-                errors.append(f"beams line {i}: BEAM_DOC without both endpoints")
-            if evidence not in {"DOC_DIRECT", "DOC_CROSS_TILE", "DOC_ALIGN"}:
-                errors.append(f"beams line {i}: BEAM_DOC with non-documentary evidence={evidence}")
-            if continuity not in {"YES", "CONFIRMED", "CROSS_TILE_CONFIRMED", "DOC_CONTINUOUS"}:
-                errors.append(f"beams line {i}: BEAM_DOC without confirmed continuity_status")
+                errors.append(f"beams line {i}: {status_value} without both endpoints")
             if not source_primary:
-                errors.append(f"beams line {i}: BEAM_DOC without source_tile_primary")
+                errors.append(f"beams line {i}: {status_value} without source_tile_primary")
+            if evidence not in DOCUMENTARY_BEAM_EVIDENCE:
+                errors.append(f"beams line {i}: {status_value} with non-documentary evidence={evidence}")
+            if continuity not in CONFIRMED_CONTINUITY:
+                errors.append(f"beams line {i}: {status_value} without confirmed continuity_status={continuity}")
             if any(marker in source for marker in BLOCKING_SOURCE_MARKERS):
-                errors.append(f"beams line {i}: BEAM_DOC references blocked/superseded source")
+                errors.append(f"beams line {i}: {status_value} references blocked/superseded source")
+
+        # BEAM_DOC is the only promoted state. PROVISIONAL_DOC remains a
+        # candidate and must pass the separate cross-validation gate before
+        # any downstream canonical geometry consumes it.
+        if status_value == "BEAM_DOC" and not source_cross:
+            errors.append(f"beams line {i}: BEAM_DOC requires independent/cross-tile evidence")
 
     crop_rows = rows(CROP_REGISTER)
     ids = [r.get("tile_id") for r in crop_rows]
@@ -111,8 +146,13 @@ def validate() -> int:
             print(f"- {err}")
         return 1
 
+    provisional = sum(1 for r in beams if (r.get("canonical_status") or "").strip() == "PROVISIONAL_DOC")
+    promoted = sum(1 for r in beams if (r.get("canonical_status") or "").strip() == "BEAM_DOC")
     print("VALIDATION: PASS")
-    print(f"crops={len(crop_rows)} observations={len(obs)} beams={len(beams)} residuals={len(rows(RESIDUAL_REGISTER))}")
+    print(
+        f"crops={len(crop_rows)} observations={len(obs)} beams={len(beams)} "
+        f"provisional={provisional} beam_doc={promoted} residuals={len(rows(RESIDUAL_REGISTER))}"
+    )
     return 0
 
 
