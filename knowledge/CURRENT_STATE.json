@@ -43,12 +43,21 @@
       "direct_visual_bindings": ["P29", "P30", "P32", "P33"],
       "extended_supports": ["P30"],
       "rule": "Only cross-validated rows may currently promote. Single-tile visual bindings remain working until cross-check; P30 additionally requires face/footprint registration."
+    },
+    {
+      "phase": "G1-B/PARTIAL-PIXEL-REGISTRY-01",
+      "status": "CURRENT_PARTIAL",
+      "artifact": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
+      "promoted_supports": ["P28", "P31"],
+      "promoted_count": 2,
+      "rule": "Registry is intentionally partial. File existence does not imply G1 completion; only CROSS_VALIDATED support bindings are promoted."
     }
   ],
   "next_action": {
     "phase": "G1-B",
-    "task": "Continuare sistematicamente per tile l'associazione support_id -> centro/contorno raster. Priorita: completare il settore sinistro e poi catena centrale/destra, usando sempre ID direttamente leggibili e cross-tile quando disponibile.",
+    "task": "Continuare sistematicamente per tile l'associazione support_id -> centro/contorno raster. Chiudere prima P29/P30/P32/P33 con cross-check o evidenza equivalente; poi completare P25-P27 e P21-P24 nel settore sinistro/centrale.",
     "working_ledger": "data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv",
+    "partial_canonical_registry": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "target_output": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "forbidden_inputs": [
       "metric X/Y from PT_MASTER_CURRENT.csv",
