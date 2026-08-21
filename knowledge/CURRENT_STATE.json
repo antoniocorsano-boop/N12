@@ -19,15 +19,16 @@
     {"phase":"G1-A","status":"COMPLETED_WITH_COORDINATE_REVOCATION","run_record":"analysis/pt_raster_candidates/EXTRACTION_RUN_v1.csv","candidate_count":1185,"authority":"AUTO_CANDIDATE_NON_AUTHORITATIVE","revocation":"analysis/pt_raster_candidates/G1A_COORDINATE_REVOCATION_v1.csv"},
     {"phase":"G1-A-REGISTRATION","status":"COMPLETED","artifact":"data/canonical/TAV02S_TILE_TO_NATIVE_REGISTRATION_v1.csv","method":"SIFT + RANSAC tile-to-overview registration; overview-to-native exact image-size scale","direct_tiles":10,"derived_low_information_tiles":["r1_c3","r4_c1"]},
     {"phase":"G1-B/PARTIAL-PIXEL-REGISTRY","status":"CURRENT_PARTIAL","artifact":"data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv","promoted_supports":["P15","P23","P25","P28","P31"],"promoted_count":5,"rule":"File existence does not imply G1 completion; only gate-compliant cross-validated bindings may promote."},
-    {"phase":"G1-B/WORKING-BINDINGS","status":"SAVED","working_ledger":"data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv","working_not_promoted":["P16","P21","P22","P22'","P24","P26","P27","P29","P30","P32","P33"],"correction":"The temporary P24 binding on r3_c2 was reread as P27 and removed before canonical promotion; P24 is now directly located on clean r4_c2."},
-    {"phase":"G1-B/EXTENDED-SUPPORTS","status":"PARTIAL","artifact":"data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv","cross_validated":["P23"],"working_only":["P30"],"still_open":["P18"],"rule":"Physical support footprints remain distinct from analytical nodes; cross-validated footprint does not authorize beam-face nodes before beam-axis vectorization."},
+    {"phase":"G1-B/WORKING-BINDINGS","status":"SAVED","working_ledger":"data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv","working_not_promoted":["P16","P17","P18","P19","P20","P21","P22","P22'","P24","P26","P27","P29","P30","P32","P33"],"correction":"The temporary P24 binding on r3_c2 was reread as P27 and removed before canonical promotion; P24 is now directly located on clean r4_c2."},
+    {"phase":"G1-B/EXTENDED-SUPPORTS","status":"PARTIAL","artifact":"data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv","cross_validated":["P23"],"working_only":["P18","P30"],"rule":"Physical support footprints remain distinct from analytical nodes; cross-validated footprint does not authorize beam-face nodes before beam-axis vectorization."},
     {"phase":"G1-B/BATCH-AUDIT-25-33","status":"SAVED","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_25_33_v1.csv"},
     {"phase":"G1-B/BATCH-AUDIT-21-24","status":"SAVED_WITH_CORRECTION","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_21_24_v1.csv","direct_working_bindings":["P21","P22","P22'","P24"],"extended_cross_validated":["P23"]},
-    {"phase":"G1-B/BATCH-AUDIT-15-16","status":"SAVED","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_15_16_v1.csv","promoted":["P15"],"working":["P16"]}
+    {"phase":"G1-B/BATCH-AUDIT-15-16","status":"SAVED","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_15_16_v1.csv","promoted":["P15"],"working":["P16"]},
+    {"phase":"G1-B/BATCH-AUDIT-17-20","status":"SAVED","artifact":"analysis/pt_raster_candidates/G1B_BATCH_AUDIT_17_20_v1.csv","direct_working_bindings":["P17","P19","P20"],"extended_working":["P18"],"section_correction":"P18 110xND superseded by direct current-raster 110x30."}
   ],
   "next_action": {
     "phase": "G1-B",
-    "task": "Proseguire sistematicamente con P19-P20 e P17-P18; registrare P18 come supporto esteso se confermato dal raster. In parallelo cercare cross-check per P16/P21/P22/P22-prime/P24/P26/P27 e P29/P30/P32/P33.",
+    "task": "Cercare cross-check indipendenti per P17/P18/P19/P20 e gli altri working. Proseguire poi con P9-P14 e P1-P8, mantenendo separati i supporti estesi e senza usare coordinate metriche del Master storico.",
     "working_ledger": "data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv",
     "extended_support_ledger": "data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv",
     "partial_canonical_registry": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
