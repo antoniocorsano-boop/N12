@@ -1,0 +1,13 @@
+audit_id,scope,status,note
+OVR-001,TAV02S_NATIVE_SOURCE,PASS,"overlay sul raster nativo 4680x8609 già verificato"
+OVR-002,TERRACE_GRID,PASS,"c-a-17 e d-b-18 coerenti con simboli e fili; a-17=3.45 m ripristinato e cross-validato"
+OVR-003,LEFT_STEPPED_GRID,PASS,"31-28-25-19; 32-29-26-21; 33-30-27-22 coerenti con il raster"
+OVR-004,RIGHT_MAIN,PASS,"1-2-3-4-6-7-8 coerente con la linea strutturale principale"
+OVR-005,LOWER_GRID,PASS,"23-15-7 e 24-16-8 coerenti con il raster"
+OVR-006,P22_PRIME,PASS_MIS,"22' distinto da 22; interasse misurato 1.18 m compatibile con 1.20 m ma non promosso a DOC"
+OVR-007,CENTRAL_CHAIN,PASS_TOPOLOGY_OPEN_FACE,"11-12-13-14 topologicamente supportata; resta verifica locale linee/facce e richiami 120x20"
+OVR-008,CENTRAL_DIAGONAL,PASS_TOPOLOGY_OPEN_FACE,"20-21 e trave inclinata supportate; resta attestazione sulle facce; richiamo 65x30 trattato come sezione trave"
+OVR-009,ANTI_FALSE_NODE,PASS,"rettangoli di sezione senza identificativo non generano pilastri"
+OVR-010,P23_P30_FACE_BINDING,OPEN,"vincolo formalizzato in PT_HIRES_FACE_BINDING_GATE_v1.csv; P23 e P30 restano supporti estesi"
+OVR-011,MASTER_PROMOTION,HOLD,"PT_MASTER_CURRENT non va promosso finché FB-001/FB-002/FB-003 non sono chiusi"
+OVR-012,FACE_BINDING_GATE,ACTIVE,"PT_HIRES_FACE_BINDING_GATE_v1.csv è il gate operativo corrente"
