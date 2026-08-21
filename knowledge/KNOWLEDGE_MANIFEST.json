@@ -5,7 +5,7 @@
   "canonical_branch": "work/m0-global-model",
   "entrypoint": "AGENTS.md",
   "objective": "Fascicolo strutturale completo, modello M0 globale, modello EdiLus-EE validato e verifiche dell'edificio esistente in c.a.",
-  "current_gate": "M0-G/PT-RASTER-G7",
+  "current_gate": "M0-G/PT-RASTER-G9",
   "current_domain": "PT_GEOMETRY_FROM_TAV02S",
   "state_file": "knowledge/CURRENT_STATE.json",
   "artifact_registry": "knowledge/ARTIFACT_REGISTRY.csv",
@@ -25,8 +25,8 @@
     "primary_raster_manifest": "analysis/source_renders/TAV02S/manifest.txt",
     "pixel_gate": "data/canonical/PT_PIXEL_REGISTRATION_GATE_v1.csv",
     "old_master": "data/canonical/PT_MASTER_CURRENT.csv",
-    "old_master_geometry_authority": "SUSPENDED",
-    "current_subphase": "G7_ANALYTICAL_BEAM_FACE_NODES",
+    "old_master_geometry_authority": "SUSPENDED_READY_TO_REGENERATE",
+    "current_subphase": "G9_FINAL_OVERLAY_COMPLETE_MASTER_REGENERATION_NEXT",
     "g1_pixel_registry": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
     "g2_metric_network": "data/canonical/PT_GCP_METRIC_NETWORK_v1.csv",
     "g2_axis_network": "data/canonical/PT_G2_AXIS_ALIGNMENT_NETWORK_v1.csv",
@@ -36,9 +36,13 @@
     "g6_beam_vector_patch": "data/canonical/PT_VECTOR_BEAMS_G6_PATCH_v1.csv",
     "g6_beam_raster_qa": "data/canonical/PT_VECTOR_BEAMS_RASTER_QA_v1.csv",
     "g6_raster_metric_diagnostic": "data/canonical/PT_RASTER_TO_METRIC_DIAGNOSTIC_v1.csv",
-    "g6_vector_status": "49_OF_49_TOPOLOGY_FACE_PASS_WITH_PROVENANCE_WATCHES",
+    "g7_vector_supports": "data/canonical/PT_VECTOR_SUPPORTS_v1.csv",
+    "g7_analytical_nodes": "data/canonical/PT_ANALYTICAL_NODES_v1.csv",
+    "g7_analytical_nodes_audit": "data/canonical/PT_ANALYTICAL_NODES_AUDIT_v1.csv",
+    "g9_overlay_qa": "data/canonical/PT_OVERLAY_QA_v1.csv",
+    "final_geometry_status": "READY_FOR_MASTER_REGENERATION_WITH_PROVENANCE_WATCHES",
     "required_pipeline": ["PT_PIXEL_SUPPORT_REGISTRY_v1.csv","PT_GCP_METRIC_NETWORK_v1.csv","PT_METRIC_SUPPORT_CENTERS_v1.csv","PT_METRIC_NETWORK_RESIDUALS_v1.csv","PT_RASTER_TO_METRIC_DIAGNOSTIC_v1.csv","PT_VECTOR_SUPPORTS_v1.csv","PT_VECTOR_BEAMS_v2.csv","PT_ANALYTICAL_NODES_v1.csv","PT_OVERLAY_QA_v1.csv"],
-    "master_promotion_rule": "all pipeline artifacts present and valid plus semantic raster overlay QA"
+    "master_promotion_rule": "all pipeline artifacts present and valid plus semantic raster overlay QA; WATCH provenance must remain explicit"
   },
   "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, registered path existence, authority/state consistency, entrypoint and skill contracts","semantic_validation_scope":"source reading, raster semantics, metric residual acceptance and overlay approval remain skill gates"}
 }
