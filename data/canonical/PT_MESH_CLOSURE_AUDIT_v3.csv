@@ -1,0 +1,28 @@
+check_id,node_i,node_j,quoted_m,computed_m,residual_m,status,source
+C01,c,a,3.45,3.45,0.00,PASS,TAV-02S direct
+C02,a,17,3.45,3.45,0.00,PASS,TAV-02S pixel-calibrated crosscheck
+C03,17,9,5.50,5.50,0.00,PASS,TAV-02S direct
+C04,9,1,5.60,5.60,0.00,PASS,TAV-02S direct
+C05,c,d,4.70,4.70,0.00,PASS,TAV-02S direct
+C06,a,b,4.70,4.70,0.00,PASS,TAV-02S direct
+C07,17,18,4.70,4.70,0.00,PASS,TAV-02S direct
+C08,1,2,4.70,4.70,0.00,PASS,TAV-02S right chain
+C09,18,19,4.05,4.05,0.00,PASS,TAV-02S left chain
+C10,31,28,4.70,4.70,0.00,PASS,TAV-02S left row
+C11,28,25,3.45,3.45,0.00,PASS,TAV-02S left row
+C12,25,19,2.10,2.10,0.00,PASS,TAV-02S left row
+C13,31,32,6.25,6.25,0.00,PASS,TAV-02S left external
+C14,32,33,4.95,4.95,0.00,PASS,TAV-02S left external
+C15,2,3,5.10,5.10,0.00,PASS,TAV-02S right chain
+C16,3,4,4.15,4.15,0.00,PASS,TAV-02S right chain
+C17,4,6,4.15,4.15,0.00,PASS,TAV-02S right chain
+C18,6,7,5.33,5.33,0.00,PASS,TAV-02S right chain
+C19,7,8,4.70,4.70,0.00,PASS,TAV-02S right chain
+C20,5,4,1.90,1.90,0.00,PASS,TAV-02S direct offset
+C21,13,14,2.90,2.90,0.00,PASS,TAV-02S direct
+C22,14,6,4.65,4.65,0.00,PASS,TAV-02S cross row
+C23,23,15,6.45,6.45,0.00,PASS,TAV-02S bottom chain
+C24,15,7,4.65,4.65,0.00,PASS,TAV-02S bottom chain
+C25,24,16,6.45,6.45,0.00,PASS,TAV-02S bottom chain
+C26,16,8,4.65,4.65,0.00,PASS,TAV-02S bottom chain
+SUMMARY,ALL,ALL,,,0.00,PASS,"26 independent quoted relations; maximum absolute residual < 0.000001 m; supersedes PT_MESH_CLOSURE_AUDIT_v2"
