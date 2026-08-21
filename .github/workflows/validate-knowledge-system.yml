@@ -1,0 +1,44 @@
+name: Validate N12 Knowledge System
+
+on:
+  push:
+    branches:
+      - main
+      - work/m0-global-model
+    paths:
+      - 'AGENTS.md'
+      - 'knowledge/**'
+      - 'docs/**'
+      - 'data/canonical/**'
+      - 'skills/**'
+      - 'scripts/validate_knowledge_system.py'
+      - '.github/workflows/validate-knowledge-system.yml'
+  pull_request:
+    paths:
+      - 'AGENTS.md'
+      - 'knowledge/**'
+      - 'docs/**'
+      - 'data/canonical/**'
+      - 'skills/**'
+      - 'scripts/validate_knowledge_system.py'
+
+jobs:
+  knowledge-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate knowledge architecture
+        run: python scripts/validate_knowledge_system.py
+
+      - name: Validate carpenteria semantic registries
+        run: python skills/pt-carpentry-reader/runner.py validate
+
+      - name: Report PT raster reconstruction gate
+        run: python skills/pt-raster-grid-reconstructor/runner.py status
