@@ -11,16 +11,17 @@ entity_id,entity_type,x_global_m,y_global_m,geometry_status,source_basis,residua
 10,NUMBERED_PILLAR,12.40,4.70,CLOSED_DOC_ALIGN,PT_MASTER_CURRENT.csv + alignment,NONE
 11,NUMBERED_PILLAR,12.40,9.80,CLOSED_DOC_ALIGN,PT_MASTER_CURRENT.csv + alignment,NONE
 12,NUMBERED_PILLAR,12.40,13.95,CLOSED_DOC_ALIGN,PT_MASTER_CURRENT.csv + alignment,NONE
-13,NUMBERED_PILLAR,,,OPEN_DIRECT_READ,identity visible in TAV-02S lower-right transition; exact global coordinates not yet closed,read exact coordinates directly; DO NOT INTERPOLATE
+13,NUMBERED_PILLAR,13.35,15.20,CLOSED_DOC,TAV-02S native HiRes direct 2.90 m spacing to P14,NONE
 14,NUMBERED_PILLAR,13.35,18.10,CLOSED_DOC,PT_MASTER_CURRENT.csv + lower-right chain,NONE
 15,NUMBERED_PILLAR,13.35,23.43,CLOSED_DOC_ALIGN,PT_MASTER_CURRENT.csv + cross-tie to 23,NONE
 16,NUMBERED_PILLAR,13.35,28.13,CLOSED_DOC_ALIGN,PT_MASTER_CURRENT.csv + bottom chain,NONE
 17,NUMBERED_PILLAR,6.90,0.00,CLOSED_DOC,PT_MASTER_CURRENT.csv + TAV-02S quoted chains,NONE
 18,NUMBERED_PILLAR,6.90,4.70,CLOSED_DOC_ALIGN,PT_MASTER_CURRENT.csv + alignment,NONE
-19,NUMBERED_PILLAR,,,OPEN_CONFLICT,previous Y=9.80 assignment superseded during left-sector reconciliation,re-read exact coordinates directly; DO NOT RESTORE SUPERSEDED VALUE
-20,NUMBERED_PILLAR,,,OPEN_CONFLICT,previous Y=13.95 assignment superseded during left-sector reconciliation,re-read exact coordinates directly; DO NOT RESTORE SUPERSEDED VALUE
+19,NUMBERED_PILLAR,6.90,8.75,CLOSED_DOC,TAV-02S native HiRes + documented 4.05 m left-wing chain from P18,NONE
+20,NUMBERED_PILLAR,6.90,9.80,CLOSED_DOC_ALIGN,TAV-02S native HiRes direct alignment/row reading,NONE
 21,NUMBERED_PILLAR,6.90,12.23,CLOSED_DOC,PT_MASTER_CURRENT.csv + left-sector row alignment,NONE
 22,NUMBERED_PILLAR,6.90,18.48,CLOSED_DOC,PT_MASTER_CURRENT.csv + left-sector row alignment,NONE
+22',NUMBERED_PILLAR,,,MIS_COORD_LOCAL,"TAV-02S R03C01 distinct support; local 1.18 m measured spacing to P22 compatible with 1.20 m",KEEP_MIS_UNTIL_WRITTEN_BINDING
 23,NUMBERED_PILLAR,6.90,23.43,CLOSED_DOC,PT_MASTER_CURRENT.csv + direct horizontal reference to 15,NONE
 24,NUMBERED_PILLAR,6.90,28.13,CLOSED_DOC,PT_MASTER_CURRENT.csv + bottom chain,NONE
 25,NUMBERED_PILLAR,4.80,12.23,CLOSED_DOC,PT_MASTER_CURRENT.csv + 4.70-3.45-2.10 transverse chain,NONE
@@ -32,7 +33,7 @@ entity_id,entity_type,x_global_m,y_global_m,geometry_status,source_basis,residua
 31,NUMBERED_PILLAR,-3.35,12.23,CLOSED_DOC,PT_MASTER_CURRENT.csv + row tie,NONE
 32,NUMBERED_PILLAR,-3.35,18.48,CLOSED_DOC,PT_MASTER_CURRENT.csv + row tie,NONE
 33,NUMBERED_PILLAR,-3.35,23.43,CLOSED_DOC,PT_MASTER_CURRENT.csv + row tie,NONE
-a,TERRACE_ADDED_PILLAR,,,OPEN_DIRECT_READ,user-confirmed physical added pillar; exact position not yet source-bound,locate directly on carpenteria; do not infer
-b,TERRACE_ADDED_PILLAR,,,OPEN_DIRECT_READ,user-confirmed physical added pillar; exact position not yet source-bound,locate directly on carpenteria; do not infer
-c,TERRACE_ADDED_PILLAR,,,OPEN_DIRECT_READ,user-confirmed physical added pillar; exact position not yet source-bound,locate directly on carpenteria; do not infer
-d,TERRACE_ADDED_PILLAR,,,OPEN_DIRECT_READ,user-confirmed physical added pillar; exact position not yet source-bound,locate directly on carpenteria; do not infer
+a,TERRACE_ADDED_PILLAR,3.45,0.00,CLOSED_DOC_DERIVED,TAV-02S native HiRes row c-a-17 + c-a=3.45 + a-17=3.45 + P17 global coordinate,NONE
+b,TERRACE_ADDED_PILLAR,3.45,4.70,CLOSED_DOC_DERIVED,TAV-02S native HiRes row d-b-18 + terrace row spacing 4.70 + P18 global coordinate,NONE
+c,TERRACE_ADDED_PILLAR,0.00,0.00,CLOSED_DOC_DERIVED,TAV-02S native HiRes row c-a-17 + c-a=3.45 + a-17=3.45 + P17 global coordinate,NONE
+d,TERRACE_ADDED_PILLAR,0.00,4.70,CLOSED_DOC_DERIVED,TAV-02S native HiRes row d-b-18 + c-d=4.70 + P18 global coordinate,NONE
