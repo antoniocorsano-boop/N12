@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "updated_at": "2026-08-21",
-  "gate": "M0-G/PT-RASTER-G1",
+  "gate": "M0-G/PT-RASTER-G1-B",
   "status": "ACTIVE",
   "objective": "Ricostruire la geometria PT da TAV-02S in modo riproducibile senza dipendere dalle coordinate del Master storico.",
   "authoritative_method": "skills/pt-raster-grid-reconstructor/SKILL.md",
@@ -14,11 +14,27 @@
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
   "suspension_reason": "Le coordinate metriche precedenti non dispongono ancora di un registro pixel completo e riproducibile dei sostegni/facce sul raster nativo.",
   "blocking_gate": "data/canonical/PT_PIXEL_REGISTRATION_GATE_v1.csv",
+  "completed_subphases": [
+    {
+      "phase": "G1-A",
+      "status": "COMPLETED",
+      "method": "OpenCV assistive geometric candidate extraction on 12 persistent TAV-02S raster tiles",
+      "run_record": "analysis/pt_raster_candidates/EXTRACTION_RUN_v1.csv",
+      "workflow_run_id": 32462991062,
+      "artifact_id": 9439609767,
+      "candidate_count": 1185,
+      "authority": "AUTO_CANDIDATE_NON_AUTHORITATIVE"
+    }
+  ],
   "next_action": {
-    "phase": "G1",
-    "task": "Registrare indipendentemente sul raster i centri dei sostegni P1-P33, P22-prime e a-d; per i sostegni estesi registrare anche contorni/facce leggibili.",
+    "phase": "G1-B",
+    "task": "Associare semanticamente ai support_id i candidati/centri osservati sul raster, escludendo richiami di sezione, testi e altri rettangoli; per P18/P23/P30 e altri sostegni estesi registrare anche contorni/facce.",
     "output": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
-    "forbidden_inputs": ["metric X/Y from PT_MASTER_CURRENT.csv", "historical grid coordinates used as self-confirmation"]
+    "forbidden_inputs": [
+      "metric X/Y from PT_MASTER_CURRENT.csv",
+      "historical grid coordinates used as self-confirmation",
+      "automatic candidate shape used as pillar classification without semantic review"
+    ]
   },
   "blocking_residuals": [
     "PXG-002 PILLAR_CENTERS",
