@@ -1,0 +1,4 @@
+binding_id,entity_i,entity_j,axis,documented_value_m,measured_value_m,calibration_basis,evidence_status,canonical_action,note
+CAL-Y-32-33,32,33,LONGITUDINAL,4.95,4.95,"TAV-02S R03C01; centers of numbered pillar symbols; written 4.95 dimension",DOC_CALIBRATION,KEEP,"local raster metric calibration in same tile"
+MIS-22P-22,22',22,LONGITUDINAL,,1.18,"local pixel ratio against 32-33=4.95 m in TAV-02S R03C01",MIS_HIRES_CANDIDATE,VERIFY_1_20,"measured value is compatible with 1.20 m; do not promote to DOC until written dimension/topological mapping is independently verified"
+CAND-22P-22,22',22,LONGITUDINAL,1.20,1.18,"TAV-02S R03C01 local calibration + historical 1.20 m frame spacing as non-binding crosscheck",CANDIDATE_COMPATIBLE,NO_AUTO_PROMOTION,"if direct written 1.20 binding is found, set 22' ordinate = ordinate(22)-1.20 in current raster orientation"
