@@ -41,8 +41,7 @@
       "ledger": "data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv",
       "cross_validated_bindings": ["P28", "P31"],
       "direct_visual_bindings": ["P29", "P30", "P32", "P33"],
-      "extended_supports": ["P30"],
-      "rule": "Only cross-validated rows may currently promote. Single-tile visual bindings remain working until cross-check; P30 additionally requires face/footprint registration."
+      "extended_supports": ["P30"]
     },
     {
       "phase": "G1-B/PARTIAL-PIXEL-REGISTRY-01",
@@ -50,15 +49,14 @@
       "artifact": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
       "promoted_supports": ["P28", "P31"],
       "promoted_count": 2,
-      "rule": "Registry is intentionally partial. File existence does not imply G1 completion; only CROSS_VALIDATED support bindings are promoted."
+      "rule": "Registry is intentionally partial. File existence does not imply G1 completion."
     },
     {
       "phase": "G1-B/BATCH-AUDIT-25-33-02",
       "status": "SAVED",
       "artifact": "analysis/pt_raster_candidates/G1B_BATCH_AUDIT_25_33_v1.csv",
       "confirmed_not_promoted": ["P29", "P30", "P32", "P33"],
-      "unresolved": ["P25", "P26", "P27"],
-      "rule": "No support is promoted merely because a candidate shape exists. Direct semantic ID binding and current G1 cross-validation criteria remain mandatory."
+      "unresolved": ["P25", "P26", "P27"]
     },
     {
       "phase": "G1-B/EXTENDED-SUPPORT-P30-01",
@@ -66,23 +64,32 @@
       "artifact": "data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv",
       "support": "P30",
       "native_center_px": [1265.81, 5916.13],
-      "native_footprint_px": [[1244.30, 5823.19], [1287.28, 5823.19], [1287.32, 6009.06], [1244.34, 6009.06]],
-      "rule": "P30 is a physical extended support. Its footprint is retained explicitly and may not feed analytical nodes until independent cross-check."
+      "native_footprint_px": [[1244.30, 5823.19], [1287.28, 5823.19], [1287.32, 6009.06], [1244.34, 6009.06]]
     },
     {
-      "phase": "G1-B/BATCH-AUDIT-21-24-03",
-      "status": "SAVED_WITH_SOURCE_RESIDUAL",
+      "phase": "G1-B/BATCH-CENTER-21-24-03",
+      "status": "SAVED_WORKING_DIRECT_RASTER_REBOUND",
       "artifact": "analysis/pt_raster_candidates/G1B_BATCH_AUDIT_21_24_v1.csv",
-      "semantic_identity_documented": ["P22", "P22'"],
+      "direct_working_bindings": ["P21", "P22", "P22'", "P24"],
+      "extended_supports_registered": ["P23"],
       "coordinate_bindings_promoted": [],
-      "unresolved": ["P21", "P23", "P24"],
-      "source_residual": "The semantic observations for P22/P22' cite evidence/hires/TAV-02S/tiles/TAV-02S_L1_R03C01.png, which is absent from the current branch.",
-      "rule": "Semantic observations remain valid as observations; native-pixel coordinates are not promoted until the ID-to-raster binding is reproducible against the current persistent source."
+      "source_resolution": "Historical R03C01 naming is not equivalent to current r3_c1. Current clean r3_c2 directly contains P21, P22, P22-prime, P23 and P24.",
+      "metric_consistency": "P22-prime to P22 pixel separation is consistent with the prior ~1.18 m MIS observation; 1.20 m remains non-DOC until a direct written binding is found.",
+      "rule": "Direct current-raster bindings remain working until independent crosscheck."
+    },
+    {
+      "phase": "G1-B/EXTENDED-SUPPORT-P23-01",
+      "status": "SAVED_WORKING",
+      "artifact": "data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv",
+      "support": "P23",
+      "native_center_px": [2076.60, 6491.39],
+      "native_footprint_px": [[1987.62, 6468.89], [2165.58, 6468.89], [2165.58, 6513.89], [1987.62, 6513.89]],
+      "rule": "P23 is one physical extended support. Do not collapse it to one analytical node; beam-face nodes are a later gated derivation."
     }
   ],
   "next_action": {
     "phase": "G1-B",
-    "task": "Rigenerare dal raster nativo persistente un ritaglio equivalente per P22/P22' e riallacciare gli ID documentati allo spazio pixel registrato corrente; localizzare direttamente P21/P23/P24 e completare la sagoma estesa di P23. Mantenere in parallelo P25-P27 irrisolti finche gli ID non sono leggibili senza ambiguita.",
+    "task": "Cross-validare P21/P22/P22-prime/P23/P24 ove possibile sulle sovrapposizioni o con una seconda registrazione indipendente; in parallelo chiudere P25-P27 sul raster pulito. Poi proseguire sistematicamente verso P19-P20 e P15-P18.",
     "working_ledger": "data/canonical/PT_RASTER_SUPPORT_BINDINGS_WORKING_v1.csv",
     "extended_support_ledger": "data/canonical/PT_RASTER_EXTENDED_SUPPORTS_WORKING_v1.csv",
     "batch_audits": ["analysis/pt_raster_candidates/G1B_BATCH_AUDIT_25_33_v1.csv", "analysis/pt_raster_candidates/G1B_BATCH_AUDIT_21_24_v1.csv"],
@@ -94,7 +101,7 @@
       "automatic candidate shape used as pillar classification without semantic review",
       "section dimension used as structural support ID",
       "revoked u_global_px/v_global_px from early G1-A extraction",
-      "semantic observation whose cited source is missing used alone as native-pixel coordinate evidence"
+      "historical/current tile-name equality used as spatial binding"
     ]
   },
   "blocking_residuals": [
@@ -102,8 +109,7 @@
     "PXG-003 EXTENDED_SUPPORTS",
     "PXG-004 TERRACE_A_D",
     "PXG-005 BEAM_FACE_NODES",
-    "PXG-006 METRIC_TRANSFORM",
-    "SOURCE_RESIDUAL TAV-02S_L1_R03C01 cited HiRes tile absent from current branch"
+    "PXG-006 METRIC_TRANSFORM"
   ],
   "non_blocking_knowledge_to_preserve": [
     "written dimensions and IDs already observed, subject to claim-level validation",
