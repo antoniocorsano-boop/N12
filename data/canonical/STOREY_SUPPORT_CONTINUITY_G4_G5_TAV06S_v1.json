@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "scope": "G4_TO_G5_ROOF_SUPPORT_IDENTITY_CONTINUITY",
+  "source": "TAV-06S / carpenteria copertura",
+  "upstream": "data/canonical/STOREY_SUPPORT_CONTINUITY_PT_G4_v1.json",
+  "validation_state": "DIRECT_REGISTERED",
+  "geometry_registration_state": "IDENTITY_ONLY_NO_INTERSHEET_XY_OR_Z_REGISTRATION_YET",
+  "g4_original_support_count": 34,
+  "tav06s_present_support_count": 25,
+  "tav06s_absent_support_count": 9,
+  "present_on_tav06s": ["2","3","4","5","6","7","10","11","12","13","14","15","18","19","20","21","22","22'","23","25","26","27","28","29","30"],
+  "not_present_on_tav06s": ["1","8","9","16","17","24","31","32","33"],
+  "present_rule": {
+    "continuity_class": "CONTINUES_TO_ROOF_CARPENTRY",
+    "evidence_state": "DOC",
+    "usage": "Support identity may be propagated to the roof level only after inter-sheet metric registration; PT/G4 X-Y must not be copied blindly."
+  },
+  "absent_rule": {
+    "continuity_class": "NOT_PRESENT_ON_ROOF_CARPENTRY",
+    "evidence_state": "DOC",
+    "usage": "DO_NOT_EXTRUDE_TO_G5",
+    "note": "Absence is established by complete identifier scan of TAV-06S. Exact physical termination elevation is a subsequent Z-registration question; the current claim is limited to non-presence on the roof carpenteria."
+  },
+  "terrace_added_supports": {
+    "ids": ["a","b","c","d"],
+    "roof_status": "NOT_APPLICABLE_ALREADY_TERMINATED_AFTER_G1"
+  },
+  "next_gate": "COMMON_XY_REGISTRATION_TAV03S_TAV04S_TAV05S_TAV06S_PLUS_Z_LEVEL_REGISTRATION_FROM_TAV06E"
+}
