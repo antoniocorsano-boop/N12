@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "work_item_id": "M1M-MATERIAL-EVIDENCE",
+  "source_sheet": "MULTI",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "target_outputs": [
+    "data/canonical/M1M_MATERIAL_EVIDENCE_CURRENT_v1.csv",
+    "data/canonical/M1M_MATERIAL_GATE_v1.csv"
+  ],
+  "provenance_summary": {
+    "DOC": 0,
+    "MIS": 0,
+    "RIF": 3,
+    "INF": 0,
+    "INC": 0,
+    "ND": 5
+  },
+  "residuals": [
+    {"id":"M1M-R01","claim":"Direct original-source confirmation of historical Rck 250 kg/cm2","state":"OPEN_NONBLOCKING"},
+    {"id":"M1M-R02","claim":"Numerical current/in-situ concrete verification strength","state":"OPEN_REQUIRED_BEFORE_CALCULATION_MODEL_READY"},
+    {"id":"M1M-R03","claim":"Reinforcing-steel type/grade and fyk","state":"OPEN_REQUIRED_BEFORE_CALCULATION_MODEL_READY"},
+    {"id":"M1M-R04","claim":"Level of knowledge LC","state":"OPEN_REQUIRED_BEFORE_CALCULATION_MODEL_READY"},
+    {"id":"M1M-R05","claim":"Confidence factor FC","state":"OPEN_REQUIRED_BEFORE_CALCULATION_MODEL_READY"}
+  ],
+  "audit_paths": [
+    "analysis/automation/M1M_MATERIAL_EVIDENCE_AUDIT_v1.md"
+  ]
+}
