@@ -38,6 +38,7 @@ render_one "TAV03S" "archive/documentazione_originaria/tavola3-2.pdf" "carpenter
 render_one "TAV04S" "archive/documentazione_originaria/tavola4-2.pdf" "carpenteria_III_impalcato" "G3"
 render_one "TAV05S" "archive/documentazione_originaria/tavola 5.pdf" "carpenteria_IV_impalcato" "G4"
 render_one "TAV05E" "archive/documentazione_originaria/tavola5-2.pdf" "prospetto_elevazione" "sviluppo_verticale"
+render_one "TAV06A" "archive/documentazione_originaria/tavola 6.pdf" "armature_copertura" "G5_copertura"
 render_one "TAV06S" "archive/documentazione_originaria/tavola 6-1.pdf" "carpenteria_copertura" "G5_copertura"
 render_one "TAV06E" "archive/documentazione_originaria/tavola6-2.pdf" "sezione_elevazione" "sviluppo_verticale"
 render_one "TAV07A" "archive/documentazione_originaria/tavola7.pdf" "abaco_dettagli_pilastri" "pilastri_particolari"
