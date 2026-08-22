@@ -103,7 +103,7 @@
     {
       "id": "BEAM-G2-TAV03S",
       "priority": 50,
-      "state": "READY",
+      "state": "COMPLETE",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-03S",
       "task": "Reconstruct II impalcato beam claims, sections, directions and support-face incidence independently from TAV-03S.",
@@ -119,12 +119,15 @@
       ],
       "semantic_gate": "PT beam topology is comparison-only; no member may be copied upward without a direct TAV-03S trace.",
       "released_at": "2026-08-22T11:18:24.983620+00:00",
-      "released_by": "SEC-G5-TAV06S"
+      "released_by": "SEC-G5-TAV06S",
+      "completed_at": "2026-08-22T11:35:49.847216+00:00",
+      "completion_decision": "PASS",
+      "result_receipt": "automation/receipts/BEAM-G2-TAV03S_20260822T113549Z.json"
     },
     {
       "id": "BEAM-G3-TAV04S",
       "priority": 60,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-04S",
       "task": "Reconstruct III impalcato beam topology independently from TAV-04S.",
@@ -139,7 +142,9 @@
       "target_outputs": [
         "data/canonical/STOREY_BEAMS_G3_v1.csv"
       ],
-      "semantic_gate": "Differences from G2 are first-class evidence and must not be normalized away."
+      "semantic_gate": "Differences from G2 are first-class evidence and must not be normalized away.",
+      "released_at": "2026-08-22T11:35:49.847216+00:00",
+      "released_by": "BEAM-G2-TAV03S"
     },
     {
       "id": "BEAM-G4-TAV05S",
