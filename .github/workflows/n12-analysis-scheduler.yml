@@ -4,6 +4,11 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '17 */6 * * *'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/n12-analysis-scheduler.yml'
 
 concurrency:
   group: n12-structural-analysis-cycle
