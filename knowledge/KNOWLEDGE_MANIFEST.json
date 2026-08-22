@@ -33,8 +33,13 @@
     "runner": "scripts/n12_orchestrator.py",
     "procedure": "docs/N12_AUTOMATED_ANALYSIS_CYCLE_v1.md",
     "workflow": ".github/workflows/n12-analysis-orchestrator.yml",
-    "deterministic_execution": "ON_PUSH_AND_WORKFLOW_DISPATCH; scheduled cron becomes active when workflow is present on repository default branch",
-    "semantic_executor": "NOT_YET_CONNECTED",
+    "result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
+    "result_ingestor": "scripts/n12_ingest_agent_result.py",
+    "result_inbox": "automation/inbox/N12_AGENT_RESULT.json",
+    "scheduler_on_default_branch": ".github/workflows/n12-analysis-scheduler.yml",
+    "deterministic_execution": "ON_WORK_BRANCH_PUSH_AND_WORKFLOW_DISPATCH_PLUS_DEFAULT_BRANCH_6H_SCHEDULER",
+    "semantic_executor": "SCHEDULED_PROJECT_AGENT_CONFIGURED_AWAITING_FIRST_RECEIPT",
+    "semantic_execution_limit": "ONE_WORK_ITEM_PER_CYCLE",
     "no_executor_behavior": "STOP_AT_READY_FOR_AGENT_WITHOUT_WEAKENING_SEMANTIC_GATES"
   },
   "pt_geometry": {
@@ -87,5 +92,5 @@
     "section_transfer_rule": "DO_NOT_COPY_PT_SECTION_UPWARD; read support sections and orientation independently on each carpenteria or TAV-07A",
     "beam_transfer_rule": "DO_NOT_COPY_PT_BEAM_TOPOLOGY_UPWARD; reconstruct each storey from its own carpenteria"
   },
-  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology and residual acceptance remain specialist gates"}
+  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, semantic result handshake, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology and residual acceptance remain specialist gates"}
 }
