@@ -31,7 +31,7 @@
     {
       "id": "SEC-G3-TAV04S",
       "priority": 20,
-      "state": "READY",
+      "state": "COMPLETE",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-04S",
       "task": "Read sections and orientations for support identities 1-33 plus 22' independently on the III impalcato carpenteria.",
@@ -47,12 +47,15 @@
       ],
       "semantic_gate": "Do not inherit G2 sections; every unchanged value must still be supported by TAV-04S evidence.",
       "released_at": "2026-08-22T10:37:47.838531+00:00",
-      "released_by": "SEC-G2-TAV03S"
+      "released_by": "SEC-G2-TAV03S",
+      "completed_at": "2026-08-22T10:51:06.697750+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "result_receipt": "automation/receipts/SEC-G3-TAV04S_20260822T105106Z.json"
     },
     {
       "id": "SEC-G4-TAV05S",
       "priority": 30,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-05S",
       "task": "Read sections and orientations for the 34 original support identities on the IV impalcato carpenteria.",
@@ -66,7 +69,9 @@
       "target_outputs": [
         "data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv"
       ],
-      "semantic_gate": "Preserve tower/stair and reduced upper-storey sections explicitly; do not reuse G3 values without direct source support."
+      "semantic_gate": "Preserve tower/stair and reduced upper-storey sections explicitly; do not reuse G3 values without direct source support.",
+      "released_at": "2026-08-22T10:51:06.697750+00:00",
+      "released_by": "SEC-G3-TAV04S"
     },
     {
       "id": "SEC-G5-TAV06S",
