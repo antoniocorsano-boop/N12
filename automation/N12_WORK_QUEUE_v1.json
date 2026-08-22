@@ -79,7 +79,7 @@
     {
       "id": "SEC-G5-TAV06S",
       "priority": 40,
-      "state": "READY",
+      "state": "COMPLETE",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-06S",
       "task": "Read sections/orientations for the 25 support identities documented on roof carpenteria.",
@@ -95,12 +95,15 @@
       ],
       "semantic_gate": "Only the 25 identities directly present on TAV-06S may be populated; absent G4 supports must remain terminated.",
       "released_at": "2026-08-22T11:06:12.652654+00:00",
-      "released_by": "SEC-G4-TAV05S"
+      "released_by": "SEC-G4-TAV05S",
+      "completed_at": "2026-08-22T11:18:24.983620+00:00",
+      "completion_decision": "PASS",
+      "result_receipt": "automation/receipts/SEC-G5-TAV06S_20260822T111824Z.json"
     },
     {
       "id": "BEAM-G2-TAV03S",
       "priority": 50,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-03S",
       "task": "Reconstruct II impalcato beam claims, sections, directions and support-face incidence independently from TAV-03S.",
@@ -114,7 +117,9 @@
       "target_outputs": [
         "data/canonical/STOREY_BEAMS_G2_v1.csv"
       ],
-      "semantic_gate": "PT beam topology is comparison-only; no member may be copied upward without a direct TAV-03S trace."
+      "semantic_gate": "PT beam topology is comparison-only; no member may be copied upward without a direct TAV-03S trace.",
+      "released_at": "2026-08-22T11:18:24.983620+00:00",
+      "released_by": "SEC-G5-TAV06S"
     },
     {
       "id": "BEAM-G3-TAV04S",
