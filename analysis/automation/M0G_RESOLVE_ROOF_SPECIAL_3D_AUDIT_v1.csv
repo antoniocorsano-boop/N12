@@ -1,0 +1,11 @@
+audit_id,work_item_id,check,expected,observed,result,evidence_state,source_or_method,note
+M0G-RS3D-A01,M0G-RESOLVE-ROOF-SPECIAL-3D,feature_rows,6,6,PASS,DOC,ROOF_G5_SPECIAL_FEATURES_CURRENT_v1.csv,"Exactly three ridge axes and three eaves edge sets; G5-OBL-19-26 remains outside this target and G5-B036 is not duplicated."
+M0G-RS3D-A02,M0G-RESOLVE-ROOF-SPECIAL-3D,ridge_axis_rows,3,3,PASS,DOC,TAV-06S immutable primary source,"Three direct LINEA DI COLMO annotations retained."
+M0G-RS3D-A03,M0G-RESOLVE-ROOF-SPECIAL-3D,eaves_edge_set_rows,3,3,PASS,DOC,TAV-06S immutable primary source,"Three documented external gronda edge sets retained without rectangularization."
+M0G-RS3D-A04,M0G-RESOLVE-ROOF-SPECIAL-3D,ridge_xy_registered,3,3,PASS,MIS,TAV-06S registered 300dpi trace plus STOREY_SUPPORT_XY_REGISTRATION_v1.csv,"Visible trace endpoints transformed to the common PT frame; no MIS-to-DOC promotion."
+M0G-RS3D-A05,M0G-RESOLVE-ROOF-SPECIAL-3D,eaves_metric_centerlines_created,0,0,PASS,ND,semantic anti-inference gate,"No structural or geometric centerline invented for multi-edge gronda sets."
+M0G-RS3D-A06,M0G-RESOLVE-ROOF-SPECIAL-3D,canonical_z_assignments,0,0,PASS,ND,TAV-06S section A-B plus TAV-06E vertical chain,"TAV-06S local 2.10/3.15 m and TAV-06E 2.00+0.20=2.20 m have non-equivalent endpoint semantics and are not uniformly bound to all six features."
+M0G-RS3D-A07,M0G-RESOLVE-ROOF-SPECIAL-3D,structural_member_promotions,0,0,PASS,ND,M0G_ASSEMBLY_CONTRACT_v1.json,"All six structural_member_status values remain TO_VERIFY_MEMBER."
+M0G-RS3D-A08,M0G-RESOLVE-ROOF-SPECIAL-3D,g5_b036_duplicates,0,0,PASS,DOC,STOREY_BEAMS_G5_v1.csv,"Confirmed oblique member G5-B036 remains counted once and is not inserted into this target."
+M0G-RS3D-A09,M0G-RESOLVE-ROOF-SPECIAL-3D,primary_source_identity,2,2,PASS,DOC,tavole_originali_remote_index_v1.csv,"TAV-06S blob 7deb698a/SHA256 ca454c84 and TAV-06E blob 6d9584f2/SHA256 c0ad4eef preserved."
+M0G-RS3D-A10,M0G-RESOLVE-ROOF-SPECIAL-3D,derived_render_identity,1,1,PASS,INF,"workflow run 32577278943 artifact 9476885992","Artifact digest sha256:e7a264fce29cf2c0e0a503fe7ce9f847bd14511879d0cd28f6fd3933727f0ac5; render is visualization only."
