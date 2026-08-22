@@ -20,8 +20,13 @@ Contratto del ciclo:
 
 - `automation/N12_AUTOMATION_CONTRACT_v1.json`
 - `automation/N12_WORK_QUEUE_v1.json`
+- `automation/N12_AGENT_RESULT_CONTRACT_v1.json`
 - `docs/N12_AUTOMATED_ANALYSIS_CYCLE_v1.md`
 - runner: `scripts/n12_orchestrator.py`
+- ingestor risultato: `scripts/n12_ingest_agent_result.py`
+- inbox unico: `automation/inbox/N12_AGENT_RESULT.json`
+
+Ogni ciclo agentico può trattare **al massimo un work item**. L'agente produce e registra evidenze/artefatti specialistici, quindi restituisce un solo pacchetto conforme al contratto. Non deve avanzare la coda aggirando l'ingestor.
 
 ## 1. Ordine di lettura obbligatorio
 
@@ -32,9 +37,10 @@ Prima di produrre, modificare o promuovere dati leggere nell'ordine:
 3. `knowledge/ARTIFACT_REGISTRY.csv` e le patch di registry indicate dal manifest
 4. `automation/N12_AUTOMATION_CONTRACT_v1.json`
 5. `automation/N12_WORK_QUEUE_v1.json`
-6. `docs/PROTOCOLLO_CANONICO.md`
-7. la skill indicata dal manifest per il dominio corrente
-8. i registri/evidenze richiamati dal work item corrente
+6. `automation/N12_AGENT_RESULT_CONTRACT_v1.json`
+7. `docs/PROTOCOLLO_CANONICO.md`
+8. la skill indicata dal manifest per il dominio corrente
+9. i registri/evidenze richiamati dal work item corrente
 
 Non ricostruire lo stato dalla cronologia della chat, dalla data dei file o dal nome della versione.
 
@@ -93,7 +99,7 @@ I pilastri-setti e i sostegni estesi restano geometrie fisiche. Se travi differe
 
 Il ciclo standard è:
 
-`bootstrap -> source ready -> specialist reading -> metric/topology checks -> crosscheck -> promotion gate -> state advance -> next item`
+`bootstrap -> source ready -> specialist reading -> metric/topology checks -> crosscheck -> promotion gate -> result handshake -> state advance -> next item`
 
 Regole di avanzamento:
 
@@ -104,7 +110,9 @@ Regole di avanzamento:
 - `CONFLICT_STOP`: riaprire il claim minimo;
 - `FAIL_STOP`: nessuna promozione.
 
-L'automazione deterministica non può sostituire la lettura semantica delle tavole. In assenza di un executor agentico autorizzato deve fermarsi a `READY_FOR_AGENT`.
+La lettura specialistica deve terminare con **un solo risultato** conforme a `automation/N12_AGENT_RESULT_CONTRACT_v1.json`. Per `PASS` o `PASS_WITH_WATCH`, il target deve già esistere, avere provenienza e audit espliciti ed essere registrato con autorità compatibile. `scripts/n12_ingest_agent_result.py` verifica queste condizioni e soltanto dopo consente l'avanzamento di coda/stato.
+
+L'automazione deterministica non può sostituire la lettura semantica delle tavole. Se l'executor agentico non è disponibile, il sistema deve fermarsi a `READY_FOR_AGENT`. Quando l'executor è configurato, resta comunque valido il limite di **un work item per ciclo** e nessun risultato non conforme può essere ingerito.
 
 ## 7. Regola di continuità
 
@@ -113,9 +121,11 @@ Ogni sessione/ciclo deve terminare aggiornando, quando necessario:
 - artefatto specialistico prodotto;
 - ledger/audit di provenienza;
 - registry o patch se nasce/cambia ruolo un artefatto;
-- `automation/N12_WORK_QUEUE_v1.json` se cambia lo stato del work item o si libera una dipendenza;
-- `knowledge/CURRENT_STATE.json` se cambia gate, residuo prioritario o prossimo passo;
+- `automation/inbox/N12_AGENT_RESULT.json` con un solo risultato conforme al contratto;
+- `automation/N12_WORK_QUEUE_v1.json` e `knowledge/CURRENT_STATE.json` tramite l'ingestor quando il risultato supera i gate;
 - `knowledge/KNOWLEDGE_MANIFEST.json` solo quando cambia l'architettura della conoscenza o il set di entrypoint.
+
+Il workflow GitHub può ingerire il risultato, archiviare una receipt, aggiornare coda/stato e preparare il task successivo; non può creare evidenza strutturale o promuovere un dato privo di autorità.
 
 Non promuovere un dato soltanto per continuità con il piano precedente.
 
@@ -126,6 +136,8 @@ Prima di dichiarare completato un avanzamento eseguire:
 `python scripts/validate_knowledge_system.py`
 
 `python scripts/n12_orchestrator.py validate`
+
+`python scripts/n12_ingest_agent_result.py validate`
 
 Per i domini carpenteria/raster eseguire inoltre, quando pertinenti:
 
