@@ -13,6 +13,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_PATH = ROOT / "automation" / "N12_AUTOMATION_CONTRACT_v1.json"
 QUEUE_PATH = ROOT / "automation" / "N12_WORK_QUEUE_v1.json"
+RESULT_CONTRACT_PATH = ROOT / "automation" / "N12_AGENT_RESULT_CONTRACT_v1.json"
+RESULT_INGESTOR_PATH = ROOT / "scripts" / "n12_ingest_agent_result.py"
 MANIFEST_PATH = ROOT / "knowledge" / "KNOWLEDGE_MANIFEST.json"
 STATE_PATH = ROOT / "knowledge" / "CURRENT_STATE.json"
 BASE_REGISTRY_PATH = ROOT / "knowledge" / "ARTIFACT_REGISTRY.csv"
@@ -103,7 +105,15 @@ def dependencies_complete(
 def validate_contract() -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
-    for path in [CONTRACT_PATH, QUEUE_PATH, MANIFEST_PATH, STATE_PATH, BASE_REGISTRY_PATH]:
+    for path in [
+        CONTRACT_PATH,
+        QUEUE_PATH,
+        RESULT_CONTRACT_PATH,
+        RESULT_INGESTOR_PATH,
+        MANIFEST_PATH,
+        STATE_PATH,
+        BASE_REGISTRY_PATH,
+    ]:
         if not path.exists():
             errors.append(f"missing required file: {path.relative_to(ROOT)}")
     if errors:
@@ -112,6 +122,7 @@ def validate_contract() -> tuple[list[str], list[str]]:
     try:
         contract = read_json(CONTRACT_PATH)
         queue = read_json(QUEUE_PATH)
+        result_contract = read_json(RESULT_CONTRACT_PATH)
         manifest = read_json(MANIFEST_PATH)
         state = read_json(STATE_PATH)
     except Exception as exc:
@@ -121,10 +132,27 @@ def validate_contract() -> tuple[list[str], list[str]]:
         errors.append("automation contract entrypoint must be scripts/n12_orchestrator.py")
     if contract.get("queue") != "automation/N12_WORK_QUEUE_v1.json":
         errors.append("automation contract queue path mismatch")
+    if contract.get("agent_result_contract") != "automation/N12_AGENT_RESULT_CONTRACT_v1.json":
+        errors.append("automation contract agent_result_contract path mismatch")
+    if contract.get("agent_result_inbox") != "automation/inbox/N12_AGENT_RESULT.json":
+        errors.append("automation contract agent_result_inbox path mismatch")
+    if contract.get("agent_result_ingestor") != "scripts/n12_ingest_agent_result.py":
+        errors.append("automation contract agent_result_ingestor path mismatch")
     if contract.get("canonical_branch") != manifest.get("canonical_branch"):
         errors.append("automation contract branch differs from knowledge manifest canonical_branch")
     if manifest.get("current_gate") != state.get("gate"):
         errors.append("manifest/state gate mismatch")
+
+    if result_contract.get("inbox") != contract.get("agent_result_inbox"):
+        errors.append("agent-result contract inbox differs from automation contract")
+    if result_contract.get("ingestor") != contract.get("agent_result_ingestor"):
+        errors.append("agent-result contract ingestor differs from automation contract")
+    if result_contract.get("max_work_items_per_result") != 1:
+        errors.append("agent-result contract must enforce max_work_items_per_result=1")
+    if not result_contract.get("allowed_decisions"):
+        errors.append("agent-result contract has no allowed decisions")
+    if not result_contract.get("required_fields"):
+        errors.append("agent-result contract has no required_fields")
 
     stage_ids = [stage.get("id") for stage in contract.get("stages", [])]
     if not stage_ids or len(stage_ids) != len(set(stage_ids)):
@@ -210,6 +238,7 @@ def run_check(name: str) -> dict[str, Any]:
         "agent_bootstrap": [sys.executable, "scripts/agent_bootstrap.py"],
         "semantic_registry": [sys.executable, "skills/pt-carpentry-reader/runner.py", "validate"],
         "pt_raster_status": [sys.executable, "skills/pt-raster-grid-reconstructor/runner.py", "status"],
+        "agent_result_handshake": [sys.executable, "scripts/n12_ingest_agent_result.py", "validate"],
     }
     cmd = commands.get(name)
     if not cmd:
@@ -250,7 +279,13 @@ def build_status(run_checks: bool = False) -> dict[str, Any]:
 
     checks: list[dict[str, Any]] = []
     if run_checks and not errors:
-        for check_name in ["knowledge_contracts", "agent_bootstrap", "semantic_registry", "pt_raster_status"]:
+        for check_name in [
+            "knowledge_contracts",
+            "agent_bootstrap",
+            "semantic_registry",
+            "pt_raster_status",
+            "agent_result_handshake",
+        ]:
             checks.append(run_check(check_name))
         if any(check.get("status") == "FAIL" for check in checks):
             decision = "FAIL_STOP"
@@ -317,7 +352,7 @@ def main() -> int:
         print("N12_AUTOMATION_CONTRACT = PASS")
         for warning in warnings:
             print(f"WARN: {warning}")
-        print("Cycle contract, queue dependencies and current knowledge gate are coherent.")
+        print("Cycle contract, semantic handshake, queue dependencies and current knowledge gate are coherent.")
         return 0
 
     if args.cmd == "status":
