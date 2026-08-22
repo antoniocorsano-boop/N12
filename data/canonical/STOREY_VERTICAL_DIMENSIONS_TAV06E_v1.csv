@@ -1,0 +1,11 @@
+evidence_id,source,scope,value_m,component_type,evidence_state,validation_state,usage_rule,note
+V06E-001,TAV-06E,ordinary_clear_height_lower_module_1,3.00,CLEAR_HEIGHT,DOC,DIRECT_REGISTERED,YES_LOCAL_DIMENSION_ONLY,"Written dimension 300 on section; do not convert to absolute Z without endpoint registration."
+V06E-002,TAV-06E,ordinary_slab_depth_between_modules_1,0.20,SLAB_DEPTH,DOC,DIRECT_REGISTERED,YES_LOCAL_DIMENSION_ONLY,"Written dimension 20 adjacent to the first ordinary slab."
+V06E-003,TAV-06E,ordinary_clear_height_lower_module_2,3.00,CLEAR_HEIGHT,DOC,DIRECT_REGISTERED,YES_LOCAL_DIMENSION_ONLY,"Second written dimension 300 on the vertical chain."
+V06E-004,TAV-06E,ordinary_slab_depth_between_modules_2,0.20,SLAB_DEPTH,DOC,DIRECT_REGISTERED,YES_LOCAL_DIMENSION_ONLY,"Second written dimension 20 on the vertical chain."
+V06E-005,TAV-06E,ordinary_clear_height_lower_module_3,3.00,CLEAR_HEIGHT,DOC,DIRECT_REGISTERED,YES_LOCAL_DIMENSION_ONLY,"Third written dimension 300 on the vertical chain."
+V06E-006,TAV-06E,cumulative_lower_vertical_chain,9.40,CUMULATIVE_DIMENSION,DOC,DIRECT_REGISTERED,NO_ABSOLUTE_Z_YET,"Written cumulative dimension 940; exact endpoint semantics to remain tied to the source section until level registration is completed."
+V06E-007,TAV-06E,upper_clear_height,2.00,CLEAR_HEIGHT,DOC,DIRECT_REGISTERED,YES_LOCAL_DIMENSION_ONLY,"Written dimension 200 in the upper reduced-height level."
+V06E-008,TAV-06E,upper_slab_or_roof_depth,0.20,SLAB_OR_ROOF_DEPTH,DOC,DIRECT_REGISTERED,YES_LOCAL_DIMENSION_ONLY,"Written dimension 20 associated with the upper module."
+V06E-009,TAV-06E,upper_vertical_module_total,2.20,CUMULATIVE_DIMENSION,DOC,DIRECT_REGISTERED,YES_LOCAL_DIMENSION_ONLY,"Written cumulative dimension 220 for the upper module."
+V06E-010,TAV-06E+storey_height_status.csv,ordinary_interlevel_module,3.20,DERIVED_FROM_DOC_PLUS_RIF,DOC+RIF,CROSS_VALIDATED,YES_PRELIMINARY_STOREY_HEIGHT,"3.00 clear height + 0.20 slab = 3.20 m, independently matching the user-corrected RIF value already stored. Absolute storey elevations remain unregistered."
