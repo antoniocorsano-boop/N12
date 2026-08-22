@@ -7,7 +7,7 @@
     {
       "id": "SEC-G2-TAV03S",
       "priority": 10,
-      "state": "READY",
+      "state": "BLOCKED",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-03S",
       "task": "Read sections and orientations for support identities 1-33 plus 22' independently on the II impalcato carpenteria.",
@@ -18,8 +18,12 @@
         "data/canonical/STOREY_SUPPORT_CONTINUITY_PT_G4_v1.json",
         "data/canonical/tavole_originali_remote_index_v1.csv"
       ],
-      "target_outputs": ["data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv"],
-      "semantic_gate": "Every section/orientation must be read from TAV-03S or explicitly marked ND/INC; PT sections are comparison-only and cannot fill missing values."
+      "target_outputs": [
+        "data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv"
+      ],
+      "semantic_gate": "Every section/orientation must be read from TAV-03S or explicitly marked ND/INC; PT sections are comparison-only and cannot fill missing values.",
+      "last_result_at": "2026-08-22T10:00:03.284533+00:00",
+      "result_receipt": "automation/receipts/SEC-G2-TAV03S_20260822T100003Z.json"
     },
     {
       "id": "SEC-G3-TAV04S",
@@ -28,9 +32,16 @@
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-04S",
       "task": "Read sections and orientations for support identities 1-33 plus 22' independently on the III impalcato carpenteria.",
-      "dependencies": ["SEC-G2-TAV03S"],
-      "required_inputs": ["data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv", "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv"],
-      "target_outputs": ["data/canonical/STOREY_SUPPORT_SECTIONS_G3_v1.csv"],
+      "dependencies": [
+        "SEC-G2-TAV03S"
+      ],
+      "required_inputs": [
+        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
+        "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/STOREY_SUPPORT_SECTIONS_G3_v1.csv"
+      ],
       "semantic_gate": "Do not inherit G2 sections; every unchanged value must still be supported by TAV-04S evidence."
     },
     {
@@ -40,9 +51,16 @@
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-05S",
       "task": "Read sections and orientations for the 34 original support identities on the IV impalcato carpenteria.",
-      "dependencies": ["SEC-G3-TAV04S"],
-      "required_inputs": ["data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv", "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv"],
-      "target_outputs": ["data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv"],
+      "dependencies": [
+        "SEC-G3-TAV04S"
+      ],
+      "required_inputs": [
+        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
+        "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv"
+      ],
       "semantic_gate": "Preserve tower/stair and reduced upper-storey sections explicitly; do not reuse G3 values without direct source support."
     },
     {
@@ -52,9 +70,16 @@
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-06S",
       "task": "Read sections/orientations for the 25 support identities documented on roof carpenteria.",
-      "dependencies": ["SEC-G4-TAV05S"],
-      "required_inputs": ["data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json", "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"],
-      "target_outputs": ["data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv"],
+      "dependencies": [
+        "SEC-G4-TAV05S"
+      ],
+      "required_inputs": [
+        "data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json",
+        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv"
+      ],
       "semantic_gate": "Only the 25 identities directly present on TAV-06S may be populated; absent G4 supports must remain terminated."
     },
     {
@@ -64,9 +89,16 @@
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-03S",
       "task": "Reconstruct II impalcato beam claims, sections, directions and support-face incidence independently from TAV-03S.",
-      "dependencies": ["SEC-G2-TAV03S"],
-      "required_inputs": ["data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv", "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"],
-      "target_outputs": ["data/canonical/STOREY_BEAMS_G2_v1.csv"],
+      "dependencies": [
+        "SEC-G2-TAV03S"
+      ],
+      "required_inputs": [
+        "data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv",
+        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/STOREY_BEAMS_G2_v1.csv"
+      ],
       "semantic_gate": "PT beam topology is comparison-only; no member may be copied upward without a direct TAV-03S trace."
     },
     {
@@ -76,9 +108,17 @@
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-04S",
       "task": "Reconstruct III impalcato beam topology independently from TAV-04S.",
-      "dependencies": ["SEC-G3-TAV04S", "BEAM-G2-TAV03S"],
-      "required_inputs": ["data/canonical/STOREY_SUPPORT_SECTIONS_G3_v1.csv", "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"],
-      "target_outputs": ["data/canonical/STOREY_BEAMS_G3_v1.csv"],
+      "dependencies": [
+        "SEC-G3-TAV04S",
+        "BEAM-G2-TAV03S"
+      ],
+      "required_inputs": [
+        "data/canonical/STOREY_SUPPORT_SECTIONS_G3_v1.csv",
+        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/STOREY_BEAMS_G3_v1.csv"
+      ],
       "semantic_gate": "Differences from G2 are first-class evidence and must not be normalized away."
     },
     {
@@ -88,9 +128,17 @@
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-05S",
       "task": "Reconstruct IV impalcato beam topology independently from TAV-05S.",
-      "dependencies": ["SEC-G4-TAV05S", "BEAM-G3-TAV04S"],
-      "required_inputs": ["data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv", "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"],
-      "target_outputs": ["data/canonical/STOREY_BEAMS_G4_v1.csv"],
+      "dependencies": [
+        "SEC-G4-TAV05S",
+        "BEAM-G3-TAV04S"
+      ],
+      "required_inputs": [
+        "data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv",
+        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/STOREY_BEAMS_G4_v1.csv"
+      ],
       "semantic_gate": "Reduced footprint and terrace/roof transitions must be read from source, not inferred from lower storeys."
     },
     {
@@ -100,9 +148,17 @@
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-06S",
       "task": "Reconstruct roof beam/ridge/eaves topology including documented colmo and gronda members from TAV-06S.",
-      "dependencies": ["SEC-G5-TAV06S", "BEAM-G4-TAV05S"],
-      "required_inputs": ["data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv", "data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json"],
-      "target_outputs": ["data/canonical/STOREY_BEAMS_G5_v1.csv"],
+      "dependencies": [
+        "SEC-G5-TAV06S",
+        "BEAM-G4-TAV05S"
+      ],
+      "required_inputs": [
+        "data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv",
+        "data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json"
+      ],
+      "target_outputs": [
+        "data/canonical/STOREY_BEAMS_G5_v1.csv"
+      ],
       "semantic_gate": "Ridge/eaves members and reduced roof footprint must be explicit; no rectangularized substitute topology."
     },
     {
@@ -112,7 +168,12 @@
       "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
       "source_sheet": "MULTI",
       "task": "Assemble vertical column segments only where adjacent-level support identity, XY registration, Z endpoints and section endpoints are available with provenance.",
-      "dependencies": ["SEC-G2-TAV03S", "SEC-G3-TAV04S", "SEC-G4-TAV05S", "SEC-G5-TAV06S"],
+      "dependencies": [
+        "SEC-G2-TAV03S",
+        "SEC-G3-TAV04S",
+        "SEC-G4-TAV05S",
+        "SEC-G5-TAV06S"
+      ],
       "required_inputs": [
         "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
         "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv",
@@ -121,7 +182,9 @@
         "data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv",
         "data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv"
       ],
-      "target_outputs": ["data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv"],
+      "target_outputs": [
+        "data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv"
+      ],
       "semantic_gate": "A segment may exist only between two documented adjacent support presences; section changes are retained at level boundaries and terrace/roof terminations remain explicit."
     },
     {
@@ -131,9 +194,21 @@
       "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
       "source_sheet": "MULTI",
       "task": "Assemble the current per-storey beam topology index after each storey beam ledger has passed its source QA.",
-      "dependencies": ["BEAM-G2-TAV03S", "BEAM-G3-TAV04S", "BEAM-G4-TAV05S", "BEAM-G5-TAV06S"],
-      "required_inputs": ["data/canonical/STOREY_BEAMS_G2_v1.csv", "data/canonical/STOREY_BEAMS_G3_v1.csv", "data/canonical/STOREY_BEAMS_G4_v1.csv", "data/canonical/STOREY_BEAMS_G5_v1.csv"],
-      "target_outputs": ["data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv"],
+      "dependencies": [
+        "BEAM-G2-TAV03S",
+        "BEAM-G3-TAV04S",
+        "BEAM-G4-TAV05S",
+        "BEAM-G5-TAV06S"
+      ],
+      "required_inputs": [
+        "data/canonical/STOREY_BEAMS_G2_v1.csv",
+        "data/canonical/STOREY_BEAMS_G3_v1.csv",
+        "data/canonical/STOREY_BEAMS_G4_v1.csv",
+        "data/canonical/STOREY_BEAMS_G5_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv"
+      ],
       "semantic_gate": "The combined index is a union with provenance, never an averaged or normalized topology."
     }
   ]

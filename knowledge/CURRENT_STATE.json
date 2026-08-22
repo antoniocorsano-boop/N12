@@ -2,11 +2,19 @@
   "schema_version": "1.0",
   "updated_at": "2026-08-22",
   "gate": "M0-G/COMMON-STOREY-REGISTRATION",
-  "status": "IN_PROGRESS_WITH_AUTOMATED_PER_STOREY_CYCLE_AND_SEMANTIC_HANDSHAKE",
+  "status": "BLOCKED_INPUT",
   "objective": "Integrare il PT canonico nel modello verticale usando soltanto continuità, registrazioni inter-tavola e quote sostenute dalle tavole originali, quindi ricostruire sezioni e travi di ogni impalcato mediante ciclo automatico con gate e residui isolati.",
   "authoritative_method": "skills/pt-raster-grid-reconstructor/SKILL.md",
   "semantic_method": "skills/pt-carpentry-reader/SKILL.md",
-  "primary_sources": ["TAV-02S","TAV-03S","TAV-04S","TAV-05S","TAV-05E","TAV-06S","TAV-06E"],
+  "primary_sources": [
+    "TAV-02S",
+    "TAV-03S",
+    "TAV-04S",
+    "TAV-05S",
+    "TAV-05E",
+    "TAV-06S",
+    "TAV-06E"
+  ],
   "geometry_master_status": "CURRENT",
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
   "artifact_registry_patch": "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
@@ -21,39 +29,231 @@
     "agent_result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
     "agent_result_ingestor": "scripts/n12_ingest_agent_result.py",
     "agent_result_inbox": "automation/inbox/N12_AGENT_RESULT.json",
-    "current_work_item": "SEC-G2-TAV03S",
+    "current_work_item": null,
     "deterministic_cycle": "ACTIVE_ON_BRANCH_PUSH_AND_WORKFLOW_DISPATCH_AND_6H_SCHEDULE",
     "semantic_executor": "SCHEDULED_PROJECT_AGENT_CONFIGURED_AWAITING_FIRST_RECEIPT",
     "semantic_executor_schedule": "EVERY_6_HOURS",
     "semantic_boundary": "ONE_WORK_ITEM_PER_CYCLE_WITH_CONTRACT_VALID_RESULT_HANDSHAKE",
-    "first_semantic_receipt_status": "PENDING"
+    "first_semantic_receipt_status": "PENDING",
+    "last_result_receipt": "automation/receipts/SEC-G2-TAV03S_20260822T100003Z.json",
+    "last_result_decision": "BLOCKED",
+    "last_result_at": "2026-08-22T10:00:03.284533+00:00",
+    "last_cycle_outcome": "BLOCKED_INPUT"
   },
   "completed_subphases": [
-    {"phase":"G1/PIXEL-SUPPORT-REGISTRY","status":"COMPLETE_STABLE","artifact":"data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv","support_count":38},
-    {"phase":"G2/METRIC-NETWORK","status":"COMPLETE_WITH_PROVENANCE","working_solution":"data/canonical/PT_G2_SUPPORT_COORDINATES_WORKING_v1.csv","numeric_center_count":38,"historical_master_xy_used":false},
-    {"phase":"G3/METRIC-SUPPORT-CENTERS","status":"PASS_WITH_WATCHES","artifact":"data/canonical/PT_METRIC_SUPPORT_CENTERS_v1.csv","watch_supports":["P19","P25","d"]},
-    {"phase":"G4/PHYSICAL-SUPPORT-FOOTPRINTS","status":"COMPLETE","artifact":"data/canonical/PT_METRIC_SUPPORT_FOOTPRINTS_v1.csv","support_count":38,"extended_supports":["P18","P23","P30"]},
-    {"phase":"G6/BEAM-TOPOLOGY-AND-FACE-VECTORS","status":"COMPLETE_PASS_WITH_PROVENANCE_WATCHES","effective_member_count":49,"vectors":"data/canonical/PT_VECTOR_BEAMS_v2.csv","vector_patch":"data/canonical/PT_VECTOR_BEAMS_G6_PATCH_v1.csv","raster_qa":"data/canonical/PT_VECTOR_BEAMS_RASTER_QA_v1.csv","diagnostic":"data/canonical/PT_RASTER_TO_METRIC_DIAGNOSTIC_v1.csv","topology_reject_count":0},
-    {"phase":"G7/PHYSICAL-SUPPORT-VECTORS","status":"COMPLETE","artifact":"data/canonical/PT_VECTOR_SUPPORTS_v1.csv","support_count":38,"center_is_analytical_node":false},
-    {"phase":"G7/ANALYTICAL-BEAM-FACE-NODES","status":"COMPLETE_PASS_WITH_WATCHES","artifact":"data/canonical/PT_ANALYTICAL_NODES_v1.csv","audit":"data/canonical/PT_ANALYTICAL_NODES_AUDIT_v1.csv","node_count":98,"watch_node_count":32,"extended_support_nodes":{"P18":2,"P23":2,"P30":3},"centroid_substitution_count":0},
-    {"phase":"G9/FINAL-OVERLAY-QA","status":"PASS_WITH_PROVENANCE_WATCHES","artifact":"data/canonical/PT_OVERLAY_QA_v1.csv","support_count":38,"beam_count":49,"node_count":98,"topology_reject_count":0},
-    {"phase":"MASTER-REGENERATION","status":"COMPLETE_CURRENT","master":"data/canonical/PT_MASTER_CURRENT.csv","audit":"data/canonical/PT_MASTER_REGENERATION_AUDIT_v1.csv","historical_snapshot":"data/canonical/PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv","support_rows":38,"linked_analytical_nodes":98,"effective_beam_members":49,"changed_or_completed_support_coordinates":25,"unchanged_support_coordinates":13,"topology_reject_count":0,"authority_override":"knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv"},
-    {"phase":"PT-GEOMETRY-HANDOFF","status":"CURRENT","artifact":"data/canonical/PT_GEOMETRY_HANDOFF_v1.json","rule":"Downstream consumers use current Master + physical support vectors + beam-face analytical nodes; no centroid collapse and no provenance loss."},
-    {"phase":"UPPER-SOURCE-RENDER","status":"COMPLETE","sources":["TAV-03S","TAV-04S","TAV-05S","TAV-05E","TAV-06S","TAV-06E"],"method":"GitHub Actions render from archive/originali-alta-risoluzione at 300 dpi","rule":"Render is non-authoritative visualization of immutable primary source."},
-    {"phase":"VERTICAL-DIMENSION-READING","status":"CURRENT","artifact":"data/canonical/STOREY_VERTICAL_DIMENSIONS_TAV06E_v1.csv","ordinary_clear_height_m":3.0,"ordinary_slab_depth_m":0.2,"ordinary_interlevel_module_m":3.2,"lower_cumulative_written_m":9.4,"upper_module_written_m":2.2},
-    {"phase":"PT-TO-G4-SUPPORT-CONTINUITY","status":"CROSS_VALIDATED","artifact":"data/canonical/STOREY_SUPPORT_CONTINUITY_PT_G4_v1.json","pt_support_count":38,"original_ids_continuing_to_g4":34,"terrace_added_terminating_after_g1":["a","b","c","d"]},
-    {"phase":"G4-TO-G5-ROOF-CONTINUITY","status":"DIRECT_REGISTERED","artifact":"data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json","g4_original_support_count":34,"roof_present_count":25,"roof_absent_count":9,"roof_absent_ids":["1","8","9","16","17","24","31","32","33"]},
-    {"phase":"STOREY-Z-REGISTRATION","status":"CURRENT_RELATIVE_Z","artifact":"data/canonical/STOREY_LEVELS_CURRENT_v1.csv","datum":"G1=0.00_RELATIVE","levels_m":{"G1":0.0,"G2":3.2,"G3":6.4,"G4":9.6,"G5":11.8},"absolute_project_z_registered":false},
-    {"phase":"STOREY-XY-REGISTRATION","status":"CROSS_VALIDATED_WITH_MIS","artifact":"data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv","common_frame":"PT_MASTER_CURRENT","sheets":["TAV-03S","TAV-04S","TAV-05S","TAV-06S"],"method":"SIFT_RANSAC_AFFINE_PLUS_NUMBERED_SUPPORT_ANCHORS","rule":"Registration cannot override explicit dimensions or identities."},
-    {"phase":"VERTICAL-SUPPORT-LINES","status":"CURRENT","artifact":"data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv","line_count":38,"g5_line_count":25,"g4_only_original_line_count":9,"g1_only_terrace_line_count":4,"section_continuity_assumed":false},
-    {"phase":"COMMON-STOREY-REGISTRATION-GATE","status":"PASS_WITH_PROVENANCE_WATCHES","artifact":"data/canonical/STOREY_COMMON_REGISTRATION_GATE_v1.csv"},
-    {"phase":"CYCLIC-ANALYSIS-ORCHESTRATOR","status":"ENABLED_WITH_RESULT_HANDSHAKE","contract":"automation/N12_AUTOMATION_CONTRACT_v1.json","queue":"automation/N12_WORK_QUEUE_v1.json","runner":"scripts/n12_orchestrator.py","rule":"Deterministic gates run automatically; semantic promotion remains specialist-gated."},
-    {"phase":"SEMANTIC-RESULT-HANDSHAKE","status":"CONFIGURED_AWAITING_FIRST_RECEIPT","contract":"automation/N12_AGENT_RESULT_CONTRACT_v1.json","ingestor":"scripts/n12_ingest_agent_result.py","rule":"One semantic result per cycle; queue/state advance only after target artifact authority, provenance, audits and deterministic validators pass."}
+    {
+      "phase": "G1/PIXEL-SUPPORT-REGISTRY",
+      "status": "COMPLETE_STABLE",
+      "artifact": "data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv",
+      "support_count": 38
+    },
+    {
+      "phase": "G2/METRIC-NETWORK",
+      "status": "COMPLETE_WITH_PROVENANCE",
+      "working_solution": "data/canonical/PT_G2_SUPPORT_COORDINATES_WORKING_v1.csv",
+      "numeric_center_count": 38,
+      "historical_master_xy_used": false
+    },
+    {
+      "phase": "G3/METRIC-SUPPORT-CENTERS",
+      "status": "PASS_WITH_WATCHES",
+      "artifact": "data/canonical/PT_METRIC_SUPPORT_CENTERS_v1.csv",
+      "watch_supports": [
+        "P19",
+        "P25",
+        "d"
+      ]
+    },
+    {
+      "phase": "G4/PHYSICAL-SUPPORT-FOOTPRINTS",
+      "status": "COMPLETE",
+      "artifact": "data/canonical/PT_METRIC_SUPPORT_FOOTPRINTS_v1.csv",
+      "support_count": 38,
+      "extended_supports": [
+        "P18",
+        "P23",
+        "P30"
+      ]
+    },
+    {
+      "phase": "G6/BEAM-TOPOLOGY-AND-FACE-VECTORS",
+      "status": "COMPLETE_PASS_WITH_PROVENANCE_WATCHES",
+      "effective_member_count": 49,
+      "vectors": "data/canonical/PT_VECTOR_BEAMS_v2.csv",
+      "vector_patch": "data/canonical/PT_VECTOR_BEAMS_G6_PATCH_v1.csv",
+      "raster_qa": "data/canonical/PT_VECTOR_BEAMS_RASTER_QA_v1.csv",
+      "diagnostic": "data/canonical/PT_RASTER_TO_METRIC_DIAGNOSTIC_v1.csv",
+      "topology_reject_count": 0
+    },
+    {
+      "phase": "G7/PHYSICAL-SUPPORT-VECTORS",
+      "status": "COMPLETE",
+      "artifact": "data/canonical/PT_VECTOR_SUPPORTS_v1.csv",
+      "support_count": 38,
+      "center_is_analytical_node": false
+    },
+    {
+      "phase": "G7/ANALYTICAL-BEAM-FACE-NODES",
+      "status": "COMPLETE_PASS_WITH_WATCHES",
+      "artifact": "data/canonical/PT_ANALYTICAL_NODES_v1.csv",
+      "audit": "data/canonical/PT_ANALYTICAL_NODES_AUDIT_v1.csv",
+      "node_count": 98,
+      "watch_node_count": 32,
+      "extended_support_nodes": {
+        "P18": 2,
+        "P23": 2,
+        "P30": 3
+      },
+      "centroid_substitution_count": 0
+    },
+    {
+      "phase": "G9/FINAL-OVERLAY-QA",
+      "status": "PASS_WITH_PROVENANCE_WATCHES",
+      "artifact": "data/canonical/PT_OVERLAY_QA_v1.csv",
+      "support_count": 38,
+      "beam_count": 49,
+      "node_count": 98,
+      "topology_reject_count": 0
+    },
+    {
+      "phase": "MASTER-REGENERATION",
+      "status": "COMPLETE_CURRENT",
+      "master": "data/canonical/PT_MASTER_CURRENT.csv",
+      "audit": "data/canonical/PT_MASTER_REGENERATION_AUDIT_v1.csv",
+      "historical_snapshot": "data/canonical/PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv",
+      "support_rows": 38,
+      "linked_analytical_nodes": 98,
+      "effective_beam_members": 49,
+      "changed_or_completed_support_coordinates": 25,
+      "unchanged_support_coordinates": 13,
+      "topology_reject_count": 0,
+      "authority_override": "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv"
+    },
+    {
+      "phase": "PT-GEOMETRY-HANDOFF",
+      "status": "CURRENT",
+      "artifact": "data/canonical/PT_GEOMETRY_HANDOFF_v1.json",
+      "rule": "Downstream consumers use current Master + physical support vectors + beam-face analytical nodes; no centroid collapse and no provenance loss."
+    },
+    {
+      "phase": "UPPER-SOURCE-RENDER",
+      "status": "COMPLETE",
+      "sources": [
+        "TAV-03S",
+        "TAV-04S",
+        "TAV-05S",
+        "TAV-05E",
+        "TAV-06S",
+        "TAV-06E"
+      ],
+      "method": "GitHub Actions render from archive/originali-alta-risoluzione at 300 dpi",
+      "rule": "Render is non-authoritative visualization of immutable primary source."
+    },
+    {
+      "phase": "VERTICAL-DIMENSION-READING",
+      "status": "CURRENT",
+      "artifact": "data/canonical/STOREY_VERTICAL_DIMENSIONS_TAV06E_v1.csv",
+      "ordinary_clear_height_m": 3.0,
+      "ordinary_slab_depth_m": 0.2,
+      "ordinary_interlevel_module_m": 3.2,
+      "lower_cumulative_written_m": 9.4,
+      "upper_module_written_m": 2.2
+    },
+    {
+      "phase": "PT-TO-G4-SUPPORT-CONTINUITY",
+      "status": "CROSS_VALIDATED",
+      "artifact": "data/canonical/STOREY_SUPPORT_CONTINUITY_PT_G4_v1.json",
+      "pt_support_count": 38,
+      "original_ids_continuing_to_g4": 34,
+      "terrace_added_terminating_after_g1": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ]
+    },
+    {
+      "phase": "G4-TO-G5-ROOF-CONTINUITY",
+      "status": "DIRECT_REGISTERED",
+      "artifact": "data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json",
+      "g4_original_support_count": 34,
+      "roof_present_count": 25,
+      "roof_absent_count": 9,
+      "roof_absent_ids": [
+        "1",
+        "8",
+        "9",
+        "16",
+        "17",
+        "24",
+        "31",
+        "32",
+        "33"
+      ]
+    },
+    {
+      "phase": "STOREY-Z-REGISTRATION",
+      "status": "CURRENT_RELATIVE_Z",
+      "artifact": "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
+      "datum": "G1=0.00_RELATIVE",
+      "levels_m": {
+        "G1": 0.0,
+        "G2": 3.2,
+        "G3": 6.4,
+        "G4": 9.6,
+        "G5": 11.8
+      },
+      "absolute_project_z_registered": false
+    },
+    {
+      "phase": "STOREY-XY-REGISTRATION",
+      "status": "CROSS_VALIDATED_WITH_MIS",
+      "artifact": "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
+      "common_frame": "PT_MASTER_CURRENT",
+      "sheets": [
+        "TAV-03S",
+        "TAV-04S",
+        "TAV-05S",
+        "TAV-06S"
+      ],
+      "method": "SIFT_RANSAC_AFFINE_PLUS_NUMBERED_SUPPORT_ANCHORS",
+      "rule": "Registration cannot override explicit dimensions or identities."
+    },
+    {
+      "phase": "VERTICAL-SUPPORT-LINES",
+      "status": "CURRENT",
+      "artifact": "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv",
+      "line_count": 38,
+      "g5_line_count": 25,
+      "g4_only_original_line_count": 9,
+      "g1_only_terrace_line_count": 4,
+      "section_continuity_assumed": false
+    },
+    {
+      "phase": "COMMON-STOREY-REGISTRATION-GATE",
+      "status": "PASS_WITH_PROVENANCE_WATCHES",
+      "artifact": "data/canonical/STOREY_COMMON_REGISTRATION_GATE_v1.csv"
+    },
+    {
+      "phase": "CYCLIC-ANALYSIS-ORCHESTRATOR",
+      "status": "ENABLED_WITH_RESULT_HANDSHAKE",
+      "contract": "automation/N12_AUTOMATION_CONTRACT_v1.json",
+      "queue": "automation/N12_WORK_QUEUE_v1.json",
+      "runner": "scripts/n12_orchestrator.py",
+      "rule": "Deterministic gates run automatically; semantic promotion remains specialist-gated."
+    },
+    {
+      "phase": "SEMANTIC-RESULT-HANDSHAKE",
+      "status": "CONFIGURED_AWAITING_FIRST_RECEIPT",
+      "contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
+      "ingestor": "scripts/n12_ingest_agent_result.py",
+      "rule": "One semantic result per cycle; queue/state advance only after target artifact authority, provenance, audits and deterministic validators pass."
+    }
   ],
   "next_action": {
     "phase": "PER-STOREY-SECTIONS-AND-BEAM-TOPOLOGY",
-    "work_item": "SEC-G2-TAV03S",
-    "task": "Use the cyclic orchestrator and the scheduled specialist executor. First read support sections/orientations independently on TAV-03S for identities 1-33 plus 22'. Do not copy PT sections upward. Submit exactly one result through automation/inbox/N12_AGENT_RESULT.json. When semantic gate, artifact authority and deterministic validators pass, the GitHub workflow ingests the receipt, marks the item COMPLETE and releases SEC-G3-TAV04S. Continue through the persistent queue rather than choosing tasks manually.",
+    "work_item": null,
+    "task": "No eligible work item. Inspect the persistent queue and the last result receipt.",
     "orchestrator": "scripts/n12_orchestrator.py",
     "queue": "automation/N12_WORK_QUEUE_v1.json",
     "result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
@@ -61,10 +261,28 @@
     "storey_levels": "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
     "xy_registration": "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
     "vertical_lines": "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv",
-    "target_outputs": ["data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv"],
-    "forbidden_inputs": ["blind extrusion of PT supports","copying PT sections upward","copying PT beam topology upward","propagating a-b-c-d above G1","propagating 1-8-9-16-17-24-31-32-33 to G5","using historical PT Master as current geometry","collapsing extended-support face nodes","dropping MIS/WATCH provenance"]
+    "target_outputs": [],
+    "forbidden_inputs": [
+      "blind extrusion of PT supports",
+      "copying PT sections upward",
+      "copying PT beam topology upward",
+      "propagating a-b-c-d above G1",
+      "propagating 1-8-9-16-17-24-31-32-33 to G5",
+      "using historical PT Master as current geometry",
+      "collapsing extended-support face nodes",
+      "dropping MIS/WATCH provenance"
+    ]
   },
-  "non_blocking_provenance_watches": ["P19 metric center/face nodes","P25 raster residual","d raster residual at PT only","P12 MIS Y and dependent nodes","P18/P23/P30 MIS-supported center components","P22-prime/P27 MIS-supported row","upper-sheet XY transforms are MIS-supported while identities are DOC","G1 datum is relative; absolute project/geodetic Z remains ND"],
+  "non_blocking_provenance_watches": [
+    "P19 metric center/face nodes",
+    "P25 raster residual",
+    "d raster residual at PT only",
+    "P12 MIS Y and dependent nodes",
+    "P18/P23/P30 MIS-supported center components",
+    "P22-prime/P27 MIS-supported row",
+    "upper-sheet XY transforms are MIS-supported while identities are DOC",
+    "G1 datum is relative; absolute project/geodetic Z remains ND"
+  ],
   "anti_restart_rule": "PT G1-G9, Master regeneration, PT handoff, vertical identity continuity and common storey XY/Z registration are stable checkpoints. The cyclic queue is now the source of next-task truth. Reopen only conflicting individual claims supported by direct primary-source evidence.",
   "completion_condition": "The cyclic queue completes per-storey support sections, per-storey beam topology, vertical column segments and final combined topology with provenance and residual gates intact."
 }
