@@ -85,7 +85,9 @@ def output_status(item: dict[str, Any], registry: dict[str, dict[str, str]]) -> 
 
 
 def item_effectively_complete(item: dict[str, Any], registry: dict[str, dict[str, str]]) -> bool:
-    return item.get("state") == "COMPLETE" or output_status(item, registry)["complete_detected"]
+    # Queue completion is receipt-gated. A canonically ingestible output is necessary
+    # for PASS, but it must not auto-complete the work item before its result receipt.
+    return item.get("state") == "COMPLETE"
 
 
 def missing_inputs(item: dict[str, Any]) -> list[str]:
@@ -215,7 +217,7 @@ def choose_next(
         if item.get("state") in {"IN_PROGRESS", "CANDIDATE", "RESIDUAL"} and not item_effectively_complete(item, registry):
             return item, item.get("state")
 
-    # READY and WAITING items are auto-released when dependencies have canonical outputs.
+    # READY and WAITING items are auto-released only when dependency receipts are COMPLETE.
     for item in ordered:
         if item.get("state") in {"BLOCKED", "SUPERSEDED", "COMPLETE"}:
             continue
