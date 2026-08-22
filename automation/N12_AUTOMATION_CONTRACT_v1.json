@@ -5,6 +5,9 @@
   "canonical_branch": "work/m0-global-model",
   "entrypoint": "scripts/n12_orchestrator.py",
   "queue": "automation/N12_WORK_QUEUE_v1.json",
+  "agent_result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
+  "agent_result_inbox": "automation/inbox/N12_AGENT_RESULT.json",
+  "agent_result_ingestor": "scripts/n12_ingest_agent_result.py",
   "current_state": "knowledge/CURRENT_STATE.json",
   "manifest": "knowledge/KNOWLEDGE_MANIFEST.json",
   "effective_authority": ["knowledge/ARTIFACT_REGISTRY.csv", "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv"],
@@ -24,7 +27,7 @@
     {
       "id": "S0_BOOTSTRAP",
       "mode": "DETERMINISTIC",
-      "checks": ["knowledge_contracts", "agent_bootstrap", "queue_contract"],
+      "checks": ["knowledge_contracts", "agent_bootstrap", "queue_contract", "agent_result_handshake"],
       "success": "S1_SOURCE_READY"
     },
     {
@@ -58,14 +61,14 @@
     {
       "id": "S5_PROMOTION_GATE",
       "mode": "DETERMINISTIC_PLUS_SEMANTIC_APPROVAL",
-      "rule": "Canonical promotion is allowed only when output exists, provenance is explicit, no blocking conflict remains, required audit exists and the artifact is registered with compatible authority/state.",
+      "rule": "Canonical promotion is allowed only when output exists, provenance is explicit, no blocking conflict remains, required audit exists and the artifact is registered with compatible authority/state. The semantic executor must submit exactly one result packet through the agent-result handshake; the ingestor verifies promotion but never manufactures canonical evidence.",
       "success": "S6_STATE_ADVANCE",
       "failure": "RESIDUAL_REVIEW"
     },
     {
       "id": "S6_STATE_ADVANCE",
       "mode": "DETERMINISTIC",
-      "checks": ["knowledge_contracts", "queue_dependency_release", "anti_restart_checkpoint"],
+      "checks": ["knowledge_contracts", "queue_dependency_release", "anti_restart_checkpoint", "agent_result_receipt"],
       "success": "COMPLETE_OR_NEXT_ITEM"
     }
   ],
@@ -86,11 +89,12 @@
     "agent_bootstrap": "python scripts/agent_bootstrap.py",
     "semantic_registry": "python skills/pt-carpentry-reader/runner.py validate",
     "pt_raster_status": "python skills/pt-raster-grid-reconstructor/runner.py status",
-    "queue_contract": "python scripts/n12_orchestrator.py validate"
+    "queue_contract": "python scripts/n12_orchestrator.py validate",
+    "agent_result_handshake": "python scripts/n12_ingest_agent_result.py validate"
   },
   "automation_boundary": {
-    "github_actions_can": ["render immutable sources", "run deterministic extraction", "run validators", "select next eligible work item", "publish cycle report artifacts", "stop on deterministic failure"],
-    "specialist_agent_required_for": ["reading ambiguous labels or dimensions", "semantic classification of structural symbols", "resolving competing source interpretations", "approving a claim for canonical promotion when visual evidence is required"],
-    "fully_unattended_semantic_execution": "Requires an authorized external agent executor; the deterministic orchestrator remains provider-neutral and must not weaken semantic gates when no executor is connected."
+    "github_actions_can": ["render immutable sources", "run deterministic extraction", "run validators", "select next eligible work item", "publish cycle report artifacts", "ingest a contract-valid specialist result", "advance queue/state only after promotion evidence exists", "stop on deterministic failure"],
+    "specialist_agent_required_for": ["reading ambiguous labels or dimensions", "semantic classification of structural symbols", "resolving competing source interpretations", "approving a claim for canonical promotion when visual evidence is required", "writing the single-item semantic result packet"],
+    "fully_unattended_semantic_execution": "Requires an authorized external agent executor. A scheduled project agent may act as that executor only within the single-item contract. The deterministic orchestrator must not weaken semantic gates when no executor is connected."
   }
 }
