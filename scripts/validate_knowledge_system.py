@@ -40,6 +40,17 @@ def exists_rel(rel: str) -> bool:
     return (ROOT / rel).exists()
 
 
+def registry_patch_rels(manifest: dict) -> list[str]:
+    rels: list[str] = []
+    legacy = manifest.get("artifact_registry_patch")
+    if legacy:
+        rels.append(legacy)
+    for rel in manifest.get("artifact_registry_patches", []) or []:
+        if rel and rel not in rels:
+            rels.append(rel)
+    return rels
+
+
 def validate_registry_rows(rows, label: str, *, allow_override_paths: bool = False):
     errors: list[str] = []
     required_cols = {
@@ -115,25 +126,32 @@ def validate() -> tuple[list[str], list[str]]:
 
     errors.extend(validate_registry_rows(rows, "artifact registry"))
 
-    patch_rows = []
-    patch_rel = manifest.get("artifact_registry_patch")
-    if patch_rel:
+    all_patch_rows: list[dict] = []
+    seen_patch_ids: set[str] = set()
+    for patch_rel in registry_patch_rels(manifest):
         patch_path = ROOT / patch_rel
         if not patch_path.exists():
             errors.append(f"artifact registry patch missing: {patch_rel}")
-        else:
-            try:
-                patch_rows = load_registry(patch_path)
-                errors.extend(
-                    validate_registry_rows(
-                        patch_rows, "artifact registry patch", allow_override_paths=True
-                    )
+            continue
+        try:
+            patch_rows = load_registry(patch_path)
+            errors.extend(
+                validate_registry_rows(
+                    patch_rows, f"artifact registry patch {patch_rel}", allow_override_paths=True
                 )
-            except Exception as exc:
-                errors.append(f"invalid artifact registry patch CSV: {exc}")
+            )
+        except Exception as exc:
+            errors.append(f"invalid artifact registry patch CSV {patch_rel}: {exc}")
+            continue
+        for row in patch_rows:
+            aid = row.get("artifact_id", "").strip()
+            if aid in seen_patch_ids:
+                errors.append(f"artifact registry patches reuse artifact_id: {aid}")
+            seen_patch_ids.add(aid)
+        all_patch_rows.extend(patch_rows)
 
     base_ids = {r.get("artifact_id", "").strip() for r in rows}
-    patch_ids = {r.get("artifact_id", "").strip() for r in patch_rows}
+    patch_ids = {r.get("artifact_id", "").strip() for r in all_patch_rows}
     if base_ids & patch_ids:
         errors.append(
             "artifact registry patch reuses base artifact_id(s): "
@@ -142,7 +160,7 @@ def validate() -> tuple[list[str], list[str]]:
 
     # Patch rows intentionally override base rows by path while preserving the base registry as history.
     by_path = {r.get("path", "").strip(): r for r in rows}
-    for r in patch_rows:
+    for r in all_patch_rows:
         by_path[r.get("path", "").strip()] = r
 
     if manifest.get("entrypoint") != "AGENTS.md":
@@ -172,6 +190,15 @@ def validate() -> tuple[list[str], list[str]]:
             errors.append(f"active procedure missing: {rel}")
         elif rel not in by_path:
             errors.append(f"active procedure not registered: {rel}")
+
+    automation = manifest.get("automation", {})
+    if automation.get("enabled"):
+        for key in ["contract", "queue", "runner", "procedure", "workflow"]:
+            rel = automation.get(key)
+            if not rel or not exists_rel(rel):
+                errors.append(f"automation {key} missing: {rel}")
+            elif rel not in by_path:
+                errors.append(f"automation {key} not registered: {rel}")
 
     pt = manifest.get("pt_geometry", {})
     current_master = pt.get("current_master")
@@ -228,6 +255,8 @@ def validate() -> tuple[list[str], list[str]]:
     for token in ["knowledge/KNOWLEDGE_MANIFEST.json", "knowledge/CURRENT_STATE.json", "knowledge/ARTIFACT_REGISTRY.csv"]:
         if token not in agents_text:
             errors.append(f"AGENTS.md does not reference required entry: {token}")
+    if automation.get("enabled") and "scripts/n12_orchestrator.py" not in agents_text:
+        errors.append("AGENTS.md does not reference the enabled N12 orchestrator")
 
     return errors, warnings
 
