@@ -50,4 +50,10 @@ render_one "TAV05E" "archive/documentazione_originaria/tavola5-2.pdf" "prospetto
 render_one "TAV06S" "archive/documentazione_originaria/tavola 6-1.pdf" "carpenteria_copertura" "G5_copertura"
 render_one "TAV06E" "archive/documentazione_originaria/tavola6-2.pdf" "sezione_elevazione" "sviluppo_verticale"
 
-printf 'archive_branch,%s\narchive_commit,%s\nrender_policy,immutable_source_to_300dpi_jpeg_no_interpretation\n' "$ARCHIVE_BRANCH" "$ARCHIVE_COMMIT" > "$OUT/run_metadata.txt"
+# M1-A targeted review package: existing canonical TAV-02S tiles around supports 17-24.
+# These are copied unchanged only to make the reinforcement/carpenteria cross-check reproducible.
+for tile in r2_c1 r2_c2 r3_c1 r3_c2 r4_c1 r4_c2; do
+  cp "analysis/source_renders/TAV02S/${tile}.jpg" "$OUT/TAV02S_${tile}.jpg"
+done
+
+printf 'archive_branch,%s\narchive_commit,%s\nrender_policy,immutable_source_to_300dpi_jpeg_no_interpretation\nreview_package,TAV02S_r2_c1+r2_c2+r3_c1+r3_c2+r4_c1+r4_c2 copied unchanged from canonical tile set\n' "$ARCHIVE_BRANCH" "$ARCHIVE_COMMIT" > "$OUT/run_metadata.txt"
