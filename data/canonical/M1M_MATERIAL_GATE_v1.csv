@@ -1,0 +1,2 @@
+gate_id,scope,inventory_complete,historical_concrete_reference,current_concrete_strength,steel_grade,lc,fc,residual_count,gate_status,progress_rule,note
+M1M-MATERIAL-EVIDENCE,materials_and_knowledge,true,RIF_250_kg_cm2,ND,ND,ND,ND,5,PASS_WITH_WATCH,ADVANCE_WITH_RESIDUALS,"Material evidence inventory is complete enough to advance to reinforcement mapping. Rck 250 kg/cm2 remains a historical RIF reference; current concrete verification strength, steel grade/fyk, LC and FC remain unresolved and must be closed before CALCULATION_MODEL_READY."
