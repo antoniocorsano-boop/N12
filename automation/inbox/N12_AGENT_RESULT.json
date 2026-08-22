@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "work_item_id": "M0G-ASSEMBLE-MEMBER-CONNECTIVITY",
+  "source_sheet": "MULTI",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "target_outputs": [
+    "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv"
+  ],
+  "provenance_summary": {
+    "DOC": 0,
+    "MIS": 0,
+    "RIF": 0,
+    "INF": 356,
+    "INC": 0,
+    "ND": 0
+  },
+  "residuals": [],
+  "audit_paths": [
+    "analysis/automation/M0G_ASSEMBLE_MEMBER_CONNECTIVITY_AUDIT_v1.csv"
+  ]
+}
