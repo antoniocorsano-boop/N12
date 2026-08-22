@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "updated_at": "2026-08-22",
   "gate": "M0-G/COMMON-STOREY-REGISTRATION",
-  "status": "BLOCKED_INPUT",
+  "status": "IN_PROGRESS_WITH_AUTOMATED_PER_STOREY_CYCLE",
   "objective": "Integrare il PT canonico nel modello verticale usando soltanto continuità, registrazioni inter-tavola e quote sostenute dalle tavole originali, quindi ricostruire sezioni e travi di ogni impalcato mediante ciclo automatico con gate e residui isolati.",
   "authoritative_method": "skills/pt-raster-grid-reconstructor/SKILL.md",
   "semantic_method": "skills/pt-carpentry-reader/SKILL.md",
@@ -29,16 +29,16 @@
     "agent_result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
     "agent_result_ingestor": "scripts/n12_ingest_agent_result.py",
     "agent_result_inbox": "automation/inbox/N12_AGENT_RESULT.json",
-    "current_work_item": null,
+    "current_work_item": "SEC-G3-TAV04S",
     "deterministic_cycle": "ACTIVE_ON_BRANCH_PUSH_AND_WORKFLOW_DISPATCH_AND_6H_SCHEDULE",
     "semantic_executor": "SCHEDULED_PROJECT_AGENT_CONFIGURED_AWAITING_FIRST_RECEIPT",
     "semantic_executor_schedule": "EVERY_6_HOURS",
     "semantic_boundary": "ONE_WORK_ITEM_PER_CYCLE_WITH_CONTRACT_VALID_RESULT_HANDSHAKE",
     "first_semantic_receipt_status": "PENDING",
-    "last_result_receipt": "automation/receipts/SEC-G2-TAV03S_20260822T100003Z.json",
-    "last_result_decision": "BLOCKED",
-    "last_result_at": "2026-08-22T10:00:03.284533+00:00",
-    "last_cycle_outcome": "BLOCKED_INPUT"
+    "last_result_receipt": "automation/receipts/SEC-G2-TAV03S_20260822T103747Z.json",
+    "last_result_decision": "PASS",
+    "last_result_at": "2026-08-22T10:37:47.838531+00:00",
+    "last_cycle_outcome": "PASS_ADVANCE"
   },
   "completed_subphases": [
     {
@@ -252,8 +252,8 @@
   ],
   "next_action": {
     "phase": "PER-STOREY-SECTIONS-AND-BEAM-TOPOLOGY",
-    "work_item": null,
-    "task": "No eligible work item. Inspect the persistent queue and the last result receipt.",
+    "work_item": "SEC-G3-TAV04S",
+    "task": "Read sections and orientations for support identities 1-33 plus 22' independently on the III impalcato carpenteria.",
     "orchestrator": "scripts/n12_orchestrator.py",
     "queue": "automation/N12_WORK_QUEUE_v1.json",
     "result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
@@ -261,7 +261,9 @@
     "storey_levels": "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
     "xy_registration": "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
     "vertical_lines": "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv",
-    "target_outputs": [],
+    "target_outputs": [
+      "data/canonical/STOREY_SUPPORT_SECTIONS_G3_v1.csv"
+    ],
     "forbidden_inputs": [
       "blind extrusion of PT supports",
       "copying PT sections upward",

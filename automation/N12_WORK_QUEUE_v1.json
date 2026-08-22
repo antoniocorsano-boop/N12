@@ -7,7 +7,7 @@
     {
       "id": "SEC-G2-TAV03S",
       "priority": 10,
-      "state": "CANDIDATE",
+      "state": "COMPLETE",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-03S",
       "task": "Read sections and orientations for support identities 1-33 plus 22' independently on the II impalcato carpenteria.",
@@ -23,13 +23,15 @@
       ],
       "semantic_gate": "Every section/orientation must be read from TAV-03S or explicitly marked ND/INC; PT sections are comparison-only and cannot fill missing values.",
       "last_result_at": "2026-08-22T10:00:03.284533+00:00",
-      "result_receipt": "automation/receipts/SEC-G2-TAV03S_20260822T100003Z.json",
-      "retry_reason": "HANDSHAKE_RACE_FIXED; revalidate retained 34-DOC candidate through corrected receipt gate"
+      "result_receipt": "automation/receipts/SEC-G2-TAV03S_20260822T103747Z.json",
+      "retry_reason": "HANDSHAKE_RACE_FIXED; revalidate retained 34-DOC candidate through corrected receipt gate",
+      "completed_at": "2026-08-22T10:37:47.838531+00:00",
+      "completion_decision": "PASS"
     },
     {
       "id": "SEC-G3-TAV04S",
       "priority": 20,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-04S",
       "task": "Read sections and orientations for support identities 1-33 plus 22' independently on the III impalcato carpenteria.",
@@ -43,7 +45,9 @@
       "target_outputs": [
         "data/canonical/STOREY_SUPPORT_SECTIONS_G3_v1.csv"
       ],
-      "semantic_gate": "Do not inherit G2 sections; every unchanged value must still be supported by TAV-04S evidence."
+      "semantic_gate": "Do not inherit G2 sections; every unchanged value must still be supported by TAV-04S evidence.",
+      "released_at": "2026-08-22T10:37:47.838531+00:00",
+      "released_by": "SEC-G2-TAV03S"
     },
     {
       "id": "SEC-G4-TAV05S",
