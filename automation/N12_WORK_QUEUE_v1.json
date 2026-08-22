@@ -69,7 +69,7 @@
     {
       "id": "M0G-RESOLVE-ROOF-SPECIAL-3D",
       "priority": 25,
-      "state": "BLOCKED",
+      "state": "COMPLETE",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-06S+TAV-06E",
       "task": "Resolve the three-dimensional geometry status of the three ridge axes and three eaves edge sets using the roof carpenteria, vertical section evidence and common storey registration, without converting them automatically into structural beams.",
@@ -91,7 +91,11 @@
       "released_at": "2026-08-22T13:59:23.529877+00:00",
       "released_by": "M0G-BUILD-3D-ANALYTICAL-NODES",
       "last_result_at": "2026-08-22T16:01:30.702269+00:00",
-      "result_receipt": "automation/receipts/M0G-RESOLVE-ROOF-SPECIAL-3D_20260822T160130Z.json"
+      "result_receipt": "automation/receipts/M0G-RESOLVE-ROOF-SPECIAL-3D_20260822T185110Z.json",
+      "reopened_at": "2026-08-22T18:51:10.429211+00:00",
+      "reopened_reason": "Prior BLOCKED result mixed an automation handshake defect with semantic residuals. The work-item gate explicitly permits unsupported roof XY/Z to remain MIS/ND; direct TAV-06S recheck also corrects local ridge transcription 3.15 to 3.75 without creating a global Z.",
+      "completed_at": "2026-08-22T18:51:10.820478+00:00",
+      "completion_decision": "PASS_WITH_WATCH"
     },
     {
       "id": "M0G-BUILD-RIGID-JOINT-LINKS",
@@ -153,7 +157,7 @@
     {
       "id": "M0G-GLOBAL-TOPOLOGY-GATE",
       "priority": 50,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S4_CROSSCHECK",
       "source_sheet": "MULTI",
       "task": "Run the global M0-G topology and provenance gate over analytical nodes, rigid joint links, 356 structural member segments and the separately preserved roof-special geometry.",
@@ -170,7 +174,9 @@
       "target_outputs": [
         "data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv"
       ],
-      "semantic_gate": "Reject duplicate structural members, invalid cross-storey incidences, unsupported vertical extrusion, centroid substitution of documented face nodes, loss of provenance, or silent conversion of roof-special geometry into frame members. Report orphan or disconnected analytical entities explicitly rather than repairing them by inference."
+      "semantic_gate": "Reject duplicate structural members, invalid cross-storey incidences, unsupported vertical extrusion, centroid substitution of documented face nodes, loss of provenance, or silent conversion of roof-special geometry into frame members. Report orphan or disconnected analytical entities explicitly rather than repairing them by inference.",
+      "released_at": "2026-08-22T18:51:10.820478+00:00",
+      "released_by": "M0G-RESOLVE-ROOF-SPECIAL-3D"
     },
     {
       "id": "M0G-GEOMETRY-HANDOFF",

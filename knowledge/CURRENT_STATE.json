@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "updated_at": "2026-08-22",
   "gate": "M0-G/COMMON-STOREY-REGISTRATION",
-  "status": "BLOCKED_DEPENDENCY",
+  "status": "IN_PROGRESS_WITH_AUTOMATED_PER_STOREY_CYCLE",
   "objective": "Integrare il PT canonico nel modello verticale usando soltanto continuità, registrazioni inter-tavola e quote sostenute dalle tavole originali, quindi ricostruire sezioni e travi di ogni impalcato mediante ciclo automatico con gate e residui isolati.",
   "authoritative_method": "skills/pt-raster-grid-reconstructor/SKILL.md",
   "semantic_method": "skills/pt-carpentry-reader/SKILL.md",
@@ -29,15 +29,15 @@
     "agent_result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
     "agent_result_ingestor": "scripts/n12_ingest_agent_result.py",
     "agent_result_inbox": "automation/inbox/N12_AGENT_RESULT.json",
-    "current_work_item": null,
+    "current_work_item": "M0G-GLOBAL-TOPOLOGY-GATE",
     "deterministic_cycle": "ACTIVE_ON_BRANCH_PUSH_AND_WORKFLOW_DISPATCH_AND_6H_SCHEDULE",
     "semantic_executor": "SCHEDULED_PROJECT_AGENT_CONFIGURED_AWAITING_FIRST_RECEIPT",
     "semantic_executor_schedule": "EVERY_6_HOURS",
     "semantic_boundary": "ONE_WORK_ITEM_PER_CYCLE_WITH_CONTRACT_VALID_RESULT_HANDSHAKE",
     "first_semantic_receipt_status": "PENDING",
-    "last_result_receipt": "automation/receipts/M0G-ASSEMBLE-MEMBER-CONNECTIVITY_20260822T184139Z.json",
+    "last_result_receipt": "automation/receipts/M0G-RESOLVE-ROOF-SPECIAL-3D_20260822T185110Z.json",
     "last_result_decision": "PASS_WITH_WATCH",
-    "last_result_at": "2026-08-22T18:41:39.910529+00:00",
+    "last_result_at": "2026-08-22T18:51:10.820478+00:00",
     "last_cycle_outcome": "PASS_WITH_WATCH_ADVANCE"
   },
   "completed_subphases": [
@@ -252,8 +252,8 @@
   ],
   "next_action": {
     "phase": "PER-STOREY-SECTIONS-AND-BEAM-TOPOLOGY",
-    "work_item": null,
-    "task": "No eligible work item. Inspect the persistent queue and the last result receipt.",
+    "work_item": "M0G-GLOBAL-TOPOLOGY-GATE",
+    "task": "Run the global M0-G topology and provenance gate over analytical nodes, rigid joint links, 356 structural member segments and the separately preserved roof-special geometry.",
     "orchestrator": "scripts/n12_orchestrator.py",
     "queue": "automation/N12_WORK_QUEUE_v1.json",
     "result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
@@ -261,7 +261,9 @@
     "storey_levels": "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
     "xy_registration": "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
     "vertical_lines": "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv",
-    "target_outputs": [],
+    "target_outputs": [
+      "data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv"
+    ],
     "forbidden_inputs": [
       "blind extrusion of PT supports",
       "copying PT sections upward",
