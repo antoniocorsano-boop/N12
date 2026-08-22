@@ -1,0 +1,100 @@
+name: N12 Scheduled Structural Analysis Cycle
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+
+concurrency:
+  group: n12-structural-analysis-cycle
+  cancel-in-progress: false
+
+jobs:
+  cycle:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout canonical N12 working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install immutable-source renderer
+        run: sudo apt-get update -qq && sudo apt-get install -y poppler-utils
+
+      - name: Render upper-storey primary sources
+        run: bash scripts/render_storey_sources.sh
+
+      - name: Validate knowledge and automation contracts
+        run: |
+          python scripts/validate_knowledge_system.py
+          python scripts/n12_orchestrator.py validate
+          python scripts/n12_ingest_agent_result.py validate
+
+      - name: Ingest exactly one pending specialist result if present
+        id: ingest
+        shell: bash
+        run: |
+          if [ -f automation/inbox/N12_AGENT_RESULT.json ]; then
+            python scripts/n12_ingest_agent_result.py apply
+            echo 'ingested=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'No specialist result in inbox.'
+            echo 'ingested=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Revalidate after ingestion
+        if: steps.ingest.outputs.ingested == 'true'
+        run: |
+          python scripts/validate_knowledge_system.py
+          python scripts/n12_orchestrator.py validate
+
+      - name: Persist queue/state advancement on canonical working branch
+        if: steps.ingest.outputs.ingested == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-analysis-orchestrator[bot]'
+          git config user.email 'n12-analysis-orchestrator[bot]@users.noreply.github.com'
+          git add automation/N12_WORK_QUEUE_v1.json knowledge/CURRENT_STATE.json
+          git add -A automation/receipts || true
+          git add -A automation/inbox || true
+          if git diff --cached --quiet; then
+            echo 'No state advancement to commit.'
+          else
+            git commit -m 'automation: ingest specialist result and advance cycle'
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Run deterministic cycle gates
+        run: python scripts/n12_orchestrator.py run --output analysis/automation/N12_CYCLE_REPORT.json
+
+      - name: Build next single-item specialist task packet
+        run: python scripts/n12_make_agent_task.py > /tmp/n12-agent-task.txt
+
+      - name: Print cycle status
+        run: python scripts/n12_orchestrator.py status
+
+      - name: Upload cycle evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: n12-analysis-cycle-report
+          path: |
+            analysis/automation/N12_CYCLE_REPORT.json
+            analysis/automation/N12_AGENT_TASK_PACKET.json
+            analysis/storey_source_renders/
+            /tmp/n12-agent-task.txt
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Safety boundary
+        run: |
+          echo 'Scheduled heartbeat operates only on work/m0-global-model.'
+          echo 'At most one contract-valid specialist result is ingested per run.'
+          echo 'No structural data is copied to or promoted on main.'
