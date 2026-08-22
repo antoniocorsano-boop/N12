@@ -17,6 +17,7 @@ on:
       - 'scripts/n12_ingest_agent_result.py'
       - 'scripts/n12_generate_m0g_3d_nodes.py'
       - 'scripts/n12_generate_m0g_rigid_links.py'
+      - 'scripts/n12_generate_m0g_member_connectivity.py'
       - 'scripts/render_storey_sources.sh'
       - 'skills/**'
       - '.github/workflows/n12-analysis-orchestrator.yml'
@@ -113,6 +114,40 @@ jobs:
             echo 'M0G rigid-link candidate already deterministic and unchanged.'
           else
             git commit -m 'automation: generate M0G rigid joint link candidate'
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Generate M0G member connectivity when selected
+        id: m0g_member_connectivity
+        shell: bash
+        run: |
+          if python - <<'PY'
+          import json
+          from pathlib import Path
+          q = json.loads(Path('automation/N12_WORK_QUEUE_v1.json').read_text(encoding='utf-8'))
+          item = next((x for x in q.get('items', []) if x.get('id') == 'M0G-ASSEMBLE-MEMBER-CONNECTIVITY'), None)
+          raise SystemExit(0 if item and item.get('state') in {'READY', 'IN_PROGRESS', 'CANDIDATE'} else 1)
+          PY
+          then
+            python scripts/n12_generate_m0g_member_connectivity.py
+            echo 'generated=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'M0G-ASSEMBLE-MEMBER-CONNECTIVITY is not the active candidate-generation state.'
+            echo 'generated=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Persist deterministic M0G member-connectivity candidate
+        if: steps.m0g_member_connectivity.outputs.generated == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-analysis-orchestrator[bot]'
+          git config user.email 'n12-analysis-orchestrator[bot]@users.noreply.github.com'
+          git add data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv
+          git add analysis/automation/M0G_ASSEMBLE_MEMBER_CONNECTIVITY_AUDIT_v1.csv
+          if git diff --cached --quiet; then
+            echo 'M0G member-connectivity candidate already deterministic and unchanged.'
+          else
+            git commit -m 'automation: generate M0G global member connectivity candidate'
             git push origin HEAD:work/m0-global-model
           fi
 
