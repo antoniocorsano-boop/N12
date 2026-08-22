@@ -5,7 +5,7 @@
   "canonical_branch": "work/m0-global-model",
   "entrypoint": "AGENTS.md",
   "objective": "Fascicolo strutturale completo, modello M0 globale, modello EdiLus-EE validato e verifiche dell'edificio esistente in c.a.",
-  "current_gate": "M1-M/MATERIALS",
+  "current_gate": "M1-A/REINFORCEMENT",
   "current_domain": "STRUCTURAL_MODEL_COMPLETION",
   "state_file": "knowledge/CURRENT_STATE.json",
   "artifact_registry": "knowledge/ARTIFACT_REGISTRY.csv",
@@ -96,7 +96,7 @@
   },
   "m1_model_completion": {
     "phase": "M1",
-    "current_front": "M1-M_MATERIALS",
+    "current_front": "M1-A_REINFORCEMENT",
     "m0g_geometry_handoff": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
     "m1s_status": "PASS_WITH_WATCH",
     "m1s_gate": "data/canonical/M1S_SECTION_GATE_v1.csv",
@@ -106,8 +106,12 @@
     "ordinary_members_with_nd_sections": 0,
     "section_evidence_watches": 5,
     "g5_supported_section_items": ["G5-B017"],
-    "next_work_item": "M1M-MATERIAL-EVIDENCE",
-    "material_state_at_activation": "ND",
+    "m1m_status": "PASS_WITH_WATCH",
+    "m1m_evidence": "data/canonical/M1M_MATERIAL_EVIDENCE_CURRENT_v1.csv",
+    "m1m_gate": "data/canonical/M1M_MATERIAL_GATE_v1.csv",
+    "historical_concrete_reference": "RIF_Rck_250_kg_cm2",
+    "material_residuals_required_before_calculation_model_ready": ["in_situ_concrete_strength","steel_type_and_fyk","LC","FC"],
+    "next_work_item": "M1A-REINFORCEMENT-EVIDENCE",
     "rule": "M0-G remains frozen; M1 completes model inputs without inventing missing evidence."
   },
   "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, semantic result handshake, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology, material evidence and residual acceptance remain specialist gates"}
