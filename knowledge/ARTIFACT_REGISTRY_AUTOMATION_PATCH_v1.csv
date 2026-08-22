@@ -1,0 +1,6 @@
+artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validation_method,replaces_or_relates,note
+SYS-AUTO-001,automation/N12_AUTOMATION_CONTRACT_v1.json,SYSTEM_AUTOMATION,AUTOMATION_CONTRACT,PROCEDURE,CURRENT,YES,scripts/n12_orchestrator.py validate,,Authoritative cyclic gate and transition contract for structural analysis automation
+SYS-AUTO-002,automation/N12_WORK_QUEUE_v1.json,SYSTEM_AUTOMATION,WORK_QUEUE,CANONICAL,CURRENT,YES,scripts/n12_orchestrator.py validate,knowledge/CURRENT_STATE.json,Persistent dependency-aware work queue; selects next specialist task without chat reconstruction
+SYS-AUTO-003,scripts/n12_orchestrator.py,SYSTEM_AUTOMATION,ORCHESTRATOR,DERIVED,CURRENT,NO,python execution,,Deterministic cycle planner validator and report generator; never performs semantic canonical promotion alone
+SYS-AUTO-004,docs/N12_AUTOMATED_ANALYSIS_CYCLE_v1.md,SYSTEM_AUTOMATION,PROCEDURE,PROCEDURE,CURRENT,YES,manual+orchestrator-validator,automation/N12_AUTOMATION_CONTRACT_v1.json,Human-readable cyclic workflow and safety/gate rules
+SYS-AUTO-005,.github/workflows/n12-analysis-orchestrator.yml,SYSTEM_AUTOMATION,CI_WORKFLOW,DERIVED,CURRENT,NO,GitHub Actions,automation/N12_AUTOMATION_CONTRACT_v1.json,Automated deterministic cycle execution render validation next-task report and evidence artifact upload
