@@ -177,7 +177,7 @@
     {
       "id": "BEAM-G5-TAV06S",
       "priority": 80,
-      "state": "READY",
+      "state": "COMPLETE",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-06S",
       "task": "Reconstruct roof beam/ridge/eaves topology including documented colmo and gronda members from TAV-06S.",
@@ -194,12 +194,15 @@
       ],
       "semantic_gate": "Ridge/eaves members and reduced roof footprint must be explicit; no rectangularized substitute topology.",
       "released_at": "2026-08-22T11:50:27.410951+00:00",
-      "released_by": "BEAM-G4-TAV05S"
+      "released_by": "BEAM-G4-TAV05S",
+      "completed_at": "2026-08-22T12:57:44.320186+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "result_receipt": "automation/receipts/BEAM-G5-TAV06S_20260822T125744Z.json"
     },
     {
       "id": "ASSEMBLE-VERTICAL-COLUMNS",
       "priority": 90,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
       "source_sheet": "MULTI",
       "task": "Assemble vertical column segments only where adjacent-level support identity, XY registration, Z endpoints and section endpoints are available with provenance.",
@@ -220,7 +223,9 @@
       "target_outputs": [
         "data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv"
       ],
-      "semantic_gate": "A segment may exist only between two documented adjacent support presences; section changes are retained at level boundaries and terrace/roof terminations remain explicit."
+      "semantic_gate": "A segment may exist only between two documented adjacent support presences; section changes are retained at level boundaries and terrace/roof terminations remain explicit.",
+      "released_at": "2026-08-22T12:57:44.320186+00:00",
+      "released_by": "BEAM-G5-TAV06S"
     },
     {
       "id": "ASSEMBLE-STOREY-BEAM-TOPOLOGY",
