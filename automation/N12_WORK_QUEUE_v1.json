@@ -7,7 +7,7 @@
     {
       "id": "SEC-G2-TAV03S",
       "priority": 10,
-      "state": "BLOCKED",
+      "state": "CANDIDATE",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-03S",
       "task": "Read sections and orientations for support identities 1-33 plus 22' independently on the II impalcato carpenteria.",
@@ -23,7 +23,8 @@
       ],
       "semantic_gate": "Every section/orientation must be read from TAV-03S or explicitly marked ND/INC; PT sections are comparison-only and cannot fill missing values.",
       "last_result_at": "2026-08-22T10:00:03.284533+00:00",
-      "result_receipt": "automation/receipts/SEC-G2-TAV03S_20260822T100003Z.json"
+      "result_receipt": "automation/receipts/SEC-G2-TAV03S_20260822T100003Z.json",
+      "retry_reason": "HANDSHAKE_RACE_FIXED; revalidate retained 34-DOC candidate through corrected receipt gate"
     },
     {
       "id": "SEC-G3-TAV04S",
