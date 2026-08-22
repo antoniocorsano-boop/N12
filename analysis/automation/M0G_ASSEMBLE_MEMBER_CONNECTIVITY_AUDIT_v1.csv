@@ -1,0 +1,21 @@
+check_id,expected,actual,status,note
+TOTAL_MEMBER_ROWS,356,356,PASS,
+ORDINARY_BEAM_ROWS,229,229,PASS,49 G1 + 180 G2-G5
+COLUMN_SEGMENT_ROWS,127,127,PASS,Exact vertical ledger
+G1_BEAMS,49,49,PASS,Effective PT topology
+G2_BEAMS,48,48,PASS,
+G3_BEAMS,48,48,PASS,
+G4_BEAMS,48,48,PASS,
+G5_BEAMS,36,36,PASS,
+UNIQUE_MEMBER_IDS,356,356,PASS,
+DUPLICATE_UNDIRECTED_NODE_PAIRS,0,0,PASS,Rigid links are not structural members and are absent here.
+BEAM_ENDPOINT_ROLE_FAILURES,0,0,PASS,Every beam terminates on a beam-support face node.
+COLUMN_ENDPOINT_ROLE_FAILURES,0,0,PASS,Every column terminates on a support-core node.
+ZERO_LENGTH_MEMBERS,0,0,PASS,
+REVOKED_OR_DUPLICATE_PT_BEAMS_PRESENT,0,0,PASS,"B-029, B-037, B-044 excluded."
+G5_B036_COUNT,1,1,PASS,19-26 oblique beam counted once.
+ROOF_RIDGE_GRONDA_ORDINARY_MEMBERS,0,0,PASS,Roof special geometry remains separate.
+TERRACE_A_D_VERTICAL_SEGMENTS,0,0,PASS,a-d terminate at G1.
+ROOF_ABSENT_G4_G5_COLUMNS,0,0,PASS,No unsupported extrusion to G5.
+G5_ND_SECTION_BEAMS_RETAINED,17,17,PASS,Connectivity does not fill missing G5 sections.
+COLUMN_SECTION_WATCH_SEGMENTS_RETAINED,4,4,PASS,G3 support section watches propagate without repair.
