@@ -69,7 +69,7 @@
     {
       "id": "M0G-RESOLVE-ROOF-SPECIAL-3D",
       "priority": 25,
-      "state": "READY",
+      "state": "BLOCKED",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-06S+TAV-06E",
       "task": "Resolve the three-dimensional geometry status of the three ridge axes and three eaves edge sets using the roof carpenteria, vertical section evidence and common storey registration, without converting them automatically into structural beams.",
@@ -89,12 +89,14 @@
       ],
       "semantic_gate": "Preserve exactly three ridge axes and three eaves edge sets. Populate metric XY/Z only where source evidence plus registered frame support it; otherwise retain MIS/ND. structural_member_status remains TO_VERIFY_MEMBER unless explicit primary-source evidence establishes a structural member. Do not duplicate G5-B036.",
       "released_at": "2026-08-22T13:59:23.529877+00:00",
-      "released_by": "M0G-BUILD-3D-ANALYTICAL-NODES"
+      "released_by": "M0G-BUILD-3D-ANALYTICAL-NODES",
+      "last_result_at": "2026-08-22T16:01:30.702269+00:00",
+      "result_receipt": "automation/receipts/M0G-RESOLVE-ROOF-SPECIAL-3D_20260822T160130Z.json"
     },
     {
       "id": "M0G-BUILD-RIGID-JOINT-LINKS",
       "priority": 30,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
       "source_sheet": "MULTI",
       "task": "Build explicit analytical links between support-core/column-axis nodes and beam-face incidence nodes where required by the physical joint geometry, preserving rigid offsets rather than collapsing all incidences to the centroid.",
@@ -112,7 +114,9 @@
       "target_outputs": [
         "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv"
       ],
-      "semantic_gate": "Every rigid link must connect analytical roles belonging to the same physical support and storey. Never merge distinct beam-face incidences merely because they share a support_id. Preserve extended-support geometry and provenance."
+      "semantic_gate": "Every rigid link must connect analytical roles belonging to the same physical support and storey. Never merge distinct beam-face incidences merely because they share a support_id. Preserve extended-support geometry and provenance.",
+      "released_at": "2026-08-22T16:01:30.702269+00:00",
+      "released_by": "M0G-RESOLVE-ROOF-SPECIAL-3D"
     },
     {
       "id": "M0G-ASSEMBLE-MEMBER-CONNECTIVITY",
