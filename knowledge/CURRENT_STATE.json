@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "updated_at": "2026-08-22",
   "gate": "M0-G/COMMON-STOREY-REGISTRATION",
-  "status": "IN_PROGRESS_WITH_AUTOMATED_PER_STOREY_CYCLE",
+  "status": "CYCLIC_QUEUE_COMPLETE",
   "objective": "Integrare il PT canonico nel modello verticale usando soltanto continuità, registrazioni inter-tavola e quote sostenute dalle tavole originali, quindi ricostruire sezioni e travi di ogni impalcato mediante ciclo automatico con gate e residui isolati.",
   "authoritative_method": "skills/pt-raster-grid-reconstructor/SKILL.md",
   "semantic_method": "skills/pt-carpentry-reader/SKILL.md",
@@ -29,15 +29,15 @@
     "agent_result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
     "agent_result_ingestor": "scripts/n12_ingest_agent_result.py",
     "agent_result_inbox": "automation/inbox/N12_AGENT_RESULT.json",
-    "current_work_item": "M0G-GEOMETRY-HANDOFF",
+    "current_work_item": null,
     "deterministic_cycle": "ACTIVE_ON_BRANCH_PUSH_AND_WORKFLOW_DISPATCH_AND_6H_SCHEDULE",
     "semantic_executor": "SCHEDULED_PROJECT_AGENT_CONFIGURED_AWAITING_FIRST_RECEIPT",
     "semantic_executor_schedule": "EVERY_6_HOURS",
     "semantic_boundary": "ONE_WORK_ITEM_PER_CYCLE_WITH_CONTRACT_VALID_RESULT_HANDSHAKE",
     "first_semantic_receipt_status": "PENDING",
-    "last_result_receipt": "automation/receipts/M0G-GLOBAL-TOPOLOGY-GATE_20260822T185828Z.json",
+    "last_result_receipt": "automation/receipts/M0G-GEOMETRY-HANDOFF_20260822T190450Z.json",
     "last_result_decision": "PASS_WITH_WATCH",
-    "last_result_at": "2026-08-22T18:58:28.352413+00:00",
+    "last_result_at": "2026-08-22T19:04:50.545865+00:00",
     "last_cycle_outcome": "PASS_WITH_WATCH_ADVANCE"
   },
   "completed_subphases": [
@@ -252,8 +252,8 @@
   ],
   "next_action": {
     "phase": "PER-STOREY-SECTIONS-AND-BEAM-TOPOLOGY",
-    "work_item": "M0G-GEOMETRY-HANDOFF",
-    "task": "Freeze the complete M0-G building geometry handoff for downstream section assignment and EdiLus/Open-source FEM model construction, referencing canonical datasets rather than duplicating their contents.",
+    "work_item": null,
+    "task": "No eligible work item. Inspect the persistent queue and the last result receipt.",
     "orchestrator": "scripts/n12_orchestrator.py",
     "queue": "automation/N12_WORK_QUEUE_v1.json",
     "result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
@@ -261,9 +261,7 @@
     "storey_levels": "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
     "xy_registration": "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
     "vertical_lines": "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv",
-    "target_outputs": [
-      "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json"
-    ],
+    "target_outputs": [],
     "forbidden_inputs": [
       "blind extrusion of PT supports",
       "copying PT sections upward",

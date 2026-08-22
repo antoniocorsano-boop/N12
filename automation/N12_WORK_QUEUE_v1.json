@@ -184,7 +184,7 @@
     {
       "id": "M0G-GEOMETRY-HANDOFF",
       "priority": 60,
-      "state": "READY",
+      "state": "COMPLETE",
       "stage": "S5_PROMOTION_GATE",
       "source_sheet": "MULTI",
       "task": "Freeze the complete M0-G building geometry handoff for downstream section assignment and EdiLus/Open-source FEM model construction, referencing canonical datasets rather than duplicating their contents.",
@@ -204,7 +204,10 @@
       ],
       "semantic_gate": "Handoff only if the global topology gate is non-blocking. Preserve WATCH/ND as explicit downstream constraints. M0-G completion does not authorize invention of missing sections, roof members, armatures, materials, loads or absolute geodetic Z.",
       "released_at": "2026-08-22T18:58:28.352413+00:00",
-      "released_by": "M0G-GLOBAL-TOPOLOGY-GATE"
+      "released_by": "M0G-GLOBAL-TOPOLOGY-GATE",
+      "completed_at": "2026-08-22T19:04:50.545865+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "result_receipt": "automation/receipts/M0G-GEOMETRY-HANDOFF_20260822T190450Z.json"
     }
   ]
 }
