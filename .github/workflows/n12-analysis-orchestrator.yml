@@ -14,6 +14,7 @@ on:
       - 'docs/N12_AUTOMATED_ANALYSIS_CYCLE_v1.md'
       - 'scripts/n12_orchestrator.py'
       - 'scripts/n12_make_agent_task.py'
+      - 'scripts/n12_ingest_agent_result.py'
       - 'scripts/render_storey_sources.sh'
       - 'skills/**'
       - '.github/workflows/n12-analysis-orchestrator.yml'
@@ -26,7 +27,7 @@ jobs:
   cycle:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
       - name: Checkout canonical working branch
         uses: actions/checkout@v4
@@ -45,11 +46,48 @@ jobs:
       - name: Render upper-storey primary sources
         run: bash scripts/render_storey_sources.sh
 
-      - name: Validate knowledge system
+      - name: Validate knowledge system before ingestion
         run: python scripts/validate_knowledge_system.py
 
       - name: Validate cyclic automation contract
         run: python scripts/n12_orchestrator.py validate
+
+      - name: Validate pending specialist result if present
+        run: python scripts/n12_ingest_agent_result.py validate
+
+      - name: Ingest exactly one pending specialist result if present
+        id: ingest
+        shell: bash
+        run: |
+          if [ -f automation/inbox/N12_AGENT_RESULT.json ]; then
+            python scripts/n12_ingest_agent_result.py apply
+            echo 'ingested=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'No specialist result in inbox.'
+            echo 'ingested=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Revalidate after semantic result ingestion
+        if: steps.ingest.outputs.ingested == 'true'
+        run: |
+          python scripts/validate_knowledge_system.py
+          python scripts/n12_orchestrator.py validate
+
+      - name: Persist deterministic queue/state advancement
+        if: steps.ingest.outputs.ingested == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-analysis-orchestrator[bot]'
+          git config user.email 'n12-analysis-orchestrator[bot]@users.noreply.github.com'
+          git add automation/N12_WORK_QUEUE_v1.json knowledge/CURRENT_STATE.json
+          git add -A automation/receipts || true
+          git add -A automation/inbox || true
+          if git diff --cached --quiet; then
+            echo 'No state advancement to commit.'
+          else
+            git commit -m 'automation: ingest specialist result and advance cycle'
+            git push origin HEAD:work/m0-global-model
+          fi
 
       - name: Run deterministic cycle gates
         run: python scripts/n12_orchestrator.py run --output analysis/automation/N12_CYCLE_REPORT.json
@@ -75,6 +113,6 @@ jobs:
       - name: Automation boundary
         run: |
           echo 'Deterministic cycle completed.'
-          echo 'A machine-readable specialist task packet has been emitted.'
-          echo 'If decision is READY_FOR_AGENT, an authorized semantic executor may process exactly one work item.'
-          echo 'No canonical promotion is performed by this workflow alone.'
+          echo 'At most one contract-valid specialist result can be ingested per run.'
+          echo 'A machine-readable specialist task packet has been emitted for the next eligible item.'
+          echo 'Canonical evidence is never manufactured by the workflow: result ingestion only advances state after artifact authority, provenance and validators already pass.'
