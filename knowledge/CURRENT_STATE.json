@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "updated_at": "2026-08-22",
   "gate": "M0-G/COMMON-STOREY-REGISTRATION",
-  "status": "IN_PROGRESS_WITH_AUTOMATED_PER_STOREY_CYCLE",
+  "status": "IN_PROGRESS_WITH_AUTOMATED_PER_STOREY_CYCLE_AND_SEMANTIC_HANDSHAKE",
   "objective": "Integrare il PT canonico nel modello verticale usando soltanto continuità, registrazioni inter-tavola e quote sostenute dalle tavole originali, quindi ricostruire sezioni e travi di ogni impalcato mediante ciclo automatico con gate e residui isolati.",
   "authoritative_method": "skills/pt-raster-grid-reconstructor/SKILL.md",
   "semantic_method": "skills/pt-carpentry-reader/SKILL.md",
@@ -18,10 +18,15 @@
     "queue": "automation/N12_WORK_QUEUE_v1.json",
     "runner": "scripts/n12_orchestrator.py",
     "workflow": ".github/workflows/n12-analysis-orchestrator.yml",
+    "agent_result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
+    "agent_result_ingestor": "scripts/n12_ingest_agent_result.py",
+    "agent_result_inbox": "automation/inbox/N12_AGENT_RESULT.json",
     "current_work_item": "SEC-G2-TAV03S",
-    "deterministic_cycle": "ACTIVE_ON_BRANCH_PUSH_AND_WORKFLOW_DISPATCH",
-    "semantic_executor": "NOT_YET_CONNECTED",
-    "semantic_boundary": "STOP_AT_READY_FOR_AGENT"
+    "deterministic_cycle": "ACTIVE_ON_BRANCH_PUSH_AND_WORKFLOW_DISPATCH_AND_6H_SCHEDULE",
+    "semantic_executor": "SCHEDULED_PROJECT_AGENT_CONFIGURED_AWAITING_FIRST_RECEIPT",
+    "semantic_executor_schedule": "EVERY_6_HOURS",
+    "semantic_boundary": "ONE_WORK_ITEM_PER_CYCLE_WITH_CONTRACT_VALID_RESULT_HANDSHAKE",
+    "first_semantic_receipt_status": "PENDING"
   },
   "completed_subphases": [
     {"phase":"G1/PIXEL-SUPPORT-REGISTRY","status":"COMPLETE_STABLE","artifact":"data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv","support_count":38},
@@ -42,19 +47,21 @@
     {"phase":"STOREY-XY-REGISTRATION","status":"CROSS_VALIDATED_WITH_MIS","artifact":"data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv","common_frame":"PT_MASTER_CURRENT","sheets":["TAV-03S","TAV-04S","TAV-05S","TAV-06S"],"method":"SIFT_RANSAC_AFFINE_PLUS_NUMBERED_SUPPORT_ANCHORS","rule":"Registration cannot override explicit dimensions or identities."},
     {"phase":"VERTICAL-SUPPORT-LINES","status":"CURRENT","artifact":"data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv","line_count":38,"g5_line_count":25,"g4_only_original_line_count":9,"g1_only_terrace_line_count":4,"section_continuity_assumed":false},
     {"phase":"COMMON-STOREY-REGISTRATION-GATE","status":"PASS_WITH_PROVENANCE_WATCHES","artifact":"data/canonical/STOREY_COMMON_REGISTRATION_GATE_v1.csv"},
-    {"phase":"CYCLIC-ANALYSIS-ORCHESTRATOR","status":"ENABLED","contract":"automation/N12_AUTOMATION_CONTRACT_v1.json","queue":"automation/N12_WORK_QUEUE_v1.json","runner":"scripts/n12_orchestrator.py","rule":"Deterministic gates run automatically; semantic promotion remains specialist-gated."}
+    {"phase":"CYCLIC-ANALYSIS-ORCHESTRATOR","status":"ENABLED_WITH_RESULT_HANDSHAKE","contract":"automation/N12_AUTOMATION_CONTRACT_v1.json","queue":"automation/N12_WORK_QUEUE_v1.json","runner":"scripts/n12_orchestrator.py","rule":"Deterministic gates run automatically; semantic promotion remains specialist-gated."},
+    {"phase":"SEMANTIC-RESULT-HANDSHAKE","status":"CONFIGURED_AWAITING_FIRST_RECEIPT","contract":"automation/N12_AGENT_RESULT_CONTRACT_v1.json","ingestor":"scripts/n12_ingest_agent_result.py","rule":"One semantic result per cycle; queue/state advance only after target artifact authority, provenance, audits and deterministic validators pass."}
   ],
   "next_action": {
     "phase": "PER-STOREY-SECTIONS-AND-BEAM-TOPOLOGY",
     "work_item": "SEC-G2-TAV03S",
-    "task": "Use the cyclic orchestrator. First read support sections/orientations independently on TAV-03S for identities 1-33 plus 22'. Do not copy PT sections upward. When the work item passes its semantic and deterministic gates, mark it COMPLETE and release SEC-G3-TAV04S. Continue through the persistent queue rather than choosing tasks manually.",
+    "task": "Use the cyclic orchestrator and the scheduled specialist executor. First read support sections/orientations independently on TAV-03S for identities 1-33 plus 22'. Do not copy PT sections upward. Submit exactly one result through automation/inbox/N12_AGENT_RESULT.json. When semantic gate, artifact authority and deterministic validators pass, the GitHub workflow ingests the receipt, marks the item COMPLETE and releases SEC-G3-TAV04S. Continue through the persistent queue rather than choosing tasks manually.",
     "orchestrator": "scripts/n12_orchestrator.py",
     "queue": "automation/N12_WORK_QUEUE_v1.json",
+    "result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
     "pt_master": "data/canonical/PT_MASTER_CURRENT.csv",
     "storey_levels": "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
     "xy_registration": "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
     "vertical_lines": "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv",
-    "target_outputs": ["data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv","data/canonical/STOREY_SUPPORT_SECTIONS_G3_v1.csv","data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv","data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv","data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv","data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv"],
+    "target_outputs": ["data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv"],
     "forbidden_inputs": ["blind extrusion of PT supports","copying PT sections upward","copying PT beam topology upward","propagating a-b-c-d above G1","propagating 1-8-9-16-17-24-31-32-33 to G5","using historical PT Master as current geometry","collapsing extended-support face nodes","dropping MIS/WATCH provenance"]
   },
   "non_blocking_provenance_watches": ["P19 metric center/face nodes","P25 raster residual","d raster residual at PT only","P12 MIS Y and dependent nodes","P18/P23/P30 MIS-supported center components","P22-prime/P27 MIS-supported row","upper-sheet XY transforms are MIS-supported while identities are DOC","G1 datum is relative; absolute project/geodetic Z remains ND"],
