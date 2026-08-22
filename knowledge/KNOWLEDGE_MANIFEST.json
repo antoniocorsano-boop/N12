@@ -12,7 +12,8 @@
   "artifact_registry_patch": "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
   "artifact_registry_patches": [
     "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
-    "knowledge/ARTIFACT_REGISTRY_AUTOMATION_PATCH_v1.csv"
+    "knowledge/ARTIFACT_REGISTRY_AUTOMATION_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M0G_GATE_PATCH_v1.csv"
   ],
   "human_master_register": "docs/REGISTRO_MASTER.md",
   "revalidation_ledger": "data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv",
