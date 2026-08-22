@@ -50,22 +50,62 @@ def registry_patch_rels(manifest: dict[str, Any]) -> list[str]:
 
 
 def load_effective_registry(manifest: dict[str, Any]) -> dict[str, dict[str, str]]:
-    rows = read_csv(BASE_REGISTRY_PATH)
-    by_path = {r.get("path", "").strip(): r for r in rows}
+    by_path = {r.get("path", "").strip(): r for r in read_csv(BASE_REGISTRY_PATH)}
     for patch_rel in registry_patch_rels(manifest):
         if rel_exists(patch_rel):
-            for r in read_csv(ROOT / patch_rel):
-                by_path[r.get("path", "").strip()] = r
+            for row in read_csv(ROOT / patch_rel):
+                by_path[row.get("path", "").strip()] = row
     return by_path
+
+
+def output_status(item: dict[str, Any], registry: dict[str, dict[str, str]]) -> dict[str, Any]:
+    detail: list[dict[str, Any]] = []
+    for rel in item.get("target_outputs", []):
+        reg = registry.get(rel)
+        detail.append({
+            "path": rel,
+            "exists": rel_exists(rel),
+            "registered": bool(reg),
+            "authority": reg.get("authority") if reg else None,
+            "status": reg.get("status") if reg else None,
+            "may_feed_canonical": reg.get("may_feed_canonical") if reg else None,
+        })
+    complete = bool(detail) and all(
+        d["exists"]
+        and d["registered"]
+        and d["authority"] in {"CANONICAL", "DERIVED"}
+        and d["status"] not in BLOCKING_ARTIFACT_STATES
+        and d["may_feed_canonical"] in {"YES", "CONDITIONAL"}
+        for d in detail
+    )
+    candidate = bool(detail) and all(d["exists"] for d in detail) and not complete
+    return {"detail": detail, "complete_detected": complete, "candidate_detected": candidate}
+
+
+def item_effectively_complete(item: dict[str, Any], registry: dict[str, dict[str, str]]) -> bool:
+    return item.get("state") == "COMPLETE" or output_status(item, registry)["complete_detected"]
+
+
+def missing_inputs(item: dict[str, Any]) -> list[str]:
+    return [rel for rel in item.get("required_inputs", []) if not rel_exists(rel)]
+
+
+def item_map(queue: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {item["id"]: item for item in queue.get("items", [])}
+
+
+def dependencies_complete(
+    item: dict[str, Any], by_id: dict[str, dict[str, Any]], registry: dict[str, dict[str, str]]
+) -> bool:
+    return all(item_effectively_complete(by_id[dep], registry) for dep in item.get("dependencies", []))
 
 
 def validate_contract() -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
-    required = [CONTRACT_PATH, QUEUE_PATH, MANIFEST_PATH, STATE_PATH, BASE_REGISTRY_PATH]
-    for p in required:
-        if not p.exists():
-            errors.append(f"missing required file: {p.relative_to(ROOT)}")
+    for path in [CONTRACT_PATH, QUEUE_PATH, MANIFEST_PATH, STATE_PATH, BASE_REGISTRY_PATH]:
+        if not path.exists():
+            errors.append(f"missing required file: {path.relative_to(ROOT)}")
     if errors:
         return errors, warnings
 
@@ -83,40 +123,38 @@ def validate_contract() -> tuple[list[str], list[str]]:
         errors.append("automation contract queue path mismatch")
     if contract.get("canonical_branch") != manifest.get("canonical_branch"):
         errors.append("automation contract branch differs from knowledge manifest canonical_branch")
+    if manifest.get("current_gate") != state.get("gate"):
+        errors.append("manifest/state gate mismatch")
 
-    stage_ids = [s.get("id") for s in contract.get("stages", [])]
+    stage_ids = [stage.get("id") for stage in contract.get("stages", [])]
     if not stage_ids or len(stage_ids) != len(set(stage_ids)):
         errors.append("automation stages missing or duplicated")
     stage_set = set(stage_ids)
 
     items = queue.get("items", [])
-    item_ids = [i.get("id") for i in items]
+    ids = [item.get("id") for item in items]
     if not items:
         errors.append("work queue is empty")
-    if len(item_ids) != len(set(item_ids)):
+    if len(ids) != len(set(ids)):
         errors.append("duplicate work item id in queue")
-    item_set = set(item_ids)
+    id_set = set(ids)
 
     for item in items:
         iid = item.get("id", "<missing>")
-        state_value = item.get("state")
-        if state_value not in ALLOWED_WORK_ITEM_STATES:
-            errors.append(f"{iid}: invalid state={state_value}")
+        if item.get("state") not in ALLOWED_WORK_ITEM_STATES:
+            errors.append(f"{iid}: invalid state={item.get('state')}")
         if item.get("stage") not in stage_set:
             errors.append(f"{iid}: unknown stage={item.get('stage')}")
         deps = item.get("dependencies", [])
-        unknown_deps = [d for d in deps if d not in item_set]
-        if unknown_deps:
-            errors.append(f"{iid}: unknown dependencies={unknown_deps}")
+        unknown = [dep for dep in deps if dep not in id_set]
+        if unknown:
+            errors.append(f"{iid}: unknown dependencies={unknown}")
         if iid in deps:
             errors.append(f"{iid}: self dependency")
         if not item.get("target_outputs"):
             errors.append(f"{iid}: target_outputs is empty")
-        for rel in item.get("required_inputs", []):
-            if not rel_exists(rel):
-                warnings.append(f"{iid}: input currently missing: {rel}")
 
-    graph = {i["id"]: list(i.get("dependencies", [])) for i in items if i.get("id")}
+    graph = {item["id"]: list(item.get("dependencies", [])) for item in items if item.get("id")}
     visiting: set[str] = set()
     visited: set[str] = set()
 
@@ -135,72 +173,33 @@ def validate_contract() -> tuple[list[str], list[str]]:
     for node in graph:
         visit(node)
 
-    if manifest.get("current_gate") != state.get("gate"):
-        errors.append("manifest/state gate mismatch")
-
     return errors, warnings
 
 
-def item_map(queue: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    return {i["id"]: i for i in queue.get("items", [])}
-
-
-def dependencies_complete(item: dict[str, Any], by_id: dict[str, dict[str, Any]]) -> bool:
-    return all(by_id[d].get("state") == "COMPLETE" for d in item.get("dependencies", []))
-
-
-def missing_inputs(item: dict[str, Any]) -> list[str]:
-    return [rel for rel in item.get("required_inputs", []) if not rel_exists(rel)]
-
-
-def output_status(item: dict[str, Any], registry: dict[str, dict[str, str]]) -> dict[str, Any]:
-    outputs = item.get("target_outputs", [])
-    detail = []
-    for rel in outputs:
-        exists = rel_exists(rel)
-        reg = registry.get(rel)
-        detail.append({
-            "path": rel,
-            "exists": exists,
-            "registered": bool(reg),
-            "authority": reg.get("authority") if reg else None,
-            "status": reg.get("status") if reg else None,
-            "may_feed_canonical": reg.get("may_feed_canonical") if reg else None,
-        })
-    complete = bool(detail) and all(
-        d["exists"]
-        and d["registered"]
-        and d["authority"] in {"CANONICAL", "DERIVED"}
-        and d["status"] not in BLOCKING_ARTIFACT_STATES
-        and d["may_feed_canonical"] in {"YES", "CONDITIONAL"}
-        for d in detail
-    )
-    candidate = bool(detail) and all(d["exists"] for d in detail) and not complete
-    return {"detail": detail, "complete_detected": complete, "candidate_detected": candidate}
-
-
-def choose_next(queue: dict[str, Any], registry: dict[str, dict[str, str]]) -> tuple[dict[str, Any] | None, str]:
+def choose_next(
+    queue: dict[str, Any], registry: dict[str, dict[str, str]]
+) -> tuple[dict[str, Any] | None, str]:
     by_id = item_map(queue)
-    ordered = sorted(queue.get("items", []), key=lambda i: (int(i.get("priority", 999999)), i.get("id", "")))
+    ordered = sorted(queue.get("items", []), key=lambda item: (int(item.get("priority", 999999)), item.get("id", "")))
 
+    # Explicit human/agent states take precedence.
     for item in ordered:
-        if item.get("state") in {"IN_PROGRESS", "CANDIDATE", "RESIDUAL"}:
+        if item.get("state") in {"IN_PROGRESS", "CANDIDATE", "RESIDUAL"} and not item_effectively_complete(item, registry):
             return item, item.get("state")
 
+    # READY and WAITING items are auto-released when dependencies have canonical outputs.
     for item in ordered:
-        if item.get("state") != "READY":
+        if item.get("state") in {"BLOCKED", "SUPERSEDED", "COMPLETE"}:
             continue
-        if not dependencies_complete(item, by_id):
+        if item_effectively_complete(item, registry):
+            continue
+        if not dependencies_complete(item, by_id, registry):
             continue
         if missing_inputs(item):
             continue
-        return item, "READY"
-
-    for item in ordered:
-        if item.get("state") in {"WAITING", "READY"}:
-            out = output_status(item, registry)
-            if out["complete_detected"]:
-                return item, "COMPLETE_DETECTED"
+        if item.get("state") in {"READY", "WAITING"}:
+            reason = "READY" if item.get("state") == "READY" else "AUTO_RELEASED_WAITING"
+            return item, reason
 
     return None, "NO_ELIGIBLE_ITEM"
 
@@ -232,48 +231,48 @@ def build_status(run_checks: bool = False) -> dict[str, Any]:
     state = read_json(STATE_PATH)
     registry = load_effective_registry(manifest)
     errors, warnings = validate_contract()
-
-    selected, selected_reason = choose_next(queue, registry)
     by_id = item_map(queue)
+    selected, selection_reason = choose_next(queue, registry)
 
     if errors:
         decision = "FAIL_STOP"
-    elif selected is None:
-        incomplete = [i for i in queue.get("items", []) if i.get("state") not in {"COMPLETE", "SUPERSEDED"}]
-        decision = "COMPLETE" if not incomplete else "BLOCKED_DEPENDENCY"
-    else:
-        out = output_status(selected, registry)
-        miss = missing_inputs(selected)
-        deps_ok = dependencies_complete(selected, by_id)
+    elif selected:
+        outputs = output_status(selected, registry)
         if selected.get("state") == "RESIDUAL":
             decision = "RESIDUAL_REVIEW"
-        elif not deps_ok:
-            decision = "BLOCKED_DEPENDENCY"
-        elif miss:
-            decision = "BLOCKED_INPUT"
-        elif out["complete_detected"]:
-            decision = "PASS_ADVANCE"
-        elif out["candidate_detected"] or selected.get("state") == "CANDIDATE":
+        elif outputs["candidate_detected"] or selected.get("state") == "CANDIDATE":
             decision = "READY_FOR_AGENT"
         else:
             decision = "READY_FOR_AGENT"
+    else:
+        incomplete = [item for item in queue.get("items", []) if not item_effectively_complete(item, registry) and item.get("state") != "SUPERSEDED"]
+        decision = "COMPLETE" if not incomplete else "BLOCKED_DEPENDENCY"
 
     checks: list[dict[str, Any]] = []
     if run_checks and not errors:
-        for name in ["knowledge_contracts", "agent_bootstrap", "semantic_registry", "pt_raster_status"]:
-            checks.append(run_check(name))
-        if any(c.get("status") == "FAIL" for c in checks):
+        for check_name in ["knowledge_contracts", "agent_bootstrap", "semantic_registry", "pt_raster_status"]:
+            checks.append(run_check(check_name))
+        if any(check.get("status") == "FAIL" for check in checks):
             decision = "FAIL_STOP"
 
     selected_payload = None
     if selected:
         selected_payload = {
             **selected,
-            "dependencies_complete": dependencies_complete(selected, by_id),
+            "selection_reason": selection_reason,
+            "dependencies_complete": dependencies_complete(selected, by_id, registry),
             "missing_inputs": missing_inputs(selected),
             "outputs": output_status(selected, registry),
-            "selection_reason": selected_reason,
         }
+
+    completion = []
+    for item in sorted(queue.get("items", []), key=lambda i: int(i.get("priority", 999999))):
+        completion.append({
+            "id": item.get("id"),
+            "declared_state": item.get("state"),
+            "effective_complete": item_effectively_complete(item, registry),
+            "dependencies_complete": dependencies_complete(item, by_id, registry),
+        })
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -283,6 +282,7 @@ def build_status(run_checks: bool = False) -> dict[str, Any]:
         "state_status": state.get("status"),
         "decision": decision,
         "selected_work_item": selected_payload,
+        "queue_completion": completion,
         "contract_errors": errors,
         "contract_warnings": warnings,
         "checks": checks,
@@ -301,22 +301,22 @@ def main() -> int:
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("validate", help="validate automation contract and persistent work queue")
     sub.add_parser("status", help="print current cycle decision and next eligible work item")
-    p_run = sub.add_parser("run", help="run deterministic gates and emit a cycle report")
-    p_run.add_argument("--output", default="analysis/automation/N12_CYCLE_REPORT.json")
+    run_parser = sub.add_parser("run", help="run deterministic gates and emit a cycle report")
+    run_parser.add_argument("--output", default="analysis/automation/N12_CYCLE_REPORT.json")
     args = parser.parse_args()
 
     if args.cmd == "validate":
         errors, warnings = validate_contract()
         if errors:
             print("N12_AUTOMATION_CONTRACT = FAIL")
-            for e in errors:
-                print(f"ERROR: {e}")
-            for w in warnings:
-                print(f"WARN: {w}")
+            for error in errors:
+                print(f"ERROR: {error}")
+            for warning in warnings:
+                print(f"WARN: {warning}")
             return 1
         print("N12_AUTOMATION_CONTRACT = PASS")
-        for w in warnings:
-            print(f"WARN: {w}")
+        for warning in warnings:
+            print(f"WARN: {warning}")
         print("Cycle contract, queue dependencies and current knowledge gate are coherent.")
         return 0
 
@@ -325,9 +325,9 @@ def main() -> int:
         return 0
 
     report = build_status(run_checks=True)
-    out = ROOT / args.output
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    output_path = ROOT / args.output
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2, ensure_ascii=False))
     return 1 if report["decision"] == "FAIL_STOP" else 0
 
