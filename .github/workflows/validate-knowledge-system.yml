@@ -83,3 +83,64 @@ jobs:
           name: pt-raster-geometric-candidates-v1
           path: analysis/pt_raster_candidates/
           if-no-files-found: error
+
+  ingest-canonical-result:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/work/m0-global-model'
+    needs: knowledge-contracts
+    runs-on: ubuntu-latest
+    concurrency:
+      group: n12-structural-analysis-cycle
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout canonical working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate pending specialist result
+        shell: bash
+        run: |
+          python scripts/validate_knowledge_system.py
+          python scripts/n12_orchestrator.py validate
+          if [ -f automation/inbox/N12_AGENT_RESULT.json ]; then
+            python scripts/n12_ingest_agent_result.py validate
+          else
+            echo 'No specialist result in inbox.'
+          fi
+
+      - name: Ingest exactly one pending specialist result
+        id: ingest
+        shell: bash
+        run: |
+          if [ -f automation/inbox/N12_AGENT_RESULT.json ]; then
+            python scripts/n12_ingest_agent_result.py apply
+            echo 'ingested=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'ingested=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Revalidate and persist deterministic advancement
+        if: steps.ingest.outputs.ingested == 'true'
+        shell: bash
+        run: |
+          python scripts/validate_knowledge_system.py
+          python scripts/n12_orchestrator.py validate
+          git config user.name 'n12-analysis-orchestrator[bot]'
+          git config user.email 'n12-analysis-orchestrator[bot]@users.noreply.github.com'
+          git add automation/N12_WORK_QUEUE_v1.json knowledge/CURRENT_STATE.json
+          git add -A automation/receipts || true
+          git add -A automation/inbox || true
+          if git diff --cached --quiet; then
+            echo 'No state advancement to commit.'
+          else
+            git commit -m 'automation: ingest specialist result and advance cycle'
+            git push origin HEAD:work/m0-global-model
+          fi
