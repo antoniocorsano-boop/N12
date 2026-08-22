@@ -124,7 +124,7 @@
     {
       "id": "M0G-ASSEMBLE-MEMBER-CONNECTIVITY",
       "priority": 40,
-      "state": "READY",
+      "state": "COMPLETE",
       "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
       "source_sheet": "MULTI",
       "task": "Assemble the global structural member connectivity against the 3D analytical node registry: PT effective beams, upper-storey ordinary beams and vertical column segments, with source identity preserved.",
@@ -145,7 +145,10 @@
       ],
       "semantic_gate": "The ordinary structural skeleton must contain exactly 356 member segments: 49 effective PT beams + 180 G2-G5 ordinary beams + 127 vertical column segments. Ridge/eaves special features are not inserted as ordinary members. G5-B036 is counted once. Terrace supports a-d do not extrude above G1 and roof-absent supports 1,8,9,16,17,24,31,32,33 do not generate G4-G5 columns.",
       "released_at": "2026-08-22T18:25:25.636402+00:00",
-      "released_by": "M0G-BUILD-RIGID-JOINT-LINKS"
+      "released_by": "M0G-BUILD-RIGID-JOINT-LINKS",
+      "completed_at": "2026-08-22T18:41:39.910529+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "result_receipt": "automation/receipts/M0G-ASSEMBLE-MEMBER-CONNECTIVITY_20260822T184139Z.json"
     },
     {
       "id": "M0G-GLOBAL-TOPOLOGY-GATE",
