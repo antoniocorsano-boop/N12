@@ -1,0 +1,73 @@
+name: N12 Structural Analysis Orchestrator
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - 'automation/**'
+      - 'knowledge/**'
+      - 'data/canonical/**'
+      - 'docs/N12_AUTOMATED_ANALYSIS_CYCLE_v1.md'
+      - 'scripts/n12_orchestrator.py'
+      - 'scripts/render_storey_sources.sh'
+      - 'skills/**'
+      - '.github/workflows/n12-analysis-orchestrator.yml'
+
+concurrency:
+  group: n12-structural-analysis-cycle
+  cancel-in-progress: false
+
+jobs:
+  cycle:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout canonical working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install immutable-source renderer
+        run: sudo apt-get update -qq && sudo apt-get install -y poppler-utils
+
+      - name: Render upper-storey primary sources
+        run: bash scripts/render_storey_sources.sh
+
+      - name: Validate knowledge system
+        run: python scripts/validate_knowledge_system.py
+
+      - name: Validate cyclic automation contract
+        run: python scripts/n12_orchestrator.py validate
+
+      - name: Run deterministic cycle gates
+        run: python scripts/n12_orchestrator.py run --output analysis/automation/N12_CYCLE_REPORT.json
+
+      - name: Print next eligible work item
+        run: python scripts/n12_orchestrator.py status
+
+      - name: Upload cycle evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: n12-analysis-cycle-report
+          path: |
+            analysis/automation/N12_CYCLE_REPORT.json
+            analysis/storey_source_renders/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Automation boundary
+        run: |
+          echo 'Deterministic cycle completed.'
+          echo 'If report decision is READY_FOR_AGENT, semantic image reading must be executed by an authorized specialist agent.'
+          echo 'No canonical promotion is performed by this workflow alone.'
