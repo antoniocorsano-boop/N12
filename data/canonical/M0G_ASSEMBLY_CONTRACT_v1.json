@@ -1,0 +1,114 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "N12_M0G_GLOBAL_ASSEMBLY",
+  "date": "2026-08-22",
+  "domain": "M0-G_GLOBAL_GEOMETRY_ASSEMBLY",
+  "status": "CURRENT_WITH_PROVENANCE_WATCHES",
+  "purpose": "Freeze the only permitted assembly semantics for the whole-building M0-G geometry before 3D analytical nodalization and global member connectivity.",
+  "coordinate_frame": {
+    "xy": "PT_MASTER_CURRENT common frame propagated through STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
+    "z": "relative storey datum G1=0.00 m",
+    "absolute_project_z": "ND",
+    "levels_m": {
+      "G1": 0.0,
+      "G2": 3.2,
+      "G3": 6.4,
+      "G4": 9.6,
+      "G5": 11.8
+    }
+  },
+  "authoritative_inputs": {
+    "pt_geometry_handoff": "data/canonical/PT_GEOMETRY_HANDOFF_v1.json",
+    "pt_physical_supports": "data/canonical/PT_VECTOR_SUPPORTS_v1.csv",
+    "pt_analytical_face_nodes": "data/canonical/PT_ANALYTICAL_NODES_v1.csv",
+    "pt_beam_base": "data/canonical/PT_VECTOR_BEAMS_v2.csv",
+    "pt_beam_patch": "data/canonical/PT_VECTOR_BEAMS_G6_PATCH_v1.csv",
+    "vertical_column_segments": "data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv",
+    "upper_storey_beam_index": "data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv",
+    "roof_special_features": "data/canonical/ROOF_G5_SPECIAL_FEATURES_CURRENT_v1.csv",
+    "storey_levels": "data/canonical/STOREY_LEVELS_CURRENT_v1.csv"
+  },
+  "frozen_inventory": {
+    "g1_physical_supports": 38,
+    "g1_existing_beam_face_analytical_nodes": 98,
+    "g1_effective_beams": 49,
+    "vertical_column_segments": {
+      "G1_G2": 34,
+      "G2_G3": 34,
+      "G3_G4": 34,
+      "G4_G5": 25,
+      "total": 127
+    },
+    "upper_ordinary_beams": {
+      "G2": 48,
+      "G3": 48,
+      "G4": 48,
+      "G5": 36,
+      "total": 180
+    },
+    "ordinary_beams_all_storeys": 229,
+    "ordinary_structural_member_segments": 356,
+    "roof_special_registry_rows": 7,
+    "roof_special_nonordinary_geometry": {
+      "ridge_axes": 3,
+      "eaves_edge_sets": 3,
+      "total": 6
+    },
+    "roof_special_linked_confirmed_member_feature": {
+      "feature_id": "G5-OBL-19-26",
+      "linked_beam_id": "G5-B036",
+      "counting_rule": "Already counted once inside the 36 G5 ordinary beams; never create a second member."
+    }
+  },
+  "explicit_terminations": {
+    "terrace_added_supports_terminate_at_G1": ["a", "b", "c", "d"],
+    "original_supports_terminate_at_G4": ["1", "8", "9", "16", "17", "24", "31", "32", "33"]
+  },
+  "analytical_node_semantics": {
+    "physical_support_is_not_automatically_one_node": true,
+    "beam_end_role": "BEAM_FACE_INCIDENCE_NODE",
+    "column_axis_role": "SUPPORT_CORE_OR_COLUMN_AXIS_NODE",
+    "rigid_offset_role": "EXPLICIT_LINK_BETWEEN_CORE_AND_FACE_NODE_WHEN_REQUIRED",
+    "extended_support_rule": "Distinct documented beam incidences on the same physical support remain distinct analytical nodes.",
+    "pt_extended_supports": ["P18", "P23", "P30"],
+    "centroid_substitution_for_beam_ends": "FORBIDDEN"
+  },
+  "member_assembly_rules": {
+    "pt_beams": "Use the effective 49-member topology defined by PT_VECTOR_BEAMS_v2.csv plus PT_VECTOR_BEAMS_G6_PATCH_v1.csv; revoked B-029/B-044 remain excluded and B-037 is not duplicated.",
+    "upper_beams": "Use STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv as an index only; field authority remains in the G2/G3/G4/G5 source ledgers.",
+    "columns": "Use VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv exactly; keep endpoint sections independently and do not interpolate section changes through a segment boundary.",
+    "roof_ridges_and_eaves": "Keep the three ridge axes and three eaves edge sets outside ordinary member connectivity until explicit structural-member evidence is established.",
+    "roof_oblique_19_26": "Use only G5-B036; G5-OBL-19-26 is a linked special-feature record, not a duplicate member."
+  },
+  "provenance_and_watch_rules": {
+    "allowed_states": ["DOC", "MIS", "RIF", "INF", "INC", "ND"],
+    "mis_to_doc_promotion": "FORBIDDEN",
+    "watch_is_not_failure": true,
+    "g3_support_section_watches": ["18", "21"],
+    "column_segments_with_section_watch": 4,
+    "g5_beam_section_status": {
+      "DOC": 19,
+      "ND": 17
+    },
+    "upper_sheet_xy_registration": "MIS-supported common-frame registration with DOC support identities",
+    "absolute_project_z": "ND"
+  },
+  "anti_inference_rules": [
+    "Do not create a beam because two supports are aligned.",
+    "Do not extrude a support above its documented termination.",
+    "Do not copy a section from an adjacent storey to fill ND.",
+    "Do not normalize G5 roof geometry to a rectangular substitute.",
+    "Do not convert ridge/eaves geometry into structural members without explicit evidence.",
+    "Do not collapse beam-face nodes to support centroids.",
+    "Do not invent absolute/geodetic Z from the relative storey datum."
+  ],
+  "downstream_sequence": [
+    "M0G-BUILD-3D-ANALYTICAL-NODES",
+    "M0G-RESOLVE-ROOF-SPECIAL-3D",
+    "M0G-BUILD-RIGID-JOINT-LINKS",
+    "M0G-ASSEMBLE-MEMBER-CONNECTIVITY",
+    "M0G-GLOBAL-TOPOLOGY-GATE",
+    "M0G-GEOMETRY-HANDOFF"
+  ],
+  "completion_definition": "M0-G may be handed off only after a non-blocking global topology gate. WATCH/ND values remain explicit constraints for downstream M0-S/model construction and are never silently repaired."
+}
