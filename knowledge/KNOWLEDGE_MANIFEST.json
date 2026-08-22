@@ -5,8 +5,8 @@
   "canonical_branch": "work/m0-global-model",
   "entrypoint": "AGENTS.md",
   "objective": "Fascicolo strutturale completo, modello M0 globale, modello EdiLus-EE validato e verifiche dell'edificio esistente in c.a.",
-  "current_gate": "M0-G/PT-MASTER-CURRENT",
-  "current_domain": "PT_GEOMETRY_FROM_TAV02S",
+  "current_gate": "M0-G/COMMON-STOREY-REGISTRATION",
+  "current_domain": "VERTICAL_GEOMETRY_AND_PER_STOREY_CARPENTRY",
   "state_file": "knowledge/CURRENT_STATE.json",
   "artifact_registry": "knowledge/ARTIFACT_REGISTRY.csv",
   "artifact_registry_patch": "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
@@ -18,8 +18,8 @@
   "default_unregistered_policy": "UNREGISTERED_NON_AUTHORITATIVE",
   "source_priority": ["written_dimension_or_explicit_text_on_primary_source","alphanumeric_id_on_primary_source","unambiguous_symbol_on_primary_source","cross_validated_graphical_continuity","independent_original_source_crosscheck","validated_canonical_claim","historical_dataset","raster_scale_measurement","inference"],
   "active_skills": [
-    {"id":"pt-carpentry-reader","path":"skills/pt-carpentry-reader/SKILL.md","runner":"skills/pt-carpentry-reader/runner.py","role":"semantic reading and claim revalidation of TAV-02S"},
-    {"id":"pt-raster-grid-reconstructor","path":"skills/pt-raster-grid-reconstructor/SKILL.md","runner":"skills/pt-raster-grid-reconstructor/runner.py","role":"independent raster support registration, metric network and analytical nodalization"}
+    {"id":"pt-carpentry-reader","path":"skills/pt-carpentry-reader/SKILL.md","runner":"skills/pt-carpentry-reader/runner.py","role":"semantic reading and claim revalidation of structural carpenterie"},
+    {"id":"pt-raster-grid-reconstructor","path":"skills/pt-raster-grid-reconstructor/SKILL.md","runner":"skills/pt-raster-grid-reconstructor/runner.py","role":"independent raster support registration, metric network, inter-sheet registration and analytical nodalization"}
   ],
   "active_procedures": ["docs/PROTOCOLLO_CANONICO.md","docs/PROCEDURES/CANONICAL_DATASET_ITERATIVE_REVALIDATION_v1.md","docs/PT_RASTER_RECONSTRUCTION_PROTOCOL_v1.md","docs/PT_G1_PIXEL_ACCEPTANCE_POLICY_v1.md","docs/PT_G2_MIS_COMPLETION_POLICY_v1.md"],
   "pt_geometry": {
@@ -51,5 +51,26 @@
     "required_pipeline": ["PT_PIXEL_SUPPORT_REGISTRY_v1.csv","PT_GCP_METRIC_NETWORK_v1.csv","PT_METRIC_SUPPORT_CENTERS_v1.csv","PT_METRIC_NETWORK_RESIDUALS_v1.csv","PT_RASTER_TO_METRIC_DIAGNOSTIC_v1.csv","PT_VECTOR_SUPPORTS_v1.csv","PT_VECTOR_BEAMS_v2.csv","PT_ANALYTICAL_NODES_v1.csv","PT_OVERLAY_QA_v1.csv"],
     "master_promotion_rule": "SATISFIED: all pipeline artifacts present and valid plus G9 semantic raster overlay QA; WATCH provenance remains explicit"
   },
-  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, authority/state consistency, entrypoint and skill contracts, pre/post Master gate semantics","semantic_validation_scope":"source reading, raster semantics, metric residual acceptance and overlay approval remain specialist gates"}
+  "vertical_geometry": {
+    "source_sheets": ["TAV-03S","TAV-04S","TAV-05S","TAV-05E","TAV-06S","TAV-06E"],
+    "source_render_method": "300dpi renders produced by GitHub Actions from archive/originali-alta-risoluzione",
+    "vertical_dimension_evidence": "data/canonical/STOREY_VERTICAL_DIMENSIONS_TAV06E_v1.csv",
+    "levels_current": "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
+    "xy_registration": "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
+    "continuity_pt_g4": "data/canonical/STOREY_SUPPORT_CONTINUITY_PT_G4_v1.json",
+    "continuity_g4_g5": "data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json",
+    "vertical_support_lines": "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv",
+    "registration_gate": "data/canonical/STOREY_COMMON_REGISTRATION_GATE_v1.csv",
+    "registration_status": "PASS_WITH_PROVENANCE_WATCHES",
+    "relative_z_datum": "G1_I_IMPALCATO_EXTRADOS_0.00",
+    "relative_levels_m": {"G1":0.0,"G2":3.2,"G3":6.4,"G4":9.6,"G5":11.8},
+    "absolute_project_z_status": "ND",
+    "support_identity_counts": {"g1":38,"g2":34,"g3":34,"g4":34,"g5":25},
+    "terrace_added_termination": ["a","b","c","d"],
+    "g4_to_g5_absent": ["1","8","9","16","17","24","31","32","33"],
+    "xy_registration_rule": "DOC identity plus MIS-supported inter-sheet affine registration; explicit source dimensions and labels remain higher authority than transform residuals",
+    "section_transfer_rule": "DO_NOT_COPY_PT_SECTION_UPWARD; read support sections and orientation independently on each carpenteria or TAV-07A",
+    "beam_transfer_rule": "DO_NOT_COPY_PT_BEAM_TOPOLOGY_UPWARD; reconstruct each storey from its own carpenteria"
+  },
+  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology and residual acceptance remain specialist gates"}
 }
