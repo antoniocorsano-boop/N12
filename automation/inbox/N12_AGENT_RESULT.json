@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "work_item_id": "M0G-GEOMETRY-HANDOFF",
+  "source_sheet": "MULTI",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "target_outputs": [
+    "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json"
+  ],
+  "provenance_summary": {
+    "DOC": 0,
+    "MIS": 1,
+    "RIF": 0,
+    "INF": 25,
+    "INC": 0,
+    "ND": 5
+  },
+  "residuals": [
+    {
+      "claim": "G5 ordinary beam section completion",
+      "status": "NONBLOCKING_DOWNSTREAM_WATCH",
+      "reason": "17 G5 ordinary beam sections remain ND in the canonical connectivity ledger.",
+      "scope": "Geometry/topology handoff is valid; downstream section assignment must not fill these values by analogy."
+    },
+    {
+      "claim": "Column section evidence watches",
+      "status": "NONBLOCKING_DOWNSTREAM_WATCH",
+      "reason": "Four column segments retain endpoint section watches propagated from G3 supports 18 and 21.",
+      "scope": "Preserve MIS/WATCH evidence independently at segment endpoints."
+    },
+    {
+      "claim": "Roof-special global Z",
+      "status": "NONBLOCKING_DOWNSTREAM_WATCH",
+      "reason": "The six ridge/eave special geometries have no proven common global-Z binding; TAV-06S local 2.10/3.75 m and TAV-06E 2.20 m upper-module evidence have different unresolved endpoint semantics.",
+      "scope": "All six global roof-special Z values remain ND."
+    },
+    {
+      "claim": "Gronda analytical centerline",
+      "status": "NONBLOCKING_DOWNSTREAM_WATCH",
+      "reason": "TAV-06S documents three eave edge sets rather than a unique analytical or structural centerline.",
+      "scope": "Three gronda centerlines remain ND; no inferred line is introduced."
+    },
+    {
+      "claim": "Absolute/project elevation datum",
+      "status": "NONBLOCKING_DOWNSTREAM_WATCH",
+      "reason": "Only the relative structural datum G1=0.00 with registered G1-G5 levels is canonical.",
+      "scope": "Absolute/project/geodetic Z remains ND for the whole model."
+    }
+  ],
+  "audit_paths": [
+    "analysis/automation/M0G_GEOMETRY_HANDOFF_AUDIT_v1.csv"
+  ]
+}
