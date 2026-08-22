@@ -1,0 +1,6 @@
+artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validation_method,replaces_or_relates,note
+DATA-M1S-G5,data/canonical/M1S_G5_BEAM_SECTIONS_CURRENT_v1.csv,M1_SECTIONS,DOMAIN_DATA,CANONICAL,CURRENT,YES,section gate,data/canonical/STOREY_BEAMS_G5_v1.csv,G5 current sections
+DATA-M1S-RZ,data/canonical/M1S_G5_RIGID_ZONES_v1.csv,M1_MODELING,DOMAIN_DATA,CANONICAL,CURRENT,CONDITIONAL,manual review,,G5 rigid-zone watch
+GATE-M1S,data/canonical/M1S_SECTION_GATE_v1.csv,M1_SECTIONS,GATE,CANONICAL,CURRENT,YES,section gate,data/canonical/M0G_GEOMETRY_HANDOFF_v1.json,M1-S section gate
+DOC-M1S-HR,docs/M1S_G5_HUMAN_REVIEW_REPORT_v1.md,M1_SECTIONS,REVIEW_REPORT,DERIVED,CURRENT,CONDITIONAL,manual review,,G5 human review
+DOC-M1S-CLOSE,docs/M1S_SECTION_CLOSURE_REPORT_v1.md,M1_SECTIONS,CLOSURE_REPORT,DERIVED,CURRENT,YES,section gate,data/canonical/M1S_SECTION_GATE_v1.csv,M1-S closure report
