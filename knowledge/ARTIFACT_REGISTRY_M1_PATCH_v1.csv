@@ -4,3 +4,6 @@ DATA-M1S-RZ,data/canonical/M1S_G5_RIGID_ZONES_v1.csv,M1_MODELING,DOMAIN_DATA,CAN
 GATE-M1S,data/canonical/M1S_SECTION_GATE_v1.csv,M1_SECTIONS,GATE,CANONICAL,CURRENT,YES,section gate,data/canonical/M0G_GEOMETRY_HANDOFF_v1.json,M1-S section gate
 DOC-M1S-HR,docs/M1S_G5_HUMAN_REVIEW_REPORT_v1.md,M1_SECTIONS,REVIEW_REPORT,DERIVED,CURRENT,CONDITIONAL,manual review,,G5 human review
 DOC-M1S-CLOSE,docs/M1S_SECTION_CLOSURE_REPORT_v1.md,M1_SECTIONS,CLOSURE_REPORT,DERIVED,CURRENT,YES,section gate,data/canonical/M1S_SECTION_GATE_v1.csv,M1-S closure report
+DATA-M1M-EVID,data/canonical/M1M_MATERIAL_EVIDENCE_CURRENT_v1.csv,M1_MATERIALS,DOMAIN_DATA,CANONICAL,CURRENT,YES,material evidence audit,docs/REGISTRO_MASTER.md,Current material evidence inventory with RIF and ND preserved
+GATE-M1M,data/canonical/M1M_MATERIAL_GATE_v1.csv,M1_MATERIALS,GATE,CANONICAL,CURRENT,YES,material evidence audit,data/canonical/M1M_MATERIAL_EVIDENCE_CURRENT_v1.csv,Inventory pass with unresolved calculation-material residuals
+AUDIT-M1M,analysis/automation/M1M_MATERIAL_EVIDENCE_AUDIT_v1.md,M1_MATERIALS,AUDIT,DERIVED,CURRENT,YES,source and provenance cross-check,data/canonical/M1M_MATERIAL_GATE_v1.csv,Audit for M1M semantic result
