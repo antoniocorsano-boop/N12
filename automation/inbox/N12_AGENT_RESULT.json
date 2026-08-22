@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "work_item_id": "BEAM-G3-TAV04S",
+  "source_sheet": "TAV-04S",
+  "decision": "PASS",
+  "semantic_gate": "PASS",
+  "target_outputs": [
+    "data/canonical/STOREY_BEAMS_G3_v1.csv"
+  ],
+  "provenance_summary": {
+    "DOC": 48,
+    "MIS": 0,
+    "RIF": 0,
+    "INF": 0,
+    "INC": 0,
+    "ND": 0
+  },
+  "residuals": [],
+  "audit_paths": [
+    "analysis/automation/BEAM_G3_TAV04S_SEMANTIC_AUDIT_v1.csv"
+  ]
+}
