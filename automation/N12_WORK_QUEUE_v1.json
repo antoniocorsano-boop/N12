@@ -1,263 +1,177 @@
 {
   "schema_version": "1.0",
-  "queue_id": "N12_VERTICAL_CARPENTRY_QUEUE",
+  "queue_id": "N12_M0G_GLOBAL_ASSEMBLY_QUEUE",
   "updated_at": "2026-08-22",
+  "predecessor_queue_status": "COMPLETE",
+  "predecessor_last_receipt": "automation/receipts/ASSEMBLE-STOREY-BEAM-TOPOLOGY_20260822T131632Z.json",
   "selection_rule": "Choose the lowest-priority-number item whose state is READY or CANDIDATE, whose dependencies are COMPLETE, and whose required inputs exist. Never skip a blocking dependency by inference.",
   "items": [
     {
-      "id": "SEC-G2-TAV03S",
+      "id": "M0G-FREEZE-ASSEMBLY-CONTRACT",
       "priority": 10,
-      "state": "COMPLETE",
-      "stage": "S2_SPECIALIST_READING",
-      "source_sheet": "TAV-03S",
-      "task": "Read sections and orientations for support identities 1-33 plus 22' independently on the II impalcato carpenteria.",
+      "state": "READY",
+      "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
+      "source_sheet": "MULTI",
+      "task": "Freeze the global M0-G assembly contract from already current PT geometry, vertical column segments, per-storey beam topology, storey levels and roof-special registry. Define counts, entity roles, provenance propagation and anti-normalization rules without creating new geometry.",
       "dependencies": [],
       "required_inputs": [
-        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
-        "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv",
-        "data/canonical/STOREY_SUPPORT_CONTINUITY_PT_G4_v1.json",
-        "data/canonical/tavole_originali_remote_index_v1.csv"
+        "data/canonical/PT_GEOMETRY_HANDOFF_v1.json",
+        "data/canonical/PT_VECTOR_SUPPORTS_v1.csv",
+        "data/canonical/PT_ANALYTICAL_NODES_v1.csv",
+        "data/canonical/PT_VECTOR_BEAMS_v2.csv",
+        "data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv",
+        "data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv",
+        "data/canonical/ROOF_G5_SPECIAL_FEATURES_CURRENT_v1.csv",
+        "data/canonical/STOREY_LEVELS_CURRENT_v1.csv"
       ],
       "target_outputs": [
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv"
+        "data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json"
       ],
-      "semantic_gate": "Every section/orientation must be read from TAV-03S or explicitly marked ND/INC; PT sections are comparison-only and cannot fill missing values.",
-      "last_result_at": "2026-08-22T10:00:03.284533+00:00",
-      "result_receipt": "automation/receipts/SEC-G2-TAV03S_20260822T103747Z.json",
-      "retry_reason": "HANDSHAKE_RACE_FIXED; revalidate retained 34-DOC candidate through corrected receipt gate",
-      "completed_at": "2026-08-22T10:37:47.838531+00:00",
-      "completion_decision": "PASS"
+      "semantic_gate": "Freeze exactly the current structural inventory and its source authority: 38 G1 physical supports, 98 existing PT beam-face analytical nodes, 49 effective PT beams, 127 vertical column segments, 180 G2-G5 ordinary beams, and 3 ridge plus 3 eaves special roof features kept outside ordinary-member normalization. G5-B036 remains counted once as the confirmed 19-26 oblique beam. Preserve all DOC/MIS/ND/WATCH states and all explicit terminations."
     },
     {
-      "id": "SEC-G3-TAV04S",
+      "id": "M0G-BUILD-3D-ANALYTICAL-NODES",
       "priority": 20,
-      "state": "COMPLETE",
-      "stage": "S2_SPECIALIST_READING",
-      "source_sheet": "TAV-04S",
-      "task": "Read sections and orientations for support identities 1-33 plus 22' independently on the III impalcato carpenteria.",
-      "dependencies": [
-        "SEC-G2-TAV03S"
-      ],
-      "required_inputs": [
-        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
-        "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G3_v1.csv"
-      ],
-      "semantic_gate": "Do not inherit G2 sections; every unchanged value must still be supported by TAV-04S evidence.",
-      "released_at": "2026-08-22T10:37:47.838531+00:00",
-      "released_by": "SEC-G2-TAV03S",
-      "completed_at": "2026-08-22T10:51:06.697750+00:00",
-      "completion_decision": "PASS_WITH_WATCH",
-      "result_receipt": "automation/receipts/SEC-G3-TAV04S_20260822T105106Z.json"
-    },
-    {
-      "id": "SEC-G4-TAV05S",
-      "priority": 30,
-      "state": "COMPLETE",
-      "stage": "S2_SPECIALIST_READING",
-      "source_sheet": "TAV-05S",
-      "task": "Read sections and orientations for the 34 original support identities on the IV impalcato carpenteria.",
-      "dependencies": [
-        "SEC-G3-TAV04S"
-      ],
-      "required_inputs": [
-        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
-        "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv"
-      ],
-      "semantic_gate": "Preserve tower/stair and reduced upper-storey sections explicitly; do not reuse G3 values without direct source support.",
-      "released_at": "2026-08-22T10:51:06.697750+00:00",
-      "released_by": "SEC-G3-TAV04S",
-      "completed_at": "2026-08-22T11:06:12.652654+00:00",
-      "completion_decision": "PASS",
-      "result_receipt": "automation/receipts/SEC-G4-TAV05S_20260822T110612Z.json"
-    },
-    {
-      "id": "SEC-G5-TAV06S",
-      "priority": 40,
-      "state": "COMPLETE",
-      "stage": "S2_SPECIALIST_READING",
-      "source_sheet": "TAV-06S",
-      "task": "Read sections/orientations for the 25 support identities documented on roof carpenteria.",
-      "dependencies": [
-        "SEC-G4-TAV05S"
-      ],
-      "required_inputs": [
-        "data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json",
-        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv"
-      ],
-      "semantic_gate": "Only the 25 identities directly present on TAV-06S may be populated; absent G4 supports must remain terminated.",
-      "released_at": "2026-08-22T11:06:12.652654+00:00",
-      "released_by": "SEC-G4-TAV05S",
-      "completed_at": "2026-08-22T11:18:24.983620+00:00",
-      "completion_decision": "PASS",
-      "result_receipt": "automation/receipts/SEC-G5-TAV06S_20260822T111824Z.json"
-    },
-    {
-      "id": "BEAM-G2-TAV03S",
-      "priority": 50,
-      "state": "COMPLETE",
-      "stage": "S2_SPECIALIST_READING",
-      "source_sheet": "TAV-03S",
-      "task": "Reconstruct II impalcato beam claims, sections, directions and support-face incidence independently from TAV-03S.",
-      "dependencies": [
-        "SEC-G2-TAV03S"
-      ],
-      "required_inputs": [
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv",
-        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/STOREY_BEAMS_G2_v1.csv"
-      ],
-      "semantic_gate": "PT beam topology is comparison-only; no member may be copied upward without a direct TAV-03S trace.",
-      "released_at": "2026-08-22T11:18:24.983620+00:00",
-      "released_by": "SEC-G5-TAV06S",
-      "completed_at": "2026-08-22T11:35:49.847216+00:00",
-      "completion_decision": "PASS",
-      "result_receipt": "automation/receipts/BEAM-G2-TAV03S_20260822T113549Z.json"
-    },
-    {
-      "id": "BEAM-G3-TAV04S",
-      "priority": 60,
-      "state": "COMPLETE",
-      "stage": "S2_SPECIALIST_READING",
-      "source_sheet": "TAV-04S",
-      "task": "Reconstruct III impalcato beam topology independently from TAV-04S.",
-      "dependencies": [
-        "SEC-G3-TAV04S",
-        "BEAM-G2-TAV03S"
-      ],
-      "required_inputs": [
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G3_v1.csv",
-        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/STOREY_BEAMS_G3_v1.csv"
-      ],
-      "semantic_gate": "Differences from G2 are first-class evidence and must not be normalized away.",
-      "released_at": "2026-08-22T11:35:49.847216+00:00",
-      "released_by": "BEAM-G2-TAV03S",
-      "completed_at": "2026-08-22T11:45:21.186548+00:00",
-      "completion_decision": "PASS",
-      "result_receipt": "automation/receipts/BEAM-G3-TAV04S_20260822T114521Z.json"
-    },
-    {
-      "id": "BEAM-G4-TAV05S",
-      "priority": 70,
-      "state": "COMPLETE",
-      "stage": "S2_SPECIALIST_READING",
-      "source_sheet": "TAV-05S",
-      "task": "Reconstruct IV impalcato beam topology independently from TAV-05S.",
-      "dependencies": [
-        "SEC-G4-TAV05S",
-        "BEAM-G3-TAV04S"
-      ],
-      "required_inputs": [
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv",
-        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/STOREY_BEAMS_G4_v1.csv"
-      ],
-      "semantic_gate": "Reduced footprint and terrace/roof transitions must be read from source, not inferred from lower storeys.",
-      "released_at": "2026-08-22T11:45:21.186548+00:00",
-      "released_by": "BEAM-G3-TAV04S",
-      "completed_at": "2026-08-22T11:50:27.410951+00:00",
-      "completion_decision": "PASS",
-      "result_receipt": "automation/receipts/BEAM-G4-TAV05S_20260822T115027Z.json"
-    },
-    {
-      "id": "BEAM-G5-TAV06S",
-      "priority": 80,
-      "state": "COMPLETE",
-      "stage": "S2_SPECIALIST_READING",
-      "source_sheet": "TAV-06S",
-      "task": "Reconstruct roof beam/ridge/eaves topology including documented colmo and gronda members from TAV-06S.",
-      "dependencies": [
-        "SEC-G5-TAV06S",
-        "BEAM-G4-TAV05S"
-      ],
-      "required_inputs": [
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv",
-        "data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json"
-      ],
-      "target_outputs": [
-        "data/canonical/STOREY_BEAMS_G5_v1.csv"
-      ],
-      "semantic_gate": "Ridge/eaves members and reduced roof footprint must be explicit; no rectangularized substitute topology.",
-      "released_at": "2026-08-22T11:50:27.410951+00:00",
-      "released_by": "BEAM-G4-TAV05S",
-      "completed_at": "2026-08-22T12:57:44.320186+00:00",
-      "completion_decision": "PASS_WITH_WATCH",
-      "result_receipt": "automation/receipts/BEAM-G5-TAV06S_20260822T125744Z.json"
-    },
-    {
-      "id": "ASSEMBLE-VERTICAL-COLUMNS",
-      "priority": 90,
-      "state": "COMPLETE",
+      "state": "WAITING",
       "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
       "source_sheet": "MULTI",
-      "task": "Assemble vertical column segments only where adjacent-level support identity, XY registration, Z endpoints and section endpoints are available with provenance.",
+      "task": "Build the building-wide 3D analytical node registry from the frozen M0-G contract, common XY registration, storey Z levels, physical support sections and actual beam-to-support face incidences.",
       "dependencies": [
-        "SEC-G2-TAV03S",
-        "SEC-G3-TAV04S",
-        "SEC-G4-TAV05S",
-        "SEC-G5-TAV06S"
+        "M0G-FREEZE-ASSEMBLY-CONTRACT"
       ],
       "required_inputs": [
+        "data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json",
+        "data/canonical/PT_ANALYTICAL_NODES_v1.csv",
+        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
         "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
-        "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv",
         "data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv",
         "data/canonical/STOREY_SUPPORT_SECTIONS_G3_v1.csv",
         "data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv",
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv"
-      ],
-      "semantic_gate": "A segment may exist only between two documented adjacent support presences; section changes are retained at level boundaries and terrace/roof terminations remain explicit.",
-      "released_at": "2026-08-22T12:57:44.320186+00:00",
-      "released_by": "BEAM-G5-TAV06S",
-      "completed_at": "2026-08-22T13:05:44.409273+00:00",
-      "completion_decision": "PASS_WITH_WATCH",
-      "result_receipt": "automation/receipts/ASSEMBLE-VERTICAL-COLUMNS_20260822T130544Z.json"
-    },
-    {
-      "id": "ASSEMBLE-STOREY-BEAM-TOPOLOGY",
-      "priority": 100,
-      "state": "COMPLETE",
-      "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
-      "source_sheet": "MULTI",
-      "task": "Assemble the current per-storey beam topology index after each storey beam ledger has passed its source QA.",
-      "dependencies": [
-        "BEAM-G2-TAV03S",
-        "BEAM-G3-TAV04S",
-        "BEAM-G4-TAV05S",
-        "BEAM-G5-TAV06S"
-      ],
-      "required_inputs": [
+        "data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv",
         "data/canonical/STOREY_BEAMS_G2_v1.csv",
         "data/canonical/STOREY_BEAMS_G3_v1.csv",
         "data/canonical/STOREY_BEAMS_G4_v1.csv",
         "data/canonical/STOREY_BEAMS_G5_v1.csv"
       ],
       "target_outputs": [
+        "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv"
+      ],
+      "semantic_gate": "Beam end nodes must lie on the documented physical support face/incidence, not be replaced by support centroids. Support-core nodes, when needed for column axes, remain a distinct analytical role. Distinct face incidences on extended supports remain distinct. XY and Z provenance must be propagated without MIS-to-DOC promotion."
+    },
+    {
+      "id": "M0G-RESOLVE-ROOF-SPECIAL-3D",
+      "priority": 25,
+      "state": "WAITING",
+      "stage": "S2_SPECIALIST_READING",
+      "source_sheet": "TAV-06S+TAV-06E",
+      "task": "Resolve the three-dimensional geometry status of the three ridge axes and three eaves edge sets using the roof carpenteria, vertical section evidence and common storey registration, without converting them automatically into structural beams.",
+      "dependencies": [
+        "M0G-FREEZE-ASSEMBLY-CONTRACT"
+      ],
+      "required_inputs": [
+        "data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json",
+        "data/canonical/ROOF_G5_SPECIAL_FEATURES_CURRENT_v1.csv",
+        "data/canonical/STOREY_VERTICAL_DIMENSIONS_TAV06E_v1.csv",
+        "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
+        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
+        "data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json"
+      ],
+      "target_outputs": [
+        "data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv"
+      ],
+      "semantic_gate": "Preserve exactly three ridge axes and three eaves edge sets. Populate metric XY/Z only where source evidence plus registered frame support it; otherwise retain MIS/ND. structural_member_status remains TO_VERIFY_MEMBER unless explicit primary-source evidence establishes a structural member. Do not duplicate G5-B036."
+    },
+    {
+      "id": "M0G-BUILD-RIGID-JOINT-LINKS",
+      "priority": 30,
+      "state": "WAITING",
+      "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
+      "source_sheet": "MULTI",
+      "task": "Build explicit analytical links between support-core/column-axis nodes and beam-face incidence nodes where required by the physical joint geometry, preserving rigid offsets rather than collapsing all incidences to the centroid.",
+      "dependencies": [
+        "M0G-BUILD-3D-ANALYTICAL-NODES"
+      ],
+      "required_inputs": [
+        "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",
+        "data/canonical/PT_VECTOR_SUPPORTS_v1.csv",
+        "data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv",
+        "data/canonical/STOREY_SUPPORT_SECTIONS_G3_v1.csv",
+        "data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv",
+        "data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv"
+      ],
+      "semantic_gate": "Every rigid link must connect analytical roles belonging to the same physical support and storey. Never merge distinct beam-face incidences merely because they share a support_id. Preserve extended-support geometry and provenance."
+    },
+    {
+      "id": "M0G-ASSEMBLE-MEMBER-CONNECTIVITY",
+      "priority": 40,
+      "state": "WAITING",
+      "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
+      "source_sheet": "MULTI",
+      "task": "Assemble the global structural member connectivity against the 3D analytical node registry: PT effective beams, upper-storey ordinary beams and vertical column segments, with source identity preserved.",
+      "dependencies": [
+        "M0G-BUILD-3D-ANALYTICAL-NODES",
+        "M0G-BUILD-RIGID-JOINT-LINKS"
+      ],
+      "required_inputs": [
+        "data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json",
+        "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",
+        "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv",
+        "data/canonical/PT_VECTOR_BEAMS_v2.csv",
+        "data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv",
         "data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv"
       ],
-      "semantic_gate": "The combined index is a union with provenance, never an averaged or normalized topology.",
-      "released_at": "2026-08-22T13:05:44.409273+00:00",
-      "released_by": "ASSEMBLE-VERTICAL-COLUMNS",
-      "completed_at": "2026-08-22T13:16:32.105718+00:00",
-      "completion_decision": "PASS_WITH_WATCH",
-      "result_receipt": "automation/receipts/ASSEMBLE-STOREY-BEAM-TOPOLOGY_20260822T131632Z.json"
+      "target_outputs": [
+        "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv"
+      ],
+      "semantic_gate": "The ordinary structural skeleton must contain exactly 356 member segments: 49 effective PT beams + 180 G2-G5 ordinary beams + 127 vertical column segments. Ridge/eaves special features are not inserted as ordinary members. G5-B036 is counted once. Terrace supports a-d do not extrude above G1 and roof-absent supports 1,8,9,16,17,24,31,32,33 do not generate G4-G5 columns."
+    },
+    {
+      "id": "M0G-GLOBAL-TOPOLOGY-GATE",
+      "priority": 50,
+      "state": "WAITING",
+      "stage": "S4_CROSSCHECK",
+      "source_sheet": "MULTI",
+      "task": "Run the global M0-G topology and provenance gate over analytical nodes, rigid joint links, 356 structural member segments and the separately preserved roof-special geometry.",
+      "dependencies": [
+        "M0G-RESOLVE-ROOF-SPECIAL-3D",
+        "M0G-ASSEMBLE-MEMBER-CONNECTIVITY"
+      ],
+      "required_inputs": [
+        "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",
+        "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv",
+        "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv",
+        "data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv"
+      ],
+      "semantic_gate": "Reject duplicate structural members, invalid cross-storey incidences, unsupported vertical extrusion, centroid substitution of documented face nodes, loss of provenance, or silent conversion of roof-special geometry into frame members. Report orphan or disconnected analytical entities explicitly rather than repairing them by inference."
+    },
+    {
+      "id": "M0G-GEOMETRY-HANDOFF",
+      "priority": 60,
+      "state": "WAITING",
+      "stage": "S5_PROMOTION_GATE",
+      "source_sheet": "MULTI",
+      "task": "Freeze the complete M0-G building geometry handoff for downstream section assignment and EdiLus/Open-source FEM model construction, referencing canonical datasets rather than duplicating their contents.",
+      "dependencies": [
+        "M0G-GLOBAL-TOPOLOGY-GATE"
+      ],
+      "required_inputs": [
+        "data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json",
+        "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",
+        "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv",
+        "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv",
+        "data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv",
+        "data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json"
+      ],
+      "semantic_gate": "Handoff only if the global topology gate is non-blocking. Preserve WATCH/ND as explicit downstream constraints. M0-G completion does not authorize invention of missing sections, roof members, armatures, materials, loads or absolute geodetic Z."
     }
   ]
 }
