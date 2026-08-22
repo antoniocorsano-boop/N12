@@ -1,0 +1,764 @@
+entity,property,value,sources,evStatus,resolution,conflict,decisionNeeded,rule,group
+N001,x_mm,"33084.7","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N001,y_mm,"12210.4","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N001,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N001,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N002,x_mm,"36500.9","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N002,y_mm,"12233.9","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N002,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N002,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N003,x_mm,"23776.6","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N003,y_mm,"25651.2","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N003,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N003,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N004,x_mm,"31530.1","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N004,y_mm,"23679.0","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N004,classe_topologica,"CROSS","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N004,grado_topologico,"0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N005,x_mm,"36510.7","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N005,y_mm,"7839.7","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N005,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N005,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N006,x_mm,"33159.8","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N006,y_mm,"5536.1","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N006,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N006,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N007,x_mm,"31775.0","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N007,y_mm,"5536.1","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N007,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N007,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N008,x_mm,"31709.7","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N008,y_mm,"12151.3","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N008,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N008,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N009,x_mm,"8485.1","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N009,y_mm,"10543.7","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N009,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N009,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N010,x_mm,"42889.2","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N010,y_mm,"12616.6","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N010,classe_topologica,"JOINT","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N010,grado_topologico,"3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N011,x_mm,"23789.6","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N011,y_mm,"20627.2","nodes.csv + tav5_topology_nodes_57.csv",VER_GEOMETRIC,RESOLVED_BY_RULE,"","","Identity: same coordinates in two independent sources",57_nodi_XY
+N011,classe_topologica,"JOINT","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N011,grado_topologico,"3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N012,x_mm,"CONFLICT: nodes=23789.6 tav5=22067.3","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=1722.3mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N012,y_mm,"CONFLICT: nodes=17276.3 tav5=14484.3","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=2792.0mm","Which source is authoritative?","",57_nodi_XY
+N012,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N012,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N013,x_mm,"CONFLICT: nodes=23789.6 tav5=37611.4","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=-13821.8mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N013,y_mm,"CONFLICT: nodes=12151.3 tav5=7740.6","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=4410.7mm","Which source is authoritative?","",57_nodi_XY
+N013,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N013,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N014,x_mm,"CONFLICT: nodes=23789.6 tav5=19410.5","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=4379.1mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N014,y_mm,"CONFLICT: nodes=7839.7 tav5=19408.2","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=-11568.5mm","Which source is authoritative?","",57_nodi_XY
+N014,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N014,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N015,x_mm,"CONFLICT: nodes=23789.6 tav5=23823.6","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=-34.0mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N015,y_mm,"CONFLICT: nodes=5536.1 tav5=19434.3","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=-13898.2mm","Which source is authoritative?","",57_nodi_XY
+N015,classe_topologica,"JOINT","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N015,grado_topologico,"3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N016,x_mm,"CONFLICT: nodes=28419.4 tav5=33106.9","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=-4687.5mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N016,y_mm,"CONFLICT: nodes=23679.0 tav5=9659.7","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=14019.3mm","Which source is authoritative?","",57_nodi_XY
+N016,classe_topologica,"JOINT","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N016,grado_topologico,"3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N017,x_mm,"CONFLICT: nodes=28419.4 tav5=28738.3","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=-318.9mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N017,y_mm,"CONFLICT: nodes=20627.2 tav5=19447.4","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=1179.8mm","Which source is authoritative?","",57_nodi_XY
+N017,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N017,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N018,x_mm,"CONFLICT: nodes=28419.4 tav5=28708.2","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=-288.8mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N018,y_mm,"CONFLICT: nodes=17276.3 tav5=25677.3","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=-8401.0mm","Which source is authoritative?","",57_nodi_XY
+N018,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N018,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N019,x_mm,"CONFLICT: nodes=28419.4 tav5=37768.1","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=-9348.7mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N019,y_mm,"CONFLICT: nodes=12151.3 tav5=23966.4","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=-11815.1mm","Which source is authoritative?","",57_nodi_XY
+N019,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N019,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N020,x_mm,"CONFLICT: nodes=28419.4 tav5=7812.3","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=20607.1mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N020,y_mm,"CONFLICT: nodes=7839.7 tav5=1328.9","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=6510.8mm","Which source is authoritative?","",57_nodi_XY
+N020,classe_topologica,"CROSS","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N020,grado_topologico,"0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N021,x_mm,"CONFLICT: nodes=28419.4 tav5=26232.6","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=2186.8mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N021,y_mm,"CONFLICT: nodes=5536.1 tav5=2847.2","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=2688.9mm","Which source is authoritative?","",57_nodi_XY
+N021,classe_topologica,"CROSS","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N021,grado_topologico,"0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N022,x_mm,"CONFLICT: nodes=31709.7 tav5=25971.3","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=5738.4mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N022,y_mm,"CONFLICT: nodes=20627.2 tav5=2847.2","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=17780.0mm","Which source is authoritative?","",57_nodi_XY
+N022,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N022,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N023,x_mm,"CONFLICT: nodes=31709.7 tav5=32464.1","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=-754.4mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N023,y_mm,"CONFLICT: nodes=17276.3 tav5=24932.8","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=-7656.5mm","Which source is authoritative?","",57_nodi_XY
+N023,classe_topologica,"CROSS","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N023,grado_topologico,"0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N024,x_mm,"CONFLICT: nodes=31709.7 tav5=41004.8","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=-9295.1mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N024,y_mm,"CONFLICT: nodes=7839.7 tav5=12616.6","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=-4776.9mm","Which source is authoritative?","",57_nodi_XY
+N024,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N024,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N025,x_mm,"CONFLICT: nodes=33084.7 tav5=40694.5","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=-7609.8mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N025,y_mm,"CONFLICT: nodes=17276.3 tav5=12616.6","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=4659.7mm","Which source is authoritative?","",57_nodi_XY
+N025,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N025,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N026,x_mm,"CONFLICT: nodes=36500.9 tav5=41004.8","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=-4503.9mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N026,y_mm,"CONFLICT: nodes=17276.3 tav5=13152.1","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=4124.2mm","Which source is authoritative?","",57_nodi_XY
+N026,classe_topologica,"CROSS","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N026,grado_topologico,"0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N027,x_mm,"CONFLICT: nodes=42889.2 tav5=40694.5","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δx=2194.7mm","Which source is authoritative? nodes.csv is VER, tav5 is PREDOC","",57_nodi_XY
+N027,y_mm,"CONFLICT: nodes=17276.3 tav5=13152.1","nodes.csv [VER_GEOMETRIC] vs tav5_topology_nodes_57.csv [PREDOC_TOPOLOGICO]",CONFLICT,CONFLICT,"Δy=4124.2mm","Which source is authoritative?","",57_nodi_XY
+N027,classe_topologica,"CROSS","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N027,grado_topologico,"0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N028,x_mm,"37862.9","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N028,y_mm,"19630.2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N028,classe_topologica,"JOINT","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N028,grado_topologico,"3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N029,x_mm,"42871.3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N029,y_mm,"23731.3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N029,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N029,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N030,x_mm,"8485.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N030,y_mm,"9397.2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N030,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N030,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N031,x_mm,"42882.7","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N031,y_mm,"18454.7","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N031,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N031,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N032,x_mm,"8485.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N032,y_mm,"10265.7","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N032,classe_topologica,"CROSS","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N032,grado_topologico,"0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N033,x_mm,"36500.9","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N033,y_mm,"13382.3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N033,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N033,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N034,x_mm,"36749.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N034,y_mm,"13382.3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N034,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N034,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N035,x_mm,"28727.8","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N035,y_mm,"20662.0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N035,classe_topologica,"JOINT","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N035,grado_topologico,"3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N036,x_mm,"19400.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N036,y_mm,"20609.8","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N036,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N036,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N037,x_mm,"8485.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N037,y_mm,"9114.7","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N037,classe_topologica,"CROSS","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N037,grado_topologico,"0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N038,x_mm,"21803.9","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N038,y_mm,"14484.3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N038,classe_topologica,"CROSS","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N038,grado_topologico,"0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N039,x_mm,"42882.7","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N039,y_mm,"19643.3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N039,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N039,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N040,x_mm,"33999.2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N040,y_mm,"19604.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N040,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N040,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N041,x_mm,"33999.2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N041,y_mm,"18402.5","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N041,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N041,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N042,x_mm,"36500.9","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N042,y_mm,"9625.7","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N042,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N042,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N043,x_mm,"36772.0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N043,y_mm,"9707.4","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N043,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N043,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N044,x_mm,"37363.2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N044,y_mm,"5554.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N044,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N044,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N045,x_mm,"36772.0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N045,y_mm,"7790.7","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N045,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N045,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N046,x_mm,"22067.3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N046,y_mm,"14223.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N046,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N046,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N047,x_mm,"37837.8","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N047,y_mm,"18428.6","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N047,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N047,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N048,x_mm,"8485.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N048,y_mm,"9656.2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N048,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N048,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N049,x_mm,"31732.6","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N049,y_mm,"9638.8","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N049,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N049,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N050,x_mm,"35756.3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N050,y_mm,"13422.0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N050,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N050,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N051,x_mm,"35272.9","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N051,y_mm,"13422.0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N051,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N051,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N052,x_mm,"21978.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N052,y_mm,"15307.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N052,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N052,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N053,x_mm,"22067.3","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N053,y_mm,"15045.9","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N053,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N053,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N054,x_mm,"8485.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N054,y_mm,"8585.2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N054,classe_topologica,"TERM","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N054,grado_topologico,"1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N055,x_mm,"8485.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N055,y_mm,"10849.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N055,classe_topologica,"CROSS","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N055,grado_topologico,"0","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N056,x_mm,"37350.1","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N056,y_mm,"7740.6","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N056,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N056,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N057,x_mm,"25962.6","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N057,y_mm,"5570.4","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,SINGLE_SOURCE,"","","",57_nodi_XY
+N057,classe_topologica,"LINE","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N057,grado_topologico,"2","tav5_topology_nodes_57.csv",PREDOC_TOPOLOGICO,RESOLVED_BY_RULE,"","","Direct from topology file",57_nodi_topologia
+N001,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N002,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N003,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N004,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N005,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N006,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N007,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N008,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N009,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N010,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N011,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N012,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N013,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N014,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N015,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N016,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N017,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N018,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N019,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N020,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N021,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N022,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N023,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N024,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N025,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N026,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N027,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N028,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N029,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N030,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N031,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N032,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N033,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N034,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N035,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N036,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N037,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N038,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N039,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N040,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N041,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N042,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N043,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N044,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N045,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N046,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N047,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N048,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N049,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N050,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N051,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N052,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N053,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N054,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N055,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N056,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N057,z_G1,"0.00m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N001,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N002,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N003,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N004,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N005,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N006,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N007,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N008,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N009,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N010,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N011,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N012,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N013,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N014,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N015,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N016,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N017,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N018,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N019,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N020,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N021,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N022,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N023,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N024,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N025,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N026,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N027,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N028,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N029,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N030,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N031,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N032,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N033,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N034,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N035,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N036,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N037,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N038,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N039,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N040,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N041,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N042,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N043,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N044,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N045,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N046,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N047,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N048,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N049,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N050,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N051,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N052,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N053,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N054,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N055,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N056,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N057,z_G2,"3.20m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N001,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N002,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N003,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N004,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N005,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N006,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N007,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N008,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N009,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N010,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N011,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N012,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N013,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N014,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N015,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N016,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N017,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N018,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N019,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N020,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N021,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N022,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N023,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N024,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N025,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N026,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N027,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N028,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N029,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N030,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N031,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N032,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N033,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N034,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N035,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N036,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N037,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N038,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N039,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N040,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N041,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N042,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N043,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N044,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N045,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N046,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N047,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N048,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N049,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N050,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N051,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N052,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N053,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N054,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N055,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N056,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N057,z_G3,"6.40m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N001,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N002,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N003,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N004,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N005,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N006,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N007,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N008,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N009,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N010,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N011,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N012,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N013,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N014,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N015,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N016,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N017,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N018,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N019,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N020,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N021,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N022,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N023,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N024,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N025,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N026,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N027,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N028,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N029,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N030,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N031,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N032,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N033,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N034,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N035,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N036,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N037,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N038,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N039,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N040,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N041,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N042,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N043,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N044,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N045,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N046,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N047,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N048,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N049,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N050,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N051,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N052,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N053,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N054,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N055,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N056,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N057,z_G4,"9.60m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N001,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N002,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N003,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N004,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N005,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N006,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N007,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N008,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N009,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N010,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N011,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N012,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N013,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N014,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N015,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N016,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N017,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N018,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N019,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N020,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N021,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N022,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N023,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N024,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N025,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N026,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N027,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N028,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N029,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N030,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N031,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N032,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N033,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N034,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N035,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N036,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N037,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N038,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N039,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N040,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N041,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N042,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N043,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N044,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N045,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N046,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N047,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N048,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N049,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N050,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N051,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N052,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N053,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N054,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N055,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N056,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+N057,z_G5,"12.80m","storey_height_status.csv (RIF, interpiano 3.20m)",RIF,DERIVED_BY_RULE,"","Verify Z origin and absolute elevations on original drawings","Interpiano 3.20m × level index (assumes Z=0 at G1 ground)",quote_Z
+C001,connessione,"N001 ↔ N008 (1376.3mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C002,connessione,"N001 ↔ N002 (3416.3mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C003,connessione,"N001 ↔ N093 (873.8mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N093 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C004,connessione,"N006 ↔ N083 (1843.2mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N083 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C005,connessione,"N016 ↔ N089 (1167.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N089 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C006,connessione,"N089 ↔ N093 (509.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N089, N093 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C007,connessione,"N090 ↔ N110 (3932.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N090, N110 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C008,connessione,"N001 ↔ N110 (3678.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N110 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C009,connessione,"N002 ↔ N077 (905.1mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N077 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C010,connessione,"N005 ↔ N042 (1786.1mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C011,connessione,"N002 ↔ N033 (1148.4mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C012,connessione,"N042 ↔ N087 (1214.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N087 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C013,connessione,"N042 ↔ N084 (2200.8mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N084 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C014,connessione,"N090 ↔ N116 (4755.3mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N090, N116 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C015,connessione,"N003 ↔ N011 (5024.0mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C016,connessione,"N011 ↔ N015 (1193.4mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C017,connessione,"N003 ↔ N063 (3579.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N063 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C018,connessione,"N018 ↔ N063 (1352.2mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N063 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C019,connessione,"N004 ↔ N066 (3703.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N066 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C020,connessione,"N005 ↔ N056 (845.2mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C021,connessione,"N013 ↔ N045 (840.9mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C022,connessione,"N045 ↔ N056 (580.2mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C023,connessione,"N005 ↔ N091 (2146.1mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N091 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C024,connessione,"N006 ↔ N007 (1384.8mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C025,connessione,"N006 ↔ N044 (4203.4mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C026,connessione,"N007 ↔ N057 (5812.5mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C027,connessione,"N007 ↔ N113 (5555.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N113 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C028,connessione,"N007 ↔ N069 (2662.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N069 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C029,connessione,"N008 ↔ N071 (840.8mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N071 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C030,connessione,"N049 ↔ N072 (1162.4mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N072 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C031,connessione,"N071 ↔ N072 (510.4mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N071, N072 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C032,connessione,"N009 ↔ N048 (887.5mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C033,connessione,"N030 ↔ N054 (811.9mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C034,connessione,"N037 ↔ N054 (529.5mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C035,connessione,"N037 ↔ N048 (541.5mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C036,connessione,"N010 ↔ N024 (1884.5mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C037,connessione,"N010 ↔ N025 (2194.8mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C038,connessione,"N010 ↔ N031 (5838.1mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C039,connessione,"N031 ↔ N039 (1188.5mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C040,connessione,"N010 ↔ N074 (2815.3mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N074 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C041,connessione,"N010 ↔ N075 (2560.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N075 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C042,connessione,"N011 ↔ N079 (1554.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N079 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C043,connessione,"N011 ↔ N035 (4938.3mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C044,connessione,"N036 ↔ N108 (2090.2mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N108 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C045,connessione,"N011 ↔ N062 (5298.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N062 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C046,connessione,"N015 ↔ N098 (4127.5mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N098 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C047,connessione,"N015 ↔ N099 (4382.4mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N099 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C048,connessione,"N012 ↔ N053 (561.6mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C049,connessione,"N012 ↔ N052 (827.7mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C050,connessione,"N012 ↔ N097 (834.4mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N097 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C051,connessione,"N014 ↔ N015 (4413.1mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C052,connessione,"N014 ↔ N036 (1201.6mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C053,connessione,"N036 ↔ N094 (5290.4mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N094 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C054,connessione,"N015 ↔ N017 (4914.7mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C055,connessione,"N016 ↔ N049 (1374.5mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C056,connessione,"N016 ↔ N042 (3394.2mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C057,connessione,"N016 ↔ N043 (3665.4mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C058,connessione,"N049 ↔ N111 (5787.4mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N111 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C059,connessione,"N049 ↔ N112 (5539.2mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N112 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C060,connessione,"N017 ↔ N035 (1214.7mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C061,connessione,"N018 ↔ N035 (5015.3mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C062,connessione,"N028 ↔ N040 (3863.8mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C063,connessione,"N035 ↔ N061 (5277.3mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N061 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C064,connessione,"N019 ↔ N028 (4337.2mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C065,connessione,"N028 ↔ N047 (1201.8mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C066,connessione,"N019 ↔ N064 (2534.5mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N064 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C067,connessione,"N019 ↔ N102 (5026.5mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N102 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C068,connessione,"N020 ↔ N059 (610.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N059 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C069,connessione,"N020 ↔ N073 (5284.5mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N073 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C070,connessione,"N020 ↔ N081 (1231.0mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N081 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C071,connessione,"N021 ↔ N069 (5539.2mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N069 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C072,connessione,"N021 ↔ N113 (2654.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N113 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C073,connessione,"N070 ↔ N112 (1632.8mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N070, N112 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C074,connessione,"N096 ↔ N113 (1812.2mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N096, N113 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C075,connessione,"N022 ↔ N057 (2723.2mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C076,connessione,"N022 ↔ N069 (5800.5mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N069 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C077,connessione,"N057 ↔ N111 (4081.5mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N111 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C078,connessione,"N024 ↔ N026 (535.5mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C079,connessione,"N026 ↔ N080 (5302.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N080 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C080,connessione,"N025 ↔ N027 (535.5mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C081,connessione,"N027 ↔ N078 (6493.1mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N078 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C082,connessione,"N026 ↔ N077 (4503.8mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N077 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C083,connessione,"N027 ↔ N077 (4193.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N077 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C084,connessione,"N027 ↔ N090 (796.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N090 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C085,connessione,"N028 ↔ N078 (2674.9mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N078 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C086,connessione,"N039 ↔ N078 (2345.0mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N078 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C087,connessione,"N047 ↔ N085 (5044.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N085 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C088,connessione,"N078 ↔ N106 (2710.9mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N078, N106 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C089,connessione,"N029 ↔ N039 (4088.0mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C090,connessione,"N029 ↔ N105 (2526.4mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N105 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C091,connessione,"N032 ↔ N055 (583.4mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C092,connessione,"N031 ↔ N080 (1848.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N080 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C093,connessione,"N041 ↔ N109 (1273.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N109 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C094,connessione,"N047 ↔ N080 (3196.4mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N080 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C095,connessione,"N039 ↔ N102 (4350.1mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N102 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C096,connessione,"N033 ↔ N050 (745.7mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C097,connessione,"N033 ↔ N051 (1228.7mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C098,connessione,"N034 ↔ N085 (1064.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N085 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C099,connessione,"N034 ↔ N110 (1079.2mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N110 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C100,connessione,"N043 ↔ N088 (1133.0mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N088 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C101,connessione,"N043 ↔ N045 (1916.7mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C102,connessione,"N034 ↔ N050 (993.7mm, H)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C103,connessione,"N040 ↔ N041 (1201.6mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C104,connessione,"N044 ↔ N114 (1916.8mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N114 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C105,connessione,"N044 ↔ N056 (2186.6mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C106,connessione,"N046 ↔ N053 (822.8mm, V)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,SINGLE_SOURCE,"","Verify connection on original drawings (TAV.5)","",connessioni
+C107,connessione,"N052 ↔ N098 (1795.2mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N098 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C108,connessione,"N097 ↔ N098 (1567.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N097, N098 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C109,connessione,"N098 ↔ N103 (2119.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N098, N103 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C110,connessione,"N098 ↔ N104 (2381.0mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N098, N104 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C111,connessione,"N053 ↔ N099 (1689.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N099 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C112,connessione,"N099 ↔ N100 (2136.0mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N099, N100 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C113,connessione,"N099 ↔ N101 (2397.3mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N099, N101 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C114,connessione,"N057 ↔ N065 (2945.2mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N065 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C115,connessione,"N058 ↔ N059 (5284.4mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N058, N059 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C116,connessione,"N058 ↔ N073 (581.2mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N058, N073 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C117,connessione,"N076 ↔ N095 (2850.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N076, N095 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C118,connessione,"N058 ↔ N095 (822.8mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N058, N095 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C119,connessione,"N061 ↔ N062 (4912.1mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N061, N062 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C120,connessione,"N062 ↔ N094 (4415.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N062, N094 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C121,connessione,"N066 ↔ N067 (4095.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N066, N067 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C122,connessione,"N070 ↔ N071 (5532.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N070, N071 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C123,connessione,"N071 ↔ N093 (1385.0mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N071, N093 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C124,connessione,"N092 ↔ N093 (1273.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N092, N093 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C125,connessione,"N070 ↔ N101 (3774.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N070, N101 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C126,connessione,"N070 ↔ N104 (4035.8mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N070, N104 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C127,connessione,"N072 ↔ N089 (1372.0mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N072, N089 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C128,connessione,"N086 ↔ N089 (1260.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N086, N089 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C129,connessione,"N086 ↔ N087 (2136.0mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N086, N087 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C130,connessione,"N086 ↔ N088 (2410.4mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N086, N088 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C131,connessione,"N079 ↔ N097 (5315.8mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N079, N097 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C132,connessione,"N081 ↔ N107 (1469.3mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N081, N107 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C133,connessione,"N082 ↔ N083 (1205.2mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N082, N083 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C134,connessione,"N084 ↔ N114 (817.8mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N084, N114 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C135,connessione,"N082 ↔ N086 (3448.0mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N082, N086 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C136,connessione,"N086 ↔ N092 (506.1mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N086, N092 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C137,connessione,"N083 ↔ N096 (6953.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N083, N096 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C138,connessione,"N084 ↔ N115 (1091.8mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N084, N115 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C139,connessione,"N086 ↔ N091 (2951.7mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N086, N091 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C140,connessione,"N100 ↔ N111 (5407.4mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N100, N111 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+C141,connessione,"N103 ↔ N111 (5668.6mm)","tav5_topology_connections_v07.csv",INF_DA_QUOTARE,INVALID_REFERENCE,"Node(s) N103, N111 not in 57-node topology","Topology file incomplete — recover ABACO_TOPOLOGICO_TAV5_v11.csv or equivalent","",connessioni
+T5_G5,campate,"C2-C7","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G5,sezioni,"20x45","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G5,sviluppo_m,"19.20m","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G5,nodi_frame,"1-7","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G4,campate,"C1-C8","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G4,sezioni,"25x70 + 140x20_C3-C5","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G4,sviluppo_m,"28.60m","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G4,nodi_frame,"8-16","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G3,campate,"C1-C8","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G3,sezioni,"25x70 + 140x20_C3-C5","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G3,sviluppo_m,"28.60m","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G3,nodi_frame,"17-25","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G2,campate,"C1-C8","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G2,sezioni,"25x70 + 140x20_C3-C5","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G2,sviluppo_m,"28.60m","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G2,nodi_frame,"26-34","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G1,campate,"C1-C8","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G1,sezioni,"25x70 + 140x20_C3-C5","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G1,sviluppo_m,"28.60m","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_G1,nodi_frame,"35-43","telaio_5.csv",DOC,VALIDATED,"","","Direct from relazione_di_calcolo",T5_frame
+T5_C1,allineamento_TAV5,"N025→N043 (Δ=+0.184m)","telaio5_tav5_candidate_matrix_v1.csv",CANDIDATO_METRICO_SOLO,CANDIDATE,"","Verify on carpenteria originale; currently HYP_A_METRICA unverified","",T5_allineamento
+T5_C2,allineamento_TAV5,"N043→N051 (Δ=-0.044m)","telaio5_tav5_candidate_matrix_v1.csv",CANDIDATO_METRICO_SOLO,CANDIDATE,"","Verify on carpenteria originale; currently HYP_A_METRICA unverified","",T5_allineamento
+T5_C3,allineamento_TAV5,"N051→N033 (Δ=+0.029m)","telaio5_tav5_candidate_matrix_v1.csv",CANDIDATO_METRICO_SOLO,CANDIDATE,"","Verify on carpenteria originale; currently HYP_A_METRICA unverified","",T5_allineamento
+T5_C4,allineamento_TAV5,"N033→N049 (Δ=+0.262m)","telaio5_tav5_candidate_matrix_v1.csv",CANDIDATO_METRICO_SOLO,CANDIDATE,"","Verify on carpenteria originale; currently HYP_A_METRICA unverified","",T5_allineamento
+T5_C5,allineamento_TAV5,"N049→N001 (Δ=+0.005m)","telaio5_tav5_candidate_matrix_v1.csv",CANDIDATO_METRICO_SOLO,CANDIDATE,"","Verify on carpenteria originale; currently HYP_A_METRICA unverified","",T5_allineamento
+T5_C6,allineamento_TAV5,"N001→N008 (Δ=+0.176m)","telaio5_tav5_candidate_matrix_v1.csv",CANDIDATO_METRICO_SOLO,CANDIDATE,"","Verify on carpenteria originale; currently HYP_A_METRICA unverified","",T5_allineamento
+T5_C7,allineamento_TAV5,"N008→N050 (Δ=+0.191m)","telaio5_tav5_candidate_matrix_v1.csv",CANDIDATO_METRICO_SOLO,CANDIDATE,"","Verify on carpenteria originale; currently HYP_A_METRICA unverified","",T5_allineamento
+T5_C8,allineamento_TAV5,"N050→N016 (Δ=-0.098m)","telaio5_tav5_candidate_matrix_v1.csv",CANDIDATO_METRICO_SOLO,CANDIDATE,"","Verify on carpenteria originale; currently HYP_A_METRICA unverified","",T5_allineamento
+X07-Y05,position_xy,"33084.7, 12210.4","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X07-Y05,topological_node,"N001","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X07-Y05,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X09-Y05,position_xy,"36500.9, 12233.9","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X09-Y05,topological_node,"N002","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X09-Y05,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X09-Y02,position_xy,"36510.7, 7839.7","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X09-Y02,topological_node,"N005","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X09-Y02,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X07-Y01,position_xy,"33159.8, 5536.1","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X07-Y01,topological_node,"N006","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X07-Y01,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X06-Y01,position_xy,"31775.0, 5536.1","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X06-Y01,topological_node,"N007","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X06-Y01,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X04-Y13,position_xy,"23776.6, 25651.2","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X04-Y13,topological_node,"N003","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X04-Y13,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X06-Y05,position_xy,"31709.7, 12151.3","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X06-Y05,topological_node,"N008","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X06-Y05,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X06-Y12,position_xy,"31530.1, 23679.0","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X06-Y12,topological_node,"N004","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X06-Y12,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X01-Y04,position_xy,"8485.1, 10543.7","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X01-Y04,topological_node,"N009","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X01-Y04,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X13-Y06,position_xy,"42889.2, 12616.6","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X13-Y06,topological_node,"N010","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X13-Y06,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X04-Y11,position_xy,"23789.6, 20627.2","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X04-Y11,topological_node,"N011","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X04-Y11,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X03-Y08,position_xy,"22067.3, 14484.3","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X03-Y08,topological_node,"N012","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X03-Y08,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X11-Y02,position_xy,"37611.4, 7740.6","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X11-Y02,topological_node,"N013","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X11-Y02,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X04-Y10,position_xy,"23823.6, 19434.3","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X04-Y10,topological_node,"N015","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X04-Y10,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X07-Y03,position_xy,"33106.9, 9659.7","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X07-Y03,topological_node,"N016","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X07-Y03,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X02-Y10,position_xy,"19410.5, 19408.2","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X02-Y10,topological_node,"N014","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X02-Y10,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X05-Y10,position_xy,"28738.3, 19447.4","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X05-Y10,topological_node,"N017","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X05-Y10,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X12-Y10,position_xy,"37862.9, 19630.2","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X12-Y10,topological_node,"N028","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X12-Y10,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X05-Y11,position_xy,"28727.8, 20662.0","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X05-Y11,topological_node,"N035","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X05-Y11,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X13-Y09,position_xy,"42882.7, 18454.7","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X13-Y09,topological_node,"N031","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X13-Y09,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X09-Y07,position_xy,"36500.9, 13382.3","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X09-Y07,topological_node,"N033","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X09-Y07,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X13-Y10,position_xy,"42882.7, 19643.3","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X13-Y10,topological_node,"N039","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X13-Y10,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X08-Y10,position_xy,"33999.2, 19604.1","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X08-Y10,topological_node,"N040","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X08-Y10,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X09-Y03,position_xy,"36500.9, 9625.7","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X09-Y03,topological_node,"N042","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X09-Y03,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X10-Y03,position_xy,"36772.0, 9707.4","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X10-Y03,topological_node,"N043","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X10-Y03,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X11-Y01,position_xy,"37363.2, 5554.1","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X11-Y01,topological_node,"N044","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X11-Y01,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni
+X10-Y02,position_xy,"36772.0, 7790.7","column_fixed_lines.csv + nodes.csv",VER_GEOMETRIC,VALIDATED,"","","Cross-verified between two canonical sources",catene_position
+X10-Y02,topological_node,"N045","column_fixed_lines.csv",PREDOC_GEOMETRICO,RESOLVED_BY_RULE,"","","Direct mapping from column_fixed_lines.csv",catene_topologia
+X10-Y02,section_base,"ND","column_fixed_lines.csv",PREDOC_GEOMETRICO,NOT_FOUND,"","Section not documented for this chain","",catene_sezioni

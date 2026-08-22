@@ -1,0 +1,7 @@
+file,source_dxf,extraction_script,total_rows,meaningful_rows,class,provenance
+M0S_DXF_TEXT_INVENTORY_TAV5.csv,TAV5_CARPENTERIA.dxf,scripts/extract_dxf_text_inventory.py,750,750,DERIVED_DOCUMENT_INVENTORY,"All text entities from DXF TAV5 (750 total), extracted via ezdxf"
+M0S_DXF_TEXT_INVENTORY_TAV6.csv,TAV6_TRAVI.dxf,scripts/extract_dxf_text_inventory.py,22,22,DERIVED_DOCUMENT_INVENTORY,"All text entities from DXF TAV6 (22 total), extracted via ezdxf"
+M0S_DXF_TEXT_INVENTORY_TAV7.csv,TAV7_PILASTRI.dxf,scripts/extract_dxf_text_inventory.py,42,42,DERIVED_DOCUMENT_INVENTORY,"All text entities from DXF TAV7 (42 total), extracted via ezdxf"
+M0S_DXF_TEXT_MEANINGFUL_TAV5.csv,TAV5_CARPENTERIA.dxf,scripts/filter_meaningful_text.py,502,502,DERIVED_DOCUMENT_INVENTORY,"Filtered subset: nodes, pillars, beams, topo, lot from TAV5 (502 of 750)"
+M0S_DXF_TEXT_MEANINGFUL_TAV6.csv,TAV6_TRAVI.dxf,scripts/filter_meaningful_text.py,14,14,DERIVED_DOCUMENT_INVENTORY,"Filtered subset from TAV6 (14 of 22)"
+M0S_DXF_TEXT_MEANINGFUL_TAV7.csv,TAV7_PILASTRI.dxf,scripts/filter_meaningful_text.py,32,32,DERIVED_DOCUMENT_INVENTORY,"Filtered subset from TAV7 (32 of 42)"

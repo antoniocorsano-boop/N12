@@ -1,0 +1,164 @@
+{
+  "entities": {
+    "N002": {
+      "entity_id": "N002",
+      "entity_type": "Column",
+      "identity_status": "CONFIRMED",
+      "position_x_mm": 36481.0,
+      "position_y_mm": 12234.0,
+      "vertical_start": "G1",
+      "vertical_end": "G5",
+      "termination_reason": "continues_above",
+      "claim_ids": [],
+      "evidence_ids": [
+        "EV-PILLAR-N002"
+      ],
+      "notes": "LINE in DXF, verify=A, type=A02/N002/ES"
+    },
+    "N005": {
+      "entity_id": "N005",
+      "entity_type": "Column",
+      "identity_status": "CONFIRMED",
+      "position_x_mm": 36484.0,
+      "position_y_mm": 7840.0,
+      "vertical_start": "G1",
+      "vertical_end": "G5",
+      "termination_reason": "continues_above",
+      "claim_ids": [],
+      "evidence_ids": [
+        "EV-PILLAR-N005"
+      ],
+      "notes": "LINE in DXF, verify=A, type=A03/N005/ES"
+    },
+    "N039": {
+      "entity_id": "N039",
+      "entity_type": "Column",
+      "identity_status": "CONFIRMED",
+      "position_x_mm": 35456.0,
+      "position_y_mm": 3226.0,
+      "vertical_start": "G1",
+      "vertical_end": "G5",
+      "termination_reason": "continues_above",
+      "claim_ids": [],
+      "evidence_ids": [
+        "EV-PILLAR-N039"
+      ],
+      "notes": "LINE in DXF, verify=A, type=A22/N039/EN"
+    }
+  },
+  "candidates": {
+    "N041_CANDIDATE": {
+      "candidate_id": "N041_CANDIDATE",
+      "entity_type": "Column",
+      "identity_status": "CANDIDATE",
+      "possible_ids": [
+        "N041"
+      ],
+      "evidence_ids": [
+        "EV-PILLAR-N041"
+      ],
+      "resolution_notes": "Identity gap R-R1-01: DXF marks TERM but no pillar type assigned. N041 exists in DXF S-TOPO-TEXT-INF as TERM, verify=B. Not present in S-PIL-A-TEXT (pillar type annotation absent). Cannot confirm identity as structural entity until type is resolved.",
+      "blocking_residual": "R-R1-01"
+    }
+  },
+  "claims": [
+    {
+      "claim_id": "CLM-N002-TERM",
+      "entity_id": "N002",
+      "property_name": "verticalTermination",
+      "property_value": "continues_above",
+      "evidence_refs": [
+        "EV-PILLAR-N002"
+      ],
+      "source_document_id": "TAV-05S",
+      "status": "ACTIVE",
+      "confidence": 0.9,
+      "notes": "DXF marks LINE, R1 corrected to stop at G1 for terrace"
+    },
+    {
+      "claim_id": "CLM-N005-TERM",
+      "entity_id": "N005",
+      "property_name": "verticalTermination",
+      "property_value": "continues_above",
+      "evidence_refs": [
+        "EV-PILLAR-N005"
+      ],
+      "source_document_id": "TAV-05S",
+      "status": "ACTIVE",
+      "confidence": 0.9,
+      "notes": "DXF marks LINE, R1 corrected to stop at G1 for terrace"
+    },
+    {
+      "claim_id": "CLM-N039-TERM",
+      "entity_id": "N039",
+      "property_name": "verticalTermination",
+      "property_value": "continues_above",
+      "evidence_refs": [
+        "EV-PILLAR-N039"
+      ],
+      "source_document_id": "TAV-05S",
+      "status": "ACTIVE",
+      "confidence": 0.9,
+      "notes": "DXF marks LINE, R1 corrected to stop at G1 for terrace"
+    },
+    {
+      "claim_id": "CLM-N041-TERM",
+      "entity_id": "N041_CANDIDATE",
+      "property_name": "verticalTermination",
+      "property_value": "TERM",
+      "evidence_refs": [
+        "EV-PILLAR-N041"
+      ],
+      "source_document_id": "TAV-05S",
+      "status": "ACTIVE",
+      "confidence": 0.7,
+      "notes": "DXF marks TERM, but identity not confirmed — candidate only"
+    }
+  ],
+  "resolutions": [
+    {
+      "resolution_id": "RES-N002-TERM",
+      "entity_id": "N002",
+      "property_name": "verticalTermination",
+      "claim_id": "CLM-N002-TERM",
+      "evidence_id": "EV-PILLAR-N002",
+      "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_PILLAR_N002_CONFIRMED.png",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "status": "RESOLVED"
+    },
+    {
+      "resolution_id": "RES-N005-TERM",
+      "entity_id": "N005",
+      "property_name": "verticalTermination",
+      "claim_id": "CLM-N005-TERM",
+      "evidence_id": "EV-PILLAR-N005",
+      "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_PILLAR_N005_CONFIRMED.png",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "status": "RESOLVED"
+    },
+    {
+      "resolution_id": "RES-N039-TERM",
+      "entity_id": "N039",
+      "property_name": "verticalTermination",
+      "claim_id": "CLM-N039-TERM",
+      "evidence_id": "EV-PILLAR-N039",
+      "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_PILLAR_N039_CONFIRMED.png",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "status": "RESOLVED"
+    },
+    {
+      "resolution_id": "RES-N041-TERM",
+      "entity_id": "N041_CANDIDATE",
+      "property_name": "verticalTermination",
+      "claim_id": "CLM-N041-TERM",
+      "evidence_id": "EV-PILLAR-N041",
+      "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_PILLAR_N041_CANDIDATE.png",
+      "document_id": "TAV-05S",
+      "page_number": 1,
+      "status": "CANDIDATES"
+    }
+  ]
+}

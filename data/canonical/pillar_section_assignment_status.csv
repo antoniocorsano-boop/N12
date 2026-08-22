@@ -1,0 +1,5 @@
+scope,chain_count,levels,section_base,section_top,orientation,offset,status,evidence,note
+ALL_27_CHAINS,27,5,ND,ND,ND,ND,VER,"TAV7_PILASTRI.dxf; MATRICE_PILASTRI_27x5_v22.csv; CATENE_VERTICALI_PILASTRI_v20.csv","TAV7 non contiene richiamo univoco catena→tipo; vietata propagazione per analogia"
+TYPE_TD_P01,NA,NA,40x40,NA,quadrata,NA,DOC_PARZIALE,"ABACO_TIPI_DOCUMENTALI_TAV7_v22.csv","4 Ø14 completi + 4 Ø14 monconi; staffe Ø8; non associato alle 27 catene"
+TYPE_P_DOC_02,NA,NA,40x50,NA,ND,NA,DOC_PARZIALE,"ABACO_TIPI_PILASTRO_DOC_v19.csv","tipo documentato, associazione puntuale ND"
+TOP_CORNER_RULE,NA,V,NA,40x40,quadrata,NA,RIF,"CATENE_VERTICALI_PILASTRI_v20.csv; PROTOCOLLO_LETTURA_PILASTRI_TAV7_v20.txt","solo pilastri d'angolo ultimo piano; non identificati univocamente"
