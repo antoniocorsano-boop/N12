@@ -1,213 +1,143 @@
 {
   "schema_version": "1.0",
-  "queue_id": "N12_M0G_GLOBAL_ASSEMBLY_QUEUE",
+  "queue_id": "N12_M1_STRUCTURAL_MODEL_COMPLETION_QUEUE",
   "updated_at": "2026-08-22",
+  "predecessor_queue_id": "N12_M0G_GLOBAL_ASSEMBLY_QUEUE",
   "predecessor_queue_status": "COMPLETE",
-  "predecessor_last_receipt": "automation/receipts/ASSEMBLE-STOREY-BEAM-TOPOLOGY_20260822T131632Z.json",
-  "selection_rule": "Choose the lowest-priority-number item whose state is READY or CANDIDATE, whose dependencies are COMPLETE, and whose required inputs exist. Never skip a blocking dependency by inference.",
+  "predecessor_queue_blob_sha": "dea53f9cd020799da14c23e0a6f618c78712e4cf",
+  "predecessor_last_receipt": "automation/receipts/M0G-GEOMETRY-HANDOFF_20260822T190450Z.json",
+  "selection_rule": "Choose the lowest-priority-number item whose state is READY or CANDIDATE, whose dependencies are COMPLETE, and whose required inputs exist. Preserve provenance and never close missing model inputs by inference.",
   "items": [
     {
-      "id": "M0G-FREEZE-ASSEMBLY-CONTRACT",
+      "id": "M1S-SECTION-ASSIGNMENT-GATE",
       "priority": 10,
-      "state": "COMPLETE",
-      "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
-      "source_sheet": "MULTI",
-      "task": "Freeze the global M0-G assembly contract from already current PT geometry, vertical column segments, per-storey beam topology, storey levels and roof-special registry. Define counts, entity roles, provenance propagation and anti-normalization rules without creating new geometry.",
-      "dependencies": [],
-      "required_inputs": [
-        "data/canonical/PT_GEOMETRY_HANDOFF_v1.json",
-        "data/canonical/PT_VECTOR_SUPPORTS_v1.csv",
-        "data/canonical/PT_ANALYTICAL_NODES_v1.csv",
-        "data/canonical/PT_VECTOR_BEAMS_v2.csv",
-        "data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv",
-        "data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv",
-        "data/canonical/ROOF_G5_SPECIAL_FEATURES_CURRENT_v1.csv",
-        "data/canonical/STOREY_LEVELS_CURRENT_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json"
-      ],
-      "semantic_gate": "Freeze exactly the current structural inventory and its source authority: 38 G1 physical supports, 98 existing PT beam-face analytical nodes, 49 effective PT beams, 127 vertical column segments, 180 G2-G5 ordinary beams, and 3 ridge plus 3 eaves special roof features kept outside ordinary-member normalization. G5-B036 remains counted once as the confirmed 19-26 oblique beam. Preserve all DOC/MIS/ND/WATCH states and all explicit terminations.",
-      "completed_at": "2026-08-22T13:26:37.241196+00:00",
-      "completion_decision": "PASS_WITH_WATCH",
-      "result_receipt": "automation/receipts/M0G-FREEZE-ASSEMBLY-CONTRACT_20260822T132637Z.json"
-    },
-    {
-      "id": "M0G-BUILD-3D-ANALYTICAL-NODES",
-      "priority": 20,
-      "state": "COMPLETE",
-      "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
-      "source_sheet": "MULTI",
-      "task": "Build the building-wide 3D analytical node registry from the frozen M0-G contract, common XY registration, storey Z levels, physical support sections and actual beam-to-support face incidences.",
-      "dependencies": [
-        "M0G-FREEZE-ASSEMBLY-CONTRACT"
-      ],
-      "required_inputs": [
-        "data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json",
-        "data/canonical/PT_ANALYTICAL_NODES_v1.csv",
-        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
-        "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv",
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G3_v1.csv",
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv",
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv",
-        "data/canonical/STOREY_BEAMS_G2_v1.csv",
-        "data/canonical/STOREY_BEAMS_G3_v1.csv",
-        "data/canonical/STOREY_BEAMS_G4_v1.csv",
-        "data/canonical/STOREY_BEAMS_G5_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv"
-      ],
-      "semantic_gate": "Beam end nodes must lie on the documented physical support face/incidence, not be replaced by support centroids. Support-core nodes, when needed for column axes, remain a distinct analytical role. Distinct face incidences on extended supports remain distinct. XY and Z provenance must be propagated without MIS-to-DOC promotion.",
-      "released_at": "2026-08-22T13:26:37.241196+00:00",
-      "released_by": "M0G-FREEZE-ASSEMBLY-CONTRACT",
-      "completed_at": "2026-08-22T13:59:23.529877+00:00",
-      "completion_decision": "PASS_WITH_WATCH",
-      "result_receipt": "automation/receipts/M0G-BUILD-3D-ANALYTICAL-NODES_20260822T135923Z.json"
-    },
-    {
-      "id": "M0G-RESOLVE-ROOF-SPECIAL-3D",
-      "priority": 25,
-      "state": "COMPLETE",
-      "stage": "S2_SPECIALIST_READING",
-      "source_sheet": "TAV-06S+TAV-06E",
-      "task": "Resolve the three-dimensional geometry status of the three ridge axes and three eaves edge sets using the roof carpenteria, vertical section evidence and common storey registration, without converting them automatically into structural beams.",
-      "dependencies": [
-        "M0G-FREEZE-ASSEMBLY-CONTRACT"
-      ],
-      "required_inputs": [
-        "data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json",
-        "data/canonical/ROOF_G5_SPECIAL_FEATURES_CURRENT_v1.csv",
-        "data/canonical/STOREY_VERTICAL_DIMENSIONS_TAV06E_v1.csv",
-        "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
-        "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
-        "data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json"
-      ],
-      "target_outputs": [
-        "data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv"
-      ],
-      "semantic_gate": "Preserve exactly three ridge axes and three eaves edge sets. Populate metric XY/Z only where source evidence plus registered frame support it; otherwise retain MIS/ND. structural_member_status remains TO_VERIFY_MEMBER unless explicit primary-source evidence establishes a structural member. Do not duplicate G5-B036.",
-      "released_at": "2026-08-22T13:59:23.529877+00:00",
-      "released_by": "M0G-BUILD-3D-ANALYTICAL-NODES",
-      "last_result_at": "2026-08-22T16:01:30.702269+00:00",
-      "result_receipt": "automation/receipts/M0G-RESOLVE-ROOF-SPECIAL-3D_20260822T185110Z.json",
-      "reopened_at": "2026-08-22T18:51:10.429211+00:00",
-      "reopened_reason": "Prior BLOCKED result mixed an automation handshake defect with semantic residuals. The work-item gate explicitly permits unsupported roof XY/Z to remain MIS/ND; direct TAV-06S recheck also corrects local ridge transcription 3.15 to 3.75 without creating a global Z.",
-      "completed_at": "2026-08-22T18:51:10.820478+00:00",
-      "completion_decision": "PASS_WITH_WATCH"
-    },
-    {
-      "id": "M0G-BUILD-RIGID-JOINT-LINKS",
-      "priority": 30,
-      "state": "COMPLETE",
-      "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
-      "source_sheet": "MULTI",
-      "task": "Build explicit analytical links between support-core/column-axis nodes and beam-face incidence nodes where required by the physical joint geometry, preserving rigid offsets rather than collapsing all incidences to the centroid.",
-      "dependencies": [
-        "M0G-BUILD-3D-ANALYTICAL-NODES"
-      ],
-      "required_inputs": [
-        "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",
-        "data/canonical/PT_VECTOR_SUPPORTS_v1.csv",
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv",
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G3_v1.csv",
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv",
-        "data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv"
-      ],
-      "semantic_gate": "Every rigid link must connect analytical roles belonging to the same physical support and storey. Never merge distinct beam-face incidences merely because they share a support_id. Preserve extended-support geometry and provenance.",
-      "released_at": "2026-08-22T16:01:30.702269+00:00",
-      "released_by": "M0G-RESOLVE-ROOF-SPECIAL-3D",
-      "completed_at": "2026-08-22T18:25:25.636402+00:00",
-      "completion_decision": "PASS_WITH_WATCH",
-      "result_receipt": "automation/receipts/M0G-BUILD-RIGID-JOINT-LINKS_20260822T182525Z.json"
-    },
-    {
-      "id": "M0G-ASSEMBLE-MEMBER-CONNECTIVITY",
-      "priority": 40,
-      "state": "COMPLETE",
-      "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
-      "source_sheet": "MULTI",
-      "task": "Assemble the global structural member connectivity against the 3D analytical node registry: PT effective beams, upper-storey ordinary beams and vertical column segments, with source identity preserved.",
-      "dependencies": [
-        "M0G-BUILD-3D-ANALYTICAL-NODES",
-        "M0G-BUILD-RIGID-JOINT-LINKS"
-      ],
-      "required_inputs": [
-        "data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json",
-        "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",
-        "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv",
-        "data/canonical/PT_VECTOR_BEAMS_v2.csv",
-        "data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv",
-        "data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv"
-      ],
-      "semantic_gate": "The ordinary structural skeleton must contain exactly 356 member segments: 49 effective PT beams + 180 G2-G5 ordinary beams + 127 vertical column segments. Ridge/eaves special features are not inserted as ordinary members. G5-B036 is counted once. Terrace supports a-d do not extrude above G1 and roof-absent supports 1,8,9,16,17,24,31,32,33 do not generate G4-G5 columns.",
-      "released_at": "2026-08-22T18:25:25.636402+00:00",
-      "released_by": "M0G-BUILD-RIGID-JOINT-LINKS",
-      "completed_at": "2026-08-22T18:41:39.910529+00:00",
-      "completion_decision": "PASS_WITH_WATCH",
-      "result_receipt": "automation/receipts/M0G-ASSEMBLE-MEMBER-CONNECTIVITY_20260822T184139Z.json"
-    },
-    {
-      "id": "M0G-GLOBAL-TOPOLOGY-GATE",
-      "priority": 50,
-      "state": "COMPLETE",
-      "stage": "S4_CROSSCHECK",
-      "source_sheet": "MULTI",
-      "task": "Run the global M0-G topology and provenance gate over analytical nodes, rigid joint links, 356 structural member segments and the separately preserved roof-special geometry.",
-      "dependencies": [
-        "M0G-RESOLVE-ROOF-SPECIAL-3D",
-        "M0G-ASSEMBLE-MEMBER-CONNECTIVITY"
-      ],
-      "required_inputs": [
-        "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",
-        "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv",
-        "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv",
-        "data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv"
-      ],
-      "semantic_gate": "Reject duplicate structural members, invalid cross-storey incidences, unsupported vertical extrusion, centroid substitution of documented face nodes, loss of provenance, or silent conversion of roof-special geometry into frame members. Report orphan or disconnected analytical entities explicitly rather than repairing them by inference.",
-      "released_at": "2026-08-22T18:51:10.820478+00:00",
-      "released_by": "M0G-RESOLVE-ROOF-SPECIAL-3D",
-      "completed_at": "2026-08-22T18:58:28.352413+00:00",
-      "completion_decision": "PASS_WITH_WATCH",
-      "result_receipt": "automation/receipts/M0G-GLOBAL-TOPOLOGY-GATE_20260822T185828Z.json"
-    },
-    {
-      "id": "M0G-GEOMETRY-HANDOFF",
-      "priority": 60,
       "state": "COMPLETE",
       "stage": "S5_PROMOTION_GATE",
       "source_sheet": "MULTI",
-      "task": "Freeze the complete M0-G building geometry handoff for downstream section assignment and EdiLus/Open-source FEM model construction, referencing canonical datasets rather than duplicating their contents.",
-      "dependencies": [
-        "M0G-GLOBAL-TOPOLOGY-GATE"
-      ],
+      "task": "Freeze usable section assignments for the 356 ordinary M0-G members while preserving all evidence watches and special roof roles.",
+      "dependencies": [],
       "required_inputs": [
-        "data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json",
-        "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",
-        "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv",
-        "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv",
-        "data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv",
-        "data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv"
+        "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
+        "data/canonical/STOREY_BEAMS_G5_v1.csv",
+        "data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv"
       ],
       "target_outputs": [
+        "data/canonical/M1S_SECTION_GATE_v1.csv"
+      ],
+      "semantic_gate": "Every ordinary structural member must have a usable section or an explicitly admitted nonblocking evidence watch. Do not promote MIS or SUPPORTED evidence to DOC. M0-G geometry remains frozen.",
+      "completed_at": "2026-08-22T21:56:00+02:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "closure_report": "docs/M1S_SECTION_CLOSURE_REPORT_v1.md"
+    },
+    {
+      "id": "M1M-MATERIAL-EVIDENCE",
+      "priority": 20,
+      "state": "READY",
+      "stage": "S2_SPECIALIST_READING",
+      "source_sheet": "MULTI",
+      "task": "Build the current concrete and reinforcing-steel evidence register. Search the available original/derived project sources for explicit material specifications and distinguish original design values, test or measurement results, reported information, inference and unavailable data.",
+      "dependencies": [
+        "M1S-SECTION-ASSIGNMENT-GATE"
+      ],
+      "required_inputs": [
+        "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
+        "data/canonical/M1S_SECTION_GATE_v1.csv",
+        "docs/M1S_SECTION_CLOSURE_REPORT_v1.md",
+        "docs/REGISTRO_MASTER.md",
+        "data/canonical/tavole_originali_remote_index_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/M1M_MATERIAL_EVIDENCE_CURRENT_v1.csv",
+        "data/canonical/M1M_MATERIAL_GATE_v1.csv"
+      ],
+      "semantic_gate": "Do not infer concrete class, steel grade, mechanical properties, knowledge level or confidence factor from construction age or neighboring projects. Explicit source values outrank assumptions. If evidence is missing, retain ND and create a resolvable residual rather than manufacturing a calculation input."
+    },
+    {
+      "id": "M1A-REINFORCEMENT-EVIDENCE",
+      "priority": 30,
+      "state": "WAITING",
+      "stage": "S2_SPECIALIST_READING",
+      "source_sheet": "MULTI",
+      "task": "Map beam, column and joint reinforcement evidence to the frozen M0-G/M1-S member identities, separating direct documentary reinforcement from reported or inferred details.",
+      "dependencies": [
+        "M1M-MATERIAL-EVIDENCE"
+      ],
+      "required_inputs": [
+        "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv",
+        "data/canonical/M1S_SECTION_GATE_v1.csv",
+        "data/canonical/M1M_MATERIAL_GATE_v1.csv",
+        "data/canonical/tavole_originali_remote_index_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/M1A_REINFORCEMENT_CURRENT_v1.csv",
+        "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv"
+      ],
+      "semantic_gate": "Reinforcement assignments must bind to explicit member/support identities or remain residual. Preserve historical design reinforcement separately from observed current-state information and do not extrapolate a detail across members without source authority."
+    },
+    {
+      "id": "M1L-LOAD-MODEL",
+      "priority": 40,
+      "state": "WAITING",
+      "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
+      "source_sheet": "MULTI",
+      "task": "Assemble structural and nonstructural permanent loads, variable loads and special local loads for floors, roof, balconies, terraces, infills and later additions, preserving historical-load evidence separately from current assessment assumptions.",
+      "dependencies": [
+        "M1A-REINFORCEMENT-EVIDENCE"
+      ],
+      "required_inputs": [
+        "data/canonical/M1M_MATERIAL_GATE_v1.csv",
+        "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv",
         "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json"
       ],
-      "semantic_gate": "Handoff only if the global topology gate is non-blocking. Preserve WATCH/ND as explicit downstream constraints. M0-G completion does not authorize invention of missing sections, roof members, armatures, materials, loads or absolute geodetic Z.",
-      "released_at": "2026-08-22T18:58:28.352413+00:00",
-      "released_by": "M0G-GLOBAL-TOPOLOGY-GATE",
-      "completed_at": "2026-08-22T19:04:50.545865+00:00",
-      "completion_decision": "PASS_WITH_WATCH",
-      "result_receipt": "automation/receipts/M0G-GEOMETRY-HANDOFF_20260822T190450Z.json"
+      "target_outputs": [
+        "data/canonical/M1L_LOAD_MODEL_CURRENT_v1.csv",
+        "data/canonical/M1L_LOAD_GATE_v1.csv"
+      ],
+      "semantic_gate": "Separate source-documented historical loads from present assessment loads and combinations. Do not assign loads to roof-special geometry or later additions without an explicit structural role and provenance."
+    },
+    {
+      "id": "M1F-FOUNDATION-MODEL",
+      "priority": 50,
+      "state": "WAITING",
+      "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
+      "source_sheet": "TAV-01S+MULTI",
+      "task": "Reconcile the foundation grid and foundation member properties with the frozen global support system and prepare the foundation-side analytical inputs, keeping geotechnical parameters as a separate evidence domain.",
+      "dependencies": [
+        "M1L-LOAD-MODEL"
+      ],
+      "required_inputs": [
+        "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
+        "data/canonical/M1M_MATERIAL_GATE_v1.csv",
+        "data/canonical/M1L_LOAD_GATE_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv",
+        "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
+      ],
+      "semantic_gate": "Bind foundations to the global support identities without reopening superstructure geometry. Keep structural foundation evidence separate from soil/geotechnical parameters and preserve ND where investigation is still required."
+    },
+    {
+      "id": "M1E-CALCULATION-MODEL-HANDOFF",
+      "priority": 60,
+      "state": "WAITING",
+      "stage": "S5_PROMOTION_GATE",
+      "source_sheet": "MULTI",
+      "task": "Build the calculation-model handoff for EdiLus-EE and an independent FEM implementation from the frozen geometry plus validated sections, materials, reinforcement, loads and foundations.",
+      "dependencies": [
+        "M1F-FOUNDATION-MODEL"
+      ],
+      "required_inputs": [
+        "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
+        "data/canonical/M1S_SECTION_GATE_v1.csv",
+        "data/canonical/M1M_MATERIAL_GATE_v1.csv",
+        "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv",
+        "data/canonical/M1L_LOAD_GATE_v1.csv",
+        "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
+      ],
+      "target_outputs": [
+        "data/canonical/M1E_CALCULATION_MODEL_HANDOFF_v1.json"
+      ],
+      "semantic_gate": "Promote only when every required calculation input is either supported for execution or explicitly represented by an admitted modeling rule. Preserve rigid zones, member identity, offsets and all residual provenance. Final gate is CALCULATION_MODEL_READY."
     }
   ]
 }
