@@ -157,7 +157,7 @@
     {
       "id": "M0G-GLOBAL-TOPOLOGY-GATE",
       "priority": 50,
-      "state": "READY",
+      "state": "COMPLETE",
       "stage": "S4_CROSSCHECK",
       "source_sheet": "MULTI",
       "task": "Run the global M0-G topology and provenance gate over analytical nodes, rigid joint links, 356 structural member segments and the separately preserved roof-special geometry.",
@@ -176,12 +176,15 @@
       ],
       "semantic_gate": "Reject duplicate structural members, invalid cross-storey incidences, unsupported vertical extrusion, centroid substitution of documented face nodes, loss of provenance, or silent conversion of roof-special geometry into frame members. Report orphan or disconnected analytical entities explicitly rather than repairing them by inference.",
       "released_at": "2026-08-22T18:51:10.820478+00:00",
-      "released_by": "M0G-RESOLVE-ROOF-SPECIAL-3D"
+      "released_by": "M0G-RESOLVE-ROOF-SPECIAL-3D",
+      "completed_at": "2026-08-22T18:58:28.352413+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "result_receipt": "automation/receipts/M0G-GLOBAL-TOPOLOGY-GATE_20260822T185828Z.json"
     },
     {
       "id": "M0G-GEOMETRY-HANDOFF",
       "priority": 60,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S5_PROMOTION_GATE",
       "source_sheet": "MULTI",
       "task": "Freeze the complete M0-G building geometry handoff for downstream section assignment and EdiLus/Open-source FEM model construction, referencing canonical datasets rather than duplicating their contents.",
@@ -199,7 +202,9 @@
       "target_outputs": [
         "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json"
       ],
-      "semantic_gate": "Handoff only if the global topology gate is non-blocking. Preserve WATCH/ND as explicit downstream constraints. M0-G completion does not authorize invention of missing sections, roof members, armatures, materials, loads or absolute geodetic Z."
+      "semantic_gate": "Handoff only if the global topology gate is non-blocking. Preserve WATCH/ND as explicit downstream constraints. M0-G completion does not authorize invention of missing sections, roof members, armatures, materials, loads or absolute geodetic Z.",
+      "released_at": "2026-08-22T18:58:28.352413+00:00",
+      "released_by": "M0G-GLOBAL-TOPOLOGY-GATE"
     }
   ]
 }
