@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "scope": "PT_G1_TO_G4_SUPPORT_IDENTITY_CONTINUITY",
+  "sources": {
+    "pt": "data/canonical/PT_MASTER_CURRENT.csv",
+    "g2": "TAV-03S / carpenteria II impalcato",
+    "g3": "TAV-04S / carpenteria III impalcato",
+    "g4": "TAV-05S / carpenteria IV impalcato"
+  },
+  "validation_state": "CROSS_VALIDATED",
+  "geometry_registration_state": "IDENTITY_ONLY_NO_INTERSHEET_XY_REGISTRATION_YET",
+  "counts": {
+    "pt_supports": 38,
+    "original_support_ids_continuing_to_g4": 34,
+    "terrace_added_supports_terminating_after_g1": 4
+  },
+  "continuous_original_support_ids": ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","22'","23","24","25","26","27","28","29","30","31","32","33"],
+  "terrace_added_supports": {
+    "ids": ["a","b","c","d"],
+    "pt_presence": "PRESENT",
+    "tav03s_g2": "ABSENT",
+    "tav04s_g3": "ABSENT",
+    "tav05s_g4": "ABSENT",
+    "continuity_class": "TERMINATES_AT_I_IMPALCATO",
+    "evidence_state": "DOC+RIF",
+    "rule": "DO_NOT_EXTRUDE_ABOVE_PT",
+    "note": "The four later terrace pillars are present in the PT carpenteria/current Master but do not recur on the II, III or IV impalcato carpenterie. This matches their documented/referred role as added supports for the first-level terrace."
+  },
+  "continuous_original_support_rule": {
+    "presence": {"pt_g1":"PRESENT","tav03s_g2":"PRESENT","tav04s_g3":"PRESENT","tav05s_g4":"PRESENT"},
+    "continuity_class": "CONTINUES_PT_TO_G4",
+    "evidence_state": "DOC",
+    "rule": "CARRY_SUPPORT_IDENTITY_ONLY",
+    "note": "Do not copy PT X/Y coordinates into upper storeys until the carpenterie are registered to the common project coordinate system. Identity continuity is documentary; metric inter-sheet continuity remains a separate gate."
+  },
+  "special_checks": {
+    "22_prime": "Explicitly present on TAV-03S and retained in the continuous original support set.",
+    "anti_extrusion": "No support may be propagated to G5/roof merely because it exists at G4; TAV-06S must be read independently because the upper footprint is reduced."
+  },
+  "next_gate": "G4_TO_G5_ROOF_SUPPORT_CONTINUITY_FROM_TAV06S"
+}

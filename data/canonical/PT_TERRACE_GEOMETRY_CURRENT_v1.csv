@@ -1,0 +1,11 @@
+entity_id,entity_kind,x_global_m,y_global_m,geometry_status,evidence_status,parent_or_relation,notes
+P16,ORIGINAL_NUMBERED_PILLAR,13.35,28.13,CLOSED_DOC,DOC,receiver_start,"Canonical PT pillar 16"
+P08,ORIGINAL_NUMBERED_PILLAR,18.00,28.13,CLOSED_DOC,DOC,receiver_end,"Canonical PT pillar 8"
+P16-P08,ORIGINAL_RECEIVER_BEAM,,,CLOSED_DOC,DOC,"P16->P08; length 4.65 m","Verified original receiver; TAV-05S topology identifies 25x70 member; terrace geometry is read on TAV-02S"
+ETW-FLT-N01,LOCAL_INSERTION_NODE,16.55,28.13,CLOSED_MIXED_DOC_MIS,DOC_NATIVE_GEOMETRY+MIS_RASTER,"3.20 m from P16; 1.45 m from P08","Analytical insertion on P16-P08; station tolerance about ±0.03 m; not a numbered pillar"
+ETW-FLT-E03,LOCAL_PROJECTING_MEMBER,,,CLOSED_DOC_LENGTH,DOC_NATIVE_GEOMETRY,"ETW-FLT-N01 -> ETW-FLT-N02; length 1.50 m; orthogonal outward","First-impalcato-specific branch; section and anchorage detail ND"
+ETW-FLT-N02,LOCAL_OUTER_GEOMETRIC_NODE,16.55,29.63,CLOSED_DERIVED_FROM_DOC_MIS,DOC_NATIVE_GEOMETRY+MIS_RASTER,"1.50 m outward from ETW-FLT-N01","Geometric endpoint only. Original TAV-02S/TAV-01S do not document a distal support/column here; do not equate automatically to a/b/c/d"
+a,TERRACE_ADDED_PILLAR,,,OPEN_SOURCE_BINDING,RIF_USER_CONFIRMED,"physical terrace addition","Existence/ID confirmed by user; exact locus ND"
+b,TERRACE_ADDED_PILLAR,,,OPEN_SOURCE_BINDING,RIF_USER_CONFIRMED,"physical terrace addition","Existence/ID confirmed by user; exact locus ND"
+c,TERRACE_ADDED_PILLAR,,,OPEN_SOURCE_BINDING,RIF_USER_CONFIRMED,"physical terrace addition","Existence/ID confirmed by user; exact locus ND"
+d,TERRACE_ADDED_PILLAR,,,OPEN_SOURCE_BINDING,RIF_USER_CONFIRMED,"physical terrace addition","Existence/ID confirmed by user; exact locus ND"

@@ -1,0 +1,2 @@
+record_type,status,reason,source,note
+SUPERSEDED,SUPERSEDED_INVALID,"La riconciliazione v2 associava correttamente alcune quote ma a gruppi nodali errati. Dopo la rilettura ad alta risoluzione della TAV-02S, le righe certe sono: a-b-17-9-1; c-d-18-10-2; 31-28-19-11-3; 32-29-20-12-5-4. Le precedenti aggregazioni 25/28/31, 26/29/32, 27/30/33 non devono essere riutilizzate.",TAV-02S_tavola2-2.pdf,"File mantenuto come tombstone; ricostruzione nuova da quote dirette e righe corrette"

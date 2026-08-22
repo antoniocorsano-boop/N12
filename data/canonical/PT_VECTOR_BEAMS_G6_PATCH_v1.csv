@@ -1,0 +1,4 @@
+patch_id,action,beam_id,support_i,support_j,orientation,x_i_face_m,y_i_face_m,x_j_face_m,y_j_face_m,clear_vector_length_m,vector_status,source,note
+G6VP-001,REVOKE,B-029,19,21,,,,,,0.0000,REVOKED_SOURCE_MISMATCH,"TAV-02S current clean r3_c2","Remove inherited P19-P21 vector from effective topology."
+G6VP-002,REVOKE,B-044,12,5,,,,,,0.0000,REVOKED_SOURCE_MISMATCH,"TAV-02S current clean r3_c3","No direct P12-P5 member; no vector permitted."
+G6VP-003,ADD,B-052,19,20,VERTICAL,7.6318,9.2000,7.6318,9.6000,0.4000,WORKING_VECTOR_DIRECT_SOURCE,"TAV-02S current clean r3_c2","Direct P19-P20 member; endpoints are the facing support boundaries."

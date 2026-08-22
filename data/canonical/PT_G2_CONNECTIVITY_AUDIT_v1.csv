@@ -1,0 +1,6 @@
+component_id,member_supports,hard_constraint_count,anchor_support,anchoring_status,global_metric_status,note
+G2C01,"c;a;17;9;1;d;b",6,c,LOCAL_ANCHOR_ONLY,UNANCHORED_GLOBAL,"Top/terrace component. Fully determined internally by DOC hard constraints; no old Master coordinates used."
+G2C02,"31;28;25;32;29;26;21;33",7,31,LOCAL_ANCHOR_ONLY,UNANCHORED_GLOBAL,"Left mesh component. Internally determined by DOC hard constraints after suspending conflicting 25-19 and extended-support references."
+G2C03,"15;7",1,15,LOCAL_ANCHOR_ONLY,UNANCHORED_GLOBAL,"Lower row fragment. Link 23-15 remains REFERENCE_PENDING because P23 is extended."
+G2C04,"13;14",1,13,LOCAL_ANCHOR_ONLY,UNANCHORED_GLOBAL,"Local vertical pair. No validated DOC metric link to another component currently present."
+G2C05,"24;16;8",2,24,LOCAL_ANCHOR_ONLY,UNANCHORED_GLOBAL,"Lower row component. Internally determined by DOC hard constraints; no validated global anchor yet."

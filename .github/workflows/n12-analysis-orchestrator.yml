@@ -1,0 +1,258 @@
+name: N12 Structural Analysis Orchestrator
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - 'automation/**'
+      - 'knowledge/**'
+      - 'data/canonical/**'
+      - 'docs/N12_AUTOMATED_ANALYSIS_CYCLE_v1.md'
+      - 'scripts/n12_orchestrator.py'
+      - 'scripts/n12_make_agent_task.py'
+      - 'scripts/n12_ingest_agent_result.py'
+      - 'scripts/n12_generate_m0g_3d_nodes.py'
+      - 'scripts/n12_generate_m0g_rigid_links.py'
+      - 'scripts/n12_generate_m0g_member_connectivity.py'
+      - 'scripts/n12_generate_m0g_global_topology_gate.py'
+      - 'scripts/render_storey_sources.sh'
+      - 'skills/**'
+      - '.github/workflows/n12-analysis-orchestrator.yml'
+
+concurrency:
+  group: n12-structural-analysis-cycle
+  cancel-in-progress: false
+
+jobs:
+  cycle:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout canonical working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install immutable-source renderer
+        run: sudo apt-get update -qq && sudo apt-get install -y poppler-utils
+
+      - name: Render upper-storey primary sources
+        run: bash scripts/render_storey_sources.sh
+
+      - name: Generate M0G 3D analytical-node candidate when selected
+        id: m0g_nodes
+        shell: bash
+        run: |
+          if python - <<'PY'
+          import json
+          from pathlib import Path
+          q = json.loads(Path('automation/N12_WORK_QUEUE_v1.json').read_text(encoding='utf-8'))
+          item = next((x for x in q.get('items', []) if x.get('id') == 'M0G-BUILD-3D-ANALYTICAL-NODES'), None)
+          raise SystemExit(0 if item and item.get('state') in {'READY', 'IN_PROGRESS', 'CANDIDATE'} else 1)
+          PY
+          then
+            python scripts/n12_generate_m0g_3d_nodes.py
+            echo 'generated=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'M0G-BUILD-3D-ANALYTICAL-NODES is not the active candidate-generation state.'
+            echo 'generated=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Persist deterministic M0G node candidate
+        if: steps.m0g_nodes.outputs.generated == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-analysis-orchestrator[bot]'
+          git config user.email 'n12-analysis-orchestrator[bot]@users.noreply.github.com'
+          git add data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv
+          git add analysis/automation/M0G_BUILD_3D_ANALYTICAL_NODES_AUDIT_v1.csv
+          if git diff --cached --quiet; then
+            echo 'M0G analytical-node candidate already deterministic and unchanged.'
+          else
+            git commit -m 'automation: generate M0G 3D analytical node candidate'
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Generate M0G rigid-joint links when selected
+        id: m0g_rigid_links
+        shell: bash
+        run: |
+          if python - <<'PY'
+          import json
+          from pathlib import Path
+          q = json.loads(Path('automation/N12_WORK_QUEUE_v1.json').read_text(encoding='utf-8'))
+          item = next((x for x in q.get('items', []) if x.get('id') == 'M0G-BUILD-RIGID-JOINT-LINKS'), None)
+          raise SystemExit(0 if item and item.get('state') in {'READY', 'IN_PROGRESS', 'CANDIDATE'} else 1)
+          PY
+          then
+            python scripts/n12_generate_m0g_rigid_links.py
+            echo 'generated=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'M0G-BUILD-RIGID-JOINT-LINKS is not the active candidate-generation state.'
+            echo 'generated=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Persist deterministic M0G rigid-link candidate
+        if: steps.m0g_rigid_links.outputs.generated == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-analysis-orchestrator[bot]'
+          git config user.email 'n12-analysis-orchestrator[bot]@users.noreply.github.com'
+          git add data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv
+          git add analysis/automation/M0G_BUILD_RIGID_JOINT_LINKS_AUDIT_v1.csv
+          if git diff --cached --quiet; then
+            echo 'M0G rigid-link candidate already deterministic and unchanged.'
+          else
+            git commit -m 'automation: generate M0G rigid joint link candidate'
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Generate M0G member connectivity when selected
+        id: m0g_member_connectivity
+        shell: bash
+        run: |
+          if python - <<'PY'
+          import json
+          from pathlib import Path
+          q = json.loads(Path('automation/N12_WORK_QUEUE_v1.json').read_text(encoding='utf-8'))
+          item = next((x for x in q.get('items', []) if x.get('id') == 'M0G-ASSEMBLE-MEMBER-CONNECTIVITY'), None)
+          raise SystemExit(0 if item and item.get('state') in {'READY', 'IN_PROGRESS', 'CANDIDATE'} else 1)
+          PY
+          then
+            python scripts/n12_generate_m0g_member_connectivity.py
+            echo 'generated=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'M0G-ASSEMBLE-MEMBER-CONNECTIVITY is not the active candidate-generation state.'
+            echo 'generated=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Persist deterministic M0G member-connectivity candidate
+        if: steps.m0g_member_connectivity.outputs.generated == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-analysis-orchestrator[bot]'
+          git config user.email 'n12-analysis-orchestrator[bot]@users.noreply.github.com'
+          git add data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv
+          git add analysis/automation/M0G_ASSEMBLE_MEMBER_CONNECTIVITY_AUDIT_v1.csv
+          if git diff --cached --quiet; then
+            echo 'M0G member-connectivity candidate already deterministic and unchanged.'
+          else
+            git commit -m 'automation: generate M0G global member connectivity candidate'
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Generate M0G global topology gate when selected
+        id: m0g_global_topology
+        shell: bash
+        run: |
+          if python - <<'PY'
+          import json
+          from pathlib import Path
+          q = json.loads(Path('automation/N12_WORK_QUEUE_v1.json').read_text(encoding='utf-8'))
+          item = next((x for x in q.get('items', []) if x.get('id') == 'M0G-GLOBAL-TOPOLOGY-GATE'), None)
+          raise SystemExit(0 if item and item.get('state') in {'READY', 'IN_PROGRESS', 'CANDIDATE'} else 1)
+          PY
+          then
+            python scripts/n12_generate_m0g_global_topology_gate.py
+            echo 'generated=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'M0G-GLOBAL-TOPOLOGY-GATE is not the active candidate-generation state.'
+            echo 'generated=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Persist deterministic M0G global-topology gate candidate
+        if: steps.m0g_global_topology.outputs.generated == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-analysis-orchestrator[bot]'
+          git config user.email 'n12-analysis-orchestrator[bot]@users.noreply.github.com'
+          git add data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv
+          git add analysis/automation/M0G_GLOBAL_TOPOLOGY_GATE_AUDIT_v1.csv
+          if git diff --cached --quiet; then
+            echo 'M0G global-topology gate candidate already deterministic and unchanged.'
+          else
+            git commit -m 'automation: generate M0G global topology gate candidate'
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Validate knowledge system before ingestion
+        run: python scripts/validate_knowledge_system.py
+
+      - name: Validate cyclic automation contract
+        run: python scripts/n12_orchestrator.py validate
+
+      - name: Validate pending specialist result if present
+        run: python scripts/n12_ingest_agent_result.py validate
+
+      - name: Ingest exactly one pending specialist result if present
+        id: ingest
+        shell: bash
+        run: |
+          if [ -f automation/inbox/N12_AGENT_RESULT.json ]; then
+            python scripts/n12_ingest_agent_result.py apply
+            echo 'ingested=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'No specialist result in inbox.'
+            echo 'ingested=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Revalidate after semantic result ingestion
+        if: steps.ingest.outputs.ingested == 'true'
+        run: |
+          python scripts/validate_knowledge_system.py
+          python scripts/n12_orchestrator.py validate
+
+      - name: Persist deterministic queue/state advancement
+        if: steps.ingest.outputs.ingested == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-analysis-orchestrator[bot]'
+          git config user.email 'n12-analysis-orchestrator[bot]@users.noreply.github.com'
+          git add automation/N12_WORK_QUEUE_v1.json knowledge/CURRENT_STATE.json
+          git add -A automation/receipts || true
+          git add -A automation/inbox || true
+          if git diff --cached --quiet; then
+            echo 'No state advancement to commit.'
+          else
+            git commit -m 'automation: ingest specialist result and advance cycle'
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Run deterministic cycle gates
+        run: python scripts/n12_orchestrator.py run --output analysis/automation/N12_CYCLE_REPORT.json
+
+      - name: Build single-item specialist agent task packet
+        run: python scripts/n12_make_agent_task.py > /tmp/n12-agent-task.txt
+
+      - name: Print next eligible work item
+        run: python scripts/n12_orchestrator.py status
+
+      - name: Upload cycle evidence and agent task
+        uses: actions/upload-artifact@v4
+        with:
+          name: n12-analysis-cycle-report
+          path: |
+            analysis/automation/N12_CYCLE_REPORT.json
+            analysis/automation/N12_AGENT_TASK_PACKET.json
+            analysis/storey_source_renders/
+            /tmp/n12-agent-task.txt
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Automation boundary
+        run: |
+          echo 'Deterministic cycle completed.'
+          echo 'At most one contract-valid specialist result can be ingested per run.'
+          echo 'A machine-readable specialist task packet has been emitted for the next eligible item.'
+          echo 'Canonical evidence is never manufactured by the workflow: deterministic generators may create reviewable derived candidates, while result ingestion advances state only after artifact authority, provenance and validators already pass.'
