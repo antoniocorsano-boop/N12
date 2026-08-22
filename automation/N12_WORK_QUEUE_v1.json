@@ -152,7 +152,7 @@
     {
       "id": "BEAM-G4-TAV05S",
       "priority": 70,
-      "state": "READY",
+      "state": "COMPLETE",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-05S",
       "task": "Reconstruct IV impalcato beam topology independently from TAV-05S.",
@@ -169,12 +169,15 @@
       ],
       "semantic_gate": "Reduced footprint and terrace/roof transitions must be read from source, not inferred from lower storeys.",
       "released_at": "2026-08-22T11:45:21.186548+00:00",
-      "released_by": "BEAM-G3-TAV04S"
+      "released_by": "BEAM-G3-TAV04S",
+      "completed_at": "2026-08-22T11:50:27.410951+00:00",
+      "completion_decision": "PASS",
+      "result_receipt": "automation/receipts/BEAM-G4-TAV05S_20260822T115027Z.json"
     },
     {
       "id": "BEAM-G5-TAV06S",
       "priority": 80,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-06S",
       "task": "Reconstruct roof beam/ridge/eaves topology including documented colmo and gronda members from TAV-06S.",
@@ -189,7 +192,9 @@
       "target_outputs": [
         "data/canonical/STOREY_BEAMS_G5_v1.csv"
       ],
-      "semantic_gate": "Ridge/eaves members and reduced roof footprint must be explicit; no rectangularized substitute topology."
+      "semantic_gate": "Ridge/eaves members and reduced roof footprint must be explicit; no rectangularized substitute topology.",
+      "released_at": "2026-08-22T11:50:27.410951+00:00",
+      "released_by": "BEAM-G4-TAV05S"
     },
     {
       "id": "ASSEMBLE-VERTICAL-COLUMNS",

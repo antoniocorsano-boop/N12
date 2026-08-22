@@ -29,15 +29,15 @@
     "agent_result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
     "agent_result_ingestor": "scripts/n12_ingest_agent_result.py",
     "agent_result_inbox": "automation/inbox/N12_AGENT_RESULT.json",
-    "current_work_item": "BEAM-G4-TAV05S",
+    "current_work_item": "BEAM-G5-TAV06S",
     "deterministic_cycle": "ACTIVE_ON_BRANCH_PUSH_AND_WORKFLOW_DISPATCH_AND_6H_SCHEDULE",
     "semantic_executor": "SCHEDULED_PROJECT_AGENT_CONFIGURED_AWAITING_FIRST_RECEIPT",
     "semantic_executor_schedule": "EVERY_6_HOURS",
     "semantic_boundary": "ONE_WORK_ITEM_PER_CYCLE_WITH_CONTRACT_VALID_RESULT_HANDSHAKE",
     "first_semantic_receipt_status": "PENDING",
-    "last_result_receipt": "automation/receipts/BEAM-G3-TAV04S_20260822T114521Z.json",
+    "last_result_receipt": "automation/receipts/BEAM-G4-TAV05S_20260822T115027Z.json",
     "last_result_decision": "PASS",
-    "last_result_at": "2026-08-22T11:45:21.186548+00:00",
+    "last_result_at": "2026-08-22T11:50:27.410951+00:00",
     "last_cycle_outcome": "PASS_ADVANCE"
   },
   "completed_subphases": [
@@ -252,8 +252,8 @@
   ],
   "next_action": {
     "phase": "PER-STOREY-SECTIONS-AND-BEAM-TOPOLOGY",
-    "work_item": "BEAM-G4-TAV05S",
-    "task": "Reconstruct IV impalcato beam topology independently from TAV-05S.",
+    "work_item": "BEAM-G5-TAV06S",
+    "task": "Reconstruct roof beam/ridge/eaves topology including documented colmo and gronda members from TAV-06S.",
     "orchestrator": "scripts/n12_orchestrator.py",
     "queue": "automation/N12_WORK_QUEUE_v1.json",
     "result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
@@ -262,7 +262,7 @@
     "xy_registration": "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
     "vertical_lines": "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv",
     "target_outputs": [
-      "data/canonical/STOREY_BEAMS_G4_v1.csv"
+      "data/canonical/STOREY_BEAMS_G5_v1.csv"
     ],
     "forbidden_inputs": [
       "blind extrusion of PT supports",
