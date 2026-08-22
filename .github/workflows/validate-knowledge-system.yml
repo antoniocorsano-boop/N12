@@ -105,6 +105,9 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Recover roof-special nonblocking candidate when applicable
+        run: python scripts/n12_finalize_roof_special_3d.py
+
       - name: Validate pending specialist result
         shell: bash
         run: |
@@ -138,9 +141,12 @@ jobs:
           git add automation/N12_WORK_QUEUE_v1.json knowledge/CURRENT_STATE.json
           git add -A automation/receipts || true
           git add -A automation/inbox || true
+          git add data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv || true
+          git add analysis/automation/M0G_RESOLVE_ROOF_SPECIAL_3D_AUDIT_v1.csv || true
+          git add knowledge/ARTIFACT_REGISTRY_AUTOMATION_PATCH_v1.csv || true
           if git diff --cached --quiet; then
             echo 'No state advancement to commit.'
           else
-            git commit -m 'automation: ingest specialist result and advance cycle'
+            git commit -m 'automation: finalize roof-special 3D and advance cycle'
             git push origin HEAD:work/m0-global-model
           fi
