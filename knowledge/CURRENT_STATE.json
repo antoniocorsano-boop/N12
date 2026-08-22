@@ -1,13 +1,12 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-08-21",
-  "gate": "M0-G/PT-MASTER-CURRENT",
-  "status": "COMPLETE_WITH_PROVENANCE_WATCHES",
-  "objective": "Mantenere come geometria PT corrente il Master rigenerato da TAV-02S attraverso G1-G9 e usare il relativo handoff canonico per l'integrazione verticale del modello strutturale.",
+  "updated_at": "2026-08-22",
+  "gate": "M0-G/STOREY-CONTINUITY-REGISTERED",
+  "status": "IN_PROGRESS_WITH_VALIDATED_VERTICAL_IDENTITY",
+  "objective": "Integrare il PT canonico nel modello verticale usando soltanto continuità e quote sostenute dalle tavole originali, senza estrusione automatica della topologia PT.",
   "authoritative_method": "skills/pt-raster-grid-reconstructor/SKILL.md",
   "semantic_method": "skills/pt-carpentry-reader/SKILL.md",
-  "primary_source": "TAV-02S native raster/PDF",
-  "source_size_px": [4680, 8609],
+  "primary_sources": ["TAV-02S","TAV-03S","TAV-04S","TAV-05S","TAV-05E","TAV-06S","TAV-06E"],
   "geometry_master_status": "CURRENT",
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
   "artifact_registry_patch": "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
@@ -22,22 +21,24 @@
     {"phase":"G7/ANALYTICAL-BEAM-FACE-NODES","status":"COMPLETE_PASS_WITH_WATCHES","artifact":"data/canonical/PT_ANALYTICAL_NODES_v1.csv","audit":"data/canonical/PT_ANALYTICAL_NODES_AUDIT_v1.csv","node_count":98,"watch_node_count":32,"extended_support_nodes":{"P18":2,"P23":2,"P30":3},"centroid_substitution_count":0},
     {"phase":"G9/FINAL-OVERLAY-QA","status":"PASS_WITH_PROVENANCE_WATCHES","artifact":"data/canonical/PT_OVERLAY_QA_v1.csv","support_count":38,"beam_count":49,"node_count":98,"topology_reject_count":0},
     {"phase":"MASTER-REGENERATION","status":"COMPLETE_CURRENT","master":"data/canonical/PT_MASTER_CURRENT.csv","audit":"data/canonical/PT_MASTER_REGENERATION_AUDIT_v1.csv","historical_snapshot":"data/canonical/PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv","support_rows":38,"linked_analytical_nodes":98,"effective_beam_members":49,"changed_or_completed_support_coordinates":25,"unchanged_support_coordinates":13,"topology_reject_count":0,"authority_override":"knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv"},
-    {"phase":"PT-GEOMETRY-HANDOFF","status":"CURRENT","artifact":"data/canonical/PT_GEOMETRY_HANDOFF_v1.json","rule":"Downstream consumers use current Master + physical support vectors + beam-face analytical nodes; no centroid collapse and no provenance loss."}
+    {"phase":"PT-GEOMETRY-HANDOFF","status":"CURRENT","artifact":"data/canonical/PT_GEOMETRY_HANDOFF_v1.json","rule":"Downstream consumers use current Master + physical support vectors + beam-face analytical nodes; no centroid collapse and no provenance loss."},
+    {"phase":"UPPER-SOURCE-RENDER","status":"COMPLETE","sources":["TAV-03S","TAV-04S","TAV-05S","TAV-05E","TAV-06S","TAV-06E"],"method":"GitHub Actions render from archive/originali-alta-risoluzione at 300 dpi","rule":"Render is non-authoritative visualization of immutable primary source."},
+    {"phase":"VERTICAL-DIMENSION-READING","status":"CURRENT","artifact":"data/canonical/STOREY_VERTICAL_DIMENSIONS_TAV06E_v1.csv","ordinary_clear_height_m":3.0,"ordinary_slab_depth_m":0.2,"ordinary_interlevel_module_m":3.2,"lower_cumulative_written_m":9.4,"upper_module_written_m":2.2,"absolute_z_registered":false},
+    {"phase":"PT-TO-G4-SUPPORT-CONTINUITY","status":"CROSS_VALIDATED","artifact":"data/canonical/STOREY_SUPPORT_CONTINUITY_PT_G4_v1.json","pt_support_count":38,"original_ids_continuing_to_g4":34,"terrace_added_terminating_after_g1":["a","b","c","d"],"xy_registered_between_sheets":false},
+    {"phase":"G4-TO-G5-ROOF-CONTINUITY","status":"DIRECT_REGISTERED","artifact":"data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json","g4_original_support_count":34,"roof_present_count":25,"roof_absent_count":9,"roof_absent_ids":["1","8","9","16","17","24","31","32","33"],"xy_z_registered":false}
   ],
   "next_action": {
-    "phase": "STOREY-CONTINUITY-MAP",
-    "task": "Build the vertical support/storey continuity map starting from PT_GEOMETRY_HANDOFF_v1.json. Read canonical storey heights and upper-storey carpenteries before any extrusion. Classify each PT support as CONTINUES, CHANGES_SECTION, TERMINATES, LATER_ADDITION or NEEDS_SOURCE_CHECK at each level. Preserve a-b-c-d as terrace additions absent from the original historical calculation model, and treat attic/roof/torrino topology as source-specific rather than copied from PT.",
+    "phase": "COMMON-STOREY-REGISTRATION",
+    "task": "Register TAV-03S, TAV-04S, TAV-05S and TAV-06S to the common PT project coordinate system using shared numbered support identities and written dimensions, then assign storey Z levels using TAV-06E dimensions. Do not alter PT_MASTER_CURRENT. Produce per-storey support coordinates/sections with explicit DOC/MIS/WATCH provenance and a single vertical support-line crosswalk.",
     "pt_handoff": "data/canonical/PT_GEOMETRY_HANDOFF_v1.json",
     "pt_master": "data/canonical/PT_MASTER_CURRENT.csv",
-    "support_vectors": "data/canonical/PT_VECTOR_SUPPORTS_v1.csv",
-    "analytical_nodes": "data/canonical/PT_ANALYTICAL_NODES_v1.csv",
-    "beam_vectors": "data/canonical/PT_VECTOR_BEAMS_v2.csv",
-    "beam_patch": "data/canonical/PT_VECTOR_BEAMS_G6_PATCH_v1.csv",
-    "required_first_reads": ["data/canonical/storey_height_status.csv","upper-storey carpenteria/topology artifacts already present in the repository"],
-    "target_outputs": ["data/canonical/STOREY_SUPPORT_CONTINUITY_v1.csv","data/canonical/STOREY_LEVELS_CURRENT_v1.csv"],
-    "forbidden_inputs": ["blind extrusion of all 38 PT supports","PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv as current geometry","collapsing P18/P23/P30 face nodes to centroids","dropping MIS/WATCH provenance","assuming terrace a-b-c-d belong to the original historical calculation model"]
+    "vertical_dimensions": "data/canonical/STOREY_VERTICAL_DIMENSIONS_TAV06E_v1.csv",
+    "continuity_pt_g4": "data/canonical/STOREY_SUPPORT_CONTINUITY_PT_G4_v1.json",
+    "continuity_g4_g5": "data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json",
+    "target_outputs": ["data/canonical/STOREY_LEVELS_CURRENT_v1.csv","data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv","data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv"],
+    "forbidden_inputs": ["blind extrusion of all 38 PT supports","copying PT X/Y to upper sheets without registration","assigning absolute Z solely from the previous RIF 3.20 value","propagating a-b-c-d above G1","propagating 1-8-9-16-17-24-31-32-33 to roof despite TAV-06S absence","PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv as current geometry","collapsing P18/P23/P30 face nodes to centroids","dropping MIS/WATCH provenance"]
   },
-  "non_blocking_provenance_watches": ["P19 metric center/face nodes","P25 raster residual","d raster residual","P12 MIS Y and dependent nodes","P18/P23/P30 MIS-supported center components","P22-prime/P27 MIS-supported row"],
-  "anti_restart_rule": "PT G1-G9, Master regeneration and PT handoff are stable checkpoints. Reopen only conflicting individual claims or artifacts supported by direct primary-source evidence.",
-  "completion_condition": "PT geometry reconstruction is complete. The next model phase must establish source-backed vertical/storey continuity without cloning PT topology into upper levels by assumption."
+  "non_blocking_provenance_watches": ["P19 metric center/face nodes","P25 raster residual","d raster residual at PT only","P12 MIS Y and dependent nodes","P18/P23/P30 MIS-supported center components","P22-prime/P27 MIS-supported row","TAV-06E cumulative-chain endpoint registration before absolute Z assignment"],
+  "anti_restart_rule": "PT G1-G9, Master regeneration, PT handoff and support-identity continuity through roof are stable checkpoints. Reopen only conflicting individual claims or artifacts supported by direct primary-source evidence.",
+  "completion_condition": "Vertical identity topology is registered. The next model phase is metric XY/Z registration of each storey, followed by beam/topology transfer per individual carpenteria rather than copied PT topology."
 }
