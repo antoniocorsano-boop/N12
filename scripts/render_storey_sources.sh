@@ -40,5 +40,6 @@ render_one "TAV05S" "archive/documentazione_originaria/tavola 5.pdf" "carpenteri
 render_one "TAV05E" "archive/documentazione_originaria/tavola5-2.pdf" "prospetto_elevazione" "sviluppo_verticale"
 render_one "TAV06S" "archive/documentazione_originaria/tavola 6-1.pdf" "carpenteria_copertura" "G5_copertura"
 render_one "TAV06E" "archive/documentazione_originaria/tavola6-2.pdf" "sezione_elevazione" "sviluppo_verticale"
+render_one "TAV07A" "archive/documentazione_originaria/tavola7.pdf" "abaco_dettagli_pilastri" "pilastri_particolari"
 
 printf 'archive_branch,%s\narchive_commit,%s\nrender_policy,immutable_source_to_300dpi_jpeg_no_interpretation\n' "$ARCHIVE_BRANCH" "$ARCHIVE_COMMIT" > "$OUT/run_metadata.txt"
