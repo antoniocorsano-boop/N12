@@ -10,6 +10,10 @@
   "state_file": "knowledge/CURRENT_STATE.json",
   "artifact_registry": "knowledge/ARTIFACT_REGISTRY.csv",
   "artifact_registry_patch": "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
+  "artifact_registry_patches": [
+    "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_AUTOMATION_PATCH_v1.csv"
+  ],
   "human_master_register": "docs/REGISTRO_MASTER.md",
   "revalidation_ledger": "data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv",
   "evidence_states": ["DOC","MIS","RIF","INF","INC","ND"],
@@ -21,7 +25,18 @@
     {"id":"pt-carpentry-reader","path":"skills/pt-carpentry-reader/SKILL.md","runner":"skills/pt-carpentry-reader/runner.py","role":"semantic reading and claim revalidation of structural carpenterie"},
     {"id":"pt-raster-grid-reconstructor","path":"skills/pt-raster-grid-reconstructor/SKILL.md","runner":"skills/pt-raster-grid-reconstructor/runner.py","role":"independent raster support registration, metric network, inter-sheet registration and analytical nodalization"}
   ],
-  "active_procedures": ["docs/PROTOCOLLO_CANONICO.md","docs/PROCEDURES/CANONICAL_DATASET_ITERATIVE_REVALIDATION_v1.md","docs/PT_RASTER_RECONSTRUCTION_PROTOCOL_v1.md","docs/PT_G1_PIXEL_ACCEPTANCE_POLICY_v1.md","docs/PT_G2_MIS_COMPLETION_POLICY_v1.md"],
+  "active_procedures": ["docs/PROTOCOLLO_CANONICO.md","docs/PROCEDURES/CANONICAL_DATASET_ITERATIVE_REVALIDATION_v1.md","docs/PT_RASTER_RECONSTRUCTION_PROTOCOL_v1.md","docs/PT_G1_PIXEL_ACCEPTANCE_POLICY_v1.md","docs/PT_G2_MIS_COMPLETION_POLICY_v1.md","docs/N12_AUTOMATED_ANALYSIS_CYCLE_v1.md"],
+  "automation": {
+    "enabled": true,
+    "contract": "automation/N12_AUTOMATION_CONTRACT_v1.json",
+    "queue": "automation/N12_WORK_QUEUE_v1.json",
+    "runner": "scripts/n12_orchestrator.py",
+    "procedure": "docs/N12_AUTOMATED_ANALYSIS_CYCLE_v1.md",
+    "workflow": ".github/workflows/n12-analysis-orchestrator.yml",
+    "deterministic_execution": "ON_PUSH_AND_WORKFLOW_DISPATCH; scheduled cron becomes active when workflow is present on repository default branch",
+    "semantic_executor": "NOT_YET_CONNECTED",
+    "no_executor_behavior": "STOP_AT_READY_FOR_AGENT_WITHOUT_WEAKENING_SEMANTIC_GATES"
+  },
   "pt_geometry": {
     "primary_raster_manifest": "analysis/source_renders/TAV02S/manifest.txt",
     "pixel_gate": "data/canonical/PT_PIXEL_REGISTRATION_GATE_v1.csv",
@@ -72,5 +87,5 @@
     "section_transfer_rule": "DO_NOT_COPY_PT_SECTION_UPWARD; read support sections and orientation independently on each carpenteria or TAV-07A",
     "beam_transfer_rule": "DO_NOT_COPY_PT_BEAM_TOPOLOGY_UPWARD; reconstruct each storey from its own carpenteria"
   },
-  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology and residual acceptance remain specialist gates"}
+  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology and residual acceptance remain specialist gates"}
 }
