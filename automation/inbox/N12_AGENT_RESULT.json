@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "work_item_id": "SEC-G4-TAV05S",
+  "source_sheet": "TAV-05S",
+  "decision": "PASS",
+  "semantic_gate": "PASS",
+  "target_outputs": [
+    "data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv"
+  ],
+  "provenance_summary": {
+    "DOC": 34,
+    "MIS": 0,
+    "RIF": 0,
+    "INF": 0,
+    "INC": 0,
+    "ND": 0
+  },
+  "residuals": [],
+  "audit_paths": [
+    "analysis/automation/SEC_G4_TAV05S_SEMANTIC_AUDIT_v1.csv"
+  ]
+}
