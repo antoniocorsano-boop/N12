@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
   "updated_at": "2026-08-22",
-  "gate": "M0-G/STOREY-CONTINUITY-REGISTERED",
-  "status": "IN_PROGRESS_WITH_VALIDATED_VERTICAL_IDENTITY",
-  "objective": "Integrare il PT canonico nel modello verticale usando soltanto continuità e quote sostenute dalle tavole originali, senza estrusione automatica della topologia PT.",
+  "gate": "M0-G/COMMON-STOREY-REGISTRATION",
+  "status": "IN_PROGRESS_WITH_COMMON_XY_Z_REGISTRATION",
+  "objective": "Integrare il PT canonico nel modello verticale usando soltanto continuità, registrazioni inter-tavola e quote sostenute dalle tavole originali, senza estrusione automatica di topologia, sezioni o travi.",
   "authoritative_method": "skills/pt-raster-grid-reconstructor/SKILL.md",
   "semantic_method": "skills/pt-carpentry-reader/SKILL.md",
   "primary_sources": ["TAV-02S","TAV-03S","TAV-04S","TAV-05S","TAV-05E","TAV-06S","TAV-06E"],
@@ -11,6 +11,7 @@
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
   "artifact_registry_patch": "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
   "historical_master_snapshot": "data/canonical/PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv",
+  "blocking_gate": "data/canonical/STOREY_COMMON_REGISTRATION_GATE_v1.csv",
   "completed_subphases": [
     {"phase":"G1/PIXEL-SUPPORT-REGISTRY","status":"COMPLETE_STABLE","artifact":"data/canonical/PT_PIXEL_SUPPORT_REGISTRY_v1.csv","support_count":38},
     {"phase":"G2/METRIC-NETWORK","status":"COMPLETE_WITH_PROVENANCE","working_solution":"data/canonical/PT_G2_SUPPORT_COORDINATES_WORKING_v1.csv","numeric_center_count":38,"historical_master_xy_used":false},
@@ -23,22 +24,25 @@
     {"phase":"MASTER-REGENERATION","status":"COMPLETE_CURRENT","master":"data/canonical/PT_MASTER_CURRENT.csv","audit":"data/canonical/PT_MASTER_REGENERATION_AUDIT_v1.csv","historical_snapshot":"data/canonical/PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv","support_rows":38,"linked_analytical_nodes":98,"effective_beam_members":49,"changed_or_completed_support_coordinates":25,"unchanged_support_coordinates":13,"topology_reject_count":0,"authority_override":"knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv"},
     {"phase":"PT-GEOMETRY-HANDOFF","status":"CURRENT","artifact":"data/canonical/PT_GEOMETRY_HANDOFF_v1.json","rule":"Downstream consumers use current Master + physical support vectors + beam-face analytical nodes; no centroid collapse and no provenance loss."},
     {"phase":"UPPER-SOURCE-RENDER","status":"COMPLETE","sources":["TAV-03S","TAV-04S","TAV-05S","TAV-05E","TAV-06S","TAV-06E"],"method":"GitHub Actions render from archive/originali-alta-risoluzione at 300 dpi","rule":"Render is non-authoritative visualization of immutable primary source."},
-    {"phase":"VERTICAL-DIMENSION-READING","status":"CURRENT","artifact":"data/canonical/STOREY_VERTICAL_DIMENSIONS_TAV06E_v1.csv","ordinary_clear_height_m":3.0,"ordinary_slab_depth_m":0.2,"ordinary_interlevel_module_m":3.2,"lower_cumulative_written_m":9.4,"upper_module_written_m":2.2,"absolute_z_registered":false},
-    {"phase":"PT-TO-G4-SUPPORT-CONTINUITY","status":"CROSS_VALIDATED","artifact":"data/canonical/STOREY_SUPPORT_CONTINUITY_PT_G4_v1.json","pt_support_count":38,"original_ids_continuing_to_g4":34,"terrace_added_terminating_after_g1":["a","b","c","d"],"xy_registered_between_sheets":false},
-    {"phase":"G4-TO-G5-ROOF-CONTINUITY","status":"DIRECT_REGISTERED","artifact":"data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json","g4_original_support_count":34,"roof_present_count":25,"roof_absent_count":9,"roof_absent_ids":["1","8","9","16","17","24","31","32","33"],"xy_z_registered":false}
+    {"phase":"VERTICAL-DIMENSION-READING","status":"CURRENT","artifact":"data/canonical/STOREY_VERTICAL_DIMENSIONS_TAV06E_v1.csv","ordinary_clear_height_m":3.0,"ordinary_slab_depth_m":0.2,"ordinary_interlevel_module_m":3.2,"lower_cumulative_written_m":9.4,"upper_module_written_m":2.2},
+    {"phase":"PT-TO-G4-SUPPORT-CONTINUITY","status":"CROSS_VALIDATED","artifact":"data/canonical/STOREY_SUPPORT_CONTINUITY_PT_G4_v1.json","pt_support_count":38,"original_ids_continuing_to_g4":34,"terrace_added_terminating_after_g1":["a","b","c","d"]},
+    {"phase":"G4-TO-G5-ROOF-CONTINUITY","status":"DIRECT_REGISTERED","artifact":"data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json","g4_original_support_count":34,"roof_present_count":25,"roof_absent_count":9,"roof_absent_ids":["1","8","9","16","17","24","31","32","33"]},
+    {"phase":"STOREY-Z-REGISTRATION","status":"CURRENT_RELATIVE_Z","artifact":"data/canonical/STOREY_LEVELS_CURRENT_v1.csv","datum":"G1=0.00_RELATIVE","levels_m":{"G1":0.0,"G2":3.2,"G3":6.4,"G4":9.6,"G5":11.8},"absolute_project_z_registered":false},
+    {"phase":"STOREY-XY-REGISTRATION","status":"CROSS_VALIDATED_WITH_MIS","artifact":"data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv","common_frame":"PT_MASTER_CURRENT","sheets":["TAV-03S","TAV-04S","TAV-05S","TAV-06S"],"method":"SIFT_RANSAC_AFFINE_PLUS_NUMBERED_SUPPORT_ANCHORS","rule":"Registration cannot override explicit dimensions or identities."},
+    {"phase":"VERTICAL-SUPPORT-LINES","status":"CURRENT","artifact":"data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv","line_count":38,"g5_line_count":25,"g4_only_original_line_count":9,"g1_only_terrace_line_count":4,"section_continuity_assumed":false},
+    {"phase":"COMMON-STOREY-REGISTRATION-GATE","status":"PASS_WITH_PROVENANCE_WATCHES","artifact":"data/canonical/STOREY_COMMON_REGISTRATION_GATE_v1.csv"}
   ],
   "next_action": {
-    "phase": "COMMON-STOREY-REGISTRATION",
-    "task": "Register TAV-03S, TAV-04S, TAV-05S and TAV-06S to the common PT project coordinate system using shared numbered support identities and written dimensions, then assign storey Z levels using TAV-06E dimensions. Do not alter PT_MASTER_CURRENT. Produce per-storey support coordinates/sections with explicit DOC/MIS/WATCH provenance and a single vertical support-line crosswalk.",
-    "pt_handoff": "data/canonical/PT_GEOMETRY_HANDOFF_v1.json",
+    "phase": "PER-STOREY-SECTIONS-AND-BEAM-TOPOLOGY",
+    "task": "Read support sections/orientations and beam topology independently on TAV-03S, TAV-04S, TAV-05S and TAV-06S using the common XY/Z registration only as a coordinate frame. Do not copy PT sections or PT beam members upward. Produce per-storey support-section tables and per-storey beam-claim/vector ledgers with DOC/MIS/WATCH provenance, then assemble 3D column segments only where adjacent-plane identity continuity and section endpoints are both registered.",
     "pt_master": "data/canonical/PT_MASTER_CURRENT.csv",
-    "vertical_dimensions": "data/canonical/STOREY_VERTICAL_DIMENSIONS_TAV06E_v1.csv",
-    "continuity_pt_g4": "data/canonical/STOREY_SUPPORT_CONTINUITY_PT_G4_v1.json",
-    "continuity_g4_g5": "data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json",
-    "target_outputs": ["data/canonical/STOREY_LEVELS_CURRENT_v1.csv","data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv","data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv"],
-    "forbidden_inputs": ["blind extrusion of all 38 PT supports","copying PT X/Y to upper sheets without registration","assigning absolute Z solely from the previous RIF 3.20 value","propagating a-b-c-d above G1","propagating 1-8-9-16-17-24-31-32-33 to roof despite TAV-06S absence","PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv as current geometry","collapsing P18/P23/P30 face nodes to centroids","dropping MIS/WATCH provenance"]
+    "storey_levels": "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
+    "xy_registration": "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
+    "vertical_lines": "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv",
+    "target_outputs": ["data/canonical/STOREY_SUPPORT_SECTIONS_CURRENT_v1.csv","data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv","data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv"],
+    "forbidden_inputs": ["blind extrusion of PT supports","copying PT sections upward","copying PT beam topology upward","propagating a-b-c-d above G1","propagating 1-8-9-16-17-24-31-32-33 to G5","using historical PT Master as current geometry","collapsing extended-support face nodes","dropping MIS/WATCH provenance"]
   },
-  "non_blocking_provenance_watches": ["P19 metric center/face nodes","P25 raster residual","d raster residual at PT only","P12 MIS Y and dependent nodes","P18/P23/P30 MIS-supported center components","P22-prime/P27 MIS-supported row","TAV-06E cumulative-chain endpoint registration before absolute Z assignment"],
-  "anti_restart_rule": "PT G1-G9, Master regeneration, PT handoff and support-identity continuity through roof are stable checkpoints. Reopen only conflicting individual claims or artifacts supported by direct primary-source evidence.",
-  "completion_condition": "Vertical identity topology is registered. The next model phase is metric XY/Z registration of each storey, followed by beam/topology transfer per individual carpenteria rather than copied PT topology."
+  "non_blocking_provenance_watches": ["P19 metric center/face nodes","P25 raster residual","d raster residual at PT only","P12 MIS Y and dependent nodes","P18/P23/P30 MIS-supported center components","P22-prime/P27 MIS-supported row","upper-sheet XY transforms are MIS-supported while identities are DOC","G1 datum is relative; absolute project/geodetic Z remains ND"],
+  "anti_restart_rule": "PT G1-G9, Master regeneration, PT handoff, vertical identity continuity and common storey XY/Z registration are stable checkpoints. Reopen only conflicting individual claims supported by direct primary-source evidence.",
+  "completion_condition": "Common storey coordinate registration is complete with explicit provenance. Remaining work is per-storey sections and beam topology, followed by vertical member assembly."
 }
