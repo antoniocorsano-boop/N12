@@ -15,15 +15,37 @@ def read_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def read_registry():
-    with REGISTRY.open("r", encoding="utf-8-sig", newline="") as f:
+def read_registry(path: Path):
+    with path.open("r", encoding="utf-8-sig", newline="") as f:
         return list(csv.DictReader(f))
+
+
+def registry_patch_rels(manifest: dict) -> list[str]:
+    rels: list[str] = []
+    legacy = manifest.get("artifact_registry_patch")
+    if legacy:
+        rels.append(legacy)
+    for rel in manifest.get("artifact_registry_patches", []) or []:
+        if rel and rel not in rels:
+            rels.append(rel)
+    return rels
+
+
+def effective_registry(manifest: dict) -> list[dict[str, str]]:
+    by_path = {r.get("path", "").strip(): r for r in read_registry(REGISTRY)}
+    for rel in registry_patch_rels(manifest):
+        path = ROOT / rel
+        if not path.exists():
+            continue
+        for row in read_registry(path):
+            by_path[row.get("path", "").strip()] = row
+    return list(by_path.values())
 
 
 def main() -> int:
     manifest = read_json(MANIFEST)
     state = read_json(STATE)
-    rows = read_registry()
+    rows = effective_registry(manifest)
 
     authorized = [
         r for r in rows
@@ -42,8 +64,10 @@ def main() -> int:
         "gate": state.get("gate"),
         "objective": state.get("objective"),
         "next_action": state.get("next_action"),
+        "automation": state.get("automation") or manifest.get("automation"),
         "geometry_master_status": state.get("geometry_master_status"),
         "active_skills": manifest.get("active_skills", []),
+        "registry_patches": registry_patch_rels(manifest),
         "authorized_artifacts": [
             {"id": r["artifact_id"], "path": r["path"], "domain": r["domain"], "authority": r["authority"]}
             for r in authorized
