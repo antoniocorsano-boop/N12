@@ -34,14 +34,20 @@ render_one() {
     >> "$OUT/manifest.csv"
 }
 
+# M1-A reinforcement source set. These are derivative renders only; immutable PDFs remain authoritative.
+render_one "TAV01A" "archive/documentazione_originaria/tavola1-3.pdf" "armature_travi" "fondazioni_primo_livello"
+render_one "TAV02A" "archive/documentazione_originaria/tavola 2-3.pdf" "armature_travi" "G1_piano_terra"
+render_one "TAV034A" "archive/documentazione_originaria/tavola3a-4a.pdf" "armature_travi" "G2_G3"
+render_one "TAV05A" "archive/documentazione_originaria/tavola 5-3.pdf" "armature_travi" "G4"
+render_one "TAV06A" "archive/documentazione_originaria/tavola 6.pdf" "armature_copertura" "G5_copertura"
+render_one "TAV07A" "archive/documentazione_originaria/tavola7.pdf" "abaco_dettagli_pilastri" "pilastri_particolari"
+
+# Geometry/elevation sources retained for direct cross-registration with the reinforcement sheets.
 render_one "TAV03S" "archive/documentazione_originaria/tavola3-2.pdf" "carpenteria_II_impalcato" "G2"
 render_one "TAV04S" "archive/documentazione_originaria/tavola4-2.pdf" "carpenteria_III_impalcato" "G3"
 render_one "TAV05S" "archive/documentazione_originaria/tavola 5.pdf" "carpenteria_IV_impalcato" "G4"
 render_one "TAV05E" "archive/documentazione_originaria/tavola5-2.pdf" "prospetto_elevazione" "sviluppo_verticale"
-# M1-S G5 beam-section gate requires the armature sheet TAV06A together with topology authority TAV06S.
-render_one "TAV06A" "archive/documentazione_originaria/tavola 6.pdf" "armature_copertura" "G5_copertura"
 render_one "TAV06S" "archive/documentazione_originaria/tavola 6-1.pdf" "carpenteria_copertura" "G5_copertura"
 render_one "TAV06E" "archive/documentazione_originaria/tavola6-2.pdf" "sezione_elevazione" "sviluppo_verticale"
-render_one "TAV07A" "archive/documentazione_originaria/tavola7.pdf" "abaco_dettagli_pilastri" "pilastri_particolari"
 
 printf 'archive_branch,%s\narchive_commit,%s\nrender_policy,immutable_source_to_300dpi_jpeg_no_interpretation\n' "$ARCHIVE_BRANCH" "$ARCHIVE_COMMIT" > "$OUT/run_metadata.txt"
