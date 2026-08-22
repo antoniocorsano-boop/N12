@@ -7,6 +7,7 @@ on:
       - work/m0-global-model
     paths:
       - 'AGENTS.md'
+      - 'automation/**'
       - 'knowledge/**'
       - 'docs/**'
       - 'data/canonical/**'
@@ -14,9 +15,11 @@ on:
       - 'scripts/**'
       - 'analysis/source_renders/TAV02S/**'
       - '.github/workflows/validate-knowledge-system.yml'
+      - '.github/workflows/n12-analysis-orchestrator.yml'
   pull_request:
     paths:
       - 'AGENTS.md'
+      - 'automation/**'
       - 'knowledge/**'
       - 'docs/**'
       - 'data/canonical/**'
@@ -24,6 +27,7 @@ on:
       - 'scripts/**'
       - 'analysis/source_renders/TAV02S/**'
       - '.github/workflows/validate-knowledge-system.yml'
+      - '.github/workflows/n12-analysis-orchestrator.yml'
 
 jobs:
   knowledge-contracts:
@@ -43,6 +47,12 @@ jobs:
       - name: Validate agent bootstrap
         run: python scripts/agent_bootstrap.py > /tmp/n12-agent-bootstrap.json
 
+      - name: Validate cyclic automation contract and queue
+        run: python scripts/n12_orchestrator.py validate
+
+      - name: Report cyclic next work item
+        run: python scripts/n12_orchestrator.py status > /tmp/n12-cycle-status.json
+
       - name: Validate carpenteria semantic registries
         run: python skills/pt-carpentry-reader/runner.py validate
 
@@ -57,6 +67,15 @@ jobs:
 
       - name: Extract G1 non-authoritative raster candidates
         run: python scripts/extract_pt_raster_candidates.py
+
+      - name: Upload machine state reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: n12-machine-state-reports
+          path: |
+            /tmp/n12-agent-bootstrap.json
+            /tmp/n12-cycle-status.json
+          if-no-files-found: error
 
       - name: Upload G1 raster candidate review artifact
         uses: actions/upload-artifact@v4
