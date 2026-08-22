@@ -1,0 +1,82 @@
+name: Render N12 HiRes Sources
+
+on:
+  push:
+    branches: [work/m0g-source-recovery]
+    paths:
+      - 'scripts/render_hires_sources.py'
+      - '.github/workflows/render-hires.yml'
+      - 'docs/PROTOCOLLO_LETTURA_TAVOLE_HIRES.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/render_hires_sources.py'
+      - '.github/workflows/render-hires.yml'
+      - 'docs/PROTOCOLLO_LETTURA_TAVOLE_HIRES.md'
+      - 'data/canonical/hires_reading_registry.csv'
+      - 'data/canonical/hires_evidence_log.csv'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install renderer
+        run: pip install pymupdf pillow
+      - name: Render TAV-01S foundation source and tiles
+        run: python scripts/render_hires_sources.py --source TAV-01S --out artifacts/TAV-01S --tile-size 2400 --overlap 0.125
+      - name: Render TAV-02S PT carpentry source and tiles
+        run: python scripts/render_hires_sources.py --source TAV-02S --out artifacts/TAV-02S --tile-size 2400 --overlap 0.125
+      - name: Render TAV-05E elevation source and tiles
+        run: python scripts/render_hires_sources.py --source TAV-05E --out artifacts/TAV-05E --tile-size 2400 --overlap 0.125
+      - name: Render TAV-06E elevation source and tiles
+        run: python scripts/render_hires_sources.py --source TAV-06E --out artifacts/TAV-06E --tile-size 2400 --overlap 0.125
+      - name: Render TAV-06A roof reinforcement source and tiles
+        run: python scripts/render_hires_sources.py --source TAV-06A --out artifacts/TAV-06A --tile-size 2400 --overlap 0.125
+      - name: Render TAV-07A structural details source and tiles
+        run: python scripts/render_hires_sources.py --source TAV-07A --out artifacts/TAV-07A --tile-size 2400 --overlap 0.125
+      - name: Record source hashes
+        run: |
+          python - <<'PY'
+          import json,sys
+          for sid in ('TAV-01S','TAV-02S','TAV-05E','TAV-06E','TAV-06A','TAV-07A'):
+            p=json.load(open(f'artifacts/{sid}/hires_index.json'))
+            if len(p['sources']) != 1 or p['sources'][0]['source_id'] != sid:
+              print('SOURCE_SET_MISMATCH',sid,p['sources']); sys.exit(1)
+            s=p['sources'][0]
+            print(sid+'_PDF_SHA256='+s['pdf_sha256'])
+            print(sid+'_RASTER_SHA256='+s['raster_sha256'])
+            print(sid+'_DIMENSIONS='+str(s['width'])+'x'+str(s['height']))
+          print('SOURCE_HASH_GATE=PASS')
+          PY
+      - name: Persist TAV-02S hires evidence in repository
+        run: |
+          rm -rf evidence/hires/TAV-02S
+          mkdir -p evidence/hires/TAV-02S
+          cp -a artifacts/TAV-02S/. evidence/hires/TAV-02S/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add evidence/hires/TAV-02S
+          if git diff --cached --quiet; then
+            echo "TAV02S_PERSIST=no_changes"
+          else
+            git commit -m "evidence: persist TAV-02S hires raster and tiles"
+            git push origin HEAD:work/m0g-source-recovery
+            echo "TAV02S_PERSIST=committed"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: n12-hires-structural-sources
+          path: artifacts
+          retention-days: 30
+
+# PT mesh validation rerun requested 2026-08-20

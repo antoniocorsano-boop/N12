@@ -1,0 +1,8 @@
+check_id,scope,status,evidence,notes
+WS-QA-01,P18_ORIENTATION,PASS,"physical footprint 110 along X; 30 along Y","v1 QA orientation superseded"
+WS-QA-02,P23_ORIENTATION,PASS,"physical footprint 110 along X; 30 along Y","v1 QA orientation superseded"
+WS-QA-03,P30_ORIENTATION,PASS,"physical footprint 30 along X; 110 along Y","v1 QA orientation superseded"
+WS-QA-04,ATTACHMENTS_ON_FACES,PASS,"9/9 beam attachments lie on actual support faces","no attachment retained inside section interior"
+WS-QA-05,BEAM_AXIS_ORTHOGONALITY,PASS,"incident beam axes remain horizontal/vertical as documented","no artificial convergence to fixed-line joint"
+WS-QA-06,ETABS_POLICY,PASS,"single column joint at fixed line + stiff terminal offset to physical face","end-length offset not used for plan eccentricity"
+WS-QA-07,BASELINE,READY,"tav05_wide_support_physical_footprints_v1.csv + tav05_etabs_wide_support_joint_offsets_v2.csv","wide-support plan geometry ready for ETABS implementation"

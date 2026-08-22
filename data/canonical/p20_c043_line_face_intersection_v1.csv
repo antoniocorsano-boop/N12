@@ -1,0 +1,2 @@
+support_id,connection_id,status,canonical_gate,evidence_status,notes
+P20,T05-C043,SUPERSEDED_HOLD,"g3_g4_internal_fixedline_gate_v2.csv IFL2-04",DOC+MIS,"Previous face-intersection calculation assumed a qualified P20 V fixed-line component. Canonical gate v2 explicitly keeps V on HOLD and forbids promoting adjacent horizontal beam/slab edges to construction fixed lines. Recompute only after independent V evidence is available."

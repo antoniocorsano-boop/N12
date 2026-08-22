@@ -1,0 +1,8 @@
+gate_id,check,status,evidence_status,notes
+T5-MAP-G01,"ordine S-S'-T-U-V-Z-A'-B'-C' coerente con percorso P17-P18-P19-P20-P21-P22-P22P-P23-P24",PASS,INF,"percorso topologicamente continuo sulla TAV-05S"
+T5-MAP-G02,"sviluppo storico complessivo 28.60 m",PASS,DOC,"hard gate invariato"
+T5-MAP-G03,"misura diretta carpenteria percorso candidato ~28.738 m",PASS_WITH_RESIDUAL,MIS,"residuo globale ~+0.138 m; non correggere per scala"
+T5-MAP-G04,"tratto T-U candidato P19-P20 compatibile direttamente con 1.20 m",PENDING_CONTRADICTION,MIS+DOC,"carpenteria mostra circa 1.05 m fra riferimenti grafici interni visibili; non spiegato da semplice nodo interno"
+T5-MAP-G05,"tratto Z-A' candidato P22-P22P compatibile direttamente con 1.20 m",PENDING_CONTRADICTION,MIS+DOC,"carpenteria mostra circa 0.99 m sui riferimenti grafici correnti; residuo ~0.21 m resta da spiegare"
+T5-MAP-G06,"tratto A'-B' candidato P22P-P23 compatibile direttamente con 4.05 m",PENDING_REVIEW,MIS+DOC,"carpenteria ~4.38 m; P23 e' 30x110 ma vietato usare eccentricita' non documentata per forzare il match"
+T5-MAP-G07,"mapping completo promuovibile a VER",NO,VER_CONTROL,"mapping resta CANDIDATO_FORTE ma non verificato; priorita' a riscontro documentale del Telaio 5 / numerazione dei nodi / eventuali assi originali"

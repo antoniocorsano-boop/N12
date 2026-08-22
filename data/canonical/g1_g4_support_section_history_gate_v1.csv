@@ -1,0 +1,13 @@
+gate_id,check,status,evidence_status,notes
+SG14-01,"TAV-02S G1 source rendered and hash-registered",PASS,DOC+MIS,"Run 32237614682 / artifact 9359545209; see tav02s_tav03s_hires_render_manifest_v1.csv."
+SG14-02,"TAV-03S G2 source rendered and hash-registered",PASS,DOC+MIS,"Run 32237614682 / artifact 9359545209; see tav02s_tav03s_hires_render_manifest_v1.csv."
+SG14-03,"G1 support census P01-P33 plus distinct P22P",PASS,DOC,"34/34 supports directly read on TAV-02S HiRes."
+SG14-04,"G2 support census P01-P33 plus distinct P22P",PASS,DOC,"34/34 supports directly read on TAV-03S HiRes."
+SG14-05,"G3 support census",PASS,DOC+MIS,"34/34 already canonical in g3_support_sections_tav04s_v1.csv; P20 correction 30x50 retained; P21 long side remains DOC+MIS."
+SG14-06,"G4 support census",PASS,DOC,"34/34 current TAV-05S baseline; P22P distinct."
+SG14-07,"Consolidated G1-G4 section history",PASS,DOC,"34 rows in g1_g4_support_section_history_v1.csv."
+SG14-08,"Wide supports P18/P23/P30 section continuity",PASS,DOC,"30x110 at G1,G2,G3,G4. This does not by itself prove identical insertion/fixed-line offset."
+SG14-09,"P19 documentary sequence",PASS,DOC,"40x40 -> 40x45 -> 40x40 -> 40x40; explicitly preserve, do not regularize."
+SG14-10,"P20 documentary sequence",PASS,DOC,"40x50 -> 40x45 -> 30x50 -> 40x40; G3->G4 is a reshape."
+SG14-11,"Derive fixed lines from section history alone",FORBIDDEN,RIF,"Section dimensions do not determine insertion/fixed-line coordinates. Continue semantic/metric fixed-line audit separately."
+SG14-12,"Create full vertical ETABS/EdiLus columns from section table alone",HOLD,DOC+MIS,"Identity and sections are ready; physical footprint offsets and unresolved internal fixed-line components remain required before final geometric release."

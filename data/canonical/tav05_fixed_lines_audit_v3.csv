@@ -1,0 +1,7 @@
+object_id,old_version,old_u_px,old_v_px,new_version,new_u_px,new_v_px,change_status,reason,evidence
+P06,v2,3732,5547,v3,3733,5583,CORRETTO,"v2 intercettava il bordo superiore/linea trave; v3 usa la linea sottile orizzontale passante nel numero 6","TAV-05S raster nativo; crop ad alto ingrandimento"
+P09,v2,3057,2723,v3,3152,2721,CORRETTO,"il crop preliminare non era ancorato al simbolo canonico; il simbolo 9 ad alto ingrandimento e' a u~3152","TAV-05S raster nativo; simbolo numerato 9 40x40"
+P10,v2,3058,3466,v3,3154,3468,CORRETTO,"riallineamento al simbolo numerato 10 30x45 e alla sua intersezione di fili fissi","TAV-05S raster nativo; quote 30x45 leggibili"
+P13,v2,2993,5095,v3,2993,5128,CORRETTO,"v2 usava il bordo superiore; v3 usa il filo orizzontale passante nel numero 13","TAV-05S raster nativo; crop ad alto ingrandimento"
+P01,v2,4039,2722,v3,4039,2722,CONFERMATO,"simbolo 1 verificato separatamente dal simbolo 4; nessuna fusione P01/P04","TAV-05S raster nativo; crop dedicato"
+P04,v2,4046,4922,v3,4046,4922,CONFERMATO,"simbolo 4 verificato ad alto ingrandimento","TAV-05S raster nativo; crop dedicato"

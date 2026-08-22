@@ -1,0 +1,10 @@
+station_order,label,support_id,station_m,source_status,source_basis,alignment_note
+1,S,P17,0.00,RIF_VERIFICATO,"planimetria quotata + mapping telaio verificato","origine convenzionale della catena"
+2,S',P18,4.70,RIF_VERIFICATO,"catena Telaio 5","coincide con primo allineamento generale a 4.70 m"
+3,T,P19,8.75,RIF_VERIFICATO,"4.70+4.05","coincide con secondo allineamento generale a 8.75 m"
+4,U,P20,9.95,RIF_VERIFICATO,"T+1.20","nodo interno alla campata generale 8.75-15.00"
+5,V,P21,15.75,RIF_VERIFICATO,"U+5.80","nodo interno alla campata generale 15.00-19.85"
+6,Z,P22,18.65,RIF_VERIFICATO,"V+2.90","1.20 m prima dell'allineamento A' a 19.85 m"
+7,A',P22P,19.85,RIF_VERIFICATO,"Z+1.20","coincide con allineamento generale cumulato 4.70+4.05+6.25+4.85"
+8,B',P23,23.90,RIF_VERIFICATO,"A'+4.05","coincide con allineamento generale a 23.90 m"
+9,C',P24,28.60,RIF_VERIFICATO,"B'+4.70","coincide con estremo generale 28.60 m"

@@ -1,0 +1,2 @@
+scope,tavola_id,status,evidence_status,confidence,canonical_topology_ref,open_residuals,blocking,notes
+P01-P33,TAV-05S,TOPOLOGY_CLOSED_WITH_RESIDUALS,DOC,HIGH,tav05_topology_connections_consolidated_v2.csv,"P13 no direct beam on TAV05; section P22-P22P ND; section P19-P20 ND; widths ND on P02-P03/P03-P04/P05-P06/P07-P08; final cross-check with other drawings recommended",NO,"Topologia della carpenteria TAV-05S considerata sufficientemente completa per avanzare; residui espliciti e non bloccanti"

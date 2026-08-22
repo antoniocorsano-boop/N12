@@ -1,0 +1,9 @@
+gate_id,check,status,evidence_status,notes
+T5-FL2D-01,"Mapping S-S'-T-U-V-Z-A'-B'-C' -> P17-P24",PASS,VERIFIED,"Mapping chiuso separatamente dalla metrica locale."
+T5-FL2D-02,"Stazioni documentali 0.00..28.60 m",PASS,DOC/RIF,"Catena 1D congelata; non usare lunghezze euclidee dei tratti obliqui come sostituto."
+T5-FL2D-03,"Linea grafica interna leggibile nei supporti critici",PASS,MIS,"TAV-05S mostra linee sottili che attraversano le sezioni; misura grafica distinta dall'interpretazione del filo fisso costruttivo."
+T5-FL2D-04,"Ruolo ANGOLARE/FACCIATA/INTERNO di P18-P23",PENDING,ND,"Serve cross-check col perimetro architettonico; vietata deduzione dalla sola rete di travi."
+T5-FL2D-05,"P17 e P24 come pilastri d'angolo",PARTIAL,RIF+MIS,"Compatibili con estremi d'angolo nella planimetria fornita; promozione subordinata al riscontro architettonico."
+T5-FL2D-06,"Coordinate 2D del filo fisso costruttivo",PENDING,ND,"Non sovrascrivere tav05_fixed_lines_numeric_v7 fino a chiusura ruolo/perimetro."
+T5-FL2D-07,"M0-G coordinate supporti T5",HOLD,MIS_CALIBRATED,"Topologia utilizzabile; coordinate joint da non rifinalizzare prima del reaudit del filo fisso."
+T5-FL2D-08,"Prossima azione",READY,WORKFLOW,"Usare pianta architettonica/carpenteria sovrapposta per identificare bordo esterno di P17-P24; poi calcolare dN,dS,dE,dW rispetto al filo."
