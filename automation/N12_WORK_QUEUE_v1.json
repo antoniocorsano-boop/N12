@@ -9,7 +9,7 @@
     {
       "id": "M0G-FREEZE-ASSEMBLY-CONTRACT",
       "priority": 10,
-      "state": "READY",
+      "state": "COMPLETE",
       "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
       "source_sheet": "MULTI",
       "task": "Freeze the global M0-G assembly contract from already current PT geometry, vertical column segments, per-storey beam topology, storey levels and roof-special registry. Define counts, entity roles, provenance propagation and anti-normalization rules without creating new geometry.",
@@ -27,12 +27,15 @@
       "target_outputs": [
         "data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json"
       ],
-      "semantic_gate": "Freeze exactly the current structural inventory and its source authority: 38 G1 physical supports, 98 existing PT beam-face analytical nodes, 49 effective PT beams, 127 vertical column segments, 180 G2-G5 ordinary beams, and 3 ridge plus 3 eaves special roof features kept outside ordinary-member normalization. G5-B036 remains counted once as the confirmed 19-26 oblique beam. Preserve all DOC/MIS/ND/WATCH states and all explicit terminations."
+      "semantic_gate": "Freeze exactly the current structural inventory and its source authority: 38 G1 physical supports, 98 existing PT beam-face analytical nodes, 49 effective PT beams, 127 vertical column segments, 180 G2-G5 ordinary beams, and 3 ridge plus 3 eaves special roof features kept outside ordinary-member normalization. G5-B036 remains counted once as the confirmed 19-26 oblique beam. Preserve all DOC/MIS/ND/WATCH states and all explicit terminations.",
+      "completed_at": "2026-08-22T13:26:37.241196+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "result_receipt": "automation/receipts/M0G-FREEZE-ASSEMBLY-CONTRACT_20260822T132637Z.json"
     },
     {
       "id": "M0G-BUILD-3D-ANALYTICAL-NODES",
       "priority": 20,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
       "source_sheet": "MULTI",
       "task": "Build the building-wide 3D analytical node registry from the frozen M0-G contract, common XY registration, storey Z levels, physical support sections and actual beam-to-support face incidences.",
@@ -56,7 +59,9 @@
       "target_outputs": [
         "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv"
       ],
-      "semantic_gate": "Beam end nodes must lie on the documented physical support face/incidence, not be replaced by support centroids. Support-core nodes, when needed for column axes, remain a distinct analytical role. Distinct face incidences on extended supports remain distinct. XY and Z provenance must be propagated without MIS-to-DOC promotion."
+      "semantic_gate": "Beam end nodes must lie on the documented physical support face/incidence, not be replaced by support centroids. Support-core nodes, when needed for column axes, remain a distinct analytical role. Distinct face incidences on extended supports remain distinct. XY and Z provenance must be propagated without MIS-to-DOC promotion.",
+      "released_at": "2026-08-22T13:26:37.241196+00:00",
+      "released_by": "M0G-FREEZE-ASSEMBLY-CONTRACT"
     },
     {
       "id": "M0G-RESOLVE-ROOF-SPECIAL-3D",
