@@ -38,13 +38,24 @@ def rel_exists(rel: str) -> bool:
     return (ROOT / rel).exists()
 
 
+def registry_patch_rels(manifest: dict[str, Any]) -> list[str]:
+    rels: list[str] = []
+    legacy = manifest.get("artifact_registry_patch")
+    if legacy:
+        rels.append(legacy)
+    for rel in manifest.get("artifact_registry_patches", []) or []:
+        if rel and rel not in rels:
+            rels.append(rel)
+    return rels
+
+
 def load_effective_registry(manifest: dict[str, Any]) -> dict[str, dict[str, str]]:
     rows = read_csv(BASE_REGISTRY_PATH)
     by_path = {r.get("path", "").strip(): r for r in rows}
-    patch_rel = manifest.get("artifact_registry_patch")
-    if patch_rel and rel_exists(patch_rel):
-        for r in read_csv(ROOT / patch_rel):
-            by_path[r.get("path", "").strip()] = r
+    for patch_rel in registry_patch_rels(manifest):
+        if rel_exists(patch_rel):
+            for r in read_csv(ROOT / patch_rel):
+                by_path[r.get("path", "").strip()] = r
     return by_path
 
 
@@ -105,7 +116,6 @@ def validate_contract() -> tuple[list[str], list[str]]:
             if not rel_exists(rel):
                 warnings.append(f"{iid}: input currently missing: {rel}")
 
-    # Detect simple dependency cycles.
     graph = {i["id"]: list(i.get("dependencies", [])) for i in items if i.get("id")}
     visiting: set[str] = set()
     visited: set[str] = set()
@@ -173,7 +183,6 @@ def choose_next(queue: dict[str, Any], registry: dict[str, dict[str, str]]) -> t
     by_id = item_map(queue)
     ordered = sorted(queue.get("items", []), key=lambda i: (int(i.get("priority", 999999)), i.get("id", "")))
 
-    # First honor an explicit active state.
     for item in ordered:
         if item.get("state") in {"IN_PROGRESS", "CANDIDATE", "RESIDUAL"}:
             return item, item.get("state")
@@ -187,7 +196,6 @@ def choose_next(queue: dict[str, Any], registry: dict[str, dict[str, str]]) -> t
             continue
         return item, "READY"
 
-    # Detect items whose outputs have already become promotable even if queue was not advanced.
     for item in ordered:
         if item.get("state") in {"WAITING", "READY"}:
             out = output_status(item, registry)
