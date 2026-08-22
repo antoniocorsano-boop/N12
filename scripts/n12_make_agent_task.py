@@ -36,6 +36,7 @@ def build_packet() -> dict:
             "knowledge/CURRENT_STATE.json",
             "automation/N12_AUTOMATION_CONTRACT_v1.json",
             "automation/N12_WORK_QUEUE_v1.json",
+            "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
             "skills/pt-carpentry-reader/SKILL.md"
         ],
         "global_stop_conditions": [
@@ -47,6 +48,8 @@ def build_packet() -> dict:
             "deterministic validation fails"
         ],
         "promotion_rule": "Produce a candidate with explicit provenance first. Canonical promotion requires semantic gate plus deterministic validators; unresolved rows must be INC/ND/RESIDUAL rather than guessed.",
+        "result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
+        "result_inbox": "automation/inbox/N12_AGENT_RESULT.json"
     }
 
     if not item:
@@ -81,15 +84,29 @@ def build_packet() -> dict:
     packet["required_result"] = {
         "max_items_per_cycle": 1,
         "must_write_audit_or_provenance": True,
+        "contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
+        "inbox": "automation/inbox/N12_AGENT_RESULT.json",
         "must_run": [
             "python scripts/validate_knowledge_system.py",
             "python scripts/n12_orchestrator.py validate",
-            "python skills/pt-carpentry-reader/runner.py validate"
+            "python skills/pt-carpentry-reader/runner.py validate",
+            "python scripts/n12_ingest_agent_result.py validate"
         ],
-        "on_pass": "register/promote the target artifact and allow the next queue dependency to auto-release",
+        "on_pass": "register/promote the target artifact, write the single result packet and let the deterministic ingestor advance queue/state",
         "on_watch": "retain WATCH provenance and advance only if the work-item semantic gate permits it",
         "on_residual": "record the smallest unresolved claim and leave unrelated queue branches eligible",
-        "on_conflict": "stop and reopen only the conflicting claim"
+        "on_conflict": "stop and reopen only the conflicting claim",
+        "template": {
+            "schema_version": "1.0",
+            "work_item_id": item.get("id"),
+            "source_sheet": sheet_id,
+            "decision": "PASS|PASS_WITH_WATCH|RESIDUAL|BLOCKED|CONFLICT",
+            "semantic_gate": "PASS|WATCH|FAIL",
+            "target_outputs": list(item.get("target_outputs", [])),
+            "provenance_summary": {"DOC": 0, "MIS": 0, "RIF": 0, "INF": 0, "INC": 0, "ND": 0},
+            "residuals": [],
+            "audit_paths": []
+        }
     }
     return packet
 
