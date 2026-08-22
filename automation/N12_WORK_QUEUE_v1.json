@@ -55,7 +55,7 @@
     {
       "id": "SEC-G4-TAV05S",
       "priority": 30,
-      "state": "READY",
+      "state": "COMPLETE",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-05S",
       "task": "Read sections and orientations for the 34 original support identities on the IV impalcato carpenteria.",
@@ -71,12 +71,15 @@
       ],
       "semantic_gate": "Preserve tower/stair and reduced upper-storey sections explicitly; do not reuse G3 values without direct source support.",
       "released_at": "2026-08-22T10:51:06.697750+00:00",
-      "released_by": "SEC-G3-TAV04S"
+      "released_by": "SEC-G3-TAV04S",
+      "completed_at": "2026-08-22T11:06:12.652654+00:00",
+      "completion_decision": "PASS",
+      "result_receipt": "automation/receipts/SEC-G4-TAV05S_20260822T110612Z.json"
     },
     {
       "id": "SEC-G5-TAV06S",
       "priority": 40,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-06S",
       "task": "Read sections/orientations for the 25 support identities documented on roof carpenteria.",
@@ -90,7 +93,9 @@
       "target_outputs": [
         "data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv"
       ],
-      "semantic_gate": "Only the 25 identities directly present on TAV-06S may be populated; absent G4 supports must remain terminated."
+      "semantic_gate": "Only the 25 identities directly present on TAV-06S may be populated; absent G4 supports must remain terminated.",
+      "released_at": "2026-08-22T11:06:12.652654+00:00",
+      "released_by": "SEC-G4-TAV05S"
     },
     {
       "id": "BEAM-G2-TAV03S",
