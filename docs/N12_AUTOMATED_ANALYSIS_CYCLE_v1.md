@@ -15,7 +15,10 @@ L'assenza di un executor agentico non autorizza l'orchestratore a sostituire la 
 
 - contratto: `automation/N12_AUTOMATION_CONTRACT_v1.json`
 - coda persistente: `automation/N12_WORK_QUEUE_v1.json`
+- contratto di ritorno semantico: `automation/N12_AGENT_RESULT_CONTRACT_v1.json`
 - runner: `python scripts/n12_orchestrator.py`
+- ingestor: `python scripts/n12_ingest_agent_result.py`
+- inbox: `automation/inbox/N12_AGENT_RESULT.json`
 
 Comandi:
 
@@ -23,17 +26,18 @@ Comandi:
 python scripts/n12_orchestrator.py validate
 python scripts/n12_orchestrator.py status
 python scripts/n12_orchestrator.py run
+python scripts/n12_ingest_agent_result.py validate
 ```
 
 `run` produce `analysis/automation/N12_CYCLE_REPORT.json`; in CI il report viene pubblicato come artefatto e non diventa automaticamente dato canonico.
 
 ## Ciclo
 
-`S0 bootstrap -> S1 source ready -> S2 specialist reading -> S3 metric/topology checks -> S4 crosscheck -> S5 promotion gate -> S6 state advance -> next item`
+`S0 bootstrap -> S1 source ready -> S2 specialist reading -> S3 metric/topology checks -> S4 crosscheck -> S5 promotion gate -> result handshake -> S6 state advance -> next item`
 
 ### S0 — Bootstrap
 
-Controlla manifest, stato corrente, registri, skill e coda di lavoro. Un errore di contratto arresta il ciclo prima di leggere o scrivere dati strutturali.
+Controlla manifest, stato corrente, registri, skill, coda di lavoro e contratto di ritorno dell'agente. Un errore di contratto arresta il ciclo prima di leggere o scrivere dati strutturali.
 
 ### S1 — Source ready
 
@@ -42,6 +46,8 @@ Verifica che gli input canonici e le fonti primarie richieste dal work item sian
 ### S2 — Lettura specialistica
 
 L'agente legge la tavola del piano corrente **indipendentemente**. È vietato riempire valori mancanti copiandoli da PT o da un piano adiacente. Ogni claim conserva `DOC/MIS/RIF/INF/INC/ND`.
+
+Ogni esecuzione tratta **un solo work item**. Se la lettura è incompleta, il risultato non viene completato per analogia: la singola claim resta `INC/ND` o viene registrata come residuo.
 
 ### S3 — Controlli metrici e topologici
 
@@ -64,9 +70,29 @@ Un output può diventare canonico solo quando:
 
 `MIS` non diventa `DOC` per coerenza geometrica o per ripetizione fra piani.
 
+### Result handshake — ritorno controllato dell'agente
+
+L'agente non può avanzare liberamente la coda. Dopo la lettura produce `automation/inbox/N12_AGENT_RESULT.json`, conforme a `N12_AGENT_RESULT_CONTRACT_v1.json`.
+
+Il pacchetto deve riferirsi **esattamente al work item selezionato** e deve dichiarare:
+
+- tavola primaria;
+- decisione `PASS / PASS_WITH_WATCH / RESIDUAL / BLOCKED / CONFLICT`;
+- stato del gate semantico;
+- esattamente gli output previsti dalla coda;
+- conteggio/profilo di provenienza `DOC/MIS/RIF/INF/INC/ND`;
+- residui;
+- audit utilizzati.
+
+Per `PASS` e `PASS_WITH_WATCH` l'ingestor verifica che gli output siano già presenti nel registry effettivo con autorità `CANONICAL` o `DERIVED`, stato non bloccante e `may_feed_canonical` compatibile. L'ingestor **non crea né promuove evidenza**: accerta che i presupposti di promozione esistano e soltanto dopo aggiorna coda e stato.
+
+Dopo l'ingestione il risultato viene archiviato come receipt in `automation/receipts/` e l'inbox viene liberato.
+
 ### S6 — Avanzamento
 
-Dopo il PASS si aggiornano l'artefatto specialistico, il registro di autorità, la coda e `CURRENT_STATE`. Si rilascia soltanto il work item successivo le cui dipendenze sono soddisfatte.
+Dopo il PASS si aggiornano coda e `CURRENT_STATE`. Si rilascia soltanto il work item successivo le cui dipendenze sono soddisfatte.
+
+Per `RESIDUAL` il work item resta in revisione. Per `BLOCKED` o `CONFLICT` non avviene promozione; il sistema conserva la causa e si arresta o prosegue soltanto su eventuali rami realmente indipendenti.
 
 ## Stati e comportamento
 
@@ -80,6 +106,22 @@ Dopo il PASS si aggiornano l'artefatto specialistico, il registro di autorità, 
 - `FAIL_STOP`: errore di contratto/validazione; nessuna promozione.
 - `COMPLETE`: coda terminata.
 
+## Pianificazione automatica
+
+GitHub esegue i workflow `schedule` soltanto dal ramo predefinito. Per questo il battito periodico è definito su `main` in:
+
+`.github/workflows/n12-analysis-scheduler.yml`
+
+Il scheduler **non usa `main` come fonte strutturale**: esegue checkout esplicito di `work/m0-global-model`, lancia render, validator, eventuale ingestione di un solo risultato, report e pacchetto del task successivo. Se deve persistere l'avanzamento, effettua il push soltanto verso `work/m0-global-model`.
+
+Il workflow presente sul ramo canonico:
+
+`.github/workflows/n12-analysis-orchestrator.yml`
+
+resta il controllo automatico su push e su avvio manuale. Entrambi condividono lo stesso gruppo di concorrenza, quindi due cicli non possono ingerire simultaneamente lo stesso risultato.
+
+È inoltre configurato un executor specialistico pianificato sul progetto, con cadenza di 6 ore e limite di un work item per esecuzione. Il primo receipt semantico resta il gate di prova del collegamento completo.
+
 ## Regole strutturali permanenti
 
 - Nessuna estrusione cieca dei 38 sostegni PT.
@@ -91,6 +133,7 @@ Dopo il PASS si aggiornano l'artefatto specialistico, il registro di autorità, 
 - Le quote scritte e gli identificativi espliciti hanno priorità su scala raster, dataset storici e inferenze.
 - Un residuo non blocca il resto del modello se è isolabile.
 - Una nuova evidenza riapre il **claim minimo**, non l'intero piano o l'intero progetto.
+- Un agente non può eseguire più di un work item nello stesso result handshake.
 
 ## Coda iniziale
 
@@ -111,4 +154,6 @@ La coda è un contratto operativo: l'agente non deve inventare il prossimo lavor
 
 ## Limite dell'automazione
 
-GitHub Actions può eseguire automaticamente la parte deterministica e produrre render/report. La lettura semantica autonoma delle immagini richiede un executor agentico autorizzato. Finché tale executor non è collegato, il sistema deve fermarsi a `READY_FOR_AGENT`, non degradare i gate e non promuovere inferenze come dati documentali.
+GitHub Actions può eseguire automaticamente la parte deterministica, produrre render/report, ingerire un risultato specialistico già validabile e avanzare lo stato. La lettura semantica delle immagini resta responsabilità di un executor agentico autorizzato.
+
+Se l'executor non è disponibile, il sistema deve fermarsi a `READY_FOR_AGENT`, non degradare i gate e non promuovere inferenze come dati documentali. Se l'executor è disponibile ma la fonte è ambigua, deve restituire `RESIDUAL`, `BLOCKED` o `CONFLICT`, non inventare un `PASS`.
