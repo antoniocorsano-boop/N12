@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "work_item_id": "SEC-G2-TAV03S",
+  "source_sheet": "TAV-03S",
+  "decision": "BLOCKED",
+  "semantic_gate": "FAIL",
+  "target_outputs": [
+    "data/canonical/STOREY_SUPPORT_SECTIONS_G2_v1.csv"
+  ],
+  "provenance_summary": {
+    "DOC": 34,
+    "MIS": 0,
+    "RIF": 0,
+    "INF": 0,
+    "INC": 0,
+    "ND": 0
+  },
+  "residuals": [
+    {
+      "claim": "Canonical promotion handshake for SEC-G2-TAV03S",
+      "status": "BLOCKED",
+      "reason": "The inbox validator selects SEC-G3-TAV04S as soon as the registered G2 target becomes canonically ingestible, so it cannot validate the still-selected SEC-G2 result.",
+      "scope": "Automation handshake only; the 34 direct DOC readings and their source audit are complete and retained as a non-feeding derived candidate."
+    }
+  ],
+  "audit_paths": [
+    "analysis/automation/SEC_G2_TAV03S_SEMANTIC_AUDIT_v1.csv"
+  ]
+}
