@@ -13,6 +13,7 @@ on:
       - 'data/canonical/**'
       - 'docs/N12_AUTOMATED_ANALYSIS_CYCLE_v1.md'
       - 'scripts/n12_orchestrator.py'
+      - 'scripts/n12_make_agent_task.py'
       - 'scripts/render_storey_sources.sh'
       - 'skills/**'
       - '.github/workflows/n12-analysis-orchestrator.yml'
@@ -53,21 +54,27 @@ jobs:
       - name: Run deterministic cycle gates
         run: python scripts/n12_orchestrator.py run --output analysis/automation/N12_CYCLE_REPORT.json
 
+      - name: Build single-item specialist agent task packet
+        run: python scripts/n12_make_agent_task.py > /tmp/n12-agent-task.txt
+
       - name: Print next eligible work item
         run: python scripts/n12_orchestrator.py status
 
-      - name: Upload cycle evidence
+      - name: Upload cycle evidence and agent task
         uses: actions/upload-artifact@v4
         with:
           name: n12-analysis-cycle-report
           path: |
             analysis/automation/N12_CYCLE_REPORT.json
+            analysis/automation/N12_AGENT_TASK_PACKET.json
             analysis/storey_source_renders/
+            /tmp/n12-agent-task.txt
           if-no-files-found: error
           retention-days: 30
 
       - name: Automation boundary
         run: |
           echo 'Deterministic cycle completed.'
-          echo 'If report decision is READY_FOR_AGENT, semantic image reading must be executed by an authorized specialist agent.'
+          echo 'A machine-readable specialist task packet has been emitted.'
+          echo 'If decision is READY_FOR_AGENT, an authorized semantic executor may process exactly one work item.'
           echo 'No canonical promotion is performed by this workflow alone.'
