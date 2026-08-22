@@ -5,15 +5,16 @@
   "canonical_branch": "work/m0-global-model",
   "entrypoint": "AGENTS.md",
   "objective": "Fascicolo strutturale completo, modello M0 globale, modello EdiLus-EE validato e verifiche dell'edificio esistente in c.a.",
-  "current_gate": "M0-G/COMMON-STOREY-REGISTRATION",
-  "current_domain": "VERTICAL_GEOMETRY_AND_PER_STOREY_CARPENTRY",
+  "current_gate": "M1-M/MATERIALS",
+  "current_domain": "STRUCTURAL_MODEL_COMPLETION",
   "state_file": "knowledge/CURRENT_STATE.json",
   "artifact_registry": "knowledge/ARTIFACT_REGISTRY.csv",
   "artifact_registry_patch": "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
   "artifact_registry_patches": [
     "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
     "knowledge/ARTIFACT_REGISTRY_AUTOMATION_PATCH_v1.csv",
-    "knowledge/ARTIFACT_REGISTRY_M0G_GATE_PATCH_v1.csv"
+    "knowledge/ARTIFACT_REGISTRY_M0G_GATE_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1_PATCH_v1.csv"
   ],
   "human_master_register": "docs/REGISTRO_MASTER.md",
   "revalidation_ledger": "data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv",
@@ -93,5 +94,21 @@
     "section_transfer_rule": "DO_NOT_COPY_PT_SECTION_UPWARD; read support sections and orientation independently on each carpenteria or TAV-07A",
     "beam_transfer_rule": "DO_NOT_COPY_PT_BEAM_TOPOLOGY_UPWARD; reconstruct each storey from its own carpenteria"
   },
-  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, semantic result handshake, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology and residual acceptance remain specialist gates"}
+  "m1_model_completion": {
+    "phase": "M1",
+    "current_front": "M1-M_MATERIALS",
+    "m0g_geometry_handoff": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
+    "m1s_status": "PASS_WITH_WATCH",
+    "m1s_gate": "data/canonical/M1S_SECTION_GATE_v1.csv",
+    "m1s_g5_sections": "data/canonical/M1S_G5_BEAM_SECTIONS_CURRENT_v1.csv",
+    "m1s_rigid_zones": "data/canonical/M1S_G5_RIGID_ZONES_v1.csv",
+    "ordinary_members_with_usable_sections": 356,
+    "ordinary_members_with_nd_sections": 0,
+    "section_evidence_watches": 5,
+    "g5_supported_section_items": ["G5-B017"],
+    "next_work_item": "M1M-MATERIAL-EVIDENCE",
+    "material_state_at_activation": "ND",
+    "rule": "M0-G remains frozen; M1 completes model inputs without inventing missing evidence."
+  },
+  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, semantic result handshake, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology, material evidence and residual acceptance remain specialist gates"}
 }
