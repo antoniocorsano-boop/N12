@@ -127,7 +127,7 @@
     {
       "id": "BEAM-G3-TAV04S",
       "priority": 60,
-      "state": "READY",
+      "state": "COMPLETE",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-04S",
       "task": "Reconstruct III impalcato beam topology independently from TAV-04S.",
@@ -144,12 +144,15 @@
       ],
       "semantic_gate": "Differences from G2 are first-class evidence and must not be normalized away.",
       "released_at": "2026-08-22T11:35:49.847216+00:00",
-      "released_by": "BEAM-G2-TAV03S"
+      "released_by": "BEAM-G2-TAV03S",
+      "completed_at": "2026-08-22T11:45:21.186548+00:00",
+      "completion_decision": "PASS",
+      "result_receipt": "automation/receipts/BEAM-G3-TAV04S_20260822T114521Z.json"
     },
     {
       "id": "BEAM-G4-TAV05S",
       "priority": 70,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "TAV-05S",
       "task": "Reconstruct IV impalcato beam topology independently from TAV-05S.",
@@ -164,7 +167,9 @@
       "target_outputs": [
         "data/canonical/STOREY_BEAMS_G4_v1.csv"
       ],
-      "semantic_gate": "Reduced footprint and terrace/roof transitions must be read from source, not inferred from lower storeys."
+      "semantic_gate": "Reduced footprint and terrace/roof transitions must be read from source, not inferred from lower storeys.",
+      "released_at": "2026-08-22T11:45:21.186548+00:00",
+      "released_by": "BEAM-G3-TAV04S"
     },
     {
       "id": "BEAM-G5-TAV06S",
