@@ -2,136 +2,172 @@
 
 Data: 2026-08-23  
 Ramo: `work/m0-global-model`  
-Stato: `HOLD_SPECIAL_FEATURE_AUDIT_BEFORE_M1A_GATE`
+Stato: `IN_PROGRESS — SPECIAL_FEATURE_AUDIT_ADVANCED`
 
 ## Scopo
 
-Verifica preventiva richiesta prima di proseguire la trascrizione ordinaria delle armature. Ambiti controllati: semantica delle coppie di numeri sovrapposte in TAV-034A, cornicioni/perimetri ai livelli in cui compaiono in carpenteria, impluvi/gronde/colmi di copertura e relativa armatura, balconate/sbalzi con sagoma cementata o sagomata, terrazzo/addizioni, torrino scale, sbalzi di gronda verso i terrazzi dell'ultimo livello e loro conseguenze sulla configurazione reale e sui carichi.
+Impedire la chiusura prematura di M1-A sulle sole travi ordinarie. Il controllo integra carpenterie, armature, piante architettoniche, sezioni e modello storico per: scala/torrino, cornicioni, balconate, terrazzi, impluvio, gronde, colmi e sbalzi di copertura.
 
-## 1. Coppie di numeri sovrapposte in TAV-034A
+## 1. TAV-034A — coppie sovrapposte e tratto 20-21
 
-Chiarimento qualificato dell'utente: le coppie di numeri sovrapposte rappresentano due sequenze di sostegni alle quali si applica lo stesso schema di armatura. La precedente classificazione come ambiguità di etichetta è quindi superata.
+Il chiarimento qualificato dell'utente è acquisito: le coppie di numeri sovrapposte rappresentano due sequenze di sostegni cui si applica lo stesso schema di armatura.
 
-Decisione: lo schema centrale va trattato come `PAIRED_SEQUENCE_SCHEDULE`, analogamente agli altri schemi doppi della tavola. Prima della proiezione sui member ID si deve comunque verificare ogni coppia consecutiva contro TAV-03S/TAV-04S e contro `STOREY_BEAMS_G2_v1.csv` / `STOREY_BEAMS_G3_v1.csv`. In particolare la sequenza superiore letta come 17-18-19-20-21 introduce un controllo mirato sul tratto 20-21: il chiarimento semantico non costituisce da solo evidenza sufficiente per una modifica topologica.
+Il cross-check con TAV-03S/TAV-04S mostra che 17-18, 18-19, 19-20 e la sequenza 24-23-22'-22-21 appartengono al reticolo ordinario. Il proseguimento 20-21 non compare invece nei ledger delle travi ordinarie e ricade nella zona del vano scala; la carpenteria documenta in tale zona una rampa/struttura scala larga 1.40 m.
 
-## 2. Cornicioni/perimetri G4 e G5
+Decisione corrente: il fatto di armatura 20-21 non viene cancellato e non genera una falsa trave piana M0-G. È trasferito a `M1A_STAIR_TOWER_SUBSYSTEM_CURRENT_v1.csv` come `SPECIAL_STAIR_SUBSYSTEM_MEMBER_CANDIDATE`, sezione/schedule 50x20 con staffe phi8/15 da TAV-034A, percorso 3D e ruolo da ricostruire.
 
-Esito: `NON ANCORA COPERTI IN MODO SUFFICIENTE`.
+M0-G resta congelato.
 
-Le fonti primarie corrette sono disponibili: TAV-05S/TAV-05A per G4 e TAV-06S/TAV-06A per G5. Tuttavia il modello canonico corrente è centrato sulle travi ordinarie supporto-supporto e non possiede ancora un inventario esplicito `CORNICIONE/PERIMETER_CANTILEVER`. TAV-05A risulta ancora da associare ai membri; TAV-06A è soltanto parzialmente associata.
+## 2. Balconate e terrazzi — geometria documentale vs armatura
 
-Prima del gate M1-A ogni elemento perimetrale deve essere classificato in una delle seguenti categorie, senza fusione automatica:
+Le piante architettoniche sono state renderizzate dal ramo immutabile e introdotte nel ciclo di controllo.
 
-- trave perimetrale ordinaria tra sostegni;
-- cornicione/sbalzo strutturale oltre l'ultimo sostegno;
-- bordo o fascia di soletta/sbalzo da modellare come elemento di piastra;
-- profilo in calcestruzzo con funzione prevalentemente non strutturale, da trattare come massa/carico e non come trave.
+- TAV-01: pianta interrato; nessun sistema di balconate sporgenti documentato.
+- TAV-02: piano terra; tre grandi zone esterne/terrazzo alle estremità delle tre ali.
+- TAV-03: piano tipo; balconate sagomate direttamente documentate attorno ai tre appartamenti X, Y e K.
+- TAV-04: piano attico; tre grandi terrazzi, uno per ciascuna ala attorno al nucleo scala.
 
-Solo dopo questa classificazione l'armatura TAV-05A/TAV-06A può essere attribuita correttamente.
+La presenza e la sagoma diventano `DOC_ARCH_PRIMARY`. TAV-034A e TAV-05A sono tavole di armatura delle travi; nel controllo completo corrente non è stato individuato un particolare autonomo dell'armatura della soletta/balconata sagomata.
 
-## 3. Copertura: impluvio, colmi e gronde
+Decisione: armatura soletta/balconata = `ND_CURRENT`. Non viene ricostruita dalle travi adiacenti. Geometria e carichi restano comunque obbligatori nel modello; eventuali armature potranno provenire da un particolare successivamente recuperato o da MIS (pacometro/saggi).
 
-### Impluvio
+Registri:
 
-`G5-B017 = 12-19` è già identificato come `IMPLUVIO`, sezione 30x50 `SUPPORTED`. Geometria e ruolo sono quindi acquisiti, ma l'armatura longitudinale/staffe specifica dell'impluvio non è ancora legata canonicamente. Non è corretto assumere automaticamente l'armatura della famiglia delle travi rettangolari adiacenti.
+- `M1A_ARCHITECTURAL_SPECIAL_FEATURES_CURRENT_v1.csv`
+- `M1A_BALCONY_CORNICE_REINFORCEMENT_SOURCE_AUDIT_v1.csv`
+- `M1L_ARCHITECTURAL_ENVELOPE_LOAD_ZONES_v1.csv`
 
-### Colmi
+## 3. Torrino scale e sottosistema scala
 
-Sono censite tre `RIDGE_AXIS`, con identità documentale. Le coordinate XY sono MIS e la quota Z globale resta ND. Il registro speciale mantiene correttamente `TO_VERIFY_MEMBER`: non è stato creato automaticamente un elemento trave per ciascun colmo.
+Il torrino non è più una nota accessoria: è un sottosistema esplicito.
 
-Armatura: `NON CHIUSA`. Per ogni colmo TAV-06S/TAV-06A deve stabilire prima se la linea corrisponde a una vera trave/cordolo strutturale, a una linea geometrica della copertura o ad altro dettaglio. Solo nel primo caso si crea il relativo oggetto di armatura.
+Fonti correnti:
 
-### Gronde
+- TAV-04: nucleo scala in pianta;
+- TAV-03S/TAV-04S: geometria del vano/rampa ai livelli G2/G3;
+- TAV-06E: sviluppo verticale del sistema scala e configurazione superiore;
+- Registro Master/TAV-07A: famiglia pilastri torrino 30x40 cm `DOC-famiglia`.
 
-Sono censiti tre `GRONDA_EDGE_SET` con identità DOC. Il centrolinea metrico e la quota Z restano volutamente ND perché un singolo asse di trave non è attualmente documentato.
+La famiglia 30x40 non viene assegnata automaticamente a tutti i pilastri 30x40 dell'edificio. Il binding member-level resta aperto e deve seguire continuità planimetrica/verticale documentata.
 
-Armatura: `NON CHIUSA`. Occorre ricercare il dettaglio diretto su TAV-06A e distinguere la trave/cordolo di gronda dall'eventuale bordo della soletta o dal cornicione.
+Il candidato 20-21 TAV-034A è conservato dentro questo sottosistema fino alla ricostruzione di percorso, quota Z e funzione (trave di pianerottolo, bordo/rampa o altro elemento scala).
 
-### Trave obliqua 19-26
+Registro corrente: `M1A_STAIR_TOWER_SUBSYSTEM_CURRENT_v1.csv`.
 
-`G5-B036 = 19-26`, 30x50, è invece una vera trave ordinaria obliqua documentata e già conteggiata una sola volta. La sua armatura TAV-06A deve ancora essere portata nel registro M1-A a livello barra-per-barra.
+## 4. Copertura — colmi
 
-## 4. Balconate e sbalzi con sagoma cementata/sagomata
+I tre elementi `LINEA DI COLMO` sono stati riletti direttamente su TAV-06S.
 
-Esito: `PRESENZA DA INVENTARIARE; ARMATURA NON DOCUMENTATA CANONICAMENTE`.
+Esito: le frecce indicano linee tratteggiate di piega/falda, graficamente distinte dalle aste ordinarie del reticolo. TAV-06A non mostra un elemento separato esplicitamente identificato come trave di colmo.
 
-Il patrimonio corrente contiene geometria dedicata del terrazzo e almeno un membro locale sporgente di 1.50 m (`ETW-FLT-E03`), per il quale lo stesso registro dichiara sezione e dettaglio di ancoraggio ND. I pilastri aggiunti a-d sono documentati in carpenteria come 30x30 e devono rimanere distinti dal modello di calcolo storico.
+Decisione corrente:
 
-Non risulta, nell'indice delle fonti immutabili, una tavola autonoma dedicata alle armature delle balconate/solette a sbalzo. Le tavole di armatura disponibili sono principalmente armature travi per livello e armature di copertura. Pertanto non possiamo affermare che l'armatura della sagoma cementata sia disponibile finché non viene eseguito un controllo mirato dentro TAV-02A, TAV-034A, TAV-05A e negli eventuali particolari presenti nelle carpenterie.
+`RIDGE_AXIS = ROOF_GEOMETRIC_FOLD_LINE`  
+`SEPARATE_FRAME_MEMBER = NO_BY_CURRENT_SOURCE`
 
-Chiarimento qualificato dell'utente del 2026-08-23: le balconate sagomate di piano sono rilevabili dalle piante architettoniche e non risultavano considerate negli effetti del calcolo storico. Questo chiarimento viene trattato come `RIF_USER_QUALIFIED` fino al confronto diretto con piante architettoniche e relazione/calcoli. La geometria architettonica deve essere decodificata esplicitamente e confrontata con la carpenteria, non ignorata come informazione non strutturale.
+I colmi restano necessari per la geometria 3D della copertura e le quote delle falde, ma non generano tre nuove travi né tre nuovi oggetti di armatura.
 
-Regola: se la ricerca non produce un dettaglio diretto, l'armatura delle balconate resta `ND`; non viene copiata da travi vicine né ricostruita per analogia. Eventuali dati successivi da pacometro/saggi saranno `MIS`, separati dal progetto originario.
+Registro: `M1A_G5_RIDGE_GRONDA_INTERPRETATION_CURRENT_v1.csv`.
 
-## 5. Torrino scale
+## 5. Copertura — gronde, cornicione e sbalzi delle travi inclinate
 
-Esito: `PRESENTE NEL PATRIMONIO, NON ANCORA AUDITATO COME SOTTOSISTEMA SPECIALE`.
+Sono ora distinti tre oggetti diversi.
 
-Il Registro Master contiene già la famiglia documentale dei pilastri del torrino scala, sezione 30x40 cm. Questo dato resta `DOC-famiglia`: non autorizza da solo l'assegnazione puntuale a tutti i membri del torrino.
+### 5.1 Otto estremità a sbalzo delle travi inclinate
 
-Il torrino deve essere trattato come sottosistema strutturale distinto e verificato almeno per:
+TAV-06A documenta quattro sequenze:
 
-- pilastri e continuità verticale;
-- travi/cordoli o bordi del vano scala;
-- collegamento con G4, G5 e copertura;
-- eventuale soletta/copertura propria;
-- armature da TAV-07A e da eventuali dettagli di travi;
-- masse e carichi propri/non strutturali;
-- discontinuità o eccentricità introdotte rispetto al corpo principale.
+- 23-15-7;
+- 22-14-6;
+- 3-11-20;
+- 2-10-18.
 
-Fonti target: TAV-05S, TAV-06S, TAV-06E, TAV-07A e piante architettoniche. Ogni associazione member-level va documentata separatamente.
+Ogni sequenza prosegue oltre entrambi gli appoggi estremi: risultano quindi **8 estremità a sbalzo documentate**. Sezione 30x50 e staffe phi6/20 sono documentali per la famiglia.
 
-## 6. Sbalzi di 1.50 m delle travi di gronda verso i terrazzi dell'ultimo livello
+La lunghezza 1.50 m fornita dall'utente resta `RIF_USER_QUALIFIED` fino a una quota primaria diretta. Anche il legame fra ciascuna estremità e le tre aree di terrazzo/tamponatura resta da cross-registrare.
 
-Chiarimento qualificato dell'utente del 2026-08-23: all'ultimo livello sono presenti sbalzi di 1.50 m delle travi di gronda verso i terrazzi; tali sbalzi hanno consentito di spostare verso l'esterno la tamponatura, aumentando la superficie utile dei tre appartamenti dell'ultimo livello, ciascuno dotato di terrazzo.
+Registro: `M1A_G5_EAVE_CANTILEVER_ENDS_CURRENT_v1.csv`.
 
-Stato attuale: `RIF_USER_QUALIFIED — DOCUMENTARY_CROSSCHECK_REQUIRED`.
+### 5.2 Gronda come linea/bordo di copertura
 
-Questa informazione non va confusa con `ETW-FLT-E03`, altro elemento locale sporgente di 1.50 m già registrato in ambito G1. Il nuovo fatto riguarda G5/ultimo livello e deve avere oggetti propri.
+I tre `GRONDA_EDGE_SET` restano oggetti geometrici di bordo. Non viene assunto un unico asse longitudinale di trave se la fonte non lo documenta.
 
-Controlli obbligatori:
+### 5.3 Particolare diretto di cornicione/gronda
 
-1. localizzare i tre sbalzi su TAV-06S e sulle piante architettoniche;
-2. stabilire se si tratta di vere travi di gronda a mensola, bordi strutturali di soletta o altra configurazione;
-3. leggere sezione e armatura su TAV-06A senza ereditarle per analogia;
-4. ricostruire la linea reale della tamponatura rispetto alla linea strutturale;
-5. determinare la superficie aggiuntiva e la porzione a terrazzo per ciascuno dei tre appartamenti;
-6. trasferire le conseguenze a M1-L: permanenti strutturali/non strutturali, tamponature, finiture, carichi d'uso e masse sismiche, mantenendo distinta la configurazione storicamente calcolata dallo stato costruito/documentato.
+TAV-06S contiene almeno un particolare a L del bordo esterno con:
 
-## 7. Reverse engineering della pratica storica e lettura incrociata delle fonti
+- proiezione 120 cm;
+- spessore indicato 15 cm;
+- 6phi10 longitudinali;
+- staffe phi6 lunghe.
 
-Principio operativo introdotto: la pratica originaria può utilizzare rappresentazioni schematiche, ripetitive e semplificate. Questa caratteristica è una chiave di ricerca, non un'evidenza sufficiente per completare dati mancanti.
+Questo è il primo dettaglio diretto di armatura di un elemento perimetrale G5. Deve essere mappato lungo il perimetro e non va confuso con gli otto sbalzi delle travi inclinate.
 
-Il sistema deve quindi leggere congiuntamente:
+## 6. Impluvio B017 = 12-19
 
-`architettura -> carpenteria -> armature -> relazione/calcoli -> stato costruito/rilievo`
+Geometria/ruolo: `IMPLUVIO`, sezione 30x50 `SUPPORTED`.
 
-Le piante architettoniche hanno valore diretto per individuare sagome di balconi, terrazzi, posizione delle tamponature, distribuzione degli ambienti e superfici effettivamente utilizzate. Non costituiscono però prova automatica delle armature.
+La TAV-06A contiene un ulteriore schema inclinato 30x50 con staffe phi6/15 (`T6A-G03`), ma mostra due stazioni di appoggio e un'estremità libera a sbalzo e non possiede etichette di estremità leggibili. Non è un direct topology match con il membro canonico B017=12-19.
 
-Ogni divergenza tra configurazione architettonica/carpenteria e schema di calcolo deve generare un residuo esplicito di tipo `HISTORICAL_MODEL_OMISSION_OR_SIMPLIFICATION`, da verificare prima di definire carichi e modello dello stato di fatto.
+Decisione: non attribuire T6A-G03 a B017. Armatura B017 = `ND_CURRENT` fino a nuova evidenza diretta o MIS.
 
-## 8. Valutazione complessiva
+## 7. Trave obliqua B036 = 19-26
 
-Il lavoro sulle armature delle travi ordinarie è avanzato e tracciato, ma M1-A non è ancora completo come modello dell'intero organismo strutturale. Il gap non riguarda più soprattutto le normali campate del telaio: riguarda gli elementi speciali, di bordo e i sottosistemi che lo schema di calcolo storico può avere semplificato o omesso.
+B036 è chiusa nel nucleo documentale:
 
-Stato di gate:
+- sezione 30x50;
+- staffe phi6/15;
+- due barre diritte 2phi16 L=725 cm;
+- secondo sistema 2phi16 L=725 cm;
+- due sistemi 2phi16 sagomati.
 
-`M1-A = IN_PROGRESS — HOLD_SPECIAL_FEATURE_AUDIT`
+Le diagonali non quotate restano watch e non vengono completate per simmetria.
 
-Il gate M1-A potrà chiudere soltanto dopo:
+Registro: `M1A_G5_SPECIAL_REINFORCEMENT_CURRENT_v1.csv`.
 
-1. applicazione del chiarimento sulle sequenze sovrapposte TAV-034A e cross-check del tratto candidato 20-21;
-2. inventario cornicioni G4 e G5 con classificazione strutturale/non strutturale;
-3. binding armature TAV-05A ai cornicioni/travi G4 dove documentate;
-4. binding TAV-06A a B017 impluvio, B036 e a ogni vero membro di colmo/gronda/cornicione identificato;
-5. inventario balconate/sbalzi per livello mediante carpenterie e piante architettoniche e ricerca sistematica delle armature;
-6. audit completo del torrino scale come sottosistema;
-7. verifica documentale e modellazione dei tre sbalzi di gronda da 1.50 m verso i terrazzi dell'ultimo livello;
-8. apertura dei corrispondenti item M1-L per carichi/massi non presenti nel modello storico, se la verifica conferma l'omissione;
-9. marcatura esplicita `ND` per qualsiasi armatura speciale non reperita, senza completamenti per analogia.
+## 8. Carichi e differenza modello storico -> configurazione documentata
 
-Registro operativo associato: `data/canonical/M1A_SPECIAL_FEATURE_REINFORCEMENT_GAP_REGISTER_v1.csv`.
+È stato aperto il ledger `M1L_ARCHITECTURAL_ENVELOPE_LOAD_ZONES_v1.csv`.
+
+Sono già separati:
+
+- interrato;
+- terrazzi/zone esterne del piano terra;
+- balconate sagomate dei piani tipo;
+- tre terrazzi dell'attico;
+- torrino/nucleo scala;
+- estremità a sbalzo delle travi di copertura.
+
+Non sono ancora assegnati valori numerici di carico. Prima si congela geometria e classificazione strutturale; poi M1-L distinguerà carichi storicamente considerati, carichi documentati nello stato costruito e delta omessi/semplificati.
+
+La segnalazione dell'utente sull'omissione storica dei carichi delle balconate e della configurazione superiore resta `RIF_USER_QUALIFIED` finché il confronto con le pagine di carico originali non la conferma o la contraddice.
+
+## 9. Stato del gate
+
+`M1-A = IN_PROGRESS — SPECIAL_FEATURE_AUDIT_ADVANCED`
+
+Punti già chiusi o trasformati in stato esplicito:
+
+- semantica coppie TAV-034A: risolta;
+- 20-21: trasferito al sottosistema scala, non più blocco del reticolo ordinario;
+- balconate/terrazzi: presenza geometrica DOC;
+- armatura soletta/balconata: ND corrente dopo audit delle tavole travi;
+- colmi: risolti come linee geometriche di falda, nessuna trave separata corrente;
+- B036: nucleo armatura DOC;
+- B017: armatura ND corrente, nessuna falsa attribuzione;
+- 8 estremità di gronda delle travi inclinate: DOC come presenza/host/famiglia di armatura;
+- un particolare gronda/cornicione G5: DOC 120x15, 6phi10 + staffe phi6 lunghe;
+- torrino/scala: sottosistema canonico attivo.
+
+Residui prioritari prima del gate M1-A:
+
+1. binding geometrico 3D del sottosistema scala/torrino e del candidato 20-21;
+2. mappatura del particolare 120x15 lungo i bordi G5;
+3. cross-registration degli 8 sbalzi di copertura con le tre aree di terrazzo e verifica documentale della quota 1.50 m;
+4. classificazione G4 dei perimetri/cornicioni e ordinario binding TAV-05A;
+5. ricerca finale di particolari balconate; in assenza, mantenimento definitivo ND documentale;
+6. completamento del member-level reinforcement mapping ordinario dopo la chiusura dei sottosistemi speciali.
 
 ## Regola di continuità
 
-Questa review non riapre M0-G. Una riapertura geometrica è consentita solo se una fonte primaria dimostra un elemento strutturale mancante nel baseline frame congelato. Elementi di piastra, balconi, cornicioni o masse non strutturali possono essere introdotti nel successivo modello analitico senza modificare il reticolo frame, purché geometria, provenienza e relazione con il baseline M0-G siano registrate separatamente.
+M0-G resta frozen. Una riapertura avviene soltanto se una fonte primaria dimostra una vera asta del frame ordinario mancante. Scale, piastre, balconi, cornicioni, linee di falda e masse/carichi entrano nei rispettivi sottosistemi senza deformare artificialmente il reticolo frame.
