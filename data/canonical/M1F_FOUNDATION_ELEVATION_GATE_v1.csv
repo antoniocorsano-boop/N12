@@ -1,0 +1,8 @@
+check_id,metric,expected,actual,status,severity,note
+M1F-ELEV-G01,main_structural_foundation_plane,COMMON_PLANE_DOC,COMMON_PLANE_DOC,PASS,HARD,"TAV-06E directly supports a common lower structural foundation/base line for the main foundation system through the semibasement transition."
+M1F-ELEV-G02,raised_fill_floor_distinct_from_foundation,YES,YES,PASS,HARD,"The raised against-ground floor/fill layer is separated from the lower structural foundation line; no inferred foundation step is introduced."
+M1F-ELEV-G03,foundation_supports_bound_to_common_symbolic_plane,38,38,PASS,HARD,"All 38 canonical PT/foundation support identities are assigned conceptually to symbolic plane ZF_COMMON; topology identities remain unchanged."
+M1F-ELEV-G04,historical_bearing_depth_below_ground_m,1.00,1.00,PASS,INFO,"Direct original relation value retained as historical relative depth below piano di campagna."
+M1F-ELEV-G05,numeric_ZF_COMMON_registered,NO,NO,PASS_WITH_WATCH,WATCH,"Absolute/model-coordinate ZF_COMMON remains ND because the relation between G1=0.00 and local piano di campagna is not yet documentally registered."
+M1F-ELEV-G06,peripheral_ancillary_lines_forced_to_common_plane,0,0,PASS,HARD,"Unidentified retaining/peripheral lines are excluded from the common-plane proof rather than assimilated by visual proximity."
+M1F-ELEV-GATE,gate_state,PASS_COMMON_FOUNDATION_PLANE_WITH_NUMERIC_Z_WATCH,PASS_COMMON_FOUNDATION_PLANE_WITH_NUMERIC_Z_WATCH,PASS_WITH_WATCH,GATE,"Main structural foundation elevation continuity is closed documentally at symbolic-plane level. Numerical model Z and current geotechnical parameters remain downstream watches."
