@@ -1,0 +1,7 @@
+group_id,source_id,level_scope,drawn_sequence_a,drawn_sequence_b,g2_member_ids,g3_member_ids,binding_status,evidence_status,source_locator,note
+T34-G01,TAV-034A,G2+G3,4-3-2-1,5-6-7-8,G2-B003;G2-B002;G2-B001;G2-B005;G2-B006;G2-B007,G3-B003;G3-B002;G3-B001;G3-B005;G3-B006;G3-B007,DIRECT_TOPOLOGY_MATCH,DOC,TAV034A P01-P02,"Cartiglio states Armatura II° e III° impalcato; one source scheme applies to both G2 and G3."
+T34-G02,TAV-034A,G2+G3,12-11-10-9,13-14-15-16,G2-B016;G2-B015;G2-B014;G2-B017;G2-B018;G2-B019,G3-B016;G3-B015;G3-B014;G3-B017;G3-B018;G3-B019,DIRECT_TOPOLOGY_MATCH,DOC,TAV034A P02-P03,"Paired support sequences directly match the G2/G3 carpenteria ledgers."
+T34-G04,TAV-034A,G2+G3,24-16-8,31-32-33,G2-B026;G2-B013;G2-B047;G2-B048,G3-B026;G3-B013;G3-B047;G3-B048,DIRECT_TOPOLOGY_MATCH,DOC,TAV034A P05,"Source note states measures in parentheses apply to 24-16-8."
+T34-G05,TAV-034A,G2+G3,17-9-1,,G2-B022;G2-B008,G3-B022;G3-B008,DIRECT_TOPOLOGY_MATCH,DOC,TAV034A P06,"Single two-span sequence 17-9-1; section sketch 25x70 with staffe Ø6/15 adjacent on source."
+T34-G06,TAV-034A,G2+G3,21-26-29-32,,G2-B035;G2-B040;G2-B045,G3-B035;G3-B040;G3-B045,DIRECT_TOPOLOGY_MATCH,DOC,TAV034A P07,"Single sequence; source section sketch 140x20 and staffe Ø8/15."
+T34-G07,TAV-034A,G2+G3,19-25-28-31,22'-27-30-33,G2-B030;G2-B039;G2-B044;G2-B036;G2-B041;G2-B046,G3-B030;G3-B039;G3-B044;G3-B036;G3-B041;G3-B046,DIRECT_TOPOLOGY_MATCH,DOC,TAV034A P08,"Paired schemes; source note says parenthesized measures apply to 22'-27-30-33."
