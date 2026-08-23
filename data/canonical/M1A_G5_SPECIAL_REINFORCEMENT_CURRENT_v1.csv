@@ -1,0 +1,5 @@
+record_id,member_id,source_id,source_locator,role,bar_position,quantity,diameter_mm,shape_or_length,stirrups,evidence_status,validation_state,note
+G5SR-001,G5-B036,TAV-06A,P06,OBLIQUE_ROOF_BEAM,STRAIGHT_LONGITUDINAL_1,2,16,"L=725 cm",phi6/15,DOC,DIRECT_TRANSCRIPTION,"First straight 2phi16 bar directly labelled 725."
+G5SR-002,G5-B036,TAV-06A,P06,OBLIQUE_ROOF_BEAM,BENT_LONGITUDINAL_1,2,16,"80 + diag65 + 470 + right_diag_UNLABELLED + 80 cm",phi6/15,DOC,DIRECT_TRANSCRIPTION_WITH_WATCH,"Only explicitly written segment dimensions are recorded; right diagonal is not completed by symmetry."
+G5SR-003,G5-B036,TAV-06A,P06,OBLIQUE_ROOF_BEAM,BENT_LONGITUDINAL_2,2,16,"120 + diag65 + 390 + right_diag_UNLABELLED + 120 cm",phi6/15,DOC,DIRECT_TRANSCRIPTION_WITH_WATCH,"Only explicitly written segment dimensions are recorded; right diagonal is not completed by symmetry."
+G5SR-004,G5-B036,TAV-06A,P06,OBLIQUE_ROOF_BEAM,STRAIGHT_LONGITUDINAL_2,2,16,"L=725 cm",phi6/15,DOC,DIRECT_TRANSCRIPTION,"Second straight 2phi16 bar directly labelled 725."
