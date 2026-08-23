@@ -4,12 +4,12 @@ import csv, sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]; C=ROOT/'data'/'canonical'
 GROUPS=C/'M1F_TAV01A_GROUP_INDEX_v1.csv'; REINF=C/'M1F_TAV01A_GROUP_REINFORCEMENT_v1.csv'; PATCH=C/'M1F_TAV01A_REINFORCEMENT_CORRECTION_PATCH_v1.csv'; QUEUE=C/'M1F_REINFORCEMENT_EXTRACTION_QUEUE_v1.csv'; TOPOLOGY=C/'M1F_FOUNDATION_TOPOLOGY_CURRENT_v1.csv'; CROSSCHECK=C/'M1F_TAV01A_TAV01S_CROSSCHECK_v1.csv'; GATE=C/'M1F_FOUNDATION_REINFORCEMENT_GATE_v1.csv'
-EXPECTED_GROUPS={f'F1A-G0{i}' for i in range(1,8)}; EXPECTED_PATCH_IDS={f'M1F-REINF-P{i:03d}' for i in range(1,11)}
+EXPECTED_GROUPS={f'F1A-G0{i}' for i in range(1,8)}; EXPECTED_PATCH_IDS={f'M1F-REINF-P{i:03d}' for i in range(1,15)}
 def read_csv(p):
     with p.open('r',encoding='utf-8-sig',newline='') as f:return list(csv.DictReader(f))
 def apply_patch(base,patch,errors):
     rows=[dict(r) for r in base]; by={r['row_id'].strip():r for r in rows}
-    if len(patch)!=10 or {r['patch_id'].strip() for r in patch}!=EXPECTED_PATCH_IDS: errors.append('HiRes correction/partition patch must contain exactly P001-P010'); return rows
+    if len(patch)!=14 or {r['patch_id'].strip() for r in patch}!=EXPECTED_PATCH_IDS: errors.append('HiRes correction/partition patch must contain exactly P001-P014'); return rows
     for p in patch:
         op=p['operation'].strip(); target=p['target_row_id'].strip(); new=p['new_row_id'].strip(); vals={'group_id':p['group_id'].strip(),'source_id':'TAV-01A','source_locator':p['source_locator'].strip(),'bar_role':p['bar_role'].strip(),'bar_quantity':p['bar_quantity'].strip(),'bar_diameter_mm':p['bar_diameter_mm'].strip(),'shape_or_length':p['shape_or_length'].strip(),'segment_dimensions_cm':p.get('segment_dimensions_cm','').strip(),'evidence_status':p['evidence_status'].strip(),'binding_state':p['binding_state'].strip(),'note':p['reason'].strip()}
         if op=='REPLACE':
@@ -30,17 +30,19 @@ def main():
     gids=[r['group_id'].strip() for r in groups]
     if len(groups)!=7 or set(gids)!=EXPECTED_GROUPS or len(set(gids))!=7: errors.append('group index must contain exactly unique G01-G07')
     if len(base)!=47: errors.append(f'base rows must remain 47, got {len(base)}')
-    if len(reinf)!=52: errors.append(f'effective rows must be 52, got {len(reinf)}')
+    if len(reinf)!=54: errors.append(f'effective rows must be 54, got {len(reinf)}')
     ids=[r['row_id'].strip() for r in reinf]
     if len(ids)!=len(set(ids)): errors.append('duplicate effective reinforcement row_id')
     qby={r['group_id'].strip():r for r in queue}; complete=sum(r['reinforcement_transcription_state'].strip()=='COMPLETE_DIRECT' for r in queue); partial=sum(r['reinforcement_transcription_state'].strip()=='PARTIAL_DIRECT' for r in queue); pending=sum(r['reinforcement_transcription_state'].strip()=='PENDING' for r in queue)
     if set(qby)!=EXPECTED_GROUPS or len(queue)!=7: errors.append('queue must contain G01-G07 exactly once')
-    if (complete,partial,pending)!=(4,3,0): errors.append(f'queue partition expected 4/3/0, got {(complete,partial,pending)}')
+    if (complete,partial,pending)!=(5,2,0): errors.append(f'queue partition expected 5/2/0, got {(complete,partial,pending)}')
     open_rows=[r for r in reinf if r['binding_state'].strip().startswith('OPEN_')]
-    if len(open_rows)!=4: errors.append(f'open rows expected 4, got {len(open_rows)}')
+    if len(open_rows)!=2: errors.append(f'open rows expected 2, got {len(open_rows)}')
     for g in ['F1A-G05','F1A-G06']:
         states={r['binding_state'].strip() for r in reinf if r['group_id'].strip()==g}
         if not any(s.endswith('B_SIDE') for s in states) or not any(s.endswith('A_SIDE') for s in states): errors.append(f'{g}: B/A regimes must remain explicit')
+    g05_transition=[r for r in reinf if r['group_id'].strip()=='F1A-G05' and r['binding_state'].strip()=='GROUP_BOUND_TRANSITION_17_18']
+    if len(g05_transition)!=2: errors.append(f'G05 must preserve exactly two direct transition-spanning bars, got {len(g05_transition)}')
     by={r['row_id'].strip():r for r in reinf}
     exact={
       'F1A-G07-R04':('2','12','BENT_PARTIAL','70+70=140;right_diag122;left_inclined_segment_unlabelled','GROUP_BOUND'),
@@ -48,7 +50,11 @@ def main():
       'F1A-G07-R04C':('2','14','BENT_PARTIAL','left_diag122;30+70=100;right_end_segment_unlabelled','GROUP_BOUND'),
       'F1A-G04-R04':('2','18','BENT_PARTIAL','left_end_segment_unlabelled;70+100=170;right_diag122;continuation_unlabelled','GROUP_BOUND'),
       'F1A-G04-R04B':('2','14','BENT_PARTIAL','left_diag122;100+40=140;ascending_diag_unlabelled;top210;right_diag122;40+70=110','GROUP_BOUND'),
-      'F1A-G06-R09A':('2','14','BENT','left_diag122;100+45=145;ascending_diag122;top200;right_diag122;45+105=150','GROUP_BOUND_A_SIDE')}
+      'F1A-G06-R09A':('2','14','BENT','left_diag122;100+45=145;ascending_diag122;top200;right_diag122;45+105=150','GROUP_BOUND_A_SIDE'),
+      'F1A-G05-R04B':('2','12','BENT','60+70=130;right_diag93','GROUP_BOUND_B_SIDE'),
+      'F1A-G05-R04C':('2','14','BENT','left_diag93;70+35=105;ascending_diag93;top140;descending_diag93;35+95=130;right_diag122','GROUP_BOUND_TRANSITION_17_18'),
+      'F1A-G05-R09A':('2','18','BENT','left_diag93;70+50=120;ascending_diag122;top280;descending_diag122;50+95=145;right_diag122','GROUP_BOUND_TRANSITION_17_18'),
+      'F1A-G05-R09B':('2','14','BENT_PARTIAL','left_diag122;95+70=165','GROUP_BOUND_A_SIDE')}
     for rid,exp in exact.items():
         r=by.get(rid,{}); act=(r.get('bar_quantity','').strip(),r.get('bar_diameter_mm','').strip(),r.get('shape_or_length','').strip(),r.get('segment_dimensions_cm','').strip(),r.get('binding_state','').strip())
         if act!=exp: errors.append(f'{rid}: direct partition mismatch expected {exp}, got {act}')
@@ -64,7 +70,7 @@ def main():
     if len(topology)!=58: errors.append(f'topology expected 58, got {len(topology)}')
     direct=sum(r['reinforcement_binding_state'].strip()=='DIRECT_GROUP_BOUND' for r in topology); supported=sum(r['reinforcement_binding_state'].strip()=='SCHEMATIC_22_27_SPLIT_AT_22_PRIME' for r in topology); noauto=len(topology)-direct-supported
     if (direct,supported,noauto)!=(42,1,15): errors.append(f'member binding partition mismatch {(direct,supported,noauto)}')
-    gb={r['check_id'].strip():r for r in gate}; expected={'M1F-REINF-001':'7','M1F-REINF-002':'7','M1F-REINF-003':'52','M1F-REINF-004':'4','M1F-REINF-005':'3','M1F-REINF-006':'0','M1F-REINF-007':'4','M1F-REINF-008':'2','M1F-REINF-009':'1','M1F-REINF-010':'42','M1F-REINF-011':'1','M1F-REINF-012':'15','M1F-REINF-013':'4','M1F-REINF-014':'3','M1F-REINF-015':'2','M1F-REINF-016':'1','M1F-REINF-GATE':'PASS_GROUP_COVERAGE_WITH_TRANSCRIPTION_WATCHES'}
+    gb={r['check_id'].strip():r for r in gate}; expected={'M1F-REINF-001':'7','M1F-REINF-002':'7','M1F-REINF-003':'54','M1F-REINF-004':'5','M1F-REINF-005':'2','M1F-REINF-006':'0','M1F-REINF-007':'2','M1F-REINF-008':'2','M1F-REINF-009':'1','M1F-REINF-010':'42','M1F-REINF-011':'1','M1F-REINF-012':'15','M1F-REINF-013':'4','M1F-REINF-014':'3','M1F-REINF-015':'2','M1F-REINF-016':'1','M1F-REINF-017':'4','M1F-REINF-GATE':'PASS_GROUP_COVERAGE_WITH_TRANSCRIPTION_WATCHES'}
     for cid,exp in expected.items():
         act=gb.get(cid,{}).get('actual','').strip()
         if act!=exp: errors.append(f'{cid}: expected {exp}, got {act}')
