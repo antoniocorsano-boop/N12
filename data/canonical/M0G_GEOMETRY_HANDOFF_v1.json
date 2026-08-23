@@ -3,7 +3,7 @@
   "handoff_id": "N12_M0G_GEOMETRY_HANDOFF",
   "date": "2026-08-22",
   "domain": "M0-G_GLOBAL_GEOMETRY",
-  "status": "CURRENT_WITH_WATCHES_REVALIDATED_B053_B054",
+  "status": "CURRENT_WITH_WATCHES_REVALIDATED_B055",
   "promotion_decision": "PASS_WITH_WATCH",
   "purpose": "Freeze the validated M0-G analytical geometry as a reference-only handoff for downstream section completion and EdiLus/open-source FEM model construction without duplicating canonical ledgers or repairing unresolved evidence by inference.",
   "promotion_basis": {
@@ -31,19 +31,19 @@
   "canonical_references": {
     "assembly_contract": {
       "path": "data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json",
-      "git_blob_sha": "7b35256cc012e14478a2e4b8845d4f15e4fe6e15"
+      "git_blob_sha": "c98d1c14cbfc3e40aafb8d556ca1d744e435b804"
     },
     "analytical_nodes_3d": {
       "path": "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",
-      "git_blob_sha": "f8e3967262d46de9030beb86571f6f201e5ebb6e"
+      "git_blob_sha": "1201910ed30b9abb7962983b9950a7f5f1ff7914"
     },
     "rigid_joint_links": {
       "path": "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv",
-      "git_blob_sha": "c21954b5ac9cbbbc3e602eef01fdf73299fb75eb"
+      "git_blob_sha": "b489415604c5698d2a96fcad0a920abafc0baf37"
     },
     "member_connectivity": {
       "path": "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv",
-      "git_blob_sha": "46f9e553224ab65ee33c61052021c7c5e03fd336"
+      "git_blob_sha": "1edaf832d5729f323bfded711dfa2e716208195a"
     },
     "roof_special_geometry_3d": {
       "path": "data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv",
@@ -51,16 +51,16 @@
     },
     "global_topology_gate": {
       "path": "data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv",
-      "git_blob_sha": "f242c74ab5b624dd8f38f0b98a0db7d88b653fa4"
+      "git_blob_sha": "b8e36c264eba61718d56e678d6891d2c4bf22add"
     }
   },
   "frozen_inventory": {
-    "analytical_nodes_total": 627,
+    "analytical_nodes_total": 629,
     "support_core_nodes": 165,
-    "beam_face_nodes": 462,
-    "rigid_joint_links": 462,
-    "ordinary_structural_members": 358,
-    "ordinary_beams": 231,
+    "beam_face_nodes": 464,
+    "rigid_joint_links": 464,
+    "ordinary_structural_members": 359,
+    "ordinary_beams": 232,
     "vertical_column_segments": 127,
     "roof_special_nonordinary_geometry": {
       "ridge_axes": 3,
@@ -176,11 +176,10 @@
   },
   "completion_statement": "M0-G geometry is frozen and suitable as the canonical geometric/topological basis for downstream model construction. PASS_WITH_WATCH does not close the listed evidence gaps and does not authorize silent completion of any ND/MIS field.",
   "local_reopen_revision": {
-    "id": "M0G-REOPEN-B053-B054",
+    "id": "M0G-REOPEN-B055",
     "state": "CLOSED_REVALIDATED",
     "new_g1_beams": [
-      "B-053",
-      "B-054"
+      "B-055"
     ],
     "evidence": "data/canonical/M0G_REOPEN_PT_BEAM_EVIDENCE_v1.csv"
   }

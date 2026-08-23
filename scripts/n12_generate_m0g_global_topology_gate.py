@@ -53,9 +53,9 @@ def main() -> None:
 
     checks: list[dict[str, str]] = []
 
-    add(checks, "GT-001", "inventory", "HARD", 627, len(ns), len(ns) == 627, "CANONICAL", "Frozen analytical-node inventory.")
-    add(checks, "GT-002", "inventory", "HARD", 462, len(ls), len(ls) == 462, "CANONICAL", "Frozen rigid-link inventory.")
-    add(checks, "GT-003", "inventory", "HARD", 358, len(ms), len(ms) == 358, "CANONICAL", "Frozen ordinary structural-member inventory.")
+    add(checks, "GT-001", "inventory", "HARD", 629, len(ns), len(ns) == 629, "CANONICAL", "Frozen analytical-node inventory.")
+    add(checks, "GT-002", "inventory", "HARD", 464, len(ls), len(ls) == 464, "CANONICAL", "Frozen rigid-link inventory.")
+    add(checks, "GT-003", "inventory", "HARD", 359, len(ms), len(ms) == 359, "CANONICAL", "Frozen ordinary structural-member inventory.")
     add(checks, "GT-004", "inventory", "HARD", 6, len(rs), len(rs) == 6, "CANONICAL_WITH_WATCH", "Exactly three ridge axes plus three eaves edge sets.")
     add(checks, "GT-005", "identity", "HARD", len(ns), len(set(node_ids)), len(node_ids) == len(set(node_ids)), "CANONICAL", "No duplicate node IDs.")
     add(checks, "GT-006", "identity", "HARD", len(ms), len(set(member_ids)), len(member_ids) == len(set(member_ids)), "CANONICAL", "No duplicate member IDs.")

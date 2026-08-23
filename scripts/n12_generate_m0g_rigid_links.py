@@ -108,17 +108,17 @@ def main() -> None:
     same_level = sum(1 for r in out_rows if cores[(r["level_id"], r["support_id"])]["level_id"] == r["level_id"])
 
     checks = [
-        ("TOTAL_RIGID_LINK_ROWS", 462, len(out_rows), "One link for every beam-support face node."),
-        ("G1_RIGID_LINK_ROWS", 102, by_level["G1"], "Reused PT face incidences."),
+        ("TOTAL_RIGID_LINK_ROWS", 464, len(out_rows), "One link for every beam-support face node."),
+        ("G1_RIGID_LINK_ROWS", 104, by_level["G1"], "Reused PT face incidences."),
         ("G2_RIGID_LINK_ROWS", 96, by_level["G2"], "48 beams x 2 ends."),
         ("G3_RIGID_LINK_ROWS", 96, by_level["G3"], "48 beams x 2 ends."),
         ("G4_RIGID_LINK_ROWS", 96, by_level["G4"], "48 beams x 2 ends."),
         ("G5_RIGID_LINK_ROWS", 72, by_level["G5"], "36 beams x 2 ends."),
-        ("UNIQUE_LINK_IDS", 462, unique_links, "No duplicate rigid links."),
-        ("UNIQUE_FACE_NODE_TARGETS", 462, unique_faces, "Each face incidence is linked exactly once."),
+        ("UNIQUE_LINK_IDS", 464, unique_links, "No duplicate rigid links."),
+        ("UNIQUE_FACE_NODE_TARGETS", 464, unique_faces, "Each face incidence is linked exactly once."),
         ("ORPHAN_CORE_NODES", 0, orphan_core, "Every face node must find the core of the same support and level."),
-        ("SAME_SUPPORT_LINKS", 462, same_support, "Rigid offset never crosses physical supports."),
-        ("SAME_LEVEL_LINKS", 462, same_level, "Rigid offset never crosses storeys."),
+        ("SAME_SUPPORT_LINKS", 464, same_support, "Rigid offset never crosses physical supports."),
+        ("SAME_LEVEL_LINKS", 464, same_level, "Rigid offset never crosses storeys."),
         ("ZERO_LENGTH_LINKS", 0, nonzero_fail, "No beam-face incidence may be collapsed to the support core."),
         ("NONZERO_DZ_LINKS", 0, z_mismatch, "Core and face incidence lie on the same structural plane."),
         ("OUTSIDE_SUPPORT_HALF_DIAGONAL", 0, section_envelope_fail, "Face point must remain on/within the rectangular support envelope within tolerance."),

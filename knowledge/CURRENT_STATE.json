@@ -6,7 +6,7 @@
   "objective": "Complete the calculation-model inputs from the frozen M0-G geometry through sections, materials, reinforcement, loads, foundations and EdiLus/open-source FEM handoff while preserving source provenance and nonblocking residuals.",
   "geometry_master_status": "CURRENT",
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
-  "m0g_geometry_status": "FROZEN_PASS_WITH_WATCH_REVALIDATED_B053_B054",
+  "m0g_geometry_status": "FROZEN_PASS_WITH_WATCH_REVALIDATED_B055",
   "m0g_geometry_handoff": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
   "blocking_gate": "data/canonical/M1M_MATERIAL_GATE_v1.csv",
   "automation": {
@@ -42,15 +42,15 @@
     },
     {
       "phase": "M0-G-GLOBAL-GEOMETRY",
-      "status": "FROZEN_PASS_WITH_WATCH_REVALIDATED_B053_B054",
+      "status": "FROZEN_PASS_WITH_WATCH_REVALIDATED_B055",
       "handoff": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
-      "analytical_nodes": 627,
-      "rigid_joint_links": 462,
-      "ordinary_members": 358,
-      "ordinary_beams": 231,
+      "analytical_nodes": 629,
+      "rigid_joint_links": 464,
+      "ordinary_members": 359,
+      "ordinary_beams": 232,
       "vertical_column_segments": 127,
       "reopen_rule": "Only through formal M0G-REOPEN supported by new direct documentary geometry evidence.",
-      "local_reopen": "B-053/B-054 CLOSED_REVALIDATED"
+      "local_reopen": "B-055 17-18 CLOSED_REVALIDATED after B-053/B-054"
     },
     {
       "phase": "M1-S-SECTIONS",
@@ -59,7 +59,7 @@
       "g5_sections": "data/canonical/M1S_G5_BEAM_SECTIONS_CURRENT_v1.csv",
       "rigid_zones": "data/canonical/M1S_G5_RIGID_ZONES_v1.csv",
       "closure_report": "docs/M1S_SECTION_CLOSURE_REPORT_v1.md",
-      "ordinary_members_with_usable_sections": 358,
+      "ordinary_members_with_usable_sections": 359,
       "nd_section_count": 0,
       "section_evidence_watch_count": 5,
       "supported_section_items": [
@@ -152,14 +152,14 @@
   "anti_restart_rule": "PT geometry, common storey registration, M0-G global geometry/topology, M1-S section completion and M1-M material evidence inventory are stable checkpoints. M1-A source render, TAV-07A family transcription and TAV-02A direct group index are incremental checkpoints. Do not restart them globally; reopen only the smallest conflicting claim supported by new direct source evidence.",
   "completion_condition": "M1 completes only when materials, reinforcement, loads and foundations are promoted with explicit provenance and the final EdiLus/FEM handoff reaches CALCULATION_MODEL_READY.",
   "geometry_reopen_checkpoint": {
-    "id": "M0G-REOPEN-B053-B054",
+    "id": "M0G-REOPEN-B055",
     "state": "CLOSED_REVALIDATED",
-    "delta": {
-      "g1_beams": 2,
-      "g1_face_nodes": 4,
-      "global_members": 2,
-      "global_nodes": 4,
-      "rigid_links": 4
+    "delta_from_previous_freeze": {
+      "g1_beams": 1,
+      "g1_face_nodes": 2,
+      "global_members": 1,
+      "global_nodes": 2,
+      "rigid_links": 2
     }
   }
 }

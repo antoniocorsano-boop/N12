@@ -30,8 +30,8 @@
   },
   "frozen_inventory": {
     "g1_physical_supports": 38,
-    "g1_existing_beam_face_analytical_nodes": 102,
-    "g1_effective_beams": 51,
+    "g1_existing_beam_face_analytical_nodes": 104,
+    "g1_effective_beams": 52,
     "vertical_column_segments": {
       "G1_G2": 34,
       "G2_G3": 34,
@@ -46,8 +46,8 @@
       "G5": 36,
       "total": 180
     },
-    "ordinary_beams_all_storeys": 231,
-    "ordinary_structural_member_segments": 358,
+    "ordinary_beams_all_storeys": 232,
+    "ordinary_structural_member_segments": 359,
     "roof_special_registry_rows": 7,
     "roof_special_nonordinary_geometry": {
       "ridge_axes": 3,
@@ -93,7 +93,7 @@
     "centroid_substitution_for_beam_ends": "FORBIDDEN"
   },
   "member_assembly_rules": {
-    "pt_beams": "Use 51 effective PT beams; B-053 18-19 and B-054 23-22-prime are formal local-reopen additions from TAV-02S with TAV-02A crosscheck; prior revocations and duplicate suppression remain in force.",
+    "pt_beams": "Use 52 effective PT beams. B-053 18-19, B-054 23-22-prime and B-055 17-18 are formal local-reopen additions documented by TAV-02S with TAV-02A crosschecks; prior revocations and duplicate suppression remain in force.",
     "upper_beams": "Use STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv as an index only; field authority remains in the G2/G3/G4/G5 source ledgers.",
     "columns": "Use VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv exactly; keep endpoint sections independently and do not interpolate section changes through a segment boundary.",
     "roof_ridges_and_eaves": "Keep the three ridge axes and three eaves edge sets outside ordinary member connectivity until explicit structural-member evidence is established.",
@@ -141,7 +141,7 @@
   ],
   "completion_definition": "M0-G may be handed off only after a non-blocking global topology gate. WATCH/ND values remain explicit constraints for downstream M0-S/model construction and are never silently repaired.",
   "local_reopen_revision": {
-    "id": "M0G-REOPEN-B053-B054",
+    "id": "M0G-REOPEN-B055",
     "state": "CLOSED_REVALIDATED",
     "evidence": "data/canonical/M0G_REOPEN_PT_BEAM_EVIDENCE_v1.csv"
   }

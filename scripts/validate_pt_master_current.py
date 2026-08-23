@@ -103,8 +103,8 @@ def main() -> int:
             effective_beams.add(bid)
         else:
             fail(errors, f"unknown G6 beam patch action {action} for {bid}")
-    if len(effective_beams) != 51:
-        fail(errors, f"effective physical beam count must be 51, got {len(effective_beams)}")
+    if len(effective_beams) != 52:
+        fail(errors, f"effective physical beam count must be 52, got {len(effective_beams)}")
     for forbidden in ["B-029", "B-037", "B-044"]:
         if forbidden in effective_beams:
             fail(errors, f"{forbidden} must not be an effective physical beam")
@@ -112,8 +112,8 @@ def main() -> int:
         fail(errors, "B-052 P19-P20 must be present in effective topology")
 
     # 4. Analytical nodes: IDs, parent support, beam membership and exact physical-face condition.
-    if len(nodes) != 102:
-        fail(errors, f"analytical node row count must be 102, got {len(nodes)}")
+    if len(nodes) != 104:
+        fail(errors, f"analytical node row count must be 104, got {len(nodes)}")
     node_ids = [r["node_id"].strip() for r in nodes]
     if len(set(node_ids)) != len(node_ids):
         fail(errors, "duplicate analytical node_id")
@@ -177,15 +177,15 @@ def main() -> int:
                 fail(errors, f"{sid}: Master references unknown node {nid}")
             elif node_by_id[nid]["support_id"].strip() != sid:
                 fail(errors, f"{sid}: Master references {nid} belonging to support {node_by_id[nid]['support_id']}")
-    if len(refs) != 102:
-        fail(errors, f"Master must contain 102 analytical node references, got {len(refs)}")
-    if len(set(refs)) != 102:
+    if len(refs) != 104:
+        fail(errors, f"Master must contain 104 analytical node references, got {len(refs)}")
+    if len(set(refs)) != 104:
         fail(errors, "analytical node references in Master are not one-to-one")
     if set(refs) != set(node_ids):
         fail(errors, "Master analytical-node references do not exactly cover PT_ANALYTICAL_NODES_v1")
 
     # 6. Extended-support semantics must remain multi-node.
-    expected_extended_counts = {"18": 3, "23": 3, "30": 3}
+    expected_extended_counts = {"18": 4, "23": 3, "30": 3}
     for sid, expected in expected_extended_counts.items():
         actual = int(master_by_id[sid]["analytical_node_count"])
         if actual != expected:

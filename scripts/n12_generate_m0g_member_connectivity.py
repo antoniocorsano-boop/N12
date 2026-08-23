@@ -88,8 +88,8 @@ for p in pt_patch:
             "note": p["note"],
         })
 
-if len(pt_effective) != 51:
-    raise SystemExit(f"PT effective beam count != 51: {len(pt_effective)}")
+if len(pt_effective) != 52:
+    raise SystemExit(f"PT effective beam count != 52: {len(pt_effective)}")
 
 for b in pt_effective:
     bid = b["beam_id"]
@@ -242,15 +242,15 @@ nd_g5_sections = sum(1 for m in members if m["storey_id"] == "G5" and m["member_
 watched_columns = sum(1 for m in column_members if m["validation_state"] == "CURRENT_WITH_SECTION_WATCH")
 
 checks = [
-    ("TOTAL_MEMBER_ROWS", 358, len(members), ""),
-    ("ORDINARY_BEAM_ROWS", 231, len(beam_members), "51 G1 + 180 G2-G5"),
+    ("TOTAL_MEMBER_ROWS", 359, len(members), ""),
+    ("ORDINARY_BEAM_ROWS", 232, len(beam_members), "52 G1 + 180 G2-G5"),
     ("COLUMN_SEGMENT_ROWS", 127, len(column_members), "Exact vertical ledger"),
-    ("G1_BEAMS", 51, by_storey["G1"], "Effective PT topology"),
+    ("G1_BEAMS", 52, by_storey["G1"], "Effective PT topology"),
     ("G2_BEAMS", 48, by_storey["G2"], ""),
     ("G3_BEAMS", 48, by_storey["G3"], ""),
     ("G4_BEAMS", 48, by_storey["G4"], ""),
     ("G5_BEAMS", 36, by_storey["G5"], ""),
-    ("UNIQUE_MEMBER_IDS", 358, len(set(member_ids)), ""),
+    ("UNIQUE_MEMBER_IDS", 359, len(set(member_ids)), ""),
     ("DUPLICATE_UNDIRECTED_NODE_PAIRS", 0, len(node_pairs) - len(set(node_pairs)), "Rigid links are not structural members and are absent here."),
     ("BEAM_ENDPOINT_ROLE_FAILURES", 0, beam_face_role_fail, "Every beam terminates on a beam-support face node."),
     ("COLUMN_ENDPOINT_ROLE_FAILURES", 0, column_core_role_fail, "Every column terminates on a support-core node."),
