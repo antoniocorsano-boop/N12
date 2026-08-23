@@ -2,9 +2,9 @@ foundation_member_id,from_support_id,to_support_id,topology_evidence,tav01a_cand
 FND-B001,1,2,DOC_TAV01S+DOC_TAV01A,FND-C001,F1A-G01,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C001/F1A-G01.
 FND-B002,2,3,DOC_TAV01S+DOC_TAV01A,FND-C002,F1A-G01,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C002/F1A-G01.
 FND-B003,3,4,DOC_TAV01S+DOC_TAV01A,FND-C003,F1A-G01,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C003/F1A-G01.
-FND-B004,5,6,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
-FND-B005,6,7,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
-FND-B006,7,8,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
+FND-B004,5,6,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
+FND-B005,6,7,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
+FND-B006,7,8,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
 FND-B007,9,10,DOC_TAV01S+DOC_TAV01A,FND-C004,F1A-G02,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C004/F1A-G02.
 FND-B008,10,11,DOC_TAV01S+DOC_TAV01A,FND-C005,F1A-G02,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C005/F1A-G02.
 FND-B009,11,12,DOC_TAV01S+DOC_TAV01A,FND-C006,F1A-G02,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C006/F1A-G02.
@@ -12,13 +12,13 @@ FND-B010,12,13,DOC_TAV01S+DOC_TAV01A,FND-C007,F1A-G02,FND-SEC-A,DIRECT_GROUP_BOU
 FND-B011,13,14,DOC_TAV01S+DOC_TAV01A,FND-C008,F1A-G02,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C008/F1A-G02.
 FND-B012,14,15,DOC_TAV01S+DOC_TAV01A,FND-C009,F1A-G02,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C009/F1A-G02.
 FND-B013,15,16,DOC_TAV01S+DOC_TAV01A,FND-C010,F1A-G02,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C010/F1A-G02.
-FND-B014,17,18,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
-FND-B015,18,19,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
-FND-B016,19,20,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
-FND-B017,21,22,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
-FND-B018,22,22',DOC_TAV01S,,F1A-G03_RELATED,OPEN_SECTION_BINDING,GROUP_CONTINUITY_RELATION_WATCH,CURRENT_DOC_TOPOLOGY,Distinct carpenteria member joining 22 to 22'; armature assignment not direct.
-FND-B019,22',23,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
-FND-B020,23,24,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
+FND-B014,17,18,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
+FND-B015,18,19,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
+FND-B016,19,20,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
+FND-B017,21,22,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
+FND-B018,22,22',DOC_TAV01S,,F1A-G03_RELATED,ND_DOCUMENTARY_COVERAGE,GROUP_CONTINUITY_RELATION_WATCH,CURRENT_DOC_TOPOLOGY,"Distinct TAV-01S member joining 22 to 22'; TAV-01A group continuity is retained as a relation watch but does not provide direct exact section/longitudinal reinforcement binding."
+FND-B019,22',23,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
+FND-B020,23,24,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
 FND-B021,a,b,DOC_TAV01S+DOC_TAV01A,FND-C033,F1A-G06,FND-SEC-B,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C033/F1A-G06.
 FND-B022,b,25,DOC_TAV01S+DOC_TAV01A,FND-C034,F1A-G06,FND-SEC-B_TO_VERIFY,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C034/F1A-G06.
 FND-B023,25,26,DOC_TAV01S+DOC_TAV01A,FND-C035,F1A-G06,FND-SEC-A_TO_VERIFY,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C035/F1A-G06.
@@ -37,8 +37,8 @@ FND-B035,2,10,DOC_TAV01S+DOC_TAV01A,FND-C032,F1A-G05,FND-SEC-A,DIRECT_GROUP_BOUN
 FND-B036,10,18,DOC_TAV01S+DOC_TAV01A,FND-C031,F1A-G05,FND-SEC-B_TO_A_TRANSITION_WATCH,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C031/F1A-G05.
 FND-B037,18,b,DOC_TAV01S+DOC_TAV01A,FND-C030,F1A-G05,FND-SEC-B,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C030/F1A-G05.
 FND-B038,b,d,DOC_TAV01S+DOC_TAV01A,FND-C029,F1A-G05,FND-SEC-B,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C029/F1A-G05.
-FND-B039,3,11,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
-FND-B040,11,20,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
+FND-B039,3,11,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
+FND-B040,11,20,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
 FND-B041,4,5,DOC_TAV01S+DOC_TAV01A,FND-C044,F1A-G07,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C044/F1A-G07.
 FND-B042,5,12,DOC_TAV01S+DOC_TAV01A,FND-C043,F1A-G07,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C043/F1A-G07.
 FND-B043,6,14,DOC_TAV01S+DOC_TAV01A,FND-C024,F1A-G04,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C024/F1A-G04.
@@ -54,6 +54,6 @@ FND-B052,29,32,DOC_TAV01S+DOC_TAV01A,FND-C014,F1A-G03,FND-SEC-A,DIRECT_GROUP_BOU
 FND-B053,22',27,DOC_TAV01S+SUPPORTED_TAV01A,FND-C016_TRANSFORM,F1A-G03,FND-SEC-A_SUPPORTED,SCHEMATIC_22_27_SPLIT_AT_22_PRIME,CURRENT_DOC_TOPOLOGY,"Physical TAV-01S path uses distinct 22' support; TAV-01A schematic 22-27 is not used as direct geometry."
 FND-B054,27,30,DOC_TAV01S+DOC_TAV01A,FND-C017,F1A-G03,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C017/F1A-G03.
 FND-B055,30,33,DOC_TAV01S+DOC_TAV01A,FND-C018,F1A-G03,FND-SEC-A,DIRECT_GROUP_BOUND,CURRENT_DOC_TOPOLOGY,Cross-confirmed from FND-C018/F1A-G03.
-FND-B056,19,25,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
-FND-B057,25,28,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
-FND-B058,28,31,DOC_TAV01S,,,OPEN_SECTION_BINDING,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,Carpenteria-only member in current cross-source audit; reinforcement remains to bind or ND.
+FND-B056,19,25,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
+FND-B057,25,28,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
+FND-B058,28,31,DOC_TAV01S,,,ND_DOCUMENTARY_COVERAGE,NO_DIRECT_TAV01A_GROUP_IDENTIFIED,CURRENT_DOC_TOPOLOGY,"TAV-01S documents the physical member; registered Tavola 1 source-role audit identifies no independent reinforcement source that binds an exact section/longitudinal reinforcement group."
