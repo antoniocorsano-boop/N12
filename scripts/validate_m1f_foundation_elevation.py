@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import csv
+import math
 import sys
 from pathlib import Path
 
@@ -12,6 +13,8 @@ GATE = C / "M1F_FOUNDATION_ELEVATION_GATE_v1.csv"
 WORK = C / "M1F_FOUNDATION_WORK_REGISTER_v1.csv"
 TOPO = C / "M1F_FOUNDATION_TOPOLOGY_CURRENT_v1.csv"
 MASTER = C / "PT_MASTER_CURRENT.csv"
+NODES3D = C / "M1F_FOUNDATION_NODES_3D_SYMBOLIC_v1.csv"
+MEMBERS3D = C / "M1F_FOUNDATION_MEMBERS_3D_SYMBOLIC_v1.csv"
 
 
 def read(path: Path):
@@ -22,13 +25,14 @@ def read(path: Path):
 def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
-    for p in [EVID, GATE, WORK, TOPO, MASTER]:
+    required = [EVID, GATE, WORK, TOPO, MASTER, NODES3D, MEMBERS3D]
+    for p in required:
         if not p.exists():
             errors.append(f"missing artifact: {p.relative_to(ROOT)}")
     if errors:
         return finish(errors, warnings, {})
 
-    evid, gate, work, topo, master = map(read, [EVID, GATE, WORK, TOPO, MASTER])
+    evid, gate, work, topo, master, nodes3d, members3d = map(read, required)
     eby = {r["evidence_id"].strip(): r for r in evid}
     gby = {r["check_id"].strip(): r for r in gate}
     wby = {r["item_id"].strip(): r for r in work}
@@ -87,19 +91,65 @@ def main() -> int:
     if "SYMBOLIC_PLANE_BINDING_COMPLETE_NUMERIC_Z_OPEN" not in w9.get("current_status", ""):
         errors.append("M1F-009 must keep symbolic-plane binding complete and numeric Z open")
 
-    # Positive contract: no canonical field assigns a numeric model Z. Mentions of
-    # forbidden examples inside explanatory notes are allowed and are not assignments.
     if gby.get("M1F-ELEV-G05", {}).get("actual", "").strip() != "NO":
         errors.append("numeric ZF_COMMON must not be registered yet")
     if e5.get("residual_state", "").strip() != "ZF_COMMON_NUMERIC_ND":
         errors.append("numeric ZF_COMMON residual must stay ND")
 
+    # Symbolic 3D node binding: one node per support, exact XY inheritance, no numeric Z.
+    if len(nodes3d) != 38:
+        errors.append(f"expected 38 symbolic foundation nodes, got {len(nodes3d)}")
+    master_by_support = {r["entity_id"].strip(): r for r in master}
+    node_by_support = {r["support_id"].strip(): r for r in nodes3d}
+    if set(node_by_support) != set(master_by_support):
+        errors.append("symbolic foundation node support IDs differ from PT_MASTER_CURRENT")
+    node_ids = [r["foundation_node_id"].strip() for r in nodes3d]
+    if len(node_ids) != len(set(node_ids)):
+        errors.append("duplicate foundation_node_id in symbolic 3D nodes")
+    for sid, mr in master_by_support.items():
+        nr = node_by_support.get(sid, {})
+        try:
+            mx, my = float(mr["x_global_m"]), float(mr["y_global_m"])
+            nx, ny = float(nr.get("x_global_m", "nan")), float(nr.get("y_global_m", "nan"))
+            if not (math.isclose(mx, nx, abs_tol=1e-9) and math.isclose(my, ny, abs_tol=1e-9)):
+                errors.append(f"{sid}: symbolic foundation XY differs from PT Master")
+        except ValueError:
+            errors.append(f"{sid}: invalid symbolic foundation XY")
+        if nr.get("z_symbol", "").strip() != "ZF_COMMON":
+            errors.append(f"{sid}: z_symbol must be ZF_COMMON")
+        if nr.get("z_numeric_m", "").strip():
+            errors.append(f"{sid}: numeric foundation Z must remain empty/ND")
+
+    # Symbolic member binding must reproduce the frozen topology member-for-member.
+    if len(members3d) != 58:
+        errors.append(f"expected 58 symbolic foundation members, got {len(members3d)}")
+    top_by_id = {r["foundation_member_id"].strip(): r for r in topo}
+    mem_by_id = {r["foundation_member_id"].strip(): r for r in members3d}
+    if set(mem_by_id) != set(top_by_id):
+        errors.append("symbolic 3D member IDs differ from frozen foundation topology")
+    node_id_for_support = {r["support_id"].strip(): r["foundation_node_id"].strip() for r in nodes3d}
+    for mid, tr in top_by_id.items():
+        sr = mem_by_id.get(mid, {})
+        expected_from = node_id_for_support.get(tr["from_support_id"].strip(), "")
+        expected_to = node_id_for_support.get(tr["to_support_id"].strip(), "")
+        if sr.get("from_foundation_node_id", "").strip() != expected_from or sr.get("to_foundation_node_id", "").strip() != expected_to:
+            errors.append(f"{mid}: symbolic endpoints differ from frozen topology")
+        if sr.get("z_from_symbol", "").strip() != "ZF_COMMON" or sr.get("z_to_symbol", "").strip() != "ZF_COMMON":
+            errors.append(f"{mid}: both member endpoints must remain on ZF_COMMON")
+        if sr.get("numeric_z_state", "").strip() != "ND":
+            errors.append(f"{mid}: numeric_z_state must remain ND")
+
+    if "22" not in node_by_support or "22'" not in node_by_support or node_by_support["22"]["foundation_node_id"] == node_by_support["22'"]["foundation_node_id"]:
+        errors.append("22 and 22-prime must remain distinct symbolic foundation nodes")
+
     if gby.get("M1F-ELEV-G05", {}).get("status", "").strip() == "PASS_WITH_WATCH":
-        warnings.append("common plane is closed but numeric ZF_COMMON remains ND pending G1/piano-di-campagna datum registration")
+        warnings.append("common plane and symbolic 3D binding are closed, but numeric ZF_COMMON remains ND pending G1/piano-di-campagna datum registration")
 
     return finish(errors, warnings, {
         "supports": len(master),
         "foundation_members": len(topo),
+        "symbolic_nodes_3d": len(nodes3d),
+        "symbolic_members_3d": len(members3d),
         "common_plane": "DOC",
         "symbolic_plane": "ZF_COMMON",
         "numeric_ZF_COMMON": "ND",
