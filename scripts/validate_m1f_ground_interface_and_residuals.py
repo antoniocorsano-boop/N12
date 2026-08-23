@@ -11,6 +11,7 @@ GFI = C / "M1F_GROUND_FLOOR_INTERFACE_CURRENT_v1.csv"
 GFI_GATE = C / "M1F_GROUND_FLOOR_INTERFACE_GATE_v1.csv"
 AD = C / "M1F_AD_HISTORICAL_MODEL_DELTA_AUDIT_v1.csv"
 AD_GATE = C / "M1F_AD_HISTORICAL_MODEL_DELTA_GATE_v1.csv"
+HCS = C / "M1F_HISTORICAL_CALC_SOURCE_AVAILABILITY_v1.csv"
 GEO = C / "M1F_CURRENT_GEOTECHNICAL_REQUIREMENTS_v1.csv"
 GEO_GATE = C / "M1F_CURRENT_GEOTECHNICAL_GATE_v1.csv"
 ELEV_GATE = C / "M1F_FOUNDATION_ELEVATION_GATE_v1.csv"
@@ -24,7 +25,7 @@ def read(path: Path):
 def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
-    required = [GFI, GFI_GATE, AD, AD_GATE, GEO, GEO_GATE, ELEV_GATE]
+    required = [GFI, GFI_GATE, AD, AD_GATE, HCS, GEO, GEO_GATE, ELEV_GATE]
     for p in required:
         if not p.exists():
             errors.append(f"missing artifact: {p.relative_to(ROOT)}")
@@ -35,6 +36,7 @@ def main() -> int:
     gfi_gate = read(GFI_GATE)
     ad = read(AD)
     ad_gate = read(AD_GATE)
+    hcs = read(HCS)
     geo = read(GEO)
     geo_gate = read(GEO_GATE)
     elev_gate = read(ELEV_GATE)
@@ -74,8 +76,21 @@ def main() -> int:
         errors.append("a-d must not be removed from current/as-built model")
     if adg.get("M1F-AD-G04", {}).get("actual", "").strip() != "NO":
         errors.append("historical omission must remain not directly proven until source evidence is registered")
+    if adg.get("M1F-AD-G07", {}).get("actual", "").strip() != "YES":
+        errors.append("current repository source inventory for historical a-d omission evidence must remain completed")
+    if adg.get("M1F-AD-G08", {}).get("actual", "").strip() != "NO":
+        errors.append("new primary historical calculation source must remain NO until one is explicitly registered")
     if adg.get("M1F-AD-GATE", {}).get("actual", "").strip() != "PASS_BUILT_PRESENCE_WITH_HISTORICAL_OMISSION_WATCH":
         errors.append("a-d historical delta gate state mismatch")
+
+    if len(hcs) != 5:
+        errors.append(f"expected 5 historical calculation source-availability rows, got {len(hcs)}")
+    hby = {r["search_id"].strip(): r for r in hcs}
+    hs = hby.get("M1F-HCS-005", {})
+    if "NOT_DIRECTLY_PROVEN" not in hs.get("decision", "") and "not directly" not in hs.get("result", "").lower():
+        errors.append("historical source availability audit must keep a-d omission not directly proven")
+    if hs.get("evidence_state", "").strip() != "DOC_BUILT_PLUS_ND_HISTORICAL_CALC_SOURCE":
+        errors.append("historical source availability evidence state changed unexpectedly")
 
     if len(geo) != 10:
         errors.append(f"expected 10 geotechnical requirement rows, got {len(geo)}")
@@ -97,13 +112,14 @@ def main() -> int:
     warnings.extend([
         "numeric ZF_COMMON remains ND pending G1/local-ground datum evidence",
         "ground-floor layer thicknesses, unit weights and structural load path remain open",
-        "a-d historical calculation omission remains reported but not directly source-proven",
+        "a-d historical calculation omission remains reported but not directly source-proven; current repository search is closed until a new primary source is registered",
         "current geotechnical site parameters remain open",
     ])
 
     return finish(errors, warnings, {
         "ground_floor_interface_rows": len(gfi),
         "ad_audit_rows": len(ad),
+        "historical_source_inventory_rows": len(hcs),
         "geotechnical_requirement_rows": len(geo),
         "symbolic_nodes_3d": eg.get("M1F-ELEV-G07", {}).get("actual", ""),
         "symbolic_members_3d": eg.get("M1F-ELEV-G08", {}).get("actual", ""),
