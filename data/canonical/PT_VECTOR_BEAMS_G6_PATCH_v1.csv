@@ -1,4 +1,6 @@
 patch_id,action,beam_id,support_i,support_j,orientation,x_i_face_m,y_i_face_m,x_j_face_m,y_j_face_m,clear_vector_length_m,vector_status,source,note
-G6VP-001,REVOKE,B-029,19,21,,,,,,0.0000,REVOKED_SOURCE_MISMATCH,"TAV-02S current clean r3_c2","Remove inherited P19-P21 vector from effective topology."
-G6VP-002,REVOKE,B-044,12,5,,,,,,0.0000,REVOKED_SOURCE_MISMATCH,"TAV-02S current clean r3_c3","No direct P12-P5 member; no vector permitted."
-G6VP-003,ADD,B-052,19,20,VERTICAL,7.6318,9.2000,7.6318,9.6000,0.4000,WORKING_VECTOR_DIRECT_SOURCE,"TAV-02S current clean r3_c2","Direct P19-P20 member; endpoints are the facing support boundaries."
+G6VP-001,REVOKE,B-029,19,21,,,,,,0.0000,REVOKED_SOURCE_MISMATCH,TAV-02S current clean r3_c2,Remove inherited P19-P21 vector from effective topology.
+G6VP-002,REVOKE,B-044,12,5,,,,,,0.0000,REVOKED_SOURCE_MISMATCH,TAV-02S current clean r3_c3,No direct P12-P5 member; no vector permitted.
+G6VP-003,ADD,B-052,19,20,VERTICAL,7.6318,9.2000,7.6318,9.6000,0.4000,WORKING_VECTOR_DIRECT_SOURCE,TAV-02S current clean r3_c2,Direct P19-P20 member; endpoints are the facing support boundaries.
+G6VP-004,ADD,B-053,18,19,OBLIQUE_NEAR_VERTICAL,7.2384,4.8500,7.6078,8.7000,3.8677,WORKING_VECTOR_DIRECT_SOURCE,TAV-02S r2_c2 + TAV-02A,Formal M0G local reopen: direct 18-19 carpenteria line; TAV-02A sequence 18-19-20 crosscheck.
+G6VP-005,ADD,B-054,23,22',OBLIQUE_NEAR_VERTICAL,5.2406,23.2500,5.5344,19.4800,3.7814,WORKING_VECTOR_DIRECT_SOURCE,TAV-02S r3_c2 + TAV-02A,Formal M0G local reopen: direct 23-22-prime carpenteria line; TAV-02A sequence 23-22-prime-22-21 crosscheck.

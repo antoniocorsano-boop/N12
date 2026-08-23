@@ -53,9 +53,9 @@ def main() -> None:
 
     checks: list[dict[str, str]] = []
 
-    add(checks, "GT-001", "inventory", "HARD", 623, len(ns), len(ns) == 623, "CANONICAL", "Frozen analytical-node inventory.")
-    add(checks, "GT-002", "inventory", "HARD", 458, len(ls), len(ls) == 458, "CANONICAL", "Frozen rigid-link inventory.")
-    add(checks, "GT-003", "inventory", "HARD", 356, len(ms), len(ms) == 356, "CANONICAL", "Frozen ordinary structural-member inventory.")
+    add(checks, "GT-001", "inventory", "HARD", 627, len(ns), len(ns) == 627, "CANONICAL", "Frozen analytical-node inventory.")
+    add(checks, "GT-002", "inventory", "HARD", 462, len(ls), len(ls) == 462, "CANONICAL", "Frozen rigid-link inventory.")
+    add(checks, "GT-003", "inventory", "HARD", 358, len(ms), len(ms) == 358, "CANONICAL", "Frozen ordinary structural-member inventory.")
     add(checks, "GT-004", "inventory", "HARD", 6, len(rs), len(rs) == 6, "CANONICAL_WITH_WATCH", "Exactly three ridge axes plus three eaves edge sets.")
     add(checks, "GT-005", "identity", "HARD", len(ns), len(set(node_ids)), len(node_ids) == len(set(node_ids)), "CANONICAL", "No duplicate node IDs.")
     add(checks, "GT-006", "identity", "HARD", len(ms), len(set(member_ids)), len(member_ids) == len(set(member_ids)), "CANONICAL", "No duplicate member IDs.")
@@ -83,7 +83,7 @@ def main() -> None:
         ri, rj = norm(node_by_id[ni]["node_role"]), norm(node_by_id[nj]["node_role"])
         fl, tl = norm(m["from_level"]), norm(m["to_level"])
         if cls == "ORDINARY_BEAM":
-            if ri != "BEAM_FACE_INCIDENCE_NODE" or rj != "BEAM_FACE_INCIDENCE_NODE":
+            if ri != "BEAM_SUPPORT_FACE" or rj != "BEAM_SUPPORT_FACE":
                 beam_role_fail.append(norm(m["member_id"]))
             if fl != tl:
                 invalid_cross_storey.append(norm(m["member_id"]))
@@ -128,7 +128,7 @@ def main() -> None:
             missing_link_nodes.append(norm(l["link_id"]))
             continue
         c, f = node_by_id[ci], node_by_id[fi]
-        if norm(c["node_role"]) != "SUPPORT_CORE" or norm(f["node_role"]) != "BEAM_FACE_INCIDENCE_NODE":
+        if norm(c["node_role"]) != "SUPPORT_CORE" or norm(f["node_role"]) != "BEAM_SUPPORT_FACE":
             link_role_fail.append(norm(l["link_id"]))
         if norm(c["support_id"]) != norm(f["support_id"]) or norm(c["level_id"]) != norm(f["level_id"]):
             link_support_level_fail.append(norm(l["link_id"]))
@@ -136,7 +136,7 @@ def main() -> None:
             zero_links.append(norm(l["link_id"]))
         face_link_count[fi] += 1
 
-    face_nodes = [r for r in ns if norm(r["node_role"]) == "BEAM_FACE_INCIDENCE_NODE"]
+    face_nodes = [r for r in ns if norm(r["node_role"]) == "BEAM_SUPPORT_FACE"]
     bad_face_link_coverage = [norm(r["node_id"]) for r in face_nodes if face_link_count[norm(r["node_id"])] != 1]
     add(checks, "GT-018", "rigid_links", "HARD", 0, len(missing_link_nodes), not missing_link_nodes, "INF", "Every rigid-link endpoint exists.")
     add(checks, "GT-019", "rigid_links", "HARD", 0, len(link_role_fail), not link_role_fail, "INF", "Rigid links connect core to face only.")

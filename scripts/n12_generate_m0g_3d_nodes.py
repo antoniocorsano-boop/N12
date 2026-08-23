@@ -152,8 +152,8 @@ def main() -> int:
     for level_id, expected in expected_beam_counts.items():
         if len(beams[level_id]) != expected:
             raise ValueError(f"{level_id} beam count {len(beams[level_id])} != {expected}")
-    if len(pt_face_nodes) != 98:
-        raise ValueError(f"PT face-node count {len(pt_face_nodes)} != 98")
+    if len(pt_face_nodes) != 102:
+        raise ValueError(f"PT face-node count {len(pt_face_nodes)} != 102")
 
     rows: list[dict[str, object]] = []
 
@@ -323,11 +323,11 @@ def main() -> int:
     level_counts = Counter(str(r["level_id"]) for r in rows)
     if role_counts["SUPPORT_CORE"] != 165:
         raise ValueError(f"support-core count {role_counts['SUPPORT_CORE']} != 165")
-    if role_counts["BEAM_SUPPORT_FACE"] != 458:
-        raise ValueError(f"beam-face count {role_counts['BEAM_SUPPORT_FACE']} != 458")
-    if len(rows) != 623:
-        raise ValueError(f"global node count {len(rows)} != 623")
-    expected_level_nodes = {"G1": 136, "G2": 130, "G3": 130, "G4": 130, "G5": 97}
+    if role_counts["BEAM_SUPPORT_FACE"] != 462:
+        raise ValueError(f"beam-face count {role_counts['BEAM_SUPPORT_FACE']} != 462")
+    if len(rows) != 627:
+        raise ValueError(f"global node count {len(rows)} != 627")
+    expected_level_nodes = {"G1": 140, "G2": 130, "G3": 130, "G4": 130, "G5": 97}
     if dict(level_counts) != expected_level_nodes:
         raise ValueError(f"level counts {dict(level_counts)} != {expected_level_nodes}")
 
@@ -350,9 +350,9 @@ def main() -> int:
     def audit(check_id: str, expected: object, actual: object, status: str = "PASS", note: str = "") -> None:
         audit_rows.append({"check_id": check_id, "expected": expected, "actual": actual, "status": status, "note": note})
 
-    audit("TOTAL_3D_NODE_ROWS", 623, len(rows))
+    audit("TOTAL_3D_NODE_ROWS", 627, len(rows))
     audit("SUPPORT_CORE_ROWS", 165, role_counts["SUPPORT_CORE"])
-    audit("G1_REUSED_PT_FACE_ROWS", 98, len(pt_face_nodes))
+    audit("G1_REUSED_PT_FACE_ROWS", 102, len(pt_face_nodes))
     audit("UPPER_BEAM_FACE_ROWS", 360, upper_face_count)
     for level_id, expected in expected_level_nodes.items():
         audit(f"{level_id}_NODE_ROWS", expected, level_counts[level_id])
@@ -360,7 +360,7 @@ def main() -> int:
         audit(f"{level_id}_SOURCE_BEAMS", expected, len(beams[level_id]))
     audit("G2_G4_DOCUMENTED_FACE_MISMATCHES", 0, side_mismatch_count)
     audit("CENTROID_SUBSTITUTIONS", 0, centroid_collapse)
-    audit("UNIQUE_NODE_IDS", 623, len(set(ids)))
+    audit("UNIQUE_NODE_IDS", 627, len(set(ids)))
     audit("G5_B008_FROM_FACE", "X_NEG", next(r["face_ref"] for r in rows if r["node_id"] == "M0G-F-G5-B008-FROM"), note="Direct TAV-06S visual recheck of L-shaped 5->13 member.")
     audit("G5_B008_TO_FACE", "Y_NEG", next(r["face_ref"] for r in rows if r["node_id"] == "M0G-F-G5-B008-TO"), note="Direct TAV-06S visual recheck of L-shaped 5->13 member.")
     audit("NO_MIS_TO_DOC_COORDINATE_PROMOTION", "YES", "YES", note="Upper face points are INF analytical derivations; upper registered core XY remains MIS where applicable.")

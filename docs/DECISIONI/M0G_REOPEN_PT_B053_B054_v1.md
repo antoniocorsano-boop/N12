@@ -70,4 +70,4 @@ La riapertura può essere richiusa soltanto dopo:
 7. aggiornamento dell'handoff M0-G e dei conteggi M1-S;
 8. pass dei validator deterministici.
 
-Esito attuale: **M0G-REOPEN APPROVED — REVALIDATION REQUIRED**.
+Esito finale: **M0G-REOPEN CLOSED — PASS_WITH_WATCH**. B-053/B-054 e le quattro incidenze sono stati rigenerati e revalidati deterministicamente.

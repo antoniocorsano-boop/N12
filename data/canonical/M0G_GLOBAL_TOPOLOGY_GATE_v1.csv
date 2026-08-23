@@ -1,35 +1,35 @@
 check_id,category,severity,expected,observed,status,evidence_state,note
-GT-001,inventory,HARD,623,623,PASS,CANONICAL,Analytical-node inventory frozen and preserved.
-GT-002,inventory,HARD,458,458,PASS,CANONICAL,Rigid-joint-link inventory frozen and preserved.
-GT-003,inventory,HARD,356,356,PASS,CANONICAL,Ordinary structural-member inventory frozen and preserved.
-GT-004,inventory,HARD,6,6,PASS,CANONICAL_WITH_WATCH,Exactly three ridge axes plus three gronda edge sets.
-GT-005,identity,HARD,0 duplicate node IDs,0,PASS,CANONICAL,Node-registry audit reports unique analytical-node identities.
-GT-006,identity,HARD,0 duplicate member IDs,0,PASS,CANONICAL,Member-connectivity audit reports 356 unique member IDs.
-GT-007,identity,HARD,0 duplicate rigid-link IDs,0,PASS,CANONICAL,Rigid-link audit reports 458 unique link IDs.
-GT-008,member_connectivity,HARD,0 missing member endpoint nodes,0,PASS,CANONICAL,Every structural member endpoint is bound to an existing analytical node.
-GT-009,member_connectivity,HARD,0 zero-length members,0,PASS,CANONICAL,Member-connectivity audit reports zero zero-length members.
-GT-010,member_connectivity,HARD,0 duplicate undirected node pairs,0,PASS,CANONICAL,No duplicated structural segment between the same analytical-node pair.
-GT-011,analytical_roles,HARD,0 beam endpoint role failures,0,PASS,CANONICAL,Every ordinary beam terminates on BEAM_FACE_INCIDENCE_NODE roles.
-GT-012,analytical_roles,HARD,0 column endpoint role failures,0,PASS,CANONICAL,Every column segment terminates on SUPPORT_CORE roles.
-GT-013,storey_logic,HARD,0 invalid cross-storey incidences,0,PASS,CANONICAL,Beams remain within one level and columns connect adjacent levels only.
-GT-014,termination,HARD,0 terrace a-d vertical segments,0,PASS,DOC,Terrace-added supports a-d terminate at G1.
-GT-015,termination,HARD,0 unsupported G4-G5 columns,0,PASS,DOC,"Supports 1,8,9,16,17,24,31,32,33 have no G4-G5 extrusion."
-GT-016,roof_separation,HARD,0 ridge/gronda ordinary members,0,PASS,DOC+ND,Ridge and gronda special geometry remains outside ordinary frame connectivity.
-GT-017,roof_separation,HARD,1 G5-B036 member,1,PASS,DOC,Confirmed oblique 19-26 member is counted once only.
-GT-018,rigid_links,HARD,0 missing rigid-link endpoint nodes,0,PASS,INF,All rigid links bind existing analytical nodes.
-GT-019,rigid_links,HARD,0 rigid-link role failures,0,PASS,INF,Every rigid link connects SUPPORT_CORE to BEAM_FACE_INCIDENCE_NODE.
-GT-020,rigid_links,HARD,0 cross-support/cross-level rigid links,0,PASS,INF,Rigid offsets remain on the same physical support and storey.
-GT-021,centroid_substitution,HARD,0 zero-length rigid links,0,PASS,INF,No beam-face incidence is collapsed onto the support centroid/core.
-GT-022,face_incidence,HARD,0 face nodes without exactly one rigid link,0,PASS,INF,All 458 beam-face incidences have one explicit core-to-face link.
-GT-023,face_incidence,HARD,0 face nodes without exactly one beam endpoint use,0,PASS,INF,The 458 face nodes correspond one-to-one with the 458 beam endpoints.
-GT-024,roof_separation,HARD,3 RIDGE_AXIS + 3 GRONDA_EDGE_SET,3 + 3,PASS,DOC,Roof-special identity inventory preserved without rectangularization.
-GT-025,roof_separation,HARD,0 structural-member promotions,0,PASS,ND,All six roof-special features remain TO_VERIFY_MEMBER.
-GT-026,roof_z,WATCH,0 global roof-special Z assignments,0,WATCH,ND,"Global Z remains intentionally ND because TAV-06S local 2.10/3.75 and TAV-06E 2.20 endpoint semantics are not uniquely bound across all roof wings."
-GT-027,roof_xy,HARD,3 ridge traces retain MIS,3,PASS,MIS,Registered ridge XY traces remain MIS and are not promoted to DOC.
-GT-028,roof_xy,WATCH,0 invented gronda centerlines,0,WATCH,ND,Three gronda edge sets remain without an unsupported single analytical centerline.
-GT-029,provenance,HARD,0 node provenance losses,0,PASS,MIXED,Node coordinate and topology provenance remain explicit.
-GT-030,provenance,HARD,0 member provenance losses,0,PASS,MIXED,Member topology/connectivity provenance and section watches remain explicit.
-GT-031,provenance,HARD,0 rigid-link provenance losses,0,PASS,INF,Rigid-link derivation remains explicitly INF.
-GT-032,graph,HARD,0 orphan analytical nodes,0,PASS,CROSS_ARTIFACT_GRAPH_REVIEW,"All support cores participate through beams/columns/rigid links and every face node participates through exactly one beam endpoint plus one rigid link; no repair by inference required."
-GT-033,graph,HARD,1 connected analytical component,1,PASS,CROSS_ARTIFACT_GRAPH_REVIEW,"G1 including terrace a-d is connected to the main frame; G2-G4 are connected storey graphs; G5 is connected; vertical columns connect adjacent levels, yielding one building-wide component."
-GT-999,overall,HARD,NONBLOCKING,PASS_WITH_WATCH,PASS,DERIVED_GATE,"No HARD topology/provenance rejection found. Roof Z and gronda centerline remain explicit nonblocking WATCH/ND constraints for downstream handoff."
+GT-001,inventory,HARD,627,627,PASS,CANONICAL,Frozen analytical-node inventory.
+GT-002,inventory,HARD,462,462,PASS,CANONICAL,Frozen rigid-link inventory.
+GT-003,inventory,HARD,358,358,PASS,CANONICAL,Frozen ordinary structural-member inventory.
+GT-004,inventory,HARD,6,6,PASS,CANONICAL_WITH_WATCH,Exactly three ridge axes plus three eaves edge sets.
+GT-005,identity,HARD,627,627,PASS,CANONICAL,No duplicate node IDs.
+GT-006,identity,HARD,358,358,PASS,CANONICAL,No duplicate member IDs.
+GT-007,identity,HARD,462,462,PASS,CANONICAL,No duplicate rigid-link IDs.
+GT-008,member_connectivity,HARD,0,0,PASS,CANONICAL,Every member endpoint must exist in the node registry.
+GT-009,member_connectivity,HARD,0,0,PASS,CANONICAL,No zero-node-pair members.
+GT-010,member_connectivity,HARD,0,0,PASS,CANONICAL,No duplicate undirected structural member node pairs.
+GT-011,analytical_roles,HARD,0,0,PASS,CANONICAL,All beams terminate on beam-face incidence nodes.
+GT-012,analytical_roles,HARD,0,0,PASS,CANONICAL,All columns terminate on support-core nodes.
+GT-013,storey_logic,HARD,0,0,PASS,CANONICAL,Beams stay within a level; columns connect adjacent levels only.
+GT-014,termination,HARD,0,0,PASS,DOC,Terrace supports a-d must not extrude above G1.
+GT-015,termination,HARD,0,0,PASS,DOC,Roof-absent supports must not create G4-G5 columns.
+GT-016,roof_separation,HARD,0,0,PASS,DOC+ND,Ridge/eaves features remain outside ordinary member connectivity.
+GT-017,roof_separation,HARD,1,1,PASS,DOC,Confirmed oblique member 19-26 is counted once as G5-B036.
+GT-018,rigid_links,HARD,0,0,PASS,INF,Every rigid-link endpoint exists.
+GT-019,rigid_links,HARD,0,0,PASS,INF,Rigid links connect core to face only.
+GT-020,rigid_links,HARD,0,0,PASS,INF,Rigid links stay within the same physical support and level.
+GT-021,centroid_substitution,HARD,0,0,PASS,INF,No face incidence collapses onto its support core.
+GT-022,face_incidence,HARD,0,0,PASS,INF,Every beam-face node has exactly one core-to-face rigid link.
+GT-023,face_incidence,HARD,0,0,PASS,INF,Every face-incidence node belongs to exactly one ordinary beam endpoint.
+GT-024,roof_separation,HARD,3 RIDGE_AXIS + 3 GRONDA_EDGE_SET,3 + 3,PASS,DOC,Roof-special identity inventory preserved.
+GT-025,roof_separation,HARD,0,0,PASS,ND,No roof-special feature silently promoted to structural member.
+GT-026,roof_z,WATCH,0,0,PASS,ND,Global roof-special Z intentionally remains unassigned pending unique datum/endpoint binding.
+GT-027,roof_xy,HARD,0,0,PASS,MIS,Three ridge XY traces retain MIS provenance.
+GT-028,roof_xy,WATCH,0,3,WATCH,ND,No unsupported eave analytical centerline is created.
+GT-029,provenance,HARD,0,0,PASS,MIXED,Node coordinate/topology provenance must remain explicit.
+GT-030,provenance,HARD,0,0,PASS,MIXED,Member connectivity/topology provenance must remain explicit.
+GT-031,provenance,HARD,0,0,PASS,INF,Rigid-link provenance must remain explicit.
+GT-032,graph,HARD,0,0,PASS,DERIVED,"Orphan analytical nodes are reported, never auto-repaired."
+GT-033,graph,HARD,1,1,PASS,DERIVED,"Connected-component sizes=[627]; disconnected components are reported, never bridged by inference."
+GT-999,overall,HARD,NONBLOCKING,PASS_WITH_WATCH,PASS,DERIVED_GATE,Global topology is eligible for handoff only when no HARD check fails; WATCH values remain explicit downstream constraints.

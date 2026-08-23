@@ -6,7 +6,7 @@
   "objective": "Complete the calculation-model inputs from the frozen M0-G geometry through sections, materials, reinforcement, loads, foundations and EdiLus/open-source FEM handoff while preserving source provenance and nonblocking residuals.",
   "geometry_master_status": "CURRENT",
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
-  "m0g_geometry_status": "FROZEN_PASS_WITH_WATCH",
+  "m0g_geometry_status": "FROZEN_PASS_WITH_WATCH_REVALIDATED_B053_B054",
   "m0g_geometry_handoff": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
   "blocking_gate": "data/canonical/M1M_MATERIAL_GATE_v1.csv",
   "automation": {
@@ -27,11 +27,63 @@
     "last_cycle_outcome": "PASS_WITH_WATCH_ADVANCE_MANUAL_CONTROLLED_AFTER_PR_EVENT_SKIP"
   },
   "stable_checkpoints": [
-    {"phase":"PT-GEOMETRY","status":"COMPLETE_WITH_PROVENANCE_WATCHES","master":"data/canonical/PT_MASTER_CURRENT.csv","handoff":"data/canonical/PT_GEOMETRY_HANDOFF_v1.json"},
-    {"phase":"COMMON-STOREY-REGISTRATION","status":"PASS_WITH_PROVENANCE_WATCHES","gate":"data/canonical/STOREY_COMMON_REGISTRATION_GATE_v1.csv","levels":"data/canonical/STOREY_LEVELS_CURRENT_v1.csv","xy_registration":"data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"},
-    {"phase":"M0-G-GLOBAL-GEOMETRY","status":"FROZEN_PASS_WITH_WATCH","handoff":"data/canonical/M0G_GEOMETRY_HANDOFF_v1.json","analytical_nodes":623,"rigid_joint_links":458,"ordinary_members":356,"ordinary_beams":229,"vertical_column_segments":127,"reopen_rule":"Only through formal M0G-REOPEN supported by new direct documentary geometry evidence."},
-    {"phase":"M1-S-SECTIONS","status":"PASS_WITH_WATCH","gate":"data/canonical/M1S_SECTION_GATE_v1.csv","g5_sections":"data/canonical/M1S_G5_BEAM_SECTIONS_CURRENT_v1.csv","rigid_zones":"data/canonical/M1S_G5_RIGID_ZONES_v1.csv","closure_report":"docs/M1S_SECTION_CLOSURE_REPORT_v1.md","ordinary_members_with_usable_sections":356,"nd_section_count":0,"section_evidence_watch_count":5,"supported_section_items":["G5-B017"],"g5_b017_role":"IMPLUVIO","g5_b017_section_cm":"30x50","g5_b017_status":"SUPPORTED"},
-    {"phase":"M1-M-MATERIALS","status":"PASS_WITH_WATCH","gate":"data/canonical/M1M_MATERIAL_GATE_v1.csv","evidence":"data/canonical/M1M_MATERIAL_EVIDENCE_CURRENT_v1.csv","receipt":"automation/receipts/M1M-MATERIAL-EVIDENCE_20260822T201000Z.json","historical_concrete_reference":"Rck 250 kg/cm2 RIF","original_cube_tests":"RIF present_and_conforming_no_numeric_results","current_concrete_strength":"ND","steel_type":"FeB38k RIF","nominal_historical_fyk":"375 MPa SUPPORTED/INF normative mapping only","LC":"ND","FC":"ND","advance_rule":"Residual material properties remain mandatory before CALCULATION_MODEL_READY but do not block reinforcement evidence mapping."}
+    {
+      "phase": "PT-GEOMETRY",
+      "status": "COMPLETE_WITH_PROVENANCE_WATCHES",
+      "master": "data/canonical/PT_MASTER_CURRENT.csv",
+      "handoff": "data/canonical/PT_GEOMETRY_HANDOFF_v1.json"
+    },
+    {
+      "phase": "COMMON-STOREY-REGISTRATION",
+      "status": "PASS_WITH_PROVENANCE_WATCHES",
+      "gate": "data/canonical/STOREY_COMMON_REGISTRATION_GATE_v1.csv",
+      "levels": "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
+      "xy_registration": "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"
+    },
+    {
+      "phase": "M0-G-GLOBAL-GEOMETRY",
+      "status": "FROZEN_PASS_WITH_WATCH_REVALIDATED_B053_B054",
+      "handoff": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
+      "analytical_nodes": 627,
+      "rigid_joint_links": 462,
+      "ordinary_members": 358,
+      "ordinary_beams": 231,
+      "vertical_column_segments": 127,
+      "reopen_rule": "Only through formal M0G-REOPEN supported by new direct documentary geometry evidence.",
+      "local_reopen": "B-053/B-054 CLOSED_REVALIDATED"
+    },
+    {
+      "phase": "M1-S-SECTIONS",
+      "status": "PASS_WITH_WATCH",
+      "gate": "data/canonical/M1S_SECTION_GATE_v1.csv",
+      "g5_sections": "data/canonical/M1S_G5_BEAM_SECTIONS_CURRENT_v1.csv",
+      "rigid_zones": "data/canonical/M1S_G5_RIGID_ZONES_v1.csv",
+      "closure_report": "docs/M1S_SECTION_CLOSURE_REPORT_v1.md",
+      "ordinary_members_with_usable_sections": 358,
+      "nd_section_count": 0,
+      "section_evidence_watch_count": 5,
+      "supported_section_items": [
+        "G5-B017"
+      ],
+      "g5_b017_role": "IMPLUVIO",
+      "g5_b017_section_cm": "30x50",
+      "g5_b017_status": "SUPPORTED"
+    },
+    {
+      "phase": "M1-M-MATERIALS",
+      "status": "PASS_WITH_WATCH",
+      "gate": "data/canonical/M1M_MATERIAL_GATE_v1.csv",
+      "evidence": "data/canonical/M1M_MATERIAL_EVIDENCE_CURRENT_v1.csv",
+      "receipt": "automation/receipts/M1M-MATERIAL-EVIDENCE_20260822T201000Z.json",
+      "historical_concrete_reference": "Rck 250 kg/cm2 RIF",
+      "original_cube_tests": "RIF present_and_conforming_no_numeric_results",
+      "current_concrete_strength": "ND",
+      "steel_type": "FeB38k RIF",
+      "nominal_historical_fyk": "375 MPa SUPPORTED/INF normative mapping only",
+      "LC": "ND",
+      "FC": "ND",
+      "advance_rule": "Residual material properties remain mandatory before CALCULATION_MODEL_READY but do not block reinforcement evidence mapping."
+    }
   ],
   "reinforcement_progress": {
     "source_map": "data/canonical/M1A_REINFORCEMENT_SOURCE_MAP_v1.csv",
@@ -51,10 +103,23 @@
     "task": "Continue direct TAV-02A beam-group/member binding and bar-by-bar transcription; then map TAV-034A, TAV-05A and TAV-06A. Preserve TAV-07A order/support watches without reopening geometry.",
     "orchestrator": "scripts/n12_orchestrator.py",
     "queue": "automation/N12_WORK_QUEUE_v1.json",
-    "required_inputs": ["data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv","data/canonical/M1S_SECTION_GATE_v1.csv","data/canonical/M1M_MATERIAL_GATE_v1.csv","data/canonical/tavole_originali_remote_index_v1.csv"],
-    "target_outputs": ["data/canonical/M1A_REINFORCEMENT_CURRENT_v1.csv","data/canonical/M1A_REINFORCEMENT_GATE_v1.csv"],
+    "required_inputs": [
+      "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv",
+      "data/canonical/M1S_SECTION_GATE_v1.csv",
+      "data/canonical/M1M_MATERIAL_GATE_v1.csv",
+      "data/canonical/tavole_originali_remote_index_v1.csv"
+    ],
+    "target_outputs": [
+      "data/canonical/M1A_REINFORCEMENT_CURRENT_v1.csv",
+      "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv"
+    ],
     "output": "data/canonical/M1A_REINFORCEMENT_CURRENT_v1.csv",
-    "forbidden_inputs": ["reinforcement copied across members without explicit source authority","steel grade inferred from reinforcement diameters","silent promotion of RIF MIS INF SUPPORTED to DOC","geometry or topology edits outside formal M0G-REOPEN"]
+    "forbidden_inputs": [
+      "reinforcement copied across members without explicit source authority",
+      "steel grade inferred from reinforcement diameters",
+      "silent promotion of RIF MIS INF SUPPORTED to DOC",
+      "geometry or topology edits outside formal M0G-REOPEN"
+    ]
   },
   "current_material_state": {
     "historical_design_concrete_rck": "250 kg/cm2",
@@ -85,5 +150,16 @@
     "absolute project/geodetic Z remains ND"
   ],
   "anti_restart_rule": "PT geometry, common storey registration, M0-G global geometry/topology, M1-S section completion and M1-M material evidence inventory are stable checkpoints. M1-A source render, TAV-07A family transcription and TAV-02A direct group index are incremental checkpoints. Do not restart them globally; reopen only the smallest conflicting claim supported by new direct source evidence.",
-  "completion_condition": "M1 completes only when materials, reinforcement, loads and foundations are promoted with explicit provenance and the final EdiLus/FEM handoff reaches CALCULATION_MODEL_READY."
+  "completion_condition": "M1 completes only when materials, reinforcement, loads and foundations are promoted with explicit provenance and the final EdiLus/FEM handoff reaches CALCULATION_MODEL_READY.",
+  "geometry_reopen_checkpoint": {
+    "id": "M0G-REOPEN-B053-B054",
+    "state": "CLOSED_REVALIDATED",
+    "delta": {
+      "g1_beams": 2,
+      "g1_face_nodes": 4,
+      "global_members": 2,
+      "global_nodes": 4,
+      "rigid_links": 4
+    }
+  }
 }

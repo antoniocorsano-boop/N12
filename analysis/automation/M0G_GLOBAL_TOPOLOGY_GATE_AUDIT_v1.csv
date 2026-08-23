@@ -1,13 +1,25 @@
-audit_id,scope,check_basis,observed,status,source_paths,note
-M0G-GT-A01,inventory,nodes+links+members+roof-special counts,"623 nodes;458 rigid links;356 members;6 roof-special features",PASS,"data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv;data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv;data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv;data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv",Frozen M0-G inventories match the assembly contract.
-M0G-GT-A02,member roles,beam endpoint and column endpoint audits,"0 beam-role failures;0 column-role failures",PASS,"analysis/automation/M0G_ASSEMBLE_MEMBER_CONNECTIVITY_AUDIT_v1.csv;data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",Beams use face-incidence nodes and columns use support-core nodes.
-M0G-GT-A03,member uniqueness,member audit,"356 unique IDs;0 duplicate undirected node pairs;0 zero-length members",PASS,analysis/automation/M0G_ASSEMBLE_MEMBER_CONNECTIVITY_AUDIT_v1.csv,No duplicate structural members.
-M0G-GT-A04,rigid offsets,rigid-link audit,"458 unique links;0 orphan cores;0 zero offsets;0 nonzero dz",PASS,analysis/automation/M0G_BUILD_RIGID_JOINT_LINKS_AUDIT_v1.csv,Face incidences remain distinct from support cores.
-M0G-GT-A05,face incidence,combined member/link/node audits,"458 face nodes;458 beam endpoints;458 core-to-face links",PASS,"analysis/automation/M0G_BUILD_3D_ANALYTICAL_NODES_AUDIT_v1.csv;analysis/automation/M0G_BUILD_RIGID_JOINT_LINKS_AUDIT_v1.csv;analysis/automation/M0G_ASSEMBLE_MEMBER_CONNECTIVITY_AUDIT_v1.csv",One analytical face node per beam endpoint and one rigid link per face node.
-M0G-GT-A06,vertical termination,member audit,"a-d vertical segments=0;roof-absent G4-G5 segments=0",PASS,analysis/automation/M0G_ASSEMBLE_MEMBER_CONNECTIVITY_AUDIT_v1.csv,No unsupported vertical extrusion.
-M0G-GT-A07,roof separation,roof-special+member audits,"3 ridges;3 gronde;0 promotions;G5-B036 count=1",PASS,"data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv;analysis/automation/M0G_ASSEMBLE_MEMBER_CONNECTIVITY_AUDIT_v1.csv",Special roof geometry remains outside ordinary member connectivity.
-M0G-GT-A08,roof Z,source-specific roof audit,"6 global Z values ND",WATCH,"data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv;analysis/automation/M0G_RESOLVE_ROOF_SPECIAL_3D_AUDIT_v1.csv","TAV-06S local 2.10/3.75 and TAV-06E upper module 2.20 are retained without unsupported global binding."
-M0G-GT-A09,gronda XY,source-specific roof audit,"3 gronda centerlines ND",WATCH,"data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv;analysis/automation/M0G_RESOLVE_ROOF_SPECIAL_3D_AUDIT_v1.csv",No single metric centerline invented for documentary edge sets.
-M0G-GT-A10,provenance,combined canonical audit,"MIS/INF/ND watches retained;no MIS-to-DOC repair",PASS,"analysis/automation/M0G_BUILD_3D_ANALYTICAL_NODES_AUDIT_v1.csv;analysis/automation/M0G_BUILD_RIGID_JOINT_LINKS_AUDIT_v1.csv;analysis/automation/M0G_ASSEMBLE_MEMBER_CONNECTIVITY_AUDIT_v1.csv;analysis/automation/M0G_RESOLVE_ROOF_SPECIAL_3D_AUDIT_v1.csv",Provenance remains component-wise explicit.
-M0G-GT-A11,graph connectivity,cross-artifact support/node graph review,"orphan nodes=0;connected components=1",PASS,"data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv;data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv;data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv","G1 terrace nodes connect into main PT; G2-G4 connected; G5 connected; adjacent-storey column segments join the levels. No inferred bridge added."
-M0G-GT-A12,overall,hard rejection scan,PASS_WITH_WATCH,PASS,data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv,No hard rejection; only explicit roof-special ND watches remain.
+detail_type,count,values
+missing_member_nodes,0,
+zero_member_pairs,0,
+duplicate_member_node_pairs,0,
+beam_role_failures,0,
+column_role_failures,0,
+invalid_cross_storey_members,0,
+terrace_vertical_segments,0,
+roof_absent_g4_g5_columns,0,
+roof_special_as_members,0,
+missing_link_nodes,0,
+link_role_failures,0,
+link_support_level_failures,0,
+zero_length_rigid_links,0,
+bad_face_link_coverage,0,
+bad_face_member_coverage,0,
+roof_member_promotions,0,
+roof_z_assigned,0,
+ridge_xy_bad,0,
+eave_centerline_created,3,G5-GRONDA-L;G5-GRONDA-R;G5-GRONDA-B
+blank_node_provenance,0,
+blank_member_provenance,0,
+blank_link_provenance,0,
+orphan_nodes,0,
+component_sizes,1,627

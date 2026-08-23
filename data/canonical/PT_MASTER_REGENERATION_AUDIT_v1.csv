@@ -1,15 +1,16 @@
 audit_id,metric,value,status,note
-MASTER-REGEN-001,historical_snapshot,data/canonical/PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv,PASS,"Exact pre-regeneration Master preserved before replacement."
-MASTER-REGEN-002,old_master_geometry_used_as_input,NO,PASS,"G1-G9 reconstruction excluded historical Master X/Y from geometric authority."
-MASTER-REGEN-003,physical_support_count,38,PASS,"New Master retains P1-P33 P22-prime and a-b-c-d as physical supports."
-MASTER-REGEN-004,support_coordinates_changed_or_completed,25,PASS,"25 of 38 support center records differ from or complete the historical Master after raster/quote/topology revalidation."
-MASTER-REGEN-005,support_coordinates_unchanged,13,PASS,"Unchanged: P1 P2 P3 P4 P5 P9 P10 P11 P17 a b c d."
-MASTER-REGEN-006,p22_prime_completion,"X=5.55 Y=19.28",WATCH,"Previously ND; now supported by reference-line rebound plus MIS 22-prime/22 spacing. Not promoted to DOC."
-MASTER-REGEN-007,extended_support_sections,"P18=110x30; P23=110x30; P30=30x110",PASS,"Extended supports preserved as physical rectangles with distinct faces."
-MASTER-REGEN-008,analytical_face_node_count,98,PASS,"Nodes are stored canonically in PT_ANALYTICAL_NODES_v1.csv and referenced support-by-support in the regenerated Master."
-MASTER-REGEN-009,effective_beam_count,49,PASS,"Uses PT_VECTOR_BEAMS_v2 plus G6 patch; B-029/B-044 revoked and B-037 duplicate suppressed."
-MASTER-REGEN-010,topology_reject_count,0,PASS,"Final G9 overlay QA has zero topology rejects."
-MASTER-REGEN-011,provenance_policy,PRESERVED,PASS,"DOC/SUPPORTED/MIS/WATCH states remain explicit; no WATCH is silently upgraded to DOC."
-MASTER-REGEN-012,new_master_schema,SUPPORT_CENTRIC_WITH_NODE_REFERENCES,PASS,"One row per physical support plus explicit physical bounds and analytical-node references; detailed nodes remain in PT_ANALYTICAL_NODES_v1.csv to avoid collapsing or duplicating face topology."
-MASTER-REGEN-013,major_corrected_groups,"P6-P8; P12-P16; P18-P33 left/mid grid",PASS,"Historical point grid is superseded by validated metric supports and beam-face topology."
-MASTER-REGEN-014,promotion_gate,READY,PASS,"All required G1-G9 pipeline artifacts exist and final overlay QA is PASS_WITH_PROVENANCE_WATCHES."
+MASTER-REGEN-001,historical_snapshot,data/canonical/PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv,PASS,Exact pre-regeneration Master preserved before replacement.
+MASTER-REGEN-002,old_master_geometry_used_as_input,NO,PASS,G1-G9 reconstruction excluded historical Master X/Y from geometric authority.
+MASTER-REGEN-003,physical_support_count,38,PASS,New Master retains P1-P33 P22-prime and a-b-c-d as physical supports.
+MASTER-REGEN-004,support_coordinates_changed_or_completed,25,PASS,25 of 38 support center records differ from or complete the historical Master after raster/quote/topology revalidation.
+MASTER-REGEN-005,support_coordinates_unchanged,13,PASS,Unchanged: P1 P2 P3 P4 P5 P9 P10 P11 P17 a b c d.
+MASTER-REGEN-006,p22_prime_completion,X=5.55 Y=19.28,WATCH,Previously ND; now supported by reference-line rebound plus MIS 22-prime/22 spacing. Not promoted to DOC.
+MASTER-REGEN-007,extended_support_sections,P18=110x30; P23=110x30; P30=30x110,PASS,Extended supports preserved as physical rectangles with distinct faces.
+MASTER-REGEN-008,analytical_face_node_count,102,PASS,PT face-node inventory after formal B-053/B-054 reopen.
+MASTER-REGEN-009,effective_beam_count,51,PASS,Effective PT beams including B-052/B-053/B-054; revocations preserved.
+MASTER-REGEN-010,topology_reject_count,0,PASS,Final G9 overlay QA has zero topology rejects.
+MASTER-REGEN-011,provenance_policy,PRESERVED,PASS,DOC/SUPPORTED/MIS/WATCH states remain explicit; no WATCH is silently upgraded to DOC.
+MASTER-REGEN-012,new_master_schema,SUPPORT_CENTRIC_WITH_NODE_REFERENCES,PASS,One row per physical support plus explicit physical bounds and analytical-node references; detailed nodes remain in PT_ANALYTICAL_NODES_v1.csv to avoid collapsing or duplicating face topology.
+MASTER-REGEN-013,major_corrected_groups,P6-P8; P12-P16; P18-P33 left/mid grid,PASS,Historical point grid is superseded by validated metric supports and beam-face topology.
+MASTER-REGEN-014,promotion_gate,READY,PASS,All required G1-G9 pipeline artifacts exist and final overlay QA is PASS_WITH_PROVENANCE_WATCHES.
+MASTER-REGEN-015,local_m0g_reopen,B-053 18-19; B-054 23-22-prime,PASS,Direct TAV-02S topology plus independent TAV-02A crosscheck.

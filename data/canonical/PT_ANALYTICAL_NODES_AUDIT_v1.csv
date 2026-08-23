@@ -1,11 +1,11 @@
 audit_id,metric,value,status,note
 G7-NODE-001,physical_support_count,38,PASS,All 38 physical supports represented as rectangles; support centers remain non-analytical.
-G7-NODE-002,effective_beam_count,49,PASS,All analytical attachments derive from the 49 raster-QA-passed physical beam members.
-G7-NODE-003,endpoint_records,98,PASS,Two beam-face attachment endpoints per effective physical member.
-G7-NODE-004,unique_analytical_nodes,98,PASS,No coincident endpoint merge occurred at the chosen face-point precision; opposite/support faces remain distinct.
-G7-NODE-005,watch_nodes,32,WATCH,WATCH nodes inherit MIS/support residual provenance and are not promoted to DOC.
-G7-NODE-006,extended_P18_nodes,2,PASS,P18 has separate west/east beam-face nodes.
-G7-NODE-007,extended_P23_nodes,2,PASS,P23 has separate horizontal/vertical face attachments.
+G7-NODE-002,effective_beam_count,51,PASS,51 raster-QA-passed physical beams after local reopen
+G7-NODE-003,endpoint_records,102,PASS,Two face endpoints per effective beam
+G7-NODE-004,unique_analytical_nodes,102,PASS,Four new incidences retained for B-053/B-054
+G7-NODE-005,watch_nodes,36,WATCH,Four new incidences retain provenance WATCH
+G7-NODE-006,extended_P18_nodes,3,PASS,P18 now has three distinct face incidences
+G7-NODE-007,extended_P23_nodes,3,PASS,P23 now has three distinct face incidences
 G7-NODE-008,extended_P30_nodes,3,PASS,P30 has three distinct face attachment nodes: two row elevations plus longitudinal face.
 G7-NODE-009,center_node_substitution,0,PASS,No support centroid is used as a beam node.
 G7-NODE-010,master_promotion,FORBIDDEN,PASS,Final overlay QA is still required before regenerating PT_MASTER_CURRENT.

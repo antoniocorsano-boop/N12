@@ -67,6 +67,8 @@ members: list[dict[str, object]] = []
 # --- G1 effective beams: current base + explicit G6 patch semantics.
 pt_base = read_csv(CAN / "PT_VECTOR_BEAMS_v2.csv")
 pt_patch = read_csv(CAN / "PT_VECTOR_BEAMS_G6_PATCH_v1.csv")
+reopen_rows = read_csv(CAN / "M0G_REOPEN_PT_BEAM_EVIDENCE_v1.csv")
+reopen_sections = {r["beam_id"]: r for r in reopen_rows}
 revoked = {r["beam_id"] for r in pt_patch if r["action"] == "REVOKE"}
 pt_effective = [
     r for r in pt_base
@@ -79,15 +81,15 @@ for p in pt_patch:
             "support_i": p["support_i"],
             "support_j": p["support_j"],
             "geometry_role": "PATCH_DIRECT_SOURCE",
-            "section_hint": "",
+            "section_hint": reopen_sections.get(p["beam_id"], {}).get("section_cm", ""),
             "evidence_basis": "DOC_DIRECT_SOURCE_PATCH",
             "orientation": p["orientation"],
             "vector_status": p["vector_status"],
             "note": p["note"],
         })
 
-if len(pt_effective) != 49:
-    raise SystemExit(f"PT effective beam count != 49: {len(pt_effective)}")
+if len(pt_effective) != 51:
+    raise SystemExit(f"PT effective beam count != 51: {len(pt_effective)}")
 
 for b in pt_effective:
     bid = b["beam_id"]
@@ -240,15 +242,15 @@ nd_g5_sections = sum(1 for m in members if m["storey_id"] == "G5" and m["member_
 watched_columns = sum(1 for m in column_members if m["validation_state"] == "CURRENT_WITH_SECTION_WATCH")
 
 checks = [
-    ("TOTAL_MEMBER_ROWS", 356, len(members), ""),
-    ("ORDINARY_BEAM_ROWS", 229, len(beam_members), "49 G1 + 180 G2-G5"),
+    ("TOTAL_MEMBER_ROWS", 358, len(members), ""),
+    ("ORDINARY_BEAM_ROWS", 231, len(beam_members), "51 G1 + 180 G2-G5"),
     ("COLUMN_SEGMENT_ROWS", 127, len(column_members), "Exact vertical ledger"),
-    ("G1_BEAMS", 49, by_storey["G1"], "Effective PT topology"),
+    ("G1_BEAMS", 51, by_storey["G1"], "Effective PT topology"),
     ("G2_BEAMS", 48, by_storey["G2"], ""),
     ("G3_BEAMS", 48, by_storey["G3"], ""),
     ("G4_BEAMS", 48, by_storey["G4"], ""),
     ("G5_BEAMS", 36, by_storey["G5"], ""),
-    ("UNIQUE_MEMBER_IDS", 356, len(set(member_ids)), ""),
+    ("UNIQUE_MEMBER_IDS", 358, len(set(member_ids)), ""),
     ("DUPLICATE_UNDIRECTED_NODE_PAIRS", 0, len(node_pairs) - len(set(node_pairs)), "Rigid links are not structural members and are absent here."),
     ("BEAM_ENDPOINT_ROLE_FAILURES", 0, beam_face_role_fail, "Every beam terminates on a beam-support face node."),
     ("COLUMN_ENDPOINT_ROLE_FAILURES", 0, column_core_role_fail, "Every column terminates on a support-core node."),
