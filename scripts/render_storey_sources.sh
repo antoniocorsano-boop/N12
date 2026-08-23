@@ -42,6 +42,13 @@ render_one "TAV05A" "archive/documentazione_originaria/tavola 5-3.pdf" "armature
 render_one "TAV06A" "archive/documentazione_originaria/tavola 6.pdf" "armature_copertura" "G5_copertura"
 render_one "TAV07A" "archive/documentazione_originaria/tavola7.pdf" "abaco_dettagli_pilastri" "pilastri_particolari"
 
+# Architectural plans are mandatory in the special-feature audit: balcony/terrace outlines, infill lines,
+# useful-floor extensions and geometry omitted or simplified in the historical frame calculation.
+render_one "TAV01" "archive/documentazione_originaria/tavola1.pdf" "pianta_architettonica" "controllo_geometrico"
+render_one "TAV02" "archive/documentazione_originaria/tavola2.pdf" "pianta_architettonica" "piano_terra"
+render_one "TAV03" "archive/documentazione_originaria/tavola 3.pdf" "pianta_architettonica" "piano_superiore"
+render_one "TAV04" "archive/documentazione_originaria/tavola 4.pdf" "pianta_architettonica" "piano_superiore"
+
 # Geometry/elevation sources retained for direct cross-registration with the reinforcement sheets.
 render_one "TAV03S" "archive/documentazione_originaria/tavola3-2.pdf" "carpenteria_II_impalcato" "G2"
 render_one "TAV04S" "archive/documentazione_originaria/tavola4-2.pdf" "carpenteria_III_impalcato" "G3"
@@ -56,4 +63,4 @@ for tile in r2_c1 r2_c2 r3_c1 r3_c2 r4_c1 r4_c2; do
   cp "analysis/source_renders/TAV02S/${tile}.jpg" "$OUT/TAV02S_${tile}.jpg"
 done
 
-printf 'archive_branch,%s\narchive_commit,%s\nrender_policy,immutable_source_to_300dpi_jpeg_no_interpretation\nreview_package,TAV02S_r2_c1+r2_c2+r3_c1+r3_c2+r4_c1+r4_c2 copied unchanged from canonical tile set\n' "$ARCHIVE_BRANCH" "$ARCHIVE_COMMIT" > "$OUT/run_metadata.txt"
+printf 'archive_branch,%s\narchive_commit,%s\nrender_policy,immutable_source_to_300dpi_jpeg_no_interpretation\nreview_package,TAV02S_r2_c1+r2_c2+r3_c1+r3_c2+r4_c1+r4_c2 copied unchanged from canonical tile set\nspecial_feature_audit,architectural TAV01-TAV04 included for balcony/terrace/infill geometry cross-check\n' "$ARCHIVE_BRANCH" "$ARCHIVE_COMMIT" > "$OUT/run_metadata.txt"
