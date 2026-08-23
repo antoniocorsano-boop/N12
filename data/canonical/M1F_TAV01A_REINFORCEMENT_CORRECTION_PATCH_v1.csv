@@ -1,0 +1,5 @@
+patch_id,operation,target_row_id,new_row_id,group_id,source_locator,bar_role,bar_quantity,bar_diameter_mm,shape_or_length,evidence_status,binding_state,reason
+M1F-REINF-P001,REPLACE,F1A-G02-R02,F1A-G02-R02,F1A-G02,P03-P04,UPPER_STRAIGHT_BAR_SET,2,14,L=1080|L=990,DOC_DIRECT_GROUP_SET,GROUP_BOUND,"HiRes P04 shows the third upper straight line L=1100 carries a distinct 3phi16 end label; remove it from the phi14 set."
+M1F-REINF-P002,ADD,,F1A-G02-R02B,F1A-G02,P04,UPPER_STRAIGHT_BAR,3,16,L=1100,DOC_DIRECT,GROUP_BOUND,"Direct HiRes P04 read: right upper straight line L=1100 with end label 3phi16."
+M1F-REINF-P003,REPLACE,F1A-G02-R03,F1A-G02-R03,F1A-G02,P03-P04,LOWER_STRAIGHT_BAR_SET,3,14,L=1120|L=1010,DOC_DIRECT_GROUP_SET,GROUP_BOUND,"HiRes P04 shows the third lower straight line L=1120 carries a distinct 3phi16 end label; remove it from the phi14 set."
+M1F-REINF-P004,ADD,,F1A-G02-R03B,F1A-G02,P04,LOWER_STRAIGHT_BAR,3,16,L=1120,DOC_DIRECT,GROUP_BOUND,"Direct HiRes P04 read: right lower straight line L=1120 with end label 3phi16."
