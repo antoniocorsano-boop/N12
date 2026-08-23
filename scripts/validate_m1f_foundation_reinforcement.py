@@ -15,7 +15,7 @@ TOPOLOGY = C / "M1F_FOUNDATION_TOPOLOGY_CURRENT_v1.csv"
 CROSSCHECK = C / "M1F_TAV01A_TAV01S_CROSSCHECK_v1.csv"
 GATE = C / "M1F_FOUNDATION_REINFORCEMENT_GATE_v1.csv"
 EXPECTED_GROUPS = {f"F1A-G0{i}" for i in range(1, 8)}
-EXPECTED_PATCH_IDS = {f"M1F-REINF-P00{i}" for i in range(1, 5)}
+EXPECTED_PATCH_IDS = {f"M1F-REINF-P00{i}" for i in range(1, 8)}
 
 
 def read_csv(path: Path):
@@ -26,8 +26,8 @@ def read_csv(path: Path):
 def apply_patch(base: list[dict[str, str]], patch: list[dict[str, str]], errors: list[str]):
     rows = [dict(r) for r in base]
     by_id = {r["row_id"].strip(): r for r in rows}
-    if len(patch) != 4 or {r["patch_id"].strip() for r in patch} != EXPECTED_PATCH_IDS:
-        errors.append("G02 correction patch must contain exactly P001-P004")
+    if len(patch) != 7 or {r["patch_id"].strip() for r in patch} != EXPECTED_PATCH_IDS:
+        errors.append("HiRes correction/partition patch must contain exactly P001-P007")
         return rows
     for p in patch:
         op = p["operation"].strip()
@@ -41,7 +41,7 @@ def apply_patch(base: list[dict[str, str]], patch: list[dict[str, str]], errors:
             "bar_quantity": p["bar_quantity"].strip(),
             "bar_diameter_mm": p["bar_diameter_mm"].strip(),
             "shape_or_length": p["shape_or_length"].strip(),
-            "segment_dimensions_cm": "",
+            "segment_dimensions_cm": p.get("segment_dimensions_cm", "").strip(),
             "evidence_status": p["evidence_status"].strip(),
             "binding_state": p["binding_state"].strip(),
             "note": p["reason"].strip(),
@@ -90,8 +90,8 @@ def main() -> int:
 
     if len(base_reinf) != 47:
         errors.append(f"base reinforcement row count must remain 47, got {len(base_reinf)}")
-    if len(reinf) != 49:
-        errors.append(f"effective reinforcement row count must be 49, got {len(reinf)}")
+    if len(reinf) != 51:
+        errors.append(f"effective reinforcement row count must be 51, got {len(reinf)}")
     row_ids = [r["row_id"].strip() for r in reinf]
     if len(row_ids) != len(set(row_ids)):
         errors.append("duplicate effective reinforcement row_id")
@@ -104,12 +104,12 @@ def main() -> int:
     complete = sum(r["reinforcement_transcription_state"].strip() == "COMPLETE_DIRECT" for r in queue)
     partial = sum(r["reinforcement_transcription_state"].strip() == "PARTIAL_DIRECT" for r in queue)
     pending = sum(r["reinforcement_transcription_state"].strip() == "PENDING" for r in queue)
-    if (complete, partial, pending) != (1, 6, 0):
-        errors.append(f"queue partition must be 1 complete / 6 partial / 0 pending, got {(complete, partial, pending)}")
+    if (complete, partial, pending) != (2, 5, 0):
+        errors.append(f"queue partition must be 2 complete / 5 partial / 0 pending, got {(complete, partial, pending)}")
 
     open_rows = [r for r in reinf if r["binding_state"].strip().startswith("OPEN_")]
-    if len(open_rows) != 7:
-        errors.append(f"open reinforcement transcription row count must be 7, got {len(open_rows)}")
+    if len(open_rows) != 6:
+        errors.append(f"open reinforcement transcription row count must be 6, got {len(open_rows)}")
 
     for group in ["F1A-G05", "F1A-G06"]:
         states = {r["binding_state"].strip() for r in reinf if r["group_id"].strip() == group}
@@ -151,6 +151,22 @@ def main() -> int:
         if actual != expected:
             errors.append(f"{row_id}: effective G02 patch expected {expected}, got {actual}")
 
+    expected_g07_lower = {
+        "F1A-G07-R04": ("2", "12", "BENT_PARTIAL", "70+70=140;right_diag122;left_inclined_segment_unlabelled"),
+        "F1A-G07-R04B": ("2", "12", "BENT_PARTIAL", "left_diag122;70+30=100;right_diag_unlabelled"),
+        "F1A-G07-R04C": ("2", "14", "BENT_PARTIAL", "left_diag122;30+70=100;right_end_segment_unlabelled"),
+    }
+    for row_id, expected in expected_g07_lower.items():
+        r = by_row.get(row_id, {})
+        actual = (
+            r.get("bar_quantity", "").strip(),
+            r.get("bar_diameter_mm", "").strip(),
+            r.get("shape_or_length", "").strip(),
+            r.get("segment_dimensions_cm", "").strip(),
+        )
+        if actual != expected or r.get("binding_state", "").strip() != "GROUP_BOUND":
+            errors.append(f"{row_id}: G07 direct lower-sagomato partition mismatch: expected {expected}, got {actual}")
+
     cc = {r["candidate_id"].strip(): r for r in crosscheck}
     if cc.get("FND-C015", {}).get("promotion_state", "").strip() != "REJECTED_AS_PHYSICAL_EDGE":
         errors.append("FND-C015 13-22 must remain rejected as physical edge")
@@ -167,11 +183,12 @@ def main() -> int:
 
     gate_by_id = {r["check_id"].strip(): r for r in gate}
     expected_actuals = {
-        "M1F-REINF-001": "7", "M1F-REINF-002": "7", "M1F-REINF-003": "49",
-        "M1F-REINF-004": "1", "M1F-REINF-005": "6", "M1F-REINF-006": "0",
-        "M1F-REINF-007": "7", "M1F-REINF-008": "2", "M1F-REINF-009": "1",
+        "M1F-REINF-001": "7", "M1F-REINF-002": "7", "M1F-REINF-003": "51",
+        "M1F-REINF-004": "2", "M1F-REINF-005": "5", "M1F-REINF-006": "0",
+        "M1F-REINF-007": "6", "M1F-REINF-008": "2", "M1F-REINF-009": "1",
         "M1F-REINF-010": "42", "M1F-REINF-011": "1", "M1F-REINF-012": "15",
-        "M1F-REINF-013": "4", "M1F-REINF-GATE": "PASS_GROUP_COVERAGE_WITH_TRANSCRIPTION_WATCHES",
+        "M1F-REINF-013": "4", "M1F-REINF-014": "3",
+        "M1F-REINF-GATE": "PASS_GROUP_COVERAGE_WITH_TRANSCRIPTION_WATCHES",
     }
     for check_id, expected in expected_actuals.items():
         actual = gate_by_id.get(check_id, {}).get("actual", "").strip()
