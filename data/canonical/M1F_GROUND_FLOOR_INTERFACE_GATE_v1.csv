@@ -1,0 +1,9 @@
+check_id,metric,expected,actual,status,severity,note
+M1F-GFI-G01,foundation_fill_geometric_separation,YES,YES,PASS,HARD,"TAV-06E keeps the raised floor/fill zone distinct from the common lower structural foundation plane."
+M1F-GFI-G02,reported_build_up_sequence_registered,"INERT_FILL>CONCRETE_POUR>SCREEDS","INERT_FILL>CONCRETE_POUR>SCREEDS",PASS,INFO,"Sequence is retained as qualified project information; this gate does not promote material thicknesses to DOC."
+M1F-GFI-G03,numeric_layer_thicknesses_promoted_without_evidence,0,0,PASS,HARD,"No unverified fill/pour/screed thickness is introduced."
+M1F-GFI-G04,numeric_surface_loads_promoted_without_evidence,0,0,PASS,HARD,"No permanent surface load is silently assigned from the qualitative build-up."
+M1F-GFI-G05,ground_floor_structural_load_path_closed,NO,NO,PASS_WITH_WATCH,WATCH,"Ground-supported versus foundation-beam/structural transfer remains to be classified before M1-L load assignment."
+M1F-GFI-G06,g1_to_local_ground_datum_registered,NO,NO,PASS_WITH_WATCH,WATCH,"No direct documentary G1=0.00 to local piano-di-campagna relation is currently registered."
+M1F-GFI-G07,numeric_ZF_COMMON_registered,NO,NO,PASS_WITH_WATCH,WATCH,"ZF_COMMON remains symbolic; historical 1.00 m below piano di campagna is not interpreted as -1.00 m below G1."
+M1F-GFI-GATE,gate_state,PASS_PARAMETRIC_GROUND_FLOOR_INTERFACE_WITH_LOAD_AND_DATUM_WATCH,PASS_PARAMETRIC_GROUND_FLOOR_INTERFACE_WITH_LOAD_AND_DATUM_WATCH,PASS_WITH_WATCH,GATE,"Foundation-fill-PT interface is now explicit and safe for downstream completion without inventing loads or numeric Z."
