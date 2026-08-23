@@ -1,0 +1,12 @@
+check_id,metric,expected,actual,status,severity,note
+M1F-TOP-001,physical_supports,38,38,PASS,HARD,"TAV-01S and PT Master crosswalk include 1-33, 22' and a-d."
+M1F-TOP-002,foundation_members_current,58,58,PASS,HARD,"Current topology is carpenteria-led; TAV-01A is used for reinforcement/section binding, not as a complete geometry inventory."
+M1F-TOP-003,connected_components,1,1,PASS,HARD,"The 38-node / 58-member foundation graph is a single connected mesh."
+M1F-TOP-004,isolated_or_degree1_supports,0,0,PASS,HARD,"All documented supports participate in the foundation mesh with degree >=2."
+M1F-TOP-005,direct_tav01s_plus_tav01a_members,42,42,PASS,INFO,"Forty-two physical members are directly cross-confirmed by both carpenteria and reinforcement schedules."
+M1F-TOP-006,tav01a_candidates_rejected_as_direct_geometry,1,1,PASS,WATCH,"FND-C015 13-22 is preserved as a TAV-01A source inconsistency and is not promoted over carpenteria."
+M1F-TOP-007,tav01a_schematic_spans_transformed,1,1,PASS,WATCH,"FND-C016 22-27 is converted to physical path through distinct 22': 22-22' plus 22'-27; only 22'-27 receives supported G03 binding."
+M1F-TOP-008,carpenteria_members_without_direct_autonomous_tav01a_binding,15,15,PASS_WITH_WATCH,WATCH,"These members are DOC geometry. Reinforcement and exact section binding remain open; no analogy is used."
+M1F-TOP-009,distinct_22_prime_support,1,1,PASS,HARD,"22 and 22' are separate nodes and are never merged."
+M1F-TOP-010,terrace_added_supports_in_foundation_documentation,4,4,PASS,HARD,"a-d are directly present on TAV-01S and in TAV-01A sequences; earlier crop-based absence interpretation is superseded."
+M1F-TOP-GATE,gate_state,PASS_TOPOLOGY_WITH_SECTION_REINFORCEMENT_WATCH,PASS_TOPOLOGY_WITH_SECTION_REINFORCEMENT_WATCH,PASS_WITH_WATCH,GATE,"Foundation topology may feed geometric/support binding. M1-F remains open until section extents, reinforcement, elevation and geotechnical/current-state requirements are handled."
