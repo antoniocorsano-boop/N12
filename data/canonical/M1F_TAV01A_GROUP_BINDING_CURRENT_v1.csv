@@ -1,0 +1,8 @@
+group_id,source_id,armature_sequence_a,armature_sequence_b,armature_sequence_c,physical_binding,section_family,binding_status,evidence_status,note
+F1A-G01,TAV-01A,1-2-3-4,,,1-2-3-4,FND-SEC-A,DIRECT_TAV01A_TAV01S,DOC,No correction required.
+F1A-G02,TAV-01A,9-10-11-12-13-14-15-16,,,9-10-11-12-13-14-15-16,FND-SEC-A,DIRECT_TAV01A_TAV01S,DOC,Offset 12-13 confirmed on carpenteria.
+F1A-G03,TAV-01A,13-21-26-29-32,22-27-30-33,,A:13-21-26-29-32 | B:22-22'-27-30-33,FND-SEC-A,CORRECTED_BINDING_CURRENT,DOC,Supersedes the initial derived second sequence 13-22-27-30-33. Support 13 belongs only to branch A; armature interval 22-27 binds to physical path 22-22'-27 on TAV-01S.
+F1A-G04,TAV-01A,24-16-8,23-15-7,22-14-6,24-16-8 | 23-15-7 | 22-14-6,FND-SEC-A,DIRECT_TAV01A_TAV01S,DOC,Parenthesized source dimensions remain restricted to sequence 22-14-6.
+F1A-G05,TAV-01A,c-a-17-9-1,d-b-18-10-2,,c-a-17-9-1 | d-b-18-10-2,FND-SEC-B,DIRECT_TAV01A_TAV01S,DOC,Terrace foundation subsystem retained as built/documented evidence.
+F1A-G06,TAV-01A,a-b-25-26-27,c-d-28-29-30,31-32-33,a-b-25-26-27 | c-d-28-29-30 | 31-32-33,MIXED_OR_FND-SEC-B_TO_VERIFY,DIRECT_TOPOLOGY_SECTION_WATCH,DOC,Topology confirmed; exact section-family transition remains an M1-F section/reinforcement watch.
+F1A-G07,TAV-01A,12-5-4,,,12-5-4,FND-SEC-A,DIRECT_TAV01A_TAV01S,DOC,Offset/return geometry confirmed by TAV-01S.
