@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "updated_at": "2026-08-23",
   "gate": "M1-A/REINFORCEMENT",
-  "status": "M1A_IN_PROGRESS_TAV02A_CORE_COMPLETE",
+  "status": "M1A_IN_PROGRESS_TAV034A_TRANSCRIPTION",
   "objective": "Complete the calculation-model inputs from the frozen M0-G geometry through sections, materials, reinforcement, loads, foundations and EdiLus/open-source FEM handoff while preserving source provenance and nonblocking residuals.",
   "geometry_master_status": "CURRENT",
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
@@ -56,13 +56,9 @@
       "phase": "M1-S-SECTIONS",
       "status": "PASS_WITH_WATCH",
       "gate": "data/canonical/M1S_SECTION_GATE_v1.csv",
-      "g5_sections": "data/canonical/M1S_G5_BEAM_SECTIONS_CURRENT_v1.csv",
-      "rigid_zones": "data/canonical/M1S_G5_RIGID_ZONES_v1.csv",
-      "closure_report": "docs/M1S_SECTION_CLOSURE_REPORT_v1.md",
       "ordinary_members_with_usable_sections": 359,
       "nd_section_count": 0,
       "section_evidence_watch_count": 5,
-      "supported_section_items": ["G5-B017"],
       "g5_b017_role": "IMPLUVIO",
       "g5_b017_section_cm": "30x50",
       "g5_b017_status": "SUPPORTED"
@@ -84,8 +80,7 @@
       "steel_quality_control": "controllato in stabilimento DOC",
       "LC": "ND",
       "FC": "ND",
-      "residual_count": 3,
-      "advance_rule": "Current in-situ concrete verification strength, LC and FC remain mandatory before CALCULATION_MODEL_READY but do not block reinforcement evidence mapping."
+      "residual_count": 3
     }
   ],
   "reinforcement_progress": {
@@ -101,33 +96,30 @@
     "tav02a_group_ledger": "data/canonical/M1A_TAV02A_GROUP_REINFORCEMENT_v1.csv",
     "tav02a_group_supplement": "data/canonical/M1A_TAV02A_GROUP_REINFORCEMENT_SUPPLEMENT_v1.csv",
     "tav02a_core_transcription_status": "COMPLETE_ALL_8_GROUPS",
-    "dedicated_member_complete": "B-051 / T2A-G08 bar-by-bar core transcription",
-    "group_core_transcribed": ["T2A-G01","T2A-G02","T2A-G03","T2A-G04","T2A-G05","T2A-G06","T2A-G07"],
-    "current_subtask": "Complete remaining bent-bar/readability details and project continuous group bars to member stations; preserve G02 section binding watch. Then begin TAV-034A G2-G3 mapping.",
-    "promotion_status": "TAV02A_CORE_COMPLETE_NOT_M1A_GATE_COMPLETE"
+    "tav034a_group_index": "data/canonical/M1A_TAV034A_BEAM_GROUP_INDEX_v1.csv",
+    "tav034a_direct_group_count": 6,
+    "tav034a_level_scope": "G2+G3",
+    "tav034a_group_reinforcement": "data/canonical/M1A_TAV034A_GROUP_REINFORCEMENT_v1.csv",
+    "tav034a_transcribed_groups": ["T34-G04","T34-G05","T34-G06"],
+    "tav034a_next_group": "T34-G07 19-25-28-31 / 22-prime-27-30-33",
+    "tav034a_withheld_group": "central paired scheme around 17/24,18/23,19/22,20/22,21 pending exact duplicated station-label semantics",
+    "current_subtask": "Continue TAV-034A transcription with G07 then G01/G02; resolve the withheld central group only from exact source semantics. Afterwards proceed to TAV-05A G4 and TAV-06A G5. TAV-02A detailed member-station projection remains a parallel nonblocking refinement.",
+    "promotion_status": "TAV02A_CORE_COMPLETE_TAV034A_PARTIAL_NOT_M1A_GATE_COMPLETE"
   },
   "next_action": {
     "phase": "M1-A/REINFORCEMENT",
     "work_item": "M1A-REINFORCEMENT-EVIDENCE",
-    "task": "Finish detailed TAV-02A bent-bar and member-station projection, resolve only evidence-supported G02 section bindings, then map TAV-034A for G2-G3 followed by TAV-05A and TAV-06A.",
-    "orchestrator": "scripts/n12_orchestrator.py",
-    "queue": "automation/N12_WORK_QUEUE_v1.json",
-    "required_inputs": [
-      "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv",
-      "data/canonical/M1S_SECTION_GATE_v1.csv",
-      "data/canonical/M1M_MATERIAL_GATE_v1.csv",
-      "data/canonical/tavole_originali_remote_index_v1.csv"
-    ],
+    "task": "Transcribe TAV-034A G07 and remaining direct G2/G3 groups; keep parenthesized dimensions tied only to the source-named sequence and preserve unlabelled diagonals as watches. Then resolve the central duplicated-label group and move to TAV-05A and TAV-06A.",
     "target_outputs": [
       "data/canonical/M1A_REINFORCEMENT_CURRENT_v1.csv",
       "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv"
     ],
-    "output": "data/canonical/M1A_REINFORCEMENT_CURRENT_v1.csv",
     "forbidden_inputs": [
       "reinforcement copied across members without explicit source authority",
       "steel grade inferred from reinforcement diameters",
       "silent promotion of RIF MIS INF SUPPORTED to DOC",
-      "geometry or topology edits outside formal M0G-REOPEN"
+      "geometry or topology edits outside formal M0G-REOPEN",
+      "unlabelled bent-bar diagonal completed by symmetry"
     ]
   },
   "current_material_state": {
@@ -140,8 +132,7 @@
     "historical_allowable_steel_stress": "2200 kg/cm2 DOC",
     "knowledge_level": "ND",
     "confidence_factor": "ND",
-    "gate": "PASS_WITH_WATCH",
-    "source": "data/canonical/M1M_MATERIAL_EVIDENCE_CURRENT_v1.csv"
+    "gate": "PASS_WITH_WATCH"
   },
   "non_blocking_provenance_watches": [
     "M1-S G5-B017 section 30x50 is SUPPORTED, structural role IMPLUVIO, not DOC",
@@ -150,16 +141,18 @@
     "M1-M current in-situ concrete verification strength remains ND",
     "M1-M LC and FC remain ND until documentary/investigation coverage is assessed",
     "M1-M historical concrete value 95 kg/cm2 is DOC but its exact historical parameter semantics remain to reconcile before solver use",
-    "M1-A TAV-02A G02 reinforcement is DOC but section-to-sequence binding remains open; no 30x65/25x70 assignment is forced",
+    "M1-A TAV-02A G02 reinforcement is DOC but section-to-sequence binding remains open",
     "M1-A TAV-02A some bent-bar segment lengths remain readability watches and are not inferred by symmetry",
-    "M1-A TAV-07A I-order families require section/orientation cross-validation for support binding; G1 support 3 has a 60x40 section with no directly transcribed I-order family match",
+    "M1-A TAV-034A central paired group station labels remain unresolved and are withheld from canonical member binding",
+    "M1-A TAV-034A G05 source writes apparent 130+130 with source total 230 on one 2Ø12 bent piece; retained as source-dimension inconsistency watch",
+    "M1-A TAV-034A unlabelled bent-bar diagonals remain explicit readability watches",
+    "M1-A TAV-07A I-order families require section/orientation cross-validation for support binding",
     "M1-A TAV-07A III-order support binding for 9 and 16 remains unresolved",
-    "M1-A TAV-07A transition detail for 9 and 16 is retained as a transition watch and does not reopen G5 geometry",
-    "M1-A TAV-07A V-order group lists support 24 while frozen G5 carpenteria excludes it; reinforcement/geometry discrepancy remains a watch",
+    "M1-A TAV-07A V-order group lists support 24 while frozen G5 carpenteria excludes it",
     "roof special Z and eaves centerline watches remain as frozen M0-G downstream constraints",
     "absolute project/geodetic Z remains ND"
   ],
-  "anti_restart_rule": "PT geometry, common storey registration, M0-G global geometry/topology, M1-S section completion and M1-M material evidence inventory are stable checkpoints. M1-A TAV-07A family transcription and TAV-02A eight-group core reinforcement transcription are incremental stable checkpoints. Do not restart them globally; reopen only the smallest conflicting claim supported by new direct source evidence.",
+  "anti_restart_rule": "PT geometry, common storey registration, M0-G global geometry/topology, M1-S section completion, M1-M material evidence, TAV-07A column-family transcription and TAV-02A eight-group core reinforcement are stable checkpoints. TAV-034A six-group index and G04-G06 transcription are incremental stable checkpoints. Do not restart globally; reopen only the smallest conflicting claim supported by direct source evidence.",
   "completion_condition": "M1 completes only when materials, reinforcement, loads and foundations are promoted with explicit provenance and the final EdiLus/FEM handoff reaches CALCULATION_MODEL_READY.",
   "geometry_reopen_checkpoint": {
     "id": "M0G-REOPEN-B053-B054-B055",
