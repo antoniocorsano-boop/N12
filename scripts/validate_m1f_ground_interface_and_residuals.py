@@ -9,11 +9,13 @@ ROOT = Path(__file__).resolve().parents[1]
 C = ROOT / "data" / "canonical"
 GFI = C / "M1F_GROUND_FLOOR_INTERFACE_CURRENT_v1.csv"
 GFI_GATE = C / "M1F_GROUND_FLOOR_INTERFACE_GATE_v1.csv"
+GFS = C / "M1F_GROUND_FLOOR_BUILDUP_SOURCE_AVAILABILITY_v1.csv"
 AD = C / "M1F_AD_HISTORICAL_MODEL_DELTA_AUDIT_v1.csv"
 AD_GATE = C / "M1F_AD_HISTORICAL_MODEL_DELTA_GATE_v1.csv"
 HCS = C / "M1F_HISTORICAL_CALC_SOURCE_AVAILABILITY_v1.csv"
 GEO = C / "M1F_CURRENT_GEOTECHNICAL_REQUIREMENTS_v1.csv"
 GEO_GATE = C / "M1F_CURRENT_GEOTECHNICAL_GATE_v1.csv"
+GSA = C / "M1F_GEOTECHNICAL_SOURCE_AVAILABILITY_v1.csv"
 ELEV_GATE = C / "M1F_FOUNDATION_ELEVATION_GATE_v1.csv"
 
 
@@ -25,7 +27,7 @@ def read(path: Path):
 def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
-    required = [GFI, GFI_GATE, AD, AD_GATE, HCS, GEO, GEO_GATE, ELEV_GATE]
+    required = [GFI, GFI_GATE, GFS, AD, AD_GATE, HCS, GEO, GEO_GATE, GSA, ELEV_GATE]
     for p in required:
         if not p.exists():
             errors.append(f"missing artifact: {p.relative_to(ROOT)}")
@@ -34,11 +36,13 @@ def main() -> int:
 
     gfi = read(GFI)
     gfi_gate = read(GFI_GATE)
+    gfs = read(GFS)
     ad = read(AD)
     ad_gate = read(AD_GATE)
     hcs = read(HCS)
     geo = read(GEO)
     geo_gate = read(GEO_GATE)
+    gsa = read(GSA)
     elev_gate = read(ELEV_GATE)
 
     if len(gfi) != 7:
@@ -61,11 +65,24 @@ def main() -> int:
         "M1F-GFI-G05": "NO",
         "M1F-GFI-G06": "NO",
         "M1F-GFI-G07": "NO",
+        "M1F-GFI-G08": "YES",
+        "M1F-GFI-G09": "NO",
         "M1F-GFI-GATE": "PASS_PARAMETRIC_GROUND_FLOOR_INTERFACE_WITH_LOAD_AND_DATUM_WATCH",
     }
     for cid, expected in expected_gfi.items():
         if gg.get(cid, {}).get("actual", "").strip() != expected:
             errors.append(f"{cid}: expected actual={expected!r}")
+
+    if len(gfs) != 6:
+        errors.append(f"expected 6 PT build-up source-availability rows, got {len(gfs)}")
+    gfs_by = {r["search_id"].strip(): r for r in gfs}
+    gfs_status = gfs_by.get("M1F-GFS-006", {})
+    if gfs_status.get("evidence_state", "").strip() != "SOURCE_AVAILABILITY_AUDIT_COMPLETE":
+        errors.append("PT build-up source search must remain completed for the current inventory")
+    if "CLOSED_CURRENT_INVENTORY" not in gfs_status.get("decision", ""):
+        errors.append("PT build-up source search must remain closed until source inventory changes")
+    if "Never transfer" not in gfs_by.get("M1F-GFS-004", {}).get("decision", ""):
+        errors.append("foundation-to-PT concrete-property non-transfer guard is missing")
 
     if len(ad) != 6:
         errors.append(f"expected 6 a-d audit rows, got {len(ad)}")
@@ -87,7 +104,8 @@ def main() -> int:
         errors.append(f"expected 5 historical calculation source-availability rows, got {len(hcs)}")
     hby = {r["search_id"].strip(): r for r in hcs}
     hs = hby.get("M1F-HCS-005", {})
-    if "NOT_DIRECTLY_PROVEN" not in hs.get("decision", "") and "not directly" not in hs.get("result", "").lower():
+    hs_text = (hs.get("decision", "") + " " + hs.get("result", "")).lower()
+    if "not_directly_proven" not in hs_text and "not directly proven" not in hs_text:
         errors.append("historical source availability audit must keep a-d omission not directly proven")
     if hs.get("evidence_state", "").strip() != "DOC_BUILT_PLUS_ND_HISTORICAL_CALC_SOURCE":
         errors.append("historical source availability evidence state changed unexpectedly")
@@ -95,12 +113,25 @@ def main() -> int:
     if len(geo) != 10:
         errors.append(f"expected 10 geotechnical requirement rows, got {len(geo)}")
     geog = {r["check_id"].strip(): r for r in geo_gate}
-    if geog.get("M1F-GEO-G03", {}).get("actual", "").strip() != "NO":
-        errors.append("historical allowable pressure must not be used as current design resistance")
-    if geog.get("M1F-GEO-G08", {}).get("actual", "").strip() != "NO":
-        errors.append("epsilon=1 must not be converted directly to solver soil stiffness")
-    if geog.get("M1F-GEO-GATE", {}).get("actual", "").strip() != "REQUIREMENTS_DEFINED_CURRENT_GEOTECHNICAL_EVIDENCE_OPEN":
-        errors.append("current geotechnical gate state mismatch")
+    expected_geo = {
+        "M1F-GEO-G03": "NO",
+        "M1F-GEO-G08": "NO",
+        "M1F-GEO-G10": "YES",
+        "M1F-GEO-G11": "NO",
+        "M1F-GEO-GATE": "REQUIREMENTS_DEFINED_CURRENT_GEOTECHNICAL_EVIDENCE_OPEN",
+    }
+    for cid, expected in expected_geo.items():
+        if geog.get(cid, {}).get("actual", "").strip() != expected:
+            errors.append(f"{cid}: expected actual={expected!r}")
+
+    if len(gsa) != 5:
+        errors.append(f"expected 5 geotechnical source-availability rows, got {len(gsa)}")
+    gsa_by = {r["search_id"].strip(): r for r in gsa}
+    gsa_status = gsa_by.get("M1F-GSA-005", {})
+    if gsa_status.get("evidence_state", "").strip() != "SOURCE_AVAILABILITY_AUDIT_COMPLETE":
+        errors.append("geotechnical source search must remain completed for current inventory")
+    if "CLOSED_CURRENT_INVENTORY" not in gsa_status.get("decision", ""):
+        errors.append("geotechnical repository search must remain closed until source inventory changes")
 
     eg = {r["check_id"].strip(): r for r in elev_gate}
     for cid, expected in (("M1F-ELEV-G07", "38"), ("M1F-ELEV-G08", "58")):
@@ -111,16 +142,18 @@ def main() -> int:
 
     warnings.extend([
         "numeric ZF_COMMON remains ND pending G1/local-ground datum evidence",
-        "ground-floor layer thicknesses, unit weights and structural load path remain open",
+        "PT layer thicknesses/unit weights and structural load path remain survey/new-source residuals; current source search is closed",
         "a-d historical calculation omission remains reported but not directly source-proven; current repository search is closed until a new primary source is registered",
-        "current geotechnical site parameters remain open",
+        "current geotechnical site parameters remain external-document/new-investigation residuals; current repository search is closed",
     ])
 
     return finish(errors, warnings, {
         "ground_floor_interface_rows": len(gfi),
+        "pt_build_up_source_inventory_rows": len(gfs),
         "ad_audit_rows": len(ad),
         "historical_source_inventory_rows": len(hcs),
         "geotechnical_requirement_rows": len(geo),
+        "geotechnical_source_inventory_rows": len(gsa),
         "symbolic_nodes_3d": eg.get("M1F-ELEV-G07", {}).get("actual", ""),
         "symbolic_members_3d": eg.get("M1F-ELEV-G08", {}).get("actual", ""),
         "numeric_ZF_COMMON": "ND",
