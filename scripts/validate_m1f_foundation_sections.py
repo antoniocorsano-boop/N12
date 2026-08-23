@@ -12,6 +12,7 @@ TOPOLOGY = C / "M1F_FOUNDATION_TOPOLOGY_CURRENT_v1.csv"
 CATALOG = C / "M1F_FOUNDATION_SECTION_CATALOG_CURRENT_v1.csv"
 TRANSITIONS = C / "M1F_FOUNDATION_SECTION_TRANSITIONS_TAV01A_v1.csv"
 PATCH = C / "M1F_FOUNDATION_SECTION_BINDING_PATCH_v1.csv"
+SOURCE_AUDIT = C / "M1F_FOUNDATION_SOURCE_ROLE_AUDIT_v1.csv"
 GATE = C / "M1F_FOUNDATION_SECTION_BINDING_GATE_v1.csv"
 
 EXPECTED_GEOMETRY = {
@@ -50,7 +51,7 @@ def fail(errors: list[str], message: str) -> None:
 def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
-    for path in [TOPOLOGY, CATALOG, TRANSITIONS, PATCH, GATE]:
+    for path in [TOPOLOGY, CATALOG, TRANSITIONS, PATCH, SOURCE_AUDIT, GATE]:
         if not path.exists():
             fail(errors, f"missing required M1-F section artifact: {path.relative_to(ROOT)}")
     if errors:
@@ -60,6 +61,7 @@ def main() -> int:
     catalog = rows(CATALOG)
     transitions = rows(TRANSITIONS)
     patch = rows(PATCH)
+    source_audit = rows(SOURCE_AUDIT)
     gate = rows(GATE)
 
     # 1. Frozen M1-F foundation topology contract.
@@ -117,6 +119,7 @@ def main() -> int:
 
     exact = sum(1 for state in effective_state.values() if state in EXPECTED_GEOMETRY)
     supported = sum(1 for state in effective_state.values() if state == "FND-SEC-A_SUPPORTED")
+    documentary_nd = sum(1 for state in effective_state.values() if state == "ND_DOCUMENTARY_COVERAGE")
     open_binding = sum(1 for state in effective_state.values() if state == "OPEN_SECTION_BINDING")
     residual_watch = [
         (mid, state)
@@ -128,14 +131,44 @@ def main() -> int:
         fail(errors, f"effective exact section-family count must be 42, got {exact}")
     if supported != 1:
         fail(errors, f"supported exact section-family count must be 1, got {supported}")
-    if open_binding != 15:
-        fail(errors, f"open section-binding count must be 15, got {open_binding}")
+    if documentary_nd != 15:
+        fail(errors, f"ND documentary-coverage section count must be 15, got {documentary_nd}")
+    if open_binding != 0:
+        fail(errors, f"open section-binding count must be zero after source-role audit, got {open_binding}")
     if residual_watch:
         fail(errors, f"section extent/transition watches must be zero after patch: {residual_watch}")
-    if exact + supported + open_binding != 58:
+    if exact + supported + documentary_nd != 58:
         fail(errors, "effective section-state partition does not cover all 58 members")
 
-    # 5. Gate must advertise the same post-patch contract.
+    # 5. Registered Tavola 1 source roles must demonstrate that the 15 ND rows are
+    # documentary coverage gaps, not unresolved source-search tasks.
+    source_rows = {r["source_file"].strip(): r for r in source_audit if r["source_file"].strip() != "AUDIT-SUMMARY"}
+    expected_roles = {
+        "tavola1.pdf": ("ARCHITECTURAL_SOURCE", "NO"),
+        "tavola1-2.pdf": ("FOUNDATION_CARPENTRY", "NO"),
+        "tavola1-3.pdf": ("FOUNDATION_REINFORCEMENT", "YES"),
+    }
+    if set(source_rows) != set(expected_roles):
+        fail(errors, f"Tavola 1 source-role audit mismatch: {sorted(source_rows)}")
+    for source_file, (role, provides_reinf) in expected_roles.items():
+        row = source_rows.get(source_file, {})
+        if row.get("canonical_role", "").strip() != role:
+            fail(errors, f"{source_file}: canonical_role must be {role}")
+        if row.get("provides_foundation_reinforcement", "").strip() != provides_reinf:
+            fail(errors, f"{source_file}: reinforcement-source flag must be {provides_reinf}")
+    summary_rows = [r for r in source_audit if r["source_file"].strip() == "AUDIT-SUMMARY"]
+    if len(summary_rows) != 1:
+        fail(errors, "source-role audit must contain exactly one AUDIT-SUMMARY row")
+    else:
+        s = summary_rows[0]
+        if s.get("canonical_role", "").strip() != "REGISTERED_SECOND_INDEPENDENT_FOUNDATION_REINFORCEMENT_SOURCE":
+            fail(errors, "source-role audit summary role mismatch")
+        if s.get("provides_foundation_reinforcement", "").strip() != "NO":
+            fail(errors, "source-role audit must confirm no second independent reinforcement source")
+        if s.get("audit_state", "").strip() != "CLOSED_NO_SECOND_SOURCE":
+            fail(errors, "source-role audit must be CLOSED_NO_SECOND_SOURCE")
+
+    # 6. Gate must advertise the same post-audit contract.
     gate_by_id = {r["check_id"].strip(): r for r in gate}
     expected_gate_actuals = {
         "M1F-SEC-005": "58",
@@ -143,6 +176,7 @@ def main() -> int:
         "M1F-SEC-007": "1",
         "M1F-SEC-008": "0",
         "M1F-SEC-009": "15",
+        "M1F-SEC-010": "0",
         "M1F-SEC-GATE": "PASS_SECTION_FAMILY_BINDING_WITH_15_DOCUMENTARY_GAPS",
     }
     for check_id, expected_actual in expected_gate_actuals.items():
@@ -157,6 +191,7 @@ def main() -> int:
         "section_promotions": len(patch),
         "exact_section_members": exact,
         "supported_section_members": supported,
+        "nd_documentary_coverage_members": documentary_nd,
         "open_section_members": open_binding,
         "transition_watch_members": len(residual_watch),
     }
