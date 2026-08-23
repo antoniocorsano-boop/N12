@@ -34,6 +34,11 @@ render_one() {
     >> "$OUT/manifest.csv"
 }
 
+# M1-F foundation geometry and support cross-registration. TAV-01S is the primary foundation carpenteria;
+# full TAV-02S is included to bind the first-storey support grid to foundation intersections/members.
+render_one "TAV01S" "archive/documentazione_originaria/tavola1-2.pdf" "carpenteria_fondazioni" "fondazioni"
+render_one "TAV02S" "archive/documentazione_originaria/tavola2-2.pdf" "carpenteria_I_impalcato" "G1_piano_terra"
+
 # M1-A reinforcement source set. These are derivative renders only; immutable PDFs remain authoritative.
 render_one "TAV01A" "archive/documentazione_originaria/tavola1-3.pdf" "armature_travi" "fondazioni_primo_livello"
 render_one "TAV02A" "archive/documentazione_originaria/tavola 2-3.pdf" "armature_travi" "G1_piano_terra"
@@ -63,4 +68,4 @@ for tile in r2_c1 r2_c2 r3_c1 r3_c2 r4_c1 r4_c2; do
   cp "analysis/source_renders/TAV02S/${tile}.jpg" "$OUT/TAV02S_${tile}.jpg"
 done
 
-printf 'archive_branch,%s\narchive_commit,%s\nrender_policy,immutable_source_to_300dpi_jpeg_no_interpretation\nreview_package,TAV02S_r2_c1+r2_c2+r3_c1+r3_c2+r4_c1+r4_c2 copied unchanged from canonical tile set\nspecial_feature_audit,architectural TAV01-TAV04 included for balcony/terrace/infill geometry cross-check\n' "$ARCHIVE_BRANCH" "$ARCHIVE_COMMIT" > "$OUT/run_metadata.txt"
+printf 'archive_branch,%s\narchive_commit,%s\nrender_policy,immutable_source_to_300dpi_jpeg_no_interpretation\nreview_package,TAV02S_r2_c1+r2_c2+r3_c1+r3_c2+r4_c1+r4_c2 copied unchanged from canonical tile set\nspecial_feature_audit,architectural TAV01-TAV04 included for balcony/terrace/infill geometry cross-check\nfoundation_audit,TAV01S foundation carpenteria plus full TAV02S support-grid cross-registration included for M1-F\n' "$ARCHIVE_BRANCH" "$ARCHIVE_COMMIT" > "$OUT/run_metadata.txt"
