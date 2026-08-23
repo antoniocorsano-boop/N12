@@ -46,8 +46,8 @@ def main() -> int:
         errors.append("duplicate group_id in TAV01A group index")
 
     row_ids = [r["row_id"].strip() for r in reinf]
-    if len(reinf) != 45:
-        errors.append(f"reinforcement row count must be 45, got {len(reinf)}")
+    if len(reinf) != 47:
+        errors.append(f"reinforcement row count must be 47, got {len(reinf)}")
     if len(set(row_ids)) != len(row_ids):
         errors.append("duplicate reinforcement row_id")
     reinf_groups = {r["group_id"].strip() for r in reinf}
@@ -64,8 +64,8 @@ def main() -> int:
         errors.append(f"queue state partition must be 1 complete / 6 partial / 0 pending, got {(complete, partial, pending)}")
 
     open_rows = [r for r in reinf if r["binding_state"].strip().startswith("OPEN_")]
-    if len(open_rows) != 11:
-        errors.append(f"open reinforcement transcription row count must be 11, got {len(open_rows)}")
+    if len(open_rows) != 9:
+        errors.append(f"open reinforcement transcription row count must be 9, got {len(open_rows)}")
 
     # Section-transition regimes must remain explicitly split.
     for group in ["F1A-G05", "F1A-G06"]:
@@ -81,6 +81,19 @@ def main() -> int:
         errors.append("G03 reinforcement rows missing")
     if not any(r["binding_state"].strip() == "GROUP_BOUND_WITH_22_PRIME_CORRECTION" for r in g03_rows):
         errors.append("G03 must preserve GROUP_BOUND_WITH_22_PRIME_CORRECTION")
+    expected_g03_straights = {
+        ("UPPER_STRAIGHT_BAR", "3", "16", "L=880"),
+        ("UPPER_STRAIGHT_BAR", "2", "14", "L=910"),
+        ("LOWER_STRAIGHT_BAR", "3", "18", "L=920"),
+        ("LOWER_STRAIGHT_BAR", "3", "14", "L=960"),
+    }
+    actual_g03_straights = {
+        (r["bar_role"].strip(), r["bar_quantity"].strip(), r["bar_diameter_mm"].strip(), r["shape_or_length"].strip())
+        for r in g03_rows
+        if r["bar_role"].strip() in {"UPPER_STRAIGHT_BAR", "LOWER_STRAIGHT_BAR"}
+    }
+    if actual_g03_straights != expected_g03_straights:
+        errors.append(f"G03 direct straight-bar transcription mismatch: {sorted(actual_g03_straights)}")
 
     cc = {r["candidate_id"].strip(): r for r in crosscheck}
     if cc.get("FND-C015", {}).get("promotion_state", "").strip() != "REJECTED_AS_PHYSICAL_EDGE":
@@ -100,11 +113,11 @@ def main() -> int:
     expected_actuals = {
         "M1F-REINF-001": "7",
         "M1F-REINF-002": "7",
-        "M1F-REINF-003": "45",
+        "M1F-REINF-003": "47",
         "M1F-REINF-004": "1",
         "M1F-REINF-005": "6",
         "M1F-REINF-006": "0",
-        "M1F-REINF-007": "11",
+        "M1F-REINF-007": "9",
         "M1F-REINF-008": "2",
         "M1F-REINF-009": "1",
         "M1F-REINF-010": "42",
