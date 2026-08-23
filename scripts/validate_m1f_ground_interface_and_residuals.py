@@ -16,6 +16,7 @@ HCS = C / "M1F_HISTORICAL_CALC_SOURCE_AVAILABILITY_v1.csv"
 GEO = C / "M1F_CURRENT_GEOTECHNICAL_REQUIREMENTS_v1.csv"
 GEO_GATE = C / "M1F_CURRENT_GEOTECHNICAL_GATE_v1.csv"
 GSA = C / "M1F_GEOTECHNICAL_SOURCE_AVAILABILITY_v1.csv"
+EXT = C / "M1F_EXTERNAL_EVIDENCE_ACQUISITION_QUEUE_v1.csv"
 ELEV_GATE = C / "M1F_FOUNDATION_ELEVATION_GATE_v1.csv"
 
 
@@ -27,7 +28,7 @@ def read(path: Path):
 def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
-    required = [GFI, GFI_GATE, GFS, AD, AD_GATE, HCS, GEO, GEO_GATE, GSA, ELEV_GATE]
+    required = [GFI, GFI_GATE, GFS, AD, AD_GATE, HCS, GEO, GEO_GATE, GSA, EXT, ELEV_GATE]
     for p in required:
         if not p.exists():
             errors.append(f"missing artifact: {p.relative_to(ROOT)}")
@@ -43,6 +44,7 @@ def main() -> int:
     geo = read(GEO)
     geo_gate = read(GEO_GATE)
     gsa = read(GSA)
+    ext = read(EXT)
     elev_gate = read(ELEV_GATE)
 
     if len(gfi) != 7:
@@ -133,6 +135,21 @@ def main() -> int:
     if "CLOSED_CURRENT_INVENTORY" not in gsa_status.get("decision", ""):
         errors.append("geotechnical repository search must remain closed until source inventory changes")
 
+    if len(ext) != 8:
+        errors.append(f"expected 8 external-evidence queue rows, got {len(ext)}")
+    ext_by = {r["task_id"].strip(): r for r in ext}
+    gate = ext_by.get("M1F-EXT-GATE", {})
+    if gate.get("status", "").strip() != "QUEUE_READY":
+        errors.append("external evidence queue gate must remain QUEUE_READY")
+    if "No unresolved M1-F item triggers restart" not in gate.get("promotion_condition", ""):
+        errors.append("external evidence queue lost anti-restart promotion rule")
+    required_tasks = {f"M1F-EXT-{i:03d}" for i in range(1, 8)} | {"M1F-EXT-GATE"}
+    if set(ext_by) != required_tasks:
+        errors.append("external evidence queue task IDs changed or are incomplete")
+    for tid in ("M1F-EXT-001", "M1F-EXT-002", "M1F-EXT-003", "M1F-EXT-006", "M1F-EXT-007"):
+        if not ext_by.get(tid, {}).get("acceptable_evidence", "").strip():
+            errors.append(f"{tid}: acceptable evidence criteria missing")
+
     eg = {r["check_id"].strip(): r for r in elev_gate}
     for cid, expected in (("M1F-ELEV-G07", "38"), ("M1F-ELEV-G08", "58")):
         if eg.get(cid, {}).get("actual", "").strip() != expected:
@@ -141,8 +158,8 @@ def main() -> int:
         errors.append("numeric ZF_COMMON must remain unregistered")
 
     warnings.extend([
-        "numeric ZF_COMMON remains ND pending G1/local-ground datum evidence",
-        "PT layer thicknesses/unit weights and structural load path remain survey/new-source residuals; current source search is closed",
+        "numeric ZF_COMMON remains ND pending direct G1/foundation datum evidence",
+        "PT layer thicknesses/unit weights and structural load path remain external-evidence residuals; current source search is closed",
         "a-d historical calculation omission remains reported but not directly source-proven; current repository search is closed until a new primary source is registered",
         "current geotechnical site parameters remain external-document/new-investigation residuals; current repository search is closed",
     ])
@@ -154,6 +171,7 @@ def main() -> int:
         "historical_source_inventory_rows": len(hcs),
         "geotechnical_requirement_rows": len(geo),
         "geotechnical_source_inventory_rows": len(gsa),
+        "external_evidence_queue_rows": len(ext),
         "symbolic_nodes_3d": eg.get("M1F-ELEV-G07", {}).get("actual", ""),
         "symbolic_members_3d": eg.get("M1F-ELEV-G08", {}).get("actual", ""),
         "numeric_ZF_COMMON": "ND",
