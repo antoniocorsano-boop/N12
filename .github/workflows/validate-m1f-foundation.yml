@@ -11,6 +11,7 @@ on:
       - 'scripts/validate_m1f_foundation_topology.py'
       - 'scripts/validate_m1f_foundation_sections.py'
       - 'scripts/validate_m1f_foundation_reinforcement.py'
+      - 'scripts/validate_m1f_foundation_elevation.py'
       - '.github/workflows/validate-m1f-foundation.yml'
   pull_request:
     paths:
@@ -20,6 +21,7 @@ on:
       - 'scripts/validate_m1f_foundation_topology.py'
       - 'scripts/validate_m1f_foundation_sections.py'
       - 'scripts/validate_m1f_foundation_reinforcement.py'
+      - 'scripts/validate_m1f_foundation_elevation.py'
       - '.github/workflows/validate-m1f-foundation.yml'
   workflow_dispatch:
 
@@ -46,3 +48,6 @@ jobs:
 
       - name: Validate foundation reinforcement
         run: python scripts/validate_m1f_foundation_reinforcement.py
+
+      - name: Validate foundation elevation continuity
+        run: python scripts/validate_m1f_foundation_elevation.py
