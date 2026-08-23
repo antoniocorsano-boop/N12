@@ -81,6 +81,26 @@
       "LC": "ND",
       "FC": "ND",
       "residual_count": 3
+    },
+    {
+      "phase": "M1-F-FOUNDATIONS",
+      "status": "PASS_WITH_WATCH_GROUP_TRANSCRIPTION_COMPLETE",
+      "topology_gate": "data/canonical/M1F_FOUNDATION_TOPOLOGY_GATE_v1.csv",
+      "section_gate": "data/canonical/M1F_FOUNDATION_SECTION_BINDING_GATE_v1.csv",
+      "reinforcement_gate": "data/canonical/M1F_FOUNDATION_REINFORCEMENT_GATE_v1.csv",
+      "physical_supports": 38,
+      "foundation_members": 58,
+      "connected_components": 1,
+      "section_binding_doc": 42,
+      "section_binding_supported": 1,
+      "section_binding_nd_documentary_coverage": 15,
+      "section_binding_pending": 0,
+      "reinforcement_groups_complete": 7,
+      "effective_reinforcement_rows": 69,
+      "open_reinforcement_transcription_rows": 0,
+      "historical_bearing_level_m_below_ground": 1.0,
+      "current_geotechnical_parameters": "ND",
+      "reopen_rule": "Do not restart TAV-01A group transcription. Reopen only the smallest claim supported by new direct primary-source evidence; never fill the 15 documentary gaps by analogy."
     }
   ],
   "reinforcement_progress": {
@@ -101,11 +121,35 @@
     "tav034a_level_scope": "G2+G3",
     "tav034a_group_reinforcement": "data/canonical/M1A_TAV034A_GROUP_REINFORCEMENT_v1.csv",
     "tav034a_group_supplement": "data/canonical/M1A_TAV034A_GROUP_REINFORCEMENT_SUPPLEMENT_v1.csv",
-    "tav034a_transcribed_groups": ["T34-G04","T34-G05","T34-G06","T34-G07"],
+    "tav034a_transcribed_groups": [
+      "T34-G04",
+      "T34-G05",
+      "T34-G06",
+      "T34-G07"
+    ],
     "tav034a_next_group": "T34-G01 4-3-2-1 / 5-6-7-8",
     "tav034a_withheld_group": "central paired scheme around 17/24,18/23,19/22,20/22,21 pending exact duplicated station-label semantics",
     "current_subtask": "Transcribe TAV-034A G01 and G02, then resolve the withheld central group only from exact source semantics. Afterwards proceed to TAV-05A G4 and TAV-06A G5. TAV-02A detailed member-station projection remains a parallel nonblocking refinement.",
     "promotion_status": "TAV02A_CORE_COMPLETE_TAV034A_4_OF_6_DIRECT_GROUPS_TRANSCRIBED_NOT_M1A_GATE_COMPLETE"
+  },
+  "foundation_progress": {
+    "topology": "CLOSED_38_SUPPORTS_58_MEMBERS_ONE_COMPONENT",
+    "topology_authority": "data/canonical/M1F_FOUNDATION_TOPOLOGY_CURRENT_v1.csv",
+    "section_binding": "42_DOC_PLUS_1_SUPPORTED_PLUS_15_ND_DOCUMENTARY_COVERAGE_ZERO_PENDING",
+    "reinforcement_source": "TAV-01A",
+    "reinforcement_group_index": "data/canonical/M1F_TAV01A_GROUP_INDEX_v1.csv",
+    "reinforcement_effective_patch": "data/canonical/M1F_TAV01A_REINFORCEMENT_CORRECTION_PATCH_v1.csv",
+    "reinforcement_groups_complete": 7,
+    "reinforcement_groups_partial": 0,
+    "reinforcement_open_transcription_rows": 0,
+    "reinforcement_effective_rows": 69,
+    "reinforcement_gate_state": "PASS_GROUP_TRANSCRIPTION_COMPLETE_WITH_DOCUMENTARY_GAPS",
+    "documentary_member_gaps": 15,
+    "dimension_watch_policy": "Source-unlabelled diagonals/end segments remain explicit watches and are never completed by symmetry.",
+    "historical_bearing_level": "1.00 m below piano di campagna DOC",
+    "historical_geotechnics": "terreno sano pliocenico; pressione ammissibile 1.6 kg/cm2; epsilon=1 DOC historical assumptions",
+    "current_geotechnics": "ND",
+    "downstream_tasks": "Member-by-member splice/projection only where source authority supports it; foundation elevation/level continuity; current geotechnical characterization; historical-vs-built reconciliation for terrace supports a-d."
   },
   "next_action": {
     "phase": "M1-A/REINFORCEMENT",
@@ -142,6 +186,9 @@
     "M1-M current in-situ concrete verification strength remains ND",
     "M1-M LC and FC remain ND until documentary/investigation coverage is assessed",
     "M1-M historical concrete value 95 kg/cm2 is DOC but its exact historical parameter semantics remain to reconcile before solver use",
+    "M1-F fifteen TAV-01S physical foundation members remain ND_DOCUMENTARY_COVERAGE for exact section/longitudinal reinforcement; source search is closed and no analogy promotion is allowed",
+    "M1-F TAV-01A group transcription is 7/7 complete, but source-unlabelled bent-bar diagonals/end segments remain explicit dimension watches",
+    "M1-F foundation absolute/elevation binding and current geotechnical parameters remain open downstream requirements",
     "M1-A TAV-02A G02 reinforcement is DOC but section-to-sequence binding remains open",
     "M1-A TAV-02A some bent-bar segment lengths remain readability watches and are not inferred by symmetry",
     "M1-A TAV-034A central paired group station labels remain unresolved and are withheld from canonical member binding",
@@ -154,7 +201,7 @@
     "roof special Z and eaves centerline watches remain as frozen M0-G downstream constraints",
     "absolute project/geodetic Z remains ND"
   ],
-  "anti_restart_rule": "PT geometry, common storey registration, M0-G global geometry/topology, M1-S section completion, M1-M material evidence, TAV-07A column-family transcription and TAV-02A eight-group core reinforcement are stable checkpoints. TAV-034A six-group index and G04-G07 transcription are incremental stable checkpoints. Do not restart globally; reopen only the smallest conflicting claim supported by direct source evidence.",
+  "anti_restart_rule": "PT geometry, common storey registration, M0-G global geometry/topology, M1-S section completion, M1-M material evidence, M1-F foundation topology/section binding/TAV-01A seven-group transcription, TAV-07A column-family transcription and TAV-02A eight-group core reinforcement are stable checkpoints. TAV-034A six-group index and G04-G07 transcription are incremental stable checkpoints. Do not restart globally; reopen only the smallest conflicting claim supported by direct source evidence.",
   "completion_condition": "M1 completes only when materials, reinforcement, loads and foundations are promoted with explicit provenance and the final EdiLus/FEM handoff reaches CALCULATION_MODEL_READY.",
   "geometry_reopen_checkpoint": {
     "id": "M0G-REOPEN-B053-B054-B055",
