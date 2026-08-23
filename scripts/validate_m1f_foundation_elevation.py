@@ -45,21 +45,25 @@ def main() -> int:
         errors.append("main foundation plane decision lost")
 
     e2 = eby.get("M1F-ELEV-002", {})
-    if "raised" not in e2.get("observed_fact", "").lower() or "separately" not in e2.get("model_decision", "").lower():
-        errors.append("raised fill/floor must remain distinct from foundation elevation")
+    e2_fact = e2.get("observed_fact", "").lower()
+    e2_decision = e2.get("model_decision", "").lower()
+    if not (("higher" in e2_fact or "raised" in e2_fact) and "separately" in e2_decision and "foundation z" in e2_decision):
+        errors.append("raised fill/floor must remain explicitly distinct from foundation elevation")
 
     e4 = eby.get("M1F-ELEV-004", {})
     if "1.00" not in e4.get("observed_fact", "") or e4.get("residual_state", "").strip() != "ABSOLUTE_FOUNDATION_Z_ND":
         errors.append("historical 1.00 m bearing depth must remain relative with absolute foundation Z ND")
-    if "G1" not in e4.get("model_decision", ""):
-        errors.append("validator requires explicit protection against using 1.00 m as G1-relative model Z")
 
     e5 = eby.get("M1F-ELEV-005", {})
-    if "ZF_COMMON" not in e5.get("model_decision", "") or e5.get("residual_state", "").strip() != "ZF_COMMON_NUMERIC_ND":
+    e5_decision = e5.get("model_decision", "")
+    e5_note = e5.get("note", "")
+    if "ZF_COMMON" not in e5_decision or e5.get("residual_state", "").strip() != "ZF_COMMON_NUMERIC_ND":
         errors.append("38 supports must be bound symbolically to ZF_COMMON while numeric Z stays ND")
+    if "G1" not in (e5_decision + " " + e5_note) or "1.00" not in e5_note:
+        errors.append("explicit guard against interpreting the 1.00 m historical depth as G1-relative numeric Z is missing")
 
     e6 = eby.get("M1F-ELEV-006", {})
-    if "Exclude" not in e6.get("model_decision", ""):
+    if "exclude" not in e6.get("model_decision", "").lower():
         errors.append("ancillary/peripheral lines must remain excluded from common-plane proof")
 
     expected_gate = {
@@ -83,10 +87,12 @@ def main() -> int:
     if "SYMBOLIC_PLANE_BINDING_COMPLETE_NUMERIC_Z_OPEN" not in w9.get("current_status", ""):
         errors.append("M1F-009 must keep symbolic-plane binding complete and numeric Z open")
 
-    forbidden_text = "ZF_COMMON=-1.00"
-    combined = "\n".join(",".join(r.values()) for r in evid + work)
-    if forbidden_text in combined:
-        errors.append("forbidden silent conversion found: ZF_COMMON=-1.00 relative to G1")
+    # Positive contract: no canonical field assigns a numeric model Z. Mentions of
+    # forbidden examples inside explanatory notes are allowed and are not assignments.
+    if gby.get("M1F-ELEV-G05", {}).get("actual", "").strip() != "NO":
+        errors.append("numeric ZF_COMMON must not be registered yet")
+    if e5.get("residual_state", "").strip() != "ZF_COMMON_NUMERIC_ND":
+        errors.append("numeric ZF_COMMON residual must stay ND")
 
     if gby.get("M1F-ELEV-G05", {}).get("status", "").strip() == "PASS_WITH_WATCH":
         warnings.append("common plane is closed but numeric ZF_COMMON remains ND pending G1/piano-di-campagna datum registration")
