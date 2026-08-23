@@ -14,7 +14,9 @@
     "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
     "knowledge/ARTIFACT_REGISTRY_AUTOMATION_PATCH_v1.csv",
     "knowledge/ARTIFACT_REGISTRY_M0G_GATE_PATCH_v1.csv",
-    "knowledge/ARTIFACT_REGISTRY_M1_PATCH_v1.csv"
+    "knowledge/ARTIFACT_REGISTRY_M1_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1F_ELEVATION_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1F_INTERFACE_PATCH_v1.csv"
   ],
   "human_master_register": "docs/REGISTRO_MASTER.md",
   "revalidation_ledger": "data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv",
@@ -111,6 +113,17 @@
     "m1m_gate": "data/canonical/M1M_MATERIAL_GATE_v1.csv",
     "historical_concrete_reference": "RIF_Rck_250_kg_cm2",
     "material_residuals_required_before_calculation_model_ready": ["in_situ_concrete_strength","steel_type_and_fyk","LC","FC"],
+    "m1f_status": "IN_PROGRESS_ADVANCED_SYMBOLIC_3D_BOUND",
+    "m1f_program": "data/canonical/M1_PROGRAM_REQUIRED_FRONTS_CURRENT_v1.csv",
+    "m1f_work_register": "data/canonical/M1F_FOUNDATION_WORK_REGISTER_v1.csv",
+    "m1f_elevation_gate": "data/canonical/M1F_FOUNDATION_ELEVATION_GATE_v1.csv",
+    "m1f_pt_interface_gate": "data/canonical/M1F_GROUND_FLOOR_INTERFACE_GATE_v1.csv",
+    "m1f_ad_delta_gate": "data/canonical/M1F_AD_HISTORICAL_MODEL_DELTA_GATE_v1.csv",
+    "m1f_geotechnical_gate": "data/canonical/M1F_CURRENT_GEOTECHNICAL_GATE_v1.csv",
+    "m1f_symbolic_nodes": 38,
+    "m1f_symbolic_members": 58,
+    "m1f_numeric_z_status": "ND",
+    "m1f_historical_omission_source_search": "CLOSED_CURRENT_REPOSITORY_INVENTORY_REOPEN_ONLY_ON_NEW_PRIMARY_SOURCE",
     "next_work_item": "M1A-REINFORCEMENT-EVIDENCE",
     "rule": "M0-G remains frozen; M1 completes model inputs without inventing missing evidence."
   },
