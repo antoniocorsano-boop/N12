@@ -94,8 +94,8 @@ def main() -> int:
 
     by_edge = {edge(r["from_support_id"], r["to_support_id"]): r for r in topo}
     e2222p = by_edge[edge("22","22'")]
-    if e2222p["section_family_state"].strip() != "OPEN_SECTION_BINDING" or e2222p["reinforcement_binding_state"].strip() != "GROUP_CONTINUITY_RELATION_WATCH":
-        errors.append("22-22' must stay DOC geometry with open section/reinforcement binding")
+    if e2222p["section_family_state"].strip() != "ND_DOCUMENTARY_COVERAGE" or e2222p["reinforcement_binding_state"].strip() != "GROUP_CONTINUITY_RELATION_WATCH":
+        errors.append("22-22' must stay DOC geometry with ND documentary exact-section binding and the G03 relation watch")
     e22p27 = by_edge[edge("22'","27")]
     if e22p27["section_family_state"].strip() != "FND-SEC-A_SUPPORTED" or e22p27["reinforcement_binding_state"].strip() != "SCHEMATIC_22_27_SPLIT_AT_22_PRIME":
         errors.append("22'-27 must retain supported G03 binding with schematic-span watch")
@@ -120,27 +120,33 @@ def main() -> int:
         errors.append(f"isolated/degree-1 supports found: {degree1}")
 
     direct_cross = sum(r["topology_evidence"].strip() == "DOC_TAV01S+DOC_TAV01A" for r in topo)
-    no_direct_armature = sum(r["section_family_state"].strip() == "OPEN_SECTION_BINDING" for r in topo)
+    documentary_nd = sum(r["section_family_state"].strip() == "ND_DOCUMENTARY_COVERAGE" for r in topo)
+    open_binding = sum(r["section_family_state"].strip() == "OPEN_SECTION_BINDING" for r in topo)
     if direct_cross != 42:
         errors.append(f"expected 42 directly cross-confirmed members, got {direct_cross}")
-    if no_direct_armature != 15:
-        errors.append(f"expected 15 carpenteria members without direct autonomous TAV-01A binding, got {no_direct_armature}")
+    if documentary_nd != 15:
+        errors.append(f"expected 15 carpenteria members with ND documentary TAV-01A coverage, got {documentary_nd}")
+    if open_binding != 0:
+        errors.append(f"expected zero pending section bindings after source-role closure, got {open_binding}")
 
     gate_by_id = {r["check_id"].strip(): r for r in gate}
     expected_gate = "PASS_TOPOLOGY_WITH_SECTION_REINFORCEMENT_WATCH"
     if gate_by_id.get("M1F-TOP-GATE", {}).get("actual", "").strip() != expected_gate:
         errors.append("M1-F topology gate is not at the expected PASS_WITH_WATCH state")
+    if gate_by_id.get("M1F-TOP-008", {}).get("actual", "").strip() != "15":
+        errors.append("M1F-TOP-008 must advertise 15 ND documentary coverage members")
 
     section_family_watch = sum("VERIFY" in r["section_family_state"] or "WATCH" in r["section_family_state"] for r in topo)
-    if no_direct_armature or section_family_watch:
-        warnings.append(f"topology closed; section/reinforcement closure remains open: open_section_binding={no_direct_armature}, section_family_watch={section_family_watch}")
+    if documentary_nd or section_family_watch:
+        warnings.append(f"topology closed; non-geometric watches remain: nd_documentary_coverage={documentary_nd}, base_topology_section_family_watch={section_family_watch}")
 
     summary = {
         "physical_supports": len(seen),
         "physical_members": len(topo),
         "connected_components": 1 if seen == EXPECTED_SUPPORTS else "CHECK",
         "direct_TAV01S_plus_TAV01A": direct_cross,
-        "open_section_binding": no_direct_armature,
+        "nd_documentary_coverage": documentary_nd,
+        "open_section_binding": open_binding,
         "section_family_watch": section_family_watch,
         "rejected_direct_candidates": 1,
         "transformed_schematic_spans": 1,
