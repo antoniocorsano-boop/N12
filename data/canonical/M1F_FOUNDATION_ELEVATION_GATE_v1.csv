@@ -5,4 +5,6 @@ M1F-ELEV-G03,foundation_supports_bound_to_common_symbolic_plane,38,38,PASS,HARD,
 M1F-ELEV-G04,historical_bearing_depth_below_ground_m,1.00,1.00,PASS,INFO,"Direct original relation value retained as historical relative depth below piano di campagna."
 M1F-ELEV-G05,numeric_ZF_COMMON_registered,NO,NO,PASS_WITH_WATCH,WATCH,"Absolute/model-coordinate ZF_COMMON remains ND because the relation between G1=0.00 and local piano di campagna is not yet documentally registered."
 M1F-ELEV-G06,peripheral_ancillary_lines_forced_to_common_plane,0,0,PASS,HARD,"Unidentified retaining/peripheral lines are excluded from the common-plane proof rather than assimilated by visual proximity."
+M1F-ELEV-G07,symbolic_nodes_3d,38,38,PASS,HARD,"The symbolic 3D foundation dataset contains exactly 38 nodes, one for each canonical PT/foundation support identity."
+M1F-ELEV-G08,symbolic_members_3d,58,58,PASS,HARD,"The symbolic 3D foundation dataset reproduces exactly the frozen 58-member foundation topology."
 M1F-ELEV-GATE,gate_state,PASS_COMMON_FOUNDATION_PLANE_WITH_NUMERIC_Z_WATCH,PASS_COMMON_FOUNDATION_PLANE_WITH_NUMERIC_Z_WATCH,PASS_WITH_WATCH,GATE,"Main structural foundation elevation continuity is closed documentally at symbolic-plane level. Numerical model Z and current geotechnical parameters remain downstream watches."
