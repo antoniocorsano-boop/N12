@@ -64,10 +64,9 @@ def main() -> int:
         errors.append(f"queue state partition must be 1 complete / 6 partial / 0 pending, got {(complete, partial, pending)}")
 
     open_rows = [r for r in reinf if r["binding_state"].strip().startswith("OPEN_")]
-    if len(open_rows) != 9:
-        errors.append(f"open reinforcement transcription row count must be 9, got {len(open_rows)}")
+    if len(open_rows) != 7:
+        errors.append(f"open reinforcement transcription row count must be 7, got {len(open_rows)}")
 
-    # Section-transition regimes must remain explicitly split.
     for group in ["F1A-G05", "F1A-G06"]:
         states = {r["binding_state"].strip() for r in reinf if r["group_id"].strip() == group}
         if not any(s.endswith("B_SIDE") for s in states):
@@ -75,7 +74,6 @@ def main() -> int:
         if not any(s.endswith("A_SIDE") for s in states):
             errors.append(f"{group}: missing explicit A-side reinforcement regime")
 
-    # G03 must remain group-level and topology-corrected.
     g03_rows = [r for r in reinf if r["group_id"].strip() == "F1A-G03"]
     if not g03_rows:
         errors.append("G03 reinforcement rows missing")
@@ -94,6 +92,19 @@ def main() -> int:
     }
     if actual_g03_straights != expected_g03_straights:
         errors.append(f"G03 direct straight-bar transcription mismatch: {sorted(actual_g03_straights)}")
+
+    g06_rows = [r for r in reinf if r["group_id"].strip() == "F1A-G06"]
+    expected_g06_a_straights = {
+        ("UPPER_STRAIGHT_BAR", "3", "16", "L=1180", "GROUP_BOUND_A_SIDE"),
+        ("LOWER_STRAIGHT_BAR", "3", "18", "L=1260", "GROUP_BOUND_A_SIDE"),
+    }
+    actual_g06_a_straights = {
+        (r["bar_role"].strip(), r["bar_quantity"].strip(), r["bar_diameter_mm"].strip(), r["shape_or_length"].strip(), r["binding_state"].strip())
+        for r in g06_rows
+        if r["shape_or_length"].strip() in {"L=1180", "L=1260"}
+    }
+    if actual_g06_a_straights != expected_g06_a_straights:
+        errors.append(f"G06 A-side direct straight-bar transcription mismatch: {sorted(actual_g06_a_straights)}")
 
     cc = {r["candidate_id"].strip(): r for r in crosscheck}
     if cc.get("FND-C015", {}).get("promotion_state", "").strip() != "REJECTED_AS_PHYSICAL_EDGE":
@@ -117,7 +128,7 @@ def main() -> int:
         "M1F-REINF-004": "1",
         "M1F-REINF-005": "6",
         "M1F-REINF-006": "0",
-        "M1F-REINF-007": "9",
+        "M1F-REINF-007": "7",
         "M1F-REINF-008": "2",
         "M1F-REINF-009": "1",
         "M1F-REINF-010": "42",
