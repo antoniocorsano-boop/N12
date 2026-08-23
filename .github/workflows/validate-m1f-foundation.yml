@@ -12,6 +12,15 @@ on:
       - 'scripts/validate_m1f_foundation_sections.py'
       - 'scripts/validate_m1f_foundation_reinforcement.py'
       - '.github/workflows/validate-m1f-foundation.yml'
+  pull_request:
+    paths:
+      - 'data/canonical/M1F_FOUNDATION_*.csv'
+      - 'data/canonical/M1F_TAV01A_*.csv'
+      - 'data/canonical/M1F_REINFORCEMENT_EXTRACTION_QUEUE_v1.csv'
+      - 'scripts/validate_m1f_foundation_topology.py'
+      - 'scripts/validate_m1f_foundation_sections.py'
+      - 'scripts/validate_m1f_foundation_reinforcement.py'
+      - '.github/workflows/validate-m1f-foundation.yml'
   workflow_dispatch:
 
 permissions:
