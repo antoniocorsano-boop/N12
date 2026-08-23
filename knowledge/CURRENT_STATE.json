@@ -100,16 +100,17 @@
     "tav034a_direct_group_count": 6,
     "tav034a_level_scope": "G2+G3",
     "tav034a_group_reinforcement": "data/canonical/M1A_TAV034A_GROUP_REINFORCEMENT_v1.csv",
-    "tav034a_transcribed_groups": ["T34-G04","T34-G05","T34-G06"],
-    "tav034a_next_group": "T34-G07 19-25-28-31 / 22-prime-27-30-33",
+    "tav034a_group_supplement": "data/canonical/M1A_TAV034A_GROUP_REINFORCEMENT_SUPPLEMENT_v1.csv",
+    "tav034a_transcribed_groups": ["T34-G04","T34-G05","T34-G06","T34-G07"],
+    "tav034a_next_group": "T34-G01 4-3-2-1 / 5-6-7-8",
     "tav034a_withheld_group": "central paired scheme around 17/24,18/23,19/22,20/22,21 pending exact duplicated station-label semantics",
-    "current_subtask": "Continue TAV-034A transcription with G07 then G01/G02; resolve the withheld central group only from exact source semantics. Afterwards proceed to TAV-05A G4 and TAV-06A G5. TAV-02A detailed member-station projection remains a parallel nonblocking refinement.",
-    "promotion_status": "TAV02A_CORE_COMPLETE_TAV034A_PARTIAL_NOT_M1A_GATE_COMPLETE"
+    "current_subtask": "Transcribe TAV-034A G01 and G02, then resolve the withheld central group only from exact source semantics. Afterwards proceed to TAV-05A G4 and TAV-06A G5. TAV-02A detailed member-station projection remains a parallel nonblocking refinement.",
+    "promotion_status": "TAV02A_CORE_COMPLETE_TAV034A_4_OF_6_DIRECT_GROUPS_TRANSCRIBED_NOT_M1A_GATE_COMPLETE"
   },
   "next_action": {
     "phase": "M1-A/REINFORCEMENT",
     "work_item": "M1A-REINFORCEMENT-EVIDENCE",
-    "task": "Transcribe TAV-034A G07 and remaining direct G2/G3 groups; keep parenthesized dimensions tied only to the source-named sequence and preserve unlabelled diagonals as watches. Then resolve the central duplicated-label group and move to TAV-05A and TAV-06A.",
+    "task": "Transcribe TAV-034A G01 and G02; then resolve the central duplicated-label scheme without inference. Keep parenthesized dimensions tied only to source-named sequences and preserve unlabelled diagonals as watches. Then move to TAV-05A and TAV-06A.",
     "target_outputs": [
       "data/canonical/M1A_REINFORCEMENT_CURRENT_v1.csv",
       "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv"
@@ -145,6 +146,7 @@
     "M1-A TAV-02A some bent-bar segment lengths remain readability watches and are not inferred by symmetry",
     "M1-A TAV-034A central paired group station labels remain unresolved and are withheld from canonical member binding",
     "M1-A TAV-034A G05 source writes apparent 130+130 with source total 230 on one 2Ø12 bent piece; retained as source-dimension inconsistency watch",
+    "M1-A TAV-034A G07 parenthesized dimensions apply only to 22-prime-27-30-33 per direct source note",
     "M1-A TAV-034A unlabelled bent-bar diagonals remain explicit readability watches",
     "M1-A TAV-07A I-order families require section/orientation cross-validation for support binding",
     "M1-A TAV-07A III-order support binding for 9 and 16 remains unresolved",
@@ -152,7 +154,7 @@
     "roof special Z and eaves centerline watches remain as frozen M0-G downstream constraints",
     "absolute project/geodetic Z remains ND"
   ],
-  "anti_restart_rule": "PT geometry, common storey registration, M0-G global geometry/topology, M1-S section completion, M1-M material evidence, TAV-07A column-family transcription and TAV-02A eight-group core reinforcement are stable checkpoints. TAV-034A six-group index and G04-G06 transcription are incremental stable checkpoints. Do not restart globally; reopen only the smallest conflicting claim supported by direct source evidence.",
+  "anti_restart_rule": "PT geometry, common storey registration, M0-G global geometry/topology, M1-S section completion, M1-M material evidence, TAV-07A column-family transcription and TAV-02A eight-group core reinforcement are stable checkpoints. TAV-034A six-group index and G04-G07 transcription are incremental stable checkpoints. Do not restart globally; reopen only the smallest conflicting claim supported by direct source evidence.",
   "completion_condition": "M1 completes only when materials, reinforcement, loads and foundations are promoted with explicit provenance and the final EdiLus/FEM handoff reaches CALCULATION_MODEL_READY.",
   "geometry_reopen_checkpoint": {
     "id": "M0G-REOPEN-B053-B054-B055",
