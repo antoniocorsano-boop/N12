@@ -17,7 +17,8 @@
     "knowledge/ARTIFACT_REGISTRY_M1_PATCH_v1.csv",
     "knowledge/ARTIFACT_REGISTRY_M1F_ELEVATION_PATCH_v1.csv",
     "knowledge/ARTIFACT_REGISTRY_M1F_INTERFACE_PATCH_v1.csv",
-    "knowledge/ARTIFACT_REGISTRY_M1L_LOADS_PATCH_v1.csv"
+    "knowledge/ARTIFACT_REGISTRY_M1L_LOADS_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1A_SPECIAL_PATCH_v1.csv"
   ],
   "human_master_register": "docs/REGISTRO_MASTER.md",
   "revalidation_ledger": "data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv",
@@ -134,8 +135,18 @@
     "m1l_g5_eave_doc_hosts": 8,
     "m1l_numeric_load_status": "ND",
     "m1l_historical_omission_status": "CONDITIONAL_UNTIL_PRIMARY_CALCULATION_EVIDENCE",
-    "next_work_item": "M1A-REINFORCEMENT-EVIDENCE",
+    "m1a_status": "IN_PROGRESS_LOCAL_GATES_ADVANCED",
+    "m1a_g5_eave_gate": "data/canonical/M1A_G5_EAVE_REINFORCEMENT_GATE_v1.csv",
+    "m1a_g5_eave_local_status": "PASS_REINFORCEMENT_HOST_BINDING_WITH_GEOMETRY_LOAD_WATCH",
+    "m1a_g5_eave_doc_host_bindings": 8,
+    "m1a_tav05a_gate": "data/canonical/M1A_TAV05A_GROUP_TRANSCRIPTION_GATE_v1.csv",
+    "m1a_tav05a_local_status": "PASS_GROUP_TRANSCRIPTION_WITH_READABILITY_AND_STAIR_WATCH",
+    "m1a_tav05a_groups": 7,
+    "m1a_tav05a_reinforcement_rows": 58,
+    "m1a_tav05a_unknown_label_rows": 2,
+    "m1a_tav05a_partial_dimension_rows": 1,
+    "next_work_item": "M1A-STAIR-TOWER-AND-GRONDA-BINDING",
     "rule": "M0-G remains frozen; M1 completes model inputs without inventing missing evidence."
   },
-  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, semantic result handshake, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology, material evidence, load-path classification and residual acceptance remain specialist gates"}
+  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, semantic result handshake, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology, material evidence, reinforcement local-gate closure, load-path classification and residual acceptance remain specialist gates"}
 }
