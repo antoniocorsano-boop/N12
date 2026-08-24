@@ -1,0 +1,54 @@
+name: Validate CEW Viewer Evidence Overlay
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/cew_structural_viewer_overlay.py'
+      - 'scripts/cew_structural_viewer.py'
+      - 'scripts/cew_structural_model_builder.py'
+      - 'data/canonical/N12_EXISTING_ASSESSMENT_PROFILE_v1.json'
+      - 'automation/CEW_EXISTING_ASSESSMENT_CONTRACT_v1.json'
+      - '.github/workflows/validate-cew-viewer-overlay.yml'
+  push:
+    branches: ['work/m0-global-model']
+    paths:
+      - 'scripts/cew_structural_viewer_overlay.py'
+      - 'data/canonical/N12_EXISTING_ASSESSMENT_PROFILE_v1.json'
+      - 'automation/CEW_EXISTING_ASSESSMENT_CONTRACT_v1.json'
+      - '.github/workflows/validate-cew-viewer-overlay.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-overlay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: python -m py_compile scripts/cew_structural_model_builder.py scripts/cew_structural_viewer.py scripts/cew_structural_viewer_overlay.py
+      - name: Build evidence overlay viewer
+        run: |
+          python scripts/cew_structural_viewer_overlay.py \
+            --handoff data/canonical/M0G_GEOMETRY_HANDOFF_v1.json \
+            --nodes data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv \
+            --rigid-offsets data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv \
+            --members data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv \
+            --foundation data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv \
+            --foundation-xy-rule data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json \
+            --assessment-profile data/canonical/N12_EXISTING_ASSESSMENT_PROFILE_v1.json \
+            --assessment-contract automation/CEW_EXISTING_ASSESSMENT_CONTRACT_v1.json \
+            --output-html build/cew-viewer/n12-evidence.html
+      - name: Assert overlay contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('build/cew-viewer/n12-evidence.html').read_text(encoding='utf-8')
+          required=['Conoscenza / scenari','CEW Existing Assessment','M1E-B01','M1E-B07','MODE-1','MODE-5','N12-INV-CONCRETE-SCREEN','modello probabilistico non calibrato','evidenza prove non registrata']
+          for x in required: assert x in s, x
+          assert 'probability_models":[]' in s
+          print('CEW VIEWER EVIDENCE OVERLAY CONTRACT: PASS')
+          PY
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-n12-viewer-evidence-overlay-v0
+          path: build/cew-viewer/n12-evidence.html
