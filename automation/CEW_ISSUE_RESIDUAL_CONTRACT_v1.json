@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW_ISSUE_RESIDUAL_CONTRACT",
+  "purpose": "Represent technical blockers, local residuals, conflicts and evidence-resolution tasks as first-class, queryable engineering issues.",
+  "issue_states": ["OPEN","IN_REVIEW","WAITING_EVIDENCE","WAITING_INVESTIGATION","PROPOSED_RESOLUTION","RESOLVED","SUPERSEDED"],
+  "impact_classes": ["BLOCKING","LOCAL_BLOCKING","NON_BLOCKING","INFORMATIONAL"],
+  "resolution_authorities": ["DETERMINISTIC_MACHINE","MACHINE_PROPOSES_HUMAN_REVIEWS","HUMAN_ENGINEERING_AUTHORITY"],
+  "required_fields": [
+    "issue_id","project_id","issue_type","title","state","impact","domain","target_entity_ids","claim_ids","source_refs","evidence_snippet_refs","viewpoint_refs","problem_statement","resolution_options","required_authority","created_at","updated_at"
+  ],
+  "optional_fields": [
+    "blocking_gate_ids","affected_checks","candidate_sources","candidate_investigations","assigned_specialist","decision_receipt_ref","supersedes_issue_id","notes"
+  ],
+  "invariants": [
+    "ISSUE_CLOSURE_NEVER_PROMOTES_EPISTEMIC_STATE_BY_ITSELF",
+    "RESOLUTION_MUST_REFERENCE_EVIDENCE_RULE_OR_ENGINEERING_DECISION",
+    "IMAGE_CROP_MUST_RETAIN_SOURCE_PAGE_AND_BBOX_LINEAGE",
+    "VIEWPOINT_IS_CONTEXT_NOT_ENGINEERING_AUTHORITY",
+    "BLOCKING_IMPACT_MUST_IDENTIFY_AFFECTED_GATE_OR_DECISION",
+    "CLOSED_ISSUES_REMAIN_QUERYABLE_AND_AUDITABLE"
+  ],
+  "display_requirements": [
+    "show_issue_before_solution",
+    "show_impact_and_affected_gate",
+    "show_micro_meso_macro_evidence_context_when_available",
+    "show_resolution_options_without_hiding_keep_ND",
+    "show_current_authority_required",
+    "allow_jump_to_2d_source_and_3d_entity"
+  ]
+}
