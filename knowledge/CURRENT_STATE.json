@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "updated_at": "2026-08-24",
   "gate": "M1-F/FOUNDATION_PRIMARY_EVIDENCE",
-  "status": "FPEP_PRIMARY_GEOMETRY_REVALIDATION_READY",
+  "status": "IN_PROGRESS_WITH_AUTOMATED_PER_STOREY_CYCLE",
   "objective": "Complete the calculation-model inputs from the frozen M0-G geometry through sections, materials, reinforcement, loads, foundations and EdiLus/open-source FEM handoff while preserving source provenance and nonblocking residuals. Foundation geometry must now pass FPEP independent primary-source revalidation before M1-F analytical assembly.",
   "geometry_master_status": "CURRENT",
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
@@ -19,13 +19,13 @@
     "agent_result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
     "agent_result_ingestor": "scripts/n12_ingest_agent_result.py",
     "agent_result_inbox": "automation/inbox/N12_AGENT_RESULT.json",
-    "current_work_item": "M1F-PRIMARY-GEOMETRY-REVALIDATION",
+    "current_work_item": "M1F-FOUNDATION-MODEL",
     "deterministic_cycle": "ACTIVE_ON_BRANCH_PUSH_AND_WORKFLOW_DISPATCH_AND_6H_SCHEDULE",
     "semantic_boundary": "ONE_WORK_ITEM_PER_CYCLE_WITH_CONTRACT_VALID_RESULT_HANDSHAKE",
-    "last_result_receipt": "automation/receipts/M1L-LOAD-MODEL_20260824T095901Z.json",
+    "last_result_receipt": "automation/receipts/M1F-PRIMARY-GEOMETRY-REVALIDATION_20260824T183338Z.json",
     "last_result_decision": "PASS_WITH_WATCH",
-    "last_cycle_outcome": "FPEP_INSERTED_AS_BLOCKING_PRECONDITION",
-    "last_result_at": "2026-08-24T09:59:01.031071+00:00"
+    "last_cycle_outcome": "PASS_WITH_WATCH_ADVANCE",
+    "last_result_at": "2026-08-24T18:33:38.105723+00:00"
   },
   "foundation_primary_evidence_pipeline": {
     "status": "READY",
@@ -46,12 +46,58 @@
     "information_barrier": "PRIMARY_READERS_AND_TOPOLOGY_BUILDER_MUST_NOT_RECEIVE_LEGACY_38_58_TARGETS_PT_MASTER_M0G_OR_TAV01A_GROUPS_BEFORE_P07"
   },
   "stable_checkpoints": [
-    {"phase":"PT-GEOMETRY","status":"COMPLETE_WITH_PROVENANCE_WATCHES","master":"data/canonical/PT_MASTER_CURRENT.csv","handoff":"data/canonical/PT_GEOMETRY_HANDOFF_v1.json"},
-    {"phase":"COMMON-STOREY-REGISTRATION","status":"PASS_WITH_PROVENANCE_WATCHES","gate":"data/canonical/STOREY_COMMON_REGISTRATION_GATE_v1.csv","levels":"data/canonical/STOREY_LEVELS_CURRENT_v1.csv","xy_registration":"data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"},
-    {"phase":"M0-G-GLOBAL-GEOMETRY","status":"FROZEN_PASS_WITH_WATCH_REVALIDATED_B055","handoff":"data/canonical/M0G_GEOMETRY_HANDOFF_v1.json","analytical_nodes":629,"rigid_joint_links":464,"ordinary_members":359,"ordinary_beams":232,"vertical_column_segments":127,"reopen_rule":"Only through formal M0G-REOPEN supported by new direct documentary geometry evidence.","local_reopen":"B-053 18-19, B-054 23-22-prime and B-055 17-18 CLOSED_REVALIDATED"},
-    {"phase":"M1-S-SECTIONS","status":"PASS_WITH_WATCH","gate":"data/canonical/M1S_SECTION_GATE_v1.csv","ordinary_members_with_usable_sections":359,"nd_section_count":0,"section_evidence_watch_count":5},
-    {"phase":"M1-M-MATERIALS","status":"PASS_WITH_WATCH","gate":"data/canonical/M1M_MATERIAL_GATE_v1.csv","current_concrete_strength":"ND","LC":"ND","FC":"ND"},
-    {"phase":"M1-F-FOUNDATIONS-LEGACY-CHECKPOINT","status":"PROTECTED_REGRESSION_CHECKPOINT_PENDING_FPEP_REVALIDATION","topology_gate":"data/canonical/M1F_FOUNDATION_TOPOLOGY_GATE_v1.csv","section_gate":"data/canonical/M1F_FOUNDATION_SECTION_BINDING_GATE_v1.csv","reinforcement_gate":"data/canonical/M1F_FOUNDATION_REINFORCEMENT_GATE_v1.csv","physical_supports":38,"foundation_members":58,"connected_components":1,"rule":"Do not expose these counts or topology to FPEP primary readers/metric solver/topology builder before P07. Preserve them for post-gate regression only."}
+    {
+      "phase": "PT-GEOMETRY",
+      "status": "COMPLETE_WITH_PROVENANCE_WATCHES",
+      "master": "data/canonical/PT_MASTER_CURRENT.csv",
+      "handoff": "data/canonical/PT_GEOMETRY_HANDOFF_v1.json"
+    },
+    {
+      "phase": "COMMON-STOREY-REGISTRATION",
+      "status": "PASS_WITH_PROVENANCE_WATCHES",
+      "gate": "data/canonical/STOREY_COMMON_REGISTRATION_GATE_v1.csv",
+      "levels": "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
+      "xy_registration": "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"
+    },
+    {
+      "phase": "M0-G-GLOBAL-GEOMETRY",
+      "status": "FROZEN_PASS_WITH_WATCH_REVALIDATED_B055",
+      "handoff": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
+      "analytical_nodes": 629,
+      "rigid_joint_links": 464,
+      "ordinary_members": 359,
+      "ordinary_beams": 232,
+      "vertical_column_segments": 127,
+      "reopen_rule": "Only through formal M0G-REOPEN supported by new direct documentary geometry evidence.",
+      "local_reopen": "B-053 18-19, B-054 23-22-prime and B-055 17-18 CLOSED_REVALIDATED"
+    },
+    {
+      "phase": "M1-S-SECTIONS",
+      "status": "PASS_WITH_WATCH",
+      "gate": "data/canonical/M1S_SECTION_GATE_v1.csv",
+      "ordinary_members_with_usable_sections": 359,
+      "nd_section_count": 0,
+      "section_evidence_watch_count": 5
+    },
+    {
+      "phase": "M1-M-MATERIALS",
+      "status": "PASS_WITH_WATCH",
+      "gate": "data/canonical/M1M_MATERIAL_GATE_v1.csv",
+      "current_concrete_strength": "ND",
+      "LC": "ND",
+      "FC": "ND"
+    },
+    {
+      "phase": "M1-F-FOUNDATIONS-LEGACY-CHECKPOINT",
+      "status": "PROTECTED_REGRESSION_CHECKPOINT_PENDING_FPEP_REVALIDATION",
+      "topology_gate": "data/canonical/M1F_FOUNDATION_TOPOLOGY_GATE_v1.csv",
+      "section_gate": "data/canonical/M1F_FOUNDATION_SECTION_BINDING_GATE_v1.csv",
+      "reinforcement_gate": "data/canonical/M1F_FOUNDATION_REINFORCEMENT_GATE_v1.csv",
+      "physical_supports": 38,
+      "foundation_members": 58,
+      "connected_components": 1,
+      "rule": "Do not expose these counts or topology to FPEP primary readers/metric solver/topology builder before P07. Preserve them for post-gate regression only."
+    }
   ],
   "foundation_progress": {
     "legacy_topology": "CLOSED_38_SUPPORTS_58_MEMBERS_ONE_COMPONENT_AS_REGRESSION_CHECKPOINT",
@@ -69,11 +115,20 @@
     "next_action": "Execute FPEP P00-P12; only after M1F_FPEP_RELEASE_GATE may analytical foundation assembly resume."
   },
   "next_action": {
-    "phase": "M1-F-FOUNDATION-PRIMARY-EVIDENCE",
-    "work_item": "M1F-PRIMARY-GEOMETRY-REVALIDATION",
-    "task": "Run FPEP from state/source audit through blind TAV-01S reading, metric/topology reconstruction, claim adjudication, primary geometry promotion and post-gate regression crosschecks.",
-    "target_outputs": ["data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv","data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv"],
-    "forbidden_inputs_before_P07": ["legacy 38/58 foundation topology as target","PT_MASTER_CURRENT coordinates as generator","M0-G geometry as generator","TAV-01A reinforcement groups as geometry generator","historical calculation topology as geometry generator"]
+    "phase": "PER-STOREY-SECTIONS-AND-BEAM-TOPOLOGY",
+    "work_item": "M1F-FOUNDATION-MODEL",
+    "task": "Assemble the foundation-side analytical model only after FPEP has independently revalidated the primary carpenteria geometry; then reconcile validated member properties, symbolic elevation/interface evidence and geotechnical residuals with the frozen global support system.",
+    "target_outputs": [
+      "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv",
+      "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
+    ],
+    "forbidden_inputs_before_P07": [
+      "legacy 38/58 foundation topology as target",
+      "PT_MASTER_CURRENT coordinates as generator",
+      "M0-G geometry as generator",
+      "TAV-01A reinforcement groups as geometry generator",
+      "historical calculation topology as geometry generator"
+    ]
   },
   "non_blocking_provenance_watches": [
     "M1-F legacy topology remains preserved but is not FPEP primary evidence until post-P07 regression crosscheck",
