@@ -136,6 +136,7 @@
     "m1l_numeric_load_status": "ND",
     "m1l_historical_omission_status": "CONDITIONAL_UNTIL_PRIMARY_CALCULATION_EVIDENCE",
     "m1a_status": "IN_PROGRESS_LOCAL_GATES_ADVANCED",
+    "m1a_program_gate": "SPECIAL_FEATURE_LOCAL_GATES_PASS_WITH_BINDING_WATCHES",
     "m1a_g5_eave_gate": "data/canonical/M1A_G5_EAVE_REINFORCEMENT_GATE_v1.csv",
     "m1a_g5_eave_local_status": "PASS_REINFORCEMENT_HOST_BINDING_WITH_GEOMETRY_LOAD_WATCH",
     "m1a_g5_eave_doc_host_bindings": 8,
@@ -145,8 +146,20 @@
     "m1a_tav05a_reinforcement_rows": 58,
     "m1a_tav05a_unknown_label_rows": 2,
     "m1a_tav05a_partial_dimension_rows": 1,
-    "next_work_item": "M1A-STAIR-TOWER-AND-GRONDA-BINDING",
-    "rule": "M0-G remains frozen; M1 completes model inputs without inventing missing evidence."
+    "m1a_stair_tower_gate": "data/canonical/M1A_STAIR_TOWER_BINDING_GATE_v1.csv",
+    "m1a_stair_tower_local_status": "PASS_DEDICATED_SUBSYSTEM_IDENTIFIED_WITH_3D_AND_FOOTPRINT_WATCH",
+    "m1a_stair_special_20_21_candidates": 2,
+    "m1a_torrino_30x40_family_status": "DOC_FAMILY_EXACT_SUPPORT_SUBSET_OPEN",
+    "m1a_gronda_gate": "data/canonical/M1A_G5_GRONDA_CORNICE_BINDING_GATE_v1.csv",
+    "m1a_gronda_local_status": "PASS_DIRECT_GRONDA_DETAIL_WITH_EXTENT_BINDING_WATCH",
+    "m1a_gronda_direct_detail": "120x15_6phi10_long_phi6",
+    "m1a_g1_terrace_gate": "data/canonical/M1A_G1_TERRACE_ADDITION_GATE_v1.csv",
+    "m1a_g1_terrace_local_status": "PASS_G1_ADDITION_GEOMETRY_WITH_COLUMN_AND_ANCHORAGE_REINFORCEMENT_WATCH",
+    "m1a_g1_added_supports_doc_30x30": 4,
+    "m1a_g1_ad_column_reinforcement_status": "ND_UNBOUND_FAMILY_ONLY_SOURCE_AVAILABLE",
+    "m1a_g1_e03_status": "LENGTH_1_50_DOC_SECTION_ANCHORAGE_ND_SEPARATE_FROM_AD",
+    "next_work_item": "M1A-EXACT-MEMBER-FAMILY-BINDINGS",
+    "rule": "M0-G remains frozen; passed local M1-A gates remain frozen; continue only exact evidence-supported bindings without inventing unreadable or unbound reinforcement."
   },
-  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, semantic result handshake, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology, material evidence, reinforcement local-gate closure, load-path classification and residual acceptance remain specialist gates"}
+  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, semantic result handshake, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology, material evidence, reinforcement local-gate closure and exact binding residuals, load-path classification and residual acceptance remain specialist gates"}
 }
