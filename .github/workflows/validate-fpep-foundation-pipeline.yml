@@ -73,7 +73,7 @@ jobs:
         run: python scripts/n12_ingest_agent_result.py validate
 
   p00-bootstrap:
-    if: github.event_name != 'pull_request'
+    if: (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'work/m0-global-model') || github.event_name == 'workflow_dispatch'
     needs: validate
     runs-on: ubuntu-latest
     permissions:
