@@ -297,7 +297,7 @@
     {
       "id": "FPEP-P09-HISTORICAL-CALC-CROSSCHECK",
       "priority": 91,
-      "state": "WAITING",
+      "state": "COMPLETE",
       "agent_role": "HISTORICAL_MODEL_RECONCILER",
       "dependencies": [
         "FPEP-P07-PRIMARY-GEOMETRY-GATE"
@@ -314,7 +314,10 @@
       "target_outputs": [
         "analysis/fpep/FPEP_HISTORICAL_MODEL_CROSSCHECK_v1.csv"
       ],
-      "semantic_gate": "Record omissions/simplifications/deltas between documented carpentry and historical calculation without rewriting either historical or documented-as-built states."
+      "semantic_gate": "Record omissions/simplifications/deltas between documented carpentry and historical calculation without rewriting either historical or documented-as-built states.",
+      "completed_at": "2026-08-24T18:17:26.255391+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "last_run_id": "FPEP-P09-20260824T181500Z"
     },
     {
       "id": "FPEP-P10-M0G-REGRESSION-CROSSCHECK",
