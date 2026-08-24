@@ -1,0 +1,125 @@
+{
+  "schema_version": "1.0",
+  "handoff_id": "N12_M1E_CALCULATION_MODEL_HANDOFF",
+  "date": "2026-08-24",
+  "domain": "M1E_CALCULATION_MODEL_HANDOFF",
+  "status": "RESIDUAL_NOT_CALCULATION_MODEL_READY",
+  "calculation_model_ready": false,
+  "purpose": "Freeze what is already transferable to EdiLus-EE and an independent FEM implementation while explicitly blocking numerical execution where current evidence or an admitted modeling rule is still missing.",
+  "authoritative_inputs": {
+    "global_geometry": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
+    "sections": "data/canonical/M1S_SECTION_GATE_v1.csv",
+    "materials": "data/canonical/M1M_MATERIAL_GATE_v1.csv",
+    "reinforcement": "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv",
+    "loads": "data/canonical/M1L_LOAD_GATE_v1.csv",
+    "foundation": "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
+  },
+  "ready_domains": {
+    "superstructure_geometry_topology": {
+      "ready": true,
+      "state": "PASS_WITH_WATCH",
+      "note": "M0-G geometry/topology is frozen; ordinary-member identity and rigid-zone semantics remain authoritative."
+    },
+    "ordinary_member_sections": {
+      "ready": true,
+      "state": "359_OF_359_USABLE_WITH_WATCHES",
+      "note": "All ordinary superstructure members have usable sections; evidence watches remain on a limited subset without changing section usability."
+    },
+    "foundation_support_identity_and_topology": {
+      "ready": true,
+      "state": "38_SUPPORTS_55_PRIMARY_MEMBERS",
+      "note": "Foundation connectivity comes from FPEP/P07 authority. Pre-P07 58-member topology is regression/history only."
+    },
+    "foundation_property_binding_partial": {
+      "ready": true,
+      "state": "39_DIRECT_1_SUPPORTED_15_ND",
+      "note": "Direct and supported TAV-01A bindings may be carried with their evidence state; the fifteen ND bindings remain unfilled."
+    }
+  },
+  "blocking_domains": [
+    {
+      "id": "M1E-B01",
+      "domain": "CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL",
+      "blocking": true,
+      "state": "ND",
+      "missing": ["current_in_situ_concrete_strength", "LC", "FC"],
+      "reason": "Historical R'=300 kg/cm2 is documentary historical evidence and is not silently converted into a current assessment material parameter.",
+      "closure_rule": "Register current material-assessment evidence or a later explicitly admitted modeling scenario before solver execution."
+    },
+    {
+      "id": "M1E-B02",
+      "domain": "NUMERIC_LOADS_MASSES_AND_COMBINATIONS",
+      "blocking": true,
+      "state": "ND",
+      "missing": ["numeric_Gk", "numeric_Qk", "numeric_masses", "assessment_combination_parameters"],
+      "reason": "M1-L intentionally contains zero unsourced numeric load rows.",
+      "closure_rule": "Complete documentary/current load inputs or explicitly admit assessment assumptions at a later gate; do not manufacture values here."
+    },
+    {
+      "id": "M1E-B03",
+      "domain": "FOUNDATION_NUMERIC_XY_SOLVER_BINDING",
+      "blocking": true,
+      "state": "ND_POLICY",
+      "missing": ["admitted_solver_projection_from_global_support_identity_to_foundation_XY"],
+      "reason": "P07 does not promote foundation Cartesian XY and PT/M0-G coordinates cannot retroactively change P07 provenance.",
+      "closure_rule": "Either close primary metric endpoint binding or define an explicit solver-only projection rule that preserves P07 topology authority and provenance."
+    },
+    {
+      "id": "M1E-B04",
+      "domain": "FOUNDATION_NUMERIC_Z",
+      "blocking": true,
+      "state": "ND",
+      "missing": ["numeric_ZF_COMMON", "direct_G1_to_local_ground_foundation_datum_relation"],
+      "reason": "ZF_COMMON is supported only as a symbolic common plane; historical 1.00 m below ground is not a proven G1-to-foundation offset.",
+      "closure_rule": "Register direct vertical-datum evidence before assigning solver Z."
+    },
+    {
+      "id": "M1E-B05",
+      "domain": "FOUNDATION_SECTION_AND_REINFORCEMENT_COVERAGE",
+      "blocking": true,
+      "state": "15_ND_PLUS_1_SUPPORTED",
+      "missing": ["15_exact_foundation_property_bindings"],
+      "reason": "Fifteen P07 primary incidences have no direct autonomous TAV-01A section/longitudinal-reinforcement binding; 22bis-27 remains supported rather than direct.",
+      "closure_rule": "Supply direct property evidence or retain the affected members outside final verification; no analogy fill is allowed."
+    },
+    {
+      "id": "M1E-B06",
+      "domain": "SUPERSTRUCTURE_REINFORCEMENT_RESIDUALS",
+      "blocking": true,
+      "state": "PASS_WITH_WATCH_NOT_COMPLETE_FOR_ALL_MEMBER_CHECKS",
+      "missing": ["affected_member_reinforcement_residual_closure"],
+      "reason": "M1-A explicitly states that residual reinforcement claims remain mandatory before affected member checks or CALCULATION_MODEL_READY.",
+      "closure_rule": "Resolve or explicitly exclude affected verification scopes with traceable evidence; do not extrapolate reinforcement by analogy."
+    },
+    {
+      "id": "M1E-B07",
+      "domain": "CURRENT_GEOTECHNICAL_MODEL",
+      "blocking": true,
+      "state": "ND",
+      "missing": ["site_stratigraphy", "groundwater_screening", "current_strength_parameters", "current_stiffness_settlement_parameters"],
+      "reason": "Historical allowable pressure and epsilon=1 are not converted into modern soil resistance or springs.",
+      "closure_rule": "Register site-specific geotechnical documentation or investigation results before foundation verification or soil-structure interaction modeling."
+    }
+  ],
+  "authorized_now": [
+    "Transfer frozen superstructure connectivity, rigid-zone semantics and usable member sections into a solver project shell.",
+    "Transfer the 38-support / 55-member foundation topology with evidence states preserved.",
+    "Create an implementation checklist and element-identity mapping for EdiLus-EE and independent FEM without running a numerical verification.",
+    "Carry historical material/load/geotechnical values only as provenance or scenario metadata, not as current solver values."
+  ],
+  "not_authorized_now": [
+    "Declare CALCULATION_MODEL_READY.",
+    "Run or validate a current-state structural calculation using invented current material properties, loads, foundation coordinates/elevation or soil parameters.",
+    "Fill reinforcement or foundation property gaps by analogy.",
+    "Treat historical allowable-stress or soil parameters as current limit-state inputs without an explicit later modeling decision."
+  ],
+  "next_evidence_actions": [
+    "Close current concrete assessment inputs and LC/FC.",
+    "Complete numerical load and mass inputs for the current assessment scenario.",
+    "Define and approve the solver-only foundation XY projection rule or close primary metric XY binding.",
+    "Resolve numeric ZF_COMMON from direct datum evidence.",
+    "Resolve the fifteen foundation property gaps and affected superstructure reinforcement residuals required for verification.",
+    "Acquire/register current site-specific geotechnical evidence."
+  ],
+  "final_statement": "The structural information system is sufficiently mature to assemble a solver project shell, but not to execute or certify the current calculation model. M1E remains RESIDUAL until every blocking domain is either supported for execution or covered by an explicit admitted modeling rule."
+}
