@@ -350,7 +350,7 @@
     {
       "id": "FPEP-P11-FOUNDATION-INTERFACE-CHECK",
       "priority": 93,
-      "state": "WAITING",
+      "state": "COMPLETE",
       "agent_role": "FOUNDATION_INTERFACE_AUDITOR",
       "dependencies": [
         "FPEP-P07-PRIMARY-GEOMETRY-GATE"
@@ -368,7 +368,10 @@
       "target_outputs": [
         "analysis/fpep/FPEP_FOUNDATION_INTERFACE_CROSSCHECK_v1.csv"
       ],
-      "semantic_gate": "Keep structural geometry, vertical datum, PT build-up and geotechnical evidence as separate domains. Geometry PASS cannot manufacture numeric Z or current soil parameters."
+      "semantic_gate": "Keep structural geometry, vertical datum, PT build-up and geotechnical evidence as separate domains. Geometry PASS cannot manufacture numeric Z or current soil parameters.",
+      "completed_at": "2026-08-24T18:25:54.767383+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "last_run_id": "FPEP-P11-20260824T182300Z"
     },
     {
       "id": "FPEP-P12-RELEASE-AUDIT",
