@@ -12,6 +12,7 @@ on:
       - 'data/canonical/M1A_TAV034A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'knowledge/ARTIFACT_REGISTRY_M1A_BEAM_EQUIVALENCE_PATCH_v1.csv'
       - 'scripts/validate_m1a_beam_equivalence.py'
       - '.github/workflows/validate-m1a-beam-equivalence.yml'
   pull_request:
@@ -23,6 +24,7 @@ on:
       - 'data/canonical/M1A_TAV034A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'knowledge/ARTIFACT_REGISTRY_M1A_BEAM_EQUIVALENCE_PATCH_v1.csv'
       - 'scripts/validate_m1a_beam_equivalence.py'
       - '.github/workflows/validate-m1a-beam-equivalence.yml'
   workflow_dispatch:
