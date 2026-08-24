@@ -22,10 +22,10 @@
     "current_work_item": "M1E-CALCULATION-MODEL-HANDOFF",
     "deterministic_cycle": "ACTIVE_ON_BRANCH_PUSH_AND_WORKFLOW_DISPATCH_AND_6H_SCHEDULE",
     "semantic_boundary": "ONE_WORK_ITEM_PER_CYCLE_WITH_CONTRACT_VALID_RESULT_HANDSHAKE",
-    "last_result_receipt": "automation/receipts/M1E-CALCULATION-MODEL-HANDOFF_20260824T185354Z.json",
+    "last_result_receipt": "automation/receipts/M1E-CALCULATION-MODEL-HANDOFF_20260824T185900Z.json",
     "last_result_decision": "RESIDUAL",
     "last_cycle_outcome": "RESIDUAL_REVIEW",
-    "last_result_at": "2026-08-24T18:53:54.878768+00:00"
+    "last_result_at": "2026-08-24T18:59:00.741115+00:00"
   },
   "foundation_primary_evidence_pipeline": {
     "status": "READY",
