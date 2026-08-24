@@ -1,0 +1,10 @@
+check_id,metric,expected,actual,status,severity,note
+M1A-BRC-G01,frozen_ordinary_beam_count,232,232,PASS,HARD,"M0-G frozen ordinary-beam inventory."
+M1A-BRC-G02,direct_group_source_covered_beams,148,148,PASS,HARD,"Beam source_member_id occurs in a directly indexed TAV-02A/TAV-034A/TAV-05A/TAV-06A schedule."
+M1A-BRC-G03,uncovered_beams,84,84,PASS_WITH_WATCH,WATCH,"No directly indexed reinforcement schedule currently binds these frozen ordinary members; no reinforcement is inferred by symmetry or analogy."
+M1A-BRC-G04,g1_coverage,34/52,34/52,PASS_WITH_WATCH,WATCH,"18 G1 documentary coverage gaps."
+M1A-BRC-G05,g2_coverage,34/48,34/48,PASS_WITH_WATCH,WATCH,"14 G2 documentary coverage gaps."
+M1A-BRC-G06,g3_coverage,34/48,34/48,PASS_WITH_WATCH,WATCH,"14 G3 documentary coverage gaps."
+M1A-BRC-G07,g4_coverage,31/48,31/48,PASS_WITH_WATCH,WATCH,"17 G4 documentary coverage gaps."
+M1A-BRC-G08,g5_coverage,15/36,15/36,PASS_WITH_WATCH,WATCH,"21 G5 documentary coverage gaps; B017 remains reinforcement ND because T6A-G03 is unbound."
+M1A-BRC-GATE,gate_state,PASS_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CLASSIFIED_WITH_84_DOCUMENTARY_GAPS,PASS_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CLASSIFIED_WITH_84_DOCUMENTARY_GAPS,PASS_WITH_WATCH,GATE,"This closes source-schedule coverage classification only. It does not close detailed member/station projection for covered beams and does not make M1-A complete."
