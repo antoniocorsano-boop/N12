@@ -282,8 +282,17 @@ def main() -> int:
             errors.append(f"parent workflow missing FPEP runtime/P00 bridge: {token}")
 
     fpep_workflow_text = FPEP_WORKFLOW.read_text(encoding="utf-8")
-    if "scripts/fpep_p00_state_consistency.py" not in fpep_workflow_text:
-        errors.append("FPEP validation workflow does not trigger on P00 auditor changes")
+    for token in [
+        "scripts/fpep_p00_state_consistency.py",
+        "pending-result-ingest",
+        "Ingest exactly one pending FPEP specialist result",
+        "python scripts/n12_foundation_orchestrator.py ingest",
+        "Revalidate after FPEP specialist result ingestion",
+        "automation/receipts/foundation",
+        "git add -A automation/inbox",
+    ]:
+        if token not in fpep_workflow_text:
+            errors.append(f"FPEP validation workflow missing P00/generic runtime guard: {token}")
 
     registry_paths = {row.get("path") for row in load_csv(REGISTRY_PATCH)}
     for rel in [
