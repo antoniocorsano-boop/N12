@@ -17,7 +17,6 @@ on:
       - 'knowledge/CURRENT_STATE.json'
       - 'knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv'
       - '.github/workflows/n12-analysis-orchestrator.yml'
-      - '.github/workflows/fpep-p00-bootstrap.yml'
       - '.github/workflows/validate-fpep-foundation-pipeline.yml'
   push:
     branches:
@@ -37,7 +36,6 @@ on:
       - 'knowledge/CURRENT_STATE.json'
       - 'knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv'
       - '.github/workflows/n12-analysis-orchestrator.yml'
-      - '.github/workflows/fpep-p00-bootstrap.yml'
       - '.github/workflows/validate-fpep-foundation-pipeline.yml'
   workflow_dispatch:
 
@@ -73,3 +71,96 @@ jobs:
 
       - name: Validate parent result handshake
         run: python scripts/n12_ingest_agent_result.py validate
+
+  p00-bootstrap:
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout canonical working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Detect selected P00 state
+        id: selection
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          import os
+          from pathlib import Path
+          queue = json.loads(Path('automation/N12_FOUNDATION_WORK_QUEUE_v1.json').read_text(encoding='utf-8'))
+          item = next((x for x in queue.get('items', []) if x.get('id') == 'FPEP-P00-STATE-CONSISTENCY'), None)
+          state = item.get('state') if item else 'MISSING'
+          automatic = state in {'READY', 'IN_PROGRESS'}
+          manual_residual = state == 'RESIDUAL' and os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch'
+          active = automatic or manual_residual
+          print(f"active={'true' if active else 'false'}")
+          print(f"state={state}")
+          PY
+
+      - name: Validate P00 contracts before execution
+        if: steps.selection.outputs.active == 'true'
+        run: |
+          python scripts/validate_knowledge_system.py
+          python scripts/validate_foundation_pipeline.py
+          python scripts/n12_foundation_orchestrator.py validate
+
+      - name: Generate deterministic P00 result when inbox is empty
+        if: steps.selection.outputs.active == 'true'
+        shell: bash
+        run: |
+          if [ -f automation/inbox/N12_FOUNDATION_AGENT_RESULT.json ]; then
+            echo 'FPEP inbox already contains one pending result; bootstrap will not overwrite it.'
+          else
+            python scripts/fpep_p00_state_consistency.py
+          fi
+
+      - name: Ingest exactly one P00 result
+        if: steps.selection.outputs.active == 'true'
+        shell: bash
+        run: |
+          if [ ! -f automation/inbox/N12_FOUNDATION_AGENT_RESULT.json ]; then
+            echo 'P00 did not produce a result inbox packet.' >&2
+            exit 1
+          fi
+          python scripts/n12_foundation_orchestrator.py ingest
+
+      - name: Revalidate P00 state after ingestion
+        if: steps.selection.outputs.active == 'true'
+        run: |
+          python scripts/validate_foundation_pipeline.py
+          python scripts/n12_foundation_orchestrator.py validate
+          python scripts/validate_knowledge_system.py
+
+      - name: Persist P00 audit receipt and subqueue transition
+        if: steps.selection.outputs.active == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-fpep-p00-bootstrap[bot]'
+          git config user.email 'n12-fpep-p00-bootstrap[bot]@users.noreply.github.com'
+          git add automation/N12_FOUNDATION_WORK_QUEUE_v1.json
+          git add -A automation/receipts/foundation || true
+          git add -A automation/inbox || true
+          git add -A analysis/fpep || true
+          if git diff --cached --quiet; then
+            echo 'P00 produced no canonical state change.'
+          else
+            git commit -m 'automation: execute FPEP P00 state consistency gate'
+            git pull --rebase origin work/m0-global-model
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Report P00 bootstrap state
+        run: |
+          echo "FPEP P00 selected: ${{ steps.selection.outputs.active }}"
+          echo "FPEP P00 state: ${{ steps.selection.outputs.state }}"
