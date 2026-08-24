@@ -13,6 +13,9 @@ T2 = C / "M1A_TAV02A_BEAM_GROUP_INDEX_v1.csv"
 T34 = C / "M1A_TAV034A_BEAM_GROUP_INDEX_v1.csv"
 T5 = C / "M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv"
 T6 = C / "M1A_TAV06A_ROOF_GROUP_INDEX_v1.csv"
+COVERAGE = C / "M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CURRENT_v1.csv"
+GATE = C / "M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_GATE_v1.csv"
+EXPECTED_GATE = "PASS_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CLASSIFIED_WITH_84_DOCUMENTARY_GAPS"
 
 
 def read(path: Path) -> list[dict[str, str]]:
@@ -31,7 +34,7 @@ def ids(value: str) -> set[str]:
 
 
 def main() -> int:
-    required = [CONNECTIVITY, T2, T34, T5, T6]
+    required = [CONNECTIVITY, T2, T34, T5, T6, COVERAGE, GATE]
     missing = [str(p.relative_to(ROOT)) for p in required if not p.exists()]
     if missing:
         raise AssertionError(f"missing source files: {missing}")
@@ -70,6 +73,10 @@ def main() -> int:
     for b in beams:
         by_storey[b["storey_id"].strip()].append(b)
 
+    persisted = {r["storey_id"].strip(): r for r in read(COVERAGE)}
+    if set(persisted) != {"G1", "G2", "G3", "G4", "G5"}:
+        raise AssertionError("persisted beam coverage storey set changed")
+
     total_covered = 0
     total_uncovered = 0
     print("M1-A BEAM REINFORCEMENT SOURCE-COVERAGE AUDIT")
@@ -81,15 +88,27 @@ def main() -> int:
         cov = source_ids & covered.get(storey, set())
         uncov = sorted(source_ids - covered.get(storey, set()))
         orphan_schedule_ids = sorted(covered.get(storey, set()) - source_ids)
+        if orphan_schedule_ids:
+            raise AssertionError(f"{storey}: schedule IDs outside frozen ordinary-beam inventory: {orphan_schedule_ids}")
+
+        p = persisted[storey]
+        checks = {
+            "ordinary_beam_count": len(rows),
+            "direct_group_source_covered_count": len(cov),
+            "uncovered_count": len(uncov),
+        }
+        for field, expected in checks.items():
+            if int(p[field]) != expected:
+                raise AssertionError(f"{storey}: persisted {field}={p[field]} != {expected}")
+        if ids(p["uncovered_source_member_ids"]) != set(uncov):
+            raise AssertionError(f"{storey}: persisted uncovered member set changed")
+        if p["coverage_state"].strip() != "SOURCE_COVERAGE_CLASSIFIED_WITH_DOCUMENTARY_GAPS":
+            raise AssertionError(f"{storey}: coverage state changed")
+
         total_covered += len(cov)
         total_uncovered += len(uncov)
-        print(
-            f"{storey}: ordinary={len(rows)} group_source_covered={len(cov)} "
-            f"uncovered={len(uncov)} schedule_ids_not_in_frozen_beams={len(orphan_schedule_ids)}"
-        )
+        print(f"{storey}: ordinary={len(rows)} group_source_covered={len(cov)} uncovered={len(uncov)}")
         print(f"  uncovered_ids={';'.join(uncov) if uncov else 'NONE'}")
-        if orphan_schedule_ids:
-            print(f"  schedule_ids_not_in_frozen_beams={';'.join(orphan_schedule_ids)}")
         print(
             "  group_counts=" + ";".join(
                 f"{gid}:{len(member_ids & source_ids)}"
@@ -97,8 +116,20 @@ def main() -> int:
             )
         )
 
+    if (total_covered, total_uncovered) != (148, 84):
+        raise AssertionError(f"beam source-coverage totals changed: {(total_covered, total_uncovered)}")
+
+    gate_rows = {r["check_id"].strip(): r for r in read(GATE)}
+    if gate_rows.get("M1A-BRC-GATE", {}).get("actual", "").strip() != EXPECTED_GATE:
+        raise AssertionError("beam coverage gate state changed")
+    if gate_rows.get("M1A-BRC-G02", {}).get("actual", "").strip() != "148":
+        raise AssertionError("beam covered total gate value changed")
+    if gate_rows.get("M1A-BRC-G03", {}).get("actual", "").strip() != "84":
+        raise AssertionError("beam uncovered total gate value changed")
+
     print(f"TOTAL: covered={total_covered} uncovered={total_uncovered}")
-    print("Interpretation: coverage means a member ID is present in a directly indexed source schedule; it does not by itself imply bar-by-bar member/station projection is complete.")
+    print("M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_GATE = PASS_WITH_WATCH")
+    print("Interpretation: coverage means direct presence in an indexed source schedule; it does not imply detailed member/station projection is complete.")
     return 0
 
 
