@@ -129,6 +129,24 @@ def selected_item(queue: dict[str, Any]) -> dict[str, Any] | None:
     return items[0] if items else None
 
 
+def resolved_allowed_inputs(item: dict[str, Any]) -> list[str]:
+    """Resolve only contract-authorized dynamic context.
+
+    The state/registry auditor must inspect the *effective* registry, not only the
+    base CSV. Its queue item authorizes KNOWLEDGE_MANIFEST.json; therefore the
+    manifest-declared registry base/patch paths are expanded deterministically.
+    No other agent role receives dynamic context through this resolver.
+    """
+    allowed = list(item.get("allowed_inputs", []))
+    if item.get("agent_role") == "STATE_REGISTRY_AUDITOR":
+        manifest = read_json(MANIFEST_PATH)
+        dynamic = [manifest.get("artifact_registry")] + registry_patch_rels(manifest)
+        for rel in dynamic:
+            if rel and rel not in allowed:
+                allowed.append(rel)
+    return allowed
+
+
 def validate() -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -184,6 +202,16 @@ def validate() -> tuple[list[str], list[str]]:
             missing_barriers = sorted(LEGACY_TARGET_TOKENS - forbidden)
             if item.get("agent_role") != "FOUNDATION_CONFLICT_ADJUDICATOR" and missing_barriers:
                 warnings.append(f"{iid}: not all legacy barrier tokens are explicit: {missing_barriers}")
+
+    p00 = by_id.get("FPEP-P00-STATE-CONSISTENCY")
+    if p00:
+        resolved = resolved_allowed_inputs(p00)
+        manifest = read_json(MANIFEST_PATH)
+        for rel in [manifest.get("artifact_registry")] + registry_patch_rels(manifest):
+            if rel and rel not in resolved:
+                errors.append(f"P00 effective-registry context was not resolved: {rel}")
+            elif rel and not (ROOT / rel).exists():
+                errors.append(f"P00 manifest-declared registry artifact missing: {rel}")
 
     visiting: set[str] = set()
     visited: set[str] = set()
@@ -249,16 +277,23 @@ def make_task() -> dict[str, Any]:
     if status["decision"] != "READY_FOR_AGENT":
         return status
     item = status["selected_work_item"]
+    allowed_inputs = resolved_allowed_inputs(item)
     return {
         "pipeline_id": read_json(CONTRACT_PATH)["pipeline_id"],
         "work_item_id": item["id"],
         "agent_role": item["agent_role"],
-        "allowed_inputs": item.get("allowed_inputs", []),
+        "allowed_inputs": allowed_inputs,
         "forbidden_context": item.get("forbidden_context", []),
         "target_outputs": item.get("target_outputs", []),
         "semantic_gate": item.get("semantic_gate"),
+        "dynamic_context_resolution": (
+            "MANIFEST_DECLARED_EFFECTIVE_REGISTRY"
+            if item.get("agent_role") == "STATE_REGISTRY_AUDITOR"
+            else "NONE"
+        ),
         "instructions": [
             "Use only allowed_inputs plus the immutable primary evidence explicitly referenced by those inputs.",
+            "For STATE_REGISTRY_AUDITOR, manifest-declared registry patches shown in allowed_inputs are dynamically authorized only for effective-registry consistency checks.",
             "Do not search for or load forbidden_context to improve apparent consistency.",
             "Persist residuals instead of filling gaps by analogy, symmetry or target-count matching.",
             "For any canonical target output, register it in the effective artifact registry in the same change set.",
