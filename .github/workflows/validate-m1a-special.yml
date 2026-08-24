@@ -8,28 +8,36 @@ on:
       - 'data/canonical/M1A_G5_EAVE_CANTILEVER_ENDS_CURRENT_v1.csv'
       - 'data/canonical/M1A_G5_EAVE_REINFORCEMENT_GATE_v1.csv'
       - 'data/canonical/M1A_G5_RIDGE_GRONDA_INTERPRETATION_CURRENT_v1.csv'
+      - 'data/canonical/M1A_G5_GRONDA_CORNICE_BINDING_GATE_v1.csv'
       - 'data/canonical/M1A_BALCONY_CORNICE_REINFORCEMENT_SOURCE_AUDIT_v1.csv'
       - 'data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M1A_TAV05A_GROUP_REINFORCEMENT_v1.csv'
       - 'data/canonical/M1A_TAV05A_GROUP_TRANSCRIPTION_GATE_v1.csv'
       - 'data/canonical/M1A_STAIR_TOWER_SUBSYSTEM_CURRENT_v1.csv'
+      - 'data/canonical/M1A_STAIR_TOWER_BINDING_GATE_v1.csv'
+      - 'data/canonical/M1A_COLUMN_REINFORCEMENT_FAMILIES_v1.csv'
       - 'data/canonical/M1A_SPECIAL_FEATURE_REINFORCEMENT_GAP_REGISTER_v1.csv'
       - 'scripts/validate_m1a_g5_eave_reinforcement.py'
       - 'scripts/validate_m1a_tav05a_group_transcription.py'
+      - 'scripts/validate_m1a_stair_gronda_binding.py'
       - '.github/workflows/validate-m1a-special.yml'
   pull_request:
     paths:
       - 'data/canonical/M1A_G5_EAVE_CANTILEVER_ENDS_CURRENT_v1.csv'
       - 'data/canonical/M1A_G5_EAVE_REINFORCEMENT_GATE_v1.csv'
       - 'data/canonical/M1A_G5_RIDGE_GRONDA_INTERPRETATION_CURRENT_v1.csv'
+      - 'data/canonical/M1A_G5_GRONDA_CORNICE_BINDING_GATE_v1.csv'
       - 'data/canonical/M1A_BALCONY_CORNICE_REINFORCEMENT_SOURCE_AUDIT_v1.csv'
       - 'data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M1A_TAV05A_GROUP_REINFORCEMENT_v1.csv'
       - 'data/canonical/M1A_TAV05A_GROUP_TRANSCRIPTION_GATE_v1.csv'
       - 'data/canonical/M1A_STAIR_TOWER_SUBSYSTEM_CURRENT_v1.csv'
+      - 'data/canonical/M1A_STAIR_TOWER_BINDING_GATE_v1.csv'
+      - 'data/canonical/M1A_COLUMN_REINFORCEMENT_FAMILIES_v1.csv'
       - 'data/canonical/M1A_SPECIAL_FEATURE_REINFORCEMENT_GAP_REGISTER_v1.csv'
       - 'scripts/validate_m1a_g5_eave_reinforcement.py'
       - 'scripts/validate_m1a_tav05a_group_transcription.py'
+      - 'scripts/validate_m1a_stair_gronda_binding.py'
       - '.github/workflows/validate-m1a-special.yml'
   workflow_dispatch:
 
@@ -53,3 +61,6 @@ jobs:
 
       - name: Validate TAV-05A group transcription
         run: python scripts/validate_m1a_tav05a_group_transcription.py
+
+      - name: Validate stair tower and gronda bindings
+        run: python scripts/validate_m1a_stair_gronda_binding.py
