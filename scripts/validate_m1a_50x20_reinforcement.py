@@ -34,10 +34,7 @@ for pid, (source_id, source_group) in expected_precedents.items():
     row = precedents[pid]
     require(row["source_id"] == source_id, f"wrong source for {pid}: {row['source_id']}")
     require(row["source_group"] == source_group, f"wrong source group for {pid}: {row['source_group']}")
-    require(
-        row["transfer_decision"] == "DO_NOT_TRANSFER_NUMERIC_REINFORCEMENT",
-        f"unsafe 50x20 transfer enabled for {pid}",
-    )
+    require(row["transfer_decision"] == "DO_NOT_TRANSFER_NUMERIC_REINFORCEMENT", f"unsafe 50x20 transfer enabled for {pid}")
     require(row["evidence_status"].startswith("DOC"), f"non-documentary precedent status for {pid}")
 
 # The recurring connector class is an omission/source-scope pattern, not an authored reinforcement family.
@@ -49,14 +46,14 @@ positions = [p.strip() for p in gap["documented_longitudinal_signature"].split("
 require(len(positions) == 13, f"expected 13 recurring 50x20 connector positions, found {len(positions)}")
 require(len(set(positions)) == 13, "duplicate recurring 50x20 connector position")
 
-# Frozen ordinary-beam counts must not be rewritten by this closure gate.
+# Global coverage may advance through unrelated new direct primary evidence; the 50x20 boundary itself must remain unchanged.
 ordinary_total = sum(int(r["ordinary_beam_count"]) for r in coverage)
 direct_total = sum(int(r["direct_group_source_covered_count"]) for r in coverage)
 require(ordinary_total == 232, f"ordinary beam total changed: {ordinary_total}")
-require(direct_total == 148, f"direct ordinary-beam reinforcement coverage changed: {direct_total}")
+require(direct_total == 152, f"global direct ordinary-beam coverage mismatch: {direct_total}")
 
 eq_metrics = {r["metric"]: r["value"] for r in equivalence_gate}
-require(eq_metrics["effective_scheme_bound_total"] == "151", "effective scheme-bound beam count changed")
+require(eq_metrics["effective_scheme_bound_total"] == "155", "effective scheme-bound beam count mismatch")
 require(eq_metrics["50x20_numeric_reinforcement"] == "ND", "broader beam-equivalence gate resolves 50x20 numerically")
 
 checks = {r["metric"]: r for r in transfer_gate}
@@ -66,8 +63,8 @@ expected_actuals = {
     "generic_transferable_primary_source_mechanism": "NO",
     "recurring_50x20_connector_positions": "13",
     "new_exact_bindings_from_precedent_transfer": "0",
-    "direct_group_source_covered_ordinary_beams": "148",
-    "effective_scheme_bound_ordinary_beams": "151",
+    "direct_group_source_covered_ordinary_beams": "152",
+    "effective_scheme_bound_ordinary_beams": "155",
     "50x20_numeric_reinforcement_status": "ND",
     "reopen_policy": "NEW_EXPLICIT_PRIMARY_GENERIC_50X20_CONNECTOR_DETAIL_OR_EXACT_MEMBER_BINDING",
     "gate_state": "PASS_50X20_PRECEDENTS_LOCAL_ONLY_WITH_13_RESIDUAL_WATCH",
@@ -81,7 +78,4 @@ require(checks["generic_transferable_primary_source_mechanism"]["status"] == "PA
 require(checks["new_exact_bindings_from_precedent_transfer"]["status"] == "PASS", "zero-transfer boundary not gated")
 require(checks["gate_state"]["status"] == "PASS_WITH_WATCH", "50x20 closure gate must retain residual watch")
 
-print(
-    "PASS M1-A 50x20 transfer closure: 3 local DOC precedents; 0 authorized transfers; "
-    "13 recurring connector positions remain ND; direct beam coverage frozen at 148/232"
-)
+print("PASS M1-A 50x20 transfer closure unchanged; global beam coverage now 152 direct / 155 effective after independent TAV06A recovery")
