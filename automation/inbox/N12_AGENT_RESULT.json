@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0",
+  "work_item_id": "M1E-CALCULATION-MODEL-HANDOFF",
+  "source_sheet": "MULTI",
+  "decision": "RESIDUAL",
+  "semantic_gate": "FAIL",
+  "target_outputs": [
+    "data/canonical/M1E_CALCULATION_MODEL_HANDOFF_v1.json"
+  ],
+  "provenance_summary": {
+    "DOC": 6,
+    "MIS": 1,
+    "RIF": 2,
+    "INF": 0,
+    "INC": 0,
+    "ND": 6
+  },
+  "residuals": [
+    {
+      "residual_id": "M1E-B01",
+      "claim_id": "CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL",
+      "blocking": true,
+      "reason": "Current in-situ concrete strength, LC and FC remain ND; historical R'=300 kg/cm2 cannot be silently used as a current assessment property.",
+      "required_evidence": "Register current material-assessment evidence or a later explicitly admitted modeling scenario."
+    },
+    {
+      "residual_id": "M1E-B02",
+      "claim_id": "NUMERIC_LOADS_MASSES_AND_COMBINATIONS",
+      "blocking": true,
+      "reason": "M1-L contains zero sourced numerical Gk/Qk/mass rows and therefore cannot supply an executable current load model.",
+      "required_evidence": "Complete documentary/current load and mass inputs or explicitly admit assessment assumptions at a later gate."
+    },
+    {
+      "residual_id": "M1E-B04",
+      "claim_id": "FOUNDATION_NUMERIC_Z",
+      "blocking": true,
+      "reason": "ZF_COMMON is symbolic only; no direct G1/local-ground/foundation datum relation supports a numeric solver elevation.",
+      "required_evidence": "Register direct vertical-datum evidence before assigning foundation Z."
+    },
+    {
+      "residual_id": "M1E-B05",
+      "claim_id": "FOUNDATION_SECTION_AND_REINFORCEMENT_COVERAGE",
+      "blocking": true,
+      "reason": "Fifteen primary foundation incidences have ND documentary property binding and 22bis-27 remains supported rather than direct.",
+      "required_evidence": "Supply direct property evidence or explicitly exclude affected scopes from final verification; no analogy fill."
+    },
+    {
+      "residual_id": "M1E-B06",
+      "claim_id": "SUPERSTRUCTURE_REINFORCEMENT_RESIDUALS",
+      "blocking": true,
+      "reason": "M1-A retains reinforcement residuals that are mandatory before affected member checks or CALCULATION_MODEL_READY.",
+      "required_evidence": "Resolve affected member reinforcement claims or explicitly delimit verification scope with traceable evidence."
+    },
+    {
+      "residual_id": "M1E-B07",
+      "claim_id": "CURRENT_GEOTECHNICAL_MODEL",
+      "blocking": true,
+      "reason": "Current site-specific stratigraphy, groundwater, strength and stiffness/settlement parameters remain unavailable.",
+      "required_evidence": "Register site-specific geotechnical documentation or investigation results before foundation verification/soil-structure modeling."
+    }
+  ],
+  "audit_paths": [
+    "data/canonical/M1E_CALCULATION_MODEL_HANDOFF_v1.json",
+    "data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json",
+    "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",
+    "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
+  ]
+}
