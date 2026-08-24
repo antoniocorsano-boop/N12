@@ -158,3 +158,30 @@ Prima di rifare un'attività:
 5. riaprire soltanto il claim coinvolto nel conflitto, non l'intero lavoro.
 
 L'assenza di memoria nella sessione non equivale ad assenza di informazione nel repository.
+
+## 10. FPEP — gate fondazioni obbligatorio
+
+Quando la coda principale seleziona `M1F-PRIMARY-GEOMETRY-REVALIDATION`, non eseguire una lettura fondazioni generica. Entrare nel sottociclo:
+
+`python scripts/n12_foundation_orchestrator.py validate`
+
+`python scripts/n12_foundation_orchestrator.py status`
+
+`python scripts/n12_foundation_orchestrator.py make-task`
+
+Contratti obbligatori:
+
+- `automation/N12_FOUNDATION_PIPELINE_CONTRACT_v1.json`;
+- `automation/N12_FOUNDATION_WORK_QUEUE_v1.json`;
+- `automation/N12_FOUNDATION_AGENT_RESULT_CONTRACT_v1.json`;
+- `docs/PROCEDURES/FOUNDATION_PRIMARY_EVIDENCE_PIPELINE_v1.md`.
+
+Prima di `FPEP-P07-PRIMARY-GEOMETRY-GATE`, i reader, il solver metrico e il topology builder non devono ricevere la topologia fondazioni corrente, i conteggi 38/58, coordinate del PT Master, geometria M0-G, gruppi TAV-01A o topologia del calcolo storico. Il task prodotto da `make-task` è il limite informativo autorizzato.
+
+La topologia M1-F preesistente resta un checkpoint di regressione e diventa disponibile soltanto nei work item post-P07. TAV-01A può associare proprietà dopo P07, ma non può generare geometria.
+
+Ogni sottociclo termina con un solo `automation/inbox/N12_FOUNDATION_AGENT_RESULT.json` e viene avanzato da:
+
+`python scripts/n12_foundation_orchestrator.py ingest`
+
+Solo `data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv` consente il ritorno alla coda principale e lo sblocco di `M1F-FOUNDATION-MODEL`.
