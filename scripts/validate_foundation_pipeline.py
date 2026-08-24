@@ -142,10 +142,21 @@ def main() -> int:
         "legacy_checkpoint_preservation",
         "all_residuals_persisted",
         "all_outputs_receipt_gated",
+        "canonical_targets_must_be_registered_before_pass",
+        "parent_handoff_only_after_P12_complete",
+        "parent_handoff_must_cite_P12_receipt",
     ]
     for key in mandatory_true:
         if hard.get(key) is not True:
             errors.append(f"hard guardrail not enabled: {key}")
+
+    runtime = pipeline.get("runtime_handoff", {})
+    if runtime.get("p12_completion_item") != FPEP_COMPLETION_ITEM:
+        errors.append("runtime handoff completion item mismatch")
+    if pipeline.get("runtime_workflow") != ".github/workflows/n12-analysis-orchestrator.yml":
+        errors.append("FPEP runtime workflow mismatch")
+    if pipeline.get("parent_result_inbox") != "automation/inbox/N12_AGENT_RESULT.json":
+        errors.append("FPEP parent result inbox mismatch")
 
     proc = subprocess.run(
         [sys.executable, "scripts/n12_foundation_orchestrator.py", "validate"],
@@ -199,7 +210,8 @@ def main() -> int:
         "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv",
         "FPEP-P12-RELEASE-AUDIT",
         "emit_parent_result",
-        "automation/inbox/N12_AGENT_RESULT.json",
+        "PARENT_INBOX_PATH",
+        "N12_AGENT_RESULT.json",
         "cannot emit parent FPEP result before every sub-item is COMPLETE",
     ]
     for token in required_runtime_guards:
