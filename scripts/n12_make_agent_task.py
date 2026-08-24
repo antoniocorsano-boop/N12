@@ -7,10 +7,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import n12_orchestrator
+import n12_foundation_orchestrator
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_INDEX = ROOT / "data" / "canonical" / "tavole_originali_remote_index_v1.csv"
 OUTPUT = ROOT / "analysis" / "automation" / "N12_AGENT_TASK_PACKET.json"
+FPEP_WRAPPER_ID = "M1F-PRIMARY-GEOMETRY-REVALIDATION"
 
 
 def read_source_index() -> dict[str, dict[str, str]]:
@@ -74,6 +76,36 @@ def build_packet() -> dict:
         "missing_inputs": item.get("missing_inputs", []),
         "selection_reason": item.get("selection_reason"),
     }
+
+    if item.get("id") == FPEP_WRAPPER_ID:
+        delegated = n12_foundation_orchestrator.make_task()
+        packet["agent_action"] = "DELEGATE_TO_FOUNDATION_SUBORCHESTRATOR"
+        packet["delegation"] = {
+            "pipeline": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+            "contract": "automation/N12_FOUNDATION_PIPELINE_CONTRACT_v1.json",
+            "queue": "automation/N12_FOUNDATION_WORK_QUEUE_v1.json",
+            "result_contract": "automation/N12_FOUNDATION_AGENT_RESULT_CONTRACT_v1.json",
+            "result_inbox": "automation/inbox/N12_FOUNDATION_AGENT_RESULT.json",
+            "orchestrator": "scripts/n12_foundation_orchestrator.py",
+            "completion_item": "FPEP-P12-RELEASE-AUDIT",
+            "completion_gate": "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv",
+            "delegated_task": delegated,
+        }
+        packet["required_result"] = {
+            "max_items_per_cycle": 1,
+            "contract": "automation/N12_FOUNDATION_AGENT_RESULT_CONTRACT_v1.json",
+            "inbox": "automation/inbox/N12_FOUNDATION_AGENT_RESULT.json",
+            "must_run": [
+                "python scripts/validate_foundation_pipeline.py",
+                "python scripts/n12_foundation_orchestrator.py validate",
+                "python scripts/n12_foundation_orchestrator.py status"
+            ],
+            "on_pass": "ingest only the selected FPEP sub-item; do not submit the parent M1F wrapper until FPEP-P12 is COMPLETE and the release gate is registered",
+            "on_residual": "retain the smallest unresolved FPEP claim and continue unrelated sectors only when dependencies allow",
+            "on_conflict": "reopen only the conflicting claim/evidence region; never expose legacy 38/58 targets to pre-P07 agents"
+        }
+        return packet
+
     packet["agent_action"] = (
         "EXECUTE_ONE_SPECIALIST_ITEM_AND_STOP"
         if status.get("decision") == "READY_FOR_AGENT"
