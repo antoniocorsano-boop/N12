@@ -1,0 +1,161 @@
+{
+  "schema_version": "1.0",
+  "project_id": "N12",
+  "canonical_model_ref": "data/canonical/M1E_CALCULATION_MODEL_HANDOFF_v1.json",
+  "profile_status": "REFERENCE_IMPLEMENTATION_RESIDUAL",
+  "claims": [
+    {
+      "claim_id": "N12-MAT-HIST-CONCRETE-RPRIME",
+      "domain": "CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL",
+      "state": "DOC",
+      "value": "R'=300 kg/cm2 (historical design evidence only)",
+      "evidence_kind": "HISTORICAL_DOCUMENT",
+      "provenance": ["data/canonical/M1M_MATERIAL_EVIDENCE_CURRENT_v1.csv"]
+    },
+    {
+      "claim_id": "N12-MAT-CURRENT-CONCRETE",
+      "domain": "CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL",
+      "state": "ND",
+      "value": null,
+      "evidence_kind": "CURRENT_ASSESSMENT",
+      "provenance": []
+    },
+    {
+      "claim_id": "N12-LOAD-CURRENT-NUMERIC",
+      "domain": "NUMERIC_LOADS_MASSES_AND_COMBINATIONS",
+      "state": "ND",
+      "value": null,
+      "evidence_kind": "CURRENT_ASSESSMENT",
+      "provenance": []
+    },
+    {
+      "claim_id": "N12-FND-ZF-COMMON",
+      "domain": "FOUNDATION_NUMERIC_Z",
+      "state": "RIF",
+      "value": "ZF_COMMON symbolic common plane; numeric datum unresolved",
+      "evidence_kind": "FOUNDATION_INTERFACE",
+      "provenance": ["data/canonical/M1F_FOUNDATION_GATE_v1.csv"]
+    },
+    {
+      "claim_id": "N12-FND-PROPERTY-COVERAGE",
+      "domain": "FOUNDATION_SECTION_AND_REINFORCEMENT_COVERAGE",
+      "state": "INC",
+      "value": "39 direct + 1 supported + 15 ND bindings",
+      "evidence_kind": "PRIMARY_EVIDENCE_BINDING",
+      "provenance": ["data/canonical/M1F_FOUNDATION_GATE_v1.csv"]
+    },
+    {
+      "claim_id": "N12-SUPER-REINF-RESIDUAL",
+      "domain": "SUPERSTRUCTURE_REINFORCEMENT_RESIDUALS",
+      "state": "INC",
+      "value": "localized reinforcement residuals remain mandatory before affected-member checks",
+      "evidence_kind": "REINFORCEMENT_GATE",
+      "provenance": ["data/canonical/M1A_REINFORCEMENT_GATE_v1.csv"]
+    },
+    {
+      "claim_id": "N12-GEO-HISTORICAL",
+      "domain": "CURRENT_GEOTECHNICAL_MODEL",
+      "state": "DOC",
+      "value": "historical allowable pressure 1.6 kg/cm2 and epsilon=1; not current geotechnical parameters",
+      "evidence_kind": "HISTORICAL_DOCUMENT",
+      "provenance": ["data/canonical/M1F_CURRENT_GEOTECHNICAL_GATE_v1.csv"]
+    },
+    {
+      "claim_id": "N12-GEO-CURRENT",
+      "domain": "CURRENT_GEOTECHNICAL_MODEL",
+      "state": "ND",
+      "value": null,
+      "evidence_kind": "CURRENT_ASSESSMENT",
+      "provenance": []
+    }
+  ],
+  "blocking_domains": [
+    {
+      "id": "M1E-B01",
+      "domain": "CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL",
+      "missing": ["current_in_situ_concrete_strength", "LC", "FC"]
+    },
+    {
+      "id": "M1E-B02",
+      "domain": "NUMERIC_LOADS_MASSES_AND_COMBINATIONS",
+      "missing": ["numeric_Gk", "numeric_Qk", "numeric_masses", "assessment_combination_parameters"]
+    },
+    {
+      "id": "M1E-B04",
+      "domain": "FOUNDATION_NUMERIC_Z",
+      "missing": ["numeric_ZF_COMMON", "direct_G1_to_local_ground_foundation_datum_relation"]
+    },
+    {
+      "id": "M1E-B05",
+      "domain": "FOUNDATION_SECTION_AND_REINFORCEMENT_COVERAGE",
+      "missing": ["15_exact_foundation_property_bindings"]
+    },
+    {
+      "id": "M1E-B06",
+      "domain": "SUPERSTRUCTURE_REINFORCEMENT_RESIDUALS",
+      "missing": ["affected_member_reinforcement_residual_closure"]
+    },
+    {
+      "id": "M1E-B07",
+      "domain": "CURRENT_GEOTECHNICAL_MODEL",
+      "missing": ["site_stratigraphy", "groundwater_screening", "current_strength_parameters", "current_stiffness_settlement_parameters"]
+    }
+  ],
+  "model_rules": [
+    {
+      "rule_id": "N12-RULE-HISTORICAL-CONCRETE-AS-DESIGNED",
+      "domain": "CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL",
+      "applicable_modes": ["MODE-1"],
+      "output_state": "MOD",
+      "assumption_class": "HISTORICAL_RECONSTRUCTION_ONLY",
+      "rationale": "Use documented historical design material value only to reconstruct the historical baseline; never assert it as current in-situ strength."
+    },
+    {
+      "rule_id": "N12-RULE-HISTORICAL-GEOTECH-AS-DESIGNED",
+      "domain": "CURRENT_GEOTECHNICAL_MODEL",
+      "applicable_modes": ["MODE-1"],
+      "output_state": "MOD",
+      "assumption_class": "HISTORICAL_RECONSTRUCTION_ONLY",
+      "rationale": "Use historical allowable-pressure/epsilon assumptions only in the historical comparison model; never convert them into current limit-state soil parameters."
+    }
+  ],
+  "probability_models": [],
+  "investigation_candidates": [
+    {
+      "investigation_id": "N12-INV-CONCRETE-SCREEN",
+      "target_parameter_or_claim": "CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL",
+      "affected_elements": ["representative_columns", "representative_beams", "exposed_degraded_elements"],
+      "current_state": "ND",
+      "test_method": "visual condition mapping + cover mapping + distributed rebound screening followed by targeted core tests where authorized",
+      "invasiveness": "LOW_TO_MEDIUM",
+      "expected_uncertainty_reduction": "HIGH",
+      "affected_outputs": ["material current-state model", "LC/FC evidence basis", "degradation calibration"],
+      "priority": 1,
+      "decision": "CANDIDATE"
+    },
+    {
+      "investigation_id": "N12-INV-FOUNDATION-DATUM",
+      "target_parameter_or_claim": "FOUNDATION_NUMERIC_Z",
+      "affected_elements": ["accessible_foundation_locations"],
+      "current_state": "ND",
+      "test_method": "documentary vertical-datum recovery first; targeted foundation survey/sag only if documentary closure fails",
+      "invasiveness": "ZERO_TO_MEDIUM",
+      "expected_uncertainty_reduction": "HIGH",
+      "affected_outputs": ["foundation solver Z", "ground/foundation relation"],
+      "priority": 2,
+      "decision": "CANDIDATE"
+    },
+    {
+      "investigation_id": "N12-INV-GEOTECH",
+      "target_parameter_or_claim": "CURRENT_GEOTECHNICAL_MODEL",
+      "affected_elements": ["site", "foundation_system"],
+      "current_state": "ND",
+      "test_method": "recover existing site/geological documentation; only then design minimum site-specific geotechnical investigation",
+      "invasiveness": "ZERO_TO_HIGH",
+      "expected_uncertainty_reduction": "HIGH",
+      "affected_outputs": ["foundation verification", "soil-structure interaction", "settlement assessment"],
+      "priority": 3,
+      "decision": "CANDIDATE"
+    }
+  ]
+}

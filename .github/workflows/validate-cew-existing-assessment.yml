@@ -1,0 +1,96 @@
+name: Validate CEW Existing Assessment Engine
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_*'
+      - 'data/canonical/N12_EXISTING_ASSESSMENT_PROFILE_v1.json'
+      - 'docs/ARCHITECTURE/CEW_*'
+      - 'scripts/cew_existing_assessment_engine.py'
+      - '.github/workflows/validate-cew-existing-assessment.yml'
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - 'automation/CEW_*'
+      - 'data/canonical/N12_EXISTING_ASSESSMENT_PROFILE_v1.json'
+      - 'docs/ARCHITECTURE/CEW_*'
+      - 'scripts/cew_existing_assessment_engine.py'
+      - '.github/workflows/validate-cew-existing-assessment.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python syntax
+        run: python -m py_compile scripts/cew_existing_assessment_engine.py
+
+      - name: Generate all N12 assessment modes
+        run: |
+          mkdir -p /tmp/cew-scenarios
+          for mode in MODE-1 MODE-2 MODE-3 MODE-4 MODE-5; do
+            python scripts/cew_existing_assessment_engine.py \
+              --contract automation/CEW_EXISTING_ASSESSMENT_CONTRACT_v1.json \
+              --profile data/canonical/N12_EXISTING_ASSESSMENT_PROFILE_v1.json \
+              --mode "$mode" \
+              --output "/tmp/cew-scenarios/${mode}.json"
+          done
+
+      - name: Assert epistemic and authorization gates
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('/tmp/cew-scenarios')
+          scenarios = {p.stem: json.loads(p.read_text()) for p in root.glob('MODE-*.json')}
+          assert set(scenarios) == {'MODE-1','MODE-2','MODE-3','MODE-4','MODE-5'}
+
+          for mode, s in scenarios.items():
+              assert s['epistemic_guard']['source_evidence_mutated'] is False
+              assert s['epistemic_guard']['derived_values_may_promote_to_MIS'] is False
+              assert s['epistemic_guard']['LC_FC_auto_promoted'] is False
+              assert s['scenario_status'] == 'RESIDUAL'
+
+          # Historical baseline may use only two explicit historical rules.
+          m1 = scenarios['MODE-1']
+          assert {r['rule_id'] for r in m1['model_rules']} == {
+              'N12-RULE-HISTORICAL-CONCRETE-AS-DESIGNED',
+              'N12-RULE-HISTORICAL-GEOTECH-AS-DESIGNED'
+          }
+          assert len(m1['modeled_blocking_domains']) == 2
+          assert len(m1['residuals']) == 4
+
+          # Conservative mode has no silent defaults in the N12 profile.
+          m2 = scenarios['MODE-2']
+          assert len(m2['model_rules']) == 0
+          assert len(m2['residuals']) == 6
+          assert m2['solver_authorization'] == 'SCREENING_ONLY'
+
+          # Probability/test modes are intentionally unavailable until calibrated inputs exist.
+          assert scenarios['MODE-3']['solver_authorization'] == 'NOT_EXECUTABLE'
+          assert 'MODE_REQUIRES_PROBABILITY_MODEL_BUT_NONE_IS_ACTIVE' in scenarios['MODE-3']['watches']
+          assert scenarios['MODE-4']['solver_authorization'] == 'NOT_EXECUTABLE'
+          assert 'MODE_REQUIRES_PROBABILITY_MODEL_BUT_NONE_IS_ACTIVE' in scenarios['MODE-4']['watches']
+          assert 'MODE_REQUIRES_TEST_EVIDENCE_BUT_NONE_IS_REGISTERED' in scenarios['MODE-4']['watches']
+          assert scenarios['MODE-5']['solver_authorization'] == 'NOT_EXECUTABLE'
+          assert 'MODE_REQUIRES_TEST_EVIDENCE_BUT_NONE_IS_REGISTERED' in scenarios['MODE-5']['watches']
+
+          print('CEW EXISTING ASSESSMENT VALIDATION: PASS')
+          PY
+
+      - name: Validate registry safety state
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          reg = json.loads(Path('automation/CEW_DEGRADATION_MODEL_REGISTRY_v1.json').read_text())
+          assert reg['models']
+          for m in reg['models']:
+              assert m['calibration_state'] == 'NOT_CALIBRATED'
+              assert m['reference_id'] is None
+          print('CEW DEGRADATION REGISTRY SAFETY: PASS')
+          PY
