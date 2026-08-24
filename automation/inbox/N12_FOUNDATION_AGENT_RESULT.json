@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P07-20260824T180600Z",
+  "work_item_id": "FPEP-P07-PRIMARY-GEOMETRY-GATE",
+  "stage_id": "FPEP-P07-PRIMARY-GEOMETRY-GATE",
+  "agent_role": "PRIMARY_GEOMETRY_PROMOTER",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "PASS",
+  "input_artifacts": [
+    {
+      "path": "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json",
+      "sha256": "ND_NOT_RECOMPUTED",
+      "authority": "SOURCE_IDENTITY_AUDIT",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_METRIC_CLAIMS_v1.csv",
+      "sha256": "ND_NOT_RECOMPUTED",
+      "authority": "PRIMARY_EVIDENCE_CLAIMS",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv",
+      "sha256": "ND_NOT_RECOMPUTED",
+      "authority": "PRIMARY_TOPOLOGY_CANDIDATE",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv",
+      "sha256": "ND_NOT_RECOMPUTED",
+      "authority": "CLAIM_ADJUDICATION",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_INCIDENCE_SWEEP_v1.csv",
+      "sha256": "ND_NOT_RECOMPUTED",
+      "authority": "PRIMARY_INCIDENCE_AUDIT",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_INCIDENCE_SWEEP_CLOSURE_v1.csv",
+      "sha256": "ND_NOT_RECOMPUTED",
+      "authority": "PRIMARY_INCIDENCE_ADJUDICATION",
+      "status": "CURRENT"
+    }
+  ],
+  "primary_sources": [
+    {
+      "source_id": "TAV-01S",
+      "path": "archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf",
+      "git_blob_sha": "64b842fa03b3aa7437e80d2bce90406a66f73827",
+      "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "evidence_anchor": "P01 immutable source identity; P02 SHA-256 byte-for-byte verification; P04-P06 claim and incidence lineage"
+    }
+  ],
+  "target_outputs": [
+    "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
+    "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv"
+  ],
+  "provenance_summary": {
+    "DOC": 93,
+    "MIS": 0,
+    "RIF": 0,
+    "INF": 0,
+    "INC": 0,
+    "ND": 38,
+    "promoted_supports": 38,
+    "promoted_topology_incidences": 55,
+    "numeric_coordinates_promoted": 0,
+    "rejected_nonconnection_candidates": 1
+  },
+  "residuals": [
+    {
+      "residual_id": "P07-W001",
+      "claim_id": "P04-CL-002",
+      "blocking": false,
+      "reason": "The written 14.55 region retains unresolved witness-line membership and is therefore excluded from coordinate derivation.",
+      "required_evidence": "Retain as NONPROMOTABLE until a future claim-local source reread resolves witness membership."
+    },
+    {
+      "residual_id": "P07-W002",
+      "claim_id": "P04-CL-006",
+      "blocking": false,
+      "reason": "The written 13.60 overall remains inconsistent with the visible 2.00 + 4.65 + 6.45 chain if treated as one closed dimension chain.",
+      "required_evidence": "Retain as NONPROMOTABLE until exact witness endpoints/numeral association are resolved."
+    }
+  ],
+  "audit_paths": [
+    "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
+    "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
+    "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv",
+    "analysis/fpep/FPEP_INCIDENCE_SWEEP_v1.csv",
+    "analysis/fpep/FPEP_INCIDENCE_SWEEP_CLOSURE_v1.csv"
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  }
+}
