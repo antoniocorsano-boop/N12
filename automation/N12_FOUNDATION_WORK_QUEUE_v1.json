@@ -241,7 +241,7 @@
     {
       "id": "FPEP-P07-PRIMARY-GEOMETRY-GATE",
       "priority": 80,
-      "state": "WAITING",
+      "state": "COMPLETE",
       "agent_role": "PRIMARY_GEOMETRY_PROMOTER",
       "dependencies": [
         "FPEP-P06-CONFLICT-ADJUDICATION"
@@ -263,7 +263,10 @@
         "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
         "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv"
       ],
-      "semantic_gate": "Promote only traceable primary-source claims. Geometry used to derive other geometry must be CROSS_VALIDATED and free of blocking conflict. Preserve residuals and superseded claims."
+      "semantic_gate": "Promote only traceable primary-source claims. Geometry used to derive other geometry must be CROSS_VALIDATED and free of blocking conflict. Preserve residuals and superseded claims.",
+      "completed_at": "2026-08-24T16:01:08.548761+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "last_run_id": "FPEP-P07-20260824T160000Z"
     },
     {
       "id": "FPEP-P08-TAV01A-BINDING-REVIEW",

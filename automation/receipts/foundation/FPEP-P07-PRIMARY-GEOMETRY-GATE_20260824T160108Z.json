@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P07-PRIMARY-GEOMETRY-GATE",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "run_id": "FPEP-P07-20260824T160000Z",
+  "result_sha256": "07a3454021e8def81e77e835a2f457134a2e6a6e3590a07fb938f3cfe4f4f4a7",
+  "target_outputs": [
+    "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
+    "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv"
+  ],
+  "audit_paths": [
+    "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
+    "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
+    "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv"
+  ],
+  "residuals": [
+    {
+      "residual_id": "P07-W01",
+      "claim_id": "P04-CL-002",
+      "blocking": false,
+      "reason": "The written 14.55 overall remains incompatible with an unambiguous assignment of the visible segment witnesses, although the repeated segment is retained as 4.15 after P06 reread.",
+      "required_evidence": "Keep the chain excluded from coordinate derivation until source-local witness endpoints are demonstrated."
+    },
+    {
+      "residual_id": "P07-W02",
+      "claim_id": "P04-CL-006",
+      "blocking": false,
+      "reason": "The written 13.60 overall and the visible 2.00 + 4.65 + 6.45 values retain a 0.50 closure discrepancy if treated as one chain.",
+      "required_evidence": "Keep the chain excluded from coordinate derivation until endpoint membership or an additional witness is documented."
+    },
+    {
+      "residual_id": "P07-W03",
+      "claim_id": "P03B-UNPAIRED-TEXT",
+      "blocking": false,
+      "reason": "Reader-B-only OCR tokens lack a demonstrated witness identity.",
+      "required_evidence": "Do not promote the tokens unless a source-local witness binds them to a specific claim."
+    },
+    {
+      "residual_id": "P07-W04",
+      "claim_id": "P07-CARTESIAN-BINDING",
+      "blocking": false,
+      "reason": "P07 promotes primary identifiers and source-continuity claims but does not fabricate Cartesian coordinates or analytical member identities where endpoint metric binding is incomplete.",
+      "required_evidence": "Perform downstream TAV-01A binding and historical/M0-G regression only after this gate, preserving the primary claims as authority."
+    }
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T16:01:08.549732+00:00"
+}
