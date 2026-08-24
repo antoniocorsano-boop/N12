@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate contracts and anti-invention state
+      - name: Validate contracts, source context, and anti-invention state
         run: |
           python - <<'PY'
           import json
@@ -23,9 +23,14 @@ jobs:
           assert s['current_work_item']['id']=='CEW-R3-SYNCHRONIZED-EVIDENCE-MAP-V0'
           assert c['contract_id']=='CEW_EVIDENCE_VIEWPOINT_CONTRACT'
           assert m['coverage']['current_issue_count']==6
+          assert m['coverage']['issues_with_structured_source_context']==len(m['source_to_entity_links'])==3
+          assert {x['issue_id'] for x in m['source_to_entity_links']}=={'N12-ISS-M1E-B02','N12-ISS-M1E-B05','N12-ISS-M1E-B06'}
+          assert all(x['authority_state']=='CONTEXT_ONLY' for x in m['source_to_entity_links'])
+          assert all(x['page_or_region'] is None for x in m['source_to_entity_links'])
           assert m['coverage']['issues_with_canonical_evidence_snippet']==len(m['evidence_snippets'])==0
           assert m['coverage']['issues_with_3d_viewpoint']==len(m['viewpoints'])==0
           assert len(m['binding_backlog'])==6
           assert any('conversation memory' in g for g in m['guards'])
-          print('CEW EVIDENCE MAP: PASS | explicit missing bindings preserved | issues=6')
+          assert any('CONTEXT_ONLY' in g for g in m['guards'])
+          print('CEW EVIDENCE MAP: PASS | source-context=3 | snippets=0 | viewpoints=0 | issues=6')
           PY
