@@ -179,7 +179,7 @@
     {
       "id": "FPEP-P05-TOPOLOGY-CANDIDATE",
       "priority": 60,
-      "state": "WAITING",
+      "state": "COMPLETE",
       "agent_role": "FOUNDATION_TOPOLOGY_BUILDER",
       "dependencies": [
         "FPEP-P04-METRIC-NETWORK"
@@ -202,7 +202,10 @@
       "target_outputs": [
         "analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv"
       ],
-      "semantic_gate": "Build only from cross-validated primary observations and metric claims. Two nearby supports never imply a beam. Each member requires traceable graphical continuity and identified endpoints."
+      "semantic_gate": "Build only from cross-validated primary observations and metric claims. Two nearby supports never imply a beam. Each member requires traceable graphical continuity and identified endpoints.",
+      "completed_at": "2026-08-24T13:59:59.288557+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "last_run_id": "FPEP-P05-20260824T135500Z"
     },
     {
       "id": "FPEP-P06-CONFLICT-ADJUDICATION",
