@@ -84,7 +84,11 @@ def main() -> int:
         f = fam[0]
         if f["section_drawn_cm"].strip() != "30x30":
             errors.append("T7-I-04 must remain 30x30")
-        if f["longitudinal_long"].strip() != "4x14" or f["monconi"].strip() != "8x16":
+        # Direct human-qualified reread of the primary TAV-07A image corrected
+        # the former stale 8x16 monconi expectation to 8x18.  This validator
+        # checks the source transcription only; it still forbids assignment of
+        # that historical family to the later-added a-d supports.
+        if f["longitudinal_long"].strip() != "4x14" or f["monconi"].strip() != "8x18":
             errors.append("T7-I-04 reinforcement transcription changed")
         if f["stirrup_diameter_mm"].strip() != "6" or f["stirrup_spacing_cm"].strip() != "15":
             errors.append("T7-I-04 stirrup transcription changed")
