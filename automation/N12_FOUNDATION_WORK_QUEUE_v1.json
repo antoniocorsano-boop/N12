@@ -88,7 +88,7 @@
     {
       "id": "FPEP-P03A-BLIND-READ-A",
       "priority": 40,
-      "state": "WAITING",
+      "state": "COMPLETE",
       "agent_role": "FOUNDATION_CARPENTRY_READER_A",
       "dependencies": [
         "FPEP-P02-HIRES-EVIDENCE"
@@ -110,7 +110,10 @@
       "target_outputs": [
         "analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv"
       ],
-      "semantic_gate": "Read dimensions and identifiers first, then symbols and graphical continuity. Record observations only; do not construct a target topology."
+      "semantic_gate": "Read dimensions and identifiers first, then symbols and graphical continuity. Record observations only; do not construct a target topology.",
+      "completed_at": "2026-08-24T13:26:12.866239+00:00",
+      "completion_decision": "PASS",
+      "last_run_id": "FPEP-P03A-20260824T132131Z"
     },
     {
       "id": "FPEP-P03B-BLIND-READ-B",
