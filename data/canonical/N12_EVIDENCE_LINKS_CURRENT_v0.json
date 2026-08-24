@@ -1,0 +1,29 @@
+{
+  "schema_version":"0.1",
+  "project_id":"N12",
+  "status":"CURRENT_WITH_UNBOUND_EVIDENCE_CONTEXT",
+  "contract":"automation/CEW_EVIDENCE_VIEWPOINT_CONTRACT_v1.json",
+  "source_to_entity_links":[],
+  "evidence_snippets":[],
+  "viewpoints":[],
+  "coverage":{
+    "current_issue_count":6,
+    "issues_with_explicit_source_refs":6,
+    "issues_with_canonical_evidence_snippet":0,
+    "issues_with_3d_viewpoint":0
+  },
+  "binding_backlog":[
+    {"issue_id":"N12-ISS-M1E-B01","needed":"bind material/test source evidence and representative structural entities before creating reviewed snippets"},
+    {"issue_id":"N12-ISS-M1E-B02","needed":"recover RC-P13 source/page and bind load claims to source regions and affected storey/load domains"},
+    {"issue_id":"N12-ISS-M1E-B04","needed":"bind vertical-datum source evidence or future survey record to foundation-system viewpoint"},
+    {"issue_id":"N12-ISS-M1E-B05","needed":"bind the 15 unresolved foundation members to TAV-01A source regions after explicit documentary review"},
+    {"issue_id":"N12-ISS-M1E-B06","needed":"bind localized reinforcement residual entities to HiRes reinforcement plate regions"},
+    {"issue_id":"N12-ISS-M1E-B07","needed":"bind any recovered current geotechnical source or future investigation records to site/foundation context"}
+  ],
+  "guards":[
+    "Do not derive crop coordinates from conversation memory.",
+    "Do not create entity bindings from visual proximity alone.",
+    "Do not create 3D viewpoints as substitutes for missing evidence.",
+    "A source_ref without page/region binding is source context, not an EvidenceSnippet."
+  ]
+}
