@@ -14,6 +14,7 @@ on:
       - 'docs/N12_AUTOMATED_ANALYSIS_CYCLE_v1.md'
       - 'scripts/n12_orchestrator.py'
       - 'scripts/n12_foundation_orchestrator.py'
+      - 'scripts/fpep_p00_state_consistency.py'
       - 'scripts/validate_foundation_pipeline.py'
       - 'scripts/n12_make_agent_task.py'
       - 'scripts/n12_ingest_agent_result.py'
@@ -199,6 +200,22 @@ jobs:
           python scripts/validate_foundation_pipeline.py
           python scripts/n12_foundation_orchestrator.py validate
 
+      - name: Generate deterministic FPEP P00 state audit when selected
+        id: fpep_p00
+        shell: bash
+        run: |
+          if [ -f automation/inbox/N12_FOUNDATION_AGENT_RESULT.json ]; then
+            echo 'FPEP inbox already contains a result; deterministic P00 will not overwrite it.'
+            echo 'generated=false' >> "$GITHUB_OUTPUT"
+          else
+            python scripts/fpep_p00_state_consistency.py
+            if [ -f automation/inbox/N12_FOUNDATION_AGENT_RESULT.json ]; then
+              echo 'generated=true' >> "$GITHUB_OUTPUT"
+            else
+              echo 'generated=false' >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
       - name: Ingest exactly one pending FPEP specialist result if present
         id: fpep_ingest
         shell: bash
@@ -219,7 +236,7 @@ jobs:
           python scripts/validate_knowledge_system.py
           python scripts/n12_orchestrator.py validate
 
-      - name: Persist FPEP queue, receipts and delegated parent handoff
+      - name: Persist FPEP queue, receipts, audit and delegated parent handoff
         if: steps.fpep_ingest.outputs.ingested == 'true'
         shell: bash
         run: |
@@ -228,6 +245,7 @@ jobs:
           git add automation/N12_FOUNDATION_WORK_QUEUE_v1.json
           git add -A automation/receipts/foundation || true
           git add -A automation/inbox || true
+          git add -A analysis/fpep || true
           if git diff --cached --quiet; then
             echo 'No FPEP state advancement to commit.'
           else
@@ -291,6 +309,7 @@ jobs:
           path: |
             analysis/automation/N12_CYCLE_REPORT.json
             analysis/automation/N12_AGENT_TASK_PACKET.json
+            analysis/fpep/
             analysis/storey_source_renders/
             /tmp/n12-agent-task.txt
           if-no-files-found: error
@@ -299,6 +318,7 @@ jobs:
       - name: Automation boundary
         run: |
           echo 'Deterministic cycle completed.'
+          echo 'P00 state/registry consistency is generated deterministically when selected.'
           echo 'At most one FPEP result and one parent result can be ingested per run; the parent result may be emitted only by the completed FPEP P12 handoff.'
           echo 'A machine-readable specialist task packet has been emitted for the next eligible item.'
           echo 'Canonical evidence is never manufactured by the workflow: deterministic generators may create reviewable derived candidates, while result ingestion advances state only after artifact authority, provenance and validators already pass.'
