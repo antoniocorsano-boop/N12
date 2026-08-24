@@ -148,7 +148,7 @@
     {
       "id": "FPEP-P04-METRIC-NETWORK",
       "priority": 50,
-      "state": "WAITING",
+      "state": "COMPLETE",
       "agent_role": "FOUNDATION_METRIC_NETWORK_SOLVER",
       "dependencies": [
         "FPEP-P03A-BLIND-READ-A",
@@ -171,7 +171,10 @@
         "analysis/fpep/FPEP_METRIC_CLAIMS_v1.csv",
         "analysis/fpep/FPEP_METRIC_CLOSURE_AUDIT_v1.csv"
       ],
-      "semantic_gate": "Written dimensions and explicit IDs govern. Raster measurements may localize/check only and cannot independently promote DOC coordinates. All dimension chains must carry closure status."
+      "semantic_gate": "Written dimensions and explicit IDs govern. Raster measurements may localize/check only and cannot independently promote DOC coordinates. All dimension chains must carry closure status.",
+      "completed_at": "2026-08-24T13:50:02.211843+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "last_run_id": "FPEP-P04-20260824T134900Z"
     },
     {
       "id": "FPEP-P05-TOPOLOGY-CANDIDATE",
