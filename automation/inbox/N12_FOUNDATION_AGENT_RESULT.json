@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P05-20260824T135500Z",
+  "work_item_id": "FPEP-P05-TOPOLOGY-CANDIDATE",
+  "stage_id": "P05",
+  "agent_role": "FOUNDATION_TOPOLOGY_BUILDER",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "input_artifacts": [
+    {
+      "path": "analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv",
+      "sha256": "dae9bcd5d842c3a386e2e0cd3fb2cb33b443ff65247d795481e839e4656cb8e5",
+      "authority": "PRIMARY_READER_OBSERVATIONS",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv",
+      "sha256": "6e42cdddb3c217e39354bbb1cad406b78ac3147e0142d33975e67b6a38c316ac",
+      "authority": "INDEPENDENT_READER_OBSERVATIONS",
+      "status": "CURRENT"
+    }
+  ],
+  "primary_sources": [
+    {
+      "source_id": "TAV-01S",
+      "path": "archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf",
+      "git_blob_sha": "64b842fa03b3aa7437e80d2bce90406a66f73827",
+      "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "evidence_anchor": "Reader A continuity observations bound to P02 hashed evidence; P05 performs no new semantic source read."
+    }
+  ],
+  "target_outputs": [
+    "analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv"
+  ],
+  "provenance_summary": {
+    "continuity_claim_rows": 15,
+    "two_label_pair_candidates": 6,
+    "multi_label_or_local_continuity_holds": 9,
+    "members_created": 0,
+    "eligible_for_p07": 0,
+    "output_sha256": "b9b93791def5a03bab203aa0c76059c6586ad2a799c1e3bc9cf1a41bec92837a",
+    "scope": "candidate ledger only; no member promotion because Reader B semantic continuity coverage is unavailable"
+  },
+  "residuals": [
+    {
+      "residual_id": "P05-R001",
+      "claim_id": "P05-PAIR-CONTINUITY-SET",
+      "blocking": false,
+      "reason": "Six A-direct two-label continuity candidates have identified nominal endpoints but no independent Reader B semantic continuity classification.",
+      "required_evidence": "P06 source-local reread of each pair candidate before any member can become CROSS_VALIDATED."
+    },
+    {
+      "residual_id": "P05-R002",
+      "claim_id": "P05-CHAIN-CONTINUITY-SET",
+      "blocking": false,
+      "reason": "Nine continuity observations contain multi-label chains or local direction changes whose endpoint/member decomposition is unresolved.",
+      "required_evidence": "P06 claim-scoped source-local reread; do not split chains by adjacency or arithmetic."
+    }
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv"
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "builder_scope_attestation": {
+    "existing_foundation_topology_used": false,
+    "legacy_support_member_counts_used": false,
+    "M0G_geometry_used": false,
+    "PT_master_coordinates_used": false,
+    "TAV01A_reinforcement_groups_used": false,
+    "two_nearby_supports_imply_member_rule_used": false,
+    "members_created_without_cross_validated_continuity": false
+  },
+  "notes": [
+    "P04 is COMPLETE in the canonical queue before P05; unresolved metric conflicts remain visible and are not used to promote topology.",
+    "Reader A continuity observations are direct DOC observations, but Reader B did not semantically classify continuity; therefore P05 deliberately creates zero members.",
+    "Six pair candidates retain nominal endpoint labels only as candidate metadata, not as promoted topology.",
+    "P06 is the first authorized stage to perform claim-level local adjudication needed to resolve these holds."
+  ]
+}
