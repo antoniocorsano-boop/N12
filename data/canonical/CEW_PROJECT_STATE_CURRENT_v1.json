@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "product": "CEW",
   "vertical": "CEW-EX",
   "reference_project": "N12",
@@ -29,7 +29,8 @@
     {"id":"DEGRADATION_ENGINE","status":"SAFETY_GATE_ONLY","gate":"Validate CEW Degradation Engine"},
     {"id":"EXPOSURE_CONDITION_MODEL","status":"OPERATIONAL_V0_EVIDENCE_PENDING","gate":"Validate CEW Exposure Condition"},
     {"id":"PROJECT_CONTROL_ROOM","status":"OPERATIONAL_V0","gate":"Validate CEW Control Room"},
-    {"id":"UNIVERSAL_RESIDUAL_WORKSPACE","status":"OPERATIONAL_V0_DATA_CONTRACT","gate":"Validate CEW Control Room"}
+    {"id":"UNIVERSAL_RESIDUAL_WORKSPACE","status":"OPERATIONAL_V0_DATA_CONTRACT","gate":"Validate CEW Control Room"},
+    {"id":"SYNCHRONIZED_EVIDENCE_MAP","status":"IN_PROGRESS_SOURCE_CONTEXT_BOUND_3_OF_6","gate":"Validate CEW Evidence Map"}
   ],
   "current_calculation_blockers": [
     {"id":"M1E-B01","domain":"CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL","impact":"BLOCKING"},
@@ -52,7 +53,13 @@
     "id": "CEW-R3-SYNCHRONIZED-EVIDENCE-MAP-V0",
     "objective": "Create bidirectional navigation between source/evidence context and canonical 3D entities without making the UI or crop geometry an engineering authority.",
     "branch": "work/cew-synchronized-evidence-map-v0",
-    "state": "IN_PROGRESS"
+    "state": "IN_PROGRESS",
+    "progress": {
+      "source_context_bound_issues": ["M1E-B02","M1E-B05","M1E-B06"],
+      "canonical_evidence_snippets": 0,
+      "canonical_3d_viewpoints": 0,
+      "last_completed_slice": "PR-52 source-context bindings"
+    }
   },
   "anti_drift_rules": [
     "Every product slice must read CEW_PROJECT_STATE_CURRENT before implementation.",
@@ -62,5 +69,5 @@
     "A residual is closed only by evidence, explicit authorized modeling rule, or documented engineering decision with receipt.",
     "No UI state may become canonical engineering authority."
   ],
-  "next_action": "Define EvidenceSnippet/Viewpoint contracts and build the first synchronized 2D/3D evidence-link manifest for N12; do not invent missing crop bindings."
+  "next_action": "Recover and review real HiRes page/region bindings for B05 foundation residuals and B06 reinforcement residuals; create EvidenceSnippet objects only where source page/region and entity identity are explicitly supported. Continue B02 only after primary RC-P13 page/image recovery."
 }
