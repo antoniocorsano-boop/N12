@@ -138,7 +138,7 @@
     {
       "id": "M1F-FOUNDATION-MODEL",
       "priority": 50,
-      "state": "READY",
+      "state": "COMPLETE",
       "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
       "source_sheet": "TAV-01S+MULTI",
       "task": "Assemble the foundation-side analytical model only after FPEP has independently revalidated the primary carpenteria geometry; then reconcile validated member properties, symbolic elevation/interface evidence and geotechnical residuals with the frozen global support system.",
@@ -158,12 +158,15 @@
       ],
       "semantic_gate": "Consume FPEP-promoted geometry as foundation geometry authority. Existing TAV-01A/section/elevation/interface artifacts may bind properties but may not manufacture geometry. Bind foundations to global support identities without reopening superstructure geometry except through formal claim-scoped M0G-REOPEN. Keep geotechnical parameters separate and preserve ND where investigation is required.",
       "released_at": "2026-08-24T18:33:38.105723+00:00",
-      "released_by": "M1F-PRIMARY-GEOMETRY-REVALIDATION"
+      "released_by": "M1F-PRIMARY-GEOMETRY-REVALIDATION",
+      "completed_at": "2026-08-24T18:49:47.914745+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "result_receipt": "automation/receipts/M1F-FOUNDATION-MODEL_20260824T184947Z.json"
     },
     {
       "id": "M1E-CALCULATION-MODEL-HANDOFF",
       "priority": 60,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S5_PROMOTION_GATE",
       "source_sheet": "MULTI",
       "task": "Build the calculation-model handoff for EdiLus-EE and an independent FEM implementation from the frozen geometry plus validated sections, materials, reinforcement, loads and foundations.",
@@ -181,7 +184,9 @@
       "target_outputs": [
         "data/canonical/M1E_CALCULATION_MODEL_HANDOFF_v1.json"
       ],
-      "semantic_gate": "Promote only when every required calculation input is either supported for execution or explicitly represented by an admitted modeling rule. Preserve rigid zones, member identity, offsets and all residual provenance. Final gate is CALCULATION_MODEL_READY."
+      "semantic_gate": "Promote only when every required calculation input is either supported for execution or explicitly represented by an admitted modeling rule. Preserve rigid zones, member identity, offsets and all residual provenance. Final gate is CALCULATION_MODEL_READY.",
+      "released_at": "2026-08-24T18:49:47.914745+00:00",
+      "released_by": "M1F-FOUNDATION-MODEL"
     }
   ]
 }
