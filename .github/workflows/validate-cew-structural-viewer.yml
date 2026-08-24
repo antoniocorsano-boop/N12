@@ -1,0 +1,73 @@
+name: Validate CEW Structural Viewer
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/cew_structural_viewer.py'
+      - 'scripts/cew_structural_model_builder.py'
+      - 'docs/ARCHITECTURE/CEW_PRODUCT_VISION_AND_EXISTING_WORKFLOW_v1.md'
+      - 'data/canonical/M0G_GEOMETRY_HANDOFF_v1.json'
+      - 'data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv'
+      - 'data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv'
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv'
+      - 'data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json'
+      - '.github/workflows/validate-cew-structural-viewer.yml'
+  push:
+    branches: ['work/m0-global-model']
+    paths:
+      - 'scripts/cew_structural_viewer.py'
+      - 'scripts/cew_structural_model_builder.py'
+      - 'docs/ARCHITECTURE/CEW_PRODUCT_VISION_AND_EXISTING_WORKFLOW_v1.md'
+      - '.github/workflows/validate-cew-structural-viewer.yml'
+  workflow_dispatch:
+
+jobs:
+  build-viewer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax
+        run: |
+          python -m py_compile scripts/cew_structural_model_builder.py scripts/cew_structural_viewer.py
+      - name: Build self-contained N12 viewer
+        run: |
+          python scripts/cew_structural_viewer.py \
+            --handoff data/canonical/M0G_GEOMETRY_HANDOFF_v1.json \
+            --nodes data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv \
+            --rigid-offsets data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv \
+            --members data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv \
+            --foundation data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv \
+            --foundation-xy-rule data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json \
+            --output-html build/cew-viewer/n12.html
+      - name: Assert viewer safety and interaction contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('build/cew-viewer/n12.html')
+          assert p.exists() and p.stat().st_size > 100000, 'viewer missing or unexpectedly small'
+          s=p.read_text(encoding='utf-8')
+          required=[
+            'CEW Structural Viewer',
+            '629 nodi',
+            '359 aste',
+            '464 offset rigidi',
+            'fondazioni 38+55',
+            'ZF_COMMON: quota numerica ND',
+            'syntheticFoundationZ=-1.2',
+            'DISPLAY ONLY',
+            'property_binding_class',
+            'source_claim_refs',
+            'colorMode',
+            'pointerdown',
+          ]
+          for token in required:
+              assert token in s, f'missing viewer invariant: {token}'
+          assert 'https://' not in s and 'http://' not in s, 'viewer must have zero runtime external dependencies'
+          print('CEW STRUCTURAL VIEWER CONTRACT: PASS')
+          PY
+      - name: Upload viewer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-n12-structural-viewer-v0
+          path: build/cew-viewer/n12.html
