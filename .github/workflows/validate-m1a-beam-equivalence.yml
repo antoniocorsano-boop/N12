@@ -13,9 +13,12 @@ on:
       - 'data/canonical/M1A_25X70_CROSSLINK_4_5_GATE_v1.csv'
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_DRAFTING_LOGIC_CURRENT_v1.csv'
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_EQUIVALENCE_GATE_v1.csv'
+      - 'data/canonical/M1A_REINFORCEMENT_SOURCE_MAP_v1.csv'
       - 'data/canonical/M1A_TAV02A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M1A_TAV034A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv'
+      - 'data/canonical/M1A_TAV06A_ROOF_GROUP_INDEX_v1.csv'
+      - 'data/canonical/M1S_G5_BEAM_SECTIONS_CURRENT_v1.csv'
       - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
       - 'data/canonical/M1_PROGRAM_REQUIRED_FRONTS_CURRENT_v1.csv'
       - 'knowledge/ARTIFACT_REGISTRY_M1A_SPECIAL_PATCH_v1.csv'
@@ -34,9 +37,12 @@ on:
       - 'data/canonical/M1A_25X70_CROSSLINK_4_5_GATE_v1.csv'
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_DRAFTING_LOGIC_CURRENT_v1.csv'
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_EQUIVALENCE_GATE_v1.csv'
+      - 'data/canonical/M1A_REINFORCEMENT_SOURCE_MAP_v1.csv'
       - 'data/canonical/M1A_TAV02A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M1A_TAV034A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv'
+      - 'data/canonical/M1A_TAV06A_ROOF_GROUP_INDEX_v1.csv'
+      - 'data/canonical/M1S_G5_BEAM_SECTIONS_CURRENT_v1.csv'
       - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
       - 'data/canonical/M1_PROGRAM_REQUIRED_FRONTS_CURRENT_v1.csv'
       - 'knowledge/ARTIFACT_REGISTRY_M1A_SPECIAL_PATCH_v1.csv'
@@ -62,7 +68,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Validate authored beam equivalence and 50x20 evidence boundary
+      - name: Validate authored beam equivalence and direct TAV06A recovery
         run: python scripts/validate_m1a_beam_equivalence.py
 
       - name: Validate 50x20 current-evidence transfer closure
