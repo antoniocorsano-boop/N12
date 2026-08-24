@@ -1,0 +1,83 @@
+name: N12 Parent Result Ingest
+
+on:
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - 'automation/inbox/N12_AGENT_RESULT.json'
+      - 'automation/activation/**'
+      - '.github/workflows/n12-parent-result-ingest.yml'
+      - 'scripts/n12_ingest_agent_result.py'
+      - 'scripts/n12_orchestrator.py'
+      - 'knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: n12-parent-result-ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest-parent-result:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout canonical working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Detect pending parent result
+        id: detect
+        shell: bash
+        run: |
+          if [ -f automation/inbox/N12_AGENT_RESULT.json ]; then
+            echo 'present=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'No parent specialist result in inbox.'
+            echo 'present=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate pending parent specialist result
+        if: steps.detect.outputs.present == 'true'
+        run: python scripts/n12_ingest_agent_result.py validate
+
+      - name: Ingest exactly one parent specialist result
+        if: steps.detect.outputs.present == 'true'
+        run: python scripts/n12_ingest_agent_result.py apply
+
+      - name: Revalidate canonical state after parent ingestion
+        if: steps.detect.outputs.present == 'true'
+        run: |
+          python scripts/validate_knowledge_system.py
+          python scripts/n12_orchestrator.py validate
+          python scripts/validate_foundation_pipeline.py
+          python scripts/n12_foundation_orchestrator.py validate
+
+      - name: Persist queue state receipt and inbox transition
+        if: steps.detect.outputs.present == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-parent-result-ingest[bot]'
+          git config user.email 'n12-parent-result-ingest[bot]@users.noreply.github.com'
+          git add automation/N12_WORK_QUEUE_v1.json
+          git add knowledge/CURRENT_STATE.json
+          git add -A automation/receipts || true
+          git add -A automation/inbox || true
+          if git diff --cached --quiet; then
+            echo 'No parent state advancement to commit.'
+          else
+            git commit -m 'automation: ingest parent specialist result and advance queue'
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Report resulting queue state
+        run: python scripts/n12_orchestrator.py status
