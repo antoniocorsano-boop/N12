@@ -27,7 +27,9 @@
     {"id":"EXISTING_ASSESSMENT_ENGINE","status":"OPERATIONAL_V1","gate":"Validate CEW Existing Assessment Engine"},
     {"id":"INVESTIGATION_PLANNER","status":"OPERATIONAL_V0_ADVISORY","gate":"Validate CEW Investigation Planner"},
     {"id":"DEGRADATION_ENGINE","status":"SAFETY_GATE_ONLY","gate":"Validate CEW Degradation Engine"},
-    {"id":"EXPOSURE_CONDITION_MODEL","status":"OPERATIONAL_V0_EVIDENCE_PENDING","gate":"Validate CEW Exposure Condition"}
+    {"id":"EXPOSURE_CONDITION_MODEL","status":"OPERATIONAL_V0_EVIDENCE_PENDING","gate":"Validate CEW Exposure Condition"},
+    {"id":"PROJECT_CONTROL_ROOM","status":"OPERATIONAL_V0","gate":"Validate CEW Control Room"},
+    {"id":"UNIVERSAL_RESIDUAL_WORKSPACE","status":"OPERATIONAL_V0_DATA_CONTRACT","gate":"Validate CEW Control Room"}
   ],
   "current_calculation_blockers": [
     {"id":"M1E-B01","domain":"CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL","impact":"BLOCKING"},
@@ -38,18 +40,18 @@
     {"id":"M1E-B07","domain":"CURRENT_GEOTECHNICAL_MODEL","impact":"BLOCKING"}
   ],
   "roadmap": [
-    {"id":"R1","name":"Project Control Room v0","status":"IN_PROGRESS","depends_on":[]},
-    {"id":"R2","name":"Universal Residual Workspace v0","status":"IN_PROGRESS","depends_on":["R1"]},
-    {"id":"R3","name":"Synchronized 2D/3D Evidence Map","status":"PLANNED","depends_on":["R2"]},
+    {"id":"R1","name":"Project Control Room v0","status":"COMPLETE","depends_on":[]},
+    {"id":"R2","name":"Universal Residual Workspace v0","status":"COMPLETE","depends_on":["R1"]},
+    {"id":"R3","name":"Synchronized 2D/3D Evidence Map","status":"IN_PROGRESS","depends_on":["R2"]},
     {"id":"R4","name":"Field / Investigation Pack","status":"PLANNED","depends_on":["R2"]},
     {"id":"R5","name":"Solver Round Trip","status":"PLANNED","depends_on":["R1","R2"]},
     {"id":"R6","name":"Scenario / Sensitivity","status":"PLANNED","depends_on":["R5"]},
     {"id":"R7","name":"Intervention Generations","status":"PLANNED","depends_on":["R5"]}
   ],
   "current_work_item": {
-    "id": "CEW-R1-R2-CONTROL-ROOM-RESIDUAL-V0",
-    "objective": "Create a single technician-facing operational surface for project phase, maturity, blockers, residuals, canonical references and next actions.",
-    "branch": "work/cew-control-room-residual-v0",
+    "id": "CEW-R3-SYNCHRONIZED-EVIDENCE-MAP-V0",
+    "objective": "Create bidirectional navigation between source/evidence context and canonical 3D entities without making the UI or crop geometry an engineering authority.",
+    "branch": "work/cew-synchronized-evidence-map-v0",
     "state": "IN_PROGRESS"
   },
   "anti_drift_rules": [
@@ -60,5 +62,5 @@
     "A residual is closed only by evidence, explicit authorized modeling rule, or documented engineering decision with receipt.",
     "No UI state may become canonical engineering authority."
   ],
-  "next_action": "Complete Project Control Room v0 and Universal Residual Workspace v0, validate them against this CURRENT source, then promote R1/R2 only after CI passes."
+  "next_action": "Define EvidenceSnippet/Viewpoint contracts and build the first synchronized 2D/3D evidence-link manifest for N12; do not invent missing crop bindings."
 }
