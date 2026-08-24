@@ -1,0 +1,11 @@
+check_id,metric,expected,actual,status,severity,note
+M1A-T5-G01,indexed_groups,7,7,PASS,HARD,"All seven TAV-05A beam reinforcement groups are indexed."
+M1A-T5-G02,groups_with_reinforcement_rows,7,7,PASS,HARD,"Every indexed group has a conservative group-level reinforcement transcription."
+M1A-T5-G03,reinforcement_rows,58,58,PASS,HARD,"The current TAV-05A group ledger contains 58 source-derived reinforcement rows."
+M1A-T5-G04,unknown_quantity_or_diameter_rows,2,2,PASS_WITH_WATCH,WATCH,"G01-R06 (L=1040) and G07-R07 (L=865) preserve directly readable lengths while quantity/diameter remain UNKNOWN; no symmetric or contextual inference is allowed."
+M1A-T5-G05,direct_partial_dimension_rows,1,1,PASS_WITH_WATCH,WATCH,"G05-R04 preserves a graphically clear but incompletely dimensioned intermediate continuation as DOC_DIRECT_PARTIAL; missing dimensions are not invented."
+M1A-T5-G06,ordinary_20_21_member_created,NO,NO,PASS,HARD,"The G03 continuation 20-21 stays in the dedicated stair subsystem and is not projected as an ordinary G4 planar beam."
+M1A-T5-G07,g03_stair_transfer_preserved,YES,YES,PASS,HARD,"The central paired schedule remains group-bound through 20-21 with the special stair-member candidate explicitly preserved."
+M1A-T5-G08,all_unreadable_values_inferred,NO,NO,PASS,HARD,"No unreadable quantity, diameter or unlabelled segment is completed by analogy."
+M1A-T5-G09,member_station_projection_complete,YES,NO,PASS_WITH_WATCH,WATCH,"Detailed station-by-station projection is not required to close the current group-transcription gate and remains a later evidence-driven refinement."
+M1A-T5-GATE,gate_state,PASS_GROUP_TRANSCRIPTION_WITH_READABILITY_AND_STAIR_WATCH,PASS_GROUP_TRANSCRIPTION_WITH_READABILITY_AND_STAIR_WATCH,PASS_WITH_WATCH,GATE,"TAV-05A is complete at conservative group-transcription resolution; only explicit readability/dimension watches, stair 3D binding and optional member-station refinement remain open."
