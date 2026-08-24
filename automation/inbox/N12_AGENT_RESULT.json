@@ -44,6 +44,7 @@
     }
   ],
   "audit_paths": [
-    "analysis/automation/M1A_REINFORCEMENT_FINAL_GATE_AUDIT_v1.md"
+    "analysis/automation/M1A_REINFORCEMENT_FINAL_GATE_AUDIT_v1.md",
+    "data/canonical/M1A_REINFORCEMENT_SOURCE_MAP_v1.csv"
   ]
 }
