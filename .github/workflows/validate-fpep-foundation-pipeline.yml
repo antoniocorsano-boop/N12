@@ -3,11 +3,15 @@ name: Validate FPEP foundation pipeline
 on:
   pull_request:
     paths:
+      - 'AGENTS.md'
       - 'automation/N12_FOUNDATION_*.json'
+      - 'automation/N12_AUTOMATION_CONTRACT_v1.json'
+      - 'automation/N12_WORK_QUEUE_v1.json'
       - 'docs/PROCEDURES/FOUNDATION_PRIMARY_EVIDENCE_PIPELINE_v1.md'
       - 'scripts/n12_foundation_orchestrator.py'
+      - 'scripts/n12_make_agent_task.py'
+      - 'scripts/n12_ingest_agent_result.py'
       - 'scripts/validate_foundation_pipeline.py'
-      - 'automation/N12_WORK_QUEUE_v1.json'
       - 'knowledge/KNOWLEDGE_MANIFEST.json'
       - 'knowledge/CURRENT_STATE.json'
       - 'knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv'
@@ -16,11 +20,15 @@ on:
     branches:
       - work/m0-global-model
     paths:
+      - 'AGENTS.md'
       - 'automation/N12_FOUNDATION_*.json'
+      - 'automation/N12_AUTOMATION_CONTRACT_v1.json'
+      - 'automation/N12_WORK_QUEUE_v1.json'
       - 'docs/PROCEDURES/FOUNDATION_PRIMARY_EVIDENCE_PIPELINE_v1.md'
       - 'scripts/n12_foundation_orchestrator.py'
+      - 'scripts/n12_make_agent_task.py'
+      - 'scripts/n12_ingest_agent_result.py'
       - 'scripts/validate_foundation_pipeline.py'
-      - 'automation/N12_WORK_QUEUE_v1.json'
       - 'knowledge/KNOWLEDGE_MANIFEST.json'
       - 'knowledge/CURRENT_STATE.json'
       - 'knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv'
@@ -42,14 +50,20 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Validate FPEP contract and information barriers
+      - name: Validate FPEP contract, delegation and information barriers
         run: python scripts/validate_foundation_pipeline.py
 
       - name: Validate FPEP sub-orchestrator
         run: python scripts/n12_foundation_orchestrator.py validate
+
+      - name: Validate parent task delegation packet
+        run: python scripts/n12_make_agent_task.py
 
       - name: Validate global knowledge system
         run: python scripts/validate_knowledge_system.py
 
       - name: Validate parent N12 orchestrator
         run: python scripts/n12_orchestrator.py validate
+
+      - name: Validate parent result handshake
+        run: python scripts/n12_ingest_agent_result.py validate

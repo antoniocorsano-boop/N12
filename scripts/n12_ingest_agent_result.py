@@ -18,6 +18,12 @@ STATE_PATH = ROOT / "knowledge" / "CURRENT_STATE.json"
 MANIFEST_PATH = ROOT / "knowledge" / "KNOWLEDGE_MANIFEST.json"
 DEFAULT_INPUT = ROOT / "automation" / "inbox" / "N12_AGENT_RESULT.json"
 RECEIPT_DIR = ROOT / "automation" / "receipts"
+FPEP_WRAPPER_ID = "M1F-PRIMARY-GEOMETRY-REVALIDATION"
+FPEP_QUEUE_PATH = ROOT / "automation" / "N12_FOUNDATION_WORK_QUEUE_v1.json"
+FPEP_RECEIPT_DIR = ROOT / "automation" / "receipts" / "foundation"
+FPEP_COMPLETION_ITEM = "FPEP-P12-RELEASE-AUDIT"
+FPEP_PRIMARY_GATE = ROOT / "data" / "canonical" / "M1F_PRIMARY_GEOMETRY_GATE_v1.csv"
+FPEP_RELEASE_GATE = ROOT / "data" / "canonical" / "M1F_FPEP_RELEASE_GATE_v1.csv"
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -45,11 +51,15 @@ def run_validator(command: list[str]) -> dict[str, Any]:
 
 
 def run_required_validators() -> list[dict[str, Any]]:
-    return [
+    checks = [
         run_validator([sys.executable, "scripts/validate_knowledge_system.py"]),
         run_validator([sys.executable, "scripts/n12_orchestrator.py", "validate"]),
         run_validator([sys.executable, "skills/pt-carpentry-reader/runner.py", "validate"]),
     ]
+    if FPEP_QUEUE_PATH.exists():
+        checks.append(run_validator([sys.executable, "scripts/validate_foundation_pipeline.py"]))
+        checks.append(run_validator([sys.executable, "scripts/n12_foundation_orchestrator.py", "validate"]))
+    return checks
 
 
 def selected_context() -> tuple[dict[str, Any] | None, dict[str, Any], dict[str, dict[str, str]]]:
@@ -57,6 +67,46 @@ def selected_context() -> tuple[dict[str, Any] | None, dict[str, Any], dict[str,
     manifest = read_json(MANIFEST_PATH)
     registry = n12_orchestrator.load_effective_registry(manifest)
     return status.get("selected_work_item"), status, registry
+
+
+def validate_fpep_wrapper_completion(audit_paths: list[str]) -> list[str]:
+    errors: list[str] = []
+    if not FPEP_QUEUE_PATH.exists():
+        return ["FPEP wrapper cannot be promoted: foundation subqueue is missing"]
+    try:
+        fpep_queue = read_json(FPEP_QUEUE_PATH)
+    except Exception as exc:
+        return [f"FPEP wrapper cannot be promoted: invalid foundation subqueue: {exc}"]
+
+    items = fpep_queue.get("items", [])
+    by_id = {item.get("id"): item for item in items}
+    incomplete = [item.get("id") for item in items if item.get("state") != "COMPLETE"]
+    if incomplete:
+        errors.append(f"FPEP wrapper cannot be promoted before all sub-items are COMPLETE: {incomplete}")
+
+    final_item = by_id.get(FPEP_COMPLETION_ITEM)
+    if not final_item:
+        errors.append(f"FPEP completion item missing: {FPEP_COMPLETION_ITEM}")
+    elif final_item.get("completion_decision") not in {"PASS", "PASS_WITH_WATCH"}:
+        errors.append(
+            f"FPEP completion item lacks a passing completion_decision: {final_item.get('completion_decision')}"
+        )
+
+    if not FPEP_PRIMARY_GATE.exists():
+        errors.append(f"FPEP primary geometry gate missing: {FPEP_PRIMARY_GATE.relative_to(ROOT)}")
+    if not FPEP_RELEASE_GATE.exists():
+        errors.append(f"FPEP release gate missing: {FPEP_RELEASE_GATE.relative_to(ROOT)}")
+
+    receipt_candidates = sorted(FPEP_RECEIPT_DIR.glob(f"{FPEP_COMPLETION_ITEM}_*.json")) if FPEP_RECEIPT_DIR.exists() else []
+    if not receipt_candidates:
+        errors.append("FPEP P12 completion receipt is missing")
+    else:
+        accepted_receipts = {p.relative_to(ROOT).as_posix() for p in receipt_candidates}
+        if not accepted_receipts.intersection(set(audit_paths)):
+            errors.append(
+                "parent FPEP PASS must cite the P12 foundation receipt in audit_paths; direct top-level fabrication is forbidden"
+            )
+    return errors
 
 
 def validate_result(result: dict[str, Any]) -> tuple[list[str], list[str], dict[str, Any]]:
@@ -137,6 +187,8 @@ def validate_result(result: dict[str, Any]) -> tuple[list[str], list[str], dict[
         for rel in audit_paths:
             if not isinstance(rel, str) or not (ROOT / rel).exists():
                 errors.append(f"audit path missing: {rel}")
+        if selected.get("id") == FPEP_WRAPPER_ID:
+            errors.extend(validate_fpep_wrapper_completion(audit_paths))
         outputs = n12_orchestrator.output_status(selected, registry)
         if not outputs.get("complete_detected"):
             errors.append(
