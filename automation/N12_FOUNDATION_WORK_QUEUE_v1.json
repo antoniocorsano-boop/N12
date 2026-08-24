@@ -62,7 +62,7 @@
     {
       "id": "FPEP-P02-HIRES-EVIDENCE",
       "priority": 30,
-      "state": "WAITING",
+      "state": "COMPLETE",
       "agent_role": "HIRES_EVIDENCE_BUILDER",
       "dependencies": [
         "FPEP-P01-SOURCE-IDENTITY"
@@ -80,7 +80,10 @@
       "target_outputs": [
         "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"
       ],
-      "semantic_gate": "Produce reproducible overview/region/tile/crop evidence with parent-source hashes, overlap mapping and explicit unreadable zones. Rendered evidence is DERIVED and never outranks the immutable PDF."
+      "semantic_gate": "Produce reproducible overview/region/tile/crop evidence with parent-source hashes, overlap mapping and explicit unreadable zones. Rendered evidence is DERIVED and never outranks the immutable PDF.",
+      "completed_at": "2026-08-24T12:47:32.364971+00:00",
+      "completion_decision": "PASS",
+      "last_run_id": "FPEP-P02-20260824T124732Z"
     },
     {
       "id": "FPEP-P03A-BLIND-READ-A",

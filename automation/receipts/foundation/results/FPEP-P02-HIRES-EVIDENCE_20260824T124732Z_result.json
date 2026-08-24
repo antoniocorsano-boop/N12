@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P02-20260824T124732Z",
+  "work_item_id": "FPEP-P02-HIRES-EVIDENCE",
+  "stage_id": "FPEP-P02-HIRES-EVIDENCE",
+  "agent_role": "HIRES_EVIDENCE_BUILDER",
+  "decision": "PASS",
+  "semantic_gate": "PASS",
+  "input_artifacts": [
+    {
+      "path": "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json",
+      "sha256": "73576a4f2d0e3a9cf21eba5bd5182698d3039c9d05affc985bad722dfcb2d2d5",
+      "authority": "RECEIPT_GATED_DERIVED",
+      "status": "CURRENT"
+    },
+    {
+      "path": "archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf",
+      "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "authority": "SOURCE_PRIMARY",
+      "status": "DOC_PRIMARY_IMMUTABLE"
+    }
+  ],
+  "primary_sources": [
+    {
+      "source_id": "TAV-01S",
+      "path": "archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf",
+      "git_blob_sha": "64b842fa03b3aa7437e80d2bce90406a66f73827",
+      "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "evidence_anchor": "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json:source_identity"
+    }
+  ],
+  "target_outputs": [
+    "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"
+  ],
+  "provenance_summary": {
+    "DOC": 1,
+    "MIS": 0,
+    "RIF": 0,
+    "INF": 0,
+    "INC": 0,
+    "ND": 0
+  },
+  "residuals": [],
+  "audit_paths": [
+    "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  }
+}
