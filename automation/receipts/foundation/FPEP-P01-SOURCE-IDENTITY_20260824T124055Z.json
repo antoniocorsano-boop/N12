@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P01-SOURCE-IDENTITY",
+  "decision": "PASS",
+  "semantic_gate": "PASS",
+  "run_id": "FPEP-P01-20260824T123400Z",
+  "result_sha256": "b3f0102b40a2f5e0ebeeb26c172185e2259e305189dd0669c94d51fb4dc1ec27",
+  "target_outputs": [
+    "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json"
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json"
+  ],
+  "residuals": [],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T12:40:55.828212+00:00"
+}

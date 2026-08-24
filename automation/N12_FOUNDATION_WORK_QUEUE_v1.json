@@ -34,7 +34,7 @@
     {
       "id": "FPEP-P01-SOURCE-IDENTITY",
       "priority": 20,
-      "state": "WAITING",
+      "state": "COMPLETE",
       "agent_role": "SOURCE_IDENTITY_VERIFIER",
       "dependencies": [
         "FPEP-P00-STATE-CONSISTENCY"
@@ -54,7 +54,10 @@
       "target_outputs": [
         "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json"
       ],
-      "semantic_gate": "Foundation carpentry identity must be established from immutable-source path/hash and source-role evidence; filename convention alone is insufficient."
+      "semantic_gate": "Foundation carpentry identity must be established from immutable-source path/hash and source-role evidence; filename convention alone is insufficient.",
+      "completed_at": "2026-08-24T12:40:55.827622+00:00",
+      "completion_decision": "PASS",
+      "last_run_id": "FPEP-P01-20260824T123400Z"
     },
     {
       "id": "FPEP-P02-HIRES-EVIDENCE",
