@@ -26,6 +26,7 @@ FPEP_WORKFLOW = ROOT / ".github" / "workflows" / "validate-fpep-foundation-pipel
 REGISTRY_PATCH = ROOT / "knowledge" / "ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv"
 FPEP_WRAPPER_ID = "M1F-PRIMARY-GEOMETRY-REVALIDATION"
 FPEP_COMPLETION_ITEM = "FPEP-P12-RELEASE-AUDIT"
+P00_ITEM_ID = "FPEP-P00-STATE-CONSISTENCY"
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -104,7 +105,7 @@ def main() -> int:
     subitems = {i.get("id"): i for i in subqueue.get("items", [])}
     if FPEP_COMPLETION_ITEM not in subitems:
         errors.append(f"foundation subqueue missing completion item {FPEP_COMPLETION_ITEM}")
-    if subitems.get("FPEP-P00-STATE-CONSISTENCY", {}).get("state") not in {"READY", "IN_PROGRESS", "COMPLETE", "RESIDUAL"}:
+    if subitems.get(P00_ITEM_ID, {}).get("state") not in {"READY", "IN_PROGRESS", "COMPLETE", "RESIDUAL"}:
         errors.append("foundation subqueue has no valid P00 entry state")
 
     active_proc = set(manifest.get("active_procedures", []))
@@ -123,7 +124,7 @@ def main() -> int:
         errors.append("manifest/state gate mismatch")
     if state.get("automation", {}).get("current_work_item") != FPEP_WRAPPER_ID:
         warnings.append("CURRENT_STATE automation.current_work_item is not FPEP wrapper")
-    if state.get("foundation_primary_evidence_pipeline", {}).get("current_subtask") != "FPEP-P00-STATE-CONSISTENCY":
+    if state.get("foundation_primary_evidence_pipeline", {}).get("current_subtask") != P00_ITEM_ID:
         warnings.append("CURRENT_STATE FPEP current_subtask is not P00")
 
     hard = pipeline.get("hard_guardrails", {})
@@ -171,6 +172,21 @@ def main() -> int:
     if proc.returncode != 0:
         errors.append("foundation sub-orchestrator validation failed: " + (proc.stdout + proc.stderr)[-4000:])
 
+    expected_delegated: dict[str, Any] | None = None
+    subtask_proc = subprocess.run(
+        [sys.executable, "scripts/n12_foundation_orchestrator.py", "make-task"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if subtask_proc.returncode != 0:
+        errors.append("foundation sub-orchestrator make-task failed: " + (subtask_proc.stdout + subtask_proc.stderr)[-4000:])
+    else:
+        try:
+            expected_delegated = json.loads(subtask_proc.stdout)
+        except Exception as exc:
+            errors.append(f"foundation sub-orchestrator make-task did not emit JSON: {exc}")
+
     task_proc = subprocess.run(
         [sys.executable, "scripts/n12_make_agent_task.py"],
         cwd=ROOT,
@@ -191,14 +207,23 @@ def main() -> int:
                 if packet.get("agent_action") != "DELEGATE_TO_FOUNDATION_SUBORCHESTRATOR":
                     errors.append("parent task generator exposes FPEP wrapper as a generic specialist task")
                 delegated = packet.get("delegation", {}).get("delegated_task", {})
-                if delegated.get("work_item_id") != "FPEP-P00-STATE-CONSISTENCY":
-                    errors.append("parent task generator did not delegate to the current FPEP sub-item")
+                expected_work_item_id = (expected_delegated or {}).get("work_item_id")
+                if expected_work_item_id and delegated.get("work_item_id") != expected_work_item_id:
+                    errors.append(
+                        f"parent task generator delegated {delegated.get('work_item_id')} instead of current FPEP sub-item {expected_work_item_id}"
+                    )
                 if packet.get("required_result", {}).get("inbox") != "automation/inbox/N12_FOUNDATION_AGENT_RESULT.json":
                     errors.append("delegated task packet points to the wrong result inbox")
-                resolved = set(delegated.get("allowed_inputs", []))
-                for rel in [manifest.get("artifact_registry")] + list(manifest.get("artifact_registry_patches", [])):
-                    if rel and rel not in resolved:
-                        errors.append(f"P00 task packet missing manifest-declared effective-registry input: {rel}")
+                if expected_work_item_id:
+                    expected_inputs = set((expected_delegated or {}).get("allowed_inputs", []))
+                    delegated_inputs = set(delegated.get("allowed_inputs", []))
+                    if delegated_inputs != expected_inputs:
+                        errors.append("parent delegated task allowed_inputs differ from the FPEP sub-orchestrator task")
+                if expected_work_item_id == P00_ITEM_ID:
+                    resolved = set(delegated.get("allowed_inputs", []))
+                    for rel in [manifest.get("artifact_registry")] + list(manifest.get("artifact_registry_patches", [])):
+                        if rel and rel not in resolved:
+                            errors.append(f"P00 task packet missing manifest-declared effective-registry input: {rel}")
 
     ingestor_text = PARENT_INGESTOR.read_text(encoding="utf-8")
     required_ingestor_guards = [
