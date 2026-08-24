@@ -13,6 +13,7 @@ on:
       - 'scripts/n12_foundation_orchestrator.py'
       - 'scripts/fpep_p00_state_consistency.py'
       - 'scripts/fpep_p02_build_hires_evidence.py'
+      - 'scripts/fpep_p03b_blind_machine_reader.py'
       - 'scripts/n12_make_agent_task.py'
       - 'scripts/n12_ingest_agent_result.py'
       - 'scripts/validate_foundation_pipeline.py'
@@ -35,6 +36,7 @@ on:
       - 'scripts/n12_foundation_orchestrator.py'
       - 'scripts/fpep_p00_state_consistency.py'
       - 'scripts/fpep_p02_build_hires_evidence.py'
+      - 'scripts/fpep_p03b_blind_machine_reader.py'
       - 'scripts/n12_make_agent_task.py'
       - 'scripts/n12_ingest_agent_result.py'
       - 'scripts/validate_foundation_pipeline.py'
@@ -292,9 +294,113 @@ jobs:
           echo "FPEP P02 selected: ${{ steps.selection.outputs.active }}"
           echo "Selected FPEP item: ${{ steps.selection.outputs.selected }}"
 
-  pending-result-ingest:
+  p03b-blind-reader:
     if: (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'work/m0-global-model') || github.event_name == 'workflow_dispatch'
     needs: [validate, p00-bootstrap, p02-hires-bootstrap]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout canonical working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Detect selected P03B state
+        id: selection
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          import subprocess
+          from pathlib import Path
+          proc = subprocess.run(['python', 'scripts/n12_foundation_orchestrator.py', 'make-task'], text=True, capture_output=True)
+          if proc.returncode != 0:
+              print('active=false')
+              print('selected=FAIL_STOP')
+              raise SystemExit(0)
+          task = json.loads(proc.stdout)
+          selected = task.get('work_item_id', 'NONE')
+          inbox_empty = not Path('automation/inbox/N12_FOUNDATION_AGENT_RESULT.json').exists()
+          active = selected == 'FPEP-P03B-BLIND-READ-B' and inbox_empty
+          print(f"active={'true' if active else 'false'}")
+          print(f"selected={selected}")
+          PY
+
+      - name: Install deterministic blind-reader dependencies
+        if: steps.selection.outputs.active == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr
+          python -m pip install --disable-pip-version-check opencv-python-headless numpy
+
+      - name: Build isolated Reader B sandbox
+        if: steps.selection.outputs.active == 'true'
+        shell: bash
+        run: |
+          rm -rf /tmp/fpep-p03b-sandbox
+          mkdir -p /tmp/fpep-p03b-sandbox/analysis/fpep/hires
+          mkdir -p /tmp/fpep-p03b-sandbox/automation/inbox
+          cp analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json /tmp/fpep-p03b-sandbox/analysis/fpep/
+          cp analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json /tmp/fpep-p03b-sandbox/analysis/fpep/
+          cp -a analysis/fpep/hires/TAV01S /tmp/fpep-p03b-sandbox/analysis/fpep/hires/
+          test ! -e /tmp/fpep-p03b-sandbox/analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv
+          if find /tmp/fpep-p03b-sandbox -type f -print | grep -E 'READER_A|38_support|58_member|PT_MASTER|M0G|TAV01A'; then
+            echo 'Forbidden context leaked into Reader B sandbox.' >&2
+            exit 1
+          fi
+
+      - name: Execute blind deterministic Reader B
+        if: steps.selection.outputs.active == 'true'
+        run: |
+          python scripts/fpep_p03b_blind_machine_reader.py --repo-root /tmp/fpep-p03b-sandbox
+          cp /tmp/fpep-p03b-sandbox/analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv analysis/fpep/
+          cp /tmp/fpep-p03b-sandbox/automation/inbox/N12_FOUNDATION_AGENT_RESULT.json automation/inbox/
+
+      - name: Ingest exactly one P03B result
+        if: steps.selection.outputs.active == 'true'
+        run: python scripts/n12_foundation_orchestrator.py ingest
+
+      - name: Revalidate P03B state after ingestion
+        if: steps.selection.outputs.active == 'true'
+        run: |
+          python scripts/validate_foundation_pipeline.py
+          python scripts/n12_foundation_orchestrator.py validate
+          python scripts/validate_knowledge_system.py
+          python scripts/n12_orchestrator.py validate
+
+      - name: Persist Reader B observations receipt and subqueue transition
+        if: steps.selection.outputs.active == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-fpep-p03b-reader[bot]'
+          git config user.email 'n12-fpep-p03b-reader[bot]@users.noreply.github.com'
+          git add automation/N12_FOUNDATION_WORK_QUEUE_v1.json
+          git add -A automation/receipts/foundation || true
+          git add -A automation/inbox || true
+          git add -A analysis/fpep || true
+          if git diff --cached --quiet; then
+            echo 'P03B produced no canonical state change.'
+          else
+            git commit -m 'automation: execute isolated FPEP P03B blind read'
+            git pull --rebase origin work/m0-global-model
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Report P03B blind-reader state
+        run: |
+          echo "FPEP P03B selected: ${{ steps.selection.outputs.active }}"
+          echo "Selected FPEP item: ${{ steps.selection.outputs.selected }}"
+
+  pending-result-ingest:
+    if: (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'work/m0-global-model') || github.event_name == 'workflow_dispatch'
+    needs: [validate, p00-bootstrap, p02-hires-bootstrap, p03b-blind-reader]
     runs-on: ubuntu-latest
     permissions:
       contents: write
