@@ -42,6 +42,7 @@ on:
       - 'scripts/validate_m1a_g1_terrace_addition.py'
       - 'scripts/validate_m1a_g5_column_reinforcement.py'
       - 'scripts/validate_m1a_column_carpentry_first_binding_v2.py'
+      - 'scripts/validate_m1a_column_carpentry_first_binding_v3.py'
       - '.github/workflows/validate-m1a-special.yml'
   pull_request:
     paths:
@@ -82,6 +83,7 @@ on:
       - 'scripts/validate_m1a_g1_terrace_addition.py'
       - 'scripts/validate_m1a_g5_column_reinforcement.py'
       - 'scripts/validate_m1a_column_carpentry_first_binding_v2.py'
+      - 'scripts/validate_m1a_column_carpentry_first_binding_v3.py'
       - '.github/workflows/validate-m1a-special.yml'
   workflow_dispatch:
 
@@ -116,4 +118,4 @@ jobs:
         run: python scripts/validate_m1a_g5_column_reinforcement.py
 
       - name: Validate carpenteria-first column reinforcement binding and IV reconciliation
-        run: python scripts/validate_m1a_column_carpentry_first_binding_v2.py
+        run: python scripts/validate_m1a_column_carpentry_first_binding_v3.py
