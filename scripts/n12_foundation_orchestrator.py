@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import shutil
@@ -17,10 +18,19 @@ RESULT_CONTRACT_PATH = ROOT / "automation" / "N12_FOUNDATION_AGENT_RESULT_CONTRA
 INBOX_PATH = ROOT / "automation" / "inbox" / "N12_FOUNDATION_AGENT_RESULT.json"
 RECEIPT_DIR = ROOT / "automation" / "receipts" / "foundation"
 PARENT_QUEUE_PATH = ROOT / "automation" / "N12_WORK_QUEUE_v1.json"
+PARENT_INBOX_PATH = ROOT / "automation" / "inbox" / "N12_AGENT_RESULT.json"
+MANIFEST_PATH = ROOT / "knowledge" / "KNOWLEDGE_MANIFEST.json"
+BASE_REGISTRY_PATH = ROOT / "knowledge" / "ARTIFACT_REGISTRY.csv"
+
+PARENT_WRAPPER_ID = "M1F-PRIMARY-GEOMETRY-REVALIDATION"
+FINAL_ITEM_ID = "FPEP-P12-RELEASE-AUDIT"
+PRIMARY_GATE_REL = "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv"
+RELEASE_GATE_REL = "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv"
 
 ALLOWED_STATES = {"READY", "IN_PROGRESS", "WAITING", "RESIDUAL", "BLOCKED", "COMPLETE"}
 PASS_DECISIONS = {"PASS", "PASS_WITH_WATCH"}
 NONPASS_DECISIONS = {"RESIDUAL", "BLOCKED", "CONFLICT"}
+BLOCKING_ARTIFACT_STATES = {"CONFLICT", "REOPENED", "SUPERSEDED", "TOMBSTONE", "HISTORICAL_ONLY", "SUSPENDED"}
 PRE_PRIMARY_GATE_ROLES = {
     "FOUNDATION_CARPENTRY_READER_A",
     "FOUNDATION_CARPENTRY_READER_B",
@@ -48,12 +58,50 @@ def write_json(path: Path, value: dict[str, Any]) -> None:
     path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+def read_csv(path: Path) -> list[dict[str, str]]:
+    with path.open("r", encoding="utf-8-sig", newline="") as f:
+        return list(csv.DictReader(f))
+
+
 def sha256_file(path: Path) -> str:
     h = hashlib.sha256()
     with path.open("rb") as f:
         for chunk in iter(lambda: f.read(1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def registry_patch_rels(manifest: dict[str, Any]) -> list[str]:
+    rels: list[str] = []
+    legacy = manifest.get("artifact_registry_patch")
+    if legacy:
+        rels.append(legacy)
+    for rel in manifest.get("artifact_registry_patches", []) or []:
+        if rel and rel not in rels:
+            rels.append(rel)
+    return rels
+
+
+def load_effective_registry() -> dict[str, dict[str, str]]:
+    manifest = read_json(MANIFEST_PATH)
+    by_path = {r.get("path", "").strip(): r for r in read_csv(BASE_REGISTRY_PATH)}
+    for patch_rel in registry_patch_rels(manifest):
+        patch = ROOT / patch_rel
+        if patch.exists():
+            for row in read_csv(patch):
+                by_path[row.get("path", "").strip()] = row
+    return by_path
+
+
+def canonical_target_ingestible(rel: str, registry: dict[str, dict[str, str]]) -> bool:
+    reg = registry.get(rel)
+    return bool(
+        (ROOT / rel).exists()
+        and reg
+        and reg.get("authority") in {"CANONICAL", "DERIVED"}
+        and reg.get("status") not in BLOCKING_ARTIFACT_STATES
+        and reg.get("may_feed_canonical") in {"YES", "CONDITIONAL"}
+    )
 
 
 def item_map(queue: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -84,7 +132,7 @@ def selected_item(queue: dict[str, Any]) -> dict[str, Any] | None:
 def validate() -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
-    for p in [CONTRACT_PATH, QUEUE_PATH, RESULT_CONTRACT_PATH, PARENT_QUEUE_PATH]:
+    for p in [CONTRACT_PATH, QUEUE_PATH, RESULT_CONTRACT_PATH, PARENT_QUEUE_PATH, MANIFEST_PATH, BASE_REGISTRY_PATH]:
         if not p.exists():
             errors.append(f"missing required file: {p.relative_to(ROOT)}")
     if errors:
@@ -139,6 +187,7 @@ def validate() -> tuple[list[str], list[str]]:
 
     visiting: set[str] = set()
     visited: set[str] = set()
+
     def visit(node: str) -> None:
         if node in visited:
             return
@@ -150,6 +199,7 @@ def validate() -> tuple[list[str], list[str]]:
             visit(dep)
         visiting.remove(node)
         visited.add(node)
+
     for node in by_id:
         visit(node)
 
@@ -159,10 +209,7 @@ def validate() -> tuple[list[str], list[str]]:
         errors.append(f"parent queue missing work item {parent_id}")
     else:
         parent = parent_items[parent_id]
-        required_targets = {
-            "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
-            "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv",
-        }
+        required_targets = {PRIMARY_GATE_REL, RELEASE_GATE_REL}
         if not required_targets.issubset(set(parent.get("target_outputs", []))):
             errors.append("parent FPEP work item does not require both primary and release gates")
 
@@ -170,10 +217,7 @@ def validate() -> tuple[list[str], list[str]]:
     if m1f:
         if parent_id not in set(m1f.get("dependencies", [])):
             errors.append("M1F-FOUNDATION-MODEL does not depend on FPEP parent work item")
-        for required in [
-            "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
-            "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv",
-        ]:
+        for required in [PRIMARY_GATE_REL, RELEASE_GATE_REL]:
             if required not in set(m1f.get("required_inputs", [])):
                 errors.append(f"M1F-FOUNDATION-MODEL missing required FPEP input {required}")
 
@@ -217,6 +261,7 @@ def make_task() -> dict[str, Any]:
             "Use only allowed_inputs plus the immutable primary evidence explicitly referenced by those inputs.",
             "Do not search for or load forbidden_context to improve apparent consistency.",
             "Persist residuals instead of filling gaps by analogy, symmetry or target-count matching.",
+            "For any canonical target output, register it in the effective artifact registry in the same change set.",
             "Return exactly one result packet conforming to automation/N12_FOUNDATION_AGENT_RESULT_CONTRACT_v1.json."
         ],
     }
@@ -252,9 +297,14 @@ def validate_result(result: dict[str, Any], queue: dict[str, Any]) -> list[str]:
 
     decision = result.get("decision")
     if decision in PASS_DECISIONS:
+        registry = load_effective_registry()
         for rel in selected.get("target_outputs", []):
             if not (ROOT / rel).exists():
                 errors.append(f"missing target output for PASS: {rel}")
+            if rel.startswith("data/canonical/") and not canonical_target_ingestible(rel, registry):
+                errors.append(
+                    f"canonical FPEP target is not registered/ingestible in the effective registry: {rel}"
+                )
         for rel in result.get("audit_paths", []):
             if not (ROOT / rel).exists():
                 errors.append(f"missing audit path: {rel}")
@@ -267,6 +317,70 @@ def validate_result(result: dict[str, Any], queue: dict[str, Any]) -> list[str]:
             if blocking:
                 errors.append("PASS result contains blocking residuals")
     return errors
+
+
+def latest_successful_results(queue: dict[str, Any]) -> list[dict[str, Any]]:
+    result_dir = RECEIPT_DIR / "results"
+    if not result_dir.exists():
+        return []
+    by_run: dict[str, dict[str, Any]] = {}
+    for path in sorted(result_dir.glob("*_result.json")):
+        try:
+            payload = read_json(path)
+        except Exception:
+            continue
+        run_id = payload.get("run_id")
+        if run_id:
+            by_run[str(run_id)] = payload
+    out: list[dict[str, Any]] = []
+    for item in queue.get("items", []):
+        run_id = item.get("last_run_id")
+        if item.get("state") == "COMPLETE" and run_id and str(run_id) in by_run:
+            out.append(by_run[str(run_id)])
+    return out
+
+
+def aggregate_parent_summary(queue: dict[str, Any]) -> tuple[dict[str, int], list[dict[str, Any]], bool]:
+    totals = {"DOC": 0, "MIS": 0, "RIF": 0, "INF": 0, "INC": 0, "ND": 0}
+    residuals: list[dict[str, Any]] = []
+    watch = False
+    for payload in latest_successful_results(queue):
+        for key, value in (payload.get("provenance_summary") or {}).items():
+            if key in totals and isinstance(value, int) and value >= 0:
+                totals[key] += value
+        residuals.extend(payload.get("residuals") or [])
+        if payload.get("decision") == "PASS_WITH_WATCH" or payload.get("semantic_gate") == "WATCH":
+            watch = True
+    return totals, residuals, watch
+
+
+def emit_parent_result(queue: dict[str, Any], receipt_path: Path, final_result: dict[str, Any]) -> str:
+    if PARENT_INBOX_PATH.exists():
+        raise RuntimeError(
+            f"parent result inbox already exists: {PARENT_INBOX_PATH.relative_to(ROOT)}; refusing to overwrite"
+        )
+    if any(item.get("state") != "COMPLETE" for item in queue.get("items", [])):
+        raise RuntimeError("cannot emit parent FPEP result before every sub-item is COMPLETE")
+    for rel in [PRIMARY_GATE_REL, RELEASE_GATE_REL]:
+        if not canonical_target_ingestible(rel, load_effective_registry()):
+            raise RuntimeError(f"cannot emit parent FPEP result; canonical gate is not ingestible: {rel}")
+
+    provenance, residuals, inherited_watch = aggregate_parent_summary(queue)
+    parent_decision = "PASS_WITH_WATCH" if inherited_watch or final_result.get("decision") == "PASS_WITH_WATCH" else "PASS"
+    parent_semantic_gate = "WATCH" if parent_decision == "PASS_WITH_WATCH" else "PASS"
+    parent_payload = {
+        "schema_version": "1.0",
+        "work_item_id": PARENT_WRAPPER_ID,
+        "source_sheet": "TAV-01S",
+        "decision": parent_decision,
+        "semantic_gate": parent_semantic_gate,
+        "target_outputs": [PRIMARY_GATE_REL, RELEASE_GATE_REL],
+        "provenance_summary": provenance,
+        "residuals": residuals,
+        "audit_paths": [receipt_path.relative_to(ROOT).as_posix()],
+    }
+    write_json(PARENT_INBOX_PATH, parent_payload)
+    return PARENT_INBOX_PATH.relative_to(ROOT).as_posix()
 
 
 def ingest() -> dict[str, Any]:
@@ -283,6 +397,12 @@ def ingest() -> dict[str, Any]:
 
     item = item_map(queue)[result["work_item_id"]]
     decision = result["decision"]
+    if item["id"] == FINAL_ITEM_ID and decision in PASS_DECISIONS and PARENT_INBOX_PATH.exists():
+        return {
+            "decision": "FAIL_STOP",
+            "errors": [f"parent inbox already occupied: {PARENT_INBOX_PATH.relative_to(ROOT)}"],
+        }
+
     if decision in PASS_DECISIONS:
         item["state"] = "COMPLETE"
         item["completed_at"] = datetime.now(timezone.utc).isoformat()
@@ -317,10 +437,23 @@ def ingest() -> dict[str, Any]:
     archive.mkdir(parents=True, exist_ok=True)
     shutil.copy2(INBOX_PATH, archive / f"{item['id']}_{stamp}_result.json")
     INBOX_PATH.unlink()
+
+    parent_result = None
+    if item["id"] == FINAL_ITEM_ID and decision in PASS_DECISIONS:
+        try:
+            parent_result = emit_parent_result(queue, receipt_path, result)
+        except Exception as exc:
+            return {
+                "decision": "FAIL_STOP",
+                "errors": [f"FPEP subqueue advanced but parent handoff emission failed: {exc}"],
+                "receipt": receipt_path.relative_to(ROOT).as_posix(),
+            }
+
     return {
         "decision": "PASS_ADVANCE" if decision == "PASS" else ("PASS_WITH_WATCH_ADVANCE" if decision == "PASS_WITH_WATCH" else decision),
         "work_item_id": item["id"],
         "receipt": str(receipt_path.relative_to(ROOT)),
+        "parent_result_emitted": parent_result,
         "next": selected_item(queue),
     }
 
@@ -329,21 +462,24 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="N12 FPEP foundation primary-evidence sub-orchestrator")
     parser.add_argument("command", choices=["validate", "status", "make-task", "ingest"])
     args = parser.parse_args()
+
     if args.command == "validate":
         errors, warnings = validate()
-        print(json.dumps({"status": "PASS" if not errors else "FAIL", "errors": errors, "warnings": warnings}, indent=2, ensure_ascii=False))
+        payload = {"status": "PASS" if not errors else "FAIL", "errors": errors, "warnings": warnings}
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
         return 0 if not errors else 1
     if args.command == "status":
-        status = build_status()
-        print(json.dumps(status, indent=2, ensure_ascii=False))
-        return 0 if status["decision"] != "FAIL_STOP" else 1
+        payload = build_status()
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
+        return 0 if payload.get("decision") != "FAIL_STOP" else 1
     if args.command == "make-task":
-        task = make_task()
-        print(json.dumps(task, indent=2, ensure_ascii=False))
-        return 0 if task.get("decision") != "FAIL_STOP" else 1
-    result = ingest()
-    print(json.dumps(result, indent=2, ensure_ascii=False))
-    return 0 if result.get("decision") not in {"FAIL_STOP"} else 1
+        payload = make_task()
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
+        return 0 if payload.get("decision") != "FAIL_STOP" else 1
+
+    payload = ingest()
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0 if payload.get("decision") not in {"FAIL_STOP", "BLOCKED_INPUT"} else 1
 
 
 if __name__ == "__main__":
