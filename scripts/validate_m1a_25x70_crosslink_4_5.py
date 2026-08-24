@@ -53,11 +53,7 @@ require("B-013" not in t2_g01["canonical_member_ids"], "G1 4-5 cross-link incorr
 
 # Frozen physical geometry: three repeated 4-5 cross-links are all 25x70 and 1.50 m.
 by_source = {r["source_member_id"]: r for r in conn}
-expected_members = {
-    "G2-B004": "G2",
-    "G3-B004": "G3",
-    "G4-B004": "G4",
-}
+expected_members = {"G2-B004": "G2", "G3-B004": "G3", "G4-B004": "G4"}
 for member_id, storey in expected_members.items():
     require(member_id in by_source, f"missing frozen member {member_id}")
     row = by_source[member_id]
@@ -73,13 +69,13 @@ for r in audit:
     require(r["transfer_decision"] == "NUMERIC_REINFORCEMENT_REMAINS_ND", f"numeric transfer enabled for {r['member_id']}")
     require("RIF_USER_QUALIFIED_SEMANTICS" in r["evidence_status"], f"semantic provenance missing for {r['member_id']}")
 
-# Broader coverage is frozen: this closure must not increase direct/effective counts.
+# Global coverage may advance through unrelated direct primary evidence; this closure itself must remain zero-transfer.
 ordinary_total = sum(int(r["ordinary_beam_count"]) for r in coverage)
 direct_total = sum(int(r["direct_group_source_covered_count"]) for r in coverage)
 require(ordinary_total == 232, f"ordinary beam total changed: {ordinary_total}")
-require(direct_total == 148, f"direct beam coverage changed: {direct_total}")
+require(direct_total == 152, f"global direct beam coverage mismatch: {direct_total}")
 eq_metrics = {r["metric"]: r["value"] for r in eq_gate}
-require(eq_metrics["effective_scheme_bound_total"] == "151", "effective scheme-bound count changed")
+require(eq_metrics["effective_scheme_bound_total"] == "155", "effective scheme-bound count mismatch")
 
 metrics = {r["metric"]: r for r in gate}
 expected_actuals = {
@@ -89,8 +85,8 @@ expected_actuals = {
     "independent_lower_level_same_drafting_behavior": "YES",
     "new_exact_bindings_from_longitudinal_scheme_transfer": "0",
     "numeric_reinforcement_status": "ND",
-    "direct_group_source_covered_ordinary_beams": "148",
-    "effective_scheme_bound_ordinary_beams": "151",
+    "direct_group_source_covered_ordinary_beams": "152",
+    "effective_scheme_bound_ordinary_beams": "155",
     "reopen_policy": "NEW_EXPLICIT_PRIMARY_4_5_CROSSLINK_DETAIL_OR_EXACT_MEMBER_BINDING",
     "gate_state": "PASS_25X70_CROSSLINK_4_5_SOURCE_OMISSION_WITH_3_LEVEL_ND_WATCH",
 }
@@ -101,7 +97,4 @@ for metric, expected in expected_actuals.items():
 
 require(metrics["gate_state"]["status"] == "PASS_WITH_WATCH", "4-5 closure gate must retain ND watch")
 
-print(
-    "PASS M1-A 25x70 cross-link 4-5: homologous-travate semantics preserved as RIF_USER_QUALIFIED; "
-    "3 physical 4-5 members remain outside longitudinal G01 schedules and numerically ND"
-)
+print("PASS M1-A 25x70 cross-link 4-5 unchanged; global beam coverage now 152 direct / 155 effective after independent TAV06A recovery")
