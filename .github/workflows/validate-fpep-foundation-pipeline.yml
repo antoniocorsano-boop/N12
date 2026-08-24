@@ -42,6 +42,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: n12-fpep-foundation-runtime
+  cancel-in-progress: false
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -164,3 +168,64 @@ jobs:
         run: |
           echo "FPEP P00 selected: ${{ steps.selection.outputs.active }}"
           echo "FPEP P00 state: ${{ steps.selection.outputs.state }}"
+
+  pending-result-ingest:
+    if: (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'work/m0-global-model') || github.event_name == 'workflow_dispatch'
+    needs: [validate, p00-bootstrap]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout canonical working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Detect one pending FPEP specialist result
+        id: pending
+        shell: bash
+        run: |
+          if [ -f automation/inbox/N12_FOUNDATION_AGENT_RESULT.json ]; then
+            echo 'pending=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'pending=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Ingest exactly one pending FPEP specialist result
+        if: steps.pending.outputs.pending == 'true'
+        run: python scripts/n12_foundation_orchestrator.py ingest
+
+      - name: Revalidate after FPEP specialist result ingestion
+        if: steps.pending.outputs.pending == 'true'
+        run: |
+          python scripts/validate_foundation_pipeline.py
+          python scripts/n12_foundation_orchestrator.py validate
+          python scripts/validate_knowledge_system.py
+          python scripts/n12_orchestrator.py validate
+
+      - name: Persist FPEP queue receipts audits and inbox transition
+        if: steps.pending.outputs.pending == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-fpep-result-ingest[bot]'
+          git config user.email 'n12-fpep-result-ingest[bot]@users.noreply.github.com'
+          git add automation/N12_FOUNDATION_WORK_QUEUE_v1.json
+          git add -A automation/receipts/foundation || true
+          git add -A automation/inbox || true
+          git add -A analysis/fpep || true
+          if git diff --cached --quiet; then
+            echo 'Pending FPEP result produced no canonical state change.'
+          else
+            git commit -m 'automation: ingest FPEP specialist result and advance subcycle'
+            git pull --rebase origin work/m0-global-model
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Report pending result state
+        run: echo "Pending FPEP result: ${{ steps.pending.outputs.pending }}"
