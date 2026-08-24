@@ -1,10 +1,11 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "handoff_id": "N12_M1E_CALCULATION_MODEL_HANDOFF",
   "date": "2026-08-24",
   "domain": "M1E_CALCULATION_MODEL_HANDOFF",
   "status": "RESIDUAL_NOT_CALCULATION_MODEL_READY",
   "calculation_model_ready": false,
+  "blocking_domain_count": 6,
   "purpose": "Freeze what is already transferable to EdiLus-EE and an independent FEM implementation while explicitly blocking numerical execution where current evidence or an admitted modeling rule is still missing.",
   "authoritative_inputs": {
     "global_geometry": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
@@ -12,7 +13,8 @@
     "materials": "data/canonical/M1M_MATERIAL_GATE_v1.csv",
     "reinforcement": "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv",
     "loads": "data/canonical/M1L_LOAD_GATE_v1.csv",
-    "foundation": "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
+    "foundation": "data/canonical/M1F_FOUNDATION_GATE_v1.csv",
+    "foundation_xy_solver_projection": "data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json"
   },
   "ready_domains": {
     "superstructure_geometry_topology": {
@@ -34,8 +36,24 @@
       "ready": true,
       "state": "39_DIRECT_1_SUPPORTED_15_ND",
       "note": "Direct and supported TAV-01A bindings may be carried with their evidence state; the fifteen ND bindings remain unfilled."
+    },
+    "foundation_xy_solver_placement": {
+      "ready": true,
+      "state": "38_OF_38_SUPPORTS_MAPPED_BY_ADMITTED_MODELING_RULE",
+      "rule": "data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json",
+      "note": "Numerical XY placement uses G1 SUPPORT_CORE coordinates solely as a solver modeling rule. P07 foundation primary XY evidence remains unchanged; per-support DOC/MIS provenance is retained."
     }
   },
+  "closed_residuals": [
+    {
+      "id": "M1E-B03",
+      "domain": "FOUNDATION_NUMERIC_XY_SOLVER_BINDING",
+      "state": "CLOSED_BY_ADMITTED_MODELING_RULE",
+      "closure_artifact": "data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json",
+      "closure_basis": "One-to-one mapping of all 38 P07 support identities to G1 SUPPORT_CORE nodes; 22bis maps explicitly to M0G support 22' without collapsing support 22; topology remains P07-authoritative and coordinate evidence state is retained.",
+      "provenance_guard": "Solver XY does not promote or rewrite P07 foundation Cartesian evidence."
+    }
+  ],
   "blocking_domains": [
     {
       "id": "M1E-B01",
@@ -54,15 +72,6 @@
       "missing": ["numeric_Gk", "numeric_Qk", "numeric_masses", "assessment_combination_parameters"],
       "reason": "M1-L intentionally contains zero unsourced numeric load rows.",
       "closure_rule": "Complete documentary/current load inputs or explicitly admit assessment assumptions at a later gate; do not manufacture values here."
-    },
-    {
-      "id": "M1E-B03",
-      "domain": "FOUNDATION_NUMERIC_XY_SOLVER_BINDING",
-      "blocking": true,
-      "state": "ND_POLICY",
-      "missing": ["admitted_solver_projection_from_global_support_identity_to_foundation_XY"],
-      "reason": "P07 does not promote foundation Cartesian XY and PT/M0-G coordinates cannot retroactively change P07 provenance.",
-      "closure_rule": "Either close primary metric endpoint binding or define an explicit solver-only projection rule that preserves P07 topology authority and provenance."
     },
     {
       "id": "M1E-B04",
@@ -104,22 +113,23 @@
   "authorized_now": [
     "Transfer frozen superstructure connectivity, rigid-zone semantics and usable member sections into a solver project shell.",
     "Transfer the 38-support / 55-member foundation topology with evidence states preserved.",
-    "Create an implementation checklist and element-identity mapping for EdiLus-EE and independent FEM without running a numerical verification.",
+    "Use M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1 to place all 38 foundation supports numerically in XY while retaining per-support M0G coordinate provenance.",
+    "Create an implementation checklist and element-identity mapping for EdiLus-EE and independent FEM without running a current-state numerical verification.",
     "Carry historical material/load/geotechnical values only as provenance or scenario metadata, not as current solver values."
   ],
   "not_authorized_now": [
     "Declare CALCULATION_MODEL_READY.",
-    "Run or validate a current-state structural calculation using invented current material properties, loads, foundation coordinates/elevation or soil parameters.",
+    "Write solver-projected foundation XY back into P07/FPEP primary geometry as an evidentiary promotion.",
+    "Run or validate a current-state structural calculation using invented current material properties, loads, foundation elevation or soil parameters.",
     "Fill reinforcement or foundation property gaps by analogy.",
     "Treat historical allowable-stress or soil parameters as current limit-state inputs without an explicit later modeling decision."
   ],
   "next_evidence_actions": [
     "Close current concrete assessment inputs and LC/FC.",
     "Complete numerical load and mass inputs for the current assessment scenario.",
-    "Define and approve the solver-only foundation XY projection rule or close primary metric XY binding.",
     "Resolve numeric ZF_COMMON from direct datum evidence.",
     "Resolve the fifteen foundation property gaps and affected superstructure reinforcement residuals required for verification.",
     "Acquire/register current site-specific geotechnical evidence."
   ],
-  "final_statement": "The structural information system is sufficiently mature to assemble a solver project shell, but not to execute or certify the current calculation model. M1E remains RESIDUAL until every blocking domain is either supported for execution or covered by an explicit admitted modeling rule."
+  "final_statement": "The solver project shell now has an admitted 38/38 foundation XY placement rule while preserving P07 evidence provenance. CALCULATION_MODEL_READY remains false because six independent blocking domains are still open."
 }
