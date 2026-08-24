@@ -20,7 +20,9 @@ MASTER = ROOT / "docs" / "REGISTRO_MASTER.md"
 TASK_GENERATOR = ROOT / "scripts" / "n12_make_agent_task.py"
 PARENT_INGESTOR = ROOT / "scripts" / "n12_ingest_agent_result.py"
 SUB_ORCHESTRATOR = ROOT / "scripts" / "n12_foundation_orchestrator.py"
+P00_AUDITOR = ROOT / "scripts" / "fpep_p00_state_consistency.py"
 PARENT_WORKFLOW = ROOT / ".github" / "workflows" / "n12-analysis-orchestrator.yml"
+FPEP_WORKFLOW = ROOT / ".github" / "workflows" / "validate-fpep-foundation-pipeline.yml"
 REGISTRY_PATCH = ROOT / "knowledge" / "ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv"
 FPEP_WRAPPER_ID = "M1F-PRIMARY-GEOMETRY-REVALIDATION"
 FPEP_COMPLETION_ITEM = "FPEP-P12-RELEASE-AUDIT"
@@ -50,7 +52,9 @@ def main() -> int:
         TASK_GENERATOR,
         PARENT_INGESTOR,
         SUB_ORCHESTRATOR,
+        P00_AUDITOR,
         PARENT_WORKFLOW,
+        FPEP_WORKFLOW,
         REGISTRY_PATCH,
     ]
     for path in required:
@@ -191,6 +195,10 @@ def main() -> int:
                     errors.append("parent task generator did not delegate to the current FPEP sub-item")
                 if packet.get("required_result", {}).get("inbox") != "automation/inbox/N12_FOUNDATION_AGENT_RESULT.json":
                     errors.append("delegated task packet points to the wrong result inbox")
+                resolved = set(delegated.get("allowed_inputs", []))
+                for rel in [manifest.get("artifact_registry")] + list(manifest.get("artifact_registry_patches", [])):
+                    if rel and rel not in resolved:
+                        errors.append(f"P00 task packet missing manifest-declared effective-registry input: {rel}")
 
     ingestor_text = PARENT_INGESTOR.read_text(encoding="utf-8")
     required_ingestor_guards = [
@@ -206,6 +214,8 @@ def main() -> int:
     sub_orchestrator_text = SUB_ORCHESTRATOR.read_text(encoding="utf-8")
     required_runtime_guards = [
         "canonical_target_ingestible",
+        "resolved_allowed_inputs",
+        "REGISTRY_COMPONENT",
         "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
         "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv",
         "FPEP-P12-RELEASE-AUDIT",
@@ -216,20 +226,39 @@ def main() -> int:
     ]
     for token in required_runtime_guards:
         if token not in sub_orchestrator_text:
-            errors.append(f"FPEP sub-orchestrator missing runtime handoff guard: {token}")
+            errors.append(f"FPEP sub-orchestrator missing runtime handoff/context guard: {token}")
+
+    p00_text = P00_AUDITOR.read_text(encoding="utf-8")
+    for token in [
+        "REGISTRY_COMPONENT_MANIFEST_DECLARED",
+        "manifest_registry_set",
+        "sha256",
+        "FPEP_STATE_COHERENCE_AUDIT_v1.json",
+        "N12_FOUNDATION_AGENT_RESULT.json",
+        "legacy foundation target counts",
+    ]:
+        if token not in p00_text:
+            errors.append(f"P00 deterministic auditor missing required guard/output token: {token}")
 
     workflow_text = PARENT_WORKFLOW.read_text(encoding="utf-8")
     required_workflow_bridge = [
+        "scripts/fpep_p00_state_consistency.py",
+        "Generate deterministic FPEP P00 state audit when selected",
         "automation/inbox/N12_FOUNDATION_AGENT_RESULT.json",
         "python scripts/n12_foundation_orchestrator.py ingest",
         "automation/N12_FOUNDATION_WORK_QUEUE_v1.json",
         "automation/receipts/foundation",
+        "analysis/fpep",
         "python scripts/n12_ingest_agent_result.py apply",
         "scripts/validate_foundation_pipeline.py",
     ]
     for token in required_workflow_bridge:
         if token not in workflow_text:
-            errors.append(f"parent workflow missing FPEP runtime bridge: {token}")
+            errors.append(f"parent workflow missing FPEP runtime/P00 bridge: {token}")
+
+    fpep_workflow_text = FPEP_WORKFLOW.read_text(encoding="utf-8")
+    if "scripts/fpep_p00_state_consistency.py" not in fpep_workflow_text:
+        errors.append("FPEP validation workflow does not trigger on P00 auditor changes")
 
     registry_paths = {row.get("path") for row in load_csv(REGISTRY_PATCH)}
     for rel in [
@@ -238,6 +267,7 @@ def main() -> int:
         "automation/N12_FOUNDATION_AGENT_RESULT_CONTRACT_v1.json",
         "docs/PROCEDURES/FOUNDATION_PRIMARY_EVIDENCE_PIPELINE_v1.md",
         "scripts/n12_foundation_orchestrator.py",
+        "scripts/fpep_p00_state_consistency.py",
         "scripts/validate_foundation_pipeline.py",
         ".github/workflows/validate-fpep-foundation-pipeline.yml",
     ]:
