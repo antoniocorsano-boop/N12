@@ -17,9 +17,14 @@ on:
       - 'data/canonical/M1A_STAIR_TOWER_BINDING_GATE_v1.csv'
       - 'data/canonical/M1A_COLUMN_REINFORCEMENT_FAMILIES_v1.csv'
       - 'data/canonical/M1A_SPECIAL_FEATURE_REINFORCEMENT_GAP_REGISTER_v1.csv'
+      - 'data/canonical/M1A_G1_TERRACE_ADDITION_GATE_v1.csv'
+      - 'data/canonical/PT_TERRACE_GEOMETRY_CURRENT_v1.csv'
+      - 'data/canonical/PT_MASTER_CURRENT.csv'
+      - 'data/canonical/M1F_AD_HISTORICAL_MODEL_DELTA_AUDIT_v1.csv'
       - 'scripts/validate_m1a_g5_eave_reinforcement.py'
       - 'scripts/validate_m1a_tav05a_group_transcription.py'
       - 'scripts/validate_m1a_stair_gronda_binding.py'
+      - 'scripts/validate_m1a_g1_terrace_addition.py'
       - '.github/workflows/validate-m1a-special.yml'
   pull_request:
     paths:
@@ -35,9 +40,14 @@ on:
       - 'data/canonical/M1A_STAIR_TOWER_BINDING_GATE_v1.csv'
       - 'data/canonical/M1A_COLUMN_REINFORCEMENT_FAMILIES_v1.csv'
       - 'data/canonical/M1A_SPECIAL_FEATURE_REINFORCEMENT_GAP_REGISTER_v1.csv'
+      - 'data/canonical/M1A_G1_TERRACE_ADDITION_GATE_v1.csv'
+      - 'data/canonical/PT_TERRACE_GEOMETRY_CURRENT_v1.csv'
+      - 'data/canonical/PT_MASTER_CURRENT.csv'
+      - 'data/canonical/M1F_AD_HISTORICAL_MODEL_DELTA_AUDIT_v1.csv'
       - 'scripts/validate_m1a_g5_eave_reinforcement.py'
       - 'scripts/validate_m1a_tav05a_group_transcription.py'
       - 'scripts/validate_m1a_stair_gronda_binding.py'
+      - 'scripts/validate_m1a_g1_terrace_addition.py'
       - '.github/workflows/validate-m1a-special.yml'
   workflow_dispatch:
 
@@ -64,3 +74,6 @@ jobs:
 
       - name: Validate stair tower and gronda bindings
         run: python scripts/validate_m1a_stair_gronda_binding.py
+
+      - name: Validate G1 terrace addition evidence boundary
+        run: python scripts/validate_m1a_g1_terrace_addition.py
