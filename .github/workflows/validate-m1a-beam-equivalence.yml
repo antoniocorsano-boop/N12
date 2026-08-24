@@ -8,24 +8,32 @@ on:
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CURRENT_v1.csv'
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_INFERRED_BINDINGS_CURRENT_v1.csv'
       - 'data/canonical/M1A_50X20_REINFORCEMENT_PRECEDENT_AUDIT_v1.csv'
+      - 'data/canonical/M1A_50X20_REINFORCEMENT_TRANSFER_GATE_v1.csv'
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_EQUIVALENCE_GATE_v1.csv'
       - 'data/canonical/M1A_TAV034A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
-      - 'knowledge/ARTIFACT_REGISTRY_M1A_BEAM_EQUIVALENCE_PATCH_v1.csv'
+      - 'data/canonical/M1_PROGRAM_REQUIRED_FRONTS_CURRENT_v1.csv'
+      - 'knowledge/ARTIFACT_REGISTRY_M1A_SPECIAL_PATCH_v1.csv'
+      - 'knowledge/KNOWLEDGE_MANIFEST.json'
       - 'scripts/validate_m1a_beam_equivalence.py'
+      - 'scripts/validate_m1a_50x20_reinforcement.py'
       - '.github/workflows/validate-m1a-beam-equivalence.yml'
   pull_request:
     paths:
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CURRENT_v1.csv'
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_INFERRED_BINDINGS_CURRENT_v1.csv'
       - 'data/canonical/M1A_50X20_REINFORCEMENT_PRECEDENT_AUDIT_v1.csv'
+      - 'data/canonical/M1A_50X20_REINFORCEMENT_TRANSFER_GATE_v1.csv'
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_EQUIVALENCE_GATE_v1.csv'
       - 'data/canonical/M1A_TAV034A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
-      - 'knowledge/ARTIFACT_REGISTRY_M1A_BEAM_EQUIVALENCE_PATCH_v1.csv'
+      - 'data/canonical/M1_PROGRAM_REQUIRED_FRONTS_CURRENT_v1.csv'
+      - 'knowledge/ARTIFACT_REGISTRY_M1A_SPECIAL_PATCH_v1.csv'
+      - 'knowledge/KNOWLEDGE_MANIFEST.json'
       - 'scripts/validate_m1a_beam_equivalence.py'
+      - 'scripts/validate_m1a_50x20_reinforcement.py'
       - '.github/workflows/validate-m1a-beam-equivalence.yml'
   workflow_dispatch:
 
@@ -46,3 +54,6 @@ jobs:
 
       - name: Validate authored beam equivalence and 50x20 evidence boundary
         run: python scripts/validate_m1a_beam_equivalence.py
+
+      - name: Validate 50x20 current-evidence transfer closure
+        run: python scripts/validate_m1a_50x20_reinforcement.py
