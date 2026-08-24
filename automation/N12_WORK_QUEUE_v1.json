@@ -166,7 +166,7 @@
     {
       "id": "M1E-CALCULATION-MODEL-HANDOFF",
       "priority": 60,
-      "state": "READY",
+      "state": "RESIDUAL",
       "stage": "S5_PROMOTION_GATE",
       "source_sheet": "MULTI",
       "task": "Build the calculation-model handoff for EdiLus-EE and an independent FEM implementation from the frozen geometry plus validated sections, materials, reinforcement, loads and foundations.",
@@ -186,7 +186,9 @@
       ],
       "semantic_gate": "Promote only when every required calculation input is either supported for execution or explicitly represented by an admitted modeling rule. Preserve rigid zones, member identity, offsets and all residual provenance. Final gate is CALCULATION_MODEL_READY.",
       "released_at": "2026-08-24T18:49:47.914745+00:00",
-      "released_by": "M1F-FOUNDATION-MODEL"
+      "released_by": "M1F-FOUNDATION-MODEL",
+      "last_result_at": "2026-08-24T18:53:54.878768+00:00",
+      "result_receipt": "automation/receipts/M1E-CALCULATION-MODEL-HANDOFF_20260824T185354Z.json"
     }
   ]
 }
