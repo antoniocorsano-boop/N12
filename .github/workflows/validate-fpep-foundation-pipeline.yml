@@ -228,4 +228,5 @@ jobs:
           fi
 
       - name: Report pending result state
-        run: echo "Pending FPEP result: ${{ steps.pending.outputs.pending }}"
+        run: |
+          echo "Pending FPEP result: ${{ steps.pending.outputs.pending }}"
