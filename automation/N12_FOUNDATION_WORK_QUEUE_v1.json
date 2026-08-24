@@ -11,21 +11,9 @@
       "state": "COMPLETE",
       "agent_role": "STATE_REGISTRY_AUDITOR",
       "dependencies": [],
-      "allowed_inputs": [
-        "AGENTS.md",
-        "knowledge/KNOWLEDGE_MANIFEST.json",
-        "knowledge/CURRENT_STATE.json",
-        "knowledge/ARTIFACT_REGISTRY.csv",
-        "automation/N12_AUTOMATION_CONTRACT_v1.json",
-        "automation/N12_WORK_QUEUE_v1.json",
-        "docs/REGISTRO_MASTER.md"
-      ],
-      "forbidden_context": [
-        "none"
-      ],
-      "target_outputs": [
-        "analysis/fpep/FPEP_STATE_COHERENCE_AUDIT_v1.json"
-      ],
+      "allowed_inputs": ["AGENTS.md","knowledge/KNOWLEDGE_MANIFEST.json","knowledge/CURRENT_STATE.json","knowledge/ARTIFACT_REGISTRY.csv","automation/N12_AUTOMATION_CONTRACT_v1.json","automation/N12_WORK_QUEUE_v1.json","docs/REGISTRO_MASTER.md"],
+      "forbidden_context": ["none"],
+      "target_outputs": ["analysis/fpep/FPEP_STATE_COHERENCE_AUDIT_v1.json"],
       "semantic_gate": "Manifest, current state, queue, effective registry and referenced artifacts must agree sufficiently to establish an unambiguous foundation pipeline entrypoint. Missing historical references are recorded, never silently substituted.",
       "completed_at": "2026-08-24T12:15:24.184863+00:00",
       "completion_decision": "PASS_WITH_WATCH",
@@ -36,24 +24,10 @@
       "priority": 20,
       "state": "COMPLETE",
       "agent_role": "SOURCE_IDENTITY_VERIFIER",
-      "dependencies": [
-        "FPEP-P00-STATE-CONSISTENCY"
-      ],
-      "allowed_inputs": [
-        "analysis/fpep/FPEP_STATE_COHERENCE_AUDIT_v1.json",
-        "data/canonical/tavole_originali_remote_index_v1.csv",
-        "data/canonical/M1F_FOUNDATION_SOURCE_ROLE_AUDIT_v1.csv",
-        "archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf"
-      ],
-      "forbidden_context": [
-        "existing_foundation_topology",
-        "M0G_geometry",
-        "PT_master_coordinates",
-        "TAV01A_reinforcement_groups"
-      ],
-      "target_outputs": [
-        "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json"
-      ],
+      "dependencies": ["FPEP-P00-STATE-CONSISTENCY"],
+      "allowed_inputs": ["analysis/fpep/FPEP_STATE_COHERENCE_AUDIT_v1.json","data/canonical/tavole_originali_remote_index_v1.csv","data/canonical/M1F_FOUNDATION_SOURCE_ROLE_AUDIT_v1.csv","archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf"],
+      "forbidden_context": ["existing_foundation_topology","M0G_geometry","PT_master_coordinates","TAV01A_reinforcement_groups"],
+      "target_outputs": ["analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json"],
       "semantic_gate": "Foundation carpentry identity must be established from immutable-source path/hash and source-role evidence; filename convention alone is insufficient.",
       "completed_at": "2026-08-24T12:40:55.827622+00:00",
       "completion_decision": "PASS",
@@ -64,22 +38,10 @@
       "priority": 30,
       "state": "COMPLETE",
       "agent_role": "HIRES_EVIDENCE_BUILDER",
-      "dependencies": [
-        "FPEP-P01-SOURCE-IDENTITY"
-      ],
-      "allowed_inputs": [
-        "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json",
-        "archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf"
-      ],
-      "forbidden_context": [
-        "existing_foundation_topology",
-        "M0G_geometry",
-        "PT_master_coordinates",
-        "TAV01A_reinforcement_groups"
-      ],
-      "target_outputs": [
-        "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"
-      ],
+      "dependencies": ["FPEP-P01-SOURCE-IDENTITY"],
+      "allowed_inputs": ["analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json","archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf"],
+      "forbidden_context": ["existing_foundation_topology","M0G_geometry","PT_master_coordinates","TAV01A_reinforcement_groups"],
+      "target_outputs": ["analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"],
       "semantic_gate": "Produce reproducible overview/region/tile/crop evidence with parent-source hashes, overlap mapping and explicit unreadable zones. Rendered evidence is DERIVED and never outranks the immutable PDF.",
       "completed_at": "2026-08-24T12:47:32.364971+00:00",
       "completion_decision": "PASS",
@@ -90,26 +52,10 @@
       "priority": 40,
       "state": "COMPLETE",
       "agent_role": "FOUNDATION_CARPENTRY_READER_A",
-      "dependencies": [
-        "FPEP-P02-HIRES-EVIDENCE"
-      ],
-      "allowed_inputs": [
-        "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json",
-        "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"
-      ],
-      "forbidden_context": [
-        "reader_b_observations",
-        "existing_foundation_topology",
-        "existing_38_support_count",
-        "existing_58_member_count",
-        "M0G_geometry",
-        "PT_master_coordinates",
-        "TAV01A_reinforcement_groups",
-        "historical_calculation_topology"
-      ],
-      "target_outputs": [
-        "analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv"
-      ],
+      "dependencies": ["FPEP-P02-HIRES-EVIDENCE"],
+      "allowed_inputs": ["analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json","analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"],
+      "forbidden_context": ["reader_b_observations","existing_foundation_topology","existing_38_support_count","existing_58_member_count","M0G_geometry","PT_master_coordinates","TAV01A_reinforcement_groups","historical_calculation_topology"],
+      "target_outputs": ["analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv"],
       "semantic_gate": "Read dimensions and identifiers first, then symbols and graphical continuity. Record observations only; do not construct a target topology.",
       "completed_at": "2026-08-24T13:26:12.866239+00:00",
       "completion_decision": "PASS",
@@ -120,26 +66,10 @@
       "priority": 41,
       "state": "COMPLETE",
       "agent_role": "FOUNDATION_CARPENTRY_READER_B",
-      "dependencies": [
-        "FPEP-P02-HIRES-EVIDENCE"
-      ],
-      "allowed_inputs": [
-        "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json",
-        "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"
-      ],
-      "forbidden_context": [
-        "reader_a_observations",
-        "existing_foundation_topology",
-        "existing_38_support_count",
-        "existing_58_member_count",
-        "M0G_geometry",
-        "PT_master_coordinates",
-        "TAV01A_reinforcement_groups",
-        "historical_calculation_topology"
-      ],
-      "target_outputs": [
-        "analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv"
-      ],
+      "dependencies": ["FPEP-P02-HIRES-EVIDENCE"],
+      "allowed_inputs": ["analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json","analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"],
+      "forbidden_context": ["reader_a_observations","existing_foundation_topology","existing_38_support_count","existing_58_member_count","M0G_geometry","PT_master_coordinates","TAV01A_reinforcement_groups","historical_calculation_topology"],
+      "target_outputs": ["analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv"],
       "semantic_gate": "Independent second reading of the same primary evidence. Agreement with Reader A is not itself an authority upgrade; disagreement creates a claim-level adjudication item.",
       "completed_at": "2026-08-24T13:42:25.844649+00:00",
       "completion_decision": "PASS_WITH_WATCH",
@@ -150,27 +80,10 @@
       "priority": 50,
       "state": "COMPLETE",
       "agent_role": "FOUNDATION_METRIC_NETWORK_SOLVER",
-      "dependencies": [
-        "FPEP-P03A-BLIND-READ-A",
-        "FPEP-P03B-BLIND-READ-B"
-      ],
-      "allowed_inputs": [
-        "analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv",
-        "analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv",
-        "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"
-      ],
-      "forbidden_context": [
-        "existing_foundation_topology",
-        "existing_38_support_count",
-        "existing_58_member_count",
-        "M0G_geometry",
-        "PT_master_coordinates",
-        "TAV01A_reinforcement_groups"
-      ],
-      "target_outputs": [
-        "analysis/fpep/FPEP_METRIC_CLAIMS_v1.csv",
-        "analysis/fpep/FPEP_METRIC_CLOSURE_AUDIT_v1.csv"
-      ],
+      "dependencies": ["FPEP-P03A-BLIND-READ-A","FPEP-P03B-BLIND-READ-B"],
+      "allowed_inputs": ["analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv","analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv","analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"],
+      "forbidden_context": ["existing_foundation_topology","existing_38_support_count","existing_58_member_count","M0G_geometry","PT_master_coordinates","TAV01A_reinforcement_groups"],
+      "target_outputs": ["analysis/fpep/FPEP_METRIC_CLAIMS_v1.csv","analysis/fpep/FPEP_METRIC_CLOSURE_AUDIT_v1.csv"],
       "semantic_gate": "Written dimensions and explicit IDs govern. Raster measurements may localize/check only and cannot independently promote DOC coordinates. All dimension chains must carry closure status.",
       "completed_at": "2026-08-24T13:50:02.211843+00:00",
       "completion_decision": "PASS_WITH_WATCH",
@@ -181,27 +94,10 @@
       "priority": 60,
       "state": "COMPLETE",
       "agent_role": "FOUNDATION_TOPOLOGY_BUILDER",
-      "dependencies": [
-        "FPEP-P04-METRIC-NETWORK"
-      ],
-      "allowed_inputs": [
-        "analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv",
-        "analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv",
-        "analysis/fpep/FPEP_METRIC_CLAIMS_v1.csv",
-        "analysis/fpep/FPEP_METRIC_CLOSURE_AUDIT_v1.csv"
-      ],
-      "forbidden_context": [
-        "existing_foundation_topology",
-        "existing_38_support_count",
-        "existing_58_member_count",
-        "M0G_geometry",
-        "PT_master_coordinates",
-        "TAV01A_reinforcement_groups",
-        "historical_calculation_topology"
-      ],
-      "target_outputs": [
-        "analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv"
-      ],
+      "dependencies": ["FPEP-P04-METRIC-NETWORK"],
+      "allowed_inputs": ["analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv","analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv","analysis/fpep/FPEP_METRIC_CLAIMS_v1.csv","analysis/fpep/FPEP_METRIC_CLOSURE_AUDIT_v1.csv"],
+      "forbidden_context": ["existing_foundation_topology","existing_38_support_count","existing_58_member_count","M0G_geometry","PT_master_coordinates","TAV01A_reinforcement_groups","historical_calculation_topology"],
+      "target_outputs": ["analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv"],
       "semantic_gate": "Build only from cross-validated primary observations and metric claims. Two nearby supports never imply a beam. Each member requires traceable graphical continuity and identified endpoints.",
       "completed_at": "2026-08-24T13:59:59.288557+00:00",
       "completion_decision": "PASS_WITH_WATCH",
@@ -212,27 +108,10 @@
       "priority": 70,
       "state": "COMPLETE",
       "agent_role": "FOUNDATION_CONFLICT_ADJUDICATOR",
-      "dependencies": [
-        "FPEP-P05-TOPOLOGY-CANDIDATE"
-      ],
-      "allowed_inputs": [
-        "analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv",
-        "analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv",
-        "analysis/fpep/FPEP_METRIC_CLAIMS_v1.csv",
-        "analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv",
-        "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"
-      ],
-      "forbidden_context": [
-        "existing_foundation_topology",
-        "existing_38_support_count",
-        "existing_58_member_count",
-        "M0G_geometry",
-        "PT_master_coordinates",
-        "TAV01A_reinforcement_groups"
-      ],
-      "target_outputs": [
-        "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv"
-      ],
+      "dependencies": ["FPEP-P05-TOPOLOGY-CANDIDATE"],
+      "allowed_inputs": ["analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv","analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv","analysis/fpep/FPEP_METRIC_CLAIMS_v1.csv","analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv","analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"],
+      "forbidden_context": ["existing_foundation_topology","existing_38_support_count","existing_58_member_count","M0G_geometry","PT_master_coordinates","TAV01A_reinforcement_groups"],
+      "target_outputs": ["analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv"],
       "semantic_gate": "Classify MATCH/PARTIAL_MATCH/CONFLICT/NOT_VISIBLE at claim level and request the smallest evidence reread needed. The adjudicator cannot manufacture a resolving fact or use majority vote.",
       "last_run_id": "FPEP-P06-20260824T142500Z",
       "completed_at": "2026-08-24T14:28:35.641759+00:00",
@@ -243,26 +122,10 @@
       "priority": 80,
       "state": "WAITING",
       "agent_role": "PRIMARY_GEOMETRY_PROMOTER",
-      "dependencies": [
-        "FPEP-P06-CONFLICT-ADJUDICATION"
-      ],
-      "allowed_inputs": [
-        "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json",
-        "analysis/fpep/FPEP_METRIC_CLAIMS_v1.csv",
-        "analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv",
-        "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv"
-      ],
-      "forbidden_context": [
-        "semantic_source_reading_by_promoter",
-        "existing_foundation_topology_as_target",
-        "M0G_geometry_as_generator",
-        "PT_master_coordinates_as_generator",
-        "TAV01A_as_geometry_generator"
-      ],
-      "target_outputs": [
-        "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
-        "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv"
-      ],
+      "dependencies": ["FPEP-P06-CONFLICT-ADJUDICATION"],
+      "allowed_inputs": ["analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json","analysis/fpep/FPEP_METRIC_CLAIMS_v1.csv","analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv","analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv","analysis/fpep/FPEP_INCIDENCE_SWEEP_v1.csv","analysis/fpep/FPEP_INCIDENCE_SWEEP_CLOSURE_v1.csv"],
+      "forbidden_context": ["semantic_source_reading_by_promoter","existing_foundation_topology_as_target","M0G_geometry_as_generator","PT_master_coordinates_as_generator","TAV01A_as_geometry_generator"],
+      "target_outputs": ["data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv","data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv"],
       "semantic_gate": "Promote only traceable primary-source claims. Geometry used to derive other geometry must be CROSS_VALIDATED and free of blocking conflict. Preserve residuals and superseded claims."
     },
     {
@@ -270,22 +133,10 @@
       "priority": 90,
       "state": "WAITING",
       "agent_role": "TAV01A_BINDING_AUDITOR",
-      "dependencies": [
-        "FPEP-P07-PRIMARY-GEOMETRY-GATE"
-      ],
-      "allowed_inputs": [
-        "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
-        "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
-        "data/canonical/M1F_FOUNDATION_REINFORCEMENT_GATE_v1.csv",
-        "data/canonical/M1F_FOUNDATION_SECTION_BINDING_GATE_v1.csv",
-        "data/canonical/M1F_TAV01A_GROUP_INDEX_v1.csv"
-      ],
-      "forbidden_context": [
-        "TAV01A_geometry_creation"
-      ],
-      "target_outputs": [
-        "analysis/fpep/FPEP_TAV01A_BINDING_REVIEW_v1.csv"
-      ],
+      "dependencies": ["FPEP-P07-PRIMARY-GEOMETRY-GATE"],
+      "allowed_inputs": ["data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv","data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv","data/canonical/M1F_FOUNDATION_REINFORCEMENT_GATE_v1.csv","data/canonical/M1F_FOUNDATION_SECTION_BINDING_GATE_v1.csv","data/canonical/M1F_TAV01A_GROUP_INDEX_v1.csv"],
+      "forbidden_context": ["TAV01A_geometry_creation"],
+      "target_outputs": ["analysis/fpep/FPEP_TAV01A_BINDING_REVIEW_v1.csv"],
       "semantic_gate": "Review existing reinforcement/section bindings against the promoted geometry. TAV-01A may bind properties but cannot create, delete or move foundation members."
     },
     {
@@ -293,21 +144,10 @@
       "priority": 91,
       "state": "WAITING",
       "agent_role": "HISTORICAL_MODEL_RECONCILER",
-      "dependencies": [
-        "FPEP-P07-PRIMARY-GEOMETRY-GATE"
-      ],
-      "allowed_inputs": [
-        "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
-        "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
-        "data/canonical/M1F_HISTORICAL_CALC_SOURCE_AVAILABILITY_v1.csv",
-        "data/canonical/ORIGINAL_RELATION_PAGE2_EVIDENCE_v1.csv"
-      ],
-      "forbidden_context": [
-        "historical_calculation_geometry_creation"
-      ],
-      "target_outputs": [
-        "analysis/fpep/FPEP_HISTORICAL_MODEL_CROSSCHECK_v1.csv"
-      ],
+      "dependencies": ["FPEP-P07-PRIMARY-GEOMETRY-GATE"],
+      "allowed_inputs": ["data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv","data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv","data/canonical/M1F_HISTORICAL_CALC_SOURCE_AVAILABILITY_v1.csv","data/canonical/ORIGINAL_RELATION_PAGE2_EVIDENCE_v1.csv"],
+      "forbidden_context": ["historical_calculation_geometry_creation"],
+      "target_outputs": ["analysis/fpep/FPEP_HISTORICAL_MODEL_CROSSCHECK_v1.csv"],
       "semantic_gate": "Record omissions/simplifications/deltas between documented carpentry and historical calculation without rewriting either historical or documented-as-built states."
     },
     {
@@ -315,24 +155,10 @@
       "priority": 92,
       "state": "WAITING",
       "agent_role": "GLOBAL_MODEL_REGRESSION_AUDITOR",
-      "dependencies": [
-        "FPEP-P07-PRIMARY-GEOMETRY-GATE"
-      ],
-      "allowed_inputs": [
-        "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
-        "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
-        "data/canonical/M1F_FOUNDATION_TOPOLOGY_CURRENT_v1.csv",
-        "data/canonical/M1F_FOUNDATION_TOPOLOGY_GATE_v1.csv",
-        "data/canonical/PT_MASTER_CURRENT.csv",
-        "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json"
-      ],
-      "forbidden_context": [
-        "use_legacy_counts_as_extraction_target",
-        "modify_M0G_directly"
-      ],
-      "target_outputs": [
-        "analysis/fpep/FPEP_M0G_REGRESSION_CROSSCHECK_v1.csv"
-      ],
+      "dependencies": ["FPEP-P07-PRIMARY-GEOMETRY-GATE"],
+      "allowed_inputs": ["data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv","data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv","data/canonical/M1F_FOUNDATION_TOPOLOGY_CURRENT_v1.csv","data/canonical/M1F_FOUNDATION_TOPOLOGY_GATE_v1.csv","data/canonical/PT_MASTER_CURRENT.csv","data/canonical/M0G_GEOMETRY_HANDOFF_v1.json"],
+      "forbidden_context": ["use_legacy_counts_as_extraction_target","modify_M0G_directly"],
+      "target_outputs": ["analysis/fpep/FPEP_M0G_REGRESSION_CROSSCHECK_v1.csv"],
       "semantic_gate": "Compare only after primary promotion. Agreement yields revalidation; mismatch reopens the smallest claim and may request formal M0G-REOPEN only when supported by cross-validated primary evidence."
     },
     {
@@ -340,22 +166,10 @@
       "priority": 93,
       "state": "WAITING",
       "agent_role": "FOUNDATION_INTERFACE_AUDITOR",
-      "dependencies": [
-        "FPEP-P07-PRIMARY-GEOMETRY-GATE"
-      ],
-      "allowed_inputs": [
-        "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
-        "data/canonical/M1F_FOUNDATION_ELEVATION_GATE_v1.csv",
-        "data/canonical/M1F_GROUND_FLOOR_INTERFACE_GATE_v1.csv",
-        "data/canonical/M1F_CURRENT_GEOTECHNICAL_GATE_v1.csv"
-      ],
-      "forbidden_context": [
-        "infer_numeric_Z",
-        "infer_current_geotechnics"
-      ],
-      "target_outputs": [
-        "analysis/fpep/FPEP_FOUNDATION_INTERFACE_CROSSCHECK_v1.csv"
-      ],
+      "dependencies": ["FPEP-P07-PRIMARY-GEOMETRY-GATE"],
+      "allowed_inputs": ["data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv","data/canonical/M1F_FOUNDATION_ELEVATION_GATE_v1.csv","data/canonical/M1F_GROUND_FLOOR_INTERFACE_GATE_v1.csv","data/canonical/M1F_CURRENT_GEOTECHNICAL_GATE_v1.csv"],
+      "forbidden_context": ["infer_numeric_Z","infer_current_geotechnics"],
+      "target_outputs": ["analysis/fpep/FPEP_FOUNDATION_INTERFACE_CROSSCHECK_v1.csv"],
       "semantic_gate": "Keep structural geometry, vertical datum, PT build-up and geotechnical evidence as separate domains. Geometry PASS cannot manufacture numeric Z or current soil parameters."
     },
     {
@@ -363,26 +177,10 @@
       "priority": 100,
       "state": "WAITING",
       "agent_role": "FPEP_RELEASE_AUDITOR",
-      "dependencies": [
-        "FPEP-P08-TAV01A-BINDING-REVIEW",
-        "FPEP-P09-HISTORICAL-CALC-CROSSCHECK",
-        "FPEP-P10-M0G-REGRESSION-CROSSCHECK",
-        "FPEP-P11-FOUNDATION-INTERFACE-CHECK"
-      ],
-      "allowed_inputs": [
-        "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
-        "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
-        "analysis/fpep/FPEP_TAV01A_BINDING_REVIEW_v1.csv",
-        "analysis/fpep/FPEP_HISTORICAL_MODEL_CROSSCHECK_v1.csv",
-        "analysis/fpep/FPEP_M0G_REGRESSION_CROSSCHECK_v1.csv",
-        "analysis/fpep/FPEP_FOUNDATION_INTERFACE_CROSSCHECK_v1.csv"
-      ],
-      "forbidden_context": [
-        "new_semantic_fact_creation"
-      ],
-      "target_outputs": [
-        "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv"
-      ],
+      "dependencies": ["FPEP-P08-TAV01A-BINDING-REVIEW","FPEP-P09-HISTORICAL-CALC-CROSSCHECK","FPEP-P10-M0G-REGRESSION-CROSSCHECK","FPEP-P11-FOUNDATION-INTERFACE-CHECK"],
+      "allowed_inputs": ["data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv","data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv","analysis/fpep/FPEP_TAV01A_BINDING_REVIEW_v1.csv","analysis/fpep/FPEP_HISTORICAL_MODEL_CROSSCHECK_v1.csv","analysis/fpep/FPEP_M0G_REGRESSION_CROSSCHECK_v1.csv","analysis/fpep/FPEP_FOUNDATION_INTERFACE_CROSSCHECK_v1.csv"],
+      "forbidden_context": ["new_semantic_fact_creation"],
+      "target_outputs": ["data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv"],
       "semantic_gate": "Release only when lineage is complete, all blocking conflicts are absent, residuals remain explicit, downstream crosschecks are recorded, and no forbidden evidence flow occurred."
     }
   ]
