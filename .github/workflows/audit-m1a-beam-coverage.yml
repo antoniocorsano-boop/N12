@@ -13,6 +13,7 @@ on:
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CURRENT_v1.csv'
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_GATE_v1.csv'
       - 'scripts/audit_m1a_beam_reinforcement_coverage.py'
+      - 'scripts/audit_m1a_beam_gap_families.py'
       - '.github/workflows/audit-m1a-beam-coverage.yml'
   pull_request:
     paths:
@@ -24,6 +25,7 @@ on:
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CURRENT_v1.csv'
       - 'data/canonical/M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_GATE_v1.csv'
       - 'scripts/audit_m1a_beam_reinforcement_coverage.py'
+      - 'scripts/audit_m1a_beam_gap_families.py'
       - '.github/workflows/audit-m1a-beam-coverage.yml'
   workflow_dispatch:
 
@@ -42,3 +44,5 @@ jobs:
           python-version: '3.12'
       - name: Validate beam reinforcement source coverage
         run: python scripts/audit_m1a_beam_reinforcement_coverage.py
+      - name: Classify uncovered beam gap families
+        run: python scripts/audit_m1a_beam_gap_families.py
