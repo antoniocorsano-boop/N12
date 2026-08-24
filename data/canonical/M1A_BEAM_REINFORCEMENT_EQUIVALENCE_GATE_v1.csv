@@ -1,0 +1,13 @@
+metric,value,status,note
+ordinary_beams_total,232,DOC,"Frozen M0-G ordinary beam population: G1 52 + G2 48 + G3 48 + G4 48 + G5 36."
+direct_group_source_covered_total,148,DOC,"34+34+34+31+15 from M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CURRENT_v1.csv; unchanged by inferred bindings."
+direct_group_source_uncovered_total,84,DOC,"18+14+14+17+21 direct documentary gaps before authored-equivalence inference."
+g4_inferred_companion_members,3,INF_STRONG_DRAFTING_RULE,"G4-B036, G4-B041 and G4-B046 bound at family topology/count/diameter level to T5A-G07 using T34-G07 authored companion precedent plus G2/G4 geometry/section crosscheck."
+effective_scheme_bound_total,151,PASS_WITH_WATCH,"148 direct + 3 strong inferred; direct-source count remains separately frozen at 148."
+remaining_unbound_total,81,WATCH,"232 - 151. No numerical reinforcement is invented for residual members."
+g4_direct_covered,31,DOC,"Direct TAV-05A group indexing only."
+g4_effective_bound,34,PASS_WITH_WATCH,"31 direct + 3 inferred companion spans."
+g4_remaining_unbound,14,WATCH,"After companion recovery, G4 reduces to the same 14-position residual pattern as G2 and G3."
+g2_g3_g4_shared_residual_pattern,"4-5 (25x70) + 13 recurring 50x20 positions",INF_STRONG_SOURCE_SCOPE_PATTERN,"Shared positions: 2-10;3-11;6-14;7-15;11-20;10-18;13-21;14-22;15-23;25-26;26-27;28-29;29-30 plus closure 4-5."
+50x20_numeric_reinforcement,ND,WATCH,"Direct 50x20 precedents currently transcribed are role/topology-mismatched: T2A-G07 long paired run and central stair-transition occurrences T34-G03/T5A-G03."
+gate_status,PASS_G4_COMPANION_FAMILY_BINDING_WITH_50X20_NUMERIC_WATCH,PASS_WITH_WATCH,"Strong authored-equivalence recovery is accepted for the three G4 companion spans; the 13-member recurring 50x20 class remains a documentary search problem, not a numerical inference target."
