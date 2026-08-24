@@ -46,6 +46,7 @@
   "audit_paths": [
     "analysis/automation/M1L_LOAD_MODEL_AUDIT_v1.md",
     "data/canonical/M1L_LOAD_PATH_CLASSIFICATION_CURRENT_v1.csv",
-    "data/canonical/M1L_HISTORICAL_VS_ASBUILT_LOAD_DELTA_REGISTER_v1.csv"
+    "data/canonical/M1L_HISTORICAL_VS_ASBUILT_LOAD_DELTA_REGISTER_v1.csv",
+    "data/canonical/M1L_LOADS_GATE_v1.csv"
   ]
 }
