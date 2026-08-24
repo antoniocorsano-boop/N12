@@ -9,6 +9,9 @@ on:
       - 'data/canonical/M1A_G5_EAVE_REINFORCEMENT_GATE_v1.csv'
       - 'data/canonical/M1A_G5_RIDGE_GRONDA_INTERPRETATION_CURRENT_v1.csv'
       - 'data/canonical/M1A_G5_GRONDA_CORNICE_BINDING_GATE_v1.csv'
+      - 'data/canonical/M1A_G5_COLUMN_REINFORCEMENT_BINDING_CURRENT_v1.csv'
+      - 'data/canonical/M1A_G5_COLUMN_REINFORCEMENT_SOURCE_CONFLICT_v1.csv'
+      - 'data/canonical/M1A_G5_COLUMN_REINFORCEMENT_GATE_v1.csv'
       - 'data/canonical/M1A_BALCONY_CORNICE_REINFORCEMENT_SOURCE_AUDIT_v1.csv'
       - 'data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M1A_TAV05A_GROUP_REINFORCEMENT_v1.csv'
@@ -21,10 +24,13 @@ on:
       - 'data/canonical/PT_TERRACE_GEOMETRY_CURRENT_v1.csv'
       - 'data/canonical/PT_MASTER_CURRENT.csv'
       - 'data/canonical/M1F_AD_HISTORICAL_MODEL_DELTA_AUDIT_v1.csv'
+      - 'data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json'
+      - 'data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv'
       - 'scripts/validate_m1a_g5_eave_reinforcement.py'
       - 'scripts/validate_m1a_tav05a_group_transcription.py'
       - 'scripts/validate_m1a_stair_gronda_binding.py'
       - 'scripts/validate_m1a_g1_terrace_addition.py'
+      - 'scripts/validate_m1a_g5_column_reinforcement.py'
       - '.github/workflows/validate-m1a-special.yml'
   pull_request:
     paths:
@@ -32,6 +38,9 @@ on:
       - 'data/canonical/M1A_G5_EAVE_REINFORCEMENT_GATE_v1.csv'
       - 'data/canonical/M1A_G5_RIDGE_GRONDA_INTERPRETATION_CURRENT_v1.csv'
       - 'data/canonical/M1A_G5_GRONDA_CORNICE_BINDING_GATE_v1.csv'
+      - 'data/canonical/M1A_G5_COLUMN_REINFORCEMENT_BINDING_CURRENT_v1.csv'
+      - 'data/canonical/M1A_G5_COLUMN_REINFORCEMENT_SOURCE_CONFLICT_v1.csv'
+      - 'data/canonical/M1A_G5_COLUMN_REINFORCEMENT_GATE_v1.csv'
       - 'data/canonical/M1A_BALCONY_CORNICE_REINFORCEMENT_SOURCE_AUDIT_v1.csv'
       - 'data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv'
       - 'data/canonical/M1A_TAV05A_GROUP_REINFORCEMENT_v1.csv'
@@ -44,10 +53,13 @@ on:
       - 'data/canonical/PT_TERRACE_GEOMETRY_CURRENT_v1.csv'
       - 'data/canonical/PT_MASTER_CURRENT.csv'
       - 'data/canonical/M1F_AD_HISTORICAL_MODEL_DELTA_AUDIT_v1.csv'
+      - 'data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json'
+      - 'data/canonical/STOREY_SUPPORT_SECTIONS_G5_v1.csv'
       - 'scripts/validate_m1a_g5_eave_reinforcement.py'
       - 'scripts/validate_m1a_tav05a_group_transcription.py'
       - 'scripts/validate_m1a_stair_gronda_binding.py'
       - 'scripts/validate_m1a_g1_terrace_addition.py'
+      - 'scripts/validate_m1a_g5_column_reinforcement.py'
       - '.github/workflows/validate-m1a-special.yml'
   workflow_dispatch:
 
@@ -77,3 +89,6 @@ jobs:
 
       - name: Validate G1 terrace addition evidence boundary
         run: python scripts/validate_m1a_g1_terrace_addition.py
+
+      - name: Validate G5 column reinforcement binding
+        run: python scripts/validate_m1a_g5_column_reinforcement.py
