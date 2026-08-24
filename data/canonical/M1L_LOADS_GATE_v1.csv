@@ -1,0 +1,11 @@
+check_id,metric,expected,actual,status,severity,note
+M1L-G01,architectural_load_zones_registered,6,6,PASS,HARD,"All six architectural load zones from the current M1-L envelope register are represented in the load-path classification."
+M1L-G02,special_configuration_items_registered,8,8,PASS,HARD,"All eight special-configuration items remain registered as load/reverse-engineering domains; METHOD rows are not converted into loads."
+M1L-G03,g5_eave_overhang_ends_with_doc_structural_hosts,8,8,PASS,HARD,"Eight TAV-06A overhang ends are tied to host G5 beams; length remains a separate RIF watch."
+M1L-G04,pt_complete_build_up_forced_onto_frame_or_foundation,NO,NO,PASS,HARD,"Ground-supported versus structural PT transfer remains open; the whole fill/pour/screed package is not loaded onto the frame by default."
+M1L-G05,unsourced_numeric_special_loads_promoted,0,0,PASS,HARD,"No Gk/Qk/mass/eccentricity numerical value is introduced by the semantic classification."
+M1L-G06,historical_omission_claims_promoted_to_doc_without_primary_calc_evidence,0,0,PASS,HARD,"Reported omissions for a-d, balconies and top configuration remain conditional/RIF until primary historical calculation evidence is registered."
+M1L-G07,historical_and_asbuilt_models_kept_separate,YES,YES,PASS,HARD,"The delta ledger preserves a historical reconstruction and a documented/as-built/current model as distinct terms."
+M1L-G08,known_load_domains_have_path_or_explicit_residual,YES,YES,PASS,HARD,"Every current architectural zone and special load domain is either structurally classified or carries an explicit support/load-path residual."
+M1L-G09,numeric_load_model_ready,YES,NO,PASS_WITH_WATCH,WATCH,"Numerical loads remain blocked by geometry, construction-layer, unit-weight, use-category, tributary-area and historical-input residuals."
+M1L-GATE,gate_state,PASS_SEMANTIC_LOAD_PATH_AND_DELTA_FRAMEWORK_WITH_NUMERIC_WATCH,PASS_SEMANTIC_LOAD_PATH_AND_DELTA_FRAMEWORK_WITH_NUMERIC_WATCH,PASS_WITH_WATCH,GATE,"M1-L semantic load-path and historical-vs-as-built framework is closed safely; numerical load assignment remains a separate evidence-driven continuation."
