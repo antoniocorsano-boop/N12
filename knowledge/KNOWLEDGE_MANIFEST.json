@@ -16,7 +16,8 @@
     "knowledge/ARTIFACT_REGISTRY_M0G_GATE_PATCH_v1.csv",
     "knowledge/ARTIFACT_REGISTRY_M1_PATCH_v1.csv",
     "knowledge/ARTIFACT_REGISTRY_M1F_ELEVATION_PATCH_v1.csv",
-    "knowledge/ARTIFACT_REGISTRY_M1F_INTERFACE_PATCH_v1.csv"
+    "knowledge/ARTIFACT_REGISTRY_M1F_INTERFACE_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1L_LOADS_PATCH_v1.csv"
   ],
   "human_master_register": "docs/REGISTRO_MASTER.md",
   "revalidation_ledger": "data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv",
@@ -124,8 +125,17 @@
     "m1f_symbolic_members": 58,
     "m1f_numeric_z_status": "ND",
     "m1f_historical_omission_source_search": "CLOSED_CURRENT_REPOSITORY_INVENTORY_REOPEN_ONLY_ON_NEW_PRIMARY_SOURCE",
+    "m1l_status": "IN_PROGRESS_SEMANTIC_LOAD_PATH_CLASSIFIED",
+    "m1l_gate": "data/canonical/M1L_LOADS_GATE_v1.csv",
+    "m1l_load_path_register": "data/canonical/M1L_LOAD_PATH_CLASSIFICATION_CURRENT_v1.csv",
+    "m1l_delta_register": "data/canonical/M1L_HISTORICAL_VS_ASBUILT_LOAD_DELTA_REGISTER_v1.csv",
+    "m1l_architectural_load_zones": 6,
+    "m1l_load_path_rows": 7,
+    "m1l_g5_eave_doc_hosts": 8,
+    "m1l_numeric_load_status": "ND",
+    "m1l_historical_omission_status": "CONDITIONAL_UNTIL_PRIMARY_CALCULATION_EVIDENCE",
     "next_work_item": "M1A-REINFORCEMENT-EVIDENCE",
     "rule": "M0-G remains frozen; M1 completes model inputs without inventing missing evidence."
   },
-  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, semantic result handshake, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology, material evidence and residual acceptance remain specialist gates"}
+  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, semantic result handshake, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology, material evidence, load-path classification and residual acceptance remain specialist gates"}
 }
