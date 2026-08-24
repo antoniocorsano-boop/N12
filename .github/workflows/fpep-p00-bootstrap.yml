@@ -1,4 +1,5 @@
 name: FPEP P00 Bootstrap
+# Registered bootstrap activation marker: no semantic change to FPEP evidence or queue state.
 
 on:
   workflow_dispatch:
