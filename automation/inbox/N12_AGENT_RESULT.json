@@ -1,0 +1,241 @@
+{
+  "schema_version": "1.0",
+  "work_item_id": "M1F-PRIMARY-GEOMETRY-REVALIDATION",
+  "source_sheet": "TAV-01S",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "target_outputs": [
+    "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
+    "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv"
+  ],
+  "provenance_summary": {
+    "DOC": 185,
+    "MIS": 0,
+    "RIF": 11,
+    "INF": 0,
+    "INC": 6,
+    "ND": 2
+  },
+  "residuals": [
+    {
+      "residual_id": "P00-W001",
+      "claim_id": "P00-C011",
+      "blocking": false,
+      "reason": "human Master backtick references resolve to existing repository artifacts: ['data/canonical/m0s1a_level_sheet_crosswalk.csv', 'docs/FOGLIO_LAVORO/M0S_DXF_TEXT_MEANINGFUL_TAV5.csv']",
+      "required_evidence": "Update or supersede the human Master reference only if it is still intended as a current operational pointer; do not substitute a guessed file."
+    },
+    {
+      "residual_id": "P03B-R001",
+      "claim_id": "P03B-SYMBOL-CONTINUITY-COVERAGE",
+      "blocking": false,
+      "reason": "Deterministic OCR does not classify all structural symbols or semantic graphical continuity with sufficient reliability.",
+      "required_evidence": "Use Reader A/B claim comparison in P04 and order source-local reread/adjudication in P06 only where the missing B semantic observation affects a claim."
+    },
+    {
+      "residual_id": "P03B-R002",
+      "claim_id": "P03B-LOW-CONFIDENCE-TEXT-CANDIDATES",
+      "blocking": false,
+      "reason": "4 retained text candidates remain INC and are not corrected against Reader A.",
+      "required_evidence": "Cross-read only after both blind reads are closed; preserve CONFLICT/NOT_VISIBLE where source-local evidence cannot resolve the value."
+    },
+    {
+      "residual_id": "P04-R001",
+      "claim_id": "P04-CL-002",
+      "blocking": false,
+      "reason": "The folded 14.55 region contains legible values 4.15, 4.25, 5.30 and 4.70, but their witness-span membership is unresolved; all four cannot belong to the same 14.55 total.",
+      "required_evidence": "Source-local witness-line reread during P06; do not assign segments by arithmetic fit."
+    },
+    {
+      "residual_id": "P04-R002",
+      "claim_id": "P04-DIM-013|P04-DIM-014",
+      "blocking": false,
+      "reason": "Independent readers disagree 6.25 vs 6.26 and 4.95 vs 4.96 on the same P02 tile.",
+      "required_evidence": "P06 source-local reread of the exact numeral glyphs; no averaging or majority vote."
+    },
+    {
+      "residual_id": "P04-R003",
+      "claim_id": "P04-CL-006",
+      "blocking": false,
+      "reason": "Written overall 13.60 and visible segments 2.00 + 4.65 + 6.45 differ by 0.50 if treated as one closed chain.",
+      "required_evidence": "P06 local reread of witness endpoints and numerals before this chain can be used as closed metric geometry."
+    },
+    {
+      "residual_id": "P04-R004",
+      "claim_id": "P03B-UNPAIRED-TEXT",
+      "blocking": false,
+      "reason": "Reader B produced unpaired candidates including 22.30 and adjacent-tile 4.45/4.70/44.56; witness identity to Reader A claims is not established.",
+      "required_evidence": "Retain as unpaired until a source-local evidence anchor demonstrates identity; otherwise leave NOT_VISIBLE/INC."
+    },
+    {
+      "residual_id": "P05-R001",
+      "claim_id": "P05-PAIR-CONTINUITY-SET",
+      "blocking": false,
+      "reason": "Six A-direct two-label continuity candidates have identified nominal endpoints but no independent Reader B semantic continuity classification.",
+      "required_evidence": "P06 source-local reread of each pair candidate before any member can become CROSS_VALIDATED."
+    },
+    {
+      "residual_id": "P05-R002",
+      "claim_id": "P05-CHAIN-CONTINUITY-SET",
+      "blocking": false,
+      "reason": "Nine continuity observations contain multi-label chains or local direction changes whose endpoint/member decomposition is unresolved.",
+      "required_evidence": "P06 claim-scoped source-local reread; do not split chains by adjacency or arithmetic."
+    },
+    {
+      "residual_id": "P06-W201",
+      "claim_id": "P04-CL-002",
+      "blocking": false,
+      "reason": "Focused HiRes reread corrects the repeated segment transcription to 4.15, but the written 14.55 overall still has unresolved witness membership relative to the visible segment band.",
+      "required_evidence": "Do not use this chain to derive coordinates in P07. Preserve it as a nonpromotable metric residual unless later source-local evidence resolves the witness endpoints."
+    },
+    {
+      "residual_id": "P06-W202",
+      "claim_id": "P04-CL-006",
+      "blocking": false,
+      "reason": "The written 13.60 overall and visible 2.00 + 4.65 + 6.45 values retain a 0.50 discrepancy if treated as a closed chain.",
+      "required_evidence": "Exclude this chain from coordinate derivation in P07 and preserve the discrepancy; do not alter written values to force closure."
+    },
+    {
+      "residual_id": "P07-W01",
+      "claim_id": "P04-CL-002",
+      "blocking": false,
+      "reason": "The written 14.55 overall remains incompatible with an unambiguous assignment of the visible segment witnesses, although the repeated segment is retained as 4.15 after P06 reread.",
+      "required_evidence": "Keep the chain excluded from coordinate derivation until source-local witness endpoints are demonstrated."
+    },
+    {
+      "residual_id": "P07-W02",
+      "claim_id": "P04-CL-006",
+      "blocking": false,
+      "reason": "The written 13.60 overall and the visible 2.00 + 4.65 + 6.45 values retain a 0.50 closure discrepancy if treated as one chain.",
+      "required_evidence": "Keep the chain excluded from coordinate derivation until endpoint membership or an additional witness is documented."
+    },
+    {
+      "residual_id": "P07-W03",
+      "claim_id": "P03B-UNPAIRED-TEXT",
+      "blocking": false,
+      "reason": "Reader-B-only OCR tokens lack a demonstrated witness identity.",
+      "required_evidence": "Do not promote the tokens unless a source-local witness binds them to a specific claim."
+    },
+    {
+      "residual_id": "P07-W04",
+      "claim_id": "P07-CARTESIAN-BINDING",
+      "blocking": false,
+      "reason": "P07 promotes primary identifiers and source-continuity claims but does not fabricate Cartesian coordinates or analytical member identities where endpoint metric binding is incomplete.",
+      "required_evidence": "Perform downstream TAV-01A binding and historical/M0-G regression only after this gate, preserving the primary claims as authority."
+    },
+    {
+      "residual_id": "P08-W001",
+      "claim_id": "F1A-G06",
+      "blocking": false,
+      "reason": "TAV-01A literal sequence steps 25-26, 28-29 and 31-32 are absent from P07 primary topology and therefore cannot create physical members.",
+      "required_evidence": "Retain their reinforcement information as documentary notation only unless a future primary-geometry reopen establishes a physical incidence."
+    },
+    {
+      "residual_id": "P08-W002",
+      "claim_id": "TAV01A-DOCUMENTARY-COVERAGE",
+      "blocking": false,
+      "reason": "Fifteen P07 primary incidences have no direct autonomous TAV-01A group binding.",
+      "required_evidence": "Keep exact section/longitudinal reinforcement ND for these incidences; do not fill by analogy."
+    },
+    {
+      "residual_id": "P08-W003",
+      "claim_id": "F1A-G03-22bis-27",
+      "blocking": false,
+      "reason": "The 22bis-27 property binding remains supported rather than direct because TAV-01A uses schematic 22-27 notation while TAV-01S controls corrected physical geometry.",
+      "required_evidence": "Preserve SUPPORTED status and do not upgrade by count or analogy."
+    },
+    {
+      "residual_id": "P09-W001",
+      "claim_id": "HISTORICAL-MEMBER-TOPOLOGY",
+      "blocking": false,
+      "reason": "No complete indexed historical calculation-frame/load dossier is registered, so member-level comparison is unavailable.",
+      "required_evidence": "Register historical frame/load calculation sheets before any member-level omission/participation claim is promoted."
+    },
+    {
+      "residual_id": "P09-W002",
+      "claim_id": "A-D-HISTORICAL-PARTICIPATION",
+      "blocking": false,
+      "reason": "Historical omission or participation of supports a-d is not directly proven by the registered calculation source.",
+      "required_evidence": "Keep historical participation ND/RIF until a direct historical calculation source is registered."
+    },
+    {
+      "residual_id": "P10-W001",
+      "claim_id": "FOUNDATION-TOPOLOGY-SUCCESSOR",
+      "blocking": false,
+      "reason": "The pre-P07 foundation topology differs from P07 on five incidence claims: legacy-only 25-26, 28-29, 31-32, 11-20; primary-only 11-19.",
+      "required_evidence": "Build a successor foundation topology by superseding only those four legacy edges and adding 11-19. Do not modify unrelated M0-G superstructure geometry."
+    },
+    {
+      "residual_id": "P10-W002",
+      "claim_id": "P07-CARTESIAN-BINDING",
+      "blocking": false,
+      "reason": "PT Master/M0-G provide XY context but P07 deliberately left foundation Cartesian coordinates ND where primary metric binding was incomplete.",
+      "required_evidence": "Do not retro-promote P07 foundation coordinates from PT/M0-G. Preserve coordinate-domain separation until primary metric claims are independently closed."
+    },
+    {
+      "residual_id": "P11-W001",
+      "claim_id": "ZF_COMMON-NUMERIC-Z",
+      "blocking": false,
+      "reason": "The common foundation plane is documented symbolically but no numeric model/project/geodetic Z is registered.",
+      "required_evidence": "Keep ZF_COMMON numeric value ND until direct datum evidence binds local ground/G1/foundation levels."
+    },
+    {
+      "residual_id": "P11-W002",
+      "claim_id": "GROUND-FLOOR-LOAD-PATH",
+      "blocking": false,
+      "reason": "Ground-supported versus structural/foundation-beam load transfer remains unclassified; numeric build-up properties are not registered.",
+      "required_evidence": "Require new primary/survey evidence before load assignment."
+    },
+    {
+      "residual_id": "P11-W003",
+      "claim_id": "CURRENT-GEOTECHNICS",
+      "blocking": false,
+      "reason": "Current site-specific stratigraphy, groundwater, strength and stiffness/settlement parameters remain unavailable in the registered repository evidence.",
+      "required_evidence": "Register site-specific geotechnical documentation or investigation results before current foundation verification."
+    },
+    {
+      "residual_id": "P11-W004",
+      "claim_id": "SYMBOLIC-3D-58-MEMBER-TOPOLOGY",
+      "blocking": false,
+      "reason": "The elevation gate's pre-P07 symbolic 58-member connectivity is superseded as a topology reference by P07/P10, although the common-plane evidence remains valid.",
+      "required_evidence": "Any successor symbolic 3D foundation connectivity must use P07 primary topology rather than the pre-P07 58-member set."
+    },
+    {
+      "residual_id": "P12-W001",
+      "claim_id": "PRIMARY-METRIC-CHAINS",
+      "blocking": false,
+      "reason": "The 14.55 witness-membership and 13.60 closure conflicts remain nonpromotable for coordinate derivation.",
+      "required_evidence": "Preserve both claims as explicit metric watches; do not derive Cartesian geometry from them."
+    },
+    {
+      "residual_id": "P12-W002",
+      "claim_id": "TAV01A-PROPERTY-COVERAGE",
+      "blocking": false,
+      "reason": "Fifteen primary incidences have ND documentary TAV-01A binding; one binding remains supported and three G06 schematic steps are barred from geometry creation.",
+      "required_evidence": "Keep missing exact section/longitudinal reinforcement ND unless direct property evidence is registered."
+    },
+    {
+      "residual_id": "P12-W003",
+      "claim_id": "HISTORICAL-CALC-COVERAGE",
+      "blocking": false,
+      "reason": "No complete indexed historical frame/load calculation dossier supports member-level reconciliation or direct proof of a-d historical participation/omission.",
+      "required_evidence": "Preserve historical participation as unproven until direct historical calculation evidence is registered."
+    },
+    {
+      "residual_id": "P12-W004",
+      "claim_id": "FOUNDATION-TOPOLOGY-SUCCESSOR",
+      "blocking": false,
+      "reason": "The pre-P07 58-member topology is superseded as geometry authority on five claims: remove 25-26, 28-29, 31-32, 11-20 and include primary 11-19 in the successor foundation model.",
+      "required_evidence": "M1F-FOUNDATION-MODEL must assemble connectivity from P07 authority and may use the old topology only as regression/history."
+    },
+    {
+      "residual_id": "P12-W005",
+      "claim_id": "FOUNDATION-INTERFACE-OPEN-DOMAINS",
+      "blocking": false,
+      "reason": "Numeric ZF_COMMON, PT load path/layer properties and current site-specific geotechnical parameters remain open.",
+      "required_evidence": "Preserve these domains ND/open; require datum, survey/load-path and site-specific geotechnical evidence before final calculation readiness."
+    }
+  ],
+  "audit_paths": [
+    "automation/receipts/foundation/FPEP-P12-RELEASE-AUDIT_20260824T183020Z.json"
+  ]
+}
