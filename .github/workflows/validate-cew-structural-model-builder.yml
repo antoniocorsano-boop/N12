@@ -1,0 +1,87 @@
+name: Validate CEW Structural Model Builder
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_CANONICAL_STRUCTURAL_MODEL_CONTRACT_v1.json'
+      - 'scripts/cew_structural_model_builder.py'
+      - '.github/workflows/validate-cew-structural-model-builder.yml'
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - 'automation/CEW_CANONICAL_STRUCTURAL_MODEL_CONTRACT_v1.json'
+      - 'scripts/cew_structural_model_builder.py'
+      - '.github/workflows/validate-cew-structural-model-builder.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python syntax
+        run: python -m py_compile scripts/cew_structural_model_builder.py
+
+      - name: Build N12 canonical structural graph
+        run: |
+          python scripts/cew_structural_model_builder.py \
+            --handoff data/canonical/M0G_GEOMETRY_HANDOFF_v1.json \
+            --nodes data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv \
+            --rigid-offsets data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv \
+            --members data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv \
+            --foundation data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv \
+            --foundation-xy-rule data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json \
+            --output /tmp/N12_CEW_CANONICAL_STRUCTURAL_MODEL_v0.json
+
+      - name: Validate graph invariants
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          m = json.loads(Path('/tmp/N12_CEW_CANONICAL_STRUCTURAL_MODEL_v0.json').read_text())
+          inv = m['inventory']
+          assert inv['superstructure_nodes'] == 629
+          assert inv['support_core_nodes'] == 165
+          assert inv['beam_face_nodes'] == 464
+          assert inv['rigid_offsets'] == 464
+          assert inv['ordinary_members'] == 359
+          assert inv['foundation_supports'] == 38
+          assert inv['foundation_members'] == 55
+          assert inv['roof_special_geometry_count'] == 6
+          assert m['geometry_created_by_proximity'] is False
+          assert m['solver_independent'] is True
+          assert len(m['unresolved_geometry']) == 1
+          assert m['unresolved_geometry'][0]['domain'] == 'FOUNDATION_NUMERIC_Z'
+
+          nodes = {n['entity_id'] for n in m['nodes']}
+          for r in m['rigid_offsets']:
+              assert r['core_node_id'] in nodes
+              assert r['face_node_id'] in nodes
+              assert r['structural_member'] is False
+          for member in m['members']:
+              assert member['member_axis']['start_node_id'] in nodes
+              assert member['member_axis']['end_node_id'] in nodes
+
+          fs = {n['entity_id'] for n in m['foundation_supports']}
+          assert len(fs) == 38
+          for n in m['foundation_supports']:
+              p = n['point3d']
+              assert p['x'] is not None and p['y'] is not None
+              assert p['z'] is None
+              assert p['z_symbol'] == 'ZF_COMMON'
+              assert p['state'] == 'MOD'
+          for member in m['foundation_members']:
+              assert member['member_axis']['start_node_id'] in fs
+              assert member['member_axis']['end_node_id'] in fs
+
+          print('CEW STRUCTURAL MODEL GRAPH: PASS')
+          PY
+
+      - name: Upload canonical graph artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: N12-CEW-canonical-structural-model-v0
+          path: /tmp/N12_CEW_CANONICAL_STRUCTURAL_MODEL_v0.json
