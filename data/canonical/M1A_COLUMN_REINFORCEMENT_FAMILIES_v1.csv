@@ -1,8 +1,8 @@
 family_id,order_id,candidate_storey,section_drawn_cm,longitudinal_long,monconi,stirrup_diameter_mm,stirrup_spacing_cm,explicit_support_ids,evidence_status,validation_state,source_locator,note
 T7-I-01,I,G1_candidate,40x50,4x18+2x16,8x18,6,20,,DOC,FAMILY_ONLY,TAV-07A I ordine,section 40x50; no pillar-number list written beside I-order family
 T7-I-02,I,G1_candidate,50x40,4x18+2x16,8x18,6,20,,DOC,FAMILY_ONLY,TAV-07A I ordine,section 50x40; same reinforcement pattern as I-01
-T7-I-03,I,G1_candidate,30x110,12x18,,8,15,,DOC,FAMILY_ONLY,TAV-07A I ordine,extended rectangular family
-T7-I-04,I,G1_candidate,30x30,4x14,8x16,6,15,,DOC,FAMILY_ONLY,TAV-07A I ordine,square 30x30 family; candidate match to later terrace supports requires separate as-built/historical-model distinction
+T7-I-03,I,G1_candidate,30x110,12x14,,8,15,,DOC,FAMILY_ONLY,TAV-07A I ordine,extended rectangular family; corrected by direct human-qualified visual read of primary-source image
+T7-I-04,I,G1_candidate,30x30,4x14,8x18,6,15,,DOC,FAMILY_ONLY,TAV-07A I ordine,square 30x30 family; monconi corrected by direct human-qualified visual read; candidate match to later terrace supports requires separate as-built/historical-model distinction
 T7-II-01,II,G2_candidate,40x45,4x16,4x16,6,15,9;16;32,DOC,DIRECT_NUMBERED_PARTIAL,TAV-07A II ordine,numbered group directly written
 T7-II-02,II,G2_candidate,45x40,6x16,4x14,6,15,,DOC,FAMILY_TO_BIND,TAV-07A II ordine,number list not directly bound in current reading
 T7-II-03,II,G2_candidate,30x110,8x14,,8,15,,DOC,FAMILY_TO_BIND,TAV-07A II ordine,extended family; number list not directly bound in current reading
@@ -13,9 +13,9 @@ T7-III-03,III,G3_candidate,30x110,8x12,,8,15,18;23;30,DOC,DIRECT_NUMBERED,TAV-07
 T7-III-04,III,G3_candidate,30x50,4x16,4x16,6,15,10;12;13;15;20;21;22;26;29,DOC,DIRECT_NUMBERED,TAV-07A III ordine,direct numbered group
 T7-III-05,III,G3_candidate,30x50,4x16,8x16,6,15,11;14,DOC,DIRECT_NUMBERED,TAV-07A III ordine,special higher-monconi group
 T7-IV-01,IV,G4_candidate,40x40,4x14,4x16,8,15,1;2;3;4;5;6;7;8;17;19;20;22;22';24;25;27;28;31;32;33,DOC,DIRECT_NUMBERED,TAV-07A IV ordine,direct numbered group
-T7-IV-02,IV,G4_candidate,40x40,4x16,4x18,6,15,9;16,DOC,DIRECT_NUMBERED,TAV-07A IV ordine,direct numbered group
+T7-IV-02,IV,G4_candidate,40x40,4x16,4x18,6,15,9;16,DOC,DIRECT_NUMBERED,TAV-07A IV ordine,direct numbered group; bind only where IV-impalcato carpenteria independently gives section 40x40
 T7-IV-03,IV,G4_candidate,30x110,8x12,,8,15,18;23;30,DOC,DIRECT_NUMBERED,TAV-07A IV ordine,direct numbered extended-support group
-T7-IV-04,IV,G4_candidate,30x45,4x16,4x14,6,15,10;12;13;15;21;26;29,DOC,DIRECT_NUMBERED,TAV-07A IV ordine,direct numbered group; rotated 45x30 cases require orientation crosswalk
-T7-TR-01,IV_to_V_transition,TO_VERIFY,30x45,4x16,8x14,6,15,9;16,DOC,TRANSITION_WATCH,TAV-07A detail between IV and V order,additional numbered detail; do not use to reopen G5 geometry until vertical-order semantics are resolved
+T7-IV-04,IV,G4_candidate,30x45,4x16,4x14,6,15,10;12;13;15;21;26;29,DOC,DIRECT_NUMBERED,TAV-07A IV ordine,direct numbered group; rotated 45x30 cases require carpenteria orientation crosswalk
+T7-TR-01,IV_to_V_transition,TO_VERIFY,30x45,4x16,8x14,6,15,9;16,DOC,CONFLICTING_CALLOUT_WATCH,TAV-07A additional detail near IV/V orders,"source directly writes pilastri 9-16, but this callout must not override carpenteria section authority; user-qualified hypothesis is drafting typo; do not bind or alter geometry without independent corroboration"
 T7-V-01,V,G5_candidate,40x40,4x14,4x16,6,15,2;3;4;5;6;7;19;20;22;22';24;25;27;28,DOC,DIRECT_NUMBERED_WITH_GEOMETRY_WATCH,TAV-07A V ordine,support 24 appears on reinforcement sheet but is absent from frozen G5 carpenteria support set
 T7-V-02,V,G5_candidate,30x40,4x14,4x16,6,15,10;11;12;13;14;15;18;21;23;26;29;30,DOC,DIRECT_NUMBERED,TAV-07A V ordine,direct numbered group
