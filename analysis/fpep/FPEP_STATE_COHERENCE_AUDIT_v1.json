@@ -1,0 +1,146 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P00-STATE-CONSISTENCY",
+  "generated_at": "2026-08-24T12:15:24.127321+00:00",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "resolved_allowed_inputs": [
+    "AGENTS.md",
+    "knowledge/KNOWLEDGE_MANIFEST.json",
+    "knowledge/CURRENT_STATE.json",
+    "knowledge/ARTIFACT_REGISTRY.csv",
+    "automation/N12_AUTOMATION_CONTRACT_v1.json",
+    "automation/N12_WORK_QUEUE_v1.json",
+    "docs/REGISTRO_MASTER.md",
+    "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_AUTOMATION_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M0G_GATE_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1F_ELEVATION_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1F_INTERFACE_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1L_LOADS_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1A_SPECIAL_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv"
+  ],
+  "manifest_registry_paths": [
+    "knowledge/ARTIFACT_REGISTRY.csv",
+    "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_AUTOMATION_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M0G_GATE_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1F_ELEVATION_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1F_INTERFACE_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1L_LOADS_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_M1A_SPECIAL_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv"
+  ],
+  "registry_component_policy": "Manifest-declared base/patch registry files are trusted registry components after existence/hash validation and are not required to self-register circularly.",
+  "checks": [
+    {
+      "check_id": "P00-C001",
+      "status": "PASS",
+      "severity": "HARD",
+      "fact": "canonical branch identity",
+      "expected": "work/m0-global-model",
+      "actual": "work/m0-global-model"
+    },
+    {
+      "check_id": "P00-C002",
+      "status": "PASS",
+      "severity": "HARD",
+      "fact": "manifest/state gate equality",
+      "expected": "M1-F/FOUNDATION_PRIMARY_EVIDENCE",
+      "actual": "M1-F/FOUNDATION_PRIMARY_EVIDENCE"
+    },
+    {
+      "check_id": "P00-C003",
+      "status": "PASS",
+      "severity": "HARD",
+      "fact": "current parent work item",
+      "expected": "M1F-PRIMARY-GEOMETRY-REVALIDATION",
+      "actual": "M1F-PRIMARY-GEOMETRY-REVALIDATION"
+    },
+    {
+      "check_id": "P00-C004",
+      "status": "PASS",
+      "severity": "HARD",
+      "fact": "FPEP wrapper is active",
+      "expected": "active wrapper",
+      "actual": "READY"
+    },
+    {
+      "check_id": "P00-C005",
+      "status": "PASS",
+      "severity": "HARD",
+      "fact": "downstream M1F depends on FPEP wrapper",
+      "expected": "dependency present",
+      "actual": [
+        "M1F-PRIMARY-GEOMETRY-REVALIDATION"
+      ]
+    },
+    {
+      "check_id": "P00-C006",
+      "status": "PASS",
+      "severity": "HARD",
+      "fact": "P00 is selected and executable",
+      "expected": "READY/IN_PROGRESS/RESIDUAL",
+      "actual": "READY"
+    },
+    {
+      "check_id": "P00-C007",
+      "status": "PASS",
+      "severity": "HARD",
+      "fact": "all resolved P00 inputs exist",
+      "expected": "0 missing",
+      "actual": []
+    },
+    {
+      "check_id": "P00-C008",
+      "status": "PASS",
+      "severity": "HARD",
+      "fact": "all non-registry-component P00 inputs have usable effective-registry authority",
+      "expected": "0 unusable",
+      "actual": []
+    },
+    {
+      "check_id": "P00-C009",
+      "status": "PASS",
+      "severity": "HARD",
+      "fact": "all manifest-declared effective registry files exist",
+      "expected": "0 missing",
+      "actual": []
+    },
+    {
+      "check_id": "P00-C010",
+      "status": "PASS",
+      "severity": "HARD",
+      "fact": "FPEP core artifacts are registered in effective registry",
+      "expected": "0 unregistered",
+      "actual": []
+    },
+    {
+      "check_id": "P00-C011",
+      "status": "FAIL",
+      "severity": "WATCH",
+      "fact": "human Master backtick references resolve to existing repository artifacts",
+      "expected": "0 missing",
+      "actual": [
+        "data/canonical/m0s1a_level_sheet_crosswalk.csv",
+        "docs/FOGLIO_LAVORO/M0S_DXF_TEXT_MEANINGFUL_TAV5.csv"
+      ]
+    }
+  ],
+  "summary": {
+    "hard_failures": 0,
+    "watches": 1,
+    "missing_inputs": [],
+    "unusable_inputs": [],
+    "missing_master_references": [
+      "data/canonical/m0s1a_level_sheet_crosswalk.csv",
+      "docs/FOGLIO_LAVORO/M0S_DXF_TEXT_MEANINGFUL_TAV5.csv"
+    ],
+    "entrypoint_unambiguous": true
+  },
+  "rule": "P00 establishes machine-state coherence only. It does not validate foundation geometry and does not expose legacy foundation target counts to downstream primary readers."
+}
