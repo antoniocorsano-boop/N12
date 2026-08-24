@@ -17,6 +17,7 @@ on:
       - 'knowledge/CURRENT_STATE.json'
       - 'knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv'
       - '.github/workflows/n12-analysis-orchestrator.yml'
+      - '.github/workflows/fpep-p00-bootstrap.yml'
       - '.github/workflows/validate-fpep-foundation-pipeline.yml'
   push:
     branches:
@@ -36,6 +37,7 @@ on:
       - 'knowledge/CURRENT_STATE.json'
       - 'knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv'
       - '.github/workflows/n12-analysis-orchestrator.yml'
+      - '.github/workflows/fpep-p00-bootstrap.yml'
       - '.github/workflows/validate-fpep-foundation-pipeline.yml'
   workflow_dispatch:
 
