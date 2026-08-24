@@ -1,0 +1,19 @@
+{
+  "schema_version":"1.0",
+  "contract_id":"CEW_EVIDENCE_VIEWPOINT_CONTRACT",
+  "purpose":"Link source evidence context to canonical engineering entities and 3D viewpoints without allowing viewer geometry or image crops to become engineering authority.",
+  "evidence_snippet_required_fields":["snippet_id","source_id","source_ref","page_or_frame","bbox_or_region","resolution_context","claim_ids","entity_ids","evidence_state","review_state","lineage"],
+  "viewpoint_required_fields":["viewpoint_id","project_id","entity_ids","camera","visibility","created_for","authority_state"],
+  "context_levels":["MICRO","MESO","MACRO"],
+  "review_states":["UNREVIEWED","MACHINE_PROPOSED","HUMAN_REVIEWED","CURRENT","SUPERSEDED"],
+  "authority_states":["CONTEXT_ONLY","EVIDENCE_LINK","ENGINEERING_DECISION_REFERENCE"],
+  "invariants":[
+    "SNIPPET_MUST_RETAIN_SOURCE_LINEAGE",
+    "CROP_COORDINATES_DO_NOT_DEFINE_MODEL_GEOMETRY",
+    "VIEWPOINT_DOES_NOT_DEFINE_STRUCTURAL_CONNECTIVITY",
+    "ENTITY_LINK_REQUIRES_EXPLICIT_BINDING_OR_REVIEW_STATE",
+    "MISSING_BINDING_REMAINS_ND",
+    "MICRO_CONTEXT_MUST_BE_NAVIGABLE_TO_MESO_AND_MACRO_WHEN_AVAILABLE",
+    "SOURCE_TO_ENTITY_AND_ENTITY_TO_SOURCE_NAVIGATION_MUST_USE_THE_SAME_LINK_OBJECT"
+  ]
+}
