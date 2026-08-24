@@ -1,0 +1,72 @@
+{
+  "schema_version": "0.1",
+  "project_id": "N12",
+  "status": "INITIAL_PROFILE_WITH_UNRESOLVED_OBSERVATION_BINDINGS",
+  "contract_ref": "automation/CEW_EXPOSURE_CONDITION_CONTRACT_v1.json",
+  "structural_model_ref": "automation/CEW_CANONICAL_STRUCTURAL_MODEL_CONTRACT_v1.json",
+  "research_ref": "docs/RESEARCH/CEW_EXPOSURE_CONDITION_RESEARCH_v1.md",
+  "policy": "Only repository-persisted project evidence may populate exposure/condition claims. Conversation-only recollections are not silently promoted.",
+  "zones": [
+    {
+      "zone_id": "N12-EXP-UNCLASSIFIED-SUPERSTRUCTURE",
+      "target_ref": "SUPERSTRUCTURE",
+      "location_class": "ND",
+      "state": "ND",
+      "source_refs": [],
+      "review_state": "NEEDS_PROJECT_EVIDENCE_BINDING"
+    },
+    {
+      "zone_id": "N12-EXP-UNCLASSIFIED-FOUNDATION",
+      "target_ref": "FOUNDATION_SYSTEM",
+      "location_class": "BURIED",
+      "state": "INF",
+      "source_refs": ["data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv"],
+      "review_state": "CONTEXT_ONLY_NOT_GEOTECHNICAL_CHARACTERIZATION"
+    }
+  ],
+  "condition_observations": [],
+  "measurements": [],
+  "protection_systems": [],
+  "mechanism_screening": [
+    {"mechanism":"CARBONATION_INITIATION","state":"ND","reason":"No repository-persisted exposure/condition observation set yet."},
+    {"mechanism":"CHLORIDE_INGRESS","state":"ND","reason":"No project chloride exposure evidence registered."},
+    {"mechanism":"CORROSION_PROPAGATION","state":"ND","reason":"No canonical condition observation/measurement binding yet."},
+    {"mechanism":"COVER_CRACKING_SPALLING","state":"ND","reason":"No canonical condition observation binding yet."},
+    {"mechanism":"BOND_DEGRADATION","state":"ND","reason":"Requires corrosion/damage and anchorage evidence."},
+    {"mechanism":"FREEZE_THAW_IF_APPLICABLE","state":"ND","reason":"Applicability not assessed from registered project evidence."},
+    {"mechanism":"CHEMICAL_ATTACK_IF_APPLICABLE","state":"ND","reason":"Applicability not assessed from registered project evidence."}
+  ],
+  "evidence_recovery_queue": [
+    {
+      "id":"N12-EC-01",
+      "task":"Inventory and bind existing project photographs/inspection notes to structural entities or exposure zones.",
+      "priority":1,
+      "output":"condition_observations"
+    },
+    {
+      "id":"N12-EC-02",
+      "task":"Classify accessible structural faces as internal/external/sheltered/wet/buried only where documentary or visual evidence supports the classification.",
+      "priority":2,
+      "output":"exposure_zones_and_face_exposure"
+    },
+    {
+      "id":"N12-EC-03",
+      "task":"Register protection systems and their observed condition where visible/documented; do not assume coating effectiveness.",
+      "priority":3,
+      "output":"protection_systems"
+    },
+    {
+      "id":"N12-EC-04",
+      "task":"Bind any existing cover, carbonation, corrosion, crack, spall or section-loss observations/measurements to entity IDs with date and provenance.",
+      "priority":4,
+      "output":"measurements_and_condition_claims"
+    },
+    {
+      "id":"N12-EC-05",
+      "task":"Run mechanism screening only after EC-01 through EC-04 have sufficient evidence; screening cannot activate degradation models.",
+      "priority":5,
+      "output":"mechanism_screening"
+    }
+  ],
+  "degradation_execution_authorized": false
+}
