@@ -57,20 +57,25 @@ def main() -> int:
     parent_queue = fpep.read_json(fpep.PARENT_QUEUE_PATH)
     registry = fpep.load_effective_registry()
     allowed_inputs = fpep.resolved_allowed_inputs(item)
+    manifest_registry_paths = [x for x in [manifest.get("artifact_registry")] + fpep.registry_patch_rels(manifest) if x]
+    manifest_registry_set = set(manifest_registry_paths)
 
     input_artifacts: list[dict[str, str]] = []
     missing_inputs: list[str] = []
     unusable_inputs: list[str] = []
     for rel in allowed_inputs:
         path = ROOT / rel
-        authority, status = registry_descriptor(rel, registry)
+        if rel in manifest_registry_set:
+            authority, status = "REGISTRY_COMPONENT_MANIFEST_DECLARED", "CURRENT" if path.exists() else "MISSING"
+        else:
+            authority, status = registry_descriptor(rel, registry)
         if not path.exists():
             missing_inputs.append(rel)
             sha = "MISSING"
         else:
             sha = fpep.sha256_file(path)
         input_artifacts.append({"path": rel, "sha256": sha, "authority": authority, "status": status})
-        if authority == "UNREGISTERED_NON_AUTHORITATIVE" or status in BLOCKING_STATES:
+        if rel not in manifest_registry_set and (authority == "UNREGISTERED_NON_AUTHORITATIVE" or status in BLOCKING_STATES):
             unusable_inputs.append(rel)
 
     parent_items = {x.get("id"): x for x in parent_queue.get("items", [])}
@@ -85,11 +90,10 @@ def main() -> int:
         check("P00-C005", bool(downstream) and "M1F-PRIMARY-GEOMETRY-REVALIDATION" in set(downstream.get("dependencies", [])), "HARD", "downstream M1F depends on FPEP wrapper", "dependency present", downstream.get("dependencies") if downstream else None),
         check("P00-C006", item.get("state") in {"READY", "IN_PROGRESS", "RESIDUAL"}, "HARD", "P00 is selected and executable", "READY/IN_PROGRESS/RESIDUAL", item.get("state")),
         check("P00-C007", not missing_inputs, "HARD", "all resolved P00 inputs exist", "0 missing", missing_inputs),
-        check("P00-C008", not unusable_inputs, "HARD", "all resolved P00 inputs have usable effective-registry authority", "0 unusable", unusable_inputs),
+        check("P00-C008", not unusable_inputs, "HARD", "all non-registry-component P00 inputs have usable effective-registry authority", "0 unusable", unusable_inputs),
     ]
 
-    manifest_registry_paths = [manifest.get("artifact_registry")] + fpep.registry_patch_rels(manifest)
-    missing_registry_paths = [rel for rel in manifest_registry_paths if rel and not (ROOT / rel).exists()]
+    missing_registry_paths = [rel for rel in manifest_registry_paths if not (ROOT / rel).exists()]
     checks.append(check("P00-C009", not missing_registry_paths, "HARD", "all manifest-declared effective registry files exist", "0 missing", missing_registry_paths))
 
     core_fpep_paths = [
@@ -143,7 +147,8 @@ def main() -> int:
         "decision": decision,
         "semantic_gate": semantic_gate,
         "resolved_allowed_inputs": allowed_inputs,
-        "manifest_registry_paths": [x for x in manifest_registry_paths if x],
+        "manifest_registry_paths": manifest_registry_paths,
+        "registry_component_policy": "Manifest-declared base/patch registry files are trusted registry components after existence/hash validation and are not required to self-register circularly.",
         "checks": checks,
         "summary": {
             "hard_failures": len(hard_failures),
