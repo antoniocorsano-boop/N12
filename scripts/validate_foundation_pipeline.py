@@ -19,6 +19,8 @@ SOURCE_ROLE = ROOT / "data" / "canonical" / "M1F_FOUNDATION_SOURCE_ROLE_AUDIT_v1
 MASTER = ROOT / "docs" / "REGISTRO_MASTER.md"
 TASK_GENERATOR = ROOT / "scripts" / "n12_make_agent_task.py"
 PARENT_INGESTOR = ROOT / "scripts" / "n12_ingest_agent_result.py"
+SUB_ORCHESTRATOR = ROOT / "scripts" / "n12_foundation_orchestrator.py"
+PARENT_WORKFLOW = ROOT / ".github" / "workflows" / "n12-analysis-orchestrator.yml"
 REGISTRY_PATCH = ROOT / "knowledge" / "ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv"
 FPEP_WRAPPER_ID = "M1F-PRIMARY-GEOMETRY-REVALIDATION"
 FPEP_COMPLETION_ITEM = "FPEP-P12-RELEASE-AUDIT"
@@ -47,8 +49,9 @@ def main() -> int:
         MASTER,
         TASK_GENERATOR,
         PARENT_INGESTOR,
+        SUB_ORCHESTRATOR,
+        PARENT_WORKFLOW,
         REGISTRY_PATCH,
-        ROOT / "scripts" / "n12_foundation_orchestrator.py",
     ]
     for path in required:
         if not path.exists():
@@ -139,10 +142,21 @@ def main() -> int:
         "legacy_checkpoint_preservation",
         "all_residuals_persisted",
         "all_outputs_receipt_gated",
+        "canonical_targets_must_be_registered_before_pass",
+        "parent_handoff_only_after_P12_complete",
+        "parent_handoff_must_cite_P12_receipt",
     ]
     for key in mandatory_true:
         if hard.get(key) is not True:
             errors.append(f"hard guardrail not enabled: {key}")
+
+    runtime = pipeline.get("runtime_handoff", {})
+    if runtime.get("p12_completion_item") != FPEP_COMPLETION_ITEM:
+        errors.append("runtime handoff completion item mismatch")
+    if pipeline.get("runtime_workflow") != ".github/workflows/n12-analysis-orchestrator.yml":
+        errors.append("FPEP runtime workflow mismatch")
+    if pipeline.get("parent_result_inbox") != "automation/inbox/N12_AGENT_RESULT.json":
+        errors.append("FPEP parent result inbox mismatch")
 
     proc = subprocess.run(
         [sys.executable, "scripts/n12_foundation_orchestrator.py", "validate"],
@@ -188,6 +202,34 @@ def main() -> int:
     for token in required_ingestor_guards:
         if token not in ingestor_text:
             errors.append(f"parent ingestor missing FPEP anti-bypass guard: {token}")
+
+    sub_orchestrator_text = SUB_ORCHESTRATOR.read_text(encoding="utf-8")
+    required_runtime_guards = [
+        "canonical_target_ingestible",
+        "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
+        "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv",
+        "FPEP-P12-RELEASE-AUDIT",
+        "emit_parent_result",
+        "PARENT_INBOX_PATH",
+        "N12_AGENT_RESULT.json",
+        "cannot emit parent FPEP result before every sub-item is COMPLETE",
+    ]
+    for token in required_runtime_guards:
+        if token not in sub_orchestrator_text:
+            errors.append(f"FPEP sub-orchestrator missing runtime handoff guard: {token}")
+
+    workflow_text = PARENT_WORKFLOW.read_text(encoding="utf-8")
+    required_workflow_bridge = [
+        "automation/inbox/N12_FOUNDATION_AGENT_RESULT.json",
+        "python scripts/n12_foundation_orchestrator.py ingest",
+        "automation/N12_FOUNDATION_WORK_QUEUE_v1.json",
+        "automation/receipts/foundation",
+        "python scripts/n12_ingest_agent_result.py apply",
+        "scripts/validate_foundation_pipeline.py",
+    ]
+    for token in required_workflow_bridge:
+        if token not in workflow_text:
+            errors.append(f"parent workflow missing FPEP runtime bridge: {token}")
 
     registry_paths = {row.get("path") for row in load_csv(REGISTRY_PATCH)}
     for rel in [

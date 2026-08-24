@@ -6,8 +6,13 @@
   "parent_work_item": "M1F-PRIMARY-GEOMETRY-REVALIDATION",
   "queue": "automation/N12_FOUNDATION_WORK_QUEUE_v1.json",
   "result_contract": "automation/N12_FOUNDATION_AGENT_RESULT_CONTRACT_v1.json",
+  "result_inbox": "automation/inbox/N12_FOUNDATION_AGENT_RESULT.json",
+  "receipt_dir": "automation/receipts/foundation",
   "orchestrator": "scripts/n12_foundation_orchestrator.py",
+  "runtime_workflow": ".github/workflows/n12-analysis-orchestrator.yml",
+  "parent_result_inbox": "automation/inbox/N12_AGENT_RESULT.json",
   "primary_geometry_gate": "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
+  "release_gate": "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv",
   "revalidation_ledger": "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
   "source_roles": {
     "foundation_carpentry": "TAV-01S",
@@ -56,7 +61,19 @@
     "minimum_reopen_scope": true,
     "legacy_checkpoint_preservation": true,
     "all_residuals_persisted": true,
-    "all_outputs_receipt_gated": true
+    "all_outputs_receipt_gated": true,
+    "canonical_targets_must_be_registered_before_pass": true,
+    "parent_handoff_only_after_P12_complete": true,
+    "parent_handoff_must_cite_P12_receipt": true
+  },
+  "runtime_handoff": {
+    "ingestion_order": ["FPEP_RESULT", "PERSIST_FPEP_QUEUE_AND_RECEIPT", "OPTIONAL_P12_PARENT_RESULT", "PARENT_RESULT"],
+    "fpep_result_ingestor": "python scripts/n12_foundation_orchestrator.py ingest",
+    "parent_result_ingestor": "python scripts/n12_ingest_agent_result.py apply",
+    "p12_completion_item": "FPEP-P12-RELEASE-AUDIT",
+    "p12_rule": "P12 PASS/PASS_WITH_WATCH may emit the parent result only after every FPEP sub-item is COMPLETE and both canonical gates are registered and ingestible.",
+    "parent_result_rule": "The emitted parent wrapper result must cite the P12 receipt in audit_paths; the parent ingestor independently rechecks subqueue completion, gate existence and receipt binding before promotion.",
+    "persistence_rule": "The canonical workflow commits the FPEP subqueue, foundation receipts and inbox transition before applying the parent result."
   },
   "promotion_rule": "A foundation geometry claim may become CURRENT only from traceable primary-source evidence, with no open blocking conflict and CROSS_VALIDATED status when the claim is used to derive coordinates or topology. Agent confidence or agreement alone is not evidence authority.",
   "legacy_checkpoint_rule": "The existing 38-support/58-member topology remains a protected legacy checkpoint for regression comparison only. It must not be supplied as a target to the primary-source readers or topology builder. Agreement produces a revalidation receipt; disagreement reopens only the smallest conflicting claim.",

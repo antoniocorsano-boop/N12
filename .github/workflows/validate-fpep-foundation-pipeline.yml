@@ -15,6 +15,7 @@ on:
       - 'knowledge/KNOWLEDGE_MANIFEST.json'
       - 'knowledge/CURRENT_STATE.json'
       - 'knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv'
+      - '.github/workflows/n12-analysis-orchestrator.yml'
       - '.github/workflows/validate-fpep-foundation-pipeline.yml'
   push:
     branches:
@@ -32,6 +33,7 @@ on:
       - 'knowledge/KNOWLEDGE_MANIFEST.json'
       - 'knowledge/CURRENT_STATE.json'
       - 'knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv'
+      - '.github/workflows/n12-analysis-orchestrator.yml'
       - '.github/workflows/validate-fpep-foundation-pipeline.yml'
   workflow_dispatch:
 
@@ -50,7 +52,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Validate FPEP contract, delegation and information barriers
+      - name: Validate FPEP contract, delegation, runtime bridge and information barriers
         run: python scripts/validate_foundation_pipeline.py
 
       - name: Validate FPEP sub-orchestrator
