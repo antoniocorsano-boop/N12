@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "registry_id": "CEW_DEGRADATION_MODEL_REGISTRY",
+  "purpose": "Registry of deterioration/exposure mechanisms available to Civil Existing Workflow. Registry presence does not authorize project use; each project must activate and parameterize a model explicitly.",
+  "models": [
+    {
+      "model_id": "CEW-DGR-CARBONATION-SQRT-TIME-v0",
+      "mechanism": "CARBONATION_INITIATION",
+      "status": "REFERENCE_SCAFFOLD_NOT_CALIBRATED",
+      "applicability": "Reinforced concrete exposed to carbonation where a square-root-time approximation is justified by the selected technical reference and project conditions.",
+      "inputs": ["age", "cover", "carbonation_rate_parameter", "exposure_modifiers", "protection_modifiers"],
+      "units": "project rule pack must declare consistent units",
+      "parameter_provenance": "UNSET_PER_PROJECT",
+      "uncertainty_model": "UNSET_PER_PROJECT",
+      "validity_range": "UNSET; must be supplied by selected reference/model calibration",
+      "outputs": ["carbonation_depth_distribution", "depassivation_probability_or_state"],
+      "reference_id": null,
+      "calibration_state": "NOT_CALIBRATED",
+      "formula_family": "x_c(t) = k_c * sqrt(t) with project/reference-specific modifiers",
+      "solver_effect": "NONE_DIRECT; feeds corrosion-initiation state"
+    },
+    {
+      "model_id": "CEW-DGR-CHLORIDE-DIFFUSION-v0",
+      "mechanism": "CHLORIDE_INGRESS",
+      "status": "REFERENCE_SCAFFOLD_NOT_CALIBRATED",
+      "applicability": "Only where chloride exposure is project-relevant and a validated diffusion model is selected.",
+      "inputs": ["age", "cover", "surface_chloride", "diffusion_parameters", "critical_chloride_threshold"],
+      "units": "project rule pack must declare consistent units",
+      "parameter_provenance": "UNSET_PER_PROJECT",
+      "uncertainty_model": "UNSET_PER_PROJECT",
+      "validity_range": "UNSET",
+      "outputs": ["chloride_at_rebar_distribution", "depassivation_probability_or_state"],
+      "reference_id": null,
+      "calibration_state": "NOT_CALIBRATED",
+      "formula_family": "Fick-type diffusion family",
+      "solver_effect": "NONE_DIRECT; feeds corrosion-initiation state"
+    },
+    {
+      "model_id": "CEW-DGR-CORROSION-SECTION-LOSS-v0",
+      "mechanism": "CORROSION_PROPAGATION",
+      "status": "REFERENCE_SCAFFOLD_NOT_CALIBRATED",
+      "applicability": "After an explicitly modeled or observed depassivation/corrosion initiation state.",
+      "inputs": ["corrosion_initiation_time_or_state", "corrosion_rate", "exposure_history", "bar_family"],
+      "units": "project rule pack must declare consistent units",
+      "parameter_provenance": "UNSET_PER_PROJECT",
+      "uncertainty_model": "UNSET_PER_PROJECT",
+      "validity_range": "UNSET",
+      "outputs": ["diameter_loss_distribution", "steel_area_loss_distribution"],
+      "reference_id": null,
+      "calibration_state": "NOT_CALIBRATED",
+      "formula_family": "time-dependent section loss after initiation",
+      "solver_effect": "May generate scenario-specific longitudinal/stirrup effective steel area only through Structural Property Adapter"
+    },
+    {
+      "model_id": "CEW-DGR-COVER-SPALLING-STATE-v0",
+      "mechanism": "COVER_CRACKING_SPALLING",
+      "status": "REFERENCE_SCAFFOLD_NOT_CALIBRATED",
+      "applicability": "RC members where corrosion expansion or other applicable deterioration can produce cover cracking/spalling.",
+      "inputs": ["cover", "bar_diameter", "corrosion_state", "concrete_properties", "observed_damage_state"],
+      "units": "project rule pack must declare consistent units",
+      "parameter_provenance": "UNSET_PER_PROJECT",
+      "uncertainty_model": "UNSET_PER_PROJECT",
+      "validity_range": "UNSET",
+      "outputs": ["damage_state_distribution", "spalling_state"],
+      "reference_id": null,
+      "calibration_state": "NOT_CALIBRATED",
+      "formula_family": "state/probability transition model",
+      "solver_effect": "Feeds bond/section/confined-core scenario adapters only when explicitly activated"
+    },
+    {
+      "model_id": "CEW-DGR-BOND-DEGRADATION-v0",
+      "mechanism": "BOND_DEGRADATION",
+      "status": "REFERENCE_SCAFFOLD_NOT_CALIBRATED",
+      "applicability": "Only where corrosion/damage and anchorage-sensitive behavior justify explicit bond degradation modeling.",
+      "inputs": ["corrosion_state", "confinement", "cover_damage_state", "bar_geometry", "anchorage_detail"],
+      "units": "project rule pack must declare consistent units",
+      "parameter_provenance": "UNSET_PER_PROJECT",
+      "uncertainty_model": "UNSET_PER_PROJECT",
+      "validity_range": "UNSET",
+      "outputs": ["bond_capacity_modifier_distribution", "slip_parameter_distribution"],
+      "reference_id": null,
+      "calibration_state": "NOT_CALIBRATED",
+      "formula_family": "reference-dependent bond deterioration model",
+      "solver_effect": "Optional nonlinear/interface adapter; never an automatic stiffness reduction"
+    }
+  ],
+  "activation_gate": {
+    "required_before_project_use": [
+      "reference_id",
+      "project_applicability_decision",
+      "input_parameter_sources",
+      "uncertainty_definition",
+      "units",
+      "validity_range",
+      "calibration_or_justification",
+      "human_review"
+    ],
+    "forbidden": [
+      "USE_SCAFFOLD_DEFAULTS_AS_ENGINEERING_VALUES",
+      "TREAT_REGISTRY_ENTRY_AS_PROJECT_EVIDENCE",
+      "AUTO_APPLY_ALL_MECHANISMS"
+    ]
+  }
+}
