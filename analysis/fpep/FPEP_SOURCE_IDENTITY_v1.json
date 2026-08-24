@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P01-SOURCE-IDENTITY",
+  "agent_role": "SOURCE_IDENTITY_VERIFIER",
+  "generated_at": "2026-08-24T12:34:00Z",
+  "decision": "PASS",
+  "semantic_gate": "PASS",
+  "scope": "Source identity and authority only; no geometric, metric, topological or reinforcement interpretation performed.",
+  "source_identity": {
+    "source_id": "TAV-01S",
+    "canonical_filename": "tavola1-2.pdf",
+    "archive_branch": "archive/originali-alta-risoluzione",
+    "remote_path": "archive/documentazione_originaria/tavola1-2.pdf",
+    "git_blob_sha": "64b842fa03b3aa7437e80d2bce90406a66f73827",
+    "bytes": 672562,
+    "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+    "index_status": "DOC_PRIMARY_IMMUTABLE",
+    "source_class": "carpenteria_strutturale",
+    "source_level": "fondazioni",
+    "source_role_index": "carpenteria_fondazioni",
+    "canonical_role_audit": "FOUNDATION_CARPENTRY",
+    "provides_foundation_topology": "YES",
+    "provides_foundation_section_family": "NO",
+    "provides_foundation_reinforcement": "NO"
+  },
+  "checks": [
+    {
+      "check_id": "P01-C001",
+      "status": "PASS",
+      "fact": "TAV-01S has one explicit immutable-source record in the remote source index",
+      "evidence": "data/canonical/tavole_originali_remote_index_v1.csv:TAV-01S"
+    },
+    {
+      "check_id": "P01-C002",
+      "status": "PASS",
+      "fact": "immutable archive branch is explicitly bound",
+      "actual": "archive/originali-alta-risoluzione"
+    },
+    {
+      "check_id": "P01-C003",
+      "status": "PASS",
+      "fact": "immutable archive path is explicitly bound",
+      "actual": "archive/documentazione_originaria/tavola1-2.pdf"
+    },
+    {
+      "check_id": "P01-C004",
+      "status": "PASS",
+      "fact": "Git blob identity is explicit and non-empty",
+      "actual": "64b842fa03b3aa7437e80d2bce90406a66f73827"
+    },
+    {
+      "check_id": "P01-C005",
+      "status": "PASS",
+      "fact": "SHA-256 identity is explicitly bound to the TAV-01S index record",
+      "actual": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8"
+    },
+    {
+      "check_id": "P01-C006",
+      "status": "PASS",
+      "fact": "source index marks TAV-01S as immutable primary evidence",
+      "actual": "DOC_PRIMARY_IMMUTABLE"
+    },
+    {
+      "check_id": "P01-C007",
+      "status": "PASS",
+      "fact": "independent source-role audit identifies TAV-01S as foundation carpentry topology authority",
+      "actual": "FOUNDATION_CARPENTRY / topology=YES"
+    },
+    {
+      "check_id": "P01-C008",
+      "status": "PASS",
+      "fact": "source-role audit keeps TAV-01A out of topology generation",
+      "actual": "FOUNDATION_REINFORCEMENT / topology=NO"
+    },
+    {
+      "check_id": "P01-C009",
+      "status": "PASS",
+      "fact": "the exact archive object resolves as binary PDF content rather than a textual placeholder",
+      "actual": "GitHub binary fetch succeeded; encoded prefix decodes to %PDF-1.5"
+    },
+    {
+      "check_id": "P01-C010",
+      "status": "PASS",
+      "fact": "identity does not rely on filename convention alone",
+      "actual": "branch + path + git blob + SHA-256 + source-role audit"
+    }
+  ],
+  "residuals": [],
+  "information_barrier": {
+    "existing_foundation_topology_used": false,
+    "M0G_geometry_used": false,
+    "PT_master_coordinates_used": false,
+    "TAV01A_reinforcement_groups_used": false,
+    "legacy_target_counts_used": false
+  },
+  "next_authorized_stage": "FPEP-P02-HIRES-EVIDENCE",
+  "rule": "P01 establishes source identity only. It does not read or infer any foundation geometry."
+}
