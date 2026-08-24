@@ -322,7 +322,7 @@
     {
       "id": "FPEP-P10-M0G-REGRESSION-CROSSCHECK",
       "priority": 92,
-      "state": "WAITING",
+      "state": "COMPLETE",
       "agent_role": "GLOBAL_MODEL_REGRESSION_AUDITOR",
       "dependencies": [
         "FPEP-P07-PRIMARY-GEOMETRY-GATE"
@@ -342,7 +342,10 @@
       "target_outputs": [
         "analysis/fpep/FPEP_M0G_REGRESSION_CROSSCHECK_v1.csv"
       ],
-      "semantic_gate": "Compare only after primary promotion. Agreement yields revalidation; mismatch reopens the smallest claim and may request formal M0G-REOPEN only when supported by cross-validated primary evidence."
+      "semantic_gate": "Compare only after primary promotion. Agreement yields revalidation; mismatch reopens the smallest claim and may request formal M0G-REOPEN only when supported by cross-validated primary evidence.",
+      "completed_at": "2026-08-24T18:22:41.771083+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "last_run_id": "FPEP-P10-20260824T181800Z"
     },
     {
       "id": "FPEP-P11-FOUNDATION-INTERFACE-CHECK",
