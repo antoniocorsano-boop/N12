@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P06-CONFLICT-ADJUDICATION",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "run_id": "FPEP-P06-20260824T142500Z",
+  "result_sha256": "de40e68972aa1f73311afe18b31a24876d7f76565e522a75bb934b479e491c8a",
+  "target_outputs": [
+    "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv"
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv",
+    "analysis/fpep/FPEP_INCIDENCE_SWEEP_v1.csv",
+    "analysis/fpep/FPEP_INCIDENCE_SWEEP_CLOSURE_v1.csv"
+  ],
+  "residuals": [
+    {
+      "residual_id": "P06-W201",
+      "claim_id": "P04-CL-002",
+      "blocking": false,
+      "reason": "Focused HiRes reread corrects the repeated segment transcription to 4.15, but the written 14.55 overall still has unresolved witness membership relative to the visible segment band.",
+      "required_evidence": "Do not use this chain to derive coordinates in P07. Preserve it as a nonpromotable metric residual unless later source-local evidence resolves the witness endpoints."
+    },
+    {
+      "residual_id": "P06-W202",
+      "claim_id": "P04-CL-006",
+      "blocking": false,
+      "reason": "The written 13.60 overall and visible 2.00 + 4.65 + 6.45 values retain a 0.50 discrepancy if treated as a closed chain.",
+      "required_evidence": "Exclude this chain from coordinate derivation in P07 and preserve the discrepancy; do not alter written values to force closure."
+    }
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T14:28:35.642318+00:00"
+}
