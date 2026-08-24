@@ -1,0 +1,40 @@
+name: Validate M1-A special reinforcement
+
+on:
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - 'data/canonical/M1A_G5_EAVE_CANTILEVER_ENDS_CURRENT_v1.csv'
+      - 'data/canonical/M1A_G5_EAVE_REINFORCEMENT_GATE_v1.csv'
+      - 'data/canonical/M1A_G5_RIDGE_GRONDA_INTERPRETATION_CURRENT_v1.csv'
+      - 'data/canonical/M1A_BALCONY_CORNICE_REINFORCEMENT_SOURCE_AUDIT_v1.csv'
+      - 'scripts/validate_m1a_g5_eave_reinforcement.py'
+      - '.github/workflows/validate-m1a-special.yml'
+  pull_request:
+    paths:
+      - 'data/canonical/M1A_G5_EAVE_CANTILEVER_ENDS_CURRENT_v1.csv'
+      - 'data/canonical/M1A_G5_EAVE_REINFORCEMENT_GATE_v1.csv'
+      - 'data/canonical/M1A_G5_RIDGE_GRONDA_INTERPRETATION_CURRENT_v1.csv'
+      - 'data/canonical/M1A_BALCONY_CORNICE_REINFORCEMENT_SOURCE_AUDIT_v1.csv'
+      - 'scripts/validate_m1a_g5_eave_reinforcement.py'
+      - '.github/workflows/validate-m1a-special.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate G5 eave reinforcement host binding
+        run: python scripts/validate_m1a_g5_eave_reinforcement.py
