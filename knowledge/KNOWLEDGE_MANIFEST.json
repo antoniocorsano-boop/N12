@@ -5,7 +5,7 @@
   "canonical_branch": "work/m0-global-model",
   "entrypoint": "AGENTS.md",
   "objective": "Fascicolo strutturale completo, modello M0 globale, modello EdiLus-EE validato e verifiche dell'edificio esistente in c.a.",
-  "current_gate": "M1-A/REINFORCEMENT",
+  "current_gate": "M1-F/FOUNDATION_PRIMARY_EVIDENCE",
   "current_domain": "STRUCTURAL_MODEL_COMPLETION",
   "state_file": "knowledge/CURRENT_STATE.json",
   "artifact_registry": "knowledge/ARTIFACT_REGISTRY.csv",
@@ -18,7 +18,8 @@
     "knowledge/ARTIFACT_REGISTRY_M1F_ELEVATION_PATCH_v1.csv",
     "knowledge/ARTIFACT_REGISTRY_M1F_INTERFACE_PATCH_v1.csv",
     "knowledge/ARTIFACT_REGISTRY_M1L_LOADS_PATCH_v1.csv",
-    "knowledge/ARTIFACT_REGISTRY_M1A_SPECIAL_PATCH_v1.csv"
+    "knowledge/ARTIFACT_REGISTRY_M1A_SPECIAL_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv"
   ],
   "human_master_register": "docs/REGISTRO_MASTER.md",
   "revalidation_ledger": "data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv",
@@ -31,7 +32,7 @@
     {"id":"pt-carpentry-reader","path":"skills/pt-carpentry-reader/SKILL.md","runner":"skills/pt-carpentry-reader/runner.py","role":"semantic reading and claim revalidation of structural carpenterie"},
     {"id":"pt-raster-grid-reconstructor","path":"skills/pt-raster-grid-reconstructor/SKILL.md","runner":"skills/pt-raster-grid-reconstructor/runner.py","role":"independent raster support registration, metric network, inter-sheet registration and analytical nodalization"}
   ],
-  "active_procedures": ["docs/PROTOCOLLO_CANONICO.md","docs/PROCEDURES/CANONICAL_DATASET_ITERATIVE_REVALIDATION_v1.md","docs/PT_RASTER_RECONSTRUCTION_PROTOCOL_v1.md","docs/PT_G1_PIXEL_ACCEPTANCE_POLICY_v1.md","docs/PT_G2_MIS_COMPLETION_POLICY_v1.md","docs/N12_AUTOMATED_ANALYSIS_CYCLE_v1.md"],
+  "active_procedures": ["docs/PROTOCOLLO_CANONICO.md","docs/PROCEDURES/CANONICAL_DATASET_ITERATIVE_REVALIDATION_v1.md","docs/PT_RASTER_RECONSTRUCTION_PROTOCOL_v1.md","docs/PT_G1_PIXEL_ACCEPTANCE_POLICY_v1.md","docs/PT_G2_MIS_COMPLETION_POLICY_v1.md","docs/N12_AUTOMATED_ANALYSIS_CYCLE_v1.md","docs/PROCEDURES/FOUNDATION_PRIMARY_EVIDENCE_PIPELINE_v1.md"],
   "automation": {
     "enabled": true,
     "contract": "automation/N12_AUTOMATION_CONTRACT_v1.json",
@@ -47,6 +48,22 @@
     "semantic_executor": "SCHEDULED_PROJECT_AGENT_CONFIGURED_AWAITING_FIRST_RECEIPT",
     "semantic_execution_limit": "ONE_WORK_ITEM_PER_CYCLE",
     "no_executor_behavior": "STOP_AT_READY_FOR_AGENT_WITHOUT_WEAKENING_SEMANTIC_GATES"
+  },
+  "foundation_primary_evidence_pipeline": {
+    "enabled": true,
+    "contract": "automation/N12_FOUNDATION_PIPELINE_CONTRACT_v1.json",
+    "queue": "automation/N12_FOUNDATION_WORK_QUEUE_v1.json",
+    "result_contract": "automation/N12_FOUNDATION_AGENT_RESULT_CONTRACT_v1.json",
+    "runner": "scripts/n12_foundation_orchestrator.py",
+    "validator": "scripts/validate_foundation_pipeline.py",
+    "workflow": ".github/workflows/validate-fpep-foundation-pipeline.yml",
+    "procedure": "docs/PROCEDURES/FOUNDATION_PRIMARY_EVIDENCE_PIPELINE_v1.md",
+    "parent_work_item": "M1F-PRIMARY-GEOMETRY-REVALIDATION",
+    "primary_geometry_gate": "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
+    "release_gate": "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv",
+    "primary_source": "TAV-01S / tavola1-2.pdf",
+    "legacy_topology_policy": "REGRESSION_ONLY_AFTER_P07",
+    "reader_information_barrier": "NO_EXISTING_TOPOLOGY_COUNTS_PT_MASTER_M0G_TAV01A_OR_HISTORICAL_TOPOLOGY_BEFORE_PRIMARY_GATE"
   },
   "pt_geometry": {
     "primary_raster_manifest": "analysis/source_renders/TAV02S/manifest.txt",
@@ -100,7 +117,7 @@
   },
   "m1_model_completion": {
     "phase": "M1",
-    "current_front": "M1-A_REINFORCEMENT",
+    "current_front": "M1-F_FOUNDATION_PRIMARY_EVIDENCE",
     "m0g_geometry_handoff": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
     "m1s_status": "PASS_WITH_WATCH",
     "m1s_gate": "data/canonical/M1S_SECTION_GATE_v1.csv",
@@ -115,7 +132,7 @@
     "m1m_gate": "data/canonical/M1M_MATERIAL_GATE_v1.csv",
     "historical_concrete_reference": "RIF_Rck_250_kg_cm2",
     "material_residuals_required_before_calculation_model_ready": ["in_situ_concrete_strength","steel_type_and_fyk","LC","FC"],
-    "m1f_status": "IN_PROGRESS_ADVANCED_SYMBOLIC_3D_BOUND",
+    "m1f_status": "FPEP_REVALIDATION_REQUIRED_BEFORE_ANALYTICAL_ASSEMBLY",
     "m1f_program": "data/canonical/M1_PROGRAM_REQUIRED_FRONTS_CURRENT_v1.csv",
     "m1f_work_register": "data/canonical/M1F_FOUNDATION_WORK_REGISTER_v1.csv",
     "m1f_elevation_gate": "data/canonical/M1F_FOUNDATION_ELEVATION_GATE_v1.csv",
@@ -166,8 +183,8 @@
     "m1a_50x20_local_precedents": 3,
     "m1a_50x20_residual_connector_positions": 13,
     "m1a_50x20_numeric_status": "ND_CLOSED_CURRENT_EVIDENCE_REOPEN_ONLY_ON_NEW_EXPLICIT_PRIMARY_BINDING",
-    "next_work_item": "M1A-25X70-CLOSURE-4-5-AND-OTHER-BEAM-RESIDUALS",
-    "rule": "M0-G remains frozen; passed local M1-A gates remain frozen; continue only exact evidence-supported bindings without inventing unreadable or unbound reinforcement."
+    "next_work_item": "M1F-PRIMARY-GEOMETRY-REVALIDATION",
+    "rule": "Run FPEP before analytical M1-F assembly. Preserve passed M1-A gates and legacy M1-F artifacts as checkpoints; do not expose downstream geometry to primary foundation readers before P07."
   },
-  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, semantic result handshake, authority/state consistency, entrypoint and skill contracts, current Master gate semantics","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology, material evidence, reinforcement local-gate closure and exact binding residuals, load-path classification and residual acceptance remain specialist gates"}
+  "validation": {"system_validator":"scripts/validate_knowledge_system.py","workflow":".github/workflows/validate-knowledge-system.yml","automatic_validation_scope":"manifest integrity, base registry plus versioned override integrity, automation contract and queue integrity, semantic result handshake, authority/state consistency, entrypoint and skill contracts, current Master gate semantics plus FPEP contract/information-barrier validation","semantic_validation_scope":"source reading, inter-sheet registration, section reading, beam topology, foundation primary-evidence dual reading/adjudication, material evidence, reinforcement local-gate closure and exact binding residuals, load-path classification and residual acceptance remain specialist gates"}
 }
