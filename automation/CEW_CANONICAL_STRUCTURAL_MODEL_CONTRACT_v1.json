@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "contract_id": "CEW_CANONICAL_STRUCTURAL_MODEL_CONTRACT",
-  "purpose": "Solver-independent contract for the future CEW 3D Structural Model Builder and all downstream scenario/solver adapters.",
+  "purpose": "Solver-independent contract for the CEW 3D Structural Model Builder and all downstream scenario/solver adapters.",
   "model_layers": [
     "IDENTITY_GRAPH",
     "GEOMETRIC_KERNEL",
@@ -90,12 +90,13 @@
     "foundation_source": "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv",
     "foundation_xy_rule": "data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json",
     "required_reference_counts": {
-      "m0g_analytical_nodes": 623,
-      "m0g_rigid_offsets": 458,
-      "m0g_ordinary_members": 356,
+      "m0g_analytical_nodes": 629,
+      "m0g_rigid_offsets": 464,
+      "m0g_ordinary_members": 359,
       "foundation_supports": 38,
       "foundation_primary_members": 55
     },
+    "count_authority": "Read and verify against the current M0G_GEOMETRY_HANDOFF_v1.json / M1F foundation gate at build time. These values describe the current N12 reference revision only.",
     "note": "Counts are reference acceptance checks for the N12 implementation only; they are never extraction targets for future projects."
   }
 }
