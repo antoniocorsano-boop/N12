@@ -1,0 +1,31 @@
+name: Validate CEW Evidence Map
+
+on:
+  pull_request:
+    paths:
+      - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
+      - 'automation/CEW_EVIDENCE_VIEWPOINT_CONTRACT_v1.json'
+      - 'data/canonical/N12_EVIDENCE_LINKS_CURRENT_v0.json'
+      - '.github/workflows/validate-cew-evidence-map.yml'
+
+jobs:
+  validate-evidence-map:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate contracts and anti-invention state
+        run: |
+          python - <<'PY'
+          import json
+          s=json.load(open('data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'))
+          c=json.load(open('automation/CEW_EVIDENCE_VIEWPOINT_CONTRACT_v1.json'))
+          m=json.load(open('data/canonical/N12_EVIDENCE_LINKS_CURRENT_v0.json'))
+          assert s['current_work_item']['id']=='CEW-R3-SYNCHRONIZED-EVIDENCE-MAP-V0'
+          assert c['contract_id']=='CEW_EVIDENCE_VIEWPOINT_CONTRACT'
+          assert m['coverage']['current_issue_count']==6
+          assert m['coverage']['issues_with_canonical_evidence_snippet']==len(m['evidence_snippets'])==0
+          assert m['coverage']['issues_with_3d_viewpoint']==len(m['viewpoints'])==0
+          assert len(m['binding_backlog'])==6
+          assert any('conversation memory' in g for g in m['guards'])
+          print('CEW EVIDENCE MAP: PASS | explicit missing bindings preserved | issues=6')
+          PY
