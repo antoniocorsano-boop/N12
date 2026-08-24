@@ -82,6 +82,30 @@ jobs:
       - name: Validate parent result handshake
         run: python scripts/n12_ingest_agent_result.py validate
 
+  evidence-export:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'work/m0-global-model'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout canonical working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 1
+
+      - name: Upload P02 HiRes evidence for blind readers
+        uses: actions/upload-artifact@v4
+        with:
+          name: fpep-hires-evidence
+          path: |
+            analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json
+            analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json
+            analysis/fpep/hires/TAV01S/
+          if-no-files-found: error
+          retention-days: 30
+
   p00-bootstrap:
     if: (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'work/m0-global-model') || github.event_name == 'workflow_dispatch'
     needs: validate
