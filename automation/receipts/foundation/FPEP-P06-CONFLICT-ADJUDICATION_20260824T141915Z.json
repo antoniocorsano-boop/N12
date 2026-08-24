@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P06-CONFLICT-ADJUDICATION",
+  "decision": "RESIDUAL",
+  "semantic_gate": "WATCH",
+  "run_id": "FPEP-P06-20260824T141000Z",
+  "result_sha256": "9b8d6ad04315ed42e1abefa5ca8f372004c6aaf224035be93c358dc26e7f94d9",
+  "target_outputs": [
+    "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv"
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv",
+    "analysis/fpep/FPEP_INCIDENCE_SWEEP_v1.csv"
+  ],
+  "residuals": [
+    {
+      "residual_id": "P06-R101",
+      "claim_id": "P06-INCIDENCE-BRIDGES",
+      "blocking": true,
+      "reason": "The exhaustive incidence sweep directly confirms 51 pairwise incidences, but five overlap/long-bridge traces remain unbound: 9-17, 10-18, 11-19, 19-25 and 20-24.",
+      "required_evidence": "Perform focused source-local overlap tracing for only these five bridges; do not infer them from alignment, numbering or reticular regularity."
+    },
+    {
+      "residual_id": "P06-R102",
+      "claim_id": "P04-CL-002",
+      "blocking": true,
+      "reason": "The 14.55 written overall remains inconsistent with the currently legible segment-band witness association; the second repeated segment is read 4.15 on focused HiRes review, but the overall witness membership is still not safely closed.",
+      "required_evidence": "Trace the exact overall and segment witness endpoints in the source-local band; preserve the document discrepancy if it remains after endpoint tracing."
+    },
+    {
+      "residual_id": "P06-R103",
+      "claim_id": "P04-CL-006",
+      "blocking": true,
+      "reason": "The 13.60 written overall versus 2.00 + 4.65 + 6.45 still carries a 0.50 discrepancy if treated as one chain.",
+      "required_evidence": "Trace exact witness endpoints and numeral association; do not correct any written value to force closure."
+    }
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T14:19:15.903391+00:00"
+}
