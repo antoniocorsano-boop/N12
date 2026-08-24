@@ -271,7 +271,7 @@
     {
       "id": "FPEP-P08-TAV01A-BINDING-REVIEW",
       "priority": 90,
-      "state": "WAITING",
+      "state": "COMPLETE",
       "agent_role": "TAV01A_BINDING_AUDITOR",
       "dependencies": [
         "FPEP-P07-PRIMARY-GEOMETRY-GATE"
@@ -289,7 +289,10 @@
       "target_outputs": [
         "analysis/fpep/FPEP_TAV01A_BINDING_REVIEW_v1.csv"
       ],
-      "semantic_gate": "Review existing reinforcement/section bindings against the promoted geometry. TAV-01A may bind properties but cannot create, delete or move foundation members."
+      "semantic_gate": "Review existing reinforcement/section bindings against the promoted geometry. TAV-01A may bind properties but cannot create, delete or move foundation members.",
+      "completed_at": "2026-08-24T18:14:03.540359+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "last_run_id": "FPEP-P08-20260824T181000Z"
     },
     {
       "id": "FPEP-P09-HISTORICAL-CALC-CROSSCHECK",
