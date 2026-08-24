@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P12-20260824T182700Z",
+  "work_item_id": "FPEP-P12-RELEASE-AUDIT",
+  "stage_id": "FPEP-P12-RELEASE-AUDIT",
+  "agent_role": "FPEP_RELEASE_AUDITOR",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "PASS",
+  "input_artifacts": [
+    {"path":"data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"CANONICAL_PRIMARY_GEOMETRY_GATE","status":"CURRENT"},
+    {"path":"data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"CANONICAL_PRIMARY_GEOMETRY_LEDGER","status":"CURRENT"},
+    {"path":"analysis/fpep/FPEP_TAV01A_BINDING_REVIEW_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"P08_RECEIPT_GATED_CROSSCHECK","status":"CURRENT"},
+    {"path":"analysis/fpep/FPEP_HISTORICAL_MODEL_CROSSCHECK_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"P09_RECEIPT_GATED_CROSSCHECK","status":"CURRENT"},
+    {"path":"analysis/fpep/FPEP_M0G_REGRESSION_CROSSCHECK_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"P10_RECEIPT_GATED_CROSSCHECK","status":"CURRENT"},
+    {"path":"analysis/fpep/FPEP_FOUNDATION_INTERFACE_CROSSCHECK_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"P11_RECEIPT_GATED_CROSSCHECK","status":"CURRENT"}
+  ],
+  "primary_sources": [
+    {"source_id":"TAV-01S-P07","path":"data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv","git_blob_sha":"64b842fa03b3aa7437e80d2bce90406a66f73827","sha256":"abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8","evidence_anchor":"P07 primary geometry lineage, derived only after P00-P06 primary-evidence workflow"}
+  ],
+  "target_outputs": ["data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv"],
+  "provenance_summary": {
+    "fpep_subitems_complete_before_release": 12,
+    "primary_support_identifiers": 38,
+    "primary_topology_incidences": 55,
+    "blocking_primary_topology_conflicts": 0,
+    "information_barrier_violations": 0,
+    "legacy_topology_edges_revalidated": 54,
+    "legacy_only_edges_superseded_for_successor": 4,
+    "primary_only_edges_required_in_successor": 1,
+    "numeric_foundation_coordinates_fabricated": 0,
+    "numeric_foundation_z_fabricated": 0,
+    "current_geotechnical_parameters_fabricated": 0
+  },
+  "residuals": [
+    {"residual_id":"P12-W001","claim_id":"PRIMARY-METRIC-CHAINS","blocking":false,"reason":"The 14.55 witness-membership and 13.60 closure conflicts remain nonpromotable for coordinate derivation.","required_evidence":"Preserve both claims as explicit metric watches; do not derive Cartesian geometry from them."},
+    {"residual_id":"P12-W002","claim_id":"TAV01A-PROPERTY-COVERAGE","blocking":false,"reason":"Fifteen primary incidences have ND documentary TAV-01A binding; one binding remains supported and three G06 schematic steps are barred from geometry creation.","required_evidence":"Keep missing exact section/longitudinal reinforcement ND unless direct property evidence is registered."},
+    {"residual_id":"P12-W003","claim_id":"HISTORICAL-CALC-COVERAGE","blocking":false,"reason":"No complete indexed historical frame/load calculation dossier supports member-level reconciliation or direct proof of a-d historical participation/omission.","required_evidence":"Preserve historical participation as unproven until direct historical calculation evidence is registered."},
+    {"residual_id":"P12-W004","claim_id":"FOUNDATION-TOPOLOGY-SUCCESSOR","blocking":false,"reason":"The pre-P07 58-member topology is superseded as geometry authority on five claims: remove 25-26, 28-29, 31-32, 11-20 and include primary 11-19 in the successor foundation model.","required_evidence":"M1F-FOUNDATION-MODEL must assemble connectivity from P07 authority and may use the old topology only as regression/history."},
+    {"residual_id":"P12-W005","claim_id":"FOUNDATION-INTERFACE-OPEN-DOMAINS","blocking":false,"reason":"Numeric ZF_COMMON, PT load path/layer properties and current site-specific geotechnical parameters remain open.","required_evidence":"Preserve these domains ND/open; require datum, survey/load-path and site-specific geotechnical evidence before final calculation readiness."}
+  ],
+  "audit_paths": [
+    "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv",
+    "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
+    "analysis/fpep/FPEP_TAV01A_BINDING_REVIEW_v1.csv",
+    "analysis/fpep/FPEP_HISTORICAL_MODEL_CROSSCHECK_v1.csv",
+    "analysis/fpep/FPEP_M0G_REGRESSION_CROSSCHECK_v1.csv",
+    "analysis/fpep/FPEP_FOUNDATION_INTERFACE_CROSSCHECK_v1.csv"
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  }
+}
