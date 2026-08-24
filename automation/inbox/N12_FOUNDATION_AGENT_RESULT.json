@@ -1,0 +1,98 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P06-20260824T140100Z",
+  "work_item_id": "FPEP-P06-CONFLICT-ADJUDICATION",
+  "stage_id": "P06",
+  "agent_role": "FOUNDATION_CONFLICT_ADJUDICATOR",
+  "decision": "RESIDUAL",
+  "semantic_gate": "WATCH",
+  "input_artifacts": [
+    {
+      "path": "analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv",
+      "sha256": "dae9bcd5d842c3a386e2e0cd3fb2cb33b443ff65247d795481e839e4656cb8e5",
+      "authority": "PRIMARY_READER_OBSERVATIONS",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv",
+      "sha256": "6e42cdddb3c217e39354bbb1cad406b78ac3147e0142d33975e67b6a38c316ac",
+      "authority": "INDEPENDENT_READER_OBSERVATIONS",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv",
+      "sha256": "b9b93791def5a03bab203aa0c76059c6586ad2a799c1e3bc9cf1a41bec92837a",
+      "authority": "P05_CANDIDATE_LEDGER",
+      "status": "CURRENT"
+    }
+  ],
+  "primary_sources": [
+    {
+      "source_id": "TAV-01S",
+      "path": "archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf",
+      "git_blob_sha": "64b842fa03b3aa7437e80d2bce90406a66f73827",
+      "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "evidence_anchor": "P02 hashed tiles/regions used for claim-local reread only"
+    }
+  ],
+  "target_outputs": [
+    "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv"
+  ],
+  "provenance_summary": {
+    "adjudication_rows": 21,
+    "resolved_metric_ocr_conflicts": 2,
+    "source_confirmed_pair_candidates": 6,
+    "open_chain_or_incidence_claims": 9,
+    "open_metric_witness_or_closure_claims": 2,
+    "global_coverage_residuals": 1,
+    "members_promoted": 0,
+    "scope": "claim-level adjudication only; P07 remains blocked until exhaustive incidence coverage is established"
+  },
+  "residuals": [
+    {
+      "residual_id": "P06-R001",
+      "claim_id": "P05-GLOBAL-COVERAGE",
+      "blocking": true,
+      "reason": "The current P03/P05 continuity set is not an exhaustive support-incidence/member inventory of the complete TAV-01S foundation drawing.",
+      "required_evidence": "Perform a full source-local incidence sweep over every support identifier and every structural contour using only P02 evidence; enumerate witnessed pairwise transitions and preserve unresolved junctions."
+    },
+    {
+      "residual_id": "P06-R002",
+      "claim_id": "P04-CL-002",
+      "blocking": true,
+      "reason": "The 14.55 dimension region retains unresolved witness-line membership across 4.15/4.25/5.30/4.70 values.",
+      "required_evidence": "Focused witness-line trace on the source-local region; no arithmetic-fit assignment."
+    },
+    {
+      "residual_id": "P06-R003",
+      "claim_id": "P04-CL-006",
+      "blocking": true,
+      "reason": "The written 13.60 overall remains inconsistent with visible 2.00 + 4.65 + 6.45 if treated as a single closed chain.",
+      "required_evidence": "Trace exact witness endpoints and numeral association before geometric use."
+    }
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv"
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "adjudicator_scope_attestation": {
+    "existing_foundation_topology_used": false,
+    "legacy_support_member_counts_used": false,
+    "M0G_geometry_used": false,
+    "PT_master_coordinates_used": false,
+    "TAV01A_reinforcement_groups_used": false,
+    "manufactured_resolving_fact": false,
+    "majority_vote_used": false
+  },
+  "notes": [
+    "Direct source-local reread resolves 6.25 over OCR 6.26 and 4.95 over OCR 4.96 without averaging.",
+    "Pair candidates confirmed by local contour evidence remain candidates only; no member promotion occurs in P06.",
+    "P06 intentionally remains RESIDUAL until global incidence coverage and the two blocking metric witness issues are closed."
+  ]
+}
