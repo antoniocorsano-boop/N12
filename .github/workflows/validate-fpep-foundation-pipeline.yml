@@ -1,0 +1,55 @@
+name: Validate FPEP foundation pipeline
+
+on:
+  pull_request:
+    paths:
+      - 'automation/N12_FOUNDATION_*.json'
+      - 'docs/PROCEDURES/FOUNDATION_PRIMARY_EVIDENCE_PIPELINE_v1.md'
+      - 'scripts/n12_foundation_orchestrator.py'
+      - 'scripts/validate_foundation_pipeline.py'
+      - 'automation/N12_WORK_QUEUE_v1.json'
+      - 'knowledge/KNOWLEDGE_MANIFEST.json'
+      - 'knowledge/CURRENT_STATE.json'
+      - 'knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv'
+      - '.github/workflows/validate-fpep-foundation-pipeline.yml'
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - 'automation/N12_FOUNDATION_*.json'
+      - 'docs/PROCEDURES/FOUNDATION_PRIMARY_EVIDENCE_PIPELINE_v1.md'
+      - 'scripts/n12_foundation_orchestrator.py'
+      - 'scripts/validate_foundation_pipeline.py'
+      - 'automation/N12_WORK_QUEUE_v1.json'
+      - 'knowledge/KNOWLEDGE_MANIFEST.json'
+      - 'knowledge/CURRENT_STATE.json'
+      - 'knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv'
+      - '.github/workflows/validate-fpep-foundation-pipeline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate FPEP contract and information barriers
+        run: python scripts/validate_foundation_pipeline.py
+
+      - name: Validate FPEP sub-orchestrator
+        run: python scripts/n12_foundation_orchestrator.py validate
+
+      - name: Validate global knowledge system
+        run: python scripts/validate_knowledge_system.py
+
+      - name: Validate parent N12 orchestrator
+        run: python scripts/n12_orchestrator.py validate

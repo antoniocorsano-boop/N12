@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "purpose": "Revalidate foundation geometry from the immutable primary foundation carpentry source before any reinforcement, historical-calculation or global-model reconciliation may influence geometry.",
+  "canonical_parent_queue": "automation/N12_WORK_QUEUE_v1.json",
+  "parent_work_item": "M1F-PRIMARY-GEOMETRY-REVALIDATION",
+  "queue": "automation/N12_FOUNDATION_WORK_QUEUE_v1.json",
+  "result_contract": "automation/N12_FOUNDATION_AGENT_RESULT_CONTRACT_v1.json",
+  "orchestrator": "scripts/n12_foundation_orchestrator.py",
+  "primary_geometry_gate": "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
+  "revalidation_ledger": "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
+  "source_roles": {
+    "foundation_carpentry": "TAV-01S",
+    "foundation_reinforcement": "TAV-01A",
+    "architectural_control": "TAV-ARCH"
+  },
+  "authority_order": [
+    "written_dimension_or_explicit_text_on_primary_source",
+    "alphanumeric_id_on_primary_source",
+    "unambiguous_symbol_on_primary_source",
+    "cross_validated_graphical_continuity",
+    "independent_original_source_crosscheck",
+    "validated_canonical_claim",
+    "historical_dataset",
+    "raster_scale_measurement",
+    "inference"
+  ],
+  "evidence_states": ["DOC", "MIS", "RIF", "INF", "INC", "ND"],
+  "validation_states": ["UNREVIEWED", "OBSERVED", "SUPPORTED", "CROSS_VALIDATED", "CURRENT", "RESIDUAL", "CONFLICT", "REOPENED", "SUPERSEDED", "TOMBSTONE"],
+  "pipeline_states": ["READY", "IN_PROGRESS", "WAITING", "RESIDUAL", "BLOCKED", "COMPLETE"],
+  "decisions": ["PASS", "PASS_WITH_WATCH", "RESIDUAL", "BLOCKED", "CONFLICT"],
+  "blindness_policy": {
+    "reader_a_forbidden_context": ["existing_foundation_topology", "M0G_geometry", "PT_master_coordinates", "TAV01A_reinforcement_groups", "historical_calculation_topology"],
+    "reader_b_forbidden_context": ["reader_a_observations", "existing_foundation_topology", "M0G_geometry", "PT_master_coordinates", "TAV01A_reinforcement_groups", "historical_calculation_topology"],
+    "metric_solver_allowed_context": ["primary_source_observations", "written_dimensions", "explicit_ids"],
+    "topology_builder_allowed_context": ["cross_validated_primary_observations", "metric_claims"],
+    "regression_auditor_allowed_context": ["promoted_primary_geometry", "legacy_foundation_topology", "PT_master", "M0G_geometry"],
+    "rule": "Legacy counts and downstream geometry must never be exposed as extraction targets before the primary geometry gate."
+  },
+  "hard_guardrails": {
+    "original_source_required_for_DOC": true,
+    "derivative_requires_parent_hash": true,
+    "reader_b_blind_to_reader_a": true,
+    "foundation_readers_blind_to_M0G": true,
+    "foundation_readers_blind_to_existing_topology_target": true,
+    "TAV01A_cannot_generate_foundation_geometry": true,
+    "M0G_cannot_generate_foundation_geometry": true,
+    "historical_calculation_cannot_generate_foundation_geometry": true,
+    "TAV01A_binding_after_primary_geometry_gate_only": true,
+    "M0G_crosscheck_after_primary_geometry_gate_only": true,
+    "no_majority_vote": true,
+    "adjudicator_cannot_create_fact": true,
+    "canonicalizer_cannot_semantically_read_source": true,
+    "derived_model_never_primary_evidence": true,
+    "cross_validated_required_for_geometry_derivation": true,
+    "minimum_reopen_scope": true,
+    "legacy_checkpoint_preservation": true,
+    "all_residuals_persisted": true,
+    "all_outputs_receipt_gated": true
+  },
+  "promotion_rule": "A foundation geometry claim may become CURRENT only from traceable primary-source evidence, with no open blocking conflict and CROSS_VALIDATED status when the claim is used to derive coordinates or topology. Agent confidence or agreement alone is not evidence authority.",
+  "legacy_checkpoint_rule": "The existing 38-support/58-member topology remains a protected legacy checkpoint for regression comparison only. It must not be supplied as a target to the primary-source readers or topology builder. Agreement produces a revalidation receipt; disagreement reopens only the smallest conflicting claim.",
+  "m0g_reopen_rule": "A primary-source contradiction affecting superstructure support identity or global geometry may request formal M0G-REOPEN only after the FPEP primary geometry claim is CROSS_VALIDATED. FPEP cannot directly modify M0-G.",
+  "residual_rule": "Unreadable or unresolved claims remain INC/ND/RESIDUAL and do not block unrelated spatial sectors or evidence domains.",
+  "required_deterministic_checks": [
+    "python scripts/validate_foundation_pipeline.py",
+    "python scripts/validate_knowledge_system.py",
+    "python scripts/n12_orchestrator.py validate",
+    "python scripts/n12_foundation_orchestrator.py validate"
+  ]
+}

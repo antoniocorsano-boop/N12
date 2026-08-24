@@ -6,7 +6,7 @@
   "predecessor_queue_status": "COMPLETE",
   "predecessor_queue_blob_sha": "dea53f9cd020799da14c23e0a6f618c78712e4cf",
   "predecessor_last_receipt": "automation/receipts/M0G-GEOMETRY-HANDOFF_20260822T190450Z.json",
-  "selection_rule": "Choose the lowest-priority-number item whose state is READY or CANDIDATE, whose dependencies are COMPLETE, and whose required inputs exist. Preserve provenance and never close missing model inputs by inference.",
+  "selection_rule": "Choose the lowest-priority-number item whose state is READY or CANDIDATE, whose dependencies are COMPLETE, and whose required inputs exist. Preserve provenance and never close missing model inputs by inference. Foundation model promotion additionally requires completion of the FPEP primary-evidence wrapper.",
   "items": [
     {
       "id": "M1S-SECTION-ASSIGNMENT-GATE",
@@ -16,14 +16,8 @@
       "source_sheet": "MULTI",
       "task": "Freeze usable section assignments for the 356 ordinary M0-G members while preserving all evidence watches and special roof roles.",
       "dependencies": [],
-      "required_inputs": [
-        "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
-        "data/canonical/STOREY_BEAMS_G5_v1.csv",
-        "data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/M1S_SECTION_GATE_v1.csv"
-      ],
+      "required_inputs": ["data/canonical/M0G_GEOMETRY_HANDOFF_v1.json","data/canonical/STOREY_BEAMS_G5_v1.csv","data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv"],
+      "target_outputs": ["data/canonical/M1S_SECTION_GATE_v1.csv"],
       "semantic_gate": "Every ordinary structural member must have a usable section or an explicitly admitted nonblocking evidence watch. Do not promote MIS or SUPPORTED evidence to DOC. M0-G geometry remains frozen.",
       "completed_at": "2026-08-22T21:56:00+02:00",
       "completion_decision": "PASS_WITH_WATCH",
@@ -36,20 +30,9 @@
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "MULTI",
       "task": "Build the current concrete and reinforcing-steel evidence register. Search the available original/derived project sources for explicit material specifications and distinguish original design values, test or measurement results, reported information, inference and unavailable data.",
-      "dependencies": [
-        "M1S-SECTION-ASSIGNMENT-GATE"
-      ],
-      "required_inputs": [
-        "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
-        "data/canonical/M1S_SECTION_GATE_v1.csv",
-        "docs/M1S_SECTION_CLOSURE_REPORT_v1.md",
-        "docs/REGISTRO_MASTER.md",
-        "data/canonical/tavole_originali_remote_index_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/M1M_MATERIAL_EVIDENCE_CURRENT_v1.csv",
-        "data/canonical/M1M_MATERIAL_GATE_v1.csv"
-      ],
+      "dependencies": ["M1S-SECTION-ASSIGNMENT-GATE"],
+      "required_inputs": ["data/canonical/M0G_GEOMETRY_HANDOFF_v1.json","data/canonical/M1S_SECTION_GATE_v1.csv","docs/M1S_SECTION_CLOSURE_REPORT_v1.md","docs/REGISTRO_MASTER.md","data/canonical/tavole_originali_remote_index_v1.csv"],
+      "target_outputs": ["data/canonical/M1M_MATERIAL_EVIDENCE_CURRENT_v1.csv","data/canonical/M1M_MATERIAL_GATE_v1.csv"],
       "semantic_gate": "Do not infer concrete class, steel grade, mechanical properties, knowledge level or confidence factor from construction age or neighboring projects. Explicit source values outrank assumptions. If evidence is missing, retain ND and create a resolvable residual rather than manufacturing a calculation input.",
       "completed_at": "2026-08-22T20:10:00+00:00",
       "completion_decision": "PASS_WITH_WATCH",
@@ -62,19 +45,9 @@
       "stage": "S2_SPECIALIST_READING",
       "source_sheet": "MULTI",
       "task": "Map beam, column and joint reinforcement evidence to the frozen M0-G/M1-S member identities, separating direct documentary reinforcement from reported or inferred details.",
-      "dependencies": [
-        "M1M-MATERIAL-EVIDENCE"
-      ],
-      "required_inputs": [
-        "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv",
-        "data/canonical/M1S_SECTION_GATE_v1.csv",
-        "data/canonical/M1M_MATERIAL_GATE_v1.csv",
-        "data/canonical/tavole_originali_remote_index_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/M1A_REINFORCEMENT_CURRENT_v1.csv",
-        "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv"
-      ],
+      "dependencies": ["M1M-MATERIAL-EVIDENCE"],
+      "required_inputs": ["data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv","data/canonical/M1S_SECTION_GATE_v1.csv","data/canonical/M1M_MATERIAL_GATE_v1.csv","data/canonical/tavole_originali_remote_index_v1.csv"],
+      "target_outputs": ["data/canonical/M1A_REINFORCEMENT_CURRENT_v1.csv","data/canonical/M1A_REINFORCEMENT_GATE_v1.csv"],
       "semantic_gate": "Reinforcement assignments must bind to explicit member/support identities or remain residual. Preserve historical design reinforcement separately from observed current-state information and do not extrapolate a detail across members without source authority.",
       "released_at": "2026-08-22T20:10:00+00:00",
       "released_by": "M1M-MATERIAL-EVIDENCE",
@@ -89,18 +62,9 @@
       "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
       "source_sheet": "MULTI",
       "task": "Assemble structural and nonstructural permanent loads, variable loads and special local loads for floors, roof, balconies, terraces, infills and later additions, preserving historical-load evidence separately from current assessment assumptions.",
-      "dependencies": [
-        "M1A-REINFORCEMENT-EVIDENCE"
-      ],
-      "required_inputs": [
-        "data/canonical/M1M_MATERIAL_GATE_v1.csv",
-        "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv",
-        "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json"
-      ],
-      "target_outputs": [
-        "data/canonical/M1L_LOAD_MODEL_CURRENT_v1.csv",
-        "data/canonical/M1L_LOAD_GATE_v1.csv"
-      ],
+      "dependencies": ["M1A-REINFORCEMENT-EVIDENCE"],
+      "required_inputs": ["data/canonical/M1M_MATERIAL_GATE_v1.csv","data/canonical/M1A_REINFORCEMENT_GATE_v1.csv","data/canonical/M0G_GEOMETRY_HANDOFF_v1.json"],
+      "target_outputs": ["data/canonical/M1L_LOAD_MODEL_CURRENT_v1.csv","data/canonical/M1L_LOAD_GATE_v1.csv"],
       "semantic_gate": "Separate source-documented historical loads from present assessment loads and combinations. Do not assign loads to roof-special geometry or later additions without an explicit structural role and provenance.",
       "released_at": "2026-08-24T04:04:15.828424+00:00",
       "released_by": "M1A-REINFORCEMENT-EVIDENCE",
@@ -109,27 +73,28 @@
       "result_receipt": "automation/receipts/M1L-LOAD-MODEL_20260824T095901Z.json"
     },
     {
+      "id": "M1F-PRIMARY-GEOMETRY-REVALIDATION",
+      "priority": 45,
+      "state": "READY",
+      "stage": "S2_SPECIALIST_READING",
+      "source_sheet": "TAV-01S",
+      "task": "Execute FPEP v1: independently revalidate foundation geometry from the immutable foundation carpentry source through blind dual reading, metric/topology gates and downstream-only regression crosschecks. Preserve existing 38-support/58-member M1-F topology as a regression checkpoint, never as an extraction target.",
+      "dependencies": ["M1L-LOAD-MODEL"],
+      "required_inputs": ["automation/N12_FOUNDATION_PIPELINE_CONTRACT_v1.json","automation/N12_FOUNDATION_WORK_QUEUE_v1.json","automation/N12_FOUNDATION_AGENT_RESULT_CONTRACT_v1.json","docs/PROCEDURES/FOUNDATION_PRIMARY_EVIDENCE_PIPELINE_v1.md","data/canonical/M1F_FOUNDATION_SOURCE_ROLE_AUDIT_v1.csv","data/canonical/tavole_originali_remote_index_v1.csv"],
+      "target_outputs": ["data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv","data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv"],
+      "semantic_gate": "Primary foundation geometry must be reconstructed without exposure to legacy topology targets, PT/M0-G generator geometry or TAV-01A reinforcement groups. Only after the primary geometry gate may existing foundation topology, armatures, historical calculation and M0-G be used for binding/regression. Release requires complete lineage, explicit residuals and no information-barrier violation."
+    },
+    {
       "id": "M1F-FOUNDATION-MODEL",
       "priority": 50,
-      "state": "READY",
+      "state": "WAITING",
       "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
       "source_sheet": "TAV-01S+MULTI",
-      "task": "Reconcile the foundation grid and foundation member properties with the frozen global support system and prepare the foundation-side analytical inputs, keeping geotechnical parameters as a separate evidence domain.",
-      "dependencies": [
-        "M1L-LOAD-MODEL"
-      ],
-      "required_inputs": [
-        "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
-        "data/canonical/M1M_MATERIAL_GATE_v1.csv",
-        "data/canonical/M1L_LOAD_GATE_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv",
-        "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
-      ],
-      "semantic_gate": "Bind foundations to the global support identities without reopening superstructure geometry. Keep structural foundation evidence separate from soil/geotechnical parameters and preserve ND where investigation is still required.",
-      "released_at": "2026-08-24T09:59:01.031071+00:00",
-      "released_by": "M1L-LOAD-MODEL"
+      "task": "Assemble the foundation-side analytical model only after FPEP has independently revalidated the primary carpenteria geometry; then reconcile validated member properties, symbolic elevation/interface evidence and geotechnical residuals with the frozen global support system.",
+      "dependencies": ["M1F-PRIMARY-GEOMETRY-REVALIDATION"],
+      "required_inputs": ["data/canonical/M0G_GEOMETRY_HANDOFF_v1.json","data/canonical/M1M_MATERIAL_GATE_v1.csv","data/canonical/M1L_LOAD_GATE_v1.csv","data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv","data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv"],
+      "target_outputs": ["data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv","data/canonical/M1F_FOUNDATION_GATE_v1.csv"],
+      "semantic_gate": "Consume FPEP-promoted geometry as foundation geometry authority. Existing TAV-01A/section/elevation/interface artifacts may bind properties but may not manufacture geometry. Bind foundations to global support identities without reopening superstructure geometry except through formal claim-scoped M0G-REOPEN. Keep geotechnical parameters separate and preserve ND where investigation is required."
     },
     {
       "id": "M1E-CALCULATION-MODEL-HANDOFF",
@@ -138,20 +103,9 @@
       "stage": "S5_PROMOTION_GATE",
       "source_sheet": "MULTI",
       "task": "Build the calculation-model handoff for EdiLus-EE and an independent FEM implementation from the frozen geometry plus validated sections, materials, reinforcement, loads and foundations.",
-      "dependencies": [
-        "M1F-FOUNDATION-MODEL"
-      ],
-      "required_inputs": [
-        "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
-        "data/canonical/M1S_SECTION_GATE_v1.csv",
-        "data/canonical/M1M_MATERIAL_GATE_v1.csv",
-        "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv",
-        "data/canonical/M1L_LOAD_GATE_v1.csv",
-        "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
-      ],
-      "target_outputs": [
-        "data/canonical/M1E_CALCULATION_MODEL_HANDOFF_v1.json"
-      ],
+      "dependencies": ["M1F-FOUNDATION-MODEL"],
+      "required_inputs": ["data/canonical/M0G_GEOMETRY_HANDOFF_v1.json","data/canonical/M1S_SECTION_GATE_v1.csv","data/canonical/M1M_MATERIAL_GATE_v1.csv","data/canonical/M1A_REINFORCEMENT_GATE_v1.csv","data/canonical/M1L_LOAD_GATE_v1.csv","data/canonical/M1F_FOUNDATION_GATE_v1.csv"],
+      "target_outputs": ["data/canonical/M1E_CALCULATION_MODEL_HANDOFF_v1.json"],
       "semantic_gate": "Promote only when every required calculation input is either supported for execution or explicitly represented by an admitted modeling rule. Preserve rigid zones, member identity, offsets and all residual provenance. Final gate is CALCULATION_MODEL_READY."
     }
   ]
