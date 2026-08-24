@@ -215,7 +215,7 @@ def main() -> int:
     required_runtime_guards = [
         "canonical_target_ingestible",
         "resolved_allowed_inputs",
-        "REGISTRY_COMPONENT",
+        "MANIFEST_DECLARED_EFFECTIVE_REGISTRY",
         "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
         "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv",
         "FPEP-P12-RELEASE-AUDIT",
