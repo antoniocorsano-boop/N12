@@ -8,7 +8,7 @@
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
   "m0g_geometry_status": "FROZEN_PASS_WITH_WATCH_REVALIDATED_B055",
   "m0g_geometry_handoff": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
-  "blocking_gate": "M1F-PRIMARY-GEOMETRY-REVALIDATION",
+  "blocking_gate": "automation/N12_FOUNDATION_PIPELINE_CONTRACT_v1.json",
   "automation": {
     "status": "ENABLED",
     "contract": "automation/N12_AUTOMATION_CONTRACT_v1.json",
@@ -46,58 +46,12 @@
     "information_barrier": "PRIMARY_READERS_AND_TOPOLOGY_BUILDER_MUST_NOT_RECEIVE_LEGACY_38_58_TARGETS_PT_MASTER_M0G_OR_TAV01A_GROUPS_BEFORE_P07"
   },
   "stable_checkpoints": [
-    {
-      "phase": "PT-GEOMETRY",
-      "status": "COMPLETE_WITH_PROVENANCE_WATCHES",
-      "master": "data/canonical/PT_MASTER_CURRENT.csv",
-      "handoff": "data/canonical/PT_GEOMETRY_HANDOFF_v1.json"
-    },
-    {
-      "phase": "COMMON-STOREY-REGISTRATION",
-      "status": "PASS_WITH_PROVENANCE_WATCHES",
-      "gate": "data/canonical/STOREY_COMMON_REGISTRATION_GATE_v1.csv",
-      "levels": "data/canonical/STOREY_LEVELS_CURRENT_v1.csv",
-      "xy_registration": "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"
-    },
-    {
-      "phase": "M0-G-GLOBAL-GEOMETRY",
-      "status": "FROZEN_PASS_WITH_WATCH_REVALIDATED_B055",
-      "handoff": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
-      "analytical_nodes": 629,
-      "rigid_joint_links": 464,
-      "ordinary_members": 359,
-      "ordinary_beams": 232,
-      "vertical_column_segments": 127,
-      "reopen_rule": "Only through formal M0G-REOPEN supported by new direct documentary geometry evidence.",
-      "local_reopen": "B-053 18-19, B-054 23-22-prime and B-055 17-18 CLOSED_REVALIDATED"
-    },
-    {
-      "phase": "M1-S-SECTIONS",
-      "status": "PASS_WITH_WATCH",
-      "gate": "data/canonical/M1S_SECTION_GATE_v1.csv",
-      "ordinary_members_with_usable_sections": 359,
-      "nd_section_count": 0,
-      "section_evidence_watch_count": 5
-    },
-    {
-      "phase": "M1-M-MATERIALS",
-      "status": "PASS_WITH_WATCH",
-      "gate": "data/canonical/M1M_MATERIAL_GATE_v1.csv",
-      "current_concrete_strength": "ND",
-      "LC": "ND",
-      "FC": "ND"
-    },
-    {
-      "phase": "M1-F-FOUNDATIONS-LEGACY-CHECKPOINT",
-      "status": "PROTECTED_REGRESSION_CHECKPOINT_PENDING_FPEP_REVALIDATION",
-      "topology_gate": "data/canonical/M1F_FOUNDATION_TOPOLOGY_GATE_v1.csv",
-      "section_gate": "data/canonical/M1F_FOUNDATION_SECTION_BINDING_GATE_v1.csv",
-      "reinforcement_gate": "data/canonical/M1F_FOUNDATION_REINFORCEMENT_GATE_v1.csv",
-      "physical_supports": 38,
-      "foundation_members": 58,
-      "connected_components": 1,
-      "rule": "Do not expose these counts or topology to FPEP primary readers/metric solver/topology builder before P07. Preserve them for post-gate regression only."
-    }
+    {"phase":"PT-GEOMETRY","status":"COMPLETE_WITH_PROVENANCE_WATCHES","master":"data/canonical/PT_MASTER_CURRENT.csv","handoff":"data/canonical/PT_GEOMETRY_HANDOFF_v1.json"},
+    {"phase":"COMMON-STOREY-REGISTRATION","status":"PASS_WITH_PROVENANCE_WATCHES","gate":"data/canonical/STOREY_COMMON_REGISTRATION_GATE_v1.csv","levels":"data/canonical/STOREY_LEVELS_CURRENT_v1.csv","xy_registration":"data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"},
+    {"phase":"M0-G-GLOBAL-GEOMETRY","status":"FROZEN_PASS_WITH_WATCH_REVALIDATED_B055","handoff":"data/canonical/M0G_GEOMETRY_HANDOFF_v1.json","analytical_nodes":629,"rigid_joint_links":464,"ordinary_members":359,"ordinary_beams":232,"vertical_column_segments":127,"reopen_rule":"Only through formal M0G-REOPEN supported by new direct documentary geometry evidence.","local_reopen":"B-053 18-19, B-054 23-22-prime and B-055 17-18 CLOSED_REVALIDATED"},
+    {"phase":"M1-S-SECTIONS","status":"PASS_WITH_WATCH","gate":"data/canonical/M1S_SECTION_GATE_v1.csv","ordinary_members_with_usable_sections":359,"nd_section_count":0,"section_evidence_watch_count":5},
+    {"phase":"M1-M-MATERIALS","status":"PASS_WITH_WATCH","gate":"data/canonical/M1M_MATERIAL_GATE_v1.csv","current_concrete_strength":"ND","LC":"ND","FC":"ND"},
+    {"phase":"M1-F-FOUNDATIONS-LEGACY-CHECKPOINT","status":"PROTECTED_REGRESSION_CHECKPOINT_PENDING_FPEP_REVALIDATION","topology_gate":"data/canonical/M1F_FOUNDATION_TOPOLOGY_GATE_v1.csv","section_gate":"data/canonical/M1F_FOUNDATION_SECTION_BINDING_GATE_v1.csv","reinforcement_gate":"data/canonical/M1F_FOUNDATION_REINFORCEMENT_GATE_v1.csv","physical_supports":38,"foundation_members":58,"connected_components":1,"rule":"Do not expose these counts or topology to FPEP primary readers/metric solver/topology builder before P07. Preserve them for post-gate regression only."}
   ],
   "foundation_progress": {
     "legacy_topology": "CLOSED_38_SUPPORTS_58_MEMBERS_ONE_COMPONENT_AS_REGRESSION_CHECKPOINT",
