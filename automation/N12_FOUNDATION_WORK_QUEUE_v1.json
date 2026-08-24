@@ -118,7 +118,7 @@
     {
       "id": "FPEP-P03B-BLIND-READ-B",
       "priority": 41,
-      "state": "WAITING",
+      "state": "COMPLETE",
       "agent_role": "FOUNDATION_CARPENTRY_READER_B",
       "dependencies": [
         "FPEP-P02-HIRES-EVIDENCE"
@@ -140,7 +140,10 @@
       "target_outputs": [
         "analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv"
       ],
-      "semantic_gate": "Independent second reading of the same primary evidence. Agreement with Reader A is not itself an authority upgrade; disagreement creates a claim-level adjudication item."
+      "semantic_gate": "Independent second reading of the same primary evidence. Agreement with Reader A is not itself an authority upgrade; disagreement creates a claim-level adjudication item.",
+      "completed_at": "2026-08-24T13:42:25.844649+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "last_run_id": "FPEP-P03B-20260824T133755Z"
     },
     {
       "id": "FPEP-P04-METRIC-NETWORK",
