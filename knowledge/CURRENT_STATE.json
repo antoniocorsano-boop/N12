@@ -19,13 +19,13 @@
     "agent_result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
     "agent_result_ingestor": "scripts/n12_ingest_agent_result.py",
     "agent_result_inbox": "automation/inbox/N12_AGENT_RESULT.json",
-    "current_work_item": "M1L-LOAD-MODEL",
+    "current_work_item": "M1F-FOUNDATION-MODEL",
     "deterministic_cycle": "ACTIVE_ON_BRANCH_PUSH_AND_WORKFLOW_DISPATCH_AND_6H_SCHEDULE",
     "semantic_boundary": "ONE_WORK_ITEM_PER_CYCLE_WITH_CONTRACT_VALID_RESULT_HANDSHAKE",
-    "last_result_receipt": "automation/receipts/M1A-REINFORCEMENT-EVIDENCE_20260824T040415Z.json",
+    "last_result_receipt": "automation/receipts/M1L-LOAD-MODEL_20260824T095901Z.json",
     "last_result_decision": "PASS_WITH_WATCH",
     "last_cycle_outcome": "PASS_WITH_WATCH_ADVANCE",
-    "last_result_at": "2026-08-24T04:04:15.828424+00:00"
+    "last_result_at": "2026-08-24T09:59:01.031071+00:00"
   },
   "stable_checkpoints": [
     {
@@ -154,11 +154,11 @@
   },
   "next_action": {
     "phase": "PER-STOREY-SECTIONS-AND-BEAM-TOPOLOGY",
-    "work_item": "M1L-LOAD-MODEL",
-    "task": "Assemble structural and nonstructural permanent loads, variable loads and special local loads for floors, roof, balconies, terraces, infills and later additions, preserving historical-load evidence separately from current assessment assumptions.",
+    "work_item": "M1F-FOUNDATION-MODEL",
+    "task": "Reconcile the foundation grid and foundation member properties with the frozen global support system and prepare the foundation-side analytical inputs, keeping geotechnical parameters as a separate evidence domain.",
     "target_outputs": [
-      "data/canonical/M1L_LOAD_MODEL_CURRENT_v1.csv",
-      "data/canonical/M1L_LOAD_GATE_v1.csv"
+      "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv",
+      "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
     ],
     "forbidden_inputs": [
       "reinforcement copied across members without explicit source authority",

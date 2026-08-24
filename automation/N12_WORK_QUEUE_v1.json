@@ -85,7 +85,7 @@
     {
       "id": "M1L-LOAD-MODEL",
       "priority": 40,
-      "state": "READY",
+      "state": "COMPLETE",
       "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
       "source_sheet": "MULTI",
       "task": "Assemble structural and nonstructural permanent loads, variable loads and special local loads for floors, roof, balconies, terraces, infills and later additions, preserving historical-load evidence separately from current assessment assumptions.",
@@ -103,12 +103,15 @@
       ],
       "semantic_gate": "Separate source-documented historical loads from present assessment loads and combinations. Do not assign loads to roof-special geometry or later additions without an explicit structural role and provenance.",
       "released_at": "2026-08-24T04:04:15.828424+00:00",
-      "released_by": "M1A-REINFORCEMENT-EVIDENCE"
+      "released_by": "M1A-REINFORCEMENT-EVIDENCE",
+      "completed_at": "2026-08-24T09:59:01.031071+00:00",
+      "completion_decision": "PASS_WITH_WATCH",
+      "result_receipt": "automation/receipts/M1L-LOAD-MODEL_20260824T095901Z.json"
     },
     {
       "id": "M1F-FOUNDATION-MODEL",
       "priority": 50,
-      "state": "WAITING",
+      "state": "READY",
       "stage": "S3_METRIC_AND_TOPOLOGY_CHECKS",
       "source_sheet": "TAV-01S+MULTI",
       "task": "Reconcile the foundation grid and foundation member properties with the frozen global support system and prepare the foundation-side analytical inputs, keeping geotechnical parameters as a separate evidence domain.",
@@ -124,7 +127,9 @@
         "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv",
         "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
       ],
-      "semantic_gate": "Bind foundations to the global support identities without reopening superstructure geometry. Keep structural foundation evidence separate from soil/geotechnical parameters and preserve ND where investigation is still required."
+      "semantic_gate": "Bind foundations to the global support identities without reopening superstructure geometry. Keep structural foundation evidence separate from soil/geotechnical parameters and preserve ND where investigation is still required.",
+      "released_at": "2026-08-24T09:59:01.031071+00:00",
+      "released_by": "M1L-LOAD-MODEL"
     },
     {
       "id": "M1E-CALCULATION-MODEL-HANDOFF",
