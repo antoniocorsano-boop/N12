@@ -1,0 +1,51 @@
+{
+  "contract_id": "CEW-HUMAN-DECISION-INTAKE-v1",
+  "milestone": "CEW-F7",
+  "status": "ACTIVE_REVIEW_INTAKE_CONTRACT",
+  "purpose": "Collect an explicit technician decision against immutable primary-source context without allowing the review pack to infer, prefill, promote or write canonical data.",
+  "authority": "HUMAN_REVIEW_INPUT_ONLY",
+  "authority_invariants": {
+    "pack_may_prefill_outcome": false,
+    "pack_may_prefill_human_observation": false,
+    "pack_may_claim_direct_primary_evidence": false,
+    "pack_may_select_promotion_target": false,
+    "pack_may_request_epistemic_promotion": false,
+    "pack_may_write_canonical": false,
+    "pack_may_modify_f2_geometry": false,
+    "pack_may_reopen_m0g": false,
+    "reviewer_identity_must_be_human_supplied": true,
+    "timestamp_must_be_created_at_human_export": true
+  },
+  "required_export_fields": [
+    "schema_version",
+    "decision_id",
+    "task_id",
+    "residual_id",
+    "review_mode",
+    "reviewer",
+    "timestamp",
+    "outcome",
+    "human_observation",
+    "evidence_regions",
+    "source_versions",
+    "direct_primary_evidence_observed",
+    "requested_epistemic_state",
+    "target_id",
+    "reopen_approval_id",
+    "authority_acknowledgement"
+  ],
+  "allowed_outcomes": ["CONFIRMED", "REJECTED", "UNREADABLE", "UNBOUND", "NEEDS_BETTER_SOURCE", "NEEDS_SITE_SURVEY", "DEFER"],
+  "allowed_requested_states": ["ND", "INF", "RIF", "MIS", "DOC"],
+  "submission_rules": {
+    "review_mode": "HUMAN_REVIEW",
+    "confirmed_requires_nonempty_human_observation": true,
+    "confirmed_requires_direct_primary_evidence_observed_true": true,
+    "promotion_target_required_only_for_confirmed": true,
+    "nonconfirmed_target_must_be_empty": true,
+    "unreadable_or_unbound_cannot_request_state_above_current_ceiling": true,
+    "export_is_not_canonical_write": true,
+    "promotion_engine_must_revalidate_after_export": true
+  },
+  "reference_tasks": ["ERW-N12-001", "ERW-N12-002", "ERW-N12-003", "ERW-N12-004"],
+  "acceptance_marker": "HUMAN_DECISION_INTAKE_PACK_PASS"
+}
