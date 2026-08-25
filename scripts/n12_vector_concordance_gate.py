@@ -13,26 +13,10 @@ from pathlib import Path
 from typing import Iterable
 
 SOURCES = {
-    "TAV-03S": {
-        "path": "archive/documentazione_originaria/tavola3-2.pdf",
-        "sha256": "c28612f58a734d5859a0d3485b28e370b31b292d0a32171832db41e0052fa8d5",
-        "level": "G2",
-    },
-    "TAV-04S": {
-        "path": "archive/documentazione_originaria/tavola4-2.pdf",
-        "sha256": "2b878bcefde54ff2b42bafa2a4fdc8a8420bd71514a7e6966a864f009ade685e",
-        "level": "G3",
-    },
-    "TAV-05S": {
-        "path": "archive/documentazione_originaria/tavola 5.pdf",
-        "sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
-        "level": "G4",
-    },
-    "TAV-06S": {
-        "path": "archive/documentazione_originaria/tavola 6-1.pdf",
-        "sha256": "ca454c844049cab12af6eeaaf5167f934a9be0e2f72d34dd392d4db0bf3d341d",
-        "level": "G5",
-    },
+    "TAV-03S": {"path": "archive/documentazione_originaria/tavola3-2.pdf", "sha256": "c28612f58a734d5859a0d3485b28e370b31b292d0a32171832db41e0052fa8d5", "level": "G2"},
+    "TAV-04S": {"path": "archive/documentazione_originaria/tavola4-2.pdf", "sha256": "2b878bcefde54ff2b42bafa2a4fdc8a8420bd71514a7e6966a864f009ade685e", "level": "G3"},
+    "TAV-05S": {"path": "archive/documentazione_originaria/tavola 5.pdf", "sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580", "level": "G4"},
+    "TAV-06S": {"path": "archive/documentazione_originaria/tavola 6-1.pdf", "sha256": "ca454c844049cab12af6eeaaf5167f934a9be0e2f72d34dd392d4db0bf3d341d", "level": "G5"},
 }
 
 
@@ -47,10 +31,6 @@ class Segment:
     y2: float
     length: float
 
-    @property
-    def midpoint(self) -> tuple[float, float]:
-        return ((self.x1 + self.x2) / 2.0, (self.y1 + self.y2) / 2.0)
-
 
 def sha256(path: Path) -> str:
     h = hashlib.sha256()
@@ -60,14 +40,7 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def classify_segment(
-    engine: str,
-    page: int,
-    a: tuple[float, float],
-    b: tuple[float, float],
-    min_length: float,
-    axis_tolerance_deg: float,
-) -> Segment | None:
+def classify_segment(engine: str, page: int, a: tuple[float, float], b: tuple[float, float], min_length: float, axis_tolerance_deg: float) -> Segment | None:
     x1, y1 = a
     x2, y2 = b
     dx, dy = x2 - x1, y2 - y1
@@ -75,11 +48,9 @@ def classify_segment(
     if length < min_length:
         return None
     angle = abs(math.degrees(math.atan2(dy, dx))) % 180.0
-    dist_h = min(angle, abs(180.0 - angle))
-    dist_v = abs(90.0 - angle)
-    if dist_h <= axis_tolerance_deg:
+    if min(angle, abs(180.0 - angle)) <= axis_tolerance_deg:
         orientation = "H"
-    elif dist_v <= axis_tolerance_deg:
+    elif abs(90.0 - angle) <= axis_tolerance_deg:
         orientation = "V"
     else:
         return None
@@ -89,24 +60,26 @@ def classify_segment(
 
 
 def rect_edges(rect) -> Iterable[tuple[tuple[float, float], tuple[float, float]]]:
-    p = [
-        (float(rect.x0), float(rect.y0)),
-        (float(rect.x1), float(rect.y0)),
-        (float(rect.x1), float(rect.y1)),
-        (float(rect.x0), float(rect.y1)),
-    ]
+    p = [(float(rect.x0), float(rect.y0)), (float(rect.x1), float(rect.y0)), (float(rect.x1), float(rect.y1)), (float(rect.x0), float(rect.y1))]
     for i in range(4):
         yield p[i], p[(i + 1) % 4]
 
 
-def extract_pymupdf(pdf: Path, min_length: float, axis_tolerance_deg: float) -> list[Segment]:
+def extract_pymupdf(pdf: Path, min_length: float, axis_tolerance_deg: float) -> tuple[list[Segment], dict]:
     import pymupdf
 
     out: list[Segment] = []
+    diag = {"pages": 0, "drawings": 0, "drawing_items": 0, "images": 0}
     doc = pymupdf.open(pdf)
     for page_index, page in enumerate(doc, start=1):
-        for drawing in page.get_drawings():
-            for item in drawing.get("items", []):
+        diag["pages"] += 1
+        drawings = page.get_drawings()
+        diag["drawings"] += len(drawings)
+        diag["images"] += len(page.get_images(full=True))
+        for drawing in drawings:
+            items = drawing.get("items", [])
+            diag["drawing_items"] += len(items)
+            for item in items:
                 op = item[0]
                 candidates: list[tuple[tuple[float, float], tuple[float, float]]] = []
                 if op == "l":
@@ -122,10 +95,10 @@ def extract_pymupdf(pdf: Path, min_length: float, axis_tolerance_deg: float) -> 
                     if seg:
                         out.append(seg)
     doc.close()
-    return out
+    return out, diag
 
 
-def extract_docling(pdf: Path, min_length: float, axis_tolerance_deg: float) -> list[Segment]:
+def extract_docling(pdf: Path, min_length: float, axis_tolerance_deg: float) -> tuple[list[Segment], dict]:
     from docling_parse.pdf_parser import ContentConfig, ContentLevel, DecodeConfig, DoclingPdfParser
 
     parser = DoclingPdfParser(loglevel="fatal")
@@ -137,19 +110,25 @@ def extract_docling(pdf: Path, min_length: float, axis_tolerance_deg: float) -> 
             word_cells_content_level=ContentLevel.SKIP,
             line_cells_content_level=ContentLevel.SKIP,
             shapes_content_level=ContentLevel.COMPUTE_AND_MATERIALIZE,
-            bitmaps_content_level=ContentLevel.SKIP,
+            bitmaps_content_level=ContentLevel.COMPUTE_AND_MATERIALIZE,
+            include_bitmap_bytes=False,
         ),
     )
     out: list[Segment] = []
+    diag = {"pages": 0, "shapes": 0, "shape_points": 0, "bitmaps": 0}
     for page_no, page in doc.iterate_pages():
+        diag["pages"] += 1
+        diag["shapes"] += len(page.shapes)
+        diag["bitmaps"] += len(page.bitmap_resources)
         height = float(page.dimension.height)
         for shape in page.shapes:
             pts = [(float(p.x), height - float(p.y)) for p in shape.points]
+            diag["shape_points"] += len(pts)
             for a, b in zip(pts, pts[1:]):
                 seg = classify_segment("docling", int(page_no), a, b, min_length, axis_tolerance_deg)
                 if seg:
                     out.append(seg)
-    return out
+    return out, diag
 
 
 def endpoint_distance(a: Segment, b: Segment) -> float:
@@ -162,11 +141,10 @@ def match_segments(primary: list[Segment], secondary: list[Segment], tolerance_p
     candidates: list[tuple[float, int, int]] = []
     for i, a in enumerate(primary):
         for j, b in enumerate(secondary):
-            if a.page != b.page or a.orientation != b.orientation:
-                continue
-            d = endpoint_distance(a, b)
-            if d <= tolerance_pt:
-                candidates.append((d, i, j))
+            if a.page == b.page and a.orientation == b.orientation:
+                d = endpoint_distance(a, b)
+                if d <= tolerance_pt:
+                    candidates.append((d, i, j))
     candidates.sort()
     used_a: set[int] = set()
     used_b: set[int] = set()
@@ -181,8 +159,9 @@ def match_segments(primary: list[Segment], secondary: list[Segment], tolerance_p
 
 
 def write_segments(path: Path, segments: list[Segment]) -> None:
+    fields = ["engine", "page", "orientation", "x1", "y1", "x2", "y2", "length"]
     with path.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=list(asdict(segments[0]).keys()) if segments else ["engine", "page", "orientation", "x1", "y1", "x2", "y2", "length"])
+        writer = csv.DictWriter(fh, fieldnames=fields)
         writer.writeheader()
         for seg in segments:
             writer.writerow(asdict(seg))
@@ -199,9 +178,8 @@ def write_matches(path: Path, matches: list[dict], a: list[Segment], b: list[Seg
 
 
 def acquire_source(archive_ref: str, source_id: str, target: Path) -> None:
-    spec = SOURCES[source_id]
     with target.open("wb") as fh:
-        subprocess.run(["git", "show", f"{archive_ref}:{spec['path']}"], check=True, stdout=fh)
+        subprocess.run(["git", "show", f"{archive_ref}:{SOURCES[source_id]['path']}"], check=True, stdout=fh)
 
 
 def self_test() -> None:
@@ -212,6 +190,18 @@ def self_test() -> None:
     assert len(matches) == len(ua) == len(ub) == 1
     assert classify_segment("a", 1, (0, 0), (5, 5), 10, 1) is None
     print("SELF_TEST_PASS")
+
+
+def classify_gate(source_ok: bool, pymu: list[Segment], docl: list[Segment], pdiag: dict, ddiag: dict) -> str:
+    if not source_ok:
+        return "FAIL_SOURCE_INTEGRITY"
+    if pymu and docl:
+        return "MEASURED_REVIEW"
+    no_vector = pdiag["drawings"] == 0 and ddiag["shapes"] == 0
+    has_raster = pdiag["images"] > 0 or ddiag["bitmaps"] > 0
+    if no_vector and has_raster:
+        return "NOT_APPLICABLE_RASTER_SOURCE"
+    return "FAIL_VECTOR_EXTRACTION"
 
 
 def run(args: argparse.Namespace) -> int:
@@ -228,19 +218,19 @@ def run(args: argparse.Namespace) -> int:
             source_ok = actual_sha == spec["sha256"]
             target = out_root / source_id
             target.mkdir(parents=True, exist_ok=True)
-            pymu = extract_pymupdf(pdf, args.min_length_pt, args.axis_tolerance_deg)
-            docl = extract_docling(pdf, args.min_length_pt, args.axis_tolerance_deg)
+            pymu, pdiag = extract_pymupdf(pdf, args.min_length_pt, args.axis_tolerance_deg)
+            docl, ddiag = extract_docling(pdf, args.min_length_pt, args.axis_tolerance_deg)
             matches, used_p, used_d = match_segments(pymu, docl, args.match_tolerance_pt)
+            gate = classify_gate(source_ok, pymu, docl, pdiag, ddiag)
+            acceptable = gate in {"MEASURED_REVIEW", "NOT_APPLICABLE_RASTER_SOURCE"}
+            overall_ok = overall_ok and acceptable
             p_ratio = len(matches) / len(pymu) if pymu else 0.0
             d_ratio = len(matches) / len(docl) if docl else 0.0
-            parser_ok = bool(pymu) and bool(docl)
-            measured_gate = source_ok and parser_ok
-            overall_ok = overall_ok and measured_gate
             write_segments(target / "pymupdf_segments.csv", pymu)
             write_segments(target / "docling_segments.csv", docl)
             write_matches(target / "matches.csv", matches, pymu, docl)
             receipt = {
-                "schema_version": "1.0",
+                "schema_version": "1.1",
                 "experiment": "PYMUPDF_DOCLING_VECTOR_CONCORDANCE",
                 "source_id": source_id,
                 "level": spec["level"],
@@ -248,36 +238,25 @@ def run(args: argparse.Namespace) -> int:
                 "expected_sha256": spec["sha256"],
                 "actual_sha256": actual_sha,
                 "source_integrity": "PASS" if source_ok else "FAIL",
-                "parameters": {
-                    "min_length_pt": args.min_length_pt,
-                    "axis_tolerance_deg": args.axis_tolerance_deg,
-                    "match_tolerance_pt": args.match_tolerance_pt,
-                },
-                "counts": {
-                    "pymupdf_axis_segments": len(pymu),
-                    "docling_axis_segments": len(docl),
-                    "matched_pairs": len(matches),
-                    "pymupdf_unmatched": len(pymu) - len(used_p),
-                    "docling_unmatched": len(docl) - len(used_d),
-                },
-                "concordance": {
-                    "matched_over_pymupdf": round(p_ratio, 6),
-                    "matched_over_docling": round(d_ratio, 6),
-                },
-                "gate": "MEASURED_REVIEW" if measured_gate else "FAIL",
+                "parameters": {"min_length_pt": args.min_length_pt, "axis_tolerance_deg": args.axis_tolerance_deg, "match_tolerance_pt": args.match_tolerance_pt},
+                "raw_parser_diagnostics": {"pymupdf": pdiag, "docling": ddiag},
+                "counts": {"pymupdf_axis_segments": len(pymu), "docling_axis_segments": len(docl), "matched_pairs": len(matches), "pymupdf_unmatched": len(pymu) - len(used_p), "docling_unmatched": len(docl) - len(used_d)},
+                "concordance": {"matched_over_pymupdf": round(p_ratio, 6), "matched_over_docling": round(d_ratio, 6)},
+                "gate": gate,
                 "epistemic_effect": "NONE",
                 "promotion_prohibited": True,
-                "note": "Experimental parser-concordance evidence only. No DOC/MIS promotion and no canonical geometry mutation.",
+                "note": "Experimental parser diagnostic only. Raster-only classification means vector concordance is inapplicable; it does not alter DOC/MIS or canonical geometry.",
             }
             (target / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
             batch_summary.append(receipt)
-    (out_root / "batch_receipt.json").write_text(json.dumps({"sources": batch_summary, "overall_gate": "MEASURED_REVIEW" if overall_ok else "FAIL", "epistemic_effect": "NONE"}, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"overall_gate": "MEASURED_REVIEW" if overall_ok else "FAIL", "sources": [{"source_id": x["source_id"], "counts": x["counts"], "concordance": x["concordance"]} for x in batch_summary]}, indent=2))
+    overall_gate = "DIAGNOSTIC_COMPLETE" if overall_ok else "FAIL"
+    (out_root / "batch_receipt.json").write_text(json.dumps({"sources": batch_summary, "overall_gate": overall_gate, "epistemic_effect": "NONE"}, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({"overall_gate": overall_gate, "sources": [{"source_id": x["source_id"], "gate": x["gate"], "raw_parser_diagnostics": x["raw_parser_diagnostics"], "counts": x["counts"], "concordance": x["concordance"]} for x in batch_summary]}, indent=2))
     return 0 if overall_ok else 2
 
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Compare axis-aligned vector segments independently extracted by PyMuPDF and Docling Parse.")
+    p = argparse.ArgumentParser(description="Diagnose and, where applicable, compare axis-aligned PDF vectors extracted independently by PyMuPDF and Docling Parse.")
     p.add_argument("--archive-ref", default="origin/archive/originali-alta-risoluzione")
     p.add_argument("--out-dir", default="analysis/vector_concordance")
     p.add_argument("--min-length-pt", type=float, default=8.0)
