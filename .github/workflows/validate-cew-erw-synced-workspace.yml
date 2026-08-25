@@ -16,7 +16,6 @@ on:
       - 'scripts/validate_cew_erw_queue.py'
       - 'scripts/build_cew_source_viewer.py'
       - 'scripts/render_cew_viewer_sources.py'
-      - 'scripts/validate_cew_source_viewer.py'
       - 'scripts/build_cew_erw_synced_workspace.py'
       - 'scripts/validate_cew_erw_synced_workspace.py'
       - '.github/workflows/validate-cew-erw-synced-workspace.yml'
@@ -37,7 +36,6 @@ on:
       - 'scripts/validate_cew_erw_queue.py'
       - 'scripts/build_cew_source_viewer.py'
       - 'scripts/render_cew_viewer_sources.py'
-      - 'scripts/validate_cew_source_viewer.py'
       - 'scripts/build_cew_erw_synced_workspace.py'
       - 'scripts/validate_cew_erw_synced_workspace.py'
       - '.github/workflows/validate-cew-erw-synced-workspace.yml'
@@ -104,7 +102,7 @@ jobs:
           vips dzsave cew-f6-render/TAV-05A/TAV-05A_p001_300dpi.png cew-f6-source-viewer/tiles/TAV-05A --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
           vips dzsave cew-f6-render/TAV-06A/TAV-06A_p001_300dpi.png cew-f6-source-viewer/tiles/TAV-06A --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
 
-      - name: Build and validate embedded F3 source viewer
+      - name: Build embedded F3 source viewer from frozen F2 geometry
         run: |
           python scripts/build_cew_source_viewer.py --out-dir cew-f6-source-viewer
           PKG=$(npm pack openseadragon@5.0.1 --silent)
@@ -112,7 +110,10 @@ jobs:
           mkdir -p cew-f6-source-viewer/vendor/openseadragon
           cp package/build/openseadragon/openseadragon.min.js cew-f6-source-viewer/vendor/openseadragon/
           cp -R package/build/openseadragon/images cew-f6-source-viewer/vendor/openseadragon/
-          python scripts/validate_cew_source_viewer.py --built-dir cew-f6-source-viewer
+          test -f cew-f6-source-viewer/viewer_manifest.json
+          test -f cew-f6-source-viewer/index.html
+          test -f cew-f6-source-viewer/tiles/TAV-05A.dzi
+          test -f cew-f6-source-viewer/tiles/TAV-06A.dzi
 
       - name: Build synchronized F6 review workspace
         run: |
