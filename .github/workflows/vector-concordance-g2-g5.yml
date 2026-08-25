@@ -11,6 +11,8 @@ on:
       - 'scripts/n12_consensus_review_overlay.py'
       - 'scripts/n12_registered_candidate_audit.py'
       - 'scripts/n12_registered_line_topology_audit.py'
+      - 'scripts/n12_validate_line_topology_visual_review.py'
+      - 'analysis/experimental_source_concordance/TAV06S_LINE_TOPOLOGY_VISUAL_REVIEW_v1.csv'
       - '.github/workflows/vector-concordance-g2-g5.yml'
   push:
     branches:
@@ -23,6 +25,8 @@ on:
       - 'scripts/n12_consensus_review_overlay.py'
       - 'scripts/n12_registered_candidate_audit.py'
       - 'scripts/n12_registered_line_topology_audit.py'
+      - 'scripts/n12_validate_line_topology_visual_review.py'
+      - 'analysis/experimental_source_concordance/TAV06S_LINE_TOPOLOGY_VISUAL_REVIEW_v1.csv'
       - '.github/workflows/vector-concordance-g2-g5.yml'
 
 permissions:
@@ -63,6 +67,9 @@ jobs:
 
       - name: Run registered line topology audit self-test
         run: python scripts/n12_registered_line_topology_audit.py --self-test
+
+      - name: Validate non-canonical visual line review
+        run: python scripts/n12_validate_line_topology_visual_review.py
 
       - name: Fetch immutable source archive
         run: git fetch --no-tags --depth=1 origin archive/originali-alta-risoluzione
