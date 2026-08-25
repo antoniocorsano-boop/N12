@@ -64,8 +64,9 @@ def main() -> int:
         raise AssertionError(f"milestone sequence changed: {ids}")
 
     status = {r["milestone_id"].strip(): r["status"].strip() for r in rows}
-    if any(status[mid] != "COMPLETE" for mid in ("CEW-F0", "CEW-F1", "CEW-F2")):
-        raise AssertionError("CEW-F0, CEW-F1 and CEW-F2 must remain COMPLETE after evidence closure")
+    for mid in ("CEW-F0", "CEW-F1", "CEW-F2"):
+        if status[mid] != "COMPLETE":
+            raise AssertionError(f"{mid} must remain COMPLETE")
     if status["CEW-F3"] != "IN_PROGRESS":
         raise AssertionError("CEW-F3 must be the active milestone after EVIDENCE_PROVENANCE_PASS")
     active = [mid for mid, value in status.items() if value == "IN_PROGRESS"]
@@ -79,7 +80,6 @@ def main() -> int:
     print("CEW SYSTEM FOUNDATION = PASS")
     print("Completed milestones: CEW-F0, CEW-F1, CEW-F2")
     print("Active milestone: CEW-F3")
-    print("F2 closure gate: EVIDENCE_PROVENANCE_PASS")
     print("Epistemic regime: DOC/MIS/RIF/INF/ND")
     print("Authority flow: PRIMARY_SOURCE -> OBSERVATION -> CANONICAL_KNOWLEDGE -> ANALYSIS_ASSUMPTION -> CALCULATION_MODEL -> RESULT")
     print(f"Milestones validated: {len(rows)}")

@@ -1,0 +1,38 @@
+{
+  "receipt_id": "CEW-F2-CLOSURE-v1",
+  "baseline_commit": "232338a24363a14ddcecc25bb331762870e010f7",
+  "acceptance_gate": "EVIDENCE_PROVENANCE_PASS",
+  "acceptance_run_id": 32872105096,
+  "acceptance_tested_commit": "dd5141f3d28c9306c26c89b249605fa746df9332",
+  "reference_chains": {
+    "T5A-G01/G01-R06": "READY_REPRODUCIBLE",
+    "T5A-G07/G07-R07": "READY_REPRODUCIBLE",
+    "T5A-G05/G05-R04": "READY_REPRODUCIBLE",
+    "T6A-G03": "READY_REPRODUCIBLE"
+  },
+  "structural_binding_guard": {
+    "reference_item": "T6A-G03",
+    "state": "UNBOUND",
+    "observation_binding_authority": false
+  },
+  "verified_properties": [
+    "immutable_source_sha256_verified",
+    "physical_page_reconstructed",
+    "page_dimensions_reproduced",
+    "300dpi_review_asset_regenerated",
+    "normalized_bbox_validated",
+    "normalized_to_pdf_roundtrip_validated",
+    "normalized_to_raster_transform_validated",
+    "viewer_normalized_transform_frozen",
+    "observation_to_region_link_validated",
+    "crop_not_required_for_reconstruction",
+    "conversation_not_required_for_reconstruction"
+  ],
+  "milestone_transition": {
+    "CEW-F2": "COMPLETE",
+    "CEW-F3": "IN_PROGRESS"
+  },
+  "m0g_reopened": false,
+  "n12_structural_canonical_values_changed": false,
+  "notes": "F3 is released only as the next active milestone. This receipt does not implement or validate SOURCE_VIEWER_PASS. F3 must consume F2 certified geometry without correcting it."
+}
