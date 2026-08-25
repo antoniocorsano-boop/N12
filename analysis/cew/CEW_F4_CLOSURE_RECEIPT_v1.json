@@ -1,0 +1,27 @@
+{
+  "receipt_id": "CEW-F4-CLOSURE-v1",
+  "milestone": "CEW-F4",
+  "status": "COMPLETE",
+  "acceptance_gate": "AI_OBSERVATION_PASS",
+  "accepted_run_id": 32874820416,
+  "accepted_head_sha": "37b3cb1be36e6422af93c7d24eea23df516b3d2b",
+  "reference_artifact": {
+    "name": "cew-f4-evidence-packs",
+    "artifact_id": 9573457828,
+    "sha256": "3f99dca591d3adaa9fd4c46ba4eceecc4a7f2c77cc4228d86d4ac4e51079e637",
+    "size_bytes": 3494
+  },
+  "acceptance_facts": {
+    "evidence_packs": 4,
+    "worker_types": ["LAYOUT", "TEXT", "REINFORCEMENT"],
+    "answer_leakage": "FORBIDDEN",
+    "canonical_writes": "FORBIDDEN",
+    "direct_promotion": "FORBIDDEN",
+    "f2_geometry_mutation": "FORBIDDEN",
+    "negative_authority_guards_rejected": "5/5",
+    "t6a_g03_structural_binding": "UNBOUND"
+  },
+  "authority_statement": "F4 outputs are observations/candidates only. They do not become canonical assertions without a later promotion boundary and deterministic/human disposition.",
+  "next_milestone": "CEW-F5",
+  "m0g_changed": false
+}
