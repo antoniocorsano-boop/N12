@@ -8,6 +8,7 @@ on:
       - 'scripts/n12_vector_concordance_gate.py'
       - 'scripts/n12_raster_line_concordance_gate.py'
       - 'scripts/n12_consensus_intersections.py'
+      - 'scripts/n12_consensus_review_overlay.py'
       - '.github/workflows/vector-concordance-g2-g5.yml'
   push:
     branches:
@@ -17,6 +18,7 @@ on:
       - 'scripts/n12_vector_concordance_gate.py'
       - 'scripts/n12_raster_line_concordance_gate.py'
       - 'scripts/n12_consensus_intersections.py'
+      - 'scripts/n12_consensus_review_overlay.py'
       - '.github/workflows/vector-concordance-g2-g5.yml'
 
 permissions:
@@ -48,6 +50,9 @@ jobs:
 
       - name: Run consensus intersection self-test
         run: python scripts/n12_consensus_intersections.py --self-test
+
+      - name: Run review overlay self-test
+        run: python scripts/n12_consensus_review_overlay.py --self-test
 
       - name: Fetch immutable source archive
         run: git fetch --no-tags --depth=1 origin archive/originali-alta-risoluzione
@@ -82,6 +87,11 @@ jobs:
           --cluster-coordinate-tolerance-px 4.0
           --join-gap-px 24.0
           --endpoint-slack-px 6.0
+
+      - name: Build visual review package
+        run: >-
+          python scripts/n12_consensus_review_overlay.py
+          --input-root analysis/raster_line_concordance
 
       - name: Upload non-canonical concordance receipts
         if: always()
