@@ -22,7 +22,15 @@ def main() -> int:
     sources = read(STATUS)
     tasks = {r["task_id"].strip(): r for r in read(TASKS)}
     if {r["source_id"].strip() for r in sources} != {"TAV-05A", "TAV-06A"}:
-        raise AssertionError("ERW-0 initial source set changed")
+        raise AssertionError("ERW initial source set changed")
+
+    allowed_states = {
+        "BLOCKED_SOURCE_ASSET_BINDING",
+        "READY_FOR_DEEP_ZOOM",
+        "READY_FOR_F3_VIEWER_BUILD",
+        "F3_VIEWER_BUILD_PROVEN",
+    }
+    blocked_tokens = {"", "ND", "NOT_PERSISTED_IN_ERW", "NOT_BUILT", "NOT_REGISTERED"}
 
     for row in sources:
         source = row["source_id"].strip()
@@ -37,7 +45,10 @@ def main() -> int:
                 raise AssertionError(f"{source}: task {task_id} source mismatch")
 
         state = row["current_state"].strip()
-        if state == "READY_FOR_DEEP_ZOOM":
+        if state not in allowed_states:
+            raise AssertionError(f"{source}: unexpected ERW source state {state}")
+
+        if state != "BLOCKED_SOURCE_ASSET_BINDING":
             required = [
                 row["erw_primary_source_path"].strip(),
                 row["erw_source_hash_binding"].strip(),
@@ -45,15 +56,27 @@ def main() -> int:
                 row["tile_pyramid_state"].strip(),
                 row["native_pixel_registration"].strip(),
             ]
-            if any(v in {"", "ND", "NOT_PERSISTED_IN_ERW", "NOT_BUILT", "NOT_REGISTERED"} for v in required):
-                raise AssertionError(f"{source}: READY_FOR_DEEP_ZOOM without reproducible source/navigation chain")
-        elif state != "BLOCKED_SOURCE_ASSET_BINDING":
-            raise AssertionError(f"{source}: unexpected ERW-0 state {state}")
+            if any(v in blocked_tokens for v in required):
+                raise AssertionError(f"{source}: {state} without reproducible source/navigation chain")
+            if row["native_pixel_registration"].strip() != "NORMALIZED_0_1_REGION_READY":
+                raise AssertionError(f"{source}: F2 region registration is not READY")
 
-    print("CEW ERW SOURCE READINESS = PASS_WITH_WATCH")
+        if state == "READY_FOR_F3_VIEWER_BUILD":
+            if row["tile_pyramid_state"].strip() != "REPRODUCIBLE_BUILD_DEFINED":
+                raise AssertionError(f"{source}: F3 build-ready state requires deterministic pyramid build definition")
+            if row["viewer_asset_state"].strip() != "REPRODUCIBLE_TECHNICAL_RENDER_READY":
+                raise AssertionError(f"{source}: F3 build-ready state requires reproducible technical render")
+
+        if state == "F3_VIEWER_BUILD_PROVEN":
+            if row["tile_pyramid_state"].strip() != "DZI_BUILD_PROVEN_REPRODUCIBLE":
+                raise AssertionError(f"{source}: proven F3 state requires proven DZI build")
+            if row["viewer_asset_state"].strip() != "SELF_CONTAINED_VIEWER_BUILD_PROVEN":
+                raise AssertionError(f"{source}: proven F3 state requires proven viewer build")
+
+    print("CEW ERW SOURCE READINESS = PASS")
     for row in sources:
         print(f"{row['source_id']}: {row['current_state']}")
-    print("Interpretation: semantic task locators exist; primary source/path/hash/native-pixel viewer chain must be made reproducible before deep-zoom adjudication is declared ready.")
+    print("Interpretation: source identity, evidence regions and viewer-build readiness are tracked as progressive states; primary PDFs remain authority throughout.")
     return 0
 
 
