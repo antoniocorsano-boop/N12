@@ -25,6 +25,7 @@ def main() -> int:
         task = w["task"]
         disp = w["reference_disposition_receipt"]
         outcome = disp["outcome"]
+        evidence_region_id = w["source"]["evidence_region"]["evidence_region_id"].strip()
         reasons = ["NON_HUMAN_CONFORMANCE_DECISION"]
         if outcome == "UNREADABLE":
             reasons.append("UNREADABLE_CANNOT_PROMOTE")
@@ -41,7 +42,7 @@ def main() -> int:
                 "selected_candidate": None,
                 "human_observation": None,
                 "reason": "Reference conformance receipt mirrors the evidence-bounded terminal disposition; it is not a human adjudication.",
-                "evidence_regions": list(task["source_regions"]),
+                "evidence_regions": [evidence_region_id],
                 "review_view": "SYNCHRONIZED_ERW_REFERENCE",
                 "requested_epistemic_state": None,
                 "reviewer": "REFERENCE_NON_HUMAN_CONFORMANCE",
