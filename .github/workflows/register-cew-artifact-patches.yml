@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - 'work/cew-f3-viewer-from-6067'
+      - 'work/cew-f4-ai-observation-from-57e30'
     paths:
       - 'scripts/register_cew_artifact_patches.py'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_AI_OBSERVATION_PATCH_v1.csv'
       - '.github/workflows/register-cew-artifact-patches.yml'
 
 permissions:
@@ -17,12 +19,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: work/cew-f3-viewer-from-6067
+          ref: ${{ github.ref_name }}
           fetch-depth: 1
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Register CEW F0-F3 patches in effective knowledge manifest
+      - name: Register effective CEW artifact patches
         run: python scripts/register_cew_artifact_patches.py
       - name: Commit manifest update when required
         run: |
@@ -33,5 +35,5 @@ jobs:
           git config user.name 'cew-governance-bot'
           git config user.email 'actions@users.noreply.github.com'
           git add knowledge/KNOWLEDGE_MANIFEST.json
-          git commit -m 'CEW: register F0-F3 artifact patches in knowledge manifest'
-          git push origin HEAD:work/cew-f3-viewer-from-6067
+          git commit -m 'CEW: register effective artifact patches in knowledge manifest'
+          git push origin HEAD:${{ github.ref_name }}
