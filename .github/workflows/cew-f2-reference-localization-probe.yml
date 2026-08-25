@@ -31,18 +31,18 @@ jobs:
       - name: Install deterministic PDF probe dependency
         run: python -m pip install --disable-pip-version-check 'PyMuPDF==1.26.4'
 
-      - name: Probe and render reference PDFs
+      - name: Probe and render reference PDFs at CEW technical-reading resolution
         run: |
           python scripts/cew_probe_reference_pdfs.py \
-            --dpi 150 \
+            --dpi 300 \
             --out-dir cew-f2-reference-probe \
             --source TAV-05A /tmp/cew-primary/tavola5-3.pdf 17dec414f0f0505e2cd2acb519029afba7672df1793a580badb8b59b6214f325 \
             --source TAV-06A /tmp/cew-primary/tavola6.pdf 3f2d557fe6d3c65eb0891b1fd4f0f6f2a0a4b6cd0efe22a06604a5c341fc9c6d
 
-      - name: Upload review-only renders and metadata
+      - name: Upload review-only 300 dpi renders and metadata
         uses: actions/upload-artifact@v4
         with:
-          name: cew-f2-reference-probe
+          name: cew-f2-reference-probe-300dpi
           path: cew-f2-reference-probe/
           if-no-files-found: error
           retention-days: 14
