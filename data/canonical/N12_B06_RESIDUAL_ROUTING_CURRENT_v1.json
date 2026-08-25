@@ -1,0 +1,166 @@
+{
+  "schema_version": "1.0",
+  "project_id": "N12",
+  "issue_id": "N12-ISS-M1E-B06",
+  "status": "CURRENT",
+  "routing_class": "MIXED_RESIDUAL_ROUTING",
+  "authority": "CANONICAL_LEDGER_DERIVED_ROUTING_ONLY",
+  "source_ledgers": [
+    "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv",
+    "data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv",
+    "data/canonical/M1A_TAV05A_GROUP_REINFORCEMENT_v1.csv",
+    "data/canonical/M1A_COLUMN_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv",
+    "data/canonical/M1A_TAV06A_ROOF_GROUP_INDEX_v1.csv"
+  ],
+  "residual_routes": [
+    {
+      "residual_id": "B06-G5-B017",
+      "residual_type": "BEAM_REINFORCEMENT_UNBOUND",
+      "entity_scope": ["G5-B017"],
+      "route": "SEMANTIC_LOCATOR_CANDIDATE_AVAILABLE",
+      "source_id": "TAV-06A",
+      "source_locator": "TAV06A P07",
+      "candidate_ref": "N12-SNIP-CAND-B06-G5-B017-TAV06A-P07",
+      "binding_precision": "ENTITY_LEVEL_CONTEXT_ONLY",
+      "engineering_state_change": false,
+      "next_action": "human/source-region review; do not assign reinforcement unless topology/document identity is explicitly reconciled"
+    },
+    {
+      "residual_id": "B06-G4-UNKNOWN-L1040",
+      "residual_type": "BEAM_LABEL_UNREADABLE",
+      "entity_scope": ["G4-B003","G4-B002","G4-B001","G4-B005","G4-B006","G4-B007"],
+      "source_group": "T5A-G01",
+      "source_row": "T5A-G01-R06",
+      "source_id": "TAV-05A",
+      "source_locator": "P02",
+      "route": "LOCATOR_AVAILABLE_GROUP_SCOPE_ONLY",
+      "known_source_geometry": "STRAIGHT_BAR L=1040",
+      "unknown_fields": ["bar_quantity","bar_diameter_mm"],
+      "binding_precision": "GROUP_SCOPE_NOT_SINGLE_MEMBER",
+      "engineering_state_change": false,
+      "next_action": "review P02 at HiRes; create no single-member binding unless station/member identity is explicit"
+    },
+    {
+      "residual_id": "B06-G4-PARTIAL-SAGOMATO",
+      "residual_type": "BEAM_PARTIAL_DIMENSION_TRANSCRIPTION",
+      "entity_scope": ["G4-B022","G4-B008"],
+      "source_group": "T5A-G05",
+      "source_row": "T5A-G05-R04",
+      "source_id": "TAV-05A",
+      "source_locator": "P07-P08",
+      "route": "LOCATOR_AVAILABLE_GROUP_SCOPE_ONLY",
+      "known_source_geometry": "BENT_BAR 2phi12 with partial explicit segments",
+      "unknown_fields": ["intermediate_fall_or_continuation_dimension"],
+      "binding_precision": "GROUP_SCOPE_NOT_SINGLE_MEMBER",
+      "engineering_state_change": false,
+      "next_action": "review P07-P08 at HiRes; preserve partial state if the missing dimension is not explicitly readable"
+    },
+    {
+      "residual_id": "B06-G4-UNKNOWN-L865",
+      "residual_type": "BEAM_LABEL_UNREADABLE",
+      "entity_scope": ["G4-B030","G4-B039","G4-B044"],
+      "source_group": "T5A-G07",
+      "source_row": "T5A-G07-R07",
+      "source_id": "TAV-05A",
+      "source_locator": "P10",
+      "route": "LOCATOR_AVAILABLE_GROUP_SCOPE_ONLY",
+      "known_source_geometry": "STRAIGHT_BAR L=865",
+      "unknown_fields": ["bar_quantity","bar_diameter_mm"],
+      "binding_precision": "GROUP_SCOPE_NOT_SINGLE_MEMBER",
+      "engineering_state_change": false,
+      "next_action": "review P10 at HiRes; current crop omission is not permission to infer quantity/diameter"
+    },
+    {
+      "residual_id": "M1A-COL-R01",
+      "residual_type": "COLUMN_REINFORCEMENT_UNBOUND",
+      "entity_scope": ["G1-support-3"],
+      "source_id": "TAV-07A",
+      "source_locator": "I_ORDINE_FAMILY_SET",
+      "route": "CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED",
+      "reason": "TAV-07 I ordine contains no 60x40 reinforcement family; forcing the 50x40 family is prohibited.",
+      "engineering_state_change": false,
+      "next_action": "reopen only on new direct primary reinforcement evidence or a newly verified I-order 60x40 family"
+    },
+    {
+      "residual_id": "M1A-COL-R02",
+      "residual_type": "LATER_ADDITION_ASBUILT_REINFORCEMENT_UNKNOWN",
+      "entity_scope": ["G1-support-a"],
+      "source_id": "TAV-07A",
+      "source_locator": "T7-I-04",
+      "route": "CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED",
+      "reason": "30x30 historical family compatibility does not establish as-built reinforcement of the later terrace-added support.",
+      "engineering_state_change": false,
+      "next_action": "direct as-built detail, reliable survey or primary documentation explicitly binding support a"
+    },
+    {
+      "residual_id": "M1A-COL-R03",
+      "residual_type": "LATER_ADDITION_ASBUILT_REINFORCEMENT_UNKNOWN",
+      "entity_scope": ["G1-support-b"],
+      "source_id": "TAV-07A",
+      "source_locator": "T7-I-04",
+      "route": "CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED",
+      "reason": "30x30 historical family compatibility does not establish as-built reinforcement of the later terrace-added support.",
+      "engineering_state_change": false,
+      "next_action": "direct as-built detail, reliable survey or primary documentation explicitly binding support b"
+    },
+    {
+      "residual_id": "M1A-COL-R04",
+      "residual_type": "LATER_ADDITION_ASBUILT_REINFORCEMENT_UNKNOWN",
+      "entity_scope": ["G1-support-c"],
+      "source_id": "TAV-07A",
+      "source_locator": "T7-I-04",
+      "route": "CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED",
+      "reason": "30x30 historical family compatibility does not establish as-built reinforcement of the later terrace-added support.",
+      "engineering_state_change": false,
+      "next_action": "direct as-built detail, reliable survey or primary documentation explicitly binding support c"
+    },
+    {
+      "residual_id": "M1A-COL-R05",
+      "residual_type": "LATER_ADDITION_ASBUILT_REINFORCEMENT_UNKNOWN",
+      "entity_scope": ["G1-support-d"],
+      "source_id": "TAV-07A",
+      "source_locator": "T7-I-04",
+      "route": "CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED",
+      "reason": "30x30 historical family compatibility does not establish as-built reinforcement of the later terrace-added support.",
+      "engineering_state_change": false,
+      "next_action": "direct as-built detail, reliable survey or primary documentation explicitly binding support d"
+    },
+    {
+      "residual_id": "M1A-COL-R06",
+      "residual_type": "COLUMN_FAMILY_AMBIGUITY",
+      "entity_scope": ["G3-support-9"],
+      "source_id": "TAV-07A",
+      "source_locator": "T7-III-01;T7-III-02",
+      "route": "CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED",
+      "reason": "Two distinct 40x40 III-order families exist and support 9 is omitted from both member lists; cross-order continuity is non-discriminating.",
+      "engineering_state_change": false,
+      "next_action": "new direct numbering/detail, clearer original-source evidence or independent primary evidence uniquely discriminating the family"
+    },
+    {
+      "residual_id": "M1A-COL-R07",
+      "residual_type": "COLUMN_FAMILY_AMBIGUITY",
+      "entity_scope": ["G3-support-16"],
+      "source_id": "TAV-07A",
+      "source_locator": "T7-III-01;T7-III-02",
+      "route": "CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED",
+      "reason": "Two distinct 40x40 III-order families exist and support 16 is omitted from both member lists; cross-order continuity is non-discriminating.",
+      "engineering_state_change": false,
+      "next_action": "new direct numbering/detail, clearer original-source evidence or independent primary evidence uniquely discriminating the family"
+    }
+  ],
+  "summary": {
+    "total_explicit_routes": 11,
+    "semantic_locator_candidates": 1,
+    "g4_locator_available_group_scope": 3,
+    "column_primary_search_closed": 7,
+    "approved_evidence_snippets_created": 0,
+    "reinforcement_values_promoted": 0
+  },
+  "guards": [
+    "GROUP_SCOPE_LOCATOR_DOES_NOT_CREATE_SINGLE_MEMBER_BINDING",
+    "CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED_REQUIRES_NEW_EVIDENCE_HYPOTHESIS_TO_REOPEN",
+    "NO_REINFORCEMENT_VALUE_IS_PROMOTED_BY_ROUTING",
+    "SOURCE_LOCATOR_IS_NAVIGATION_CONTEXT_UNTIL_REVIEWED",
+    "LATER_ADDITION_SECTION_COMPATIBILITY_IS_NOT_ASBUILT_REINFORCEMENT_EVIDENCE"
+  ]
+}

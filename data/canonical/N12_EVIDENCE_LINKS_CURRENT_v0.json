@@ -1,7 +1,7 @@
 {
-  "schema_version":"0.3",
+  "schema_version":"0.4",
   "project_id":"N12",
-  "status":"CURRENT_WITH_SOURCE_CONTEXT_AND_SNIPPET_CANDIDATE",
+  "status":"CURRENT_WITH_MIXED_B06_ROUTING",
   "contract":"automation/CEW_EVIDENCE_VIEWPOINT_CONTRACT_v1.json",
   "source_to_entity_links":[
     {
@@ -35,15 +35,56 @@
       "link_id":"N12-LINK-B06-M1A-CONTEXT",
       "issue_id":"N12-ISS-M1E-B06",
       "authority_state":"CONTEXT_ONLY",
-      "source_refs":["data/canonical/M1A_REINFORCEMENT_GATE_v1.csv","data/canonical/M1A_TAV06A_ROOF_GROUP_INDEX_v1.csv"],
+      "source_refs":["data/canonical/M1A_REINFORCEMENT_GATE_v1.csv","data/canonical/M1A_TAV06A_ROOF_GROUP_INDEX_v1.csv","data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv","data/canonical/M1A_TAV05A_GROUP_REINFORCEMENT_v1.csv","data/canonical/M1A_COLUMN_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv","data/canonical/N12_B06_RESIDUAL_ROUTING_CURRENT_v1.json"],
       "source_ids":["TAV-02A","TAV-034A","TAV-05A","TAV-06A","TAV-07A"],
-      "entity_scope":["G5-B017 impluvio","G1 supports 3,a,b,c,d","G3 supports 9,16","two unknown G4 labels","partial G4 sagomato","special-feature binding/extent residuals"],
-      "claim":"The M1A gate identifies the reinforcement source families and preserves localized residuals without cross-storey or analogy promotion.",
+      "entity_scope":["G5-B017 impluvio","three G4 group-scope reinforcement residuals","seven column residuals with primary search closed","special-feature binding/extent residuals"],
+      "claim":"B06 is a mixed residual container: source localization remains productive for three G4 watches and G5-B017 context, while seven column residuals have current primary-source search explicitly closed pending new evidence.",
       "evidence_state":"INC",
       "page_or_region":null,
-      "review_state":"MACHINE_PROPOSED",
-      "routing_class":"SEARCHABLE_DOCUMENTARY_RESIDUAL",
-      "next_resolution":"bind localized residuals to reviewed source locators/regions; G5-B017 has a current semantic-locator candidate at TAV06A P07"
+      "review_state":"CURRENT",
+      "routing_class":"MIXED_RESIDUAL_ROUTING",
+      "next_resolution":"review only TAV05A P02, P07-P08 and P10 for the G4 residuals; preserve group scope; keep the seven column routes closed unless new evidence appears; retain TAV06A P07 as a machine-proposed G5 context candidate"
+    }
+  ],
+  "review_targets":[
+    {
+      "target_id":"N12-REVIEW-B06-G4-L1040",
+      "issue_id":"N12-ISS-M1E-B06",
+      "source_id":"TAV-05A",
+      "source_locator":"P02",
+      "source_row":"T5A-G01-R06",
+      "entity_scope":["G4-B003","G4-B002","G4-B001","G4-B005","G4-B006","G4-B007"],
+      "authority_state":"CONTEXT_ONLY_REVIEW_TARGET",
+      "binding_precision":"GROUP_SCOPE_NOT_SINGLE_MEMBER",
+      "known":"STRAIGHT_BAR L=1040",
+      "unknown":["bar_quantity","bar_diameter_mm"],
+      "promotion_rule":"Review may localize evidence; it may not create a single-member binding unless member/station identity is explicit."
+    },
+    {
+      "target_id":"N12-REVIEW-B06-G4-PARTIAL-SAGOMATO",
+      "issue_id":"N12-ISS-M1E-B06",
+      "source_id":"TAV-05A",
+      "source_locator":"P07-P08",
+      "source_row":"T5A-G05-R04",
+      "entity_scope":["G4-B022","G4-B008"],
+      "authority_state":"CONTEXT_ONLY_REVIEW_TARGET",
+      "binding_precision":"GROUP_SCOPE_NOT_SINGLE_MEMBER",
+      "known":"BENT_BAR 2phi12 with explicit partial dimensions",
+      "unknown":["intermediate_fall_or_continuation_dimension"],
+      "promotion_rule":"If the missing dimension is not explicitly readable, preserve DOC_DIRECT_PARTIAL; do not complete from graphical appearance."
+    },
+    {
+      "target_id":"N12-REVIEW-B06-G4-L865",
+      "issue_id":"N12-ISS-M1E-B06",
+      "source_id":"TAV-05A",
+      "source_locator":"P10",
+      "source_row":"T5A-G07-R07",
+      "entity_scope":["G4-B030","G4-B039","G4-B044"],
+      "authority_state":"CONTEXT_ONLY_REVIEW_TARGET",
+      "binding_precision":"GROUP_SCOPE_NOT_SINGLE_MEMBER",
+      "known":"STRAIGHT_BAR L=865",
+      "unknown":["bar_quantity","bar_diameter_mm"],
+      "promotion_rule":"Current crop omission does not authorize transfer from adjacent labels."
     }
   ],
   "evidence_snippet_candidates":[
@@ -76,6 +117,8 @@
     "issues_with_structured_source_context":3,
     "issues_routed_as_confirmed_documentary_gap":1,
     "issues_with_evidence_snippet_candidate":1,
+    "b06_group_scope_review_targets":3,
+    "b06_primary_source_search_closed_residuals":7,
     "issues_with_canonical_evidence_snippet":0,
     "issues_with_3d_viewpoint":0
   },
@@ -84,7 +127,7 @@
     {"issue_id":"N12-ISS-M1E-B02","needed":"primary RC-P13 source/page still required; source context bound through REGISTRO_MASTER and telaio_5"},
     {"issue_id":"N12-ISS-M1E-B04","needed":"bind vertical-datum source evidence or future survey record to foundation-system viewpoint"},
     {"issue_id":"N12-ISS-M1E-B05","needed":"confirmed documentary gap after complete P08 seven-group review; seek additional source or targeted local verification rather than blind TAV-01A reread"},
-    {"issue_id":"N12-ISS-M1E-B06","needed":"review candidate TAV06A P07 → G5-B017 and continue locator-based binding for other localized reinforcement residuals"},
+    {"issue_id":"N12-ISS-M1E-B06","needed":"review exact G4 locators P02, P07-P08 and P10 at group scope; review existing G5 candidate; obtain new discriminating/as-built evidence for seven closed column routes rather than repeating blind TAV-07 searches"},
     {"issue_id":"N12-ISS-M1E-B07","needed":"bind any recovered current geotechnical source or future investigation records to site/foundation context"}
   ],
   "guards":[
@@ -94,6 +137,8 @@
     "A source_ref without page/region binding is source context, not an EvidenceSnippet.",
     "CONTEXT_ONLY links cannot close an engineering issue or promote evidence state.",
     "EVIDENCE_LINK_CANDIDATE is not an approved EvidenceSnippet.",
-    "A confirmed documentary gap must not trigger cyclic blind rereading without a new evidence hypothesis."
+    "A confirmed documentary gap must not trigger cyclic blind rereading without a new evidence hypothesis.",
+    "GROUP_SCOPE_REVIEW_TARGET cannot create a single-member binding without explicit member/station identity.",
+    "CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED cannot trigger blind rereading without a new evidence hypothesis."
   ]
 }
