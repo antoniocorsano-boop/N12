@@ -1,0 +1,3 @@
+target_id,target_class,canonical_locator,allowed_operations,geometry_sensitive,max_epistemic_state,status,authority_note
+CEW-TARGET-REINFORCEMENT-OBSERVATION,REINFORCEMENT_ASSERTION,DERIVED_CANONICAL_PROJECTION/REINFORCEMENT,ADD_OR_REPLACE_ASSERTION,NO,DOC,ACTIVE,"Target class only; no current N12 retained residual is automatically mapped here. Separate governed writer required."
+CEW-TARGET-STRUCTURAL-BINDING,STRUCTURAL_BINDING,DERIVED_CANONICAL_PROJECTION/STRUCTURAL_BINDING,ADD_OR_REPLACE_BINDING,YES,DOC,ACTIVE,"Geometry/topology-sensitive target; explicit approved reopen impact analysis required before any M0-G-affecting write."
