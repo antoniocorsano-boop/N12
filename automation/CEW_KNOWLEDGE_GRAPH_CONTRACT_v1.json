@@ -15,8 +15,12 @@
   "temporal_states": ["CURRENT", "HISTORICAL", "SUPERSEDED", "TOMBSTONE"],
   "projection_slices": {
     "M0G_MEMBERS": "IN_SCOPE",
-    "M1A_REINFORCEMENT": "PLANNED_IN_F5",
-    "M1L_LOADS": "PLANNED_IN_F5"
+    "M1A_REINFORCEMENT": "IN_SCOPE",
+    "M1L_LOADS": "IN_SCOPE"
+  },
+  "slice_rules": {
+    "M1A_REINFORCEMENT": "Project source reinforcement rows and documentary group bindings only; UNKNOWN/ND values remain absent and member/station bindings are forbidden unless already source-proven.",
+    "M1L_LOADS": "Project source load/path/delta classifications and symbolic rules; numerical load assertions are forbidden unless the source row contains an explicit numeric value with a ready numeric status."
   },
   "acceptance_gate": "KNOWLEDGE_GRAPH_PASS",
   "acceptance_rule": "M0-G, M1A and M1L reference facts project into entities/properties/assertions/bindings with source identity, epistemic state and validation state preserved; ND stays absent/ND; no M0-G reopen or source-ledger mutation occurs."
