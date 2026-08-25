@@ -1,0 +1,59 @@
+name: Experimental vector concordance G2-G5
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'requirements-vector-concordance.txt'
+      - 'scripts/n12_vector_concordance_gate.py'
+      - '.github/workflows/vector-concordance-g2-g5.yml'
+  push:
+    branches:
+      - exp/vector-concordance-g2-g5
+    paths:
+      - 'requirements-vector-concordance.txt'
+      - 'scripts/n12_vector_concordance_gate.py'
+      - '.github/workflows/vector-concordance-g2-g5.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  concordance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install parser pair
+        run: python -m pip install -r requirements-vector-concordance.txt
+
+      - name: Run deterministic matcher self-test
+        run: python scripts/n12_vector_concordance_gate.py --self-test
+
+      - name: Fetch immutable source archive
+        run: git fetch --no-tags --depth=1 origin archive/originali-alta-risoluzione
+
+      - name: Measure PyMuPDF-Docling concordance
+        run: >-
+          python scripts/n12_vector_concordance_gate.py
+          --archive-ref FETCH_HEAD
+          --out-dir analysis/vector_concordance
+          --min-length-pt 8.0
+          --axis-tolerance-deg 0.75
+          --match-tolerance-pt 1.5
+
+      - name: Upload non-canonical measurement receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vector-concordance-g2-g5
+          path: analysis/vector_concordance/
+          if-no-files-found: warn
