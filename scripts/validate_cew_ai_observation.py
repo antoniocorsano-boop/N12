@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTRACT = ROOT / "automation/CEW_AI_OBSERVATION_CONTRACT_v1.json"
+CONTRACT = ROOT / "automation" / "CEW_AI_OBSERVATION_CONTRACT_v1.json"
 ADAPTERS = ROOT / "data/canonical/CEW_AI_WORKER_ADAPTER_REGISTRY_v1.csv"
 REGIONS = ROOT / "data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv"
 OBS = ROOT / "data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv"
@@ -79,10 +79,8 @@ def main() -> int:
     milestone = {r["milestone_id"].strip(): r["status"].strip() for r in rows(MILESTONES)}
     if any(milestone.get(x) != "COMPLETE" for x in ("CEW-F0", "CEW-F1", "CEW-F2", "CEW-F3")):
         raise AssertionError("F4 requires F0-F3 COMPLETE")
-    f4_open = milestone.get("CEW-F4") == "IN_PROGRESS"
-    f4_closed = milestone.get("CEW-F4") == "COMPLETE" and milestone.get("CEW-F5") == "IN_PROGRESS"
-    if not (f4_open or f4_closed):
-        raise AssertionError("F4 validator requires F4 IN_PROGRESS or post-closure F4 COMPLETE/F5 IN_PROGRESS")
+    if milestone.get("CEW-F4") not in {"IN_PROGRESS", "COMPLETE"}:
+        raise AssertionError("F4 validator requires F4 IN_PROGRESS or COMPLETE")
 
     knowledge = json.loads(KNOWLEDGE.read_text(encoding="utf-8"))
     if PATCH not in set(knowledge.get("artifact_registry_patches", [])):
@@ -159,6 +157,7 @@ def main() -> int:
     print("F2_GEOMETRY_MUTATION=FORBIDDEN")
     print("NEGATIVE_AUTHORITY_GUARDS=5/5_REJECTED")
     print("T6A_G03_BINDING=UNBOUND")
+    print("POST_CLOSURE_STATE=F4_PHASE_MONOTONIC")
     return 0
 
 
