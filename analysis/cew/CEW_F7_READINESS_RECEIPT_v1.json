@@ -1,0 +1,58 @@
+{
+  "receipt_id": "CEW-F7-READINESS-v1",
+  "milestone": "CEW-F7",
+  "receipt_type": "IMPLEMENTATION_READINESS_NOT_CLOSURE",
+  "status": "READY_FOR_REAL_HUMAN_PROMOTION_REFERENCE_CASE",
+  "acceptance_gate": "PROMOTION_ENGINE_PASS",
+  "acceptance_gate_emitted": false,
+  "milestone_state": "IN_PROGRESS",
+  "certified_run": {
+    "run_id": 32890940262,
+    "job_id": 97942463298,
+    "artifact_name": "cew-f7-promotion-engine-slice",
+    "artifact_id": 9579398552,
+    "artifact_sha256": "c5f9f6a4320a2c4d90da695f673f990bbaa0aa083a38249ee183822bed2b9bce"
+  },
+  "proven_slices": {
+    "promotion_engine": "PROMOTION_ENGINE_SLICE_PASS",
+    "dependency_and_residual_orchestration": "PROMOTION_ORCHESTRATION_SLICE_PASS",
+    "governed_writer_boundary": "GOVERNED_WRITER_BOUNDARY_PASS",
+    "epistemic_ceiling_enforcement": "PASS",
+    "registered_target_whitelist": "PASS",
+    "geometry_reopen_guard": "PASS",
+    "canonical_snapshot_hashes": "5/5_MATCH"
+  },
+  "current_n12_state": {
+    "resolution_decisions": 4,
+    "human_decisions": 0,
+    "promotable_decisions": 0,
+    "patch_candidates": 0,
+    "retained_residuals": 4,
+    "terminal_dispositions": "3_UNREADABLE+1_UNBOUND",
+    "blocking_scope": "M1E-B06"
+  },
+  "policy_conformance": {
+    "eligible_non_geometry_fixture": "PATCH_CANDIDATE_EMITTED_NOT_WRITTEN",
+    "geometry_without_reopen_fixture": "REJECTED",
+    "fixture_writer_admission": "REJECTED_1_OF_1",
+    "synthetic_authoritative_writer_shape": "ADMISSIBLE_NOT_EXECUTED",
+    "fixtures_are_human_decisions": false,
+    "fixtures_are_canonical_evidence": false
+  },
+  "authority_guards": {
+    "canonical_write_by_engine": "FORBIDDEN",
+    "canonical_write_executed": 0,
+    "f2_geometry_mutation": "FORBIDDEN",
+    "m0g_reopen_without_protocol": "FORBIDDEN",
+    "unreadable_or_unbound_promotion": "FORBIDDEN",
+    "human_direct_primary_required": true,
+    "explicit_write_authorization_required": true
+  },
+  "remaining_closure_blocker": {
+    "code": "REAL_N12_VALIDATED_HUMAN_DIRECT_PRIMARY_DECISION_REQUIRED",
+    "description": "F7 closure requires at least one real N12 resolution decision produced by human review and supported by direct primary evidence, so the allowed canonical projection and downstream gate rerun can be proven without using a conformance fixture as evidence.",
+    "may_be_satisfied_by_policy_fixture": false,
+    "automatic_bypass": "FORBIDDEN"
+  },
+  "next_action": "Retain F7 IN_PROGRESS and continue source/human resolution work for the retained N12 residual queue; when a real qualifying decision exists, run promotion evaluation, governed patch write, relevant gate rerun and only then consider PROMOTION_ENGINE_PASS."
+}
