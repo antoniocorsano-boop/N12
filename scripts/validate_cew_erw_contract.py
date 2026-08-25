@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "automation" / "CEW_ERW_CONTRACT_v1.json"
 TASKS = ROOT / "data" / "canonical" / "CEW_ERW_RESOLUTION_TASKS_v1.csv"
+REGIONS = ROOT / "data" / "canonical" / "CEW_EVIDENCE_REGION_REGISTRY_v1.csv"
 SPEC = ROOT / "docs" / "ARCHITECTURE" / "CEW_EVIDENCE_RESOLUTION_WORKSPACE_v1.md"
 
 EXPECTED_OUTCOMES = {
@@ -34,7 +35,7 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 
 
 def main() -> int:
-    for p in [CONTRACT, TASKS, SPEC]:
+    for p in [CONTRACT, TASKS, REGIONS, SPEC]:
         if not p.exists():
             raise AssertionError(f"missing ERW artifact: {p.relative_to(ROOT)}")
 
@@ -53,6 +54,7 @@ def main() -> int:
     if set(by_id) != set(EXPECTED_TASKS):
         raise AssertionError("initial ERW task ids changed")
 
+    regions = {r["evidence_region_id"].strip(): r for r in read_csv(REGIONS)}
     for task_id, residual_id in EXPECTED_TASKS.items():
         r = by_id[task_id]
         if r["residual_id"].strip() != residual_id:
@@ -61,8 +63,15 @@ def main() -> int:
             raise AssertionError(f"{task_id}: initial task must remain OPEN")
         if r["epistemic_ceiling"].strip() not in ALLOWED_CEILINGS:
             raise AssertionError(f"{task_id}: invalid epistemic ceiling")
-        if "BBOX_ND" not in r["source_region_state"]:
-            raise AssertionError(f"{task_id}: source bbox must remain explicitly unresolved until registered")
+        if r["source_region_state"].strip() != "EVIDENCE_REGION_READY":
+            raise AssertionError(f"{task_id}: F2-complete task must point to READY EvidenceRegion")
+        locator_tokens = [x.strip() for x in r["source_locator"].split(";") if x.strip()]
+        region_ids = [x for x in locator_tokens if x.startswith("CEW-N12-REG-")]
+        if len(region_ids) != 1:
+            raise AssertionError(f"{task_id}: expected exactly one CEW EvidenceRegion id in source_locator")
+        region = regions.get(region_ids[0])
+        if not region or region["readiness_state"].strip() != "READY":
+            raise AssertionError(f"{task_id}: referenced EvidenceRegion is not READY")
 
     if by_id["ERW-N12-004"]["model_entities"].strip() != "G5-B017":
         raise AssertionError("ERW-N12-004 model binding changed")
@@ -72,7 +81,7 @@ def main() -> int:
     print("CEW ERW CONTRACT = PASS")
     print("initial_tasks=4")
     print("authority_rule=PASS")
-    print("source_bbox_policy=PASS")
+    print("source_region_policy=F2_READY")
     print("promotion_boundary=PASS")
     return 0
 
