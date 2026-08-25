@@ -1,0 +1,2 @@
+reference_item,structural_binding_state,authority_scope,applies_to_observation_field,guard_note
+T6A-G03,UNBOUND,DOWNSTREAM_BINDING_GUARD,false,"F2 evidence localization may become READY but must not create or imply a structural member binding. Observation.structural_binding remains empty; downstream binding state is guarded as UNBOUND."
