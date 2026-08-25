@@ -16,60 +16,36 @@ EXPECTED_MILESTONES = ["CEW-F0","CEW-F1","CEW-F2","CEW-F3","CEW-F4","CEW-F5","CE
 
 
 def main() -> int:
-    if not ARCH.exists():
-        raise AssertionError("missing CEW system foundation architecture")
+    if not ARCH.exists(): raise AssertionError("missing CEW system foundation architecture")
     contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
-    if contract.get("contract_id") != "CEW-SYSTEM-FOUNDATION-v1":
-        raise AssertionError("unexpected foundation contract id")
-    if contract.get("epistemic_states") != EXPECTED_EPISTEMIC:
-        raise AssertionError("canonical epistemic states changed")
-    if contract.get("authority_flow") != EXPECTED_AUTHORITY:
-        raise AssertionError("authority flow changed")
-
+    if contract.get("contract_id") != "CEW-SYSTEM-FOUNDATION-v1": raise AssertionError("unexpected foundation contract id")
+    if contract.get("epistemic_states") != EXPECTED_EPISTEMIC: raise AssertionError("canonical epistemic states changed")
+    if contract.get("authority_flow") != EXPECTED_AUTHORITY: raise AssertionError("authority flow changed")
     frozen = contract.get("frozen_rules", {})
-    required_frozen = {
-        "m0g_geometry_reopen_required": True,
-        "conversation_is_authority": False,
-        "derived_visual_is_primary_evidence": False,
-        "calculation_result_can_establish_documentary_fact": False,
-        "unrelated_residuals_block_global_progress": False,
-    }
-    if frozen != required_frozen:
-        raise AssertionError("foundation frozen rules changed")
-
+    required_frozen = {"m0g_geometry_reopen_required": True,"conversation_is_authority": False,"derived_visual_is_primary_evidence": False,"calculation_result_can_establish_documentary_fact": False,"unrelated_residuals_block_global_progress": False}
+    if frozen != required_frozen: raise AssertionError("foundation frozen rules changed")
     prohibited = set(contract.get("ai_may_not_directly_produce", []))
-    if prohibited != {"CanonicalAssertion","FrozenCanonicalMutation","EpistemicPromotionAboveCeiling"}:
-        raise AssertionError("AI direct-authority prohibition changed")
-
-    with MILESTONES.open("r", encoding="utf-8-sig", newline="") as f:
-        rows = list(csv.DictReader(f))
+    if prohibited != {"CanonicalAssertion","FrozenCanonicalMutation","EpistemicPromotionAboveCeiling"}: raise AssertionError("AI direct-authority prohibition changed")
+    with MILESTONES.open("r", encoding="utf-8-sig", newline="") as f: rows = list(csv.DictReader(f))
     ids = [r["milestone_id"].strip() for r in rows]
-    if ids != EXPECTED_MILESTONES:
-        raise AssertionError(f"milestone sequence changed: {ids}")
-
+    if ids != EXPECTED_MILESTONES: raise AssertionError(f"milestone sequence changed: {ids}")
     status = {r["milestone_id"].strip(): r["status"].strip() for r in rows}
-    if any(status[mid] != "COMPLETE" for mid in ("CEW-F0","CEW-F1","CEW-F2","CEW-F3","CEW-F4")):
-        raise AssertionError("CEW-F0 through CEW-F4 must remain COMPLETE after AI_OBSERVATION_PASS")
-    if status["CEW-F5"] != "IN_PROGRESS":
-        raise AssertionError("CEW-F5 must be active after AI_OBSERVATION_PASS")
+    if any(status[mid] != "COMPLETE" for mid in ("CEW-F0","CEW-F1","CEW-F2","CEW-F3","CEW-F4","CEW-F5")): raise AssertionError("CEW-F0 through CEW-F5 must remain COMPLETE after KNOWLEDGE_GRAPH_PASS")
+    if status["CEW-F6"] != "IN_PROGRESS": raise AssertionError("CEW-F6 must be active after KNOWLEDGE_GRAPH_PASS")
     active = [mid for mid, value in status.items() if value == "IN_PROGRESS"]
-    if active != ["CEW-F5"]:
-        raise AssertionError(f"exactly CEW-F5 must be IN_PROGRESS, got {active}")
-    if any(not r["acceptance_gate"].strip() for r in rows):
-        raise AssertionError("every milestone requires an acceptance gate")
-    if any(not r["required_deliverables"].strip() for r in rows):
-        raise AssertionError("every milestone requires deliverables")
-
+    if active != ["CEW-F6"]: raise AssertionError(f"exactly CEW-F6 must be IN_PROGRESS, got {active}")
+    if any(not r["acceptance_gate"].strip() for r in rows): raise AssertionError("every milestone requires an acceptance gate")
+    if any(not r["required_deliverables"].strip() for r in rows): raise AssertionError("every milestone requires deliverables")
     print("CEW SYSTEM FOUNDATION = PASS")
-    print("Completed milestones: CEW-F0, CEW-F1, CEW-F2, CEW-F3, CEW-F4")
-    print("Active milestone: CEW-F5")
+    print("Completed milestones: CEW-F0, CEW-F1, CEW-F2, CEW-F3, CEW-F4, CEW-F5")
+    print("Active milestone: CEW-F6")
     print("F2 closure gate: EVIDENCE_PROVENANCE_PASS")
     print("F3 closure gate: SOURCE_VIEWER_PASS")
     print("F4 closure gate: AI_OBSERVATION_PASS")
+    print("F5 closure gate: KNOWLEDGE_GRAPH_PASS")
     print("Epistemic regime: DOC/MIS/RIF/INF/ND")
     print("Authority flow: PRIMARY_SOURCE -> OBSERVATION -> CANONICAL_KNOWLEDGE -> ANALYSIS_ASSUMPTION -> CALCULATION_MODEL -> RESULT")
     print(f"Milestones validated: {len(rows)}")
     return 0
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+if __name__ == "__main__": raise SystemExit(main())
