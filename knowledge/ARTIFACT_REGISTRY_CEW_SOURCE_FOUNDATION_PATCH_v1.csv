@@ -1,4 +1,4 @@
-artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validator,depends_on,notes
+artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validation_method,replaces_or_relates,note
 PROC-CEW-SRC-001,docs/ARCHITECTURE/CEW_SOURCE_EVIDENCE_REPOSITORY_v1.md,CEW_SOURCE_FOUNDATION,ARCHITECTURE_SPEC,PROCEDURE,CURRENT,YES,source-identity-validator,PROC-CEW-FND-001,"Defines Source, SourceVersion, DerivedAsset, immutable byte identity, content-addressed storage and migration semantics."
 CONTRACT-CEW-SRC-001,automation/CEW_SOURCE_IDENTITY_CONTRACT_v1.json,CEW_SOURCE_FOUNDATION,MACHINE_CONTRACT,PROCEDURE,CURRENT,YES,source-identity-validator,PROC-CEW-SRC-001,"Machine-readable identity/readiness/authority invariants; filename-only identity and derived-primary substitution prohibited."
 DATA-CEW-SRC-001,data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv,CEW_SOURCE_FOUNDATION,SOURCE_IDENTITY_REGISTRY,CANONICAL,CURRENT,YES,source-identity-validator,CONTRACT-CEW-SRC-001,"Initial N12 source migration ledger. Missing SHA/locator remains explicit; no invented source identity."

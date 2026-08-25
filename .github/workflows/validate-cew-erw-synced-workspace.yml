@@ -1,0 +1,137 @@
+name: Validate CEW ERW Synchronized Workspace
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_ERW_CONTRACT_v1.json'
+      - 'automation/CEW_SOURCE_VIEWER_CONTRACT_v1.json'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/M1E_B06_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv'
+      - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv'
+      - 'scripts/build_cew_erw_queue.py'
+      - 'scripts/validate_cew_erw_queue.py'
+      - 'scripts/build_cew_source_viewer.py'
+      - 'scripts/render_cew_viewer_sources.py'
+      - 'scripts/build_cew_erw_synced_workspace.py'
+      - 'scripts/validate_cew_erw_synced_workspace.py'
+      - '.github/workflows/validate-cew-erw-synced-workspace.yml'
+  push:
+    branches:
+      - 'work/cew-f6-erw-from-fdd541'
+    paths:
+      - 'automation/CEW_ERW_CONTRACT_v1.json'
+      - 'automation/CEW_SOURCE_VIEWER_CONTRACT_v1.json'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/M1E_B06_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv'
+      - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv'
+      - 'scripts/build_cew_erw_queue.py'
+      - 'scripts/validate_cew_erw_queue.py'
+      - 'scripts/build_cew_source_viewer.py'
+      - 'scripts/render_cew_viewer_sources.py'
+      - 'scripts/build_cew_erw_synced_workspace.py'
+      - 'scripts/validate_cew_erw_synced_workspace.py'
+      - '.github/workflows/validate-cew-erw-synced-workspace.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  erw-synchronized-workspace:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate CEW milestone governance
+        run: python scripts/validate_cew_system_foundation.py
+
+      - name: Validate F2 source/evidence provenance
+        run: |
+          python scripts/validate_cew_source_identity.py
+          python scripts/validate_cew_evidence_provenance.py
+
+      - name: Snapshot frozen geometry ledgers
+        run: |
+          sha256sum data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv > /tmp/m0g-before.sha256
+
+      - name: Build and validate four-task ERW queue
+        run: |
+          python scripts/build_cew_erw_queue.py --out cew-f6-erw-queue
+          python scripts/validate_cew_erw_queue.py --bundle cew-f6-erw-queue/erw_queue_bundle.json
+
+      - name: Fetch immutable N12 primary PDFs
+        run: |
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+          mkdir -p /tmp/cew-primary
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola 5-3.pdf" > /tmp/cew-primary/tavola5-3.pdf
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola 6.pdf" > /tmp/cew-primary/tavola6.pdf
+
+      - name: Install pinned rendering and tiling dependencies
+        run: |
+          python -m pip install --disable-pip-version-check 'PyMuPDF==1.26.4'
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libvips-tools
+
+      - name: Render certified 300 dpi source pages
+        run: |
+          python scripts/render_cew_viewer_sources.py \
+            --dpi 300 \
+            --out-dir cew-f6-render \
+            --source TAV-05A /tmp/cew-primary/tavola5-3.pdf 17dec414f0f0505e2cd2acb519029afba7672df1793a580badb8b59b6214f325 \
+            --source TAV-06A /tmp/cew-primary/tavola6.pdf 3f2d557fe6d3c65eb0891b1fd4f0f6f2a0a4b6cd0efe22a06604a5c341fc9c6d
+
+      - name: Generate F3 DZI pyramids
+        run: |
+          mkdir -p cew-f6-source-viewer/tiles
+          vips dzsave cew-f6-render/TAV-05A/TAV-05A_p001_300dpi.png cew-f6-source-viewer/tiles/TAV-05A --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
+          vips dzsave cew-f6-render/TAV-06A/TAV-06A_p001_300dpi.png cew-f6-source-viewer/tiles/TAV-06A --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
+
+      - name: Build embedded F3 source viewer from frozen F2 geometry
+        run: |
+          python scripts/build_cew_source_viewer.py --out-dir cew-f6-source-viewer
+          PKG=$(npm pack openseadragon@5.0.1 --silent)
+          tar -xzf "$PKG"
+          mkdir -p cew-f6-source-viewer/vendor/openseadragon
+          cp package/build/openseadragon/openseadragon.min.js cew-f6-source-viewer/vendor/openseadragon/
+          cp -R package/build/openseadragon/images cew-f6-source-viewer/vendor/openseadragon/
+          test -f cew-f6-source-viewer/viewer_manifest.json
+          test -f cew-f6-source-viewer/index.html
+          test -f cew-f6-source-viewer/tiles/TAV-05A.dzi
+          test -f cew-f6-source-viewer/tiles/TAV-06A.dzi
+
+      - name: Build synchronized F6 review workspace
+        run: |
+          python scripts/build_cew_erw_synced_workspace.py \
+            --queue-bundle cew-f6-erw-queue/erw_queue_bundle.json \
+            --source-viewer-dir cew-f6-source-viewer \
+            --out cew-f6-erw-synchronized
+
+      - name: Validate synchronization and authority boundary
+        run: python scripts/validate_cew_erw_synced_workspace.py --built-dir cew-f6-erw-synchronized
+
+      - name: Prove frozen M0-G geometry was not mutated
+        run: sha256sum --check /tmp/m0g-before.sha256
+
+      - name: Upload synchronized review workspace
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-f6-erw-synchronized
+          path: cew-f6-erw-synchronized/
+          if-no-files-found: error
+          retention-days: 14

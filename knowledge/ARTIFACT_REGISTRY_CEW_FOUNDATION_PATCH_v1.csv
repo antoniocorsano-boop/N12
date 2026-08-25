@@ -1,4 +1,4 @@
-artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validator,depends_on,notes
+artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validation_method,replaces_or_relates,note
 PROC-CEW-FND-001,docs/ARCHITECTURE/CEW_SYSTEM_FOUNDATION_v1.md,CEW_SYSTEM,ARCHITECTURE_SPEC,PROCEDURE,CURRENT,YES,manual+system-validator,,"Product constitution: authority hierarchy, bounded domains, promotion boundary, AI limits, UX contract and N12 reference constraints."
 CONTRACT-CEW-FND-001,automation/CEW_SYSTEM_FOUNDATION_CONTRACT_v1.json,CEW_SYSTEM,MACHINE_CONTRACT,PROCEDURE,CURRENT,YES,system-validator,PROC-CEW-FND-001,"Machine-readable foundation invariants and prohibited authority escalations."
 DATA-CEW-FND-001,data/canonical/CEW_SYSTEM_MILESTONES_v1.csv,CEW_SYSTEM,MILESTONE_LEDGER,CANONICAL,CURRENT,YES,system-validator,CONTRACT-CEW-FND-001,"Canonical phased roadmap with dependencies, deliverables, acceptance gates and N12 reference acceptance cases."

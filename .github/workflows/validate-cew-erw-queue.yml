@@ -1,0 +1,41 @@
+name: Validate CEW ERW Queue
+
+on:
+  push:
+    paths:
+      - 'automation/CEW_ERW_CONTRACT_v1.json'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/M1E_B06_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv'
+      - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'scripts/build_cew_erw_queue.py'
+      - 'scripts/validate_cew_erw_queue.py'
+      - '.github/workflows/validate-cew-erw-queue.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  erw-queue:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate CEW milestone governance
+        run: python scripts/validate_cew_system_foundation.py
+      - name: Build all four ERW reference workspaces
+        run: python scripts/build_cew_erw_queue.py --out cew-f6-erw-queue
+      - name: Validate queue dispositions and authority boundary
+        run: python scripts/validate_cew_erw_queue.py --bundle cew-f6-erw-queue/erw_queue_bundle.json
+      - name: Upload ERW queue workspace
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-f6-erw-queue
+          path: cew-f6-erw-queue/
+          if-no-files-found: error
+          retention-days: 14

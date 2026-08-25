@@ -1,0 +1,50 @@
+name: Validate CEW ERW Reference Case
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_ERW_CONTRACT_v1.json'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/M1E_B06_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv'
+      - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'scripts/build_cew_erw_reference_case.py'
+      - 'scripts/validate_cew_erw_reference_case.py'
+      - '.github/workflows/validate-cew-erw-reference-case.yml'
+  push:
+    branches:
+      - 'work/cew-f6-erw-from-fdd541'
+    paths:
+      - 'automation/CEW_ERW_CONTRACT_v1.json'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/M1E_B06_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv'
+      - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'scripts/build_cew_erw_reference_case.py'
+      - 'scripts/validate_cew_erw_reference_case.py'
+      - '.github/workflows/validate-cew-erw-reference-case.yml'
+  workflow_dispatch:
+
+jobs:
+  erw-reference-case:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build autonomous ERW-N12-004 workspace
+        run: python scripts/build_cew_erw_reference_case.py --out cew-f6-erw-n12-004
+      - name: Validate UNBOUND disposition and authority boundary
+        run: python scripts/validate_cew_erw_reference_case.py --bundle cew-f6-erw-n12-004/erw_n12_004_bundle.json
+      - name: Upload ERW reference workspace
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-f6-erw-n12-004
+          path: cew-f6-erw-n12-004/
+          if-no-files-found: error
+          retention-days: 14

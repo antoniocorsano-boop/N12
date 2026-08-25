@@ -1,4 +1,4 @@
-artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validator,depends_on,notes
+artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validation_method,replaces_or_relates,note
 PROC-CEW-EVD-001,docs/ARCHITECTURE/CEW_EVIDENCE_PROVENANCE_MODEL_v1.md,CEW_EVIDENCE_FOUNDATION,ARCHITECTURE_SPEC,PROCEDURE,CURRENT,YES,evidence-provenance-validator,CONTRACT-CEW-SRC-001,"Defines SourceVersion->Page->EvidenceRegion->Observation chain and explicit coordinate-space semantics."
 CONTRACT-CEW-EVD-001,automation/CEW_EVIDENCE_PROVENANCE_CONTRACT_v1.json,CEW_EVIDENCE_FOUNDATION,MACHINE_CONTRACT,PROCEDURE,CURRENT,YES,evidence-provenance-validator,PROC-CEW-EVD-001,"Machine invariants for reproducible page/region/observation provenance and F2 closure."
 DATA-CEW-PAGE-001,data/canonical/CEW_PAGE_REGISTRY_v1.csv,CEW_EVIDENCE_FOUNDATION,PAGE_REGISTRY,CANONICAL,CURRENT,YES,evidence-provenance-validator,DATA-CEW-SRC-001,"Measured physical Page identities and source-native dimensions."

@@ -13,13 +13,13 @@ def epi(raw):
         if u.startswith(s):return s
     return 'ND'
 def valid_f5_governance(ms):
-    return ms.get('CEW-F5')=='IN_PROGRESS' or (ms.get('CEW-F5')=='COMPLETE' and ms.get('CEW-F6')=='IN_PROGRESS')
+    return ms.get('CEW-F5') in {'IN_PROGRESS','COMPLETE'}
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--projection',required=True);a=ap.parse_args();p=json.loads(Path(a.projection).read_text(encoding='utf-8'));c=json.loads(CONTRACT.read_text(encoding='utf-8'))
     if c.get('contract_id')!='CEW-KNOWLEDGE-GRAPH-v1':raise AssertionError('unexpected knowledge graph contract')
     if any(c['authority_invariants'][k] is not False for k in ('projection_may_modify_source_ledger','projection_may_reopen_m0g','projection_may_raise_epistemic_state','projection_may_invent_missing_property','projection_may_collapse_distinct_evidence_states','graph_is_primary_evidence')):raise AssertionError('knowledge graph authority boundary weakened')
     ms={r['milestone_id'].strip():r['status'].strip() for r in rows(MILESTONES)}
-    if not valid_f5_governance(ms) or any(ms.get(x)!='COMPLETE' for x in ('CEW-F0','CEW-F1','CEW-F2','CEW-F3','CEW-F4')):raise AssertionError('F5/F6 milestone governance invalid')
+    if not valid_f5_governance(ms) or any(ms.get(x)!='COMPLETE' for x in ('CEW-F0','CEW-F1','CEW-F2','CEW-F3','CEW-F4')):raise AssertionError('F5 milestone governance invalid')
     source={r['member_id'].strip():r for r in rows(MEMBERS)}; expected=int(json.loads(HANDOFF.read_text(encoding='utf-8'))['frozen_inventory']['ordinary_structural_members'])
     if len(source)!=expected:raise AssertionError('source member count differs from frozen handoff')
     ents=p['entities']; binds=p['bindings']; ass=p['assertions']
@@ -42,5 +42,5 @@ def main():
         if x['property_name']!='section_cm' or x['value']!=r['section_cm'].strip() or x['epistemic_state']!=epi(r['section_evidence']) or x['validation_state']!=r['validation_state'].strip():raise AssertionError(f"section assertion changed: {x['entity_id']}")
     missing=[mid for mid,r in source.items() if not r['section_cm'].strip()]; asserted={x['entity_id'] for x in ass}
     if any(mid in asserted for mid in missing):raise AssertionError('graph invented missing section property')
-    print('KNOWLEDGE_GRAPH_M0G_SLICE_PASS');print(f'STRUCTURAL_ENTITIES={len(ents)}');print(f'ENDPOINT_BINDINGS={len(binds)}');print(f'SECTION_ASSERTIONS={len(ass)}');print(f'MISSING_SECTION_PROPERTIES_NOT_INVENTED={len(missing)}');print('AUTHORITY=DERIVED_GRAPH_PROJECTION_ONLY');print('M0G_REOPEN=FORBIDDEN');return 0
+    print('KNOWLEDGE_GRAPH_M0G_SLICE_PASS');print(f'STRUCTURAL_ENTITIES={len(ents)}');print(f'ENDPOINT_BINDINGS={len(binds)}');print(f'SECTION_ASSERTIONS={len(ass)}');print(f'MISSING_SECTION_PROPERTIES_NOT_INVENTED={len(missing)}');print('AUTHORITY=DERIVED_GRAPH_PROJECTION_ONLY');print('M0G_REOPEN=FORBIDDEN');print('POST_CLOSURE_STATE=F5_PHASE_MONOTONIC');return 0
 if __name__=='__main__':raise SystemExit(main())

@@ -1,4 +1,4 @@
-artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validator,depends_on,notes
+artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validation_method,replaces_or_relates,note
 CONTRACT-CEW-AI-001,automation/CEW_AI_OBSERVATION_CONTRACT_v1.json,CEW_AI_OBSERVATION,MACHINE_CONTRACT,PROCEDURE,CURRENT,YES,ai-observation-validator,CONTRACT-CEW-EVD-001,"Defines answer-blind EvidencePack and bounded WorkerEnvelope authority limits."
 DATA-CEW-AI-001,data/canonical/CEW_AI_WORKER_ADAPTER_REGISTRY_v1.csv,CEW_AI_OBSERVATION,WORKER_ADAPTER_REGISTRY,CANONICAL,CURRENT,YES,ai-observation-validator,CONTRACT-CEW-AI-001,"Registers LAYOUT/TEXT/REINFORCEMENT specialist adapters and their epistemic ceilings; registry is policy/configuration, not an AI-produced claim."
 RUN-CEW-AI-001,scripts/build_cew_evidence_packs.py,CEW_AI_OBSERVATION,EVIDENCE_PACK_BUILDER,DERIVED,CURRENT,NO,ai-observation-validator,DATA-CEW-REGION-001,"Builds answer-blind EvidencePacks from immutable source, F2 geometry, F3 bindings and task questions."

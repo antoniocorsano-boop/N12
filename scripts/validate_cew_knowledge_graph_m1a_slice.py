@@ -18,14 +18,14 @@ def epi(raw: str) -> str:
         if u.startswith(s): return s
     return "ND"
 def valid_f5_governance(ms: dict[str,str]) -> bool:
-    return ms.get("CEW-F5") == "IN_PROGRESS" or (ms.get("CEW-F5") == "COMPLETE" and ms.get("CEW-F6") == "IN_PROGRESS")
+    return ms.get("CEW-F5") in {"IN_PROGRESS","COMPLETE"}
 def main() -> int:
     ap=argparse.ArgumentParser(); ap.add_argument("--projection", required=True); a=ap.parse_args()
     p=json.loads(Path(a.projection).read_text(encoding="utf-8")); c=json.loads(CONTRACT.read_text(encoding="utf-8"))
     if p.get("authority") != "DERIVED_GRAPH_PROJECTION_ONLY": raise AssertionError("authority drift")
     if c.get("projection_slices",{}).get("M1A_REINFORCEMENT") not in {"IN_SCOPE","PASS"}: raise AssertionError("M1A not authorized in contract")
     ms={r["milestone_id"].strip():r["status"].strip() for r in rows(MILESTONES)}
-    if not valid_f5_governance(ms): raise AssertionError("F5/F6 milestone governance invalid for M1A slice")
+    if not valid_f5_governance(ms): raise AssertionError("F5 milestone governance invalid for M1A slice")
     src=rows(LEDGER); byid={r["row_id"].strip():r for r in src}
     if len(src)!=58: raise AssertionError(f"TAV05A reinforcement inventory drift: {len(src)} != 58")
     ents=p["entities"]; binds=p["bindings"]; ass=p["assertions"]
@@ -51,7 +51,7 @@ def main() -> int:
     r="T5A-G05-R04"
     if amap[(r,"segment_dimensions_cm")]["value"] != byid[r]["segment_dimensions_cm"].strip() or "..." not in amap[(r,"segment_dimensions_cm")]["value"]: raise AssertionError("G05-R04 partial dimension was completed")
     if any(b["relation"] != "DOCUMENTED_IN_REINFORCEMENT_GROUP" for b in binds): raise AssertionError("member/station binding invented")
-    print("KNOWLEDGE_GRAPH_M1A_SLICE_PASS"); print("REINFORCEMENT_ENTITIES=58"); print("UNREADABLE_QUANTITY_DIAMETER_PRESERVED=2"); print("DIRECT_PARTIAL_DIMENSION_PRESERVED=1"); print("MEMBER_STATION_BINDING_NOT_INVENTED=PASS"); print("AUTHORITY=DERIVED_GRAPH_PROJECTION_ONLY")
+    print("KNOWLEDGE_GRAPH_M1A_SLICE_PASS"); print("REINFORCEMENT_ENTITIES=58"); print("UNREADABLE_QUANTITY_DIAMETER_PRESERVED=2"); print("DIRECT_PARTIAL_DIMENSION_PRESERVED=1"); print("MEMBER_STATION_BINDING_NOT_INVENTED=PASS"); print("AUTHORITY=DERIVED_GRAPH_PROJECTION_ONLY"); print("POST_CLOSURE_STATE=F5_PHASE_MONOTONIC")
     return 0
 
 if __name__ == "__main__": raise SystemExit(main())

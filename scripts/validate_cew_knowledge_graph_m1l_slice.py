@@ -15,14 +15,14 @@ def epi(raw):
     if 'RIF' in u:return 'RIF'
     return 'ND'
 def valid_f5_governance(ms):
-    return ms.get('CEW-F5')=='IN_PROGRESS' or (ms.get('CEW-F5')=='COMPLETE' and ms.get('CEW-F6')=='IN_PROGRESS')
+    return ms.get('CEW-F5') in {'IN_PROGRESS','COMPLETE'}
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--projection',required=True);a=ap.parse_args();p=json.loads(Path(a.projection).read_text(encoding='utf-8'))
     contract=json.loads(CONTRACT.read_text(encoding='utf-8'))
     if contract.get('projection_slices',{}).get('M1L_LOADS') not in {'IN_SCOPE','PASS'}:raise AssertionError('M1L not authorized')
     if p.get('authority')!='DERIVED_GRAPH_PROJECTION_ONLY':raise AssertionError('authority drift')
     ms={r['milestone_id'].strip():r['status'].strip() for r in rows(MILESTONES)}
-    if not valid_f5_governance(ms):raise AssertionError('F5/F6 milestone governance invalid for M1L slice')
+    if not valid_f5_governance(ms):raise AssertionError('F5 milestone governance invalid for M1L slice')
     src={}; expected_kind={}
     for kind,path,idcol in SOURCES:
         for r in rows(path):
@@ -51,6 +51,6 @@ def main():
             v=(r.get(f) or '').strip()
             if v and ((rid,f) not in amap or amap[(rid,f)]['value']!=v or amap[(rid,f)]['epistemic_state']!=ev):raise AssertionError(f'classification/rule changed: {rid}/{f}')
     if any((r.get('numeric_delta_ready') or '').strip().upper()!='NO' for rid,r in src.items() if expected_kind[rid]=='LOAD_DELTA'):raise AssertionError('numeric delta readiness drift')
-    print('KNOWLEDGE_GRAPH_M1L_SLICE_PASS');print('LOAD_MODEL_ENTITIES=16');print('LOAD_PATH_ENTITIES=7');print('LOAD_DELTA_ENTITIES=6');print(f'ZONE_BINDINGS={len(expected_zone)}');print('NUMERIC_LOAD_ASSERTIONS=0');print('NUMERIC_DELTA_READY=0');print('ND_AND_PARAMETRIC_STATE_PRESERVED=PASS');print('AUTHORITY=DERIVED_GRAPH_PROJECTION_ONLY')
+    print('KNOWLEDGE_GRAPH_M1L_SLICE_PASS');print('LOAD_MODEL_ENTITIES=16');print('LOAD_PATH_ENTITIES=7');print('LOAD_DELTA_ENTITIES=6');print(f'ZONE_BINDINGS={len(expected_zone)}');print('NUMERIC_LOAD_ASSERTIONS=0');print('NUMERIC_DELTA_READY=0');print('ND_AND_PARAMETRIC_STATE_PRESERVED=PASS');print('AUTHORITY=DERIVED_GRAPH_PROJECTION_ONLY');print('POST_CLOSURE_STATE=F5_PHASE_MONOTONIC')
     return 0
 if __name__=='__main__':raise SystemExit(main())
