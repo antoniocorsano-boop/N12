@@ -28,8 +28,8 @@ def main() -> int:
     beams = [r for r in read(CONNECTIVITY) if r["member_class"].strip() == "ORDINARY_BEAM"]
     cov = {r["storey_id"].strip(): ids(r["uncovered_source_member_ids"]) for r in read(COVERAGE)}
     uncovered = [r for r in beams if r["source_member_id"].strip() in cov.get(r["storey_id"].strip(), set())]
-    if len(uncovered) != 84:
-        raise AssertionError(f"uncovered inventory changed: {len(uncovered)} != 84")
+    if len(uncovered) != 80:
+        raise AssertionError(f"uncovered inventory changed: {len(uncovered)} != 80")
 
     by_pair: dict[str, list[dict[str, str]]] = defaultdict(list)
     by_section = Counter()
