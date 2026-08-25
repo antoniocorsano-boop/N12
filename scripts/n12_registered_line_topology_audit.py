@@ -100,6 +100,7 @@ def run(args: argparse.Namespace) -> int:
     lines = read_csv(root / "consensus_lines.csv")
 
     rows: list[dict[str, object]] = []
+    nearest_rows: list[dict[str, object]] = []
     for idx, line in enumerate(lines, start=1):
         p1, p2 = line_metric_endpoints(line, base, registration)
         samples = sample_segment(p1, p2)
@@ -114,9 +115,8 @@ def run(args: argparse.Namespace) -> int:
         if not ranked:
             continue
         mean_d, max_d, min_d, angle, beam = min(ranked, key=lambda x: (x[0], x[1]))
-        if max_d > args.max_distance_m:
-            continue
-        rows.append({
+        within = max_d <= args.max_distance_m
+        diagnostic = {
             "line_id": f"L{idx:03d}",
             "orientation": line["orientation"],
             "detector_support_count": line["support_count"],
@@ -127,25 +127,41 @@ def run(args: argparse.Namespace) -> int:
             "min_distance_m": round(min_d, 6),
             "mean_distance_m": round(mean_d, 6),
             "max_distance_m": round(max_d, 6),
-            "review_status": "GEOMETRIC_REVIEW_CANDIDATE",
+            "distance_gate_status": "WITHIN_REVIEW_GATE" if within else "OUTSIDE_REVIEW_GATE",
             "canonical_binding": "PROHIBITED",
             "epistemic_effect": "NONE",
-        })
+        }
+        nearest_rows.append(diagnostic)
+        if not within:
+            continue
+        rows.append({**diagnostic, "review_status": "GEOMETRIC_REVIEW_CANDIDATE"})
 
-    out_csv = root / "registered_line_topology_candidates.csv"
-    fields = ["line_id","orientation","detector_support_count","beam_id","from_support_id","to_support_id","angle_delta_deg","min_distance_m","mean_distance_m","max_distance_m","review_status","canonical_binding","epistemic_effect"]
-    with out_csv.open("w", newline="", encoding="utf-8") as fh:
-        w = csv.DictWriter(fh, fieldnames=fields); w.writeheader(); w.writerows(rows)
+    candidate_fields = ["line_id","orientation","detector_support_count","beam_id","from_support_id","to_support_id","angle_delta_deg","min_distance_m","mean_distance_m","max_distance_m","distance_gate_status","canonical_binding","epistemic_effect","review_status"]
+    with (root / "registered_line_topology_candidates.csv").open("w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=candidate_fields); w.writeheader(); w.writerows(rows)
 
+    nearest_fields = ["line_id","orientation","detector_support_count","beam_id","from_support_id","to_support_id","angle_delta_deg","min_distance_m","mean_distance_m","max_distance_m","distance_gate_status","canonical_binding","epistemic_effect"]
+    with (root / "registered_line_topology_nearest.csv").open("w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=nearest_fields); w.writeheader(); w.writerows(nearest_rows)
+
+    best_max = sorted(float(r["max_distance_m"]) for r in nearest_rows)
+    best_mean = sorted(float(r["mean_distance_m"]) for r in nearest_rows)
     receipt = {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "experiment": "REGISTERED_CONSENSUS_LINE_TO_STOREY_TOPOLOGY_AUDIT",
         "source_id": args.source_id,
         "storey_id": args.storey_id,
         "registration_validation_state": registration["validation_state"],
         "straight_canonical_beams_compared": len(beams),
         "consensus_lines_compared": len(lines),
+        "nearest_parallel_beam_diagnostics": len(nearest_rows),
         "geometric_review_candidates": len(rows),
+        "best_parallel_distance_summary_m": {
+            "minimum_mean": round(best_mean[0], 6) if best_mean else None,
+            "minimum_max": round(best_max[0], 6) if best_max else None,
+            "median_mean": round(best_mean[len(best_mean)//2], 6) if best_mean else None,
+            "median_max": round(best_max[len(best_max)//2], 6) if best_max else None,
+        },
         "parameters": {"max_angle_deg": args.max_angle_deg, "max_distance_m": args.max_distance_m},
         "gate": "LINE_TOPOLOGY_REVIEW_CANDIDATES_READY",
         "canonical_binding": "PROHIBITED",
