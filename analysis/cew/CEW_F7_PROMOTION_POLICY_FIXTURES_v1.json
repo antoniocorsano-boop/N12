@@ -1,0 +1,38 @@
+{
+  "fixture_set_id": "CEW-F7-PROMOTION-POLICY-FIXTURES-v1",
+  "authority": "POLICY_CONFORMANCE_ONLY_NOT_A_HUMAN_DECISION_NOT_CANONICAL_EVIDENCE",
+  "fixtures": [
+    {
+      "fixture_id": "CEW-F7-FIX-ELIGIBLE-NONGEOMETRY",
+      "description": "Proves the engine can emit a patch candidate when all policy prerequisites are satisfied; this does not assert that any current N12 residual has been human-resolved.",
+      "decision_id": "FIXTURE-DECISION-ELIGIBLE-001",
+      "task_id": "POLICY-FIXTURE-ONLY",
+      "outcome": "CONFIRMED",
+      "review_mode": "POLICY_FIXTURE_HUMAN_DECISION_SHAPE",
+      "validated_human_decision": true,
+      "direct_primary_evidence": true,
+      "requested_epistemic_state": "DOC",
+      "evidence_ceiling": "DOC",
+      "target_id": "CEW-TARGET-REINFORCEMENT-OBSERVATION",
+      "reopen_approval": null,
+      "expected_eligible": true,
+      "expected_terminal_action": "EMIT_CANONICAL_PATCH_CANDIDATE"
+    },
+    {
+      "fixture_id": "CEW-F7-FIX-GEOMETRY-NO-REOPEN",
+      "description": "Proves a geometry-sensitive target is rejected without an explicit approved reopen impact analysis.",
+      "decision_id": "FIXTURE-DECISION-GEOMETRY-001",
+      "task_id": "POLICY-FIXTURE-ONLY",
+      "outcome": "CONFIRMED",
+      "review_mode": "POLICY_FIXTURE_HUMAN_DECISION_SHAPE",
+      "validated_human_decision": true,
+      "direct_primary_evidence": true,
+      "requested_epistemic_state": "DOC",
+      "evidence_ceiling": "DOC",
+      "target_id": "CEW-TARGET-STRUCTURAL-BINDING",
+      "reopen_approval": null,
+      "expected_eligible": false,
+      "expected_terminal_action": "RETAIN_RESIDUAL"
+    }
+  ]
+}
