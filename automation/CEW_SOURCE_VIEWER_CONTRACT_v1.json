@@ -33,7 +33,8 @@
     "no_external_runtime_dependency": true,
     "all_reference_regions_must_be_ready": true,
     "all_reference_observations_must_be_finalized": true,
-    "f2_gate_required": "EVIDENCE_PROVENANCE_PASS"
+    "f2_gate_required": "EVIDENCE_PROVENANCE_PASS",
+    "effective_artifact_registration_required": true
   },
   "acceptance_gate": "SOURCE_VIEWER_PASS",
   "acceptance_rule": "All four reference tasks resolve through already-certified F2 EvidenceRegions; CI verifies immutable source hashes, regenerates >=300 dpi renders and DZI pyramids, vendors the viewer runtime locally, validates task/region deep links, and proves that F3 consumes but never changes F2 geometry."
