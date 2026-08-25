@@ -15,7 +15,7 @@ T5 = C / "M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv"
 T6 = C / "M1A_TAV06A_ROOF_GROUP_INDEX_v1.csv"
 COVERAGE = C / "M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CURRENT_v1.csv"
 GATE = C / "M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_GATE_v1.csv"
-EXPECTED_GATE = "PASS_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CLASSIFIED_WITH_84_DOCUMENTARY_GAPS"
+EXPECTED_GATE = "PASS_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CLASSIFIED_WITH_80_DOCUMENTARY_GAPS"
 
 
 def read(path: Path) -> list[dict[str, str]]:
@@ -116,15 +116,15 @@ def main() -> int:
             )
         )
 
-    if (total_covered, total_uncovered) != (148, 84):
+    if (total_covered, total_uncovered) != (152, 80):
         raise AssertionError(f"beam source-coverage totals changed: {(total_covered, total_uncovered)}")
 
     gate_rows = {r["check_id"].strip(): r for r in read(GATE)}
     if gate_rows.get("M1A-BRC-GATE", {}).get("actual", "").strip() != EXPECTED_GATE:
         raise AssertionError("beam coverage gate state changed")
-    if gate_rows.get("M1A-BRC-G02", {}).get("actual", "").strip() != "148":
+    if gate_rows.get("M1A-BRC-G02", {}).get("actual", "").strip() != "152":
         raise AssertionError("beam covered total gate value changed")
-    if gate_rows.get("M1A-BRC-G03", {}).get("actual", "").strip() != "84":
+    if gate_rows.get("M1A-BRC-G03", {}).get("actual", "").strip() != "80":
         raise AssertionError("beam uncovered total gate value changed")
 
     print(f"TOTAL: covered={total_covered} uncovered={total_uncovered}")
