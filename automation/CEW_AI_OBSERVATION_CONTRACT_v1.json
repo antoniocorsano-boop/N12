@@ -6,7 +6,8 @@
   "output_object": "WorkerEnvelope",
   "allowed_output_kinds": ["ObservationCandidate", "InterpretationCandidate", "BindingCandidate", "EvidenceAnomaly", "SuggestedResolution"],
   "forbidden_output_kinds": ["CanonicalAssertion", "FrozenCanonicalMutation", "EpistemicPromotionAboveCeiling"],
-  "required_evidence_pack_fields": ["evidence_pack_id", "task_id", "source_version_id", "source_sha256", "page_id", "evidence_region_id", "coordinate_space", "bbox", "reference_observation_id", "reference_literal", "reference_reading_state", "epistemic_ceiling", "structural_binding_state"],
+  "required_evidence_pack_fields": ["evidence_pack_id", "task_id", "source_version_id", "source_sha256", "page_id", "evidence_region_id", "derived_asset_id", "coordinate_space", "bbox", "task_question", "epistemic_ceiling", "structural_binding_state", "authority_notice"],
+  "forbidden_evidence_pack_fields": ["reference_literal", "canonical_answer", "expected_value", "historical_transcription"],
   "required_worker_envelope_fields": ["worker_run_id", "worker_id", "worker_type", "method", "method_version", "evidence_pack_id", "evidence_region_id", "output_kind", "candidate_literal", "reading_state", "epistemic_state", "confidence", "unsupported_fields", "structural_binding_state", "canonical_write_requested", "promotion_requested", "audit_note"],
   "worker_types": ["LAYOUT", "TEXT", "REINFORCEMENT"],
   "authority_invariants": {
@@ -16,10 +17,11 @@
     "worker_may_invent_unreadable_values": false,
     "worker_may_bind_unbound_structural_entity": false,
     "derived_asset_is_primary_authority": false,
-    "human_or_deterministic_promotion_required": true
+    "human_or_deterministic_promotion_required": true,
+    "reference_answer_may_be_exposed_to_worker": false
   },
   "ceiling_order": ["ND", "INF", "RIF", "MIS", "DOC"],
   "reference_tasks": ["ERW-N12-001", "ERW-N12-002", "ERW-N12-003", "ERW-N12-004"],
   "acceptance_gate": "AI_OBSERVATION_PASS",
-  "acceptance_rule": "All reference EvidencePacks are reproducibly built from F2/F3 registries; all three worker adapter types validate; reference outputs preserve unreadable/ND content, never exceed the pack epistemic ceiling, never mutate F2 geometry, never request canonical writes or promotion, and T6A-G03 remains structurally UNBOUND."
+  "acceptance_rule": "All reference EvidencePacks are reproducibly built from F2/F3 registries without leaking historical/canonical answers; all three worker adapter types validate; conformance outputs preserve unreadable/ND content, never exceed the pack epistemic ceiling, never mutate F2 geometry, never request canonical writes or promotion, and T6A-G03 remains structurally UNBOUND."
 }
