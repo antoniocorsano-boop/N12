@@ -2,6 +2,13 @@
   "contract_id": "CEW-EVIDENCE-PROVENANCE-v1",
   "milestone": "CEW-F2",
   "required_chain": ["SourceVersion", "Page", "EvidenceRegion", "Observation"],
+  "technical_reading_policy": {
+    "minimum_render_dpi": 300,
+    "below_minimum_use": "OVERVIEW_OR_THUMBNAIL_ONLY",
+    "render_authority": "DERIVED_REVIEW_AID_ONLY",
+    "primary_authority": "IMMUTABLE_SOURCE_VERSION",
+    "higher_dpi_allowed": true
+  },
   "page_readiness_states": ["READY", "NEEDS_PAGE_METADATA", "UNRESOLVED"],
   "region_readiness_states": ["READY", "NEEDS_PAGE_METADATA", "NEEDS_REGION_LOCALIZATION", "NEEDS_TRANSFORM", "UNRESOLVED"],
   "observation_reading_states": ["READABLE", "PARTIAL", "UNREADABLE", "GRAPHICALLY_DIRECT_PARTIAL", "MIGRATED_NEEDS_REGION"],
@@ -30,6 +37,7 @@
     "observation_may_assert_structural_binding": false,
     "crop_is_authority_region": false,
     "derived_pixel_coordinates_are_source_native": false,
+    "technical_reading_below_300dpi_allowed": false,
     "unreadable_fields_may_be_filled_by_context": false,
     "unreadable_fields_may_be_filled_by_ai_confidence": false,
     "existing_canonical_evidence_may_be_migrated_without_region": true,
@@ -42,5 +50,5 @@
     "T5A-G05/G05-R04",
     "T6A-G03"
   ],
-  "acceptance_rule": "EVIDENCE_PROVENANCE_PASS requires all four reference items to resolve from READY immutable SourceVersion through READY Page and exact READY EvidenceRegion to an Observation that preserves readable and unreadable content without structural-binding conflation."
+  "acceptance_rule": "EVIDENCE_PROVENANCE_PASS requires all four reference items to resolve from READY immutable SourceVersion through READY Page and exact READY EvidenceRegion to an Observation that preserves readable and unreadable content without structural-binding conflation; any technical-reading render used for localization or adjudication must be at least 300 dpi."
 }
