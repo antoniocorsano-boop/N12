@@ -14,6 +14,9 @@ on:
       - 'scripts/validate_cew_evidence_provenance.py'
       - 'scripts/validate_cew_f2_reproducible_closure.py'
       - '.github/workflows/validate-cew-evidence-provenance.yml'
+  push:
+    branches:
+      - 'work/cew-f2-reproducible-closure'
   workflow_dispatch:
 
 jobs:
