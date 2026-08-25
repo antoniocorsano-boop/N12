@@ -6,6 +6,8 @@ on:
       - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
       - 'automation/CEW_EVIDENCE_VIEWPOINT_CONTRACT_v1.json'
       - 'data/canonical/N12_EVIDENCE_LINKS_CURRENT_v0.json'
+      - 'data/canonical/N12_ISSUES_CURRENT_v1.json'
+      - 'docs/ANALYSIS/CEW_R3_B05_B06_RESOLUTION_ROUTING_v1.md'
       - '.github/workflows/validate-cew-evidence-map.yml'
 
 jobs:
@@ -13,24 +15,54 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate contracts, source context, and anti-invention state
+      - name: Validate contracts, routing, candidates and anti-invention state
         run: |
           python - <<'PY'
           import json
+          from pathlib import Path
           s=json.load(open('data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'))
           c=json.load(open('automation/CEW_EVIDENCE_VIEWPOINT_CONTRACT_v1.json'))
           m=json.load(open('data/canonical/N12_EVIDENCE_LINKS_CURRENT_v0.json'))
+          i=json.load(open('data/canonical/N12_ISSUES_CURRENT_v1.json'))
           assert s['current_work_item']['id']=='CEW-R3-SYNCHRONIZED-EVIDENCE-MAP-V0'
           assert c['contract_id']=='CEW_EVIDENCE_VIEWPOINT_CONTRACT'
           assert m['coverage']['current_issue_count']==6
           assert m['coverage']['issues_with_structured_source_context']==len(m['source_to_entity_links'])==3
-          assert {x['issue_id'] for x in m['source_to_entity_links']}=={'N12-ISS-M1E-B02','N12-ISS-M1E-B05','N12-ISS-M1E-B06'}
-          assert all(x['authority_state']=='CONTEXT_ONLY' for x in m['source_to_entity_links'])
-          assert all(x['page_or_region'] is None for x in m['source_to_entity_links'])
+          links={x['issue_id']:x for x in m['source_to_entity_links']}
+          assert set(links)=={'N12-ISS-M1E-B02','N12-ISS-M1E-B05','N12-ISS-M1E-B06'}
+          assert all(x['authority_state']=='CONTEXT_ONLY' for x in links.values())
+          assert links['N12-ISS-M1E-B05']['routing_class']=='CONFIRMED_DOCUMENTARY_GAP'
+          assert links['N12-ISS-M1E-B05']['review_state']=='CURRENT'
+          assert len(links['N12-ISS-M1E-B05']['entity_scope'])==15
+          assert links['N12-ISS-M1E-B06']['routing_class']=='SEARCHABLE_DOCUMENTARY_RESIDUAL'
+          candidates=m.get('evidence_snippet_candidates',[])
+          assert m['coverage']['issues_with_evidence_snippet_candidate']==1==len(candidates)
+          cand=candidates[0]
+          assert cand['snippet_id']=='N12-SNIP-CAND-B06-G5-B017-TAV06A-P07'
+          assert cand['entity_ids']==['G5-B017']
+          assert cand['bbox_or_region']['locator']=='TAV06A P07'
+          assert cand['bbox_or_region']['pixel_bbox'] is None
+          assert cand['evidence_state']=='DOC_SOURCE_UNBOUND'
+          assert cand['review_state']=='MACHINE_PROPOSED'
+          assert cand['authority_state']=='EVIDENCE_LINK_CANDIDATE'
+          assert len(cand['archive_blob_sha'])==40
           assert m['coverage']['issues_with_canonical_evidence_snippet']==len(m['evidence_snippets'])==0
+          assert cand['snippet_id'] not in {x.get('snippet_id') for x in m['evidence_snippets']}
           assert m['coverage']['issues_with_3d_viewpoint']==len(m['viewpoints'])==0
-          assert len(m['binding_backlog'])==6
-          assert any('conversation memory' in g for g in m['guards'])
-          assert any('CONTEXT_ONLY' in g for g in m['guards'])
-          print('CEW EVIDENCE MAP: PASS | source-context=3 | snippets=0 | viewpoints=0 | issues=6')
+          issues={x['issue_id']:x for x in i['issues']}
+          assert issues['N12-ISS-M1E-B05']['routing_class']=='CONFIRMED_DOCUMENTARY_GAP'
+          assert len(issues['N12-ISS-M1E-B05']['target_entity_ids'])==15
+          assert issues['N12-ISS-M1E-B06']['routing_class']=='SEARCHABLE_DOCUMENTARY_RESIDUAL'
+          assert issues['N12-ISS-M1E-B06']['evidence_snippet_refs']==[]
+          assert issues['N12-ISS-M1E-B06']['evidence_snippet_candidate_refs']==[cand['snippet_id']]
+          assert s['current_calculation_blockers'][3]['routing_class']=='CONFIRMED_DOCUMENTARY_GAP'
+          assert s['current_work_item']['progress']['evidence_snippet_candidates']==1
+          assert s['current_work_item']['progress']['canonical_evidence_snippets']==0
+          analysis=Path('docs/ANALYSIS/CEW_R3_B05_B06_RESOLUTION_ROUTING_v1.md').read_text(encoding='utf-8')
+          assert 'confirmed documentary coverage gap' in analysis.lower()
+          assert 'TAV06A P07' in analysis
+          guards='\n'.join(m['guards'])+'\n'+'\n'.join(s['anti_drift_rules'])
+          assert 'candidate' in guards.lower() and 'approved' in guards.lower()
+          assert 'cyclic blind rereading' in guards.lower()
+          print('CEW EVIDENCE MAP: PASS | B05=CONFIRMED_GAP | B06=SEARCHABLE | candidates=1 | approved_snippets=0')
           PY
