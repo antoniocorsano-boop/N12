@@ -117,11 +117,43 @@ jobs:
           --source-id TAV-06S
           --candidate-id I001
 
-      - name: Compare registered TAV-06S lines with canonical G5 topology
+      - name: Compare TAV-03S lines with canonical G2 topology
+        run: >-
+          python scripts/n12_registered_line_topology_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-03S
+          --storey-id G2
+          --beams-csv data/canonical/STOREY_BEAMS_G2_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-04S lines with canonical G3 topology
+        run: >-
+          python scripts/n12_registered_line_topology_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-04S
+          --storey-id G3
+          --beams-csv data/canonical/STOREY_BEAMS_G3_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-05S lines with canonical G4 topology
+        run: >-
+          python scripts/n12_registered_line_topology_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-05S
+          --storey-id G4
+          --beams-csv data/canonical/STOREY_BEAMS_G4_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-06S lines with canonical G5 topology
         run: >-
           python scripts/n12_registered_line_topology_audit.py
           --input-root analysis/raster_line_concordance
           --source-id TAV-06S
+          --storey-id G5
+          --beams-csv data/canonical/STOREY_BEAMS_G5_v1.csv
           --max-angle-deg 2.0
           --max-distance-m 0.35
 
