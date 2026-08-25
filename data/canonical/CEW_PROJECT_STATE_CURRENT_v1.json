@@ -1,11 +1,11 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "product": "CEW",
   "vertical": "CEW-EX",
   "reference_project": "N12",
   "state_role": "SINGLE_OPERATIONAL_SOURCE_OF_TRUTH",
   "status": "CURRENT",
-  "updated": "2026-08-24",
+  "updated": "2026-08-25",
   "maturity": {
     "current_level": "L3_INTERACTIVE_ENGINEERING_TWIN_WITH_L4_COMPONENTS",
     "target_next": "L4_ASSESSMENT_READY",
@@ -30,7 +30,8 @@
     {"id":"EXPOSURE_CONDITION_MODEL","status":"OPERATIONAL_V0_EVIDENCE_PENDING","gate":"Validate CEW Exposure Condition"},
     {"id":"PROJECT_CONTROL_ROOM","status":"OPERATIONAL_V0","gate":"Validate CEW Control Room"},
     {"id":"UNIVERSAL_RESIDUAL_WORKSPACE","status":"OPERATIONAL_V0_DATA_CONTRACT","gate":"Validate CEW Control Room"},
-    {"id":"SYNCHRONIZED_EVIDENCE_MAP","status":"IN_PROGRESS_SOURCE_CONTEXT_BOUND_3_OF_6","gate":"Validate CEW Evidence Map"}
+    {"id":"SYNCHRONIZED_EVIDENCE_MAP","status":"IN_PROGRESS_REGION_REVIEW_TOOLING","gate":"Validate CEW Evidence Map"},
+    {"id":"EVIDENCE_REGION_REVIEW_PACK","status":"IN_PROGRESS_V0","gate":"Validate CEW Evidence Region Pack"}
   ],
   "current_calculation_blockers": [
     {"id":"M1E-B01","domain":"CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL","impact":"BLOCKING"},
@@ -52,13 +53,16 @@
   "current_work_item": {
     "id": "CEW-R3-SYNCHRONIZED-EVIDENCE-MAP-V0",
     "objective": "Create bidirectional navigation between source/evidence context and canonical 3D entities without making the UI or crop geometry an engineering authority.",
-    "branch": "work/cew-synchronized-evidence-map-v0",
+    "branch": "work/cew-r3-evidence-region-review-pack-v0",
     "state": "IN_PROGRESS",
     "progress": {
       "source_context_bound_issues": ["M1E-B02","M1E-B05","M1E-B06"],
       "canonical_evidence_snippets": 0,
       "canonical_3d_viewpoints": 0,
-      "last_completed_slice": "PR-52 source-context bindings"
+      "last_completed_slice": "PR-52 source-context bindings + linked CURRENT update",
+      "active_subslice": "deterministic B05/B06 Evidence Region Review Pack from immutable archive PDFs",
+      "render_source_mapping": "verified against scripts/render_storey_sources.sh",
+      "target_review_sources": ["TAV01A","TAV02A","TAV034A","TAV05A","TAV06A","TAV07A"]
     }
   },
   "anti_drift_rules": [
@@ -69,5 +73,5 @@
     "A residual is closed only by evidence, explicit authorized modeling rule, or documented engineering decision with receipt.",
     "No UI state may become canonical engineering authority."
   ],
-  "next_action": "Recover and review real HiRes page/region bindings for B05 foundation residuals and B06 reinforcement residuals; create EvidenceSnippet objects only where source page/region and entity identity are explicitly supported. Continue B02 only after primary RC-P13 page/image recovery."
+  "next_action": "Run and validate the deterministic B05/B06 Evidence Region Review Pack. Use its archive-commit/blob-bound 300 dpi tile manifests to identify candidate regions; promote no EvidenceSnippet until an explicit region-to-claim/entity review is recorded."
 }
