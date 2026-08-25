@@ -1,0 +1,31 @@
+{
+  "receipt_id": "CEW-F3-CLOSURE-v1",
+  "baseline_commit": "6067f52b07db6fd1aabebef78e947f614390db3a",
+  "closure_branch": "work/cew-f3-viewer-from-6067",
+  "acceptance_commit": "ceb15487a02515d3dc2a5cb60a9d71a7a89f934a",
+  "acceptance_run_id": 32873441162,
+  "gate": "SOURCE_VIEWER_PASS",
+  "reference_tasks": {
+    "ERW-N12-001": "PASS",
+    "ERW-N12-002": "PASS",
+    "ERW-N12-003": "PASS",
+    "ERW-N12-004": "PASS"
+  },
+  "f2_geometry_consumption": "IDENTITY_ONLY",
+  "f3_geometry_mutation": "FORBIDDEN",
+  "source_render_policy": "IMMUTABLE_SHA256_VERIFIED_PDF_TO_300DPI_DERIVED_RENDER",
+  "tile_pyramid": "LIBVIPS_DZI_256_OVERLAP_1",
+  "viewer_runtime": "OPENSEADRAGON_5.0.1_VENDORED_SELF_CONTAINED",
+  "artifact": {
+    "id": 9572975646,
+    "name": "cew-f3-source-viewer",
+    "size_bytes": 31374226,
+    "digest": "sha256:0c4aac59b76263b1649b21ee865c4f68ea8cc14bee47d7482c1b4c7ff95ed906"
+  },
+  "primary_authority": "IMMUTABLE_SOURCE_VERSION_PDF",
+  "viewer_authority": "DERIVED_REVIEW_AID_ONLY",
+  "t6a_g03_structural_binding": "UNBOUND",
+  "m0g_reopened": false,
+  "structural_canonical_data_changed": false,
+  "transition": "CEW-F3 COMPLETE; CEW-F4 released as next active milestone"
+}
