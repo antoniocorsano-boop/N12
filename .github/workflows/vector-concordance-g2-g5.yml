@@ -21,6 +21,7 @@ permissions:
 jobs:
   concordance:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout experiment branch
         uses: actions/checkout@v4
@@ -41,7 +42,7 @@ jobs:
       - name: Fetch immutable source archive
         run: git fetch --no-tags --depth=1 origin archive/originali-alta-risoluzione
 
-      - name: Measure PyMuPDF-Docling concordance
+      - name: Diagnose and measure PyMuPDF-Docling concordance
         run: >-
           python scripts/n12_vector_concordance_gate.py
           --archive-ref FETCH_HEAD
