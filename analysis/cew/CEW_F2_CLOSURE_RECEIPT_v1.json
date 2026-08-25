@@ -1,0 +1,28 @@
+{
+  "receipt_id": "CEW-F2-CLOSURE-v1-CONCURRENT-HISTORICAL",
+  "baseline_commit": "232338a24363a14ddcecc25bb331762870e010f7",
+  "closure_branch": "work/cew-f2-baseline-232338a",
+  "evidence_gate_commit": "8f364fd4237df0baa5ed406f1d00056c06b59841",
+  "evidence_gate_run_id": 32871757673,
+  "final_governance_gate_commit": "ef6f0205d72e9eec75a1d85fb090ed83c283d7da",
+  "final_governance_gate_run_id": 32871921812,
+  "gate": "EVIDENCE_PROVENANCE_PASS",
+  "reference_chains": {
+    "T5A-G01/G01-R06": "PASS",
+    "T5A-G07/G07-R07": "PASS",
+    "T5A-G05/G05-R04": "PASS",
+    "T6A-G03": "PASS"
+  },
+  "coordinate_roundtrip": {
+    "NORMALIZED_0_1_TO_SOURCE_NATIVE": "PASS",
+    "NORMALIZED_0_1_TO_DERIVED_ASSET_PIXELS": "PASS"
+  },
+  "t6a_g03_structural_binding": "UNBOUND",
+  "derived_asset_authority": "DERIVED_REVIEW_AID_ONLY",
+  "primary_authority": "IMMUTABLE_SOURCE_VERSION",
+  "m0g_reopened": false,
+  "m0g_files_changed": 0,
+  "f3_geometry_correction_allowed": false,
+  "transition": "CEW-F2 COMPLETE; CEW-F3 IN_PROGRESS as next active milestone",
+  "historical_note": "Preserved from the concurrent F2 closure line. The canonical closure receipt is data/canonical/CEW_F2_CLOSURE_RECEIPT_v1.json, whose acceptance includes source-byte SHA-256 verification and actual deterministic raster regeneration."
+}
