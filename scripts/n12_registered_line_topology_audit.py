@@ -17,26 +17,29 @@ from n12_registered_candidate_audit import (
 )
 
 
-def support_xy(path: Path) -> dict[str, tuple[float, float]]:
+def support_xy(path: Path, storey_id: str) -> dict[str, tuple[float, float]]:
+    present_field = f"{storey_id.lower()}_present"
     out: dict[str, tuple[float, float]] = {}
     for row in read_csv(path):
-        if row.get("g5_present") != "PRESENT":
+        if row.get(present_field) != "PRESENT":
             continue
         out[row["support_id"]] = (float(row["x_global_m"]), float(row["y_global_m"]))
     if not out:
-        raise ValueError("No G5 supports found")
+        raise ValueError(f"No {storey_id} supports found via {present_field}")
     return out
 
 
-def straight_g5_beams(path: Path, supports: dict[str, tuple[float, float]]) -> list[dict[str, object]]:
+def straight_beams(path: Path, supports: dict[str, tuple[float, float]], storey_id: str) -> list[dict[str, object]]:
     out: list[dict[str, object]] = []
     for row in read_csv(path):
-        if row.get("storey_id") != "G5" or row.get("direction_class") not in {"X", "Y"}:
+        if row.get("storey_id") != storey_id or row.get("direction_class") not in {"X", "Y"}:
             continue
         a_id, b_id = row["from_support_id"], row["to_support_id"]
         if a_id not in supports or b_id not in supports:
             continue
         out.append({"beam_id": row["beam_id"], "from": a_id, "to": b_id, "a": supports[a_id], "b": supports[b_id]})
+    if not out:
+        raise ValueError(f"No straight canonical beams found for {storey_id}")
     return out
 
 
@@ -82,6 +85,7 @@ def self_test() -> None:
     assert abs(point_segment_distance((0.5, 0.1), (0, 0), (1, 0)) - 0.1) < 1e-9
     assert angle_difference_deg((0, 0), (1, 0), (2, 0), (5, 0)) < 1e-9
     assert abs(angle_difference_deg((0, 0), (1, 0), (0, 0), (0, 1)) - 90.0) < 1e-9
+    assert f"{'G2'.lower()}_present" == "g2_present"
     print("REGISTERED_LINE_TOPOLOGY_AUDIT_SELF_TEST_PASS")
 
 
@@ -89,8 +93,10 @@ def run(args: argparse.Namespace) -> int:
     root = Path(args.input_root) / args.source_id
     base = Image.open(root / "review_base.png")
     registration = select_registration(Path(args.registration_csv), args.source_id)
-    supports = support_xy(Path(args.supports_csv))
-    beams = straight_g5_beams(Path(args.beams_csv), supports)
+    if registration.get("level_id") != args.storey_id:
+        raise ValueError(f"Registration {args.source_id} belongs to {registration.get('level_id')}, not {args.storey_id}")
+    supports = support_xy(Path(args.supports_csv), args.storey_id)
+    beams = straight_beams(Path(args.beams_csv), supports, args.storey_id)
     lines = read_csv(root / "consensus_lines.csv")
 
     rows: list[dict[str, object]] = []
@@ -132,9 +138,10 @@ def run(args: argparse.Namespace) -> int:
         w = csv.DictWriter(fh, fieldnames=fields); w.writeheader(); w.writerows(rows)
 
     receipt = {
-        "schema_version": "1.0",
-        "experiment": "REGISTERED_CONSENSUS_LINE_TO_G5_TOPOLOGY_AUDIT",
+        "schema_version": "1.1",
+        "experiment": "REGISTERED_CONSENSUS_LINE_TO_STOREY_TOPOLOGY_AUDIT",
         "source_id": args.source_id,
+        "storey_id": args.storey_id,
         "registration_validation_state": registration["validation_state"],
         "straight_canonical_beams_compared": len(beams),
         "consensus_lines_compared": len(lines),
@@ -151,9 +158,10 @@ def run(args: argparse.Namespace) -> int:
 
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Compare registered TAV-06S consensus lines with existing straight G5 beam topology for review only.")
+    p = argparse.ArgumentParser(description="Compare registered consensus lines with existing straight storey beam topology for review only.")
     p.add_argument("--input-root", default="analysis/raster_line_concordance")
     p.add_argument("--source-id", default="TAV-06S")
+    p.add_argument("--storey-id", default="G5")
     p.add_argument("--registration-csv", default="data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv")
     p.add_argument("--supports-csv", default="data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv")
     p.add_argument("--beams-csv", default="data/canonical/STOREY_BEAMS_G5_v1.csv")
