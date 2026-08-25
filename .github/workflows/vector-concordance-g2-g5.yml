@@ -10,6 +10,7 @@ on:
       - 'scripts/n12_consensus_intersections.py'
       - 'scripts/n12_consensus_review_overlay.py'
       - 'scripts/n12_registered_candidate_audit.py'
+      - 'scripts/n12_registered_line_topology_audit.py'
       - '.github/workflows/vector-concordance-g2-g5.yml'
   push:
     branches:
@@ -21,6 +22,7 @@ on:
       - 'scripts/n12_consensus_intersections.py'
       - 'scripts/n12_consensus_review_overlay.py'
       - 'scripts/n12_registered_candidate_audit.py'
+      - 'scripts/n12_registered_line_topology_audit.py'
       - '.github/workflows/vector-concordance-g2-g5.yml'
 
 permissions:
@@ -58,6 +60,9 @@ jobs:
 
       - name: Run registered candidate audit self-test
         run: python scripts/n12_registered_candidate_audit.py --self-test
+
+      - name: Run registered line topology audit self-test
+        run: python scripts/n12_registered_line_topology_audit.py --self-test
 
       - name: Fetch immutable source archive
         run: git fetch --no-tags --depth=1 origin archive/originali-alta-risoluzione
@@ -104,6 +109,14 @@ jobs:
           --input-root analysis/raster_line_concordance
           --source-id TAV-06S
           --candidate-id I001
+
+      - name: Compare registered TAV-06S lines with canonical G5 topology
+        run: >-
+          python scripts/n12_registered_line_topology_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-06S
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
 
       - name: Upload non-canonical concordance receipts
         if: always()
