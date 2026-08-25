@@ -79,8 +79,13 @@ def main() -> int:
         raise AssertionError("face-node length inconsistent with frozen member length")
     if abs(ctx["computed_face_node_length_m"] - computed) > 1e-12:
         raise AssertionError("render context recomputed length drift")
-    if ctx.get("section_cm") is not None:
-        raise AssertionError("missing G5-B017 section geometry was invented")
+
+    # Preserve the ledger's explicit section state exactly. For G5-B017 it is the literal ND,
+    # not a blank/null value and not a section inferred from neighboring beams.
+    if ctx.get("section_cm") != m["section_cm"].strip():
+        raise AssertionError("G5-B017 section state differs from frozen connectivity ledger")
+    if m["section_cm"].strip() != "ND" or m["section_evidence"].strip() != "ND":
+        raise AssertionError("expected current G5-B017 section state ND")
 
     app = (built / "app.js").read_text(encoding="utf-8")
     html = (built / "index.html").read_text(encoding="utf-8")
@@ -98,7 +103,7 @@ def main() -> int:
     print(f"G5_B017_FACE_NODES={m['node_i'].strip()}->{m['node_j'].strip()}")
     print(f"G5_B017_LENGTH_M={computed:.7f}")
     print("COORDINATE_EVIDENCE=INF_PRESERVED")
-    print("MISSING_SECTION=ND_PRESERVED")
+    print("G5_B017_SECTION=ND_PRESERVED")
     print("CANONICAL_WRITE=FORBIDDEN")
     print("M0G_REOPEN=FORBIDDEN")
     print("EPISTEMIC_PROMOTION=FORBIDDEN")
