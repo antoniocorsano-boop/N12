@@ -57,6 +57,8 @@ jobs:
           --match-tolerance-pt 1.5
 
       - name: Measure independent raster line concordance
+        env:
+          DOCLINGCORE_MAX_IMAGE_DECODED_SIZE: '268435456'
         run: >-
           python scripts/n12_raster_line_concordance_gate.py
           --archive-ref FETCH_HEAD
