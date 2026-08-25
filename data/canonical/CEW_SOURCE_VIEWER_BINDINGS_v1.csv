@@ -1,0 +1,5 @@
+task_id,residual_id,evidence_region_id,source_version_id,page_id,deep_link,initial_view_policy,binding_state,authority_note
+ERW-N12-001,M1E-B06-R08,CEW-N12-REG-G01-R06,CEW-N12-SRC-TAV05A-V17DEC414,CEW-N12-PAGE-TAV05A-P001,?task=ERW-N12-001,FIT_REGION_WITH_CONTEXT,READY,"Viewer binding only; quantity and diameter remain unreadable/ND."
+ERW-N12-002,M1E-B06-R09,CEW-N12-REG-G07-R07,CEW-N12-SRC-TAV05A-V17DEC414,CEW-N12-PAGE-TAV05A-P001,?task=ERW-N12-002,FIT_REGION_WITH_CONTEXT,READY,"Viewer binding only; quantity and diameter remain unreadable/ND."
+ERW-N12-003,M1E-B06-R10,CEW-N12-REG-G05-R04,CEW-N12-SRC-TAV05A-V17DEC414,CEW-N12-PAGE-TAV05A-P001,?task=ERW-N12-003,FIT_REGION_WITH_CONTEXT,READY,"Viewer binding only; missing sagomato dimensions remain unreadable/ND."
+ERW-N12-004,M1E-B06-R11,CEW-N12-REG-T6A-G03,CEW-N12-SRC-TAV06A-V3F2D557F,CEW-N12-PAGE-TAV06A-P001,?task=ERW-N12-004,FIT_REGION_WITH_CONTEXT,READY,"Viewer binding only; T6A-G03 remains unbound to canonical structural member."
