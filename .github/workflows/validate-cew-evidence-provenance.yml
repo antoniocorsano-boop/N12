@@ -1,0 +1,41 @@
+name: Validate CEW Evidence Provenance
+
+on:
+  pull_request:
+    paths:
+      - 'docs/ARCHITECTURE/CEW_EVIDENCE_PROVENANCE_MODEL_v1.md'
+      - 'automation/CEW_EVIDENCE_PROVENANCE_CONTRACT_v1.json'
+      - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
+      - 'scripts/validate_cew_evidence_provenance.py'
+      - '.github/workflows/validate-cew-evidence-provenance.yml'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_EVIDENCE_FOUNDATION_PATCH_v1.csv'
+  push:
+    branches:
+      - 'work/m0-global-model'
+    paths:
+      - 'docs/ARCHITECTURE/CEW_EVIDENCE_PROVENANCE_MODEL_v1.md'
+      - 'automation/CEW_EVIDENCE_PROVENANCE_CONTRACT_v1.json'
+      - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
+      - 'scripts/validate_cew_evidence_provenance.py'
+      - '.github/workflows/validate-cew-evidence-provenance.yml'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_EVIDENCE_FOUNDATION_PATCH_v1.csv'
+  workflow_dispatch:
+
+jobs:
+  evidence-provenance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate system milestone state
+        run: python scripts/validate_cew_system_foundation.py
+      - name: Validate source identity foundation
+        run: python scripts/validate_cew_source_identity.py
+      - name: Validate evidence provenance foundation
+        run: python scripts/validate_cew_evidence_provenance.py
