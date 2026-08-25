@@ -1,0 +1,74 @@
+{
+  "receipt_id": "CEW-F5-CLOSURE-v1",
+  "milestone": "CEW-F5",
+  "baseline_commit": "e7c0e2d67c79b1154344a2983f5084aef6cfea95",
+  "closure_branch": "work/cew-f5-knowledge-graph-from-e7c0",
+  "closure_head_verified": "d4c3d08749f110fd3898e1de5d7262491717a07c",
+  "acceptance_gate": "KNOWLEDGE_GRAPH_PASS",
+  "global_gate": {
+    "workflow": ".github/workflows/validate-cew-knowledge-graph.yml",
+    "run_id": 32878949902,
+    "job_id": 97903551750,
+    "conclusion": "success",
+    "markers": [
+      "KNOWLEDGE_GRAPH_PASS",
+      "SLICES_PASS=3/3",
+      "M0G_REOPEN=FORBIDDEN",
+      "SOURCE_LEDGER_MUTATION=FORBIDDEN",
+      "EPISTEMIC_PROMOTION=FORBIDDEN",
+      "MISSING_PROPERTY_INVENTION=FORBIDDEN",
+      "GRAPH_AUTHORITY=DERIVED_GRAPH_PROJECTION_ONLY"
+    ]
+  },
+  "reference_slices": {
+    "M0G_MEMBERS": {
+      "status": "PASS",
+      "entities": 359,
+      "bindings": 718,
+      "section_assertions": 195,
+      "missing_section_properties_not_invented": 164,
+      "certified_head_run_id": 32878949778
+    },
+    "M1A_REINFORCEMENT": {
+      "status": "PASS",
+      "reinforcement_entities": 58,
+      "group_bindings": 58,
+      "property_assertions": 192,
+      "unreadable_quantity_diameter_preserved": 2,
+      "direct_partial_dimension_preserved": 1,
+      "member_station_binding": "NOT_PROJECTED",
+      "initial_certified_run_id": 32878331938,
+      "initial_artifact_sha256": "975234cf9a5c8ecd25f440188068fcb8b8e1ae3ec9e3f72430dc9ea5f5f80647",
+      "certified_head_run_id": 32878949823
+    },
+    "M1L_LOADS": {
+      "status": "PASS",
+      "load_model_entities": 16,
+      "load_path_entities": 7,
+      "load_delta_entities": 6,
+      "zone_bindings": 6,
+      "descriptive_assertions": 258,
+      "numeric_load_assertions": 0,
+      "numeric_delta_ready": 0,
+      "initial_certified_run_id": 32878349287,
+      "initial_artifact_sha256": "3b96048c3a7fe42e471da8286644f8413dad6671fe8e23057d73fa244e9bf77e",
+      "certified_head_run_id": 32878949874
+    }
+  },
+  "authority": {
+    "graph_authority": "DERIVED_GRAPH_PROJECTION_ONLY",
+    "source_ledgers_remain_authoritative": true,
+    "m0g_reopened": false,
+    "source_ledger_mutation_allowed": false,
+    "epistemic_promotion_allowed": false,
+    "missing_property_invention_allowed": false,
+    "numeric_load_promotion_from_nd_allowed": false
+  },
+  "governance_transition": {
+    "CEW-F5": "COMPLETE",
+    "CEW-F6": "IN_PROGRESS",
+    "next_acceptance_gate": "ERW_E2E_PASS",
+    "next_reference_case": "M1E-B06-R11"
+  },
+  "note": "Closure receipt records already-proven CI evidence. It does not alter M0-G, M1A or M1L source ledgers and is not primary evidence."
+}
