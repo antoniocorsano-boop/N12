@@ -8,7 +8,7 @@ import math
 import statistics
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -29,7 +29,14 @@ class Segment:
         return math.degrees(math.atan2(self.y2 - self.y1, self.x2 - self.x1)) % 180.0
 
     def flipped_y(self, page_height: float) -> "Segment":
-        return Segment(self.x1, page_height - self.y1, self.x2, page_height - self.y2, self.source, self.kind)
+        return Segment(
+            self.x1,
+            page_height - self.y1,
+            self.x2,
+            page_height - self.y2,
+            self.source,
+            self.kind,
+        )
 
 
 def sha256(path: Path) -> str:
@@ -48,17 +55,21 @@ def _point_xy(p: Any) -> tuple[float, float]:
     raise TypeError(f"Unsupported point: {p!r}")
 
 
-def _append_segment(out: list[Segment], p1: Any, p2: Any, source: str, kind: str, min_len: float) -> None:
+def _append_segment(
+    out: list[Segment], p1: Any, p2: Any, source: str, kind: str, min_len: float
+) -> None:
     x1, y1 = _point_xy(p1)
     x2, y2 = _point_xy(p2)
-    s = Segment(x1, y1, x2, y2, source, kind)
-    if s.length >= min_len:
-        out.append(s)
+    segment = Segment(x1, y1, x2, y2, source, kind)
+    if segment.length >= min_len:
+        out.append(segment)
 
 
-def extract_pymupdf(pdf: Path, page_no: int, min_len: float) -> tuple[list[Segment], float, float, str]:
+def extract_pymupdf(
+    pdf: Path, page_no: int, min_len: float
+) -> tuple[list[Segment], float, float, str]:
     try:
-        import fitz  # PyMuPDF
+        import fitz
     except ImportError as exc:
         raise RuntimeError("PyMuPDF is not installed") from exc
 
@@ -74,23 +85,41 @@ def extract_pymupdf(pdf: Path, page_no: int, min_len: float) -> tuple[list[Segme
                     _append_segment(out, item[1], item[2], "PyMuPDF", "line", min_len)
                 elif op == "re":
                     r = item[1]
-                    pts = [(r.x0, r.y0), (r.x1, r.y0), (r.x1, r.y1), (r.x0, r.y1)]
+                    pts = [
+                        (r.x0, r.y0),
+                        (r.x1, r.y0),
+                        (r.x1, r.y1),
+                        (r.x0, r.y1),
+                    ]
                     for a, b in zip(pts, pts[1:] + pts[:1]):
-                        _append_segment(out, a, b, "PyMuPDF", "rectangle_edge", min_len)
+                        _append_segment(
+                            out, a, b, "PyMuPDF", "rectangle_edge", min_len
+                        )
                 elif op == "qu":
                     q = item[1]
                     pts = [q.ul, q.ur, q.lr, q.ll]
                     for a, b in zip(pts, pts[1:] + pts[:1]):
                         _append_segment(out, a, b, "PyMuPDF", "quad_edge", min_len)
-        return out, float(rect.width), float(rect.height), getattr(fitz, "VersionBind", "unknown")
+        return (
+            out,
+            float(rect.width),
+            float(rect.height),
+            getattr(fitz, "VersionBind", "unknown"),
+        )
     finally:
         doc.close()
 
 
-def extract_docling(pdf: Path, page_no: int, min_len: float) -> tuple[list[Segment], float, float, str]:
+def extract_docling(
+    pdf: Path, page_no: int, min_len: float
+) -> tuple[list[Segment], float, float, str]:
     try:
         import importlib.metadata
-        from docling_parse.pdf_parser import ContentConfig, ContentLevel, DoclingPdfParser
+        from docling_parse.pdf_parser import (
+            ContentConfig,
+            ContentLevel,
+            DoclingPdfParser,
+        )
     except ImportError as exc:
         raise RuntimeError("docling-parse is not installed") from exc
 
@@ -110,129 +139,177 @@ def extract_docling(pdf: Path, page_no: int, min_len: float) -> tuple[list[Segme
         for shape in page.shapes:
             pts = list(shape.points)
             for p1, p2 in zip(pts, pts[1:]):
-                _append_segment(out, p1, p2, "DoclingParse", "shape_edge", min_len)
-        dim = page.dimension
-        width = float(getattr(dim, "width"))
-        height = float(getattr(dim, "height"))
-        return out, width, height, importlib.metadata.version("docling-parse")
+                _append_segment(
+                    out, p1, p2, "DoclingParse", "shape_edge", min_len
+                )
+        page_rect = page.dimension.rect
+        return (
+            out,
+            float(page_rect.width),
+            float(page_rect.height),
+            importlib.metadata.version("docling-parse"),
+        )
     finally:
         doc.unload()
 
 
 def angle_delta(a: float, b: float) -> float:
-    d = abs(a - b) % 180.0
-    return min(d, 180.0 - d)
+    delta = abs(a - b) % 180.0
+    return min(delta, 180.0 - delta)
 
 
 def endpoint_error(a: Segment, b: Segment) -> float:
-    direct = max(math.hypot(a.x1 - b.x1, a.y1 - b.y1), math.hypot(a.x2 - b.x2, a.y2 - b.y2))
-    reverse = max(math.hypot(a.x1 - b.x2, a.y1 - b.y2), math.hypot(a.x2 - b.x1, a.y2 - b.y1))
+    direct = max(
+        math.hypot(a.x1 - b.x1, a.y1 - b.y1),
+        math.hypot(a.x2 - b.x2, a.y2 - b.y2),
+    )
+    reverse = max(
+        math.hypot(a.x1 - b.x2, a.y1 - b.y2),
+        math.hypot(a.x2 - b.x1, a.y2 - b.y1),
+    )
     return min(direct, reverse)
 
 
 def relative_length_error(a: Segment, b: Segment) -> float:
-    den = max(a.length, b.length, 1e-9)
-    return abs(a.length - b.length) / den
+    denominator = max(a.length, b.length, 1e-9)
+    return abs(a.length - b.length) / denominator
 
 
-def match_segments(reference: list[Segment], candidate: list[Segment], tol: dict[str, float]) -> dict[str, Any]:
+def match_segments(
+    reference: list[Segment], candidate: list[Segment], tol: dict[str, float]
+) -> dict[str, Any]:
     unmatched = set(range(len(candidate)))
     matches: list[dict[str, Any]] = []
-    for i, a in enumerate(reference):
+    for i, ref in enumerate(reference):
         best: tuple[float, int, float, float] | None = None
         for j in unmatched:
-            b = candidate[j]
-            ang = angle_delta(a.angle_deg, b.angle_deg)
-            rel = relative_length_error(a, b)
-            end = endpoint_error(a, b)
-            if ang > tol["angle_difference_deg"] or rel > tol["relative_length_difference"] or end > tol["endpoint_distance_pt"]:
+            cand = candidate[j]
+            angle_error = angle_delta(ref.angle_deg, cand.angle_deg)
+            length_error = relative_length_error(ref, cand)
+            end_error = endpoint_error(ref, cand)
+            if (
+                angle_error > tol["angle_difference_deg"]
+                or length_error > tol["relative_length_difference"]
+                or end_error > tol["endpoint_distance_pt"]
+            ):
                 continue
-            score = end + ang * 0.1 + rel * max(a.length, 1.0)
+            score = end_error + angle_error * 0.1 + length_error * max(ref.length, 1.0)
             if best is None or score < best[0]:
-                best = (score, j, end, rel)
+                best = (score, j, end_error, length_error)
         if best is not None:
-            _, j, end, rel = best
+            _, j, end_error, length_error = best
             unmatched.remove(j)
-            matches.append({
-                "reference_index": i,
-                "candidate_index": j,
-                "endpoint_error_pt": round(end, 6),
-                "angle_error_deg": round(angle_delta(a.angle_deg, candidate[j].angle_deg), 6),
-                "relative_length_error": round(rel, 8),
-            })
-    denom = max(len(reference), len(candidate), 1)
+            matches.append(
+                {
+                    "reference_index": i,
+                    "candidate_index": j,
+                    "endpoint_error_pt": round(end_error, 6),
+                    "angle_error_deg": round(
+                        angle_delta(ref.angle_deg, candidate[j].angle_deg), 6
+                    ),
+                    "relative_length_error": round(length_error, 8),
+                }
+            )
+
+    denominator = max(len(reference), len(candidate), 1)
+    endpoint_errors = [m["endpoint_error_pt"] for m in matches]
     return {
         "matches": matches,
-        "match_ratio": len(matches) / denom,
+        "match_ratio": len(matches) / denominator,
         "reference_count": len(reference),
         "candidate_count": len(candidate),
         "unmatched_reference": len(reference) - len(matches),
         "unmatched_candidate": len(candidate) - len(matches),
-        "median_endpoint_error_pt": statistics.median([m["endpoint_error_pt"] for m in matches]) if matches else None,
-        "max_endpoint_error_pt": max([m["endpoint_error_pt"] for m in matches], default=None),
+        "median_endpoint_error_pt": (
+            statistics.median(endpoint_errors) if endpoint_errors else None
+        ),
+        "max_endpoint_error_pt": max(endpoint_errors, default=None),
     }
 
 
-def choose_coordinate_mapping(py: list[Segment], dp: list[Segment], page_height: float, tol: dict[str, float]) -> tuple[str, list[Segment], dict[str, Any]]:
+def choose_coordinate_mapping(
+    py: list[Segment], dp: list[Segment], page_height: float, tol: dict[str, float]
+) -> tuple[str, list[Segment], dict[str, Any]]:
     direct = match_segments(py, dp, tol)
-    flipped_dp = [s.flipped_y(page_height) for s in dp]
+    flipped_dp = [segment.flipped_y(page_height) for segment in dp]
     flipped = match_segments(py, flipped_dp, tol)
-    direct_key = (direct["match_ratio"], -(direct["median_endpoint_error_pt"] or 1e12))
-    flipped_key = (flipped["match_ratio"], -(flipped["median_endpoint_error_pt"] or 1e12))
+    direct_key = (
+        direct["match_ratio"],
+        -(direct["median_endpoint_error_pt"] or 1e12),
+    )
+    flipped_key = (
+        flipped["match_ratio"],
+        -(flipped["median_endpoint_error_pt"] or 1e12),
+    )
     if flipped_key > direct_key:
         return "DOCLING_VERTICAL_FLIP", flipped_dp, flipped
     return "DIRECT", dp, direct
 
 
-def intersection(a: Segment, b: Segment, eps: float = 1e-9) -> tuple[float, float] | None:
+def intersection(
+    a: Segment, b: Segment, eps: float = 1e-9
+) -> tuple[float, float] | None:
     x1, y1, x2, y2 = a.x1, a.y1, a.x2, a.y2
     x3, y3, x4, y4 = b.x1, b.y1, b.x2, b.y2
-    den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
-    if abs(den) < eps:
+    denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+    if abs(denominator) < eps:
         return None
-    t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den
-    u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den
+    t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator
+    u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denominator
     if -eps <= t <= 1 + eps and -eps <= u <= 1 + eps:
         return x1 + t * (x2 - x1), y1 + t * (y2 - y1)
     return None
 
 
-def unique_intersections(segments: list[Segment], merge_tol: float) -> list[tuple[float, float]]:
-    pts: list[tuple[float, float]] = []
-    for i, a in enumerate(segments):
-        for b in segments[i + 1:]:
-            p = intersection(a, b)
-            if p is None:
+def unique_intersections(
+    segments: list[Segment], merge_tol: float
+) -> list[tuple[float, float]]:
+    points: list[tuple[float, float]] = []
+    for i, first in enumerate(segments):
+        for second in segments[i + 1 :]:
+            point = intersection(first, second)
+            if point is None:
                 continue
-            if not any(math.hypot(p[0] - q[0], p[1] - q[1]) <= merge_tol for q in pts):
-                pts.append(p)
-    return pts
+            if not any(
+                math.hypot(point[0] - known[0], point[1] - known[1]) <= merge_tol
+                for known in points
+            ):
+                points.append(point)
+    return points
 
 
-def match_points(a: list[tuple[float, float]], b: list[tuple[float, float]], tol: float) -> dict[str, Any]:
-    unused = set(range(len(b)))
+def match_points(
+    reference: list[tuple[float, float]],
+    candidate: list[tuple[float, float]],
+    tolerance: float,
+) -> dict[str, Any]:
+    unused = set(range(len(candidate)))
     errors: list[float] = []
-    for p in a:
+    for point in reference:
         best: tuple[float, int] | None = None
         for j in unused:
-            e = math.hypot(p[0] - b[j][0], p[1] - b[j][1])
-            if e <= tol and (best is None or e < best[0]):
-                best = (e, j)
+            error = math.hypot(
+                point[0] - candidate[j][0], point[1] - candidate[j][1]
+            )
+            if error <= tolerance and (best is None or error < best[0]):
+                best = (error, j)
         if best is not None:
             errors.append(best[0])
             unused.remove(best[1])
-    denom = max(len(a), len(b), 1)
+    denominator = max(len(reference), len(candidate), 1)
     return {
-        "reference_count": len(a),
-        "candidate_count": len(b),
+        "reference_count": len(reference),
+        "candidate_count": len(candidate),
         "matches": len(errors),
-        "match_ratio": len(errors) / denom,
+        "match_ratio": len(errors) / denominator,
         "median_error_pt": statistics.median(errors) if errors else None,
         "max_error_pt": max(errors, default=None),
     }
 
 
-def outcome(segment_ratio: float, intersection_ratio: float, tol: dict[str, float]) -> str:
+def classify_outcome(
+    segment_ratio: float, intersection_ratio: float, tol: dict[str, float]
+) -> str:
     ratio = min(segment_ratio, intersection_ratio) if intersection_ratio > 0 else segment_ratio
     if ratio >= tol["minimum_match_ratio_for_agree"]:
         return "AGREE"
@@ -245,45 +322,79 @@ def run(pdf: Path, page_no: int, contract_path: Path) -> dict[str, Any]:
     contract = json.loads(contract_path.read_text(encoding="utf-8"))
     tol = contract["tolerance_profile"]
     source_hash = sha256(pdf)
-    try:
-        py, py_w, py_h, py_ver = extract_pymupdf(pdf, page_no, tol["minimum_line_length_pt"])
-    except RuntimeError as exc:
-        return {"outcome": "MISSING_PYMUPDF", "error": str(exc), "pdf_sha256": source_hash, "page": page_no}
-    try:
-        dp, dp_w, dp_h, dp_ver = extract_docling(pdf, page_no, tol["minimum_line_length_pt"])
-    except RuntimeError as exc:
-        return {"outcome": "MISSING_DOCLING", "error": str(exc), "pdf_sha256": source_hash, "page": page_no, "pymupdf_version": py_ver}
 
-    if abs(py_w - dp_w) > tol["endpoint_distance_pt"] or abs(py_h - dp_h) > tol["endpoint_distance_pt"]:
+    try:
+        py, py_width, py_height, py_version = extract_pymupdf(
+            pdf, page_no, tol["minimum_line_length_pt"]
+        )
+    except RuntimeError as exc:
+        return {
+            "outcome": "MISSING_PYMUPDF",
+            "error": str(exc),
+            "pdf_sha256": source_hash,
+            "page": page_no,
+        }
+
+    try:
+        dp, dp_width, dp_height, dp_version = extract_docling(
+            pdf, page_no, tol["minimum_line_length_pt"]
+        )
+    except RuntimeError as exc:
+        return {
+            "outcome": "MISSING_DOCLING",
+            "error": str(exc),
+            "pdf_sha256": source_hash,
+            "page": page_no,
+            "pymupdf_version": py_version,
+        }
+
+    if (
+        abs(py_width - dp_width) > tol["endpoint_distance_pt"]
+        or abs(py_height - dp_height) > tol["endpoint_distance_pt"]
+    ):
         return {
             "outcome": "UNCOMPARABLE",
             "reason": "page dimensions differ beyond endpoint tolerance; no scale correction is permitted",
             "pdf_sha256": source_hash,
             "page": page_no,
-            "pymupdf_page_size_pt": [py_w, py_h],
-            "docling_page_size_pt": [dp_w, dp_h],
+            "pymupdf_page_size_pt": [py_width, py_height],
+            "docling_page_size_pt": [dp_width, dp_height],
         }
 
-    mapping, dp_mapped, seg = choose_coordinate_mapping(py, dp, py_h, tol)
-    py_i = unique_intersections(py, tol["intersection_distance_pt"])
-    dp_i = unique_intersections(dp_mapped, tol["intersection_distance_pt"])
-    ints = match_points(py_i, dp_i, tol["intersection_distance_pt"])
-    decision = outcome(seg["match_ratio"], ints["match_ratio"], tol)
+    mapping, dp_mapped, segment_result = choose_coordinate_mapping(
+        py, dp, py_height, tol
+    )
+    py_intersections = unique_intersections(
+        py, tol["intersection_distance_pt"]
+    )
+    dp_intersections = unique_intersections(
+        dp_mapped, tol["intersection_distance_pt"]
+    )
+    intersection_result = match_points(
+        py_intersections, dp_intersections, tol["intersection_distance_pt"]
+    )
+    decision = classify_outcome(
+        segment_result["match_ratio"], intersection_result["match_ratio"], tol
+    )
+
     return {
         "schema_version": "1.0",
         "gate": "CEW_DUAL_VECTOR_AGREEMENT_v1",
         "authority_state": "DERIVED_REVIEW_EVIDENCE",
-        "canonical_mutation": false,
+        "canonical_mutation": False,
         "outcome": decision,
         "pdf": str(pdf),
         "pdf_sha256": source_hash,
         "page": page_no,
-        "page_size_pt": [py_w, py_h],
+        "page_size_pt": [py_width, py_height],
         "coordinate_mapping": mapping,
-        "extractors": {"pymupdf": py_ver, "docling_parse": dp_ver},
+        "extractors": {
+            "pymupdf": py_version,
+            "docling_parse": dp_version,
+        },
         "tolerance_profile": tol,
-        "segments": seg,
-        "intersections": ints,
+        "segments": segment_result,
+        "intersections": intersection_result,
         "guards": [
             "This result cannot promote DOC or MIS.",
             "This result cannot mutate frozen M0-G geometry.",
@@ -301,34 +412,55 @@ def self_test() -> None:
         "minimum_match_ratio_for_agree": 0.95,
         "minimum_match_ratio_for_partial": 0.80,
     }
-    a = [Segment(0, 0, 10, 0, "A", "line"), Segment(5, -5, 5, 5, "A", "line")]
-    b = [Segment(0.1, 0.1, 10.1, 0.1, "B", "line"), Segment(5.1, -5, 5.1, 5, "B", "line")]
-    m = match_segments(a, b, tol)
-    assert m["match_ratio"] == 1.0
-    ia = unique_intersections(a, 0.1)
-    ib = unique_intersections(b, 0.1)
-    im = match_points(ia, ib, 1.0)
-    assert im["match_ratio"] == 1.0
-    assert outcome(m["match_ratio"], im["match_ratio"], tol) == "AGREE"
+    reference = [
+        Segment(0, 0, 10, 0, "A", "line"),
+        Segment(5, -5, 5, 5, "A", "line"),
+    ]
+    candidate = [
+        Segment(0.1, 0.1, 10.1, 0.1, "B", "line"),
+        Segment(5.1, -5, 5.1, 5, "B", "line"),
+    ]
+    segment_result = match_segments(reference, candidate, tol)
+    assert segment_result["match_ratio"] == 1.0
+    ref_intersections = unique_intersections(reference, 0.1)
+    cand_intersections = unique_intersections(candidate, 0.1)
+    intersection_result = match_points(ref_intersections, cand_intersections, 1.0)
+    assert intersection_result["match_ratio"] == 1.0
+    assert (
+        classify_outcome(
+            segment_result["match_ratio"], intersection_result["match_ratio"], tol
+        )
+        == "AGREE"
+    )
     print("SELF_TEST: PASS")
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Claim-scoped PyMuPDF ↔ Docling Parse vector concordance check.")
-    ap.add_argument("--pdf", type=Path)
-    ap.add_argument("--page", type=int, default=1)
-    ap.add_argument("--contract", type=Path, default=Path("automation/CEW_DUAL_VECTOR_AGREEMENT_CONTRACT_v1.json"))
-    ap.add_argument("--output", type=Path)
-    ap.add_argument("--self-test", action="store_true")
-    args = ap.parse_args()
+    parser = argparse.ArgumentParser(
+        description="Claim-scoped PyMuPDF ↔ Docling Parse vector concordance check."
+    )
+    parser.add_argument("--pdf", type=Path)
+    parser.add_argument("--page", type=int, default=1)
+    parser.add_argument(
+        "--contract",
+        type=Path,
+        default=Path("automation/CEW_DUAL_VECTOR_AGREEMENT_CONTRACT_v1.json"),
+    )
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--self-test", action="store_true")
+    args = parser.parse_args()
+
     if args.self_test:
         self_test()
         return
     if not args.pdf or not args.output:
-        ap.error("--pdf and --output are required unless --self-test is used")
+        parser.error("--pdf and --output are required unless --self-test is used")
+
     result = run(args.pdf, args.page, args.contract)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
+    args.output.write_text(
+        json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     print(f'{result.get("outcome")}: {args.output}')
 
 
