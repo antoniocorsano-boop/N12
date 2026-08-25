@@ -1,23 +1,20 @@
 {
-  "schema_version": "1.2",
+  "schema_version": "1.3",
   "product": "CEW",
   "vertical": "CEW-EX",
   "reference_project": "N12",
   "state_role": "SINGLE_OPERATIONAL_SOURCE_OF_TRUTH",
   "status": "CURRENT",
   "updated": "2026-08-25",
-  "maturity": {
-    "current_level": "L3_INTERACTIVE_ENGINEERING_TWIN_WITH_L4_COMPONENTS",
-    "target_next": "L4_ASSESSMENT_READY",
-    "note": "L4 is not achieved until the calculation-model blockers are closed or explicitly covered by authorized assessment rules."
-  },
+  "maturity": {"current_level":"L3_INTERACTIVE_ENGINEERING_TWIN_WITH_L4_COMPONENTS","target_next":"L4_ASSESSMENT_READY","note":"L4 is not achieved until the calculation-model blockers are closed or explicitly covered by authorized assessment rules."},
   "canonical_documents": {
-    "product_vision": "docs/ARCHITECTURE/CEW_PRODUCT_VISION_AND_EXISTING_WORKFLOW_v1.md",
-    "stakeholder_blueprint": "docs/ARCHITECTURE/CEW_STAKEHOLDER_PRODUCT_BLUEPRINT_v2.md",
-    "full_stakeholder_review": "docs/ARCHITECTURE/CEW_STAKEHOLDER_PRODUCT_REVIEW_FULL_v1.md",
-    "benchmark_review": "docs/RESEARCH/CEW_PRODUCT_BENCHMARK_AND_MATURITY_REVIEW_v1.md",
-    "module_contract": "automation/CEW_PRODUCT_MODULE_CONTRACT_v1.json",
-    "exposure_condition_research": "docs/RESEARCH/CEW_EXPOSURE_CONDITION_RESEARCH_v1.md"
+    "product_vision":"docs/ARCHITECTURE/CEW_PRODUCT_VISION_AND_EXISTING_WORKFLOW_v1.md",
+    "stakeholder_blueprint":"docs/ARCHITECTURE/CEW_STAKEHOLDER_PRODUCT_BLUEPRINT_v2.md",
+    "full_stakeholder_review":"docs/ARCHITECTURE/CEW_STAKEHOLDER_PRODUCT_REVIEW_FULL_v1.md",
+    "benchmark_review":"docs/RESEARCH/CEW_PRODUCT_BENCHMARK_AND_MATURITY_REVIEW_v1.md",
+    "module_contract":"automation/CEW_PRODUCT_MODULE_CONTRACT_v1.json",
+    "exposure_condition_research":"docs/RESEARCH/CEW_EXPOSURE_CONDITION_RESEARCH_v1.md",
+    "r3_b05_b06_routing":"docs/ANALYSIS/CEW_R3_B05_B06_RESOLUTION_ROUTING_v1.md"
   },
   "implemented_modules": [
     {"id":"EVIDENCE_CORE","status":"OPERATIONAL_REFERENCE","gate":"N12 Knowledge System"},
@@ -30,15 +27,15 @@
     {"id":"EXPOSURE_CONDITION_MODEL","status":"OPERATIONAL_V0_EVIDENCE_PENDING","gate":"Validate CEW Exposure Condition"},
     {"id":"PROJECT_CONTROL_ROOM","status":"OPERATIONAL_V0","gate":"Validate CEW Control Room"},
     {"id":"UNIVERSAL_RESIDUAL_WORKSPACE","status":"OPERATIONAL_V0_DATA_CONTRACT","gate":"Validate CEW Control Room"},
-    {"id":"SYNCHRONIZED_EVIDENCE_MAP","status":"IN_PROGRESS_REGION_REVIEW_TOOLING","gate":"Validate CEW Evidence Map"},
-    {"id":"EVIDENCE_REGION_REVIEW_PACK","status":"IN_PROGRESS_V0","gate":"Validate CEW Evidence Region Pack"}
+    {"id":"SYNCHRONIZED_EVIDENCE_MAP","status":"IN_PROGRESS_RESOLUTION_ROUTING","gate":"Validate CEW Evidence Map"},
+    {"id":"EVIDENCE_REGION_REVIEW_PACK","status":"OPERATIONAL_V0_REVIEW_ONLY","gate":"Validate CEW Evidence Region Pack"}
   ],
   "current_calculation_blockers": [
     {"id":"M1E-B01","domain":"CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL","impact":"BLOCKING"},
     {"id":"M1E-B02","domain":"NUMERIC_LOADS_MASSES_AND_COMBINATIONS","impact":"BLOCKING"},
     {"id":"M1E-B04","domain":"FOUNDATION_NUMERIC_Z","impact":"BLOCKING"},
-    {"id":"M1E-B05","domain":"FOUNDATION_SECTION_AND_REINFORCEMENT_COVERAGE","impact":"LOCAL_BLOCKING"},
-    {"id":"M1E-B06","domain":"SUPERSTRUCTURE_REINFORCEMENT_RESIDUALS","impact":"LOCAL_BLOCKING"},
+    {"id":"M1E-B05","domain":"FOUNDATION_SECTION_AND_REINFORCEMENT_COVERAGE","impact":"LOCAL_BLOCKING","routing_class":"CONFIRMED_DOCUMENTARY_GAP"},
+    {"id":"M1E-B06","domain":"SUPERSTRUCTURE_REINFORCEMENT_RESIDUALS","impact":"LOCAL_BLOCKING","routing_class":"SEARCHABLE_DOCUMENTARY_RESIDUAL"},
     {"id":"M1E-B07","domain":"CURRENT_GEOTECHNICAL_MODEL","impact":"BLOCKING"}
   ],
   "roadmap": [
@@ -51,18 +48,19 @@
     {"id":"R7","name":"Intervention Generations","status":"PLANNED","depends_on":["R5"]}
   ],
   "current_work_item": {
-    "id": "CEW-R3-SYNCHRONIZED-EVIDENCE-MAP-V0",
-    "objective": "Create bidirectional navigation between source/evidence context and canonical 3D entities without making the UI or crop geometry an engineering authority.",
-    "branch": "work/cew-r3-evidence-region-review-pack-v0",
-    "state": "IN_PROGRESS",
+    "id":"CEW-R3-SYNCHRONIZED-EVIDENCE-MAP-V0",
+    "objective":"Create bidirectional navigation between source/evidence context and canonical 3D entities without making the UI or crop geometry an engineering authority.",
+    "branch":"work/cew-r3-b05-b06-resolution-routing-v0",
+    "state":"IN_PROGRESS",
     "progress": {
-      "source_context_bound_issues": ["M1E-B02","M1E-B05","M1E-B06"],
-      "canonical_evidence_snippets": 0,
-      "canonical_3d_viewpoints": 0,
-      "last_completed_slice": "PR-52 source-context bindings + linked CURRENT update",
-      "active_subslice": "deterministic B05/B06 Evidence Region Review Pack from immutable archive PDFs",
-      "render_source_mapping": "verified against scripts/render_storey_sources.sh",
-      "target_review_sources": ["TAV01A","TAV02A","TAV034A","TAV05A","TAV06A","TAV07A"]
+      "source_context_bound_issues":["M1E-B02","M1E-B05","M1E-B06"],
+      "confirmed_documentary_gap_issues":["M1E-B05"],
+      "evidence_snippet_candidates":1,
+      "canonical_evidence_snippets":0,
+      "canonical_3d_viewpoints":0,
+      "last_completed_slice":"PR-54 deterministic B05/B06 Evidence Region Review Pack",
+      "active_subslice":"route B05 away from cyclic reread and review locator-based B06 candidates",
+      "first_candidate":"TAV06A P07 -> G5-B017 (DOC_SOURCE_UNBOUND; no reinforcement assignment)"
     }
   },
   "anti_drift_rules": [
@@ -71,7 +69,9 @@
     "There is exactly one current work item; parallel technical tasks are children of it, not competing current states.",
     "Historical architecture/research documents are immutable versioned references; CURRENT state is never reconstructed from conversation memory.",
     "A residual is closed only by evidence, explicit authorized modeling rule, or documented engineering decision with receipt.",
-    "No UI state may become canonical engineering authority."
+    "No UI state may become canonical engineering authority.",
+    "Confirmed documentary gaps must not trigger cyclic blind rereading without a new evidence hypothesis.",
+    "Evidence-link candidates are never counted as approved EvidenceSnippet objects."
   ],
-  "next_action": "Run and validate the deterministic B05/B06 Evidence Region Review Pack. Use its archive-commit/blob-bound 300 dpi tile manifests to identify candidate regions; promote no EvidenceSnippet until an explicit region-to-claim/entity review is recorded."
+  "next_action":"Validate B05/B06 resolution routing and the G5-B017 TAV06A P07 evidence-link candidate; then continue locator-based B06 review for G4 and column residuals. B05 should transition toward additional-source or field-investigation routing rather than whole-sheet rereading."
 }
