@@ -9,6 +9,7 @@ on:
       - 'scripts/n12_raster_line_concordance_gate.py'
       - 'scripts/n12_consensus_intersections.py'
       - 'scripts/n12_consensus_review_overlay.py'
+      - 'scripts/n12_registered_candidate_audit.py'
       - '.github/workflows/vector-concordance-g2-g5.yml'
   push:
     branches:
@@ -19,6 +20,7 @@ on:
       - 'scripts/n12_raster_line_concordance_gate.py'
       - 'scripts/n12_consensus_intersections.py'
       - 'scripts/n12_consensus_review_overlay.py'
+      - 'scripts/n12_registered_candidate_audit.py'
       - '.github/workflows/vector-concordance-g2-g5.yml'
 
 permissions:
@@ -53,6 +55,9 @@ jobs:
 
       - name: Run review overlay self-test
         run: python scripts/n12_consensus_review_overlay.py --self-test
+
+      - name: Run registered candidate audit self-test
+        run: python scripts/n12_registered_candidate_audit.py --self-test
 
       - name: Fetch immutable source archive
         run: git fetch --no-tags --depth=1 origin archive/originali-alta-risoluzione
@@ -92,6 +97,13 @@ jobs:
         run: >-
           python scripts/n12_consensus_review_overlay.py
           --input-root analysis/raster_line_concordance
+
+      - name: Audit retained TAV-06S candidate in registered XY
+        run: >-
+          python scripts/n12_registered_candidate_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-06S
+          --candidate-id I001
 
       - name: Upload non-canonical concordance receipts
         if: always()
