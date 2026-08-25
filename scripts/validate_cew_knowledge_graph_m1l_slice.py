@@ -14,13 +14,15 @@ def epi(raw):
     if 'DOC' in u:return 'DOC'
     if 'RIF' in u:return 'RIF'
     return 'ND'
+def valid_f5_governance(ms):
+    return ms.get('CEW-F5')=='IN_PROGRESS' or (ms.get('CEW-F5')=='COMPLETE' and ms.get('CEW-F6')=='IN_PROGRESS')
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--projection',required=True);a=ap.parse_args();p=json.loads(Path(a.projection).read_text(encoding='utf-8'))
     contract=json.loads(CONTRACT.read_text(encoding='utf-8'))
     if contract.get('projection_slices',{}).get('M1L_LOADS') not in {'IN_SCOPE','PASS'}:raise AssertionError('M1L not authorized')
     if p.get('authority')!='DERIVED_GRAPH_PROJECTION_ONLY':raise AssertionError('authority drift')
     ms={r['milestone_id'].strip():r['status'].strip() for r in rows(MILESTONES)}
-    if ms.get('CEW-F5')!='IN_PROGRESS':raise AssertionError('F5 must remain IN_PROGRESS during slice validation')
+    if not valid_f5_governance(ms):raise AssertionError('F5/F6 milestone governance invalid for M1L slice')
     src={}; expected_kind={}
     for kind,path,idcol in SOURCES:
         for r in rows(path):
@@ -34,8 +36,7 @@ def main():
     expected_zone={(rid,r['source_zone_id'].strip()) for rid,r in src.items() if expected_kind[rid]=='LOAD_PATH' and (r.get('source_zone_id') or '').strip()}
     actual_zone={(b['from_entity_id'],b['to_entity_id']) for b in binds if b['relation']=='CLASSIFIES_SOURCE_ZONE'}
     if actual_zone!=expected_zone or len(binds)!=len(expected_zone):raise AssertionError('source-zone binding drift/invention')
-    numeric=[x for x in ass if x['property_name']=='numeric_value']
-    source_numeric=[]
+    numeric=[x for x in ass if x['property_name']=='numeric_value']; source_numeric=[]
     for rid,r in src.items():
         if expected_kind[rid]!='LOAD_MODEL':continue
         nv=(r.get('numeric_value') or '').strip(); ns=(r.get('numeric_status') or '').strip().upper()
