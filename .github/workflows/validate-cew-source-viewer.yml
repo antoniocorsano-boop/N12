@@ -17,6 +17,7 @@ on:
       - 'knowledge/ARTIFACT_REGISTRY_CEW_SOURCE_FOUNDATION_PATCH_v1.csv'
       - 'knowledge/ARTIFACT_REGISTRY_CEW_EVIDENCE_FOUNDATION_PATCH_v1.csv'
       - 'knowledge/ARTIFACT_REGISTRY_CEW_SOURCE_VIEWER_PATCH_v1.csv'
+      - 'scripts/validate_cew_system_foundation.py'
       - 'scripts/build_cew_source_viewer.py'
       - 'scripts/render_cew_viewer_sources.py'
       - 'scripts/validate_cew_source_viewer.py'
@@ -40,6 +41,7 @@ on:
       - 'knowledge/ARTIFACT_REGISTRY_CEW_SOURCE_FOUNDATION_PATCH_v1.csv'
       - 'knowledge/ARTIFACT_REGISTRY_CEW_EVIDENCE_FOUNDATION_PATCH_v1.csv'
       - 'knowledge/ARTIFACT_REGISTRY_CEW_SOURCE_VIEWER_PATCH_v1.csv'
+      - 'scripts/validate_cew_system_foundation.py'
       - 'scripts/build_cew_source_viewer.py'
       - 'scripts/render_cew_viewer_sources.py'
       - 'scripts/validate_cew_source_viewer.py'
@@ -59,6 +61,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: Validate CEW milestone governance
+        run: python scripts/validate_cew_system_foundation.py
 
       - name: Validate F2 provenance foundation first
         run: |
