@@ -1,46 +1,39 @@
 {
   "contract_id": "CEW-EVIDENCE-PROVENANCE-v1",
   "milestone": "CEW-F2",
-  "required_chain": ["SourceVersion", "Page", "EvidenceRegion", "Observation"],
+  "required_chain": ["SourceVersion", "Page", "PageTransform", "EvidenceRegion", "Observation"],
+  "canonical_region_space": "NORMALIZED_0_1",
+  "viewer_consumption_space": "NORMALIZED_0_1",
   "page_readiness_states": ["READY", "NEEDS_PAGE_METADATA", "UNRESOLVED"],
   "region_readiness_states": ["READY", "NEEDS_PAGE_METADATA", "NEEDS_REGION_LOCALIZATION", "NEEDS_TRANSFORM", "UNRESOLVED"],
   "observation_reading_states": ["READABLE", "PARTIAL", "UNREADABLE", "GRAPHICALLY_DIRECT_PARTIAL", "MIGRATED_NEEDS_REGION"],
   "observation_methods": ["HUMAN", "AI", "DETERMINISTIC_EXTRACTION", "MIGRATED_CANONICAL_EVIDENCE"],
   "coordinate_spaces": {
-    "NORMALIZED_0_1": {
-      "origin": "TOP_LEFT",
-      "x_direction": "RIGHT",
-      "y_direction": "DOWN",
-      "bounds": [0.0, 1.0]
-    },
-    "SOURCE_NATIVE": {
-      "requires_page_dimensions": true,
-      "requires_unit_or_convention": true
-    },
-    "DERIVED_ASSET_PIXELS": {
-      "requires_derived_asset_id": true,
-      "requires_deterministic_transform_to_page": true
-    }
+    "NORMALIZED_0_1": {"origin": "TOP_LEFT", "x_direction": "RIGHT", "y_direction": "DOWN", "bounds": [0.0, 1.0]},
+    "SOURCE_NATIVE": {"origin": "TOP_LEFT", "requires_page_dimensions": true, "requires_unit_or_convention": true},
+    "DERIVED_ASSET_PIXELS": {"origin": "TOP_LEFT", "requires_derived_asset_id": true, "requires_deterministic_transform_to_page": true}
   },
   "region_geometries": ["BBOX", "POLYGON", "FULL_PAGE"],
   "invariants": {
     "ready_page_requires_ready_source_version": true,
     "ready_region_requires_ready_page": true,
+    "ready_region_requires_transform": true,
+    "ready_region_requires_reproducible_derived_asset_when_used_for_inspection": true,
     "ready_observation_requires_ready_region": true,
     "observation_may_assert_structural_binding": false,
     "crop_is_authority_region": false,
+    "derived_asset_is_primary_authority": false,
     "derived_pixel_coordinates_are_source_native": false,
+    "normalized_region_must_roundtrip_to_source_native": true,
+    "normalized_region_must_roundtrip_to_derived_pixels": true,
+    "viewer_must_consume_certified_transform_without_geometry_correction": true,
     "unreadable_fields_may_be_filled_by_context": false,
     "unreadable_fields_may_be_filled_by_ai_confidence": false,
     "existing_canonical_evidence_may_be_migrated_without_region": true,
     "migration_without_region_must_be_explicit": true
   },
   "epistemic_states": ["DOC", "MIS", "RIF", "INF", "ND"],
-  "reference_acceptance_items": [
-    "T5A-G01/G01-R06",
-    "T5A-G07/G07-R07",
-    "T5A-G05/G05-R04",
-    "T6A-G03"
-  ],
-  "acceptance_rule": "EVIDENCE_PROVENANCE_PASS requires all four reference items to resolve from READY immutable SourceVersion through READY Page and exact READY EvidenceRegion to an Observation that preserves readable and unreadable content without structural-binding conflation."
+  "reference_acceptance_items": ["T5A-G01/G01-R06", "T5A-G07/G07-R07", "T5A-G05/G05-R04", "T6A-G03"],
+  "special_binding_rule": {"reference_item": "T6A-G03", "required_structural_binding_state": "UNBOUND", "observation_binding_field_must_remain_empty": true},
+  "acceptance_rule": "EVIDENCE_PROVENANCE_PASS requires all four reference items to be reconstructible from immutable SourceVersion bytes through measured READY Page metadata, an explicit deterministic PageTransform, exact READY EvidenceRegion geometry and a finalized Observation. The same region must round-trip between NORMALIZED_0_1, SOURCE_NATIVE and the registered derived inspection asset without dependence on an originating crop, conversation state, or unproven manual coordinates. T6A-G03 must remain structurally UNBOUND."
 }
