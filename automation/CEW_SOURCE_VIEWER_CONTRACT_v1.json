@@ -1,0 +1,43 @@
+{
+  "contract_id": "CEW-SOURCE-VIEWER-v1",
+  "milestone": "CEW-F3",
+  "purpose": "Provide reproducible deep navigation from a CEW ResolutionTask/EvidenceRegion to the immutable primary-source page without changing engineering authority.",
+  "viewer_engine": {"name": "OpenSeadragon", "version": "5.0.1", "runtime_distribution": "VENDORED_SELF_CONTAINED"},
+  "tile_generator": {"name": "libvips", "format": "DZI", "tile_size": 256, "overlap": 1},
+  "pdf_renderer": {"name": "PyMuPDF", "version": "1.26.4", "minimum_dpi": 300},
+  "reference_tasks": ["ERW-N12-001", "ERW-N12-002", "ERW-N12-003", "ERW-N12-004"],
+  "required_behaviors": [
+    "PAN",
+    "ZOOM",
+    "HOME",
+    "OVERVIEW_NAVIGATOR",
+    "REGION_DEEP_LINK",
+    "TASK_DEEP_LINK",
+    "FIT_EVIDENCE_REGION",
+    "SOURCE_IDENTITY_VISIBLE",
+    "OBSERVATION_STATE_VISIBLE",
+    "PRIMARY_VS_DERIVED_AUTHORITY_VISIBLE"
+  ],
+  "route_contract": {
+    "region": "?region=<evidence_region_id>",
+    "task": "?task=<task_id>",
+    "default": "first reference task"
+  },
+  "authority_invariants": {
+    "primary_pdf_remains_authority": true,
+    "viewer_render_is_derived_review_aid_only": true,
+    "tile_pyramid_is_derived_review_aid_only": true,
+    "viewer_may_write_canonical_data": false,
+    "viewer_may_promote_epistemic_state": false,
+    "enhancement_may_replace_original": false
+  },
+  "build_invariants": {
+    "source_sha256_verified_before_render": true,
+    "archive_commit_pinned": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+    "no_external_runtime_dependency": true,
+    "all_reference_regions_must_be_ready": true,
+    "all_reference_observations_must_be_finalized": true
+  },
+  "acceptance_gate": "SOURCE_VIEWER_PASS",
+  "acceptance_rule": "All four reference tasks must resolve to a READY EvidenceRegion and finalized Observation; the CI build must verify immutable source hashes, generate >=300 dpi page renders and DZI pyramids, vendor OpenSeadragon locally, produce a self-contained viewer manifest and validate every task/region deep-link target."
+}
