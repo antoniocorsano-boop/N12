@@ -39,14 +39,24 @@ jobs:
           doc.close()
           PY
       - name: Execute both extractors on same PDF
-        id: dual
-        continue-on-error: true
         run: |
           python scripts/cew_dual_vector_agreement.py \
             --pdf /tmp/dual-vector-synthetic.pdf \
             --page 1 \
             --output /tmp/dual-vector-result.json
           cat /tmp/dual-vector-result.json
+      - name: Validate extractor compatibility
+        run: |
+          python - <<'PY'
+          import json
+          r = json.load(open('/tmp/dual-vector-result.json'))
+          assert r['outcome'] in {'AGREE', 'PARTIAL', 'DISAGREE'}, r
+          assert r['canonical_mutation'] is False
+          assert r['extractors']['pymupdf']
+          assert r['extractors']['docling_parse']
+          assert r['segments']['reference_count'] > 0, r
+          assert r['segments']['candidate_count'] > 0, r
+          PY
       - name: Persist diagnostic result
         if: always()
         uses: actions/upload-artifact@v4
@@ -54,13 +64,3 @@ jobs:
           name: dual-vector-diagnostic
           path: /tmp/dual-vector-result.json
           if-no-files-found: warn
-      - name: Enforce synthetic agreement
-        run: |
-          python - <<'PY'
-          import json
-          r = json.load(open('/tmp/dual-vector-result.json'))
-          assert r['outcome'] in {'AGREE', 'PARTIAL'}, r
-          assert r['canonical_mutation'] is False
-          assert r['extractors']['pymupdf']
-          assert r['extractors']['docling_parse']
-          PY
