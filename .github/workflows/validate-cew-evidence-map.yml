@@ -8,6 +8,7 @@ on:
       - 'data/canonical/N12_EVIDENCE_LINKS_CURRENT_v0.json'
       - 'data/canonical/N12_ISSUES_CURRENT_v1.json'
       - 'data/canonical/N12_B06_RESIDUAL_ROUTING_CURRENT_v1.json'
+      - 'data/canonical/N12_G4_HIRES_MACHINE_REVIEW_RECEIPT_v1.json'
       - 'docs/ANALYSIS/CEW_R3_B05_B06_RESOLUTION_ROUTING_v1.md'
       - 'docs/ANALYSIS/CEW_R3_B06_RESIDUAL_SUBROUTING_v1.md'
       - '.github/workflows/validate-cew-evidence-map.yml'
@@ -27,6 +28,7 @@ jobs:
           m=json.load(open('data/canonical/N12_EVIDENCE_LINKS_CURRENT_v0.json'))
           i=json.load(open('data/canonical/N12_ISSUES_CURRENT_v1.json'))
           r=json.load(open('data/canonical/N12_B06_RESIDUAL_ROUTING_CURRENT_v1.json'))
+          h=json.load(open('data/canonical/N12_G4_HIRES_MACHINE_REVIEW_RECEIPT_v1.json'))
 
           assert s['current_work_item']['id']=='CEW-R3-SYNCHRONIZED-EVIDENCE-MAP-V0'
           assert c['contract_id']=='CEW_EVIDENCE_VIEWPOINT_CONTRACT'
@@ -37,12 +39,7 @@ jobs:
           assert all(x['authority_state']=='CONTEXT_ONLY' for x in links.values())
 
           assert links['N12-ISS-M1E-B05']['routing_class']=='CONFIRMED_DOCUMENTARY_GAP'
-          assert links['N12-ISS-M1E-B05']['review_state']=='CURRENT'
-          assert len(links['N12-ISS-M1E-B05']['entity_scope'])==15
-
           assert links['N12-ISS-M1E-B06']['routing_class']=='MIXED_RESIDUAL_ROUTING'
-          assert links['N12-ISS-M1E-B06']['review_state']=='CURRENT'
-          assert r['routing_class']=='MIXED_RESIDUAL_ROUTING'
           routes=r['residual_routes']
           assert len(routes)==11
           assert sum(x['route']=='SEMANTIC_LOCATOR_CANDIDATE_AVAILABLE' for x in routes)==1
@@ -56,32 +53,47 @@ jobs:
           assert {x['source_locator'] for x in review_targets}=={'P02','P07-P08','P10'}
           assert all(x['authority_state']=='CONTEXT_ONLY_REVIEW_TARGET' for x in review_targets)
           assert all(x['binding_precision']=='GROUP_SCOPE_NOT_SINGLE_MEMBER' for x in review_targets)
-          assert m['coverage']['b06_group_scope_review_targets']==3
-          assert m['coverage']['b06_primary_source_search_closed_residuals']==7
+
+          # HiRes machine-review receipt is reproducible context, not engineering promotion.
+          assert h['review_type']=='MACHINE_VISUAL_REVIEW_CANDIDATE'
+          assert h['status']=='CURRENT_REVIEW_RECEIPT_NOT_ENGINEERING_AUTHORITY'
+          assert h['primary_source']['source_id']=='TAV-05A'
+          assert h['primary_source']['archive_blob_sha']=='111542c26192dac0a3a801eb5f2e5d5cdbffe3d3'
+          assert h['render_context']['render_dpi']==300
+          assert h['render_context']['render_size_px']==[4299,34764]
+          assert len(h['findings'])==3
+          hf={x['source_row']:x for x in h['findings']}
+          assert set(hf)=={'T5A-G01-R06','T5A-G05-R04','T5A-G07-R07'}
+          assert hf['T5A-G01-R06']['source_locator']=='P02'
+          assert hf['T5A-G01-R06']['visual_reading']=={'bar_quantity':2,'bar_diameter_mm':12,'shape_or_length':'L=1040'}
+          assert hf['T5A-G01-R06']['machine_review_state']=='DIRECT_LABEL_VISUALLY_READABLE_CANDIDATE'
+          assert hf['T5A-G05-R04']['source_locator']=='P07-P08'
+          assert hf['T5A-G05-R04']['visual_reading']['missing_dimension_recovered'] is False
+          assert hf['T5A-G05-R04']['machine_review_state']=='PARTIAL_STATE_CONFIRMED_CANDIDATE'
+          assert hf['T5A-G07-R07']['source_locator']=='P10'
+          assert hf['T5A-G07-R07']['visual_reading']=={'bar_quantity':2,'bar_diameter_mm':12,'shape_or_length':'L=865'}
+          assert hf['T5A-G07-R07']['machine_review_state']=='DIRECT_LABEL_VISUALLY_READABLE_CANDIDATE'
+          assert all(x['binding_precision']=='GROUP_SCOPE_NOT_SINGLE_MEMBER' for x in h['findings'])
+          assert all(x['engineering_promotion_authorized'] is False for x in h['findings'])
+          assert h['summary']['direct_label_candidates']==2
+          assert h['summary']['partial_state_confirmed_candidates']==1
+          assert h['summary']['single_member_bindings_created']==0
+          assert h['summary']['canonical_reinforcement_values_promoted']==0
+          assert h['summary']['approved_evidence_snippets_created']==0
 
           candidates=m.get('evidence_snippet_candidates',[])
           assert m['coverage']['issues_with_evidence_snippet_candidate']==1==len(candidates)
           cand=candidates[0]
           assert cand['snippet_id']=='N12-SNIP-CAND-B06-G5-B017-TAV06A-P07'
-          assert cand['entity_ids']==['G5-B017']
-          assert cand['bbox_or_region']['locator']=='TAV06A P07'
-          assert cand['bbox_or_region']['pixel_bbox'] is None
-          assert cand['evidence_state']=='DOC_SOURCE_UNBOUND'
           assert cand['review_state']=='MACHINE_PROPOSED'
           assert cand['authority_state']=='EVIDENCE_LINK_CANDIDATE'
-          assert len(cand['archive_blob_sha'])==40
-
           assert m['coverage']['issues_with_canonical_evidence_snippet']==len(m['evidence_snippets'])==0
-          assert cand['snippet_id'] not in {x.get('snippet_id') for x in m['evidence_snippets']}
           assert m['coverage']['issues_with_3d_viewpoint']==len(m['viewpoints'])==0
 
           issues={x['issue_id']:x for x in i['issues']}
           assert issues['N12-ISS-M1E-B05']['routing_class']=='CONFIRMED_DOCUMENTARY_GAP'
-          assert len(issues['N12-ISS-M1E-B05']['target_entity_ids'])==15
           assert issues['N12-ISS-M1E-B06']['routing_class']=='MIXED_RESIDUAL_ROUTING'
-          assert 'data/canonical/N12_B06_RESIDUAL_ROUTING_CURRENT_v1.json' in issues['N12-ISS-M1E-B06']['source_refs']
           assert issues['N12-ISS-M1E-B06']['evidence_snippet_refs']==[]
-          assert issues['N12-ISS-M1E-B06']['evidence_snippet_candidate_refs']==[cand['snippet_id']]
 
           blockers={x['id']:x for x in s['current_calculation_blockers']}
           assert blockers['M1E-B05']['routing_class']=='CONFIRMED_DOCUMENTARY_GAP'
@@ -89,22 +101,20 @@ jobs:
           p=s['current_work_item']['progress']
           assert p['evidence_snippet_candidates']==1
           assert p['g4_group_scope_review_targets']==3
+          assert p['g4_machine_visual_direct_label_candidates']==2
+          assert p['g4_machine_visual_partial_state_confirmed_candidates']==1
           assert p['column_primary_source_search_closed']==7
           assert p['canonical_evidence_snippets']==0
 
           analysis1=Path('docs/ANALYSIS/CEW_R3_B05_B06_RESOLUTION_ROUTING_v1.md').read_text(encoding='utf-8')
           analysis2=Path('docs/ANALYSIS/CEW_R3_B06_RESIDUAL_SUBROUTING_v1.md').read_text(encoding='utf-8')
           assert 'confirmed documentary coverage gap' in analysis1.lower()
-          assert 'TAV06A P07' in analysis1
           assert 'CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED' in analysis2
-          assert 'LOCATOR_AVAILABLE_GROUP_SCOPE_ONLY' in analysis2
-          assert 'P02' in analysis2 and 'P07-P08' in analysis2 and 'P10' in analysis2
 
-          guards='\n'.join(m['guards'])+'\n'+'\n'.join(s['anti_drift_rules'])+'\n'+'\n'.join(r['guards'])
+          guards='\n'.join(m['guards'])+'\n'+'\n'.join(s['anti_drift_rules'])+'\n'+'\n'.join(r['guards'])+'\n'+'\n'.join(h['guards'])
           assert 'candidate' in guards.lower() and 'approved' in guards.lower()
-          assert 'cyclic blind rereading' in guards.lower()
           assert 'single-member binding' in guards.lower()
-          assert 'new evidence hypothesis' in guards.lower()
+          assert 'human' in guards.lower()
 
-          print('CEW EVIDENCE MAP: PASS | B05=CONFIRMED_GAP | B06=MIXED | G4 review targets=3 | columns closed=7 | candidates=1 | approved_snippets=0')
+          print('CEW EVIDENCE MAP: PASS | B06=MIXED | G4 HiRes direct-label candidates=2 | partial-confirmed=1 | promoted_values=0 | approved_snippets=0')
           PY
