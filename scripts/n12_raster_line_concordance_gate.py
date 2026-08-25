@@ -194,6 +194,7 @@ def run(args: argparse.Namespace) -> int:
             matches, used_lsd, used_hough = match_lines(lsd, hough, args.coordinate_tolerance_px, args.min_overlap_ratio)
             target = out_root / source_id
             target.mkdir(parents=True, exist_ok=True)
+            pymu_img.save(target / "review_base.png")
             write_segments(target / "opencv_lsd_segments.csv", lsd)
             write_segments(target / "skimage_hough_segments.csv", hough)
             write_matches(target / "matches.csv", matches, lsd, hough)
