@@ -19,6 +19,7 @@ REFERENCE = {
     "T5A-G05/G05-R04",
     "T6A-G03",
 }
+FINAL_READING_STATES = {"READABLE", "PARTIAL", "UNREADABLE", "GRAPHICALLY_DIRECT_PARTIAL"}
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -80,25 +81,39 @@ def main() -> int:
             if not row["migration_note"].strip():
                 raise AssertionError(f"unready region requires migration note: {row['evidence_region_id']}")
 
+    ready_observations: set[str] = set()
+    known_region_ids = {r["evidence_region_id"].strip() for r in regions}
     for row in observations:
         if row["source_version_id"].strip() not in sources:
             raise AssertionError(f"observation references unknown SourceVersion: {row['observation_id']}")
-        if row["evidence_region_id"].strip() not in {r["evidence_region_id"].strip() for r in regions}:
+        region_id = row["evidence_region_id"].strip()
+        if region_id not in known_region_ids:
             raise AssertionError(f"observation references unknown region: {row['observation_id']}")
         if row["structural_binding"].strip():
             raise AssertionError(f"Observation may not assert structural binding: {row['observation_id']}")
+        state = row["reading_state"].strip()
+        if region_id in ready_regions:
+            if state not in FINAL_READING_STATES:
+                raise AssertionError(
+                    f"reference observation on READY region must have finalized reading state: {row['observation_id']}={state}"
+                )
+            ready_observations.add(row["reference_item"].strip())
 
     ready_reference = {
         r["reference_item"].strip() for r in regions
         if r["evidence_region_id"].strip() in ready_regions
     }
-    acceptance = "PASS" if ready_reference == REFERENCE else "HOLD"
+    acceptance = "PASS" if ready_reference == REFERENCE and ready_observations == REFERENCE else "HOLD"
 
     print("CEW EVIDENCE PROVENANCE CONTRACT = PASS")
     print(f"Reference evidence acceptance = {acceptance}")
     if acceptance == "HOLD":
-        missing = sorted(REFERENCE - ready_reference)
-        print("CEW-F2 remains IN_PROGRESS; exact region localization required: " + ", ".join(missing))
+        missing_regions = sorted(REFERENCE - ready_reference)
+        missing_observations = sorted(REFERENCE - ready_observations)
+        if missing_regions:
+            print("Missing READY regions: " + ", ".join(missing_regions))
+        if missing_observations:
+            print("Missing finalized observations: " + ", ".join(missing_observations))
     return 0
 
 
