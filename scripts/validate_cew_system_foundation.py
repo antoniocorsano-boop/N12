@@ -23,6 +23,7 @@ EXPECTED_MILESTONES = [
     "CEW-F0", "CEW-F1", "CEW-F2", "CEW-F3", "CEW-F4",
     "CEW-F5", "CEW-F6", "CEW-F7", "CEW-F8", "CEW-M1", "CEW-M2",
 ]
+ALLOWED_STATUS = {"COMPLETE", "IN_PROGRESS", "PLANNED"}
 
 
 def main() -> int:
@@ -64,21 +65,42 @@ def main() -> int:
         raise AssertionError(f"milestone sequence changed: {ids}")
 
     status = {r["milestone_id"].strip(): r["status"].strip() for r in rows}
-    if status["CEW-F0"] != "COMPLETE" or status["CEW-F1"] != "COMPLETE":
-        raise AssertionError("CEW-F0 and CEW-F1 must remain COMPLETE")
-    if status["CEW-F2"] != "IN_PROGRESS":
-        raise AssertionError("CEW-F2 must be the active foundation milestone")
-    active = [mid for mid, value in status.items() if value == "IN_PROGRESS"]
-    if active != ["CEW-F2"]:
-        raise AssertionError(f"exactly CEW-F2 must be IN_PROGRESS, got {active}")
+    bad_status = {mid: value for mid, value in status.items() if value not in ALLOWED_STATUS}
+    if bad_status:
+        raise AssertionError(f"invalid milestone status values: {bad_status}")
+
+    active = [mid for mid in ids if status[mid] == "IN_PROGRESS"]
+    if len(active) != 1:
+        raise AssertionError(f"exactly one milestone must be IN_PROGRESS, got {active}")
+    active_id = active[0]
+    active_index = ids.index(active_id)
+
+    for idx, mid in enumerate(ids):
+        expected = "COMPLETE" if idx < active_index else "IN_PROGRESS" if idx == active_index else "PLANNED"
+        if status[mid] != expected:
+            raise AssertionError(
+                f"milestone lifecycle must be a COMPLETE prefix, one IN_PROGRESS item, then PLANNED suffix: "
+                f"{mid}={status[mid]} expected={expected}"
+            )
+
+    rows_by_id = {r["milestone_id"].strip(): r for r in rows}
+    deps = [d.strip() for d in rows_by_id[active_id]["depends_on"].split(";") if d.strip()]
+    unknown_deps = [d for d in deps if d not in status]
+    if unknown_deps:
+        raise AssertionError(f"active milestone has unknown dependencies: {unknown_deps}")
+    incomplete_deps = [d for d in deps if status[d] != "COMPLETE"]
+    if incomplete_deps:
+        raise AssertionError(f"active milestone dependencies are not COMPLETE: {incomplete_deps}")
+
     if any(not r["acceptance_gate"].strip() for r in rows):
         raise AssertionError("every milestone requires an acceptance gate")
     if any(not r["required_deliverables"].strip() for r in rows):
         raise AssertionError("every milestone requires deliverables")
 
+    completed = [mid for mid in ids if status[mid] == "COMPLETE"]
     print("CEW SYSTEM FOUNDATION = PASS")
-    print("Completed milestones: CEW-F0, CEW-F1")
-    print("Active milestone: CEW-F2")
+    print("Completed milestones: " + ", ".join(completed))
+    print(f"Active milestone: {active_id}")
     print("Epistemic regime: DOC/MIS/RIF/INF/ND")
     print("Authority flow: PRIMARY_SOURCE -> OBSERVATION -> CANONICAL_KNOWLEDGE -> ANALYSIS_ASSUMPTION -> CALCULATION_MODEL -> RESULT")
     print(f"Milestones validated: {len(rows)}")
