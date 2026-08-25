@@ -17,6 +17,8 @@ on:
       - 'scripts/validate_cew_promotion_engine.py'
       - 'scripts/build_cew_promotion_orchestration.py'
       - 'scripts/validate_cew_promotion_orchestration.py'
+      - 'scripts/build_cew_canonical_patch_candidates.py'
+      - 'scripts/validate_cew_governed_writer_boundary.py'
       - '.github/workflows/validate-cew-promotion-engine.yml'
   push:
     branches:
@@ -36,6 +38,8 @@ on:
       - 'scripts/validate_cew_promotion_engine.py'
       - 'scripts/build_cew_promotion_orchestration.py'
       - 'scripts/validate_cew_promotion_orchestration.py'
+      - 'scripts/build_cew_canonical_patch_candidates.py'
+      - 'scripts/validate_cew_governed_writer_boundary.py'
       - '.github/workflows/validate-cew-promotion-engine.yml'
   workflow_dispatch:
 
@@ -71,12 +75,20 @@ jobs:
             --out cew-f7-orchestration
       - name: Validate residual priority and snapshot integrity
         run: python scripts/validate_cew_promotion_orchestration.py --orchestration cew-f7-orchestration/promotion_orchestration.json
-      - name: Upload F7 promotion and orchestration receipts
+      - name: Emit patch candidates without canonical write
+        run: |
+          python scripts/build_cew_canonical_patch_candidates.py \
+            --evaluations cew-f7-promotion/promotion_evaluations.json \
+            --out cew-f7-patch-candidates
+      - name: Prove governed writer authority boundary
+        run: python scripts/validate_cew_governed_writer_boundary.py --candidates cew-f7-patch-candidates/canonical_patch_candidates.json
+      - name: Upload F7 promotion orchestration and patch-candidate receipts
         uses: actions/upload-artifact@v4
         with:
           name: cew-f7-promotion-engine-slice
           path: |
             cew-f7-promotion/
             cew-f7-orchestration/
+            cew-f7-patch-candidates/
           if-no-files-found: error
           retention-days: 14
