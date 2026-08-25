@@ -16,8 +16,22 @@
     "FIT_EVIDENCE_REGION",
     "SOURCE_IDENTITY_VISIBLE",
     "OBSERVATION_STATE_VISIBLE",
-    "PRIMARY_VS_DERIVED_AUTHORITY_VISIBLE"
+    "PRIMARY_VS_DERIVED_AUTHORITY_VISIBLE",
+    "ORIGINAL_MODE_EXPLICIT",
+    "ENHANCED_MODE_SEPARATE_AND_DISABLED_UNTIL_REGISTERED"
   ],
+  "view_modes": {
+    "ORIGINAL": {
+      "state": "ENABLED",
+      "asset": "300dpi technical render reproduced from digest-verified immutable primary PDF",
+      "authority": "DERIVED_REVIEW_AID_ONLY"
+    },
+    "ENHANCED": {
+      "state": "DISABLED_UNTIL_REGISTERED_DERIVATIVE_EXISTS",
+      "authority": "DERIVED_ASSISTIVE_ONLY",
+      "rule": "Any enhancement must be separately registered, reversible and may never replace ORIGINAL or increase epistemic authority."
+    }
+  },
   "route_contract": {
     "region": "?region=<evidence_region_id>",
     "task": "?task=<task_id>",
@@ -39,5 +53,5 @@
     "all_reference_observations_must_be_finalized": true
   },
   "acceptance_gate": "SOURCE_VIEWER_PASS",
-  "acceptance_rule": "All four reference tasks must resolve to a READY EvidenceRegion and finalized Observation; the CI build must verify immutable source hashes, generate >=300 dpi page renders and DZI pyramids, vendor OpenSeadragon locally, produce a self-contained viewer manifest and validate every task/region deep-link target."
+  "acceptance_rule": "All four reference tasks must resolve to a READY EvidenceRegion and finalized Observation; the CI build must verify immutable source hashes, generate >=300 dpi page renders and DZI pyramids, vendor OpenSeadragon locally, expose ORIGINAL separately from any future enhanced derivative, produce a self-contained viewer manifest and validate every task/region deep-link target."
 }
