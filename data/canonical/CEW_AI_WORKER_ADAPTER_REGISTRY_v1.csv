@@ -1,0 +1,4 @@
+worker_id,worker_type,scope,input_contract,output_contract,max_epistemic_state,may_write_canonical,may_modify_f2_geometry,may_bind_unbound_entity,status,notes
+CEW-WORKER-LAYOUT-v1,LAYOUT,"page/region spatial organization only",EvidencePack,WorkerEnvelope,MIS,NO,NO,NO,ACTIVE,"May describe visible layout relationships; cannot establish documentary text values or structural identity."
+CEW-WORKER-TEXT-v1,TEXT,"literal transcription and readability classification",EvidencePack,WorkerEnvelope,DOC,NO,NO,NO,ACTIVE,"May transcribe directly readable source text; unreadable characters/values must remain UNREADABLE or ND."
+CEW-WORKER-REINF-v1,REINFORCEMENT,"reinforcement symbols/details bounded to supplied region",EvidencePack,WorkerEnvelope,DOC,NO,NO,NO,ACTIVE,"May propose evidence-bound reinforcement observations; may not infer missing quantity/diameter/dimensions or bind an UNBOUND structural entity."
