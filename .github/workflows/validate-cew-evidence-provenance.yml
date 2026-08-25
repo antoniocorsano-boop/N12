@@ -8,6 +8,7 @@ on:
       - 'data/canonical/CEW_DERIVED_ASSET_REGISTRY_v1.csv'
       - 'data/canonical/CEW_COORDINATE_TRANSFORM_REGISTRY_v1.csv'
       - 'data/canonical/CEW_F2_LOCALIZATION_RECEIPT_v1.csv'
+      - 'data/canonical/CEW_F2_BINDING_GUARD_v1.csv'
       - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
       - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
       - 'scripts/validate_cew_evidence_provenance.py'
