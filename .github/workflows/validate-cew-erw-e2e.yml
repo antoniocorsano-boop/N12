@@ -1,0 +1,53 @@
+name: Validate CEW ERW End To End
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_ERW_CONTRACT_v1.json'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/M1E_B06_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv'
+      - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_SOURCE_VIEWER_PATCH_v1.csv'
+      - 'scripts/build_cew_erw_queue.py'
+      - 'scripts/validate_cew_erw_queue.py'
+      - 'scripts/build_cew_erw_decision_receipts.py'
+      - 'scripts/validate_cew_erw_e2e.py'
+      - '.github/workflows/validate-cew-erw-e2e.yml'
+  push:
+    branches:
+      - 'work/cew-f6-erw-from-fdd541'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  erw-e2e:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate CEW governance
+        run: python scripts/validate_cew_system_foundation.py
+      - name: Snapshot authority ledgers
+        run: |
+          sha256sum data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv data/canonical/M1E_B06_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv > /tmp/cew-e2e-before.sha256
+      - name: Build and validate evidence-bounded queue
+        run: |
+          python scripts/build_cew_erw_queue.py --out cew-f6-erw-queue
+          python scripts/validate_cew_erw_queue.py --bundle cew-f6-erw-queue/erw_queue_bundle.json
+      - name: Build non-human conformance decision receipts
+        run: python scripts/build_cew_erw_decision_receipts.py --queue-bundle cew-f6-erw-queue/erw_queue_bundle.json --out cew-f6-erw-e2e
+      - name: Validate decision and promotion boundary
+        run: python scripts/validate_cew_erw_e2e.py --queue-bundle cew-f6-erw-queue/erw_queue_bundle.json --receipts cew-f6-erw-e2e/decision_receipts.json
+      - name: Prove authority ledgers were not mutated
+        run: sha256sum --check /tmp/cew-e2e-before.sha256
+      - name: Upload decision receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-f6-erw-e2e-receipts
+          path: cew-f6-erw-e2e/
+          if-no-files-found: error
+          retention-days: 14
