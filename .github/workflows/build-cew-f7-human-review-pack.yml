@@ -1,0 +1,93 @@
+name: Build CEW F7 Human Review Pack
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_HUMAN_DECISION_INTAKE_CONTRACT_v1.json'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'scripts/build_cew_source_viewer.py'
+      - 'scripts/render_cew_viewer_sources.py'
+      - 'scripts/build_cew_f7_human_review_pack.py'
+      - 'scripts/validate_cew_f7_human_review_pack.py'
+      - '.github/workflows/build-cew-f7-human-review-pack.yml'
+  push:
+    branches:
+      - 'work/cew-f7-human-decision-intake-from-f149'
+    paths:
+      - 'automation/CEW_HUMAN_DECISION_INTAKE_CONTRACT_v1.json'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'scripts/build_cew_source_viewer.py'
+      - 'scripts/render_cew_viewer_sources.py'
+      - 'scripts/build_cew_f7_human_review_pack.py'
+      - 'scripts/validate_cew_f7_human_review_pack.py'
+      - '.github/workflows/build-cew-f7-human-review-pack.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  human-review-pack:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate CEW governance and F2 provenance
+        run: |
+          python scripts/validate_cew_system_foundation.py
+          python scripts/validate_cew_source_identity.py
+          python scripts/validate_cew_evidence_provenance.py
+      - name: Fetch immutable N12 primary PDFs
+        run: |
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+          mkdir -p /tmp/cew-primary
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola 5-3.pdf" > /tmp/cew-primary/tavola5-3.pdf
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola 6.pdf" > /tmp/cew-primary/tavola6.pdf
+      - name: Install pinned viewer dependencies
+        run: |
+          python -m pip install --disable-pip-version-check 'PyMuPDF==1.26.4'
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libvips-tools
+      - name: Render immutable primary sources at 300 dpi
+        run: |
+          python scripts/render_cew_viewer_sources.py \
+            --dpi 300 \
+            --out-dir cew-f7-review-render \
+            --source TAV-05A /tmp/cew-primary/tavola5-3.pdf 17dec414f0f0505e2cd2acb519029afba7672df1793a580badb8b59b6214f325 \
+            --source TAV-06A /tmp/cew-primary/tavola6.pdf 3f2d557fe6d3c65eb0891b1fd4f0f6f2a0a4b6cd0efe22a06604a5c341fc9c6d
+      - name: Generate DZI pyramids and source viewer
+        run: |
+          mkdir -p cew-f7-review-viewer/tiles
+          vips dzsave cew-f7-review-render/TAV-05A/TAV-05A_p001_300dpi.png cew-f7-review-viewer/tiles/TAV-05A --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
+          vips dzsave cew-f7-review-render/TAV-06A/TAV-06A_p001_300dpi.png cew-f7-review-viewer/tiles/TAV-06A --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
+          python scripts/build_cew_source_viewer.py --out-dir cew-f7-review-viewer
+          PKG=$(npm pack openseadragon@5.0.1 --silent)
+          tar -xzf "$PKG"
+          mkdir -p cew-f7-review-viewer/vendor/openseadragon
+          cp package/build/openseadragon/openseadragon.min.js cew-f7-review-viewer/vendor/openseadragon/
+          cp -R package/build/openseadragon/images cew-f7-review-viewer/vendor/openseadragon/
+      - name: Build empty human decision intake UI
+        run: |
+          python scripts/build_cew_f7_human_review_pack.py \
+            --source-viewer-dir cew-f7-review-viewer \
+            --out cew-f7-human-review-pack
+      - name: Validate no-prefill and authority boundary
+        run: python scripts/validate_cew_f7_human_review_pack.py --built-dir cew-f7-human-review-pack
+      - name: Upload technician review pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-f7-human-review-pack
+          path: cew-f7-human-review-pack/
+          if-no-files-found: error
+          retention-days: 14
