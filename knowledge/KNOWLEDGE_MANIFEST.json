@@ -23,7 +23,8 @@
     "knowledge/ARTIFACT_REGISTRY_CEW_FOUNDATION_PATCH_v1.csv",
     "knowledge/ARTIFACT_REGISTRY_CEW_SOURCE_FOUNDATION_PATCH_v1.csv",
     "knowledge/ARTIFACT_REGISTRY_CEW_EVIDENCE_FOUNDATION_PATCH_v1.csv",
-    "knowledge/ARTIFACT_REGISTRY_CEW_SOURCE_VIEWER_PATCH_v1.csv"
+    "knowledge/ARTIFACT_REGISTRY_CEW_SOURCE_VIEWER_PATCH_v1.csv",
+    "knowledge/ARTIFACT_REGISTRY_CEW_AI_OBSERVATION_PATCH_v1.csv"
   ],
   "human_master_register": "docs/REGISTRO_MASTER.md",
   "revalidation_ledger": "data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv",
