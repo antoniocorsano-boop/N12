@@ -62,14 +62,22 @@ def main() -> int:
     ids = [r["milestone_id"].strip() for r in rows]
     if ids != EXPECTED_MILESTONES:
         raise AssertionError(f"milestone sequence changed: {ids}")
-    if rows[0]["status"].strip() != "IN_PROGRESS":
-        raise AssertionError("CEW-F0 must be IN_PROGRESS until this gate is integrated")
+
+    status = {r["milestone_id"].strip(): r["status"].strip() for r in rows}
+    if status["CEW-F0"] != "COMPLETE":
+        raise AssertionError("CEW-F0 must remain COMPLETE after canonical integration")
+    if status["CEW-F1"] != "IN_PROGRESS":
+        raise AssertionError("CEW-F1 must be the active foundation milestone")
+    active = [mid for mid, value in status.items() if value == "IN_PROGRESS"]
+    if active != ["CEW-F1"]:
+        raise AssertionError(f"exactly CEW-F1 must be IN_PROGRESS, got {active}")
     if any(not r["acceptance_gate"].strip() for r in rows):
         raise AssertionError("every milestone requires an acceptance gate")
     if any(not r["required_deliverables"].strip() for r in rows):
         raise AssertionError("every milestone requires deliverables")
 
     print("CEW SYSTEM FOUNDATION = PASS")
+    print("Active milestone: CEW-F1")
     print("Epistemic regime: DOC/MIS/RIF/INF/ND")
     print("Authority flow: PRIMARY_SOURCE -> OBSERVATION -> CANONICAL_KNOWLEDGE -> ANALYSIS_ASSUMPTION -> CALCULATION_MODEL -> RESULT")
     print(f"Milestones validated: {len(rows)}")
