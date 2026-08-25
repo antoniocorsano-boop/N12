@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import csv
 import hashlib
-import io
 import json
 import math
 import re
@@ -52,12 +51,15 @@ def main() -> int:
             raise AssertionError(f"missing strict F2 invariant: {key}")
     if inv.get("viewer_may_correct_evidence_geometry") is not False:
         raise AssertionError("F3 must not correct F2 geometry")
+    if inv.get("observation_may_assert_structural_member_binding") is not False:
+        raise AssertionError("Observation must remain outside structural binding authority")
 
     sources = {r["source_version_id"]: r for r in rows("data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv")}
     pages = {r["page_id"]: r for r in rows("data/canonical/CEW_PAGE_REGISTRY_v1.csv")}
     assets = {r["derived_asset_id"]: r for r in rows("data/canonical/CEW_DERIVED_ASSET_REGISTRY_v1.csv")}
     transforms = {r["transform_id"]: r for r in rows("data/canonical/CEW_COORDINATE_TRANSFORM_REGISTRY_v1.csv")}
     receipts = {r["evidence_region_id"]: r for r in rows("data/canonical/CEW_F2_LOCALIZATION_RECEIPT_v1.csv")}
+    guards = {r["reference_item"]: r for r in rows("data/canonical/CEW_F2_BINDING_GUARD_v1.csv")}
     regions = rows("data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv")
     observations = {r["reference_item"]: r for r in rows("data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv")}
 
@@ -65,8 +67,10 @@ def main() -> int:
         raise AssertionError("reference region set mismatch")
     if set(observations) != REFERENCE:
         raise AssertionError("reference observation set mismatch")
+    guard = guards.get("T6A-G03")
+    if not guard or guard["structural_binding_state"] != "UNBOUND" or guard["applies_to_observation_field"].lower() != "false":
+        raise AssertionError("T6A-G03 requires a separate UNBOUND structural binding guard")
 
-    source_bytes: dict[str, bytes] = {}
     source_docs: dict[str, fitz.Document] = {}
     for source_id, src in sources.items():
         if src["readiness_state"] != "READY":
@@ -74,7 +78,6 @@ def main() -> int:
         payload = materialize(src["storage_locator"])
         if hashlib.sha256(payload).hexdigest() != src["sha256"]:
             raise AssertionError(f"source digest mismatch: {source_id}")
-        source_bytes[source_id] = payload
         source_docs[source_id] = fitz.open(stream=payload, filetype="pdf")
 
     for page_id, page in pages.items():
@@ -161,11 +164,8 @@ def main() -> int:
             raise AssertionError(f"Observation -> EvidenceRegion link mismatch: {ref}")
         if obs["reading_state"] not in FINAL_STATES:
             raise AssertionError(f"observation not finalized: {ref}")
-        if ref == "T6A-G03":
-            if obs["structural_binding"] != "UNBOUND":
-                raise AssertionError("T6A-G03 must remain structurally UNBOUND")
-        elif obs["structural_binding"]:
-            raise AssertionError(f"F2 observation must not assert structural binding: {ref}")
+        if obs["structural_binding"]:
+            raise AssertionError(f"Observation must not carry structural binding: {ref}")
         ready.add(ref)
 
     if ready != REFERENCE:
@@ -173,7 +173,7 @@ def main() -> int:
 
     print("CEW F2 REPRODUCIBLE EVIDENCE CHAINS = 4/4")
     print("EVIDENCE_PROVENANCE_PASS")
-    print("T6A-G03 STRUCTURAL_BINDING = UNBOUND")
+    print("T6A-G03 STRUCTURAL_BINDING_GUARD = UNBOUND")
     return 0
 
 
