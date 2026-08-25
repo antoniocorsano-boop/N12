@@ -1,0 +1,40 @@
+name: Validate CEW Human Decision Receipt
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_HUMAN_DECISION_RECEIPT_SCHEMA_v1.json'
+      - 'automation/CEW_HUMAN_DECISION_INTAKE_CONTRACT_v1.json'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_PROMOTION_TARGET_REGISTRY_v1.csv'
+      - 'scripts/validate_cew_human_decision_receipt.py'
+      - '.github/workflows/validate-cew-human-decision-receipt.yml'
+  push:
+    branches:
+      - 'work/cew-f7-human-receipt-validation-from-ab3954'
+    paths:
+      - 'automation/CEW_HUMAN_DECISION_RECEIPT_SCHEMA_v1.json'
+      - 'automation/CEW_HUMAN_DECISION_INTAKE_CONTRACT_v1.json'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_PROMOTION_TARGET_REGISTRY_v1.csv'
+      - 'scripts/validate_cew_human_decision_receipt.py'
+      - '.github/workflows/validate-cew-human-decision-receipt.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  human-receipt-validator:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate CEW milestone governance
+        run: python scripts/validate_cew_system_foundation.py
+      - name: Prove human receipt negative guards
+        run: python scripts/validate_cew_human_decision_receipt.py --negative-self-test

@@ -1,0 +1,43 @@
+{
+  "schema_id": "CEW-HUMAN-DECISION-RECEIPT-v1",
+  "milestone": "CEW-F7",
+  "authority": "HUMAN_REVIEW_RECEIPT_INPUT_ONLY",
+  "required_fields": [
+    "schema_version",
+    "decision_id",
+    "task_id",
+    "residual_id",
+    "review_mode",
+    "reviewer",
+    "timestamp",
+    "outcome",
+    "human_observation",
+    "evidence_regions",
+    "source_versions",
+    "direct_primary_evidence_observed",
+    "requested_epistemic_state",
+    "target_id",
+    "reopen_approval_id",
+    "authority_acknowledgement"
+  ],
+  "fixed_values": {
+    "schema_version": "1.0",
+    "review_mode": "HUMAN_REVIEW"
+  },
+  "allowed_outcomes": ["CONFIRMED", "REJECTED", "UNREADABLE", "UNBOUND", "NEEDS_BETTER_SOURCE", "NEEDS_SITE_SURVEY", "DEFER"],
+  "allowed_requested_states": ["ND", "INF", "RIF", "MIS", "DOC"],
+  "non_promotive_outcomes": ["REJECTED", "UNREADABLE", "UNBOUND", "NEEDS_BETTER_SOURCE", "NEEDS_SITE_SURVEY", "DEFER"],
+  "canonical_binding_rules": {
+    "task_residual_pair_must_match_registry": true,
+    "evidence_regions_must_equal_task_viewer_binding": true,
+    "source_versions_must_equal_task_viewer_binding": true,
+    "target_must_be_registered_active": true,
+    "confirmed_requires_target": true,
+    "confirmed_requires_direct_primary_true": true,
+    "confirmed_requires_nonempty_human_observation": true,
+    "non_promotive_target_must_be_empty": true,
+    "geometry_sensitive_target_requires_nonempty_reopen_approval_id": true,
+    "receipt_never_executes_canonical_write": true
+  },
+  "authority_acknowledgement_exact": "I reviewed the cited immutable primary-source evidence and understand this receipt is not itself a canonical write."
+}
