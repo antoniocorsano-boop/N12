@@ -1,4 +1,4 @@
-name: Experimental vector concordance G2-G5
+name: Experimental source concordance G2-G5
 
 on:
   workflow_dispatch:
@@ -6,6 +6,7 @@ on:
     paths:
       - 'requirements-vector-concordance.txt'
       - 'scripts/n12_vector_concordance_gate.py'
+      - 'scripts/n12_raster_line_concordance_gate.py'
       - '.github/workflows/vector-concordance-g2-g5.yml'
   push:
     branches:
@@ -13,6 +14,7 @@ on:
     paths:
       - 'requirements-vector-concordance.txt'
       - 'scripts/n12_vector_concordance_gate.py'
+      - 'scripts/n12_raster_line_concordance_gate.py'
       - '.github/workflows/vector-concordance-g2-g5.yml'
 
 permissions:
@@ -21,7 +23,7 @@ permissions:
 jobs:
   concordance:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout experiment branch
         uses: actions/checkout@v4
@@ -33,16 +35,19 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install parser pair
+      - name: Install parser and detector pairs
         run: python -m pip install -r requirements-vector-concordance.txt
 
-      - name: Run deterministic matcher self-test
+      - name: Run vector matcher self-test
         run: python scripts/n12_vector_concordance_gate.py --self-test
+
+      - name: Run raster matcher self-test
+        run: python scripts/n12_raster_line_concordance_gate.py --self-test
 
       - name: Fetch immutable source archive
         run: git fetch --no-tags --depth=1 origin archive/originali-alta-risoluzione
 
-      - name: Diagnose and measure PyMuPDF-Docling concordance
+      - name: Diagnose PDF vector availability
         run: >-
           python scripts/n12_vector_concordance_gate.py
           --archive-ref FETCH_HEAD
@@ -51,10 +56,24 @@ jobs:
           --axis-tolerance-deg 0.75
           --match-tolerance-pt 1.5
 
-      - name: Upload non-canonical measurement receipt
+      - name: Measure independent raster line concordance
+        run: >-
+          python scripts/n12_raster_line_concordance_gate.py
+          --archive-ref FETCH_HEAD
+          --out-dir analysis/raster_line_concordance
+          --max-dimension-px 2200
+          --min-length-px 120
+          --min-length-fraction 0.05
+          --axis-tolerance-deg 1.0
+          --coordinate-tolerance-px 8.0
+          --min-overlap-ratio 0.65
+
+      - name: Upload non-canonical concordance receipts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: vector-concordance-g2-g5
-          path: analysis/vector_concordance/
+          name: source-concordance-g2-g5
+          path: |
+            analysis/vector_concordance/
+            analysis/raster_line_concordance/
           if-no-files-found: warn
