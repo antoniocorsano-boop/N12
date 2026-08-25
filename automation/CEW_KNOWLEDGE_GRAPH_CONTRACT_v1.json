@@ -14,9 +14,9 @@
   "binding_required_fields": ["binding_id", "from_entity_id", "relation", "to_entity_id", "epistemic_state", "source_ledger", "source_record_id"],
   "temporal_states": ["CURRENT", "HISTORICAL", "SUPERSEDED", "TOMBSTONE"],
   "projection_slices": {
-    "M0G_MEMBERS": "IN_SCOPE",
-    "M1A_REINFORCEMENT": "IN_SCOPE",
-    "M1L_LOADS": "IN_SCOPE"
+    "M0G_MEMBERS": "PASS",
+    "M1A_REINFORCEMENT": "PASS",
+    "M1L_LOADS": "PASS"
   },
   "slice_rules": {
     "M1A_REINFORCEMENT": "Project source reinforcement rows and documentary group bindings only; UNKNOWN/ND values remain absent and member/station bindings are forbidden unless already source-proven.",
