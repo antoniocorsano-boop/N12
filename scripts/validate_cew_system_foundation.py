@@ -30,19 +30,25 @@ def main() -> int:
     ids = [r["milestone_id"].strip() for r in rows]
     if ids != EXPECTED_MILESTONES: raise AssertionError(f"milestone sequence changed: {ids}")
     status = {r["milestone_id"].strip(): r["status"].strip() for r in rows}
-    if any(status[mid] != "COMPLETE" for mid in ("CEW-F0","CEW-F1","CEW-F2","CEW-F3","CEW-F4","CEW-F5")): raise AssertionError("CEW-F0 through CEW-F5 must remain COMPLETE after KNOWLEDGE_GRAPH_PASS")
-    if status["CEW-F6"] != "IN_PROGRESS": raise AssertionError("CEW-F6 must be active after KNOWLEDGE_GRAPH_PASS")
-    active = [mid for mid, value in status.items() if value == "IN_PROGRESS"]
-    if active != ["CEW-F6"]: raise AssertionError(f"exactly CEW-F6 must be IN_PROGRESS, got {active}")
+    if any(v not in {"COMPLETE","IN_PROGRESS","PLANNED"} for v in status.values()): raise AssertionError(f"invalid milestone status: {status}")
+    active = [mid for mid in EXPECTED_MILESTONES if status[mid] == "IN_PROGRESS"]
+    if len(active) != 1: raise AssertionError(f"exactly one milestone must be IN_PROGRESS, got {active}")
+    active_mid = active[0]
+    active_idx = EXPECTED_MILESTONES.index(active_mid)
+    for i, mid in enumerate(EXPECTED_MILESTONES):
+        expected = "COMPLETE" if i < active_idx else "IN_PROGRESS" if i == active_idx else "PLANNED"
+        if status[mid] != expected:
+            raise AssertionError(f"milestone progression must be monotonic: {mid}={status[mid]}, expected {expected} with active={active_mid}")
     if any(not r["acceptance_gate"].strip() for r in rows): raise AssertionError("every milestone requires an acceptance gate")
     if any(not r["required_deliverables"].strip() for r in rows): raise AssertionError("every milestone requires deliverables")
+    completed = EXPECTED_MILESTONES[:active_idx]
     print("CEW SYSTEM FOUNDATION = PASS")
-    print("Completed milestones: CEW-F0, CEW-F1, CEW-F2, CEW-F3, CEW-F4, CEW-F5")
-    print("Active milestone: CEW-F6")
-    print("F2 closure gate: EVIDENCE_PROVENANCE_PASS")
-    print("F3 closure gate: SOURCE_VIEWER_PASS")
-    print("F4 closure gate: AI_OBSERVATION_PASS")
-    print("F5 closure gate: KNOWLEDGE_GRAPH_PASS")
+    print("Completed milestones: " + ", ".join(completed))
+    print("Active milestone: " + active_mid)
+    gates = {r["milestone_id"].strip(): r["acceptance_gate"].strip() for r in rows}
+    for mid in ("CEW-F2","CEW-F3","CEW-F4","CEW-F5","CEW-F6"):
+        if mid in completed:
+            print(f"{mid} closure gate: {gates[mid]}")
     print("Epistemic regime: DOC/MIS/RIF/INF/ND")
     print("Authority flow: PRIMARY_SOURCE -> OBSERVATION -> CANONICAL_KNOWLEDGE -> ANALYSIS_ASSUMPTION -> CALCULATION_MODEL -> RESULT")
     print(f"Milestones validated: {len(rows)}")
