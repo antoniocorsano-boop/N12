@@ -1,0 +1,2 @@
+PyMuPDF>=1.27.2,<1.28
+docling-parse==7.14.0
