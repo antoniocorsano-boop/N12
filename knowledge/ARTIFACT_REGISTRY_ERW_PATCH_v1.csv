@@ -1,0 +1,4 @@
+artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validation_method,replaces_or_relates,note
+PROC-ERW-001,docs/ARCHITECTURE/CEW_EVIDENCE_RESOLUTION_WORKSPACE_v1.md,EVIDENCE_RESOLUTION,ARCHITECTURE_SPEC,PROCEDURE,CURRENT,YES,manual+system-validator,CEW viewer/evidence/control-room family,"Human/product architecture for deep drawing review synchronized 2D/3D adjudication provenance and promotion boundaries."
+CONTRACT-ERW-001,automation/CEW_ERW_CONTRACT_v1.json,EVIDENCE_RESOLUTION,MACHINE_CONTRACT,PROCEDURE,CURRENT,YES,system-validator,PROC-ERW-001,"Machine-readable ERW states outcomes anomaly classes data contracts delivery slices and non-goals."
+DATA-ERW-001,data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv,EVIDENCE_RESOLUTION,RESOLUTION_TASK_REGISTER,CANONICAL,CURRENT,YES,ERW validator,CONTRACT-ERW-001,"Initial N12 evidence-resolution task register; tasks preserve residual linkage blocking scope and epistemic ceilings."

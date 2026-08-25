@@ -1,0 +1,114 @@
+{
+  "contract_id": "CEW-ERW-v1",
+  "name": "CEW Evidence Resolution Workspace",
+  "status": "PROPOSED_IMPLEMENTATION_BASELINE",
+  "purpose": "Human adjudication of incomplete, ambiguous, conflicting, partially readable or source-unbound structural evidence.",
+  "authority_rule": "Primary source remains immutable authority. Viewer enhancements, overlays, 3D interpretation and machine suggestions are derivative assistive layers only.",
+  "epistemic_states": ["DOC", "MIS", "RIF", "INF", "ND"],
+  "core_rule": "NO_GRAPHICAL_CONVENIENCE_MAY_SILENTLY_INCREASE_EPISTEMIC_AUTHORITY",
+  "workflow": [
+    "RESIDUAL",
+    "RESOLUTION_TASK",
+    "EVIDENCE_PACK",
+    "HUMAN_REVIEW",
+    "RESOLUTION_DECISION",
+    "VALIDATION_PROMOTION_GATE",
+    "CANONICAL_UPDATE_OR_RETAINED_RESIDUAL"
+  ],
+  "resolution_outcomes": [
+    "CONFIRMED",
+    "REJECTED",
+    "UNREADABLE",
+    "UNBOUND",
+    "NEEDS_BETTER_SOURCE",
+    "NEEDS_SITE_SURVEY",
+    "DEFER"
+  ],
+  "anomaly_classes": [
+    "SOURCE_MODEL_GEOMETRY",
+    "SOURCE_TOPOLOGY",
+    "SOURCE_SECTION",
+    "CROSS_SOURCE",
+    "MODEL_INTERNAL",
+    "DOCUMENT_GRAMMAR"
+  ],
+  "preferred_stack": {
+    "deep_zoom_2d": "OpenSeadragon",
+    "tile_generation": "libvips",
+    "pdf_access": "PDF.js",
+    "overlay_v1": "SVG",
+    "structural_3d": "Three.js/WebGL"
+  },
+  "contracts": {
+    "EvidenceRegion": [
+      "evidence_region_id",
+      "source_id",
+      "source_hash",
+      "page",
+      "coordinate_system",
+      "bbox",
+      "semantic_type",
+      "candidate_entity_ids",
+      "epistemic_state",
+      "created_by"
+    ],
+    "ResolutionTask": [
+      "task_id",
+      "residual_id",
+      "question",
+      "domain",
+      "source_regions",
+      "model_entities",
+      "known_claims",
+      "unknown_claims",
+      "conflicts",
+      "suggested_actions",
+      "blocking_scope",
+      "status"
+    ],
+    "InterpretationCandidate": [
+      "candidate_id",
+      "task_id",
+      "interpretation",
+      "model_delta",
+      "supporting_evidence",
+      "contradicting_evidence",
+      "epistemic_ceiling"
+    ],
+    "ResolutionDecision": [
+      "decision_id",
+      "task_id",
+      "outcome",
+      "selected_candidate",
+      "human_observation",
+      "reason",
+      "evidence_regions",
+      "review_view",
+      "requested_epistemic_state",
+      "reviewer",
+      "timestamp"
+    ]
+  },
+  "delivery_slices": [
+    "ERW-0_DEEP_DRAWING_VIEWER",
+    "ERW-1_EVIDENCE_OVERLAY",
+    "ERW-2_STRUCTURAL_3D",
+    "ERW-3_SYNCHRONIZED_2D_3D",
+    "ERW-4_RESOLUTION_TASK",
+    "ERW-5_DECISION_RECEIPT_AND_GATE"
+  ],
+  "initial_validation_cases": [
+    "M1E-B06-R08",
+    "M1E-B06-R09",
+    "M1E-B06-R10",
+    "M1E-B06-R11"
+  ],
+  "non_goals_v1": [
+    "PHOTOREALISTIC_DIGITAL_TWIN",
+    "CAD_BIM_AUTHORING",
+    "AUTOMATIC_COMPLETION_OF_UNREADABLE_DATA",
+    "AUTOMATIC_INF_TO_DOC_PROMOTION",
+    "ENHANCED_DERIVATIVE_AS_PRIMARY_SOURCE",
+    "IFC_FIRST_CANONICAL_MODEL"
+  ]
+}

@@ -1,0 +1,36 @@
+name: Validate CEW Evidence Resolution Workspace
+
+on:
+  pull_request:
+    paths:
+      - 'docs/ARCHITECTURE/CEW_EVIDENCE_RESOLUTION_WORKSPACE_v1.md'
+      - 'automation/CEW_ERW_CONTRACT_v1.json'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'scripts/validate_cew_erw_contract.py'
+      - '.github/workflows/validate-cew-erw.yml'
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - 'docs/ARCHITECTURE/CEW_EVIDENCE_RESOLUTION_WORKSPACE_v1.md'
+      - 'automation/CEW_ERW_CONTRACT_v1.json'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'scripts/validate_cew_erw_contract.py'
+      - '.github/workflows/validate-cew-erw.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate ERW contract
+        run: python scripts/validate_cew_erw_contract.py
