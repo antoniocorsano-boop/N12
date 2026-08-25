@@ -13,7 +13,9 @@ ADAPTERS = ROOT / "data/canonical/CEW_AI_WORKER_ADAPTER_REGISTRY_v1.csv"
 REGIONS = ROOT / "data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv"
 OBS = ROOT / "data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv"
 MILESTONES = ROOT / "data/canonical/CEW_SYSTEM_MILESTONES_v1.csv"
+KNOWLEDGE = ROOT / "knowledge/KNOWLEDGE_MANIFEST.json"
 FIXTURES = ROOT / "analysis/cew/CEW_F4_REFERENCE_WORKER_OUTPUTS_v1.json"
+PATCH = "knowledge/ARTIFACT_REGISTRY_CEW_AI_OBSERVATION_PATCH_v1.csv"
 
 ORDER = {"ND": 0, "INF": 1, "RIF": 2, "MIS": 3, "DOC": 4}
 
@@ -80,6 +82,10 @@ def main() -> int:
     if milestone.get("CEW-F4") != "IN_PROGRESS":
         raise AssertionError("CEW-F4 must be active")
 
+    knowledge = json.loads(KNOWLEDGE.read_text(encoding="utf-8"))
+    if PATCH not in set(knowledge.get("artifact_registry_patches", [])):
+        raise AssertionError("F4 artifact patch is not effective in KNOWLEDGE_MANIFEST")
+
     adapters = {r["worker_id"].strip(): r for r in rows(ADAPTERS)}
     if {r["worker_type"].strip() for r in adapters.values()} != {"LAYOUT", "TEXT", "REINFORCEMENT"}:
         raise AssertionError("all three specialist adapter types are required")
@@ -122,7 +128,6 @@ def main() -> int:
             if e["structural_binding_state"] != "UNBOUND" or "no member binding established" not in candidate:
                 raise AssertionError("T6A-G03 binding must remain UNBOUND")
 
-    # Negative conformance: prove that authority violations are rejected.
     sample = outputs[3]
     sample_pack = packs[sample["evidence_pack_id"]]
     sample_adapter = adapters[sample["worker_id"]]
