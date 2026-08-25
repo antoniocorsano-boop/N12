@@ -5,9 +5,11 @@ on:
     branches:
       - 'work/cew-f3-viewer-from-6067'
       - 'work/cew-f4-ai-observation-from-57e30'
+      - 'work/cew-f5-knowledge-graph-from-e7c0'
     paths:
       - 'scripts/register_cew_artifact_patches.py'
       - 'knowledge/ARTIFACT_REGISTRY_CEW_AI_OBSERVATION_PATCH_v1.csv'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_KNOWLEDGE_GRAPH_PATCH_v1.csv'
       - '.github/workflows/register-cew-artifact-patches.yml'
 
 permissions:
