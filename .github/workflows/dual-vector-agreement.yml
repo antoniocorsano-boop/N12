@@ -39,12 +39,23 @@ jobs:
           doc.close()
           PY
       - name: Execute both extractors on same PDF
+        id: dual
+        continue-on-error: true
         run: |
           python scripts/cew_dual_vector_agreement.py \
             --pdf /tmp/dual-vector-synthetic.pdf \
             --page 1 \
             --output /tmp/dual-vector-result.json
           cat /tmp/dual-vector-result.json
+      - name: Persist diagnostic result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dual-vector-diagnostic
+          path: /tmp/dual-vector-result.json
+          if-no-files-found: warn
+      - name: Enforce synthetic agreement
+        run: |
           python - <<'PY'
           import json
           r = json.load(open('/tmp/dual-vector-result.json'))
