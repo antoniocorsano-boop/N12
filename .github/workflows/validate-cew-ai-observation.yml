@@ -1,0 +1,69 @@
+name: Validate CEW AI Observation
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_AI_OBSERVATION_CONTRACT_v1.json'
+      - 'data/canonical/CEW_AI_WORKER_ADAPTER_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_DERIVED_ASSET_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/CEW_SYSTEM_MILESTONES_v1.csv'
+      - 'analysis/cew/CEW_F4_REFERENCE_WORKER_OUTPUTS_v1.json'
+      - 'knowledge/KNOWLEDGE_MANIFEST.json'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_AI_OBSERVATION_PATCH_v1.csv'
+      - 'scripts/build_cew_evidence_packs.py'
+      - 'scripts/validate_cew_ai_observation.py'
+      - 'scripts/validate_cew_system_foundation.py'
+      - '.github/workflows/validate-cew-ai-observation.yml'
+  push:
+    branches:
+      - 'work/cew-f4-ai-observation-from-57e30'
+      - 'work/cew-canonical-f3-57e30'
+    paths:
+      - 'automation/CEW_AI_OBSERVATION_CONTRACT_v1.json'
+      - 'data/canonical/CEW_AI_WORKER_ADAPTER_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_DERIVED_ASSET_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/CEW_SYSTEM_MILESTONES_v1.csv'
+      - 'analysis/cew/CEW_F4_REFERENCE_WORKER_OUTPUTS_v1.json'
+      - 'knowledge/KNOWLEDGE_MANIFEST.json'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_AI_OBSERVATION_PATCH_v1.csv'
+      - 'scripts/build_cew_evidence_packs.py'
+      - 'scripts/validate_cew_ai_observation.py'
+      - 'scripts/validate_cew_system_foundation.py'
+      - '.github/workflows/validate-cew-ai-observation.yml'
+  workflow_dispatch:
+
+jobs:
+  ai-observation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate CEW milestone governance
+        run: python scripts/validate_cew_system_foundation.py
+      - name: Validate F2 provenance foundation
+        run: |
+          python scripts/validate_cew_source_identity.py
+          python scripts/validate_cew_evidence_provenance.py
+      - name: Build answer-blind EvidencePacks
+        run: python scripts/build_cew_evidence_packs.py --out-dir cew-f4-packs
+      - name: Validate bounded specialist worker envelopes
+        run: python scripts/validate_cew_ai_observation.py --packs-dir cew-f4-packs
+      - name: Upload EvidencePack conformance artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-f4-evidence-packs
+          path: cew-f4-packs/
+          if-no-files-found: error
+          retention-days: 14
