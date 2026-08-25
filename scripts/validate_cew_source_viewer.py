@@ -43,8 +43,8 @@ def main() -> int:
         raise AssertionError("viewer input coordinate space drift")
 
     milestone = {r["milestone_id"].strip(): r["status"].strip() for r in rows(MILESTONES)}
-    if milestone.get("CEW-F2") != "COMPLETE" or milestone.get("CEW-F3") != "IN_PROGRESS":
-        raise AssertionError("F3 viewer requires F2 COMPLETE and F3 IN_PROGRESS")
+    if milestone.get("CEW-F2") != "COMPLETE" or milestone.get("CEW-F3") != "COMPLETE" or milestone.get("CEW-F4") != "IN_PROGRESS":
+        raise AssertionError("post-closure F3 viewer validation requires F2/F3 COMPLETE and F4 IN_PROGRESS")
 
     knowledge = json.loads(MANIFEST.read_text(encoding="utf-8"))
     registered_patches = set(knowledge.get("artifact_registry_patches", []))
@@ -113,6 +113,7 @@ def main() -> int:
     print("REFERENCE_TASKS=4")
     print("F2_GEOMETRY_CONSUMPTION=IDENTITY_ONLY")
     print("F3_GEOMETRY_MUTATION=FORBIDDEN")
+    print("POST_CLOSURE_STATE=F3_COMPLETE_F4_IN_PROGRESS")
     print("RUNTIME_DEPENDENCIES=SELF_CONTAINED")
     print("AUTHORITY=PRIMARY_PDF; VIEWER=TILES_DERIVED_REVIEW_AID_ONLY")
     return 0
