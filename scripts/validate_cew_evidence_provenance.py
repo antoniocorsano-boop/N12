@@ -15,6 +15,7 @@ OBS = ROOT / "data" / "canonical" / "CEW_OBSERVATION_REGISTRY_v1.csv"
 ARCH = ROOT / "docs" / "ARCHITECTURE" / "CEW_EVIDENCE_PROVENANCE_MODEL_v1.md"
 
 REFERENCE = {"T5A-G01/G01-R06", "T5A-G07/G07-R07", "T5A-G05/G05-R04", "T6A-G03"}
+FINAL_READING_STATES = {"READABLE", "PARTIAL", "UNREADABLE", "GRAPHICALLY_DIRECT_PARTIAL"}
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -94,17 +95,28 @@ def main() -> int:
                 raise AssertionError(f"invalid normalized bbox: {row['evidence_region_id']}")
             ready_regions.add(row["evidence_region_id"].strip())
 
+    finalized_observations: set[str] = set()
     for row in observations:
-        if row["source_version_id"].strip() not in sources or row["evidence_region_id"].strip() not in region_ids:
+        src = row["source_version_id"].strip()
+        region_id = row["evidence_region_id"].strip()
+        if src not in sources or region_id not in region_ids:
             raise AssertionError(f"observation provenance parent missing: {row['observation_id']}")
         if row["structural_binding"].strip():
             raise AssertionError(f"Observation may not assert structural binding: {row['observation_id']}")
+        if region_id in ready_regions:
+            reading_state = row["reading_state"].strip()
+            if reading_state not in FINAL_READING_STATES:
+                raise AssertionError(
+                    f"READY reference region requires finalized observation state: {row['observation_id']}={reading_state}"
+                )
+            finalized_observations.add(row["reference_item"].strip())
 
     ready_reference = {r["reference_item"].strip() for r in regions if r["evidence_region_id"].strip() in ready_regions}
-    acceptance = "PASS" if ready_reference == REFERENCE else "HOLD"
+    acceptance = "PASS" if ready_reference == REFERENCE and finalized_observations == REFERENCE else "HOLD"
     print("CEW EVIDENCE PROVENANCE CONTRACT = PASS")
     print(f"Technical reading minimum dpi = {min_dpi}")
     print(f"Registered technical-reading assets = {sum(len(v) for v in technical_assets_by_page.values())}")
+    print(f"Finalized reference observations = {len(finalized_observations)}/{len(REFERENCE)}")
     print(f"Reference evidence acceptance = {acceptance}")
     return 0
 
