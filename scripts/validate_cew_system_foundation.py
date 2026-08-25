@@ -11,24 +11,13 @@ MILESTONES = ROOT / "data" / "canonical" / "CEW_SYSTEM_MILESTONES_v1.csv"
 ARCH = ROOT / "docs" / "ARCHITECTURE" / "CEW_SYSTEM_FOUNDATION_v1.md"
 
 EXPECTED_EPISTEMIC = ["DOC", "MIS", "RIF", "INF", "ND"]
-EXPECTED_AUTHORITY = [
-    "PRIMARY_SOURCE",
-    "OBSERVATION",
-    "CANONICAL_KNOWLEDGE",
-    "ANALYSIS_ASSUMPTION",
-    "CALCULATION_MODEL",
-    "RESULT",
-]
-EXPECTED_MILESTONES = [
-    "CEW-F0", "CEW-F1", "CEW-F2", "CEW-F3", "CEW-F4",
-    "CEW-F5", "CEW-F6", "CEW-F7", "CEW-F8", "CEW-M1", "CEW-M2",
-]
+EXPECTED_AUTHORITY = ["PRIMARY_SOURCE","OBSERVATION","CANONICAL_KNOWLEDGE","ANALYSIS_ASSUMPTION","CALCULATION_MODEL","RESULT"]
+EXPECTED_MILESTONES = ["CEW-F0","CEW-F1","CEW-F2","CEW-F3","CEW-F4","CEW-F5","CEW-F6","CEW-F7","CEW-F8","CEW-M1","CEW-M2"]
 
 
 def main() -> int:
     if not ARCH.exists():
         raise AssertionError("missing CEW system foundation architecture")
-
     contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
     if contract.get("contract_id") != "CEW-SYSTEM-FOUNDATION-v1":
         raise AssertionError("unexpected foundation contract id")
@@ -49,12 +38,7 @@ def main() -> int:
         raise AssertionError("foundation frozen rules changed")
 
     prohibited = set(contract.get("ai_may_not_directly_produce", []))
-    required_prohibited = {
-        "CanonicalAssertion",
-        "FrozenCanonicalMutation",
-        "EpistemicPromotionAboveCeiling",
-    }
-    if prohibited != required_prohibited:
+    if prohibited != {"CanonicalAssertion","FrozenCanonicalMutation","EpistemicPromotionAboveCeiling"}:
         raise AssertionError("AI direct-authority prohibition changed")
 
     with MILESTONES.open("r", encoding="utf-8-sig", newline="") as f:
@@ -64,27 +48,27 @@ def main() -> int:
         raise AssertionError(f"milestone sequence changed: {ids}")
 
     status = {r["milestone_id"].strip(): r["status"].strip() for r in rows}
-    if any(status[mid] != "COMPLETE" for mid in ("CEW-F0", "CEW-F1", "CEW-F2")):
-        raise AssertionError("CEW-F0, CEW-F1 and CEW-F2 must remain COMPLETE after evidence closure")
-    if status["CEW-F3"] != "IN_PROGRESS":
-        raise AssertionError("CEW-F3 must be the active milestone after EVIDENCE_PROVENANCE_PASS")
+    if any(status[mid] != "COMPLETE" for mid in ("CEW-F0","CEW-F1","CEW-F2","CEW-F3")):
+        raise AssertionError("CEW-F0 through CEW-F3 must remain COMPLETE after SOURCE_VIEWER_PASS")
+    if status["CEW-F4"] != "IN_PROGRESS":
+        raise AssertionError("CEW-F4 must be active after SOURCE_VIEWER_PASS")
     active = [mid for mid, value in status.items() if value == "IN_PROGRESS"]
-    if active != ["CEW-F3"]:
-        raise AssertionError(f"exactly CEW-F3 must be IN_PROGRESS, got {active}")
+    if active != ["CEW-F4"]:
+        raise AssertionError(f"exactly CEW-F4 must be IN_PROGRESS, got {active}")
     if any(not r["acceptance_gate"].strip() for r in rows):
         raise AssertionError("every milestone requires an acceptance gate")
     if any(not r["required_deliverables"].strip() for r in rows):
         raise AssertionError("every milestone requires deliverables")
 
     print("CEW SYSTEM FOUNDATION = PASS")
-    print("Completed milestones: CEW-F0, CEW-F1, CEW-F2")
-    print("Active milestone: CEW-F3")
+    print("Completed milestones: CEW-F0, CEW-F1, CEW-F2, CEW-F3")
+    print("Active milestone: CEW-F4")
     print("F2 closure gate: EVIDENCE_PROVENANCE_PASS")
+    print("F3 closure gate: SOURCE_VIEWER_PASS")
     print("Epistemic regime: DOC/MIS/RIF/INF/ND")
     print("Authority flow: PRIMARY_SOURCE -> OBSERVATION -> CANONICAL_KNOWLEDGE -> ANALYSIS_ASSUMPTION -> CALCULATION_MODEL -> RESULT")
     print(f"Milestones validated: {len(rows)}")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())
