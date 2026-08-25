@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.4",
+  "schema_version": "1.5",
   "product": "CEW",
   "vertical": "CEW-EX",
   "reference_project": "N12",
@@ -15,7 +15,8 @@
     "module_contract":"automation/CEW_PRODUCT_MODULE_CONTRACT_v1.json",
     "exposure_condition_research":"docs/RESEARCH/CEW_EXPOSURE_CONDITION_RESEARCH_v1.md",
     "r3_b05_b06_routing":"docs/ANALYSIS/CEW_R3_B05_B06_RESOLUTION_ROUTING_v1.md",
-    "r3_b06_subrouting":"docs/ANALYSIS/CEW_R3_B06_RESIDUAL_SUBROUTING_v1.md"
+    "r3_b06_subrouting":"docs/ANALYSIS/CEW_R3_B06_RESIDUAL_SUBROUTING_v1.md",
+    "r3_g4_hires_machine_review":"data/canonical/N12_G4_HIRES_MACHINE_REVIEW_RECEIPT_v1.json"
   },
   "implemented_modules": [
     {"id":"EVIDENCE_CORE","status":"OPERATIONAL_REFERENCE","gate":"N12 Knowledge System"},
@@ -28,7 +29,7 @@
     {"id":"EXPOSURE_CONDITION_MODEL","status":"OPERATIONAL_V0_EVIDENCE_PENDING","gate":"Validate CEW Exposure Condition"},
     {"id":"PROJECT_CONTROL_ROOM","status":"OPERATIONAL_V0","gate":"Validate CEW Control Room"},
     {"id":"UNIVERSAL_RESIDUAL_WORKSPACE","status":"OPERATIONAL_V0_DATA_CONTRACT","gate":"Validate CEW Control Room"},
-    {"id":"SYNCHRONIZED_EVIDENCE_MAP","status":"IN_PROGRESS_RESIDUAL_LEVEL_ROUTING","gate":"Validate CEW Evidence Map"},
+    {"id":"SYNCHRONIZED_EVIDENCE_MAP","status":"IN_PROGRESS_HIRES_REVIEW_CANDIDATES","gate":"Validate CEW Evidence Map"},
     {"id":"EVIDENCE_REGION_REVIEW_PACK","status":"OPERATIONAL_V0_REVIEW_ONLY","gate":"Validate CEW Evidence Region Pack"}
   ],
   "current_calculation_blockers": [
@@ -51,7 +52,7 @@
   "current_work_item": {
     "id":"CEW-R3-SYNCHRONIZED-EVIDENCE-MAP-V0",
     "objective":"Create bidirectional navigation between source/evidence context and canonical 3D entities without making the UI or crop geometry an engineering authority.",
-    "branch":"work/cew-r3-b06-subrouting-v0",
+    "branch":"work/cew-r3-g4-hires-candidates-v0",
     "state":"IN_PROGRESS",
     "progress": {
       "source_context_bound_issues":["M1E-B02","M1E-B05","M1E-B06"],
@@ -59,12 +60,14 @@
       "mixed_residual_routing_issues":["M1E-B06"],
       "evidence_snippet_candidates":1,
       "g4_group_scope_review_targets":3,
+      "g4_machine_visual_direct_label_candidates":2,
+      "g4_machine_visual_partial_state_confirmed_candidates":1,
       "column_primary_source_search_closed":7,
       "canonical_evidence_snippets":0,
       "canonical_3d_viewpoints":0,
-      "last_completed_slice":"PR-55 B05 confirmed-gap routing and first G5-B017 semantic-locator candidate",
-      "active_subslice":"canonicalize B06 residual-level routing and prepare exact G4 HiRes review targets",
-      "first_candidate":"TAV06A P07 -> G5-B017 (DOC_SOURCE_UNBOUND; no reinforcement assignment)"
+      "last_completed_slice":"PR-56 canonical mixed B06 residual routing",
+      "active_subslice":"capture reproducible HiRes machine review findings for the three exact G4 targets without engineering promotion",
+      "hires_findings":["P02 L=1040: direct 2phi12 label visually readable candidate","P07-P08 partial sagomato: missing continuation dimension still not directly written","P10 L=865: direct 2phi12 label visually readable candidate"]
     }
   },
   "anti_drift_rules": [
@@ -76,7 +79,8 @@
     "No UI state may become canonical engineering authority.",
     "Confirmed documentary gaps must not trigger cyclic blind rereading without a new evidence hypothesis.",
     "Evidence-link candidates are never counted as approved EvidenceSnippet objects.",
-    "Issue-level routing must preserve mixed residual-level states and must not flatten closed-search, review-target, conflict or measurement-required subroutes into a single generic action."
+    "Issue-level routing must preserve mixed residual-level states and must not flatten closed-search, review-target, conflict or measurement-required subroutes into a single generic action.",
+    "Machine visual review findings may populate the human review queue but cannot promote canonical reinforcement values or create single-member bindings by themselves."
   ],
-  "next_action":"Use the Evidence Region Review Pack only on the three exact G4 targets TAV05A P02, P07-P08 and P10, preserving group-scope precision. Do not reopen the seven column residuals without a new direct/as-built or uniquely discriminating evidence hypothesis. Keep G5-B017 TAV06A P07 as a machine-proposed context candidate until explicit region review."
+  "next_action":"Expose the three G4 HiRes findings in the Human Evidence Resolution workflow: two direct-label candidates (P02 L1040 and P10 L865, each visually 2phi12) and one confirmed-partial candidate (P07-P08). Require human review before any row-level transcription update, and retain group-scope-only precision until explicit member/station identity is available."
 }
