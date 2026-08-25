@@ -1,0 +1,57 @@
+name: Validate CEW Knowledge Graph
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_KNOWLEDGE_GRAPH_CONTRACT_v1.json'
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'data/canonical/M1A_TAV05A_GROUP_REINFORCEMENT_v1.csv'
+      - 'data/canonical/M1L_LOAD_MODEL_CURRENT_v1.csv'
+      - 'data/canonical/M1L_LOAD_PATH_CLASSIFICATION_CURRENT_v1.csv'
+      - 'data/canonical/M1L_HISTORICAL_VS_ASBUILT_LOAD_DELTA_REGISTER_v1.csv'
+      - 'data/canonical/CEW_SYSTEM_MILESTONES_v1.csv'
+      - 'knowledge/KNOWLEDGE_MANIFEST.json'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_KNOWLEDGE_GRAPH_PATCH_v1.csv'
+      - 'scripts/project_cew_m0g_knowledge_graph.py'
+      - 'scripts/validate_cew_knowledge_graph_m0g_slice.py'
+      - 'scripts/project_cew_m1a_knowledge_graph.py'
+      - 'scripts/validate_cew_knowledge_graph_m1a_slice.py'
+      - 'scripts/project_cew_m1l_knowledge_graph.py'
+      - 'scripts/validate_cew_knowledge_graph_m1l_slice.py'
+      - 'scripts/validate_cew_knowledge_graph.py'
+      - '.github/workflows/validate-cew-knowledge-graph.yml'
+  push:
+    branches:
+      - 'work/cew-f5-knowledge-graph-from-e7c0'
+    paths:
+      - 'automation/CEW_KNOWLEDGE_GRAPH_CONTRACT_v1.json'
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'data/canonical/M1A_TAV05A_GROUP_REINFORCEMENT_v1.csv'
+      - 'data/canonical/M1L_LOAD_MODEL_CURRENT_v1.csv'
+      - 'data/canonical/M1L_LOAD_PATH_CLASSIFICATION_CURRENT_v1.csv'
+      - 'data/canonical/M1L_HISTORICAL_VS_ASBUILT_LOAD_DELTA_REGISTER_v1.csv'
+      - 'data/canonical/CEW_SYSTEM_MILESTONES_v1.csv'
+      - 'knowledge/KNOWLEDGE_MANIFEST.json'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_KNOWLEDGE_GRAPH_PATCH_v1.csv'
+      - 'scripts/project_cew_m0g_knowledge_graph.py'
+      - 'scripts/validate_cew_knowledge_graph_m0g_slice.py'
+      - 'scripts/project_cew_m1a_knowledge_graph.py'
+      - 'scripts/validate_cew_knowledge_graph_m1a_slice.py'
+      - 'scripts/project_cew_m1l_knowledge_graph.py'
+      - 'scripts/validate_cew_knowledge_graph_m1l_slice.py'
+      - 'scripts/validate_cew_knowledge_graph.py'
+      - '.github/workflows/validate-cew-knowledge-graph.yml'
+  workflow_dispatch:
+
+jobs:
+  knowledge-graph:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate CEW milestone governance
+        run: python scripts/validate_cew_system_foundation.py
+      - name: Validate complete CEW-F5 knowledge graph projection
+        run: python scripts/validate_cew_knowledge_graph.py
