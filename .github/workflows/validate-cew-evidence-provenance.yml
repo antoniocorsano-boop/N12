@@ -6,6 +6,8 @@ on:
       - 'docs/ARCHITECTURE/CEW_EVIDENCE_PROVENANCE_MODEL_v1.md'
       - 'automation/CEW_EVIDENCE_PROVENANCE_CONTRACT_v1.json'
       - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_DERIVED_ASSET_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_PAGE_TRANSFORM_REGISTRY_v1.csv'
       - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
       - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
       - 'scripts/validate_cew_evidence_provenance.py'
@@ -14,10 +16,13 @@ on:
   push:
     branches:
       - 'work/m0-global-model'
+      - 'work/cew-f2-baseline-232338a'
     paths:
       - 'docs/ARCHITECTURE/CEW_EVIDENCE_PROVENANCE_MODEL_v1.md'
       - 'automation/CEW_EVIDENCE_PROVENANCE_CONTRACT_v1.json'
       - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_DERIVED_ASSET_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_PAGE_TRANSFORM_REGISTRY_v1.csv'
       - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
       - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
       - 'scripts/validate_cew_evidence_provenance.py'
@@ -37,5 +42,5 @@ jobs:
         run: python scripts/validate_cew_system_foundation.py
       - name: Validate source identity foundation
         run: python scripts/validate_cew_source_identity.py
-      - name: Validate evidence provenance foundation
+      - name: Validate evidence provenance closure
         run: python scripts/validate_cew_evidence_provenance.py
