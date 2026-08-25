@@ -35,6 +35,7 @@ def render_pymupdf(pdf: Path, max_dimension: int) -> Image.Image:
 
 
 def render_docling(pdf: Path, max_dimension: int) -> Image.Image:
+    from docling_core.types.doc.page import TextCellUnit
     from docling_parse.pdf_parser import ContentConfig, ContentLevel, DecodeConfig, DoclingPdfParser
 
     parser = DoclingPdfParser(loglevel="fatal")
@@ -51,7 +52,11 @@ def render_docling(pdf: Path, max_dimension: int) -> Image.Image:
         ),
     )
     page = doc.get_page(1)
-    img = page.render_as_image()
+    img = page.render_as_image(
+        cell_unit=TextCellUnit.CHAR,
+        draw_cells_bbox=False,
+        draw_cells_text=False,
+    )
     return normalize_image(img, max_dimension)
 
 
@@ -66,12 +71,7 @@ def renderer_difference(a: Image.Image, b: Image.Image) -> dict:
     aa = np.asarray(a, dtype=np.float32)
     bb = np.asarray(b, dtype=np.float32)
     diff = np.abs(aa - bb)
-    return {
-        "width_px": a.width,
-        "height_px": a.height,
-        "mean_abs_difference_0_255": round(float(np.mean(diff)), 4),
-        "p95_abs_difference_0_255": round(float(np.percentile(diff, 95)), 4),
-    }
+    return {"width_px": a.width, "height_px": a.height, "mean_abs_difference_0_255": round(float(np.mean(diff)), 4), "p95_abs_difference_0_255": round(float(np.percentile(diff, 95)), 4)}
 
 
 def detect_lsd(img: Image.Image, min_length_px: float, axis_tolerance_deg: float) -> list[Segment]:
@@ -97,13 +97,7 @@ def detect_hough(img: Image.Image, min_length_px: int, axis_tolerance_deg: float
 
     arr = np.asarray(img, dtype=np.float32) / 255.0
     edges = canny(arr, sigma=1.5)
-    lines = probabilistic_hough_line(
-        edges,
-        threshold=10,
-        line_length=min_length_px,
-        line_gap=max(3, min_length_px // 20),
-        rng=12,
-    )
+    lines = probabilistic_hough_line(edges, threshold=10, line_length=min_length_px, line_gap=max(3, min_length_px // 20), rng=12)
     out: list[Segment] = []
     for p0, p1 in lines:
         seg = classify_segment("skimage_hough", 1, (float(p0[0]), float(p0[1])), (float(p1[0]), float(p1[1])), float(min_length_px), axis_tolerance_deg)
