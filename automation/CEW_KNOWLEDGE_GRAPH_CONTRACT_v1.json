@@ -1,0 +1,23 @@
+{
+  "contract_id": "CEW-KNOWLEDGE-GRAPH-v1",
+  "milestone": "CEW-F5",
+  "objects": ["StructuralEntity", "StructuralProperty", "Assertion", "Binding", "DrawingRule"],
+  "authority_invariants": {
+    "projection_may_modify_source_ledger": false,
+    "projection_may_reopen_m0g": false,
+    "projection_may_raise_epistemic_state": false,
+    "projection_may_invent_missing_property": false,
+    "projection_may_collapse_distinct_evidence_states": false,
+    "graph_is_primary_evidence": false
+  },
+  "assertion_required_fields": ["assertion_id", "entity_id", "property_name", "value", "unit", "epistemic_state", "validation_state", "source_ledger", "source_record_id"],
+  "binding_required_fields": ["binding_id", "from_entity_id", "relation", "to_entity_id", "epistemic_state", "source_ledger", "source_record_id"],
+  "temporal_states": ["CURRENT", "HISTORICAL", "SUPERSEDED", "TOMBSTONE"],
+  "projection_slices": {
+    "M0G_MEMBERS": "IN_SCOPE",
+    "M1A_REINFORCEMENT": "PLANNED_IN_F5",
+    "M1L_LOADS": "PLANNED_IN_F5"
+  },
+  "acceptance_gate": "KNOWLEDGE_GRAPH_PASS",
+  "acceptance_rule": "M0-G, M1A and M1L reference facts project into entities/properties/assertions/bindings with source identity, epistemic state and validation state preserved; ND stays absent/ND; no M0-G reopen or source-ledger mutation occurs."
+}
