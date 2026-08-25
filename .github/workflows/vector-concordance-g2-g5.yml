@@ -11,6 +11,7 @@ on:
       - 'scripts/n12_consensus_review_overlay.py'
       - 'scripts/n12_registered_candidate_audit.py'
       - 'scripts/n12_registered_line_topology_audit.py'
+      - 'scripts/n12_registered_line_network_audit.py'
       - 'scripts/n12_validate_line_topology_visual_review.py'
       - 'analysis/experimental_source_concordance/TAV06S_LINE_TOPOLOGY_VISUAL_REVIEW_v1.csv'
       - '.github/workflows/vector-concordance-g2-g5.yml'
@@ -25,6 +26,7 @@ on:
       - 'scripts/n12_consensus_review_overlay.py'
       - 'scripts/n12_registered_candidate_audit.py'
       - 'scripts/n12_registered_line_topology_audit.py'
+      - 'scripts/n12_registered_line_network_audit.py'
       - 'scripts/n12_validate_line_topology_visual_review.py'
       - 'analysis/experimental_source_concordance/TAV06S_LINE_TOPOLOGY_VISUAL_REVIEW_v1.csv'
       - '.github/workflows/vector-concordance-g2-g5.yml'
@@ -67,6 +69,9 @@ jobs:
 
       - name: Run registered line topology audit self-test
         run: python scripts/n12_registered_line_topology_audit.py --self-test
+
+      - name: Run registered line network audit self-test
+        run: python scripts/n12_registered_line_network_audit.py --self-test
 
       - name: Validate non-canonical visual line review
         run: python scripts/n12_validate_line_topology_visual_review.py
@@ -150,6 +155,46 @@ jobs:
       - name: Compare TAV-06S lines with canonical G5 topology
         run: >-
           python scripts/n12_registered_line_topology_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-06S
+          --storey-id G5
+          --beams-csv data/canonical/STOREY_BEAMS_G5_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-03S lines with canonical G2 beam network
+        run: >-
+          python scripts/n12_registered_line_network_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-03S
+          --storey-id G2
+          --beams-csv data/canonical/STOREY_BEAMS_G2_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-04S lines with canonical G3 beam network
+        run: >-
+          python scripts/n12_registered_line_network_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-04S
+          --storey-id G3
+          --beams-csv data/canonical/STOREY_BEAMS_G3_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-05S lines with canonical G4 beam network
+        run: >-
+          python scripts/n12_registered_line_network_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-05S
+          --storey-id G4
+          --beams-csv data/canonical/STOREY_BEAMS_G4_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-06S lines with canonical G5 beam network
+        run: >-
+          python scripts/n12_registered_line_network_audit.py
           --input-root analysis/raster_line_concordance
           --source-id TAV-06S
           --storey-id G5
