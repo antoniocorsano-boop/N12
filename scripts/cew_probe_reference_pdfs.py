@@ -4,6 +4,11 @@
 The script verifies SHA-256, extracts page metadata with PyMuPDF and renders
 full pages at a declared DPI for human evidence-region localization. Rendered
 assets are review aids only; authority remains the primary PDF SourceVersion.
+
+CEW drawing-reading policy:
+- 300 dpi is the minimum standard for technical drawing reading and evidence localization;
+- lower resolutions may be used only for overview/thumbnail purposes and must not drive
+  technical transcription or region adjudication.
 """
 from __future__ import annotations
 
@@ -13,6 +18,8 @@ import json
 from pathlib import Path
 
 import fitz
+
+MIN_TECHNICAL_READING_DPI = 300
 
 
 def sha256_file(path: Path) -> str:
@@ -68,7 +75,7 @@ def probe(source_id: str, path: Path, expected_sha256: str, dpi: int, out_dir: P
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--out-dir", default="cew-f2-reference-probe")
-    p.add_argument("--dpi", type=int, default=150)
+    p.add_argument("--dpi", type=int, default=MIN_TECHNICAL_READING_DPI)
     p.add_argument(
         "--source",
         action="append",
@@ -78,6 +85,11 @@ def main() -> None:
     )
     args = p.parse_args()
 
+    if args.dpi < MIN_TECHNICAL_READING_DPI:
+        raise SystemExit(
+            f"TECHNICAL_READING_DPI_TOO_LOW: requested={args.dpi} minimum={MIN_TECHNICAL_READING_DPI}"
+        )
+
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -85,6 +97,7 @@ def main() -> None:
         "probe_contract": "CEW-F2-REFERENCE-PDF-PROBE-v1",
         "render_authority": "REVIEW_AID_ONLY",
         "coordinate_authority": "SOURCE_PDF_PAGE",
+        "technical_reading_min_dpi": MIN_TECHNICAL_READING_DPI,
         "dpi": args.dpi,
         "sources": [],
     }
