@@ -4,7 +4,6 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import math
 import tempfile
 from dataclasses import asdict
 from pathlib import Path
@@ -66,13 +65,12 @@ def renderer_difference(a: Image.Image, b: Image.Image) -> dict:
     a, b = align_pair(a, b)
     aa = np.asarray(a, dtype=np.float32)
     bb = np.asarray(b, dtype=np.float32)
-    mad = float(np.mean(np.abs(aa - bb)))
-    p95 = float(np.percentile(np.abs(aa - bb), 95))
+    diff = np.abs(aa - bb)
     return {
         "width_px": a.width,
         "height_px": a.height,
-        "mean_abs_difference_0_255": round(mad, 4),
-        "p95_abs_difference_0_255": round(p95, 4),
+        "mean_abs_difference_0_255": round(float(np.mean(diff)), 4),
+        "p95_abs_difference_0_255": round(float(np.percentile(diff, 95)), 4),
     }
 
 
@@ -99,7 +97,13 @@ def detect_hough(img: Image.Image, min_length_px: int, axis_tolerance_deg: float
 
     arr = np.asarray(img, dtype=np.float32) / 255.0
     edges = canny(arr, sigma=1.5)
-    lines = probabilistic_hough_line(edges, threshold=10, line_length=min_length_px, line_gap=max(3, min_length_px // 20), seed=12)
+    lines = probabilistic_hough_line(
+        edges,
+        threshold=10,
+        line_length=min_length_px,
+        line_gap=max(3, min_length_px // 20),
+        rng=12,
+    )
     out: list[Segment] = []
     for p0, p1 in lines:
         seg = classify_segment("skimage_hough", 1, (float(p0[0]), float(p0[1])), (float(p1[0]), float(p1[1])), float(min_length_px), axis_tolerance_deg)
@@ -144,12 +148,7 @@ def match_lines(a: list[Segment], b: list[Segment], coordinate_tolerance_px: flo
             continue
         used_a.add(i)
         used_b.add(j)
-        matches.append({
-            "lsd_index": i,
-            "hough_index": j,
-            "coordinate_delta_px": round(coord, 4),
-            "overlap_ratio": round(overlap, 6),
-        })
+        matches.append({"lsd_index": i, "hough_index": j, "coordinate_delta_px": round(coord, 4), "overlap_ratio": round(overlap, 6)})
     return matches, used_a, used_b
 
 
@@ -173,14 +172,8 @@ def write_matches(path: Path, matches: list[dict], a: list[Segment], b: list[Seg
 
 
 def self_test() -> None:
-    a = [
-        Segment("opencv_lsd", 1, "H", 10, 100, 300, 100, 290),
-        Segment("opencv_lsd", 1, "V", 200, 20, 200, 350, 330),
-    ]
-    b = [
-        Segment("skimage_hough", 1, "H", 20, 102, 290, 102, 270),
-        Segment("skimage_hough", 1, "V", 198, 30, 198, 340, 310),
-    ]
+    a = [Segment("opencv_lsd", 1, "H", 10, 100, 300, 100, 290), Segment("opencv_lsd", 1, "V", 200, 20, 200, 350, 330)]
+    b = [Segment("skimage_hough", 1, "H", 20, 102, 290, 102, 270), Segment("skimage_hough", 1, "V", 198, 30, 198, 340, 310)]
     matches, ua, ub = match_lines(a, b, 4.0, 0.8)
     assert len(matches) == len(ua) == len(ub) == 2
     print("RASTER_SELF_TEST_PASS")
@@ -224,24 +217,9 @@ def run(args: argparse.Namespace) -> int:
                 "renderers": {"A": "PyMuPDF", "B": "Docling Parse"},
                 "detectors": {"A": "OpenCV LSD", "B": "scikit-image probabilistic Hough"},
                 "renderer_difference": render_diag,
-                "parameters": {
-                    "max_dimension_px": args.max_dimension_px,
-                    "min_length_px_effective": min_length,
-                    "axis_tolerance_deg": args.axis_tolerance_deg,
-                    "coordinate_tolerance_px": args.coordinate_tolerance_px,
-                    "min_overlap_ratio": args.min_overlap_ratio,
-                },
-                "counts": {
-                    "opencv_lsd_axis_segments": len(lsd),
-                    "skimage_hough_axis_segments": len(hough),
-                    "matched_pairs": len(matches),
-                    "opencv_lsd_unmatched": len(lsd) - len(used_lsd),
-                    "skimage_hough_unmatched": len(hough) - len(used_hough),
-                },
-                "concordance": {
-                    "matched_over_opencv_lsd": round(lsd_ratio, 6),
-                    "matched_over_skimage_hough": round(hough_ratio, 6),
-                },
+                "parameters": {"max_dimension_px": args.max_dimension_px, "min_length_px_effective": min_length, "axis_tolerance_deg": args.axis_tolerance_deg, "coordinate_tolerance_px": args.coordinate_tolerance_px, "min_overlap_ratio": args.min_overlap_ratio},
+                "counts": {"opencv_lsd_axis_segments": len(lsd), "skimage_hough_axis_segments": len(hough), "matched_pairs": len(matches), "opencv_lsd_unmatched": len(lsd) - len(used_lsd), "skimage_hough_unmatched": len(hough) - len(used_hough)},
+                "concordance": {"matched_over_opencv_lsd": round(lsd_ratio, 6), "matched_over_skimage_hough": round(hough_ratio, 6)},
                 "gate": gate,
                 "epistemic_effect": "NONE",
                 "promotion_prohibited": True,
