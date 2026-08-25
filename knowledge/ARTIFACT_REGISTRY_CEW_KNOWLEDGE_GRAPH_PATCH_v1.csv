@@ -1,4 +1,4 @@
-artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validator,depends_on,notes
+artifact_id,path,domain,artifact_type,authority,status,may_feed_canonical,validation_method,replaces_or_relates,note
 CONTRACT-CEW-KG-001,automation/CEW_KNOWLEDGE_GRAPH_CONTRACT_v1.json,CEW_KNOWLEDGE_GRAPH,MACHINE_CONTRACT,PROCEDURE,CURRENT,YES,knowledge-graph-validator,CONTRACT-CEW-AI-001,"Defines entities/properties/assertions/bindings and forbids source-ledger mutation, M0-G reopen and epistemic promotion."
 RUN-CEW-KG-001,scripts/project_cew_m0g_knowledge_graph.py,CEW_KNOWLEDGE_GRAPH,GRAPH_PROJECTION,DERIVED,CURRENT,NO,knowledge-graph-m0g-validator,DATA-M0G-MEMBERS,"Projects M0-G ordinary members, endpoint bindings and documented section assertions without inventing missing properties."
 RUN-CEW-KG-002,scripts/validate_cew_knowledge_graph_m0g_slice.py,CEW_KNOWLEDGE_GRAPH,VALIDATOR,DERIVED,CURRENT,NO,GitHub Actions,CONTRACT-CEW-KG-001,"Validates identity/counts, endpoint topology, evidence states, section assertions and ND preservation for the M0-G slice."
