@@ -1,0 +1,94 @@
+name: Validate CEW Promotion Engine
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_PROMOTION_ENGINE_CONTRACT_v1.json'
+      - 'data/canonical/CEW_PROMOTION_TARGET_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SYSTEM_MILESTONES_v1.csv'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/M1E_B06_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv'
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv'
+      - 'analysis/cew/CEW_F7_PROMOTION_POLICY_FIXTURES_v1.json'
+      - 'scripts/build_cew_erw_queue.py'
+      - 'scripts/build_cew_erw_decision_receipts.py'
+      - 'scripts/run_cew_promotion_engine.py'
+      - 'scripts/validate_cew_promotion_engine.py'
+      - 'scripts/build_cew_promotion_orchestration.py'
+      - 'scripts/validate_cew_promotion_orchestration.py'
+      - 'scripts/build_cew_canonical_patch_candidates.py'
+      - 'scripts/validate_cew_governed_writer_boundary.py'
+      - '.github/workflows/validate-cew-promotion-engine.yml'
+  push:
+    branches:
+      - 'work/cew-f7-promotion-engine-from-4474c6'
+    paths:
+      - 'automation/CEW_PROMOTION_ENGINE_CONTRACT_v1.json'
+      - 'data/canonical/CEW_PROMOTION_TARGET_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SYSTEM_MILESTONES_v1.csv'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/M1E_B06_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv'
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv'
+      - 'analysis/cew/CEW_F7_PROMOTION_POLICY_FIXTURES_v1.json'
+      - 'scripts/build_cew_erw_queue.py'
+      - 'scripts/build_cew_erw_decision_receipts.py'
+      - 'scripts/run_cew_promotion_engine.py'
+      - 'scripts/validate_cew_promotion_engine.py'
+      - 'scripts/build_cew_promotion_orchestration.py'
+      - 'scripts/validate_cew_promotion_orchestration.py'
+      - 'scripts/build_cew_canonical_patch_candidates.py'
+      - 'scripts/validate_cew_governed_writer_boundary.py'
+      - '.github/workflows/validate-cew-promotion-engine.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  promotion-engine:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate CEW milestone governance
+        run: python scripts/validate_cew_system_foundation.py
+      - name: Build current N12 resolution queue and conformance receipts
+        run: |
+          python scripts/build_cew_erw_queue.py --out cew-f7-queue
+          python scripts/build_cew_erw_decision_receipts.py --queue-bundle cew-f7-queue/erw_queue_bundle.json --out cew-f7-receipts
+      - name: Evaluate current decisions and policy fixtures
+        run: |
+          python scripts/run_cew_promotion_engine.py \
+            --receipts cew-f7-receipts/decision_receipts.json \
+            --fixtures analysis/cew/CEW_F7_PROMOTION_POLICY_FIXTURES_v1.json \
+            --out cew-f7-promotion
+      - name: Validate F7 promotion authority boundary
+        run: python scripts/validate_cew_promotion_engine.py --evaluations cew-f7-promotion/promotion_evaluations.json
+      - name: Build residual dependency graph and canonical snapshot receipt
+        run: |
+          python scripts/build_cew_promotion_orchestration.py \
+            --evaluations cew-f7-promotion/promotion_evaluations.json \
+            --out cew-f7-orchestration
+      - name: Validate residual priority and snapshot integrity
+        run: python scripts/validate_cew_promotion_orchestration.py --orchestration cew-f7-orchestration/promotion_orchestration.json
+      - name: Emit patch candidates without canonical write
+        run: |
+          python scripts/build_cew_canonical_patch_candidates.py \
+            --evaluations cew-f7-promotion/promotion_evaluations.json \
+            --out cew-f7-patch-candidates
+      - name: Prove governed writer authority boundary
+        run: python scripts/validate_cew_governed_writer_boundary.py --candidates cew-f7-patch-candidates/canonical_patch_candidates.json
+      - name: Upload F7 promotion orchestration and patch-candidate receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-f7-promotion-engine-slice
+          path: |
+            cew-f7-promotion/
+            cew-f7-orchestration/
+            cew-f7-patch-candidates/
+          if-no-files-found: error
+          retention-days: 14

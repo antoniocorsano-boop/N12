@@ -1,0 +1,47 @@
+{
+  "contract_id": "CEW-PROMOTION-ENGINE-v1",
+  "milestone": "CEW-F7",
+  "status": "ACTIVE_IMPLEMENTATION_CONTRACT",
+  "purpose": "Deterministically route validated resolution decisions to an allowed canonical patch candidate or a retained residual without allowing the engine itself to mutate canonical authority.",
+  "authority_flow": "PRIMARY_SOURCE -> OBSERVATION -> CANONICAL_KNOWLEDGE -> ANALYSIS_ASSUMPTION -> CALCULATION_MODEL -> RESULT",
+  "epistemic_order": ["ND", "INF", "RIF", "MIS", "DOC"],
+  "authority_invariants": {
+    "engine_may_impersonate_human_reviewer": false,
+    "engine_may_promote_unreadable_or_unbound": false,
+    "engine_may_promote_rejected_candidate": false,
+    "engine_may_exceed_evidence_ceiling": false,
+    "engine_may_invent_canonical_target": false,
+    "engine_may_write_canonical_directly": false,
+    "engine_may_modify_f2_geometry": false,
+    "engine_may_reopen_m0g_without_protocol": false,
+    "direct_primary_evidence_required": true,
+    "validated_human_decision_required": true
+  },
+  "input_contracts": {
+    "ResolutionDecision": ["decision_id", "task_id", "outcome", "review_mode", "reviewer", "evidence_regions", "requested_epistemic_state"],
+    "PromotionTarget": ["target_id", "target_class", "canonical_locator", "allowed_operations", "geometry_sensitive", "max_epistemic_state", "status"],
+    "ReopenApproval": ["approval_id", "target_id", "approved", "impact_analysis_receipt", "reviewer", "timestamp"]
+  },
+  "output_contract": {
+    "PromotionEvaluationReceipt": ["receipt_id", "decision_id", "eligible", "reason_codes", "terminal_action", "target_id", "requested_epistemic_state", "evidence_ceiling", "canonical_write_performed", "reopen_required", "reopen_satisfied"],
+    "terminal_actions": ["EMIT_CANONICAL_PATCH_CANDIDATE", "RETAIN_RESIDUAL"]
+  },
+  "promotion_rules": {
+    "promotable_outcomes": ["CONFIRMED"],
+    "terminal_non_promotable_outcomes": ["UNREADABLE", "UNBOUND", "REJECTED", "NEEDS_BETTER_SOURCE", "NEEDS_SITE_SURVEY", "DEFER"],
+    "target_must_be_registered_and_active": true,
+    "requested_state_must_not_exceed_evidence_ceiling": true,
+    "requested_state_must_not_exceed_target_ceiling": true,
+    "geometry_sensitive_target_requires_approved_reopen": true,
+    "canonical_patch_is_candidate_only": true,
+    "separate_governed_writer_required": true
+  },
+  "current_n12_policy": {
+    "reference_tasks": ["ERW-N12-001", "ERW-N12-002", "ERW-N12-003", "ERW-N12-004"],
+    "current_promotions_expected": 0,
+    "current_terminal_dispositions": "3_UNREADABLE+1_UNBOUND",
+    "required_action": "RETAIN_RESIDUAL"
+  },
+  "acceptance_gate": "PROMOTION_ENGINE_PASS",
+  "closure_rule": "F7 may close only after the engine proves deterministic routing, target whitelist enforcement, ceiling enforcement, retained-residual behavior and explicit geometry reopen protection; a policy fixture never counts as an actual N12 human promotion."
+}
