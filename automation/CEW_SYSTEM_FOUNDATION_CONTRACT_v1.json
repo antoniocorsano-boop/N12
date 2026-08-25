@@ -1,0 +1,83 @@
+{
+  "contract_id": "CEW-SYSTEM-FOUNDATION-v1",
+  "status": "FOUNDATION_BASELINE",
+  "reference_project": "N12",
+  "epistemic_states": ["DOC", "MIS", "RIF", "INF", "ND"],
+  "authority_flow": [
+    "PRIMARY_SOURCE",
+    "OBSERVATION",
+    "CANONICAL_KNOWLEDGE",
+    "ANALYSIS_ASSUMPTION",
+    "CALCULATION_MODEL",
+    "RESULT"
+  ],
+  "core_domains": [
+    "SOURCE_EVIDENCE_REPOSITORY",
+    "DOCUMENT_INTELLIGENCE",
+    "STRUCTURAL_KNOWLEDGE_GRAPH",
+    "STRUCTURAL_MODEL_WORKSPACE",
+    "EVIDENCE_RESOLUTION_WORKSPACE",
+    "VALIDATION_PROMOTION_ENGINE",
+    "ANALYSIS_CALCULATION_HANDOFF",
+    "REPORTING_FASCICOLO"
+  ],
+  "core_objects": [
+    "Project",
+    "Source",
+    "SourceVersion",
+    "Page",
+    "DerivedAsset",
+    "EvidenceRegion",
+    "Observation",
+    "Assertion",
+    "Binding",
+    "StructuralEntity",
+    "StructuralProperty",
+    "DrawingRule",
+    "EvidenceAnomaly",
+    "Residual",
+    "ResolutionTask",
+    "EvidencePack",
+    "InterpretationCandidate",
+    "ReviewView",
+    "ResolutionDecision",
+    "GateResult",
+    "Receipt",
+    "CanonicalSnapshot",
+    "AnalysisAssumption",
+    "CalculationHandoff"
+  ],
+  "ai_may_produce": [
+    "Observation",
+    "InterpretationCandidate",
+    "BindingCandidate",
+    "EvidenceAnomaly",
+    "SuggestedResolution",
+    "DraftReport"
+  ],
+  "ai_may_not_directly_produce": [
+    "CanonicalAssertion",
+    "FrozenCanonicalMutation",
+    "EpistemicPromotionAboveCeiling"
+  ],
+  "promotion_required_checks": [
+    "IMMUTABLE_SOURCE_IDENTITY",
+    "REQUIRED_EVIDENCE_REGION",
+    "BINDING_VALIDITY",
+    "NO_INVALIDATING_OPEN_CONFLICT",
+    "EPISTEMIC_CEILING",
+    "REQUIRED_HUMAN_DISPOSITION",
+    "DETERMINISTIC_VALIDATOR_PASS"
+  ],
+  "frozen_rules": {
+    "m0g_geometry_reopen_required": true,
+    "conversation_is_authority": false,
+    "derived_visual_is_primary_evidence": false,
+    "calculation_result_can_establish_documentary_fact": false,
+    "unrelated_residuals_block_global_progress": false
+  },
+  "subordinate_contracts": [
+    "docs/ARCHITECTURE/CEW_EVIDENCE_RESOLUTION_WORKSPACE_v1.md",
+    "automation/CEW_ERW_CONTRACT_v1.json"
+  ]
+}
