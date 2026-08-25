@@ -79,8 +79,10 @@ def main() -> int:
     milestone = {r["milestone_id"].strip(): r["status"].strip() for r in rows(MILESTONES)}
     if any(milestone.get(x) != "COMPLETE" for x in ("CEW-F0", "CEW-F1", "CEW-F2", "CEW-F3")):
         raise AssertionError("F4 requires F0-F3 COMPLETE")
-    if milestone.get("CEW-F4") != "IN_PROGRESS":
-        raise AssertionError("CEW-F4 must be active")
+    f4_open = milestone.get("CEW-F4") == "IN_PROGRESS"
+    f4_closed = milestone.get("CEW-F4") == "COMPLETE" and milestone.get("CEW-F5") == "IN_PROGRESS"
+    if not (f4_open or f4_closed):
+        raise AssertionError("F4 validator requires F4 IN_PROGRESS or post-closure F4 COMPLETE/F5 IN_PROGRESS")
 
     knowledge = json.loads(KNOWLEDGE.read_text(encoding="utf-8"))
     if PATCH not in set(knowledge.get("artifact_registry_patches", [])):
