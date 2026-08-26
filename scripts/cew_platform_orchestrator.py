@@ -24,6 +24,7 @@ VALID_STATUSES = {
     "FAIL_STOP",
 }
 VALID_EXECUTION_MODES = {"SERIAL", "PARALLEL_SAFE"}
+VALID_WAITING_READINESS_POLICIES = {"EXPLICIT_ONLY", "AUTO_WHEN_DEPENDENCIES_COMPLETE"}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -166,6 +167,9 @@ def validate() -> tuple[bool, list[str]]:
     global_policy = policy.get("global", {})
     if not isinstance(global_policy.get("max_parallel_work_items"), int) or global_policy.get("max_parallel_work_items", 0) < 1:
         errors.append("execution policy max_parallel_work_items must be >= 1")
+    readiness_policy = global_policy.get("waiting_readiness_policy", "EXPLICIT_ONLY")
+    if readiness_policy not in VALID_WAITING_READINESS_POLICIES:
+        errors.append(f"invalid waiting_readiness_policy: {readiness_policy}")
     for name, profile in profiles.items():
         if not isinstance(profile.get("max_attempts"), int) or profile.get("max_attempts", 0) < 1:
             errors.append(f"profile {name}: max_attempts must be >= 1")
@@ -218,15 +222,39 @@ def dependency_complete(item: dict[str, Any], by_id: dict[str, dict[str, Any]]) 
     return all(by_id[dep].get("status") == "COMPLETE" for dep in item.get("depends_on", []))
 
 
-def eligible_items(queue: dict[str, Any], work_state: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+def readiness_kind(
+    item: dict[str, Any],
+    by_id: dict[str, dict[str, Any]],
+    policy: dict[str, Any],
+) -> str | None:
+    if not dependency_complete(item, by_id):
+        return None
+    status = item.get("status")
+    if status == "READY":
+        return "EXPLICIT_READY"
+    auto = policy.get("global", {}).get("waiting_readiness_policy") == "AUTO_WHEN_DEPENDENCIES_COMPLETE"
+    if status == "WAITING" and auto and not item.get("external_gate"):
+        return "DERIVED_READY"
+    return None
+
+
+def eligible_items(
+    queue: dict[str, Any],
+    work_state: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
     effective = apply_work_state(queue, work_state)
     items = effective.get("items", [])
     by_id = {item["id"]: item for item in items}
-    eligible = [
-        item
-        for item in items
-        if item.get("status") == "READY" and dependency_complete(item, by_id)
-    ]
+    active_policy = policy if policy is not None else load_json(POLICY_PATH)
+    eligible: list[dict[str, Any]] = []
+    for item in items:
+        kind = readiness_kind(item, by_id, active_policy)
+        if not kind:
+            continue
+        planned = dict(item)
+        planned["readiness"] = kind
+        eligible.append(planned)
     return sorted(eligible, key=lambda x: (x.get("priority", 999999), x["id"]))
 
 
@@ -245,7 +273,7 @@ def build_plan(
     max_items: int | None = None,
     work_state: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
-    eligible = eligible_items(queue, work_state)
+    eligible = eligible_items(queue, work_state, policy)
     if not eligible:
         return []
 
@@ -274,6 +302,7 @@ def build_plan(
             "title": item["title"],
             "workstream": item["workstream"],
             "priority": item["priority"],
+            "readiness": item.get("readiness", "EXPLICIT_READY"),
             "execution_profile": item["profile"],
             "execution": item["execution"],
             "requires_capabilities": item.get("requires_capabilities", []),
@@ -423,13 +452,15 @@ def cmd_status(_: argparse.Namespace) -> int:
     counts: dict[str, int] = {}
     for item in effective["items"]:
         counts[item["status"]] = counts.get(item["status"], 0) + 1
+    eligible = eligible_items(queue, work_state, policy)
     plan = build_plan(queue, policy, registry, work_state=work_state)
     print(json.dumps({
         "status": "PASS",
         "queue_status": queue.get("status"),
         "canonical_boundary": queue.get("canonical_boundary"),
         "counts": counts,
-        "eligible_count": len(eligible_items(queue, work_state)),
+        "eligible_count": len(eligible),
+        "derived_ready_count": sum(x.get("readiness") == "DERIVED_READY" for x in eligible),
         "next_batch": plan,
     }, indent=2, ensure_ascii=False))
     return 0
@@ -462,16 +493,17 @@ def cmd_runtime_state(_: argparse.Namespace) -> int:
     if not ok:
         print(json.dumps({"status": "FAIL", "errors": errors}, indent=2, ensure_ascii=False))
         return 2
-    queue, _, _, _, _ = load_state()
+    queue, policy, _, _, _ = load_state()
     effective = apply_work_state(queue, load_work_state())
-    payload = {
-        item["id"]: {
+    by_id = {item["id"]: item for item in effective["items"]}
+    payload = {}
+    for item in effective["items"]:
+        payload[item["id"]] = {
             "status": item["status"],
+            "derived_readiness": readiness_kind(item, by_id, policy),
             "receipt": item.get("runtime_state", {}).get("receipt"),
             "checkpoint": item.get("runtime_state", {}).get("checkpoint"),
         }
-        for item in effective["items"]
-    }
     print(json.dumps(payload, indent=2, ensure_ascii=False))
     return 0
 
