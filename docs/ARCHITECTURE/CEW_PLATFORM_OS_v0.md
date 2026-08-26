@@ -212,3 +212,108 @@ The first operational path is intentionally short:
 `TAV07 source tiles -> Document Intelligence generation -> indexed observations -> symbol/graphic training labels -> Graphic Convention candidates -> human validation -> reusable drawing-reading rules`
 
 In parallel, Platform OS inventories the already-developed CEW model/assessment/degradation modules and defines the Smart Entity contract that will later bind them after their upstream gates are eligible.
+
+## 11. Flexible execution model
+
+The development model is deliberately split into independent contracts:
+
+```text
+WORK ITEM
+  asks for capabilities + completion criteria
+        |
+        v
+EXECUTION PROFILE
+  defines retry/resume/parallel/human-gate policy
+        |
+        v
+CAPABILITY REGISTRY
+  offers one or more compatible providers
+        |
+        v
+ORCHESTRATOR
+  selects eligible work and a lock-safe batch
+        |
+        v
+AGENT / TOOL PROVIDER
+  performs the work
+        |
+        v
+RESULT CONTRACT / CHECKPOINT
+  proves completion or preserves resumable state
+```
+
+This separation is intentional. A future OCR model, FEM engine, database, agent framework or 3D library can be introduced by adding an adapter/provider and passing the same CEW invariants. Existing work items do not need to be rewritten merely because implementation technology changes.
+
+## 12. Execution profiles
+
+The execution policy currently defines six profiles:
+
+- `STRICT_EVIDENCE` — provenance/promotion-sensitive work;
+- `DOCUMENT_INTELLIGENCE` — OCR/HTR/vector/graphic reconstruction;
+- `ENGINEERING_MODEL` — smart entities, scenarios and engineering-model operations;
+- `RESEARCH_BENCHMARK` — non-promotive technical comparisons;
+- `PRODUCT_WORKFLOW` — product/governance/orchestration mechanics;
+- `HUMAN_REVIEW` — adjudication packages and decision persistence;
+- `MAINTENANCE` — technical debt and CI changes without engineering-semantic impact.
+
+Profiles own retry budget, resumability, parallelism and human-gate behavior. Work items own engineering intent and completion criteria. This prevents policy duplication across hundreds of future tasks.
+
+## 13. Safe parallelism
+
+Parallelism is allowed only for independent READY work items whose dependencies are complete and whose exclusive named locks do not overlap.
+
+Examples:
+
+- Document Intelligence schema migration and Smart Entity contract may eventually run in parallel if their locks differ;
+- two operations mutating the same canonical generation cannot;
+- a `SERIAL` work item occupies the execution tranche alone;
+- blocked canonical/evidence work is never made executable merely to fill worker capacity.
+
+Priority chooses which eligible work enters a batch first. Lower numeric priority is earlier. Scheduling efficiency never overrides an epistemic or authorization gate.
+
+## 14. Checkpoint and resume
+
+Long-running work must not depend on chat continuity.
+
+A CEW checkpoint records:
+- work item and execution profile;
+- attempt number and stage;
+- repository branch/head;
+- input fingerprints;
+- completed steps;
+- immutable outputs already produced;
+- declared active locks;
+- resume preconditions;
+- next deterministic step.
+
+Resume revalidates repository head and input fingerprints. Source drift fails closed unless an explicit future work-item policy permits rebasing. A checkpoint is operational state and can never masquerade as engineering evidence or completed work.
+
+## 15. Capability-driven providers
+
+Work items request abstract capabilities such as:
+
+- `document.ocr_htr`;
+- `document.raster_geometry`;
+- `knowledge.smart_entity`;
+- `analysis.fem`;
+- `human.review`.
+
+The capability registry supplies compatible providers. Selection is recorded in each result receipt. Provider substitution is therefore possible without weakening provenance or changing canonical authority.
+
+This also supports progressive maturity:
+
+`single provider -> benchmark alternatives -> multi-reader agreement -> project-specific provider policy`
+
+without changing the CEW object model.
+
+## 16. Maturity rule
+
+The model is considered mature when adding a new engineering capability normally requires:
+
+1. register capability or compatible provider;
+2. declare a work item using existing execution profiles;
+3. run generic orchestration and provenance gates;
+4. add only domain-specific acceptance tests that are genuinely new;
+5. let the orchestrator schedule and resume it without bespoke control-flow code.
+
+The target is not maximum autonomy. The target is maximum automation of deterministic work with minimum human interruption, while keeping every professional engineering decision explicit and auditable.
