@@ -14,8 +14,13 @@ on:
       - 'automation/CEW_AGENT_CAPABILITY_REGISTRY_v0.json'
       - 'automation/CEW_AGENT_RESULT_CONTRACT_v0.json'
       - 'automation/CEW_CHECKPOINT_CONTRACT_v0.json'
+      - 'automation/CEW_TAV07_DOCINTEL_IMPORT_MANIFEST_v0.json'
+      - 'automation/CEW_DEGRADATION_CAPABILITY_MANIFEST_v0.json'
+      - 'automation/CEW_DEGRADATION_MODEL_REGISTRY_v1.json'
       - 'automation/receipts/**'
       - 'scripts/cew_platform_orchestrator.py'
+      - 'scripts/cew_platform_degradation_adapter.py'
+      - 'scripts/cew_degradation_engine.py'
       - 'tests/test_cew_platform_orchestrator.py'
       - 'tools/cew_docintel/**'
       - 'tools/cew_model/**'
@@ -33,8 +38,13 @@ on:
       - 'automation/CEW_AGENT_CAPABILITY_REGISTRY_v0.json'
       - 'automation/CEW_AGENT_RESULT_CONTRACT_v0.json'
       - 'automation/CEW_CHECKPOINT_CONTRACT_v0.json'
+      - 'automation/CEW_TAV07_DOCINTEL_IMPORT_MANIFEST_v0.json'
+      - 'automation/CEW_DEGRADATION_CAPABILITY_MANIFEST_v0.json'
+      - 'automation/CEW_DEGRADATION_MODEL_REGISTRY_v1.json'
       - 'automation/receipts/**'
       - 'scripts/cew_platform_orchestrator.py'
+      - 'scripts/cew_platform_degradation_adapter.py'
+      - 'scripts/cew_degradation_engine.py'
       - 'tests/test_cew_platform_orchestrator.py'
       - 'tools/cew_docintel/**'
       - 'tools/cew_model/**'
@@ -46,6 +56,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -61,15 +73,45 @@ jobs:
         run: python -m unittest discover -s tools/cew_model/tests -v
       - name: Validate Human Decision Workspace
         run: python -m unittest discover -s tools/cew_review/tests -v
+      - name: Stage pinned real TAV07 Scan2DXF artifacts
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/cew-tav07-scan2dxf
+          mkdir -p /tmp/cew-tav07-scan2dxf
+          git fetch --no-tags --depth=1 origin exp/scan2dxf-tav07-test
+          git show FETCH_HEAD:analysis/scan2dxf_test/TAV07/metrics.json > /tmp/cew-tav07-scan2dxf/metrics.json
+          git show FETCH_HEAD:analysis/scan2dxf_test/TAV07/geometry_representative.json > /tmp/cew-tav07-scan2dxf/geometry.json
+          git show FETCH_HEAD:analysis/scan2dxf_test/TAV07/text_candidates_representative.json > /tmp/cew-tav07-scan2dxf/text.json
+      - name: Import real TAV07 observations generation
+        run: |
+          python tools/cew_docintel/tav07_real_import.py \
+            --db /tmp/tav07-docintel.sqlite3 \
+            --metrics /tmp/cew-tav07-scan2dxf/metrics.json \
+            --geometry /tmp/cew-tav07-scan2dxf/geometry.json \
+            --text /tmp/cew-tav07-scan2dxf/text.json \
+            --output /tmp/TAV07_DOCINTEL_IMPORT_RECEIPT_v0.json
+      - name: Validate degradation capability adoption
+        run: |
+          python scripts/cew_platform_degradation_adapter.py \
+            --output /tmp/CEW_DEGRADATION_PLATFORM_ADOPTION_v0.json
       - name: Show effective runtime state
         run: python scripts/cew_platform_orchestrator.py runtime-state
       - name: Show current lock-safe execution plan
         run: python scripts/cew_platform_orchestrator.py plan
       - name: Exercise next work result template
-        run: python scripts/cew_platform_orchestrator.py result-template DOC-001
+        run: python scripts/cew_platform_orchestrator.py result-template DOC-002
       - name: Exercise next work checkpoint template
-        run: python scripts/cew_platform_orchestrator.py checkpoint-template DOC-001
+        run: python scripts/cew_platform_orchestrator.py checkpoint-template DOC-002
       - name: Validate document-intelligence store contract
         run: python tools/cew_docintel/cli.py --db /tmp/docintel.sqlite3 validate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cew-platform-os-validation-artifacts
+          path: |
+            /tmp/TAV07_DOCINTEL_IMPORT_RECEIPT_v0.json
+            /tmp/CEW_DEGRADATION_PLATFORM_ADOPTION_v0.json
+            /tmp/CEW_DEGRADATION_PLATFORM_ADOPTION_v0.engine.json
+          if-no-files-found: ignore
 
 # Canonical promotion remains disabled. This workflow validates only the experimental Platform OS execution layer.
