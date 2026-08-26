@@ -39,3 +39,5 @@ jobs:
         run: python -m unittest discover -s tools/cew_docintel/tests -v
       - name: Validate inherited document-intelligence store contract
         run: python tools/cew_docintel/cli.py --db /tmp/docintel.sqlite3 validate
+
+# The exact integration head is gated after alignment with the current green Document Intelligence base.
