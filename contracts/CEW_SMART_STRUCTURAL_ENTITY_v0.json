@@ -1,0 +1,62 @@
+{
+  "schema_version": "0.1.0",
+  "contract_id": "CEW_SMART_STRUCTURAL_ENTITY_V0",
+  "purpose": "Solver-independent, evidence-bound lifecycle entity contract for CEW structural objects.",
+  "entity_types": [
+    "BUILDING",
+    "LEVEL",
+    "NODE",
+    "SUPPORT",
+    "BEAM",
+    "COLUMN",
+    "WALL",
+    "SLAB",
+    "FOUNDATION_MEMBER",
+    "FOUNDATION_SUPPORT",
+    "DIAPHRAGM",
+    "RIGID_OFFSET",
+    "GENERIC_STRUCTURAL_ENTITY"
+  ],
+  "epistemic_states": ["DOC", "MIS", "RIF", "INF", "INC", "ND", "MOD", "POST"],
+  "binding_namespaces": [
+    "geometry",
+    "topology",
+    "scenario",
+    "degradation",
+    "solver",
+    "intervention",
+    "quantity_cost"
+  ],
+  "generation_change_kinds": [
+    "RECONSTRUCTION",
+    "SURVEY_UPDATE",
+    "EVIDENCE_CORRECTION",
+    "MODELING_UPDATE",
+    "PROPOSED_INTERVENTION",
+    "EXECUTED_INTERVENTION",
+    "MONITORING_UPDATE"
+  ],
+  "property_rules": {
+    "DOC": {"requires_evidence": true, "requires_model_rule": false, "requires_scenario": false},
+    "MIS": {"requires_evidence": true, "requires_model_rule": false, "requires_scenario": false},
+    "RIF": {"requires_evidence": true, "requires_model_rule": false, "requires_scenario": false},
+    "INF": {"requires_evidence": true, "requires_model_rule": true, "requires_scenario": false},
+    "INC": {"requires_evidence": true, "minimum_evidence": 2, "requires_model_rule": false, "requires_scenario": false},
+    "ND": {"requires_null_value": true, "requires_evidence": false, "requires_model_rule": false, "requires_scenario": false},
+    "MOD": {"requires_evidence": false, "requires_model_rule": true, "requires_scenario": true},
+    "POST": {"requires_evidence": true, "requires_model_rule": true, "requires_scenario": true}
+  },
+  "invariants": [
+    "entity_id is stable across lifecycle generations",
+    "entity generation id is immutable once published",
+    "supersedes_generation_id cannot equal generation_id",
+    "every non-ND populated engineering property satisfies its epistemic-state rule",
+    "MOD and POST remain scenario-space values and never silently become MIS",
+    "topology binding is explicit and is never created from geometric proximity alone",
+    "solver mappings are projections and cannot mutate canonical properties",
+    "degradation overlays cannot mutate source evidence",
+    "interventions create new model/entity generations rather than rewriting historical generations",
+    "quantity/cost bindings reference both entity generation and price/model generation",
+    "residuals remain explicit and machine-readable"
+  ]
+}
