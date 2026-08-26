@@ -1,0 +1,92 @@
+name: Validate CEW Engineering Workbench
+
+on:
+  pull_request:
+    paths:
+      - 'ui/workbench/**'
+      - 'docs/UX/CEW_ENGINEERING_WORKBENCH_v0.md'
+      - 'scripts/cew_workbench_stage_tav06a.sh'
+      - 'scripts/validate_cew_engineering_workbench.py'
+      - '.github/workflows/validate-cew-engineering-workbench.yml'
+  push:
+    branches:
+      - 'exp/cew-engineering-workbench-v0'
+    paths:
+      - 'ui/workbench/**'
+      - 'docs/UX/CEW_ENGINEERING_WORKBENCH_v0.md'
+      - 'scripts/cew_workbench_stage_tav06a.sh'
+      - 'scripts/validate_cew_engineering_workbench.py'
+      - '.github/workflows/validate-cew-engineering-workbench.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  workbench:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ui/workbench
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate CEW UX1 authority and interaction contract
+        working-directory: .
+        run: python scripts/validate_cew_engineering_workbench.py
+
+      - name: Ensure source-render prerequisite
+        working-directory: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v pdftoppm >/dev/null 2>&1; then
+            while IFS= read -r -d '' source_file; do
+              echo "Disabling unrelated Microsoft apt source for deterministic poppler install: ${source_file}"
+              sudo mv "${source_file}" "${source_file}.disabled"
+            done < <(grep -rlZ 'packages.microsoft.com' /etc/apt/sources.list.d 2>/dev/null || true)
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends poppler-utils
+          fi
+          pdftoppm -v
+
+      - name: Stage pinned TAV06A primary-source review raster
+        working-directory: .
+        run: bash scripts/cew_workbench_stage_tav06a.sh ui/workbench
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+
+      - name: Install exact direct dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build workbench
+        run: npm run build
+
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run professional interaction and accessibility tests
+        run: npm run test:e2e
+
+      - name: Upload workbench build
+        uses: actions/upload-artifact@v4
+        with:
+          name: CEW_ENGINEERING_WORKBENCH_UX1
+          path: |
+            ui/workbench/dist
+            ui/workbench/storybook-static
+          if-no-files-found: error
