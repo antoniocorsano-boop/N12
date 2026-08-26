@@ -1,0 +1,213 @@
+name: Experimental source concordance G2-G5
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'requirements-vector-concordance.txt'
+      - 'scripts/n12_vector_concordance_gate.py'
+      - 'scripts/n12_raster_line_concordance_gate.py'
+      - 'scripts/n12_consensus_intersections.py'
+      - 'scripts/n12_consensus_review_overlay.py'
+      - 'scripts/n12_registered_candidate_audit.py'
+      - 'scripts/n12_registered_line_topology_audit.py'
+      - 'scripts/n12_registered_line_network_audit.py'
+      - 'scripts/n12_validate_line_topology_visual_review.py'
+      - 'analysis/experimental_source_concordance/TAV06S_LINE_TOPOLOGY_VISUAL_REVIEW_v1.csv'
+      - '.github/workflows/vector-concordance-g2-g5.yml'
+  push:
+    branches:
+      - exp/vector-concordance-g2-g5
+    paths:
+      - 'requirements-vector-concordance.txt'
+      - 'scripts/n12_vector_concordance_gate.py'
+      - 'scripts/n12_raster_line_concordance_gate.py'
+      - 'scripts/n12_consensus_intersections.py'
+      - 'scripts/n12_consensus_review_overlay.py'
+      - 'scripts/n12_registered_candidate_audit.py'
+      - 'scripts/n12_registered_line_topology_audit.py'
+      - 'scripts/n12_registered_line_network_audit.py'
+      - 'scripts/n12_validate_line_topology_visual_review.py'
+      - 'analysis/experimental_source_concordance/TAV06S_LINE_TOPOLOGY_VISUAL_REVIEW_v1.csv'
+      - '.github/workflows/vector-concordance-g2-g5.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  concordance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install parser and detector pairs
+        run: python -m pip install -r requirements-vector-concordance.txt
+
+      - name: Run vector matcher self-test
+        run: python scripts/n12_vector_concordance_gate.py --self-test
+
+      - name: Run raster matcher self-test
+        run: python scripts/n12_raster_line_concordance_gate.py --self-test
+
+      - name: Run consensus intersection self-test
+        run: python scripts/n12_consensus_intersections.py --self-test
+
+      - name: Run review overlay self-test
+        run: python scripts/n12_consensus_review_overlay.py --self-test
+
+      - name: Run registered candidate audit self-test
+        run: python scripts/n12_registered_candidate_audit.py --self-test
+
+      - name: Run registered line topology audit self-test
+        run: python scripts/n12_registered_line_topology_audit.py --self-test
+
+      - name: Run registered line network audit self-test
+        run: python scripts/n12_registered_line_network_audit.py --self-test
+
+      - name: Validate non-canonical visual line review
+        run: python scripts/n12_validate_line_topology_visual_review.py
+
+      - name: Fetch immutable source archive
+        run: git fetch --no-tags --depth=1 origin archive/originali-alta-risoluzione
+
+      - name: Diagnose PDF vector availability
+        run: >-
+          python scripts/n12_vector_concordance_gate.py
+          --archive-ref FETCH_HEAD
+          --out-dir analysis/vector_concordance
+          --min-length-pt 8.0
+          --axis-tolerance-deg 0.75
+          --match-tolerance-pt 1.5
+
+      - name: Measure independent raster line concordance
+        env:
+          DOCLINGCORE_MAX_IMAGE_DECODED_SIZE: '268435456'
+        run: >-
+          python scripts/n12_raster_line_concordance_gate.py
+          --archive-ref FETCH_HEAD
+          --out-dir analysis/raster_line_concordance
+          --max-dimension-px 2200
+          --min-length-px 120
+          --min-length-fraction 0.05
+          --axis-tolerance-deg 1.0
+          --coordinate-tolerance-px 8.0
+          --min-overlap-ratio 0.65
+
+      - name: Derive non-canonical consensus intersections
+        run: >-
+          python scripts/n12_consensus_intersections.py
+          --input-root analysis/raster_line_concordance
+          --cluster-coordinate-tolerance-px 4.0
+          --join-gap-px 24.0
+          --endpoint-slack-px 6.0
+
+      - name: Build visual review package
+        run: >-
+          python scripts/n12_consensus_review_overlay.py
+          --input-root analysis/raster_line_concordance
+
+      - name: Audit retained TAV-06S candidate in registered XY
+        run: >-
+          python scripts/n12_registered_candidate_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-06S
+          --candidate-id I001
+
+      - name: Compare TAV-03S lines with canonical G2 topology
+        run: >-
+          python scripts/n12_registered_line_topology_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-03S
+          --storey-id G2
+          --beams-csv data/canonical/STOREY_BEAMS_G2_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-04S lines with canonical G3 topology
+        run: >-
+          python scripts/n12_registered_line_topology_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-04S
+          --storey-id G3
+          --beams-csv data/canonical/STOREY_BEAMS_G3_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-05S lines with canonical G4 topology
+        run: >-
+          python scripts/n12_registered_line_topology_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-05S
+          --storey-id G4
+          --beams-csv data/canonical/STOREY_BEAMS_G4_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-06S lines with canonical G5 topology
+        run: >-
+          python scripts/n12_registered_line_topology_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-06S
+          --storey-id G5
+          --beams-csv data/canonical/STOREY_BEAMS_G5_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-03S lines with canonical G2 beam network
+        run: >-
+          python scripts/n12_registered_line_network_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-03S
+          --storey-id G2
+          --beams-csv data/canonical/STOREY_BEAMS_G2_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-04S lines with canonical G3 beam network
+        run: >-
+          python scripts/n12_registered_line_network_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-04S
+          --storey-id G3
+          --beams-csv data/canonical/STOREY_BEAMS_G3_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-05S lines with canonical G4 beam network
+        run: >-
+          python scripts/n12_registered_line_network_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-05S
+          --storey-id G4
+          --beams-csv data/canonical/STOREY_BEAMS_G4_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Compare TAV-06S lines with canonical G5 beam network
+        run: >-
+          python scripts/n12_registered_line_network_audit.py
+          --input-root analysis/raster_line_concordance
+          --source-id TAV-06S
+          --storey-id G5
+          --beams-csv data/canonical/STOREY_BEAMS_G5_v1.csv
+          --max-angle-deg 2.0
+          --max-distance-m 0.35
+
+      - name: Upload non-canonical concordance receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-concordance-g2-g5
+          path: |
+            analysis/vector_concordance/
+            analysis/raster_line_concordance/
+          if-no-files-found: warn
