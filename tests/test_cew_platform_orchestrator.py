@@ -1,6 +1,5 @@
 import copy
 import importlib.util
-import json
 import unittest
 from pathlib import Path
 
@@ -15,21 +14,31 @@ class CEWPlatformOrchestratorTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.queue, cls.policy, cls.registry, cls.contract, cls.checkpoint_contract = ORCH.load_state()
+        cls.work_state = ORCH.load_work_state()
 
     def test_repository_contracts_validate(self):
         ok, errors = ORCH.validate()
         self.assertTrue(ok, errors)
 
-    def test_current_top_priority_serial_work_is_exclusive(self):
-        plan = ORCH.build_plan(self.queue, self.policy, self.registry)
+    def test_runtime_state_is_separate_from_queue_definition(self):
+        queue_pos2 = next(x for x in self.queue["items"] if x["id"] == "POS-002")
+        self.assertEqual(queue_pos2["status"], "READY")
+        self.assertEqual(self.work_state["items"]["POS-002"]["status"], "COMPLETE")
+        effective = ORCH.apply_work_state(self.queue, self.work_state)
+        effective_pos2 = next(x for x in effective["items"] if x["id"] == "POS-002")
+        self.assertEqual(effective_pos2["status"], "COMPLETE")
+
+    def test_serial_work_is_exclusive_when_runtime_marks_it_ready(self):
+        state = copy.deepcopy(self.work_state)
+        state["items"]["POS-002"]["status"] = "READY"
+        for wid in ["DOC-001", "ENT-001", "UX-001"]:
+            state["items"][wid]["status"] = "WAITING"
+        plan = ORCH.build_plan(self.queue, self.policy, self.registry, work_state=state)
         self.assertEqual([x["id"] for x in plan], ["POS-002"])
         self.assertEqual(plan[0]["execution"]["mode"], "SERIAL")
 
-    def test_after_platform_upgrade_independent_work_can_run_in_parallel(self):
-        queue = copy.deepcopy(self.queue)
-        by_id = {x["id"]: x for x in queue["items"]}
-        by_id["POS-002"]["status"] = "COMPLETE"
-        plan = ORCH.build_plan(queue, self.policy, self.registry)
+    def test_current_independent_work_runs_in_parallel(self):
+        plan = ORCH.build_plan(self.queue, self.policy, self.registry, work_state=self.work_state)
         ids = [x["id"] for x in plan]
         self.assertEqual(ids, ["DOC-001", "ENT-001", "UX-001"])
         locks = []
@@ -40,9 +49,8 @@ class CEWPlatformOrchestratorTests(unittest.TestCase):
     def test_lock_collision_prevents_unsafe_parallel_execution(self):
         queue = copy.deepcopy(self.queue)
         by_id = {x["id"]: x for x in queue["items"]}
-        by_id["POS-002"]["status"] = "COMPLETE"
         by_id["ENT-001"]["execution"]["locks"] = ["docintel-schema"]
-        plan = ORCH.build_plan(queue, self.policy, self.registry)
+        plan = ORCH.build_plan(queue, self.policy, self.registry, work_state=self.work_state)
         ids = [x["id"] for x in plan]
         self.assertIn("DOC-001", ids)
         self.assertNotIn("ENT-001", ids)
@@ -57,6 +65,12 @@ class CEWPlatformOrchestratorTests(unittest.TestCase):
         cycle = ORCH.dependency_cycle(items)
         self.assertIsNotNone(cycle)
         self.assertEqual(cycle[0], cycle[-1])
+
+    def test_runtime_completion_receipts_validate(self):
+        errors = ORCH.validate_runtime_receipts(
+            self.queue, self.work_state, self.policy, self.registry, self.contract
+        )
+        self.assertEqual(errors, [])
 
     def test_result_contract_accepts_registered_provider_selection(self):
         item = next(x for x in self.queue["items"] if x["id"] == "DOC-001")
