@@ -118,18 +118,16 @@
       "status": "WAITING",
       "profile": "DOCUMENT_INTELLIGENCE",
       "priority": 30,
-      "depends_on": ["DOC-001", "DOC-002", "GKF-001"],
-      "requires_capabilities": ["document.symbol_learning", "knowledge.graphic_conventions", "human.review"],
+      "depends_on": ["DOC-001", "DOC-002"],
+      "requires_capabilities": ["document.symbol_learning", "human.review"],
       "execution": {"mode": "PARALLEL_SAFE", "locks": ["graphic-convention-dataset"], "batch_key": "docintel"},
       "human_gate": true,
       "completion": [
         "training examples include positive, negative and uncertain outcomes",
         "examples preserve source region and context",
-        "project examples can contribute to the shared Graphic Knowledge Fabric",
-        "resolver may combine local family global and affinity-weighted knowledge",
+        "classifier proposes meanings with calibrated evidence",
         "counterexamples influence scoring",
-        "validated project meaning remains human-approved",
-        "project specialization does not mutate shared convention knowledge"
+        "validated meaning remains human-approved"
       ]
     },
     {
