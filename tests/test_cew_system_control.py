@@ -23,31 +23,37 @@ class CEWSystemCompletenessTests(unittest.TestCase):
         self.assertIn("DOS-001", owners["dossier.lifecycle"])
         self.assertIn("WS3D-001", owners["model.ifc_projection"])
 
-    def test_control_plane_preserves_canonical_boundary(self):
-        h = ctrl.health(self.matrix, self.queue, self.state, self.registry)
-        self.assertEqual(h["canonical_boundary"]["cew_f2"], "IN_PROGRESS")
-        self.assertEqual(h["canonical_boundary"]["canonical_promotion"], "DISABLED")
-        self.assertEqual(self.queue["canonical_boundary"]["f3_or_later_promotion"], "NOT_AUTHORIZED_BY_THIS_QUEUE")
+    def test_control_plane_preserves_non_promotive_boundary(self):
+        health = ctrl.health(self.matrix, self.queue, self.state, self.registry)
+        self.assertEqual(health["canonical_boundary"]["canonical_promotion"], "DISABLED")
+        self.assertEqual(self.queue["status"], "EXPERIMENTAL_NON_PROMOTIVE")
 
     def test_missing_workstream_fails_closed(self):
         matrix = deepcopy(self.matrix)
         matrix["workstreams"].pop("W8")
         ok, errors = ctrl.validate(matrix, self.queue, self.state, self.registry)
         self.assertFalse(ok)
-        self.assertTrue(any("workstream coverage mismatch" in x for x in errors))
+        self.assertTrue(any("workstream coverage mismatch" in error for error in errors))
 
     def test_unowned_domain_capability_fails_closed(self):
         registry = deepcopy(self.registry)
-        registry["capabilities"]["future.domain"] = {"class": "CEW_DOMAIN_CAPABILITY", "providers": ["future-provider"], "required_invariants": ["explicit"]}
+        registry["capabilities"]["future.domain"] = {
+            "class": "CEW_DOMAIN_CAPABILITY",
+            "providers": ["future-provider"],
+            "required_invariants": ["explicit"],
+        }
         ok, errors = ctrl.validate(self.matrix, self.queue, self.state, registry)
         self.assertFalse(ok)
         self.assertIn("unowned CEW_DOMAIN_CAPABILITY capability: future.domain", errors)
 
-    def test_blocked_upstream_is_health_signal_not_fake_failure(self):
-        h = ctrl.health(self.matrix, self.queue, self.state, self.registry)
-        self.assertEqual(h["status"], "PASS")
-        self.assertEqual(h["workstreams"]["W2"]["blockers"]["MOD-001"], "BLOCKED_CANONICAL_GATE")
-        self.assertEqual(h["workstreams"]["W4"]["blockers"]["FEM-001"], "BLOCKED_EVIDENCE")
+    def test_real_blocker_is_health_signal_not_fake_failure(self):
+        health = ctrl.health(self.matrix, self.queue, self.state, self.registry)
+        self.assertEqual(health["status"], "PASS")
+        self.assertEqual(
+            health["workstreams"]["W4"]["blockers"]["FEM-001"],
+            "BLOCKED_EVIDENCE",
+        )
+        self.assertEqual(health["workstreams"]["W2"]["work_items"]["MOD-001"], "READY")
 
 
 if __name__ == "__main__":
