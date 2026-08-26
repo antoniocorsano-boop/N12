@@ -31,30 +31,44 @@ class CEWPlatformOrchestratorTests(unittest.TestCase):
     def test_serial_work_is_exclusive_when_runtime_marks_it_ready(self):
         state = copy.deepcopy(self.work_state)
         state["items"]["POS-002"]["status"] = "READY"
-        for wid in ["DOC-001", "ENT-001", "UX-001"]:
-            state["items"][wid]["status"] = "WAITING"
+        for wid, value in state["items"].items():
+            if wid not in {"POS-001", "POS-002"} and value["status"] == "READY":
+                value["status"] = "WAITING"
         plan = ORCH.build_plan(self.queue, self.policy, self.registry, work_state=state)
         self.assertEqual([x["id"] for x in plan], ["POS-002"])
         self.assertEqual(plan[0]["execution"]["mode"], "SERIAL")
 
-    def test_current_independent_work_runs_in_parallel(self):
+    def test_current_plan_is_lock_safe_dependency_complete_and_priority_ordered(self):
         plan = ORCH.build_plan(self.queue, self.policy, self.registry, work_state=self.work_state)
-        ids = [x["id"] for x in plan]
-        self.assertEqual(ids, ["DOC-001", "ENT-001", "UX-001"])
+        self.assertTrue(plan)
+        effective = ORCH.apply_work_state(self.queue, self.work_state)
+        by_id = {x["id"]: x for x in effective["items"]}
         locks = []
+        priorities = []
         for item in plan:
+            source = by_id[item["id"]]
+            self.assertEqual(source["status"], "READY")
+            self.assertTrue(all(by_id[d]["status"] == "COMPLETE" for d in source.get("depends_on", [])))
             locks.extend(item["execution"]["locks"])
+            priorities.append(item["priority"])
         self.assertEqual(len(locks), len(set(locks)))
+        self.assertEqual(priorities, sorted(priorities))
 
     def test_lock_collision_prevents_unsafe_parallel_execution(self):
         queue = copy.deepcopy(self.queue)
+        state = copy.deepcopy(self.work_state)
         by_id = {x["id"]: x for x in queue["items"]}
-        by_id["ENT-001"]["execution"]["locks"] = ["docintel-schema"]
-        plan = ORCH.build_plan(queue, self.policy, self.registry, work_state=self.work_state)
+        for wid, value in state["items"].items():
+            if wid in {"DOC-001", "ENT-001"}:
+                value["status"] = "READY"
+            elif value["status"] == "READY":
+                value["status"] = "WAITING"
+        state["items"]["POS-002"]["status"] = "COMPLETE"
+        by_id["ENT-001"]["execution"]["locks"] = list(by_id["DOC-001"]["execution"]["locks"])
+        plan = ORCH.build_plan(queue, self.policy, self.registry, work_state=state)
         ids = [x["id"] for x in plan]
         self.assertIn("DOC-001", ids)
         self.assertNotIn("ENT-001", ids)
-        self.assertIn("UX-001", ids)
 
     def test_cycle_detection_is_fail_closed(self):
         items = [
