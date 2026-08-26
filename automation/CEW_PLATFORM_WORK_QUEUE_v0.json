@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "status": "EXPERIMENTAL_NON_PROMOTIVE",
   "authority": "platform-integration-work-queue",
   "execution_policy": "automation/CEW_EXECUTION_POLICY_v0.json",
@@ -89,22 +89,47 @@
       ]
     },
     {
+      "id": "GKF-001",
+      "title": "System Graphic Knowledge Fabric",
+      "workstream": "CORE-W1",
+      "status": "READY",
+      "profile": "DOCUMENT_INTELLIGENCE",
+      "priority": 25,
+      "depends_on": ["POS-002", "UX-001"],
+      "requires_capabilities": ["knowledge.graphic_conventions", "human.review", "workflow.durable_execution"],
+      "execution": {"mode": "PARALLEL_SAFE", "locks": ["graphic-knowledge-fabric"], "batch_key": "knowledge-system"},
+      "human_gate": false,
+      "completion": [
+        "graphic convention knowledge is project-agnostic and portable",
+        "project, family and global layers remain distinct",
+        "cross-project retrieval is affinity-weighted and explainable",
+        "positive negative and uncertain evidence all affect transfer",
+        "local specialization never rewrites shared knowledge",
+        "conflicting local and shared evidence is exposed",
+        "generalization requires multi-project support and human approval",
+        "imported packs are supported evidence rather than local authority",
+        "knowledge packs are content-fingerprinted and idempotent"
+      ]
+    },
+    {
       "id": "DOC-003",
-      "title": "Graphic convention active-learning loop",
+      "title": "Project graphic convention active-learning loop",
       "workstream": "W1",
       "status": "WAITING",
       "profile": "DOCUMENT_INTELLIGENCE",
       "priority": 30,
-      "depends_on": ["DOC-001", "DOC-002"],
-      "requires_capabilities": ["document.symbol_learning", "human.review"],
+      "depends_on": ["DOC-001", "DOC-002", "GKF-001"],
+      "requires_capabilities": ["document.symbol_learning", "knowledge.graphic_conventions", "human.review"],
       "execution": {"mode": "PARALLEL_SAFE", "locks": ["graphic-convention-dataset"], "batch_key": "docintel"},
       "human_gate": true,
       "completion": [
         "training examples include positive, negative and uncertain outcomes",
         "examples preserve source region and context",
-        "classifier proposes meanings with calibrated evidence",
+        "project examples can contribute to the shared Graphic Knowledge Fabric",
+        "resolver may combine local family global and affinity-weighted knowledge",
         "counterexamples influence scoring",
-        "validated meaning remains human-approved"
+        "validated project meaning remains human-approved",
+        "project specialization does not mutate shared convention knowledge"
       ]
     },
     {
