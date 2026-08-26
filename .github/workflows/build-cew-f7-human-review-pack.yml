@@ -59,7 +59,7 @@ jobs:
           git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola 6.pdf" > /tmp/cew-primary/tavola6.pdf
           git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola 5.pdf" > /tmp/cew-primary/tavola5S.pdf
           git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola 6-1.pdf" > /tmp/cew-primary/tavola6S.pdf
-          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola 4.pdf" > /tmp/cew-primary/tavola4.pdf
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola4-2.pdf" > /tmp/cew-primary/tavola4S.pdf
           git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola6-2.pdf" > /tmp/cew-primary/tavola6E.pdf
       - name: Install pinned viewer dependencies
         run: |
@@ -75,7 +75,7 @@ jobs:
             --source TAV-06A /tmp/cew-primary/tavola6.pdf 3f2d557fe6d3c65eb0891b1fd4f0f6f2a0a4b6cd0efe22a06604a5c341fc9c6d \
             --source TAV-05S /tmp/cew-primary/tavola5S.pdf 2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580 \
             --source TAV-06S /tmp/cew-primary/tavola6S.pdf ca454c844049cab12af6eeaaf5167f934a9be0e2f72d34dd392d4db0bf3d341d \
-            --source TAV-04 /tmp/cew-primary/tavola4.pdf 87972049435ea9bac6df76b62da67de097a1299f55dadbcb0dcf65526a3f0948 \
+            --source TAV-04S /tmp/cew-primary/tavola4S.pdf 2b878bcefde54ff2b42bafa2a4fdc8a8420bd71514a7e6966a864f009ade685e \
             --source TAV-06E /tmp/cew-primary/tavola6E.pdf c0ad4eefb5c0e116ae28069a61234351913af80b99e12fe2023a0bde67b7fd81
       - name: Generate DZI pyramids and source viewer
         run: |
@@ -84,7 +84,7 @@ jobs:
           vips dzsave cew-f7-review-render/TAV-06A/TAV-06A_p001_300dpi.png cew-f7-review-viewer/tiles/TAV-06A --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
           vips dzsave cew-f7-review-render/TAV-05S/TAV-05S_p001_300dpi.png cew-f7-review-viewer/tiles/TAV-05S --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
           vips dzsave cew-f7-review-render/TAV-06S/TAV-06S_p001_300dpi.png cew-f7-review-viewer/tiles/TAV-06S --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
-          vips dzsave cew-f7-review-render/TAV-04/TAV-04_p001_300dpi.png cew-f7-review-viewer/tiles/TAV-04 --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
+          vips dzsave cew-f7-review-render/TAV-04S/TAV-04S_p001_300dpi.png cew-f7-review-viewer/tiles/TAV-04S --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
           vips dzsave cew-f7-review-render/TAV-06E/TAV-06E_p001_300dpi.png cew-f7-review-viewer/tiles/TAV-06E --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
           python scripts/build_cew_source_viewer_extended_context.py --out-dir cew-f7-review-viewer
           PKG=$(npm pack openseadragon@5.0.1 --silent)
