@@ -104,16 +104,23 @@ jobs:
           python - <<'PY'
           import json
           p=json.load(open('/tmp/TAV07_GRAPHIC_REVIEW_PACKAGE_v0.json', encoding='utf-8'))
+          expected_source='e935df7da1aab9de9fc065d2ab4a8fb36624b2d9ee983ca29f1d5af08f6b2494'
           assert p['work_item_id']=='DOC-003'
           assert p['status']=='BLOCKED_HUMAN_DECISION'
           assert p['semantic_promotion']=='HUMAN_ONLY'
           assert p['canonical_promotion']=='DISABLED'
+          assert p['candidate_fingerprint_version']=='CEW-GRAPHIC-CANDIDATE-v1'
+          assert p['review_package_fingerprint'].startswith('sha256:')
           assert p['candidate_count']==12
+          assert all(c['candidate_fingerprint'].startswith('GCFP-') for c in p['candidates'])
+          assert len({c['candidate_fingerprint'] for c in p['candidates']})==12
+          assert all(c['source_sha256']==expected_source for c in p['candidates'])
           assert all(c['generation_id'] for c in p['candidates'])
           assert all(len(c['bbox_native'])==4 for c in p['candidates'])
           assert all(c['suggested_meanings']==[] for c in p['candidates'])
           assert all(c['semantic_state']=='UNASSIGNED_REQUIRES_HUMAN_LABEL' for c in p['candidates'])
-          print('TAV07 graphic convention human gate: PASS')
+          print('TAV07 graphic convention stable human gate: PASS')
+          print('review_package_fingerprint='+p['review_package_fingerprint'])
           PY
       - name: Validate degradation capability adoption
         run: |
