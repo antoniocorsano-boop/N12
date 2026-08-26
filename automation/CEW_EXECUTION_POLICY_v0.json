@@ -1,0 +1,86 @@
+{
+  "schema_version": "0.2.0",
+  "default_profile": "PRODUCT_WORKFLOW",
+  "global": {
+    "canonical_promotion": "DISABLED_BY_DEFAULT",
+    "max_parallel_work_items": 4,
+    "checkpoint_required_for_resumable": true,
+    "source_drift_policy": "FAIL_CLOSED",
+    "technical_self_repair": true,
+    "semantic_ambiguity_policy": "HUMAN_GATE",
+    "lock_policy": "EXCLUSIVE_BY_NAME",
+    "priority_order": "LOWER_NUMBER_FIRST"
+  },
+  "profiles": {
+    "STRICT_EVIDENCE": {
+      "purpose": "Source, provenance, evidence and canonical-promotion-sensitive work.",
+      "parallelism": "PARALLEL_WHEN_LOCK_SAFE",
+      "resumable": true,
+      "max_attempts": 3,
+      "human_gate": "ON_SEMANTIC_AMBIGUITY",
+      "required_result_evidence": ["input_generation_ids", "output_artifacts", "gate_receipts", "source_fingerprints"],
+      "allow_model_inference_as_evidence": false,
+      "allow_canonical_promotion": false
+    },
+    "DOCUMENT_INTELLIGENCE": {
+      "purpose": "OCR, HTR, raster/vector extraction, symbol learning and document reconstruction.",
+      "parallelism": "PARALLEL_WHEN_LOCK_SAFE",
+      "resumable": true,
+      "max_attempts": 4,
+      "human_gate": "ON_SEMANTIC_AMBIGUITY",
+      "required_result_evidence": ["source_version_ids", "processing_generation_ids", "detector_versions", "output_artifacts"],
+      "allow_model_inference_as_evidence": false,
+      "allow_canonical_promotion": false
+    },
+    "ENGINEERING_MODEL": {
+      "purpose": "Canonical structural entities, model generations, scenarios and solver projections.",
+      "parallelism": "PARALLEL_WHEN_LOCK_SAFE",
+      "resumable": true,
+      "max_attempts": 3,
+      "human_gate": "ON_ENGINEERING_CHOICE",
+      "required_result_evidence": ["input_generation_ids", "model_generation_id", "identity_mapping", "gate_receipts"],
+      "allow_model_inference_as_evidence": false,
+      "allow_canonical_promotion": false
+    },
+    "RESEARCH_BENCHMARK": {
+      "purpose": "Compare candidate libraries, models, algorithms and solvers without changing canonical truth.",
+      "parallelism": "PARALLEL_PREFERRED",
+      "resumable": true,
+      "max_attempts": 2,
+      "human_gate": "AT_ADOPTION_DECISION",
+      "required_result_evidence": ["benchmark_inputs", "versions", "metrics", "failure_modes"],
+      "allow_model_inference_as_evidence": false,
+      "allow_canonical_promotion": false
+    },
+    "PRODUCT_WORKFLOW": {
+      "purpose": "Reusable product/application workflow, orchestration, UI and governance mechanics.",
+      "parallelism": "PARALLEL_WHEN_LOCK_SAFE",
+      "resumable": true,
+      "max_attempts": 3,
+      "human_gate": "ONLY_WHEN_CONTRACT_REQUIRES",
+      "required_result_evidence": ["output_artifacts", "tests", "gate_receipts"],
+      "allow_model_inference_as_evidence": false,
+      "allow_canonical_promotion": false
+    },
+    "HUMAN_REVIEW": {
+      "purpose": "Prepare compact adjudication packages and persist explicit engineering decisions.",
+      "parallelism": "PARALLEL_PREFERRED",
+      "resumable": true,
+      "max_attempts": 2,
+      "human_gate": "REQUIRED",
+      "required_result_evidence": ["candidate_ids", "evidence_ids", "decision_receipt"],
+      "allow_model_inference_as_evidence": false,
+      "allow_canonical_promotion": false
+    },
+    "MAINTENANCE": {
+      "purpose": "Refactoring, CI, migrations and technical debt that do not alter engineering meaning.",
+      "parallelism": "PARALLEL_WHEN_LOCK_SAFE",
+      "resumable": false,
+      "max_attempts": 3,
+      "human_gate": "NONE",
+      "required_result_evidence": ["tests", "gate_receipts"],
+      "allow_model_inference_as_evidence": false,
+      "allow_canonical_promotion": false
+    }
+  }
+}
