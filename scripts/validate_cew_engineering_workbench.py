@@ -38,8 +38,10 @@ EXPECTED_VERSIONS = {
     "@axe-core/playwright": "4.13.0",
 }
 
+
 def fail(message: str) -> None:
     raise SystemExit(f"CEW_WORKBENCH_FAIL: {message}")
+
 
 for path in REQUIRED:
     if not path.exists():
@@ -79,6 +81,8 @@ if "CONFIRMED" in decision["allowed_non_promotive_outcomes"]:
     fail("CONFIRMED cannot be offered without a registered target")
 
 queue = json.loads(UX_FOUNDATION_QUEUE.read_text(encoding="utf-8"))
+if queue.get("canonical_promotion") != "DISABLED":
+    fail("UX foundation canonical promotion must remain disabled")
 queue_items = {item["id"]: item for item in queue.get("items", [])}
 ux1_queue = queue_items.get("UX1-001", {})
 if ux1_queue.get("canonical_context") != "CEW-F2":
@@ -135,5 +139,6 @@ print(json.dumps({
     "evidence_region": snapshot["evidence_region"]["id"],
     "evidence_status": snapshot["evidence_region"]["status"],
     "structural_binding": snapshot["structural_context"]["binding_state"],
+    "canonical_promotion": queue["canonical_promotion"],
     "canonical_write": False
 }, indent=2))
