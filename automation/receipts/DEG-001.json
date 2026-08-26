@@ -1,0 +1,61 @@
+{
+  "work_item_id": "DEG-001",
+  "outcome": "COMPLETE_PASS",
+  "execution_profile": "ENGINEERING_MODEL",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-platform-os-v0",
+  "head_sha": "d135f5392ef3b4db76218dbdd33b05d19ae488ef",
+  "input_generations": [
+    "validated degradation-engine capability adoption"
+  ],
+  "input_fingerprints": [
+    "validated_branch:work/cew-degradation-engine-v0",
+    "validated_head:eb934232d605d389abd3fb67b14e03a6a8ed00ea",
+    "registry_git_blob:f5681884b90979be5b1657ba4bafd3cee83599bc",
+    "safety_engine_git_blob:5dc5338f7007e96eacba8d66fa01f7221c6959f8"
+  ],
+  "selected_providers": {
+    "degradation.registry": "cew-degradation-engine",
+    "knowledge.smart_entity": "cew-smart-entity-core"
+  },
+  "outputs": [
+    "automation/CEW_DEGRADATION_PLATFORM_ADOPTION_MANIFEST_v0.json",
+    "scripts/cew_platform_degradation_adapter.py",
+    "CI artifact: CEW_DEGRADATION_PLATFORM_ADOPTION_v0.json"
+  ],
+  "gates": [
+    {
+      "name": "Validate CEW Platform OS",
+      "run_id": 32962393643,
+      "job_id": 98157399621,
+      "head_sha": "d135f5392ef3b4db76218dbdd33b05d19ae488ef",
+      "status": "PASS"
+    },
+    {
+      "name": "Validated degradation origin",
+      "status": "PASS",
+      "validated_head": "eb934232d605d389abd3fb67b14e03a6a8ed00ea"
+    },
+    {
+      "name": "Degradation activation safety",
+      "status": "PASS",
+      "model_count": 5,
+      "blocked_model_count": 5,
+      "eligible_model_count": 0,
+      "project_degradation_values": "NOT_EXECUTED"
+    },
+    {
+      "name": "Evidence immutability",
+      "status": "PASS",
+      "evidence_mutation": "NOT_EMITTED",
+      "canonical_promotion": "DISABLED"
+    }
+  ],
+  "residuals": [
+    "All five degradation mechanisms remain unavailable for N12 project scenarios until reference, applicability, parameter provenance, uncertainty, validity range and calibration/justification requirements are satisfied under human review."
+  ],
+  "human_decisions": [],
+  "checkpoint_id": null,
+  "next_eligible_action": "INT-001 — establish intervention intelligence contract without activating unvalidated degradation models"
+}
