@@ -1,0 +1,34 @@
+name: Validate CEW Human Engineering Experience Foundation
+
+on:
+  pull_request:
+    paths:
+      - 'docs/UX/**'
+      - 'automation/CEW_HUMAN_ENGINEERING_EXPERIENCE_CONTRACT_v1.json'
+      - 'automation/CEW_ENGINEERING_DESIGN_SYSTEM_CONTRACT_v1.json'
+      - 'automation/CEW_UX_FOUNDATION_WORK_QUEUE_v1.json'
+      - 'ui/foundation/**'
+      - 'scripts/validate_cew_ui_foundation.py'
+      - 'tests/test_cew_ui_foundation.py'
+      - '.github/workflows/validate-cew-ui-foundation.yml'
+  push:
+    branches:
+      - 'exp/cew-human-engineering-experience-v0'
+  workflow_dispatch:
+
+jobs:
+  ux-foundation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate Human Engineering Experience and EDS contracts
+        run: python scripts/validate_cew_ui_foundation.py
+      - name: Run UX foundation regression tests
+        run: python -m unittest tests.test_cew_ui_foundation -v
+      - name: Verify reference shell is framework-independent
+        run: |
+          test -s ui/foundation/reference/engineering-workspace.html
+          test -s ui/foundation/cew-engineering.css

@@ -1,0 +1,34 @@
+{
+  "$schema": "CEW_ENGINEERING_TOKENS_v1",
+  "meta": {"density":"COMPACT_PROFESSIONAL","base_spacing_px":4,"color_only_state":false},
+  "font": {"sans":"system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif","mono":"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"},
+  "surface": {"canvas":"#F4F6F8","panel":"#FFFFFF","panel_subtle":"#EEF2F5","inverse":"#17212B"},
+  "text": {"primary":"#17212B","secondary":"#4E5A67","muted":"#6D7884","inverse":"#FFFFFF"},
+  "border": {"default":"#C9D1D9","strong":"#8996A3","focus":"#0B63CE"},
+  "accent": {"primary":"#0B63CE","technical":"#0B7285"},
+  "epistemic": {
+    "DOC":{"color":"#1859A9","icon":"document-check","pattern":"solid","label":"Documentato"},
+    "MIS":{"color":"#087F6B","icon":"ruler","pattern":"double","label":"Misurato"},
+    "RIF":{"color":"#8A6500","icon":"reference","pattern":"dash","label":"Riferimento"},
+    "INF":{"color":"#7651A8","icon":"inference","pattern":"diagonal","label":"Inferito"},
+    "ND":{"color":"#626D78","icon":"unknown","pattern":"dot","label":"Non determinato"}
+  },
+  "workflow": {
+    "READY":{"color":"#0B63CE","icon":"ready","label":"Pronto"},
+    "RUNNING":{"color":"#0B7285","icon":"progress","label":"In elaborazione"},
+    "IN_REVIEW":{"color":"#9A6700","icon":"review","label":"Da revisionare"},
+    "BLOCKED":{"color":"#B54708","icon":"blocked","label":"Bloccato"},
+    "COMPLETE":{"color":"#157347","icon":"check","label":"Completato"},
+    "FAILED":{"color":"#B42318","icon":"error","label":"Errore"}
+  },
+  "severity": {
+    "OK":{"color":"#157347","icon":"status-ok","label":"Regolare"},
+    "ATTENTION":{"color":"#9A6700","icon":"warning","label":"Attenzione"},
+    "CRITICAL":{"color":"#B42318","icon":"critical","label":"Critico"},
+    "NOT_ASSESSED":{"color":"#626D78","icon":"not-assessed","label":"Non valutato"}
+  },
+  "spacing": {"1":4,"2":8,"3":12,"4":16,"5":20,"6":24,"8":32},
+  "control_height": {"compact":32,"standard":40},
+  "radius": {"sm":3,"md":5,"lg":8},
+  "shadow": {"panel":"0 1px 2px rgba(23,33,43,.08), 0 4px 14px rgba(23,33,43,.05)"}
+}

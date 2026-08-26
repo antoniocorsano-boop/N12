@@ -1,0 +1,19 @@
+{
+  "work_item_id": "UX0-001",
+  "outcome": "COMPLETE_PASS",
+  "execution_profile": "PRODUCT_WORKFLOW",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-human-engineering-experience-v0",
+  "head_sha": "7293bf7038337fa045e08f8219073768dcbac074",
+  "input_generations": [],
+  "input_fingerprints": ["platform:921d46450136c949cfcbca5e0d5ee9d3e21a8bc1","canonical-cew:b4356bc78807257901a0b97892a63d9f4c9744c9"],
+  "selected_providers": {"ui.foundation": "cew-engineering-design-system-v1"},
+  "outputs": ["docs/UX/CEW_HUMAN_ENGINEERING_EXPERIENCE_MODEL_v1.md","docs/UX/CEW_ENGINEERING_DESIGN_SYSTEM_v1.md","docs/UX/CEW_ENGINEERING_INFORMATION_ARCHITECTURE_v1.md","docs/UX/CEW_UI_OPEN_SOURCE_ADOPTION_MATRIX_v1.md","automation/CEW_HUMAN_ENGINEERING_EXPERIENCE_CONTRACT_v1.json","automation/CEW_ENGINEERING_DESIGN_SYSTEM_CONTRACT_v1.json","ui/foundation/tokens/cew.tokens.json","ui/foundation/contracts/component-catalog.json","ui/foundation/contracts/information-architecture.json","ui/foundation/reference/engineering-workspace.html"],
+  "gates": [{"name":"Validate CEW Human Engineering Experience Foundation","run_id":32981784381,"job_id":98219955357,"head_sha":"7293bf7038337fa045e08f8219073768dcbac074","status":"PASS"}],
+  "residuals": ["UX1-001 must establish the single production frontend package and pin third-party versions after benchmark"],
+  "human_decisions": [],
+  "checkpoint_id": null,
+  "canonical_promotion": false,
+  "next_eligible_action": "UX1-001 N12 Engineering Workbench vertical slice"
+}

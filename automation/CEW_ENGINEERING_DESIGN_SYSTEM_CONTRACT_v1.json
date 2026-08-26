@@ -1,0 +1,15 @@
+{
+  "contract_id": "CEW-ENGINEERING-DESIGN-SYSTEM-v1",
+  "status": "EXPERIMENTAL_NON_PROMOTIVE",
+  "layers": ["TOKENS","PRIMITIVES","ENGINEERING_COMPONENTS","WORKSPACES","PROJECT_APPLICATIONS"],
+  "density_profiles": ["COMPACT_PROFESSIONAL","STANDARD_ACCESSIBLE"],
+  "state_taxonomies": {
+    "EPISTEMIC": ["DOC","MIS","RIF","INF","ND"],
+    "WORKFLOW": ["READY","RUNNING","IN_REVIEW","BLOCKED","COMPLETE","FAILED"],
+    "ENGINEERING_SEVERITY": ["OK","ATTENTION","CRITICAL","NOT_ASSESSED"]
+  },
+  "state_rules": {"taxonomies_semantically_disjoint": true, "color_only_encoding_allowed": false, "text_label_required": true, "icon_or_pattern_required": true},
+  "third_party_boundary": {"may_define_cew_identity": false, "may_promote_epistemic_state": false, "may_create_structural_binding": false, "may_change_generation_silently": false, "viewer_geometry_is_evidence_authority": false},
+  "required_components": ["ProjectContextBar","EngineeringEvidenceCard","EpistemicStateMark","EngineeringInspector","EvidenceDecisionTrail","HumanDecisionPanel","TechnicalDataTable","SourceModelSplitView","ProvenanceDrawer","EngineeringStateBanner"],
+  "future_workbench": {"single_frontend_boundary_required": true, "legacy_viewers_must_use_ports": true, "storybook_required": true, "playwright_required": true, "axe_core_required": true}
+}
