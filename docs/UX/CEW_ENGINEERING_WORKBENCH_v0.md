@@ -1,6 +1,6 @@
 # CEW Engineering Workbench v0
 
-Status: UX1 IMPLEMENTATION CANDIDATE  
+Status: UX1 COMPLETE — EXPERIMENTAL / NON-PROMOTIVE  
 Work item: `UX1-001`  
 Parent: `CEW Human Engineering Experience Foundation v1`
 
@@ -85,3 +85,9 @@ Pinned direct dependencies are current stable releases verified on 2026-08-26:
 - `@axe-core/playwright` `4.13.0`
 
 Third-party packages provide behavior/infrastructure. CEW owns engineering semantics, tokens, contracts and authority boundaries.
+
+## Completion record
+
+UX1 implementation authority was reviewed and aligned with the current canonical `CEW-F2` context before completion. The validated implementation head is `916a266aead0a4095252774fb573bc4ec3051496`; its Workbench, UX Foundation and Knowledge System gates are PASS, including Playwright interaction tests and the axe serious/critical accessibility gate.
+
+The completion receipt is persisted at `automation/receipts/UX1-001.json` with `canonical_promotion = false`. Completion of this experimental product work item does not bind `T6A-G03`, close CEW-F2, emit `EVIDENCE_PROVENANCE_PASS`, or authorize F3 or later milestones.
