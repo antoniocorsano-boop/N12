@@ -1,0 +1,14 @@
+{
+  "contract_id": "CEW-HUMAN-ENGINEERING-EXPERIENCE-v1",
+  "status": "EXPERIMENTAL_NON_PROMOTIVE",
+  "primary_professional_role": "CIVIL_STRUCTURAL_ENGINEER_EXISTING_BUILDINGS",
+  "mental_model": ["OPERA","FONTE","EVIDENZA","ELEMENTO_STRUTTURALE","PROPRIETA","STATO_CONOSCENZA","COMPORTAMENTO","PROBLEMA","DECISIONE","INTERVENTO","VERIFICA"],
+  "primary_language": "ENGINEERING_MEANING",
+  "internal_ids": {"primary_ui_label": false, "available_in": "TECHNICAL_PROVENANCE"},
+  "professional_gratification": ["CONTROL","CLARITY","PRECISION","SPEED","TRUST","CONTINUITY","CLOSURE"],
+  "gamification": {"celebratory_badges": false, "streaks": false, "patronizing_praise": false},
+  "decision_classes": ["TECHNICAL_READING","SOURCE_ENTITY_BINDING","ENGINEERING_ASSUMPTION","INVESTIGATION_SELECTION","INTERVENTION_SELECTION","CANONICAL_PROMOTION"],
+  "decision_surface_order": ["SUBJECT","PRIMARY_EVIDENCE","MODEL_SCENARIO_CONTEXT","CEW_REQUEST_OR_PROPOSAL","PROFESSIONAL_ALTERNATIVES","CONSEQUENCE","PROVENANCE_ON_DEMAND"],
+  "human_authority": {"engineering_decision_may_be_prefilled": false, "ui_may_write_canonical_directly": false, "decision_receipt_required": true, "source_generation_drift_invalidates_review": true},
+  "accessibility": {"keyboard_critical_workflows": true, "color_only_state": false, "visible_focus": true, "reduced_motion": true}
+}

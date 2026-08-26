@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "status": "EXPERIMENTAL_NON_PROMOTIVE",
+  "parent_platform_head": "921d46450136c949cfcbca5e0d5ee9d3e21a8bc1",
+  "canonical_cew_reference": "b4356bc78807257901a0b97892a63d9f4c9744c9",
+  "policy": "Docente OS pattern: contract first, machine validation, receipt before completion, single coherent frontend boundary.",
+  "items": [
+    {"id":"UX0-001","title":"Human Engineering Experience Foundation","status":"READY","human_gate":false,"completion":["HEEM contract validates","EDS contract validates","engineering IA validates","tokens and component catalog validate","reference shell renders without external runtime","CI PASS on exact head"]},
+    {"id":"UX1-001","title":"N12 Engineering Workbench vertical slice","status":"WAITING","depends_on":["UX0-001"],"human_gate":false,"completion":["single frontend package boundary exists","primary drawing and frozen EvidenceRegion visible","structural context/entity visible","epistemic state visible","F7 decision surface emits receipt only","Storybook Playwright axe gates active"]}
+  ],
+  "canonical_promotion": "DISABLED"
+}
