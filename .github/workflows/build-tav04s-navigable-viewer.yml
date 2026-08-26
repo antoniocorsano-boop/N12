@@ -1,0 +1,65 @@
+name: Build TAV-04S Navigable Viewer
+
+on:
+  push:
+    branches:
+      - 'work/cew-f7-human-review-it-from-b4356b'
+    paths:
+      - '.github/workflows/build-tav04s-navigable-viewer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-viewer:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Fetch immutable TAV-04S
+        run: |
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola4-2.pdf" > TAV-04S.pdf
+          echo "2b878bcefde54ff2b42bafa2a4fdc8a8420bd71514a7e6966a864f009ade685e  TAV-04S.pdf" | sha256sum -c -
+      - name: Install viewer dependencies
+        run: |
+          python -m pip install --disable-pip-version-check 'PyMuPDF==1.26.4'
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libvips-tools
+      - name: Render 300 dpi
+        run: |
+          python - <<'PY'
+          import fitz
+          doc=fitz.open('TAV-04S.pdf')
+          page=doc[0]
+          pix=page.get_pixmap(dpi=300, alpha=False)
+          pix.save('TAV-04S_300dpi.png')
+          print('SIZE', pix.width, pix.height)
+          PY
+      - name: Build deep zoom viewer
+        run: |
+          mkdir -p tav04s-viewer/tiles
+          vips dzsave TAV-04S_300dpi.png tav04s-viewer/tiles/TAV-04S --tile-size 256 --overlap 1 --suffix '.jpg[Q=92]'
+          PKG=$(npm pack openseadragon@5.0.1 --silent)
+          tar -xzf "$PKG"
+          mkdir -p tav04s-viewer/vendor/openseadragon
+          cp package/build/openseadragon/openseadragon.min.js tav04s-viewer/vendor/openseadragon/
+          cp -R package/build/openseadragon/images tav04s-viewer/vendor/openseadragon/
+          cat > tav04s-viewer/index.html <<'HTML'
+          <!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TAV-04S — III impalcato navigabile</title><script src="vendor/openseadragon/openseadragon.min.js"></script><style>html,body{height:100%;margin:0;font-family:system-ui;background:#1f2328;color:#fff}header{height:48px;display:flex;align-items:center;gap:1rem;padding:0 14px;background:#111820;border-bottom:1px solid #566}#viewer{height:calc(100% - 49px);width:100%}.hint{font-size:.85rem;color:#cbd5df}button{padding:.35rem .65rem}</style></head><body><header><strong>TAV-04S — Carpenteria III impalcato (G3)</strong><span class="hint">rotella = zoom · trascina = sposta</span><button id="home">Intera tavola</button></header><div id="viewer"></div><script>const v=OpenSeadragon({id:'viewer',prefixUrl:'vendor/openseadragon/images/',tileSources:'tiles/TAV-04S.dzi',showNavigator:true,navigatorAutoFade:false,maxZoomPixelRatio:4,gestureSettingsMouse:{clickToZoom:false}});document.getElementById('home').onclick=()=>v.viewport.goHome(true);</script></body></html>
+          HTML
+      - name: Upload viewer
+        uses: actions/upload-artifact@v4
+        with:
+          name: tav04s-third-level-navigable-viewer
+          path: tav04s-viewer/
+          if-no-files-found: error
+          retention-days: 14
