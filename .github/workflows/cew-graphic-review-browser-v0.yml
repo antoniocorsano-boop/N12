@@ -1,0 +1,91 @@
+name: CEW Graphic Review Browser v0
+
+on:
+  push:
+    branches: [exp/cew-platform-os-v0]
+    paths:
+      - 'tools/cew_graphic_review/**'
+      - '.github/workflows/cew-graphic-review-browser-v0.yml'
+  pull_request:
+    paths:
+      - 'tools/cew_graphic_review/**'
+      - '.github/workflows/cew-graphic-review-browser-v0.yml'
+
+jobs:
+  browser-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate browser-shell unit tests
+        run: python -m unittest discover -s tools/cew_graphic_review/tests -v
+      - name: Stage pinned real TAV07 Scan2DXF inputs and raster
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/cew-tav07-scan2dxf /tmp/tav07-browser
+          mkdir -p /tmp/cew-tav07-scan2dxf /tmp/tav07-browser/assets
+          git fetch --no-tags --depth=1 origin exp/scan2dxf-tav07-test
+          git show FETCH_HEAD:analysis/scan2dxf_test/TAV07/metrics.json > /tmp/cew-tav07-scan2dxf/metrics.json
+          git show FETCH_HEAD:analysis/scan2dxf_test/TAV07/geometry_representative.json > /tmp/cew-tav07-scan2dxf/geometry.json
+          git show FETCH_HEAD:analysis/scan2dxf_test/TAV07/text_candidates_representative.json > /tmp/cew-tav07-scan2dxf/text.json
+          git show FETCH_HEAD:analysis/source_renders/TAV07/r1_c3.jpg > /tmp/tav07-browser/assets/r1_c3.jpg
+      - name: Build current TAV07 project observation generation
+        run: |
+          python tools/cew_docintel/tav07_real_import.py \
+            --db /tmp/tav07-browser/project.sqlite3 \
+            --metrics /tmp/cew-tav07-scan2dxf/metrics.json \
+            --geometry /tmp/cew-tav07-scan2dxf/geometry.json \
+            --text /tmp/cew-tav07-scan2dxf/text.json \
+            --output /tmp/tav07-browser/import_receipt.json
+          python tools/cew_docintel/graphic_conventions.py \
+            --db /tmp/tav07-browser/project.sqlite3 \
+            package --limit 12 \
+            --output /tmp/tav07-browser/project_review_package.json
+      - name: Build real TAV07 system browser review package
+        run: |
+          python tools/cew_graphic_review/browser_shell.py build \
+            --project-db /tmp/tav07-browser/project.sqlite3 \
+            --fabric-db /tmp/tav07-browser/fabric.sqlite3 \
+            --review-db /tmp/tav07-browser/review.sqlite3 \
+            --project-id N12 \
+            --candidate-package /tmp/tav07-browser/project_review_package.json \
+            --context '{"discipline":"structural","document_family":"reinforced_concrete_drawings","drawing_type":"UNKNOWN_REQUIRES_REVIEW","country":"IT","language":"it","source_modality":"scan"}' \
+            --image-map '{"e935df7da1aab9de9fc065d2ab4a8fb36624b2d9ee983ca29f1d5af08f6b2494":"assets/r1_c3.jpg"}' \
+            --output /tmp/tav07-browser/index.html \
+            --manifest-output /tmp/tav07-browser/manifest.json
+      - name: Validate no semantic decision is prefilled or promoted
+        run: |
+          python - <<'PY'
+          import json, sqlite3
+          from pathlib import Path
+          root=Path('/tmp/tav07-browser')
+          m=json.loads((root/'manifest.json').read_text(encoding='utf-8'))
+          assert m['schema_version']=='CEW-GRAPHIC-REVIEW-BROWSER-v1'
+          assert m['project_id']=='N12'
+          assert m['candidate_count']==12
+          assert m['semantic_authority']=='PROJECT_HUMAN_REVIEW'
+          assert m['automatic_semantic_promotion']=='DISABLED'
+          assert m['automatic_generalization']=='DISABLED'
+          assert all(c['image_path']=='assets/r1_c3.jpg' for c in m['cases'])
+          assert all(c['bbox_native'] and len(c['bbox_native'])==4 for c in m['cases'])
+          html=(root/'index.html').read_text(encoding='utf-8')
+          assert 'Esporta decisioni JSON' in html
+          assert 'CEW-GRAPHIC-REVIEW-DECISIONS-v1' in html
+          with sqlite3.connect(root/'project.sqlite3') as c:
+              assert c.execute('SELECT COUNT(*) FROM graphic_training_examples').fetchone()[0]==0
+          with sqlite3.connect(root/'fabric.sqlite3') as c:
+              assert c.execute('SELECT COUNT(*) FROM gkf_examples').fetchone()[0]==0
+              assert c.execute('SELECT COUNT(*) FROM gkf_generalizations').fetchone()[0]==0
+          print('TAV07 system browser review shell: PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TAV07_SYSTEM_GRAPHIC_REVIEW_v0
+          path: /tmp/tav07-browser
+          if-no-files-found: error
+
+# Review artifact only. Canonical CEW promotion and automatic semantic generalization remain disabled.
