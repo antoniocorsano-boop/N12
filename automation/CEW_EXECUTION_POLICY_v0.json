@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "default_profile": "PRODUCT_WORKFLOW",
   "global": {
     "canonical_promotion": "DISABLED_BY_DEFAULT",
@@ -9,7 +9,8 @@
     "technical_self_repair": true,
     "semantic_ambiguity_policy": "HUMAN_GATE",
     "lock_policy": "EXCLUSIVE_BY_NAME",
-    "priority_order": "LOWER_NUMBER_FIRST"
+    "priority_order": "LOWER_NUMBER_FIRST",
+    "waiting_readiness_policy": "AUTO_WHEN_DEPENDENCIES_COMPLETE"
   },
   "profiles": {
     "STRICT_EVIDENCE": {
