@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "snapshot_id": "CEW-UX1-N12-T6A-G03-v1",
+  "authority": "PINNED_CANONICAL_READ_MODEL",
+  "canonical_commit": "b4356bc78807257901a0b97892a63d9f4c9744c9",
+  "project": {
+    "id": "N12",
+    "label": "Condominio N.12 — Ariano Irpino"
+  },
+  "source": {
+    "source_version_id": "CEW-N12-SV-79C2759D3-TAV06A-PDF-0001",
+    "page_id": "CEW-N12-PAGE-79C2759D3-TAV06A-PDF-P001",
+    "drawing_label": "Tavola 6 — Armature copertura",
+    "archive_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+    "archive_path": "archive/documentazione_originaria/tavola 6.pdf",
+    "archive_blob_sha": "c3048472adfdaa5b1e902f84c20ccfb20d679b1f",
+    "render": {
+      "dpi": 300,
+      "width_px": 4299,
+      "height_px": 25376
+    }
+  },
+  "evidence_region": {
+    "id": "CEW-N12-REG-T6A-G03",
+    "evidence_unit": "T6A-G03",
+    "status": "READY",
+    "coord_system": "PAGE_NORMALIZED_TOPLEFT_YDOWN",
+    "bbox": {
+      "x": 0.0,
+      "y": 0.579287,
+      "w": 1.0,
+      "h": 0.110341
+    }
+  },
+  "structural_context": {
+    "binding_state": "UNBOUND",
+    "candidate_target_id": null,
+    "professional_label": "Schema di armatura di copertura — associazione strutturale da determinare",
+    "epistemic_state": "DOC",
+    "engineering_severity": "NOT_ASSESSED"
+  },
+  "decision": {
+    "receipt_schema": "CEW-HUMAN-DECISION-RECEIPT-v1",
+    "milestone": "CEW-F7",
+    "allowed_non_promotive_outcomes": [
+      "UNBOUND",
+      "UNREADABLE",
+      "NEEDS_BETTER_SOURCE",
+      "NEEDS_SITE_SURVEY",
+      "DEFER"
+    ],
+    "confirmed_requires_registered_target": true,
+    "authority_acknowledgement": "I reviewed the cited immutable primary-source evidence and understand this receipt is not itself a canonical write."
+  },
+  "guards": [
+    "UI_IS_READ_MODEL_ONLY",
+    "DECISION_STARTS_BLANK",
+    "NO_DIRECT_CANONICAL_WRITE",
+    "SOURCE_DRIFT_DISABLES_DECISION",
+    "READY_EVIDENCE_DOES_NOT_IMPLY_STRUCTURAL_BINDING"
+  ]
+}
