@@ -7,6 +7,7 @@ on:
       - 'docs/ARCHITECTURE/CEW_PLATFORM_OS_v0.md'
       - 'docs/ARCHITECTURE/CEW_OPEN_SOURCE_ADOPTION_MATRIX_v0.md'
       - 'docs/AGENTS/CEW_COMMUNICATION_PROTOCOL_v0.md'
+      - 'contracts/**'
       - 'automation/CEW_PLATFORM_WORK_QUEUE_v0.json'
       - 'automation/CEW_PLATFORM_WORK_STATE_v0.json'
       - 'automation/CEW_EXECUTION_POLICY_v0.json'
@@ -17,12 +18,15 @@ on:
       - 'scripts/cew_platform_orchestrator.py'
       - 'tests/test_cew_platform_orchestrator.py'
       - 'tools/cew_docintel/**'
+      - 'tools/cew_model/**'
+      - 'tools/cew_review/**'
       - '.github/workflows/validate-cew-platform-os.yml'
   pull_request:
     paths:
       - 'docs/ARCHITECTURE/CEW_PLATFORM_OS_v0.md'
       - 'docs/ARCHITECTURE/CEW_OPEN_SOURCE_ADOPTION_MATRIX_v0.md'
       - 'docs/AGENTS/CEW_COMMUNICATION_PROTOCOL_v0.md'
+      - 'contracts/**'
       - 'automation/CEW_PLATFORM_WORK_QUEUE_v0.json'
       - 'automation/CEW_PLATFORM_WORK_STATE_v0.json'
       - 'automation/CEW_EXECUTION_POLICY_v0.json'
@@ -33,6 +37,8 @@ on:
       - 'scripts/cew_platform_orchestrator.py'
       - 'tests/test_cew_platform_orchestrator.py'
       - 'tools/cew_docintel/**'
+      - 'tools/cew_model/**'
+      - 'tools/cew_review/**'
       - '.github/workflows/validate-cew-platform-os.yml'
 
 jobs:
@@ -49,6 +55,12 @@ jobs:
         run: python scripts/cew_platform_orchestrator.py validate-receipts
       - name: Validate adaptive planning and result/checkpoint invariants
         run: python -m unittest discover -s tests -p 'test_cew_platform_orchestrator.py' -v
+      - name: Validate generation-safe Document Intelligence
+        run: python -m unittest discover -s tools/cew_docintel/tests -v
+      - name: Validate Smart Structural Entity
+        run: python -m unittest discover -s tools/cew_model/tests -v
+      - name: Validate Human Decision Workspace
+        run: python -m unittest discover -s tools/cew_review/tests -v
       - name: Show effective runtime state
         run: python scripts/cew_platform_orchestrator.py runtime-state
       - name: Show current lock-safe execution plan
@@ -57,9 +69,7 @@ jobs:
         run: python scripts/cew_platform_orchestrator.py result-template DOC-001
       - name: Exercise next work checkpoint template
         run: python scripts/cew_platform_orchestrator.py checkpoint-template DOC-001
-      - name: Validate inherited document-intelligence foundation
-        run: python -m unittest discover -s tools/cew_docintel/tests -v
-      - name: Validate inherited document-intelligence store contract
+      - name: Validate document-intelligence store contract
         run: python tools/cew_docintel/cli.py --db /tmp/docintel.sqlite3 validate
 
 # Canonical promotion remains disabled. This workflow validates only the experimental Platform OS execution layer.
