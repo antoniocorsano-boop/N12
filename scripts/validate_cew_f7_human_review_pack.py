@@ -19,12 +19,19 @@ def main():
         if d['direct_primary_evidence_observed'] is not None or d['authority_acknowledgement'] is not False:raise AssertionError('human acknowledgement prefilled')
         if len(d['evidence_regions'])!=1 or len(d['source_versions'])!=1:raise AssertionError('evidence provenance missing')
         viewer=b/e['viewer_url'].split('?')[0]
-        if not viewer.is_file():raise AssertionError(f'missing embedded viewer: {e["task_id"]}')
+        context=b/e['context_viewer_url'].split('?')[0]
+        if not viewer.is_file() or not context.is_file():raise AssertionError(f'missing embedded viewer: {e["task_id"]}')
+        if e.get('context_source') not in ('TAV-05S','TAV-06S'):raise AssertionError('unexpected carpenteria context source')
     for rel in ('index.html','app.js','human_review_manifest.json','source-viewer/index.html','source-viewer/viewer_manifest.json'):
         if not (b/rel).is_file():raise AssertionError(f'missing review pack file {rel}')
+    vm=json.loads((b/'source-viewer/viewer_manifest.json').read_text(encoding='utf-8'))
+    context_codes={x.get('source_code') for x in vm.get('context_sources',[])}
+    expected_context={'TAV-05S','TAV-06S'}
+    if context_codes!=expected_context:raise AssertionError(f'context coverage drift: {context_codes}')
+    if any(x in context_codes for x in ('TAV-04S','TAV-06E')):raise AssertionError('out-of-scope context source leaked into clean F7 review pack')
     js=(b/'app.js').read_text(encoding='utf-8')
-    for token in ('CONFIRMED','direct_primary_evidence_observed','authority_acknowledgement','target_id','Export decision JSON'):
+    for token in ('CONFIRMED','direct_primary_evidence_observed','authority_acknowledgement','target_id','Esporta la decisione in JSON'):
         if token not in js:raise AssertionError(f'human decision control missing: {token}')
     if re.search(r'canonical_write[^\n]*true',json.dumps(m),flags=re.I):raise AssertionError('review pack gained canonical write')
-    print('HUMAN_DECISION_INTAKE_PACK_PASS');print('TASKS=4/4');print('PREFILLED_OUTCOMES=0');print('PREFILLED_HUMAN_OBSERVATIONS=0');print('PREFILLED_DIRECT_PRIMARY_CLAIMS=0');print('PREFILLED_PROMOTION_TARGETS=0');print('PRIMARY_SOURCE_VIEWER=EMBEDDED');print('CANONICAL_WRITE=FORBIDDEN');print('M0G_REOPEN=FORBIDDEN');return 0
+    print('HUMAN_DECISION_INTAKE_PACK_PASS');print('TASKS=4/4');print('PREFILLED_OUTCOMES=0');print('PREFILLED_HUMAN_OBSERVATIONS=0');print('PREFILLED_DIRECT_PRIMARY_CLAIMS=0');print('PREFILLED_PROMOTION_TARGETS=0');print('PRIMARY_SOURCE_VIEWER=EMBEDDED');print('CARPENTERIA_CONTEXT=TAV-05S,TAV-06S');print('OUT_OF_SCOPE_CONTEXT=NONE');print('CANONICAL_WRITE=FORBIDDEN');print('M0G_REOPEN=FORBIDDEN');return 0
 if __name__=='__main__':raise SystemExit(main())
