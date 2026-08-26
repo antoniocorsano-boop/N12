@@ -1,0 +1,68 @@
+{
+  "work_item_id": "UX1-001",
+  "outcome": "COMPLETE_PASS",
+  "execution_profile": "PRODUCT_WORKFLOW",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-engineering-workbench-v0",
+  "head_sha": "916a266aead0a4095252774fb573bc4ec3051496",
+  "input_generations": [],
+  "input_fingerprints": [
+    "ux0:5e69cf1b8435950cbdd7e91e606ce49fe392f2ed",
+    "canonical-cew:b4356bc78807257901a0b97892a63d9f4c9744c9",
+    "source-pdf-blob:c3048472adfdaa5b1e902f84c20ccfb20d679b1f",
+    "evidence-region:CEW-N12-REG-T6A-G03"
+  ],
+  "selected_providers": {
+    "ui.workbench": "cew-engineering-workbench-v0",
+    "source.viewer": "openseadragon-6.1.0",
+    "interaction.primitives": "react-aria-components-1.20.0"
+  },
+  "outputs": [
+    "docs/UX/CEW_ENGINEERING_WORKBENCH_v0.md",
+    "ui/workbench/src/App.tsx",
+    "ui/workbench/src/cew/snapshot.json",
+    "ui/workbench/src/cew/decision.ts",
+    "ui/workbench/tests/workbench.spec.ts",
+    "scripts/cew_workbench_stage_tav06a.sh",
+    "scripts/validate_cew_engineering_workbench.py",
+    ".github/workflows/validate-cew-engineering-workbench.yml"
+  ],
+  "gates": [
+    {
+      "name": "Validate CEW Engineering Workbench",
+      "run_id": 33011243435,
+      "job_id": 98317772089,
+      "head_sha": "916a266aead0a4095252774fb573bc4ec3051496",
+      "status": "PASS"
+    },
+    {
+      "name": "Validate CEW Human Engineering Experience Foundation",
+      "run_id": 33011243387,
+      "job_id": 98317772366,
+      "head_sha": "916a266aead0a4095252774fb573bc4ec3051496",
+      "status": "PASS"
+    },
+    {
+      "name": "Validate N12 Knowledge System",
+      "run_id": 33011243382,
+      "job_id": 98317772047,
+      "head_sha": "916a266aead0a4095252774fb573bc4ec3051496",
+      "status": "PASS"
+    }
+  ],
+  "artifact": {
+    "id": 9622635071,
+    "name": "CEW_ENGINEERING_WORKBENCH_UX1",
+    "digest": "sha256:586a8e88e7a4b30b3a014a904071439f6988181a5668ef909e7466ae08cd6a89"
+  },
+  "residuals": [
+    "T6A-G03 structural binding remains UNBOUND by canonical design.",
+    "No canonical write or CEW milestone promotion is authorized by UX1.",
+    "Any subsequent UX tranche requires a new governed work item."
+  ],
+  "human_decisions": [],
+  "checkpoint_id": null,
+  "canonical_promotion": false,
+  "next_eligible_action": "NO_ELIGIBLE_UX_WORK — define the next experimental UX tranche explicitly"
+}
