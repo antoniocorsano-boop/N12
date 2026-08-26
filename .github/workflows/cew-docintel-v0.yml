@@ -1,0 +1,21 @@
+name: CEW Document Intelligence Foundation v0
+on:
+  push:
+    branches: [exp/cew-document-intelligence-foundation-v0]
+    paths:
+      - 'tools/cew_docintel/**'
+      - '.github/workflows/cew-docintel-v0.yml'
+  pull_request:
+    paths:
+      - 'tools/cew_docintel/**'
+      - '.github/workflows/cew-docintel-v0.yml'
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tools/cew_docintel/tests -v
+      - run: python tools/cew_docintel/cli.py --db /tmp/docintel.sqlite3 validate
