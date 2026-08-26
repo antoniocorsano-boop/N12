@@ -34,11 +34,15 @@ jobs:
           pip install opencv-python-headless numpy Pillow ezdxf pytesseract
 
       - name: Run real TAV07 pilot
-        run: python tools/scan2dxf_tav07_test.py | tee /tmp/scan2dxf-result.txt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/scan2dxf_tav07_test.py | tee /tmp/scan2dxf-result.txt
 
       - name: Show report
         run: |
           cat /tmp/scan2dxf-result.txt
+          test -f analysis/scan2dxf_test/TAV07/REPORT_TEST_TAV07.md
           sed -n '1,220p' analysis/scan2dxf_test/TAV07/REPORT_TEST_TAV07.md
 
       - name: Commit deterministic test outputs
