@@ -25,6 +25,7 @@ on:
       - 'tools/cew_docintel/**'
       - 'tools/cew_model/**'
       - 'tools/cew_review/**'
+      - 'tools/cew_intervention/**'
       - '.github/workflows/validate-cew-platform-os.yml'
   pull_request:
     paths:
@@ -49,6 +50,7 @@ on:
       - 'tools/cew_docintel/**'
       - 'tools/cew_model/**'
       - 'tools/cew_review/**'
+      - 'tools/cew_intervention/**'
       - '.github/workflows/validate-cew-platform-os.yml'
 
 jobs:
@@ -67,12 +69,14 @@ jobs:
         run: python scripts/cew_platform_orchestrator.py validate-receipts
       - name: Validate adaptive planning and result/checkpoint invariants
         run: python -m unittest discover -s tests -p 'test_cew_platform_orchestrator.py' -v
-      - name: Validate generation-safe Document Intelligence
+      - name: Validate generation-safe Document Intelligence and graphic conventions
         run: python -m unittest discover -s tools/cew_docintel/tests -v
       - name: Validate Smart Structural Entity
         run: python -m unittest discover -s tools/cew_model/tests -v
       - name: Validate Human Decision Workspace
         run: python -m unittest discover -s tools/cew_review/tests -v
+      - name: Validate Intervention Intelligence contract
+        run: python -m unittest discover -s tools/cew_intervention/tests -v
       - name: Stage pinned real TAV07 Scan2DXF artifacts
         run: |
           set -euo pipefail
@@ -84,12 +88,33 @@ jobs:
           git show FETCH_HEAD:analysis/scan2dxf_test/TAV07/text_candidates_representative.json > /tmp/cew-tav07-scan2dxf/text.json
       - name: Import real TAV07 observations generation
         run: |
+          rm -f /tmp/tav07-docintel.sqlite3
           python tools/cew_docintel/tav07_real_import.py \
             --db /tmp/tav07-docintel.sqlite3 \
             --metrics /tmp/cew-tav07-scan2dxf/metrics.json \
             --geometry /tmp/cew-tav07-scan2dxf/geometry.json \
             --text /tmp/cew-tav07-scan2dxf/text.json \
             --output /tmp/TAV07_DOCINTEL_IMPORT_RECEIPT_v0.json
+      - name: Build real TAV07 graphic-convention human review package
+        run: |
+          python tools/cew_docintel/graphic_conventions.py \
+            --db /tmp/tav07-docintel.sqlite3 \
+            package --limit 12 \
+            --output /tmp/TAV07_GRAPHIC_REVIEW_PACKAGE_v0.json
+          python - <<'PY'
+          import json
+          p=json.load(open('/tmp/TAV07_GRAPHIC_REVIEW_PACKAGE_v0.json', encoding='utf-8'))
+          assert p['work_item_id']=='DOC-003'
+          assert p['status']=='BLOCKED_HUMAN_DECISION'
+          assert p['semantic_promotion']=='HUMAN_ONLY'
+          assert p['canonical_promotion']=='DISABLED'
+          assert p['candidate_count']==12
+          assert all(c['generation_id'] for c in p['candidates'])
+          assert all(len(c['bbox_native'])==4 for c in p['candidates'])
+          assert all(c['suggested_meanings']==[] for c in p['candidates'])
+          assert all(c['semantic_state']=='UNASSIGNED_REQUIRES_HUMAN_LABEL' for c in p['candidates'])
+          print('TAV07 graphic convention human gate: PASS')
+          PY
       - name: Validate degradation capability adoption
         run: |
           python scripts/cew_platform_degradation_adapter.py \
@@ -99,17 +124,18 @@ jobs:
       - name: Show current lock-safe execution plan
         run: python scripts/cew_platform_orchestrator.py plan
       - name: Exercise next work result template
-        run: python scripts/cew_platform_orchestrator.py result-template DOC-002
+        run: python scripts/cew_platform_orchestrator.py result-template DOC-003
       - name: Exercise next work checkpoint template
-        run: python scripts/cew_platform_orchestrator.py checkpoint-template DOC-002
+        run: python scripts/cew_platform_orchestrator.py checkpoint-template DOC-003
       - name: Validate document-intelligence store contract
-        run: python tools/cew_docintel/cli.py --db /tmp/docintel.sqlite3 validate
+        run: python tools/cew_docintel/cli.py --db /tmp/tav07-docintel.sqlite3 validate
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: cew-platform-os-validation-artifacts
           path: |
             /tmp/TAV07_DOCINTEL_IMPORT_RECEIPT_v0.json
+            /tmp/TAV07_GRAPHIC_REVIEW_PACKAGE_v0.json
             /tmp/CEW_DEGRADATION_PLATFORM_ADOPTION_v0.json
             /tmp/CEW_DEGRADATION_PLATFORM_ADOPTION_v0.engine.json
           if-no-files-found: ignore
