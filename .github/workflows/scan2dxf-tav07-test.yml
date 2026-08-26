@@ -1,0 +1,54 @@
+name: Scan2DXF TAV07 high-resolution pilot
+
+on:
+  push:
+    branches:
+      - exp/scan2dxf-tav07-test
+    paths:
+      - 'tools/scan2dxf_tav07_test.py'
+      - '.github/workflows/scan2dxf-tav07-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tav07-pilot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout experimental branch
+        uses: actions/checkout@v4
+        with:
+          ref: exp/scan2dxf-tav07-test
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install local vision dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-ita tesseract-ocr-eng
+          python -m pip install --upgrade pip
+          pip install opencv-python-headless numpy Pillow ezdxf pytesseract
+
+      - name: Run real TAV07 pilot
+        run: python tools/scan2dxf_tav07_test.py | tee /tmp/scan2dxf-result.txt
+
+      - name: Show report
+        run: |
+          cat /tmp/scan2dxf-result.txt
+          sed -n '1,220p' analysis/scan2dxf_test/TAV07/REPORT_TEST_TAV07.md
+
+      - name: Commit deterministic test outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/scan2dxf_test/TAV07
+          if git diff --cached --quiet; then
+            echo "No output changes"
+          else
+            git commit -m "test: record Scan2DXF TAV07 pilot outputs"
+            git push origin HEAD:exp/scan2dxf-tav07-test
+          fi
