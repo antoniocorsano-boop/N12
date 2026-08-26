@@ -1,0 +1,39 @@
+name: Validate CEW Platform OS
+
+on:
+  push:
+    branches: [exp/cew-platform-os-v0]
+    paths:
+      - 'docs/ARCHITECTURE/CEW_PLATFORM_OS_v0.md'
+      - 'docs/AGENTS/CEW_COMMUNICATION_PROTOCOL_v0.md'
+      - 'automation/CEW_PLATFORM_WORK_QUEUE_v0.json'
+      - 'automation/CEW_AGENT_RESULT_CONTRACT_v0.json'
+      - 'scripts/cew_platform_orchestrator.py'
+      - 'tools/cew_docintel/**'
+      - '.github/workflows/validate-cew-platform-os.yml'
+  pull_request:
+    paths:
+      - 'docs/ARCHITECTURE/CEW_PLATFORM_OS_v0.md'
+      - 'docs/AGENTS/CEW_COMMUNICATION_PROTOCOL_v0.md'
+      - 'automation/CEW_PLATFORM_WORK_QUEUE_v0.json'
+      - 'automation/CEW_AGENT_RESULT_CONTRACT_v0.json'
+      - 'scripts/cew_platform_orchestrator.py'
+      - 'tools/cew_docintel/**'
+      - '.github/workflows/validate-cew-platform-os.yml'
+
+jobs:
+  platform-os:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate platform queue and completion contract
+        run: python scripts/cew_platform_orchestrator.py validate
+      - name: Show eligible work without mutating state
+        run: python scripts/cew_platform_orchestrator.py status
+      - name: Validate inherited document-intelligence foundation
+        run: python -m unittest discover -s tools/cew_docintel/tests -v
+      - name: Validate inherited document-intelligence store contract
+        run: python tools/cew_docintel/cli.py --db /tmp/docintel.sqlite3 validate
