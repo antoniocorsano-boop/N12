@@ -146,7 +146,7 @@ function SourceEvidenceViewer({ manifest }: { manifest: RuntimeManifest | null }
       );
       const overlay = document.createElement('div');
       overlay.className = 'evidence-overlay';
-      overlay.setAttribute('aria-label', 'Regione di evidenza selezionata');
+      overlay.setAttribute('aria-hidden', 'true');
       viewer.addOverlay({ element: overlay, location: imageRect });
       viewer.viewport.fitBounds(imageRect, true);
     });
