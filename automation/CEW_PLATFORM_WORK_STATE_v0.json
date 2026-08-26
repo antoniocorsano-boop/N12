@@ -1,1 +1,24 @@
-{"schema_version":"0.4.0","purpose":"Runtime state overlay for CEW work items. Queue definitions remain declarative; status, receipts and checkpoints evolve here.","updated_from_head":"dbaacfe462b1266b2ec2fd9bbdfc3d423b3e3eb6","items":{"POS-001":{"status":"COMPLETE","receipt":null,"checkpoint":null},"POS-002":{"status":"COMPLETE","receipt":"automation/receipts/POS-002.json","checkpoint":null},"DOC-001":{"status":"COMPLETE","receipt":"automation/receipts/DOC-001.json","checkpoint":null},"DOC-002":{"status":"COMPLETE","receipt":"automation/receipts/DOC-002.json","checkpoint":null},"GKF-001":{"status":"COMPLETE","receipt":"automation/receipts/GKF-001.json","checkpoint":null},"SYS-REVIEW-001":{"status":"COMPLETE","receipt":"automation/receipts/SYS-REVIEW-001.json","checkpoint":null},"DOC-003":{"status":"BLOCKED_HUMAN_DECISION","receipt":"automation/receipts/DOC-003.json","checkpoint":null},"ENT-001":{"status":"COMPLETE","receipt":"automation/receipts/ENT-001.json","checkpoint":null},"MOD-001":{"status":"BLOCKED_CANONICAL_GATE","receipt":null,"checkpoint":null},"FEM-001":{"status":"BLOCKED_EVIDENCE","receipt":null,"checkpoint":null},"DEG-001":{"status":"COMPLETE","receipt":"automation/receipts/DEG-001.json","checkpoint":null},"INT-001":{"status":"COMPLETE","receipt":"automation/receipts/INT-001.json","checkpoint":null},"COST-001":{"status":"WAITING","receipt":null,"checkpoint":null},"UX-001":{"status":"COMPLETE","receipt":"automation/receipts/UX-001.json","checkpoint":null},"WS3D-001":{"status":"WAITING","receipt":null,"checkpoint":null},"INV-001":{"status":"WAITING","receipt":null,"checkpoint":null},"DOS-001":{"status":"WAITING","receipt":null,"checkpoint":null}}}
+{
+  "schema_version": "0.4.0",
+  "purpose": "Runtime state overlay for CEW work items. Queue definitions remain declarative; status, receipts and checkpoints evolve here.",
+  "updated_from_head": "cacc8f801c4c5fc31c12a9664b3bb1cda834b270",
+  "items": {
+    "POS-001": {"status": "COMPLETE", "receipt": null, "checkpoint": null},
+    "POS-002": {"status": "COMPLETE", "receipt": "automation/receipts/POS-002.json", "checkpoint": null},
+    "DOC-001": {"status": "COMPLETE", "receipt": "automation/receipts/DOC-001.json", "checkpoint": null},
+    "DOC-002": {"status": "COMPLETE", "receipt": "automation/receipts/DOC-002.json", "checkpoint": null},
+    "GKF-001": {"status": "COMPLETE", "receipt": "automation/receipts/GKF-001.json", "checkpoint": null},
+    "SYS-REVIEW-001": {"status": "COMPLETE", "receipt": "automation/receipts/SYS-REVIEW-001.json", "checkpoint": null},
+    "DOC-003": {"status": "BLOCKED_HUMAN_DECISION", "receipt": "automation/receipts/DOC-003.json", "checkpoint": null},
+    "ENT-001": {"status": "COMPLETE", "receipt": "automation/receipts/ENT-001.json", "checkpoint": null},
+    "MOD-001": {"status": "BLOCKED_CANONICAL_GATE", "receipt": null, "checkpoint": null},
+    "FEM-001": {"status": "BLOCKED_EVIDENCE", "receipt": null, "checkpoint": null},
+    "DEG-001": {"status": "COMPLETE", "receipt": "automation/receipts/DEG-001.json", "checkpoint": null},
+    "INV-001": {"status": "COMPLETE", "receipt": "automation/receipts/INV-001.json", "checkpoint": null},
+    "INT-001": {"status": "COMPLETE", "receipt": "automation/receipts/INT-001.json", "checkpoint": null},
+    "COST-001": {"status": "WAITING", "receipt": null, "checkpoint": null},
+    "DOS-001": {"status": "COMPLETE", "receipt": "automation/receipts/DOS-001.json", "checkpoint": null},
+    "UX-001": {"status": "COMPLETE", "receipt": "automation/receipts/UX-001.json", "checkpoint": null},
+    "WS3D-001": {"status": "WAITING", "receipt": null, "checkpoint": null}
+  }
+}
