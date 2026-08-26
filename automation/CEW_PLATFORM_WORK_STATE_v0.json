@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "purpose": "Runtime state overlay for CEW work items. Queue definitions remain declarative; status, receipts and checkpoints evolve here.",
-  "updated_from_head": "d135f5392ef3b4db76218dbdd33b05d19ae488ef",
+  "updated_from_head": "60b0842a493789d7b0d1ebd68822f31f017229b3",
   "items": {
     "POS-001": {
       "status": "COMPLETE",
@@ -24,8 +24,8 @@
       "checkpoint": null
     },
     "DOC-003": {
-      "status": "WAITING",
-      "receipt": null,
+      "status": "BLOCKED_HUMAN_DECISION",
+      "receipt": "automation/receipts/DOC-003.json",
       "checkpoint": null
     },
     "ENT-001": {
@@ -49,8 +49,8 @@
       "checkpoint": null
     },
     "INT-001": {
-      "status": "WAITING",
-      "receipt": null,
+      "status": "COMPLETE",
+      "receipt": "automation/receipts/INT-001.json",
       "checkpoint": null
     },
     "COST-001": {
