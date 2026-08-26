@@ -3,6 +3,11 @@ import argparse, hashlib, json, sqlite3, uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+try:
+    from tools.cew_docintel.schema_migrations import ensure_core_schema, current_version, CORE_SCOPE
+except ModuleNotFoundError:
+    from schema_migrations import ensure_core_schema, current_version, CORE_SCOPE
+
 DEFAULT_DB=Path('.cew/docintel.sqlite3')
 SCHEMA='''
 PRAGMA foreign_keys=ON;
@@ -44,7 +49,11 @@ CREATE TABLE IF NOT EXISTS proposals(id TEXT PRIMARY KEY,proposal_type TEXT NOT 
 
 def now(): return datetime.now(timezone.utc).isoformat()
 def connect(p):
-    p.parent.mkdir(parents=True,exist_ok=True); c=sqlite3.connect(p); c.row_factory=sqlite3.Row; c.executescript(SCHEMA); return c
+    p.parent.mkdir(parents=True,exist_ok=True)
+    c=sqlite3.connect(p)
+    c.row_factory=sqlite3.Row
+    ensure_core_schema(c,SCHEMA)
+    return c
 def digest(p):
     h=hashlib.sha256()
     with p.open('rb') as f:
@@ -82,7 +91,6 @@ def generation_row(c,gid):
     r=c.execute('SELECT * FROM processing_generations WHERE id=?',(gid,)).fetchone()
     if not r: raise SystemExit('generation sconosciuta')
     return r
-
 def cmd_generation_succeed(a):
     with connect(a.db) as c:
         r=generation_row(c,a.generation_id)
@@ -164,6 +172,7 @@ def cmd_status(a):
         out['current_generations']=c.execute('SELECT COUNT(*) n FROM source_version_processing WHERE current_generation_id IS NOT NULL').fetchone()['n']
         out['observation_states']={r['state']:r['n'] for r in c.execute('SELECT state,COUNT(*) n FROM observations GROUP BY state')}
         out['proposal_states']={r['state']:r['n'] for r in c.execute('SELECT state,COUNT(*) n FROM proposals GROUP BY state')}
+        out['schema_versions']={CORE_SCOPE:current_version(c,CORE_SCOPE)}
     print(json.dumps(out,indent=2))
 def cmd_validate(a):
     with connect(a.db) as c:
@@ -172,8 +181,9 @@ def cmd_validate(a):
         unbound=c.execute('''SELECT COUNT(*) n FROM observations o LEFT JOIN observation_generation_bindings b ON b.observation_id=o.id WHERE b.observation_id IS NULL''').fetchone()['n']
         bad_binding=c.execute('''SELECT COUNT(*) n FROM observations o JOIN observation_generation_bindings b ON b.observation_id=o.id JOIN processing_generations g ON g.id=b.generation_id WHERE o.source_version_id<>g.source_version_id''').fetchone()['n']
         bad_current=c.execute('''SELECT COUNT(*) n FROM source_version_processing sp JOIN processing_generations g ON g.id=sp.current_generation_id WHERE g.state<>'SUCCEEDED' OR g.source_version_id<>sp.source_version_id''').fetchone()['n']
+        core_schema_version=current_version(c,CORE_SCOPE)
     ok=not fk and not bad_review and not unbound and not bad_binding and not bad_current
-    print(json.dumps({'status':'PASS' if ok else 'FAIL','canonical_promotion':'DISABLED','human_review_required':True,'unbound_observations':unbound,'invalid_generation_bindings':bad_binding,'invalid_current_generations':bad_current}))
+    print(json.dumps({'status':'PASS' if ok else 'FAIL','canonical_promotion':'DISABLED','human_review_required':True,'core_schema_version':core_schema_version,'unbound_observations':unbound,'invalid_generation_bindings':bad_binding,'invalid_current_generations':bad_current}))
     raise SystemExit(0 if ok else 2)
 def main():
     p=argparse.ArgumentParser(); p.add_argument('--db',type=Path,default=DEFAULT_DB); s=p.add_subparsers(dest='cmd',required=True)
