@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCES = ROOT / "data" / "canonical" / "CEW_SOURCE_IDENTITY_REGISTRY_v1.csv"
 
 EXTRA_CONTEXT = {
-    "TAV-04": "tiles/TAV-04.dzi",
+    "TAV-04S": "tiles/TAV-04S.dzi",
     "TAV-06E": "tiles/TAV-06E.dzi",
 }
 
@@ -53,14 +53,14 @@ def main() -> int:
             "dzi": dzi,
             "context_only": True,
             "authority_note": (
-                "Fonte primaria di contesto per la localizzazione umana del torrino scale. "
+                "Fonte primaria di contesto per la localizzazione e revisione umana. "
                 "Non crea automaticamente EvidenceRegion, binding strutturali, coordinate o decisioni canoniche."
             ),
         })
 
     manifest["geometry_banner"] = (
-        "LE REGIONI F2 ESISTENTI SONO IN SOLA LETTURA — TAV-04, TAV-05S, TAV-06S E TAV-06E "
-        "SONO MOSTRATE SOLO COME CONTESTO PER LA LOCALIZZAZIONE UMANA DEL TORRINO/SCALA"
+        "LE REGIONI F2 ESISTENTI SONO IN SOLA LETTURA — TAV-04S, TAV-05S, TAV-06S E TAV-06E "
+        "SONO MOSTRATE SOLO COME CONTESTO DI REVISIONE UMANA"
     )
 
     (out / "viewer_manifest.json").write_text(
@@ -74,7 +74,8 @@ def main() -> int:
     print(f"SOURCE_VIEWER_CONTEXT_SOURCES={len(manifest['context_sources'])}")
     for e in manifest["context_sources"]:
         print(f"VIEWER_CONTEXT={e['source_code']}->{e['source_version_id']}->{e['dzi']}")
-    print("TORRINO_CONTEXT=TAV-04,TAV-06E")
+    print("THIRD_LEVEL_CONTEXT=TAV-04S")
+    print("VERTICAL_CONTEXT=TAV-06E")
     print("CANONICAL_WRITE=FORBIDDEN")
     return 0
 
