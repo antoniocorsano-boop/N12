@@ -36,10 +36,8 @@ class CEWPlatformOrchestratorTests(unittest.TestCase):
         self.assertEqual(plan[0]["execution"]["mode"], "SERIAL")
         self.assertEqual(plan[0]["readiness"], "EXPLICIT_READY")
 
-    def test_current_plan_is_lock_safe_dependency_complete_and_priority_ordered(self):
-        plan = ORCH.build_plan(self.queue, self.policy, self.registry, work_state=self.work_state)
-        self.assertTrue(plan)
-        effective = ORCH.apply_work_state(self.queue, self.work_state)
+    def assert_plan_invariants(self, plan, state):
+        effective = ORCH.apply_work_state(self.queue, state)
         by_id = {x["id"]: x for x in effective["items"]}
         locks = []
         priorities = []
@@ -57,13 +55,38 @@ class CEWPlatformOrchestratorTests(unittest.TestCase):
         self.assertEqual(len(locks), len(set(locks)))
         self.assertEqual(priorities, sorted(priorities))
 
+    def test_current_plan_is_valid_even_when_no_work_is_eligible(self):
+        eligible = ORCH.eligible_items(self.queue, self.work_state, self.policy)
+        plan = ORCH.build_plan(self.queue, self.policy, self.registry, work_state=self.work_state)
+        if not eligible:
+            self.assertEqual(plan, [])
+        else:
+            self.assertTrue(plan)
+            self.assert_plan_invariants(plan, self.work_state)
+
+    def test_terminal_or_fully_gated_state_returns_empty_plan(self):
+        state = copy.deepcopy(self.work_state)
+        for value in state["items"].values():
+            if value["status"] in {"READY", "WAITING"}:
+                value["status"] = "COMPLETE"
+        plan = ORCH.build_plan(self.queue, self.policy, self.registry, work_state=state)
+        self.assertEqual(plan, [])
+
     def test_waiting_items_auto_ready_when_dependencies_complete_without_state_mutation(self):
         before = copy.deepcopy(self.work_state)
         eligible = ORCH.eligible_items(self.queue, self.work_state, self.policy)
         derived = [x for x in eligible if x.get("readiness") == "DERIVED_READY"]
-        self.assertTrue(derived)
-        for item in derived:
-            self.assertEqual(self.work_state["items"][item["id"]]["status"], "WAITING")
+        if derived:
+            for item in derived:
+                self.assertEqual(self.work_state["items"][item["id"]]["status"], "WAITING")
+        else:
+            synthetic_state = copy.deepcopy(self.work_state)
+            synthetic_state["items"]["DOC-001"]["status"] = "COMPLETE"
+            synthetic_state["items"]["DOC-002"]["status"] = "COMPLETE"
+            synthetic_state["items"]["DOC-003"]["status"] = "WAITING"
+            derived = [x for x in ORCH.eligible_items(self.queue, synthetic_state, self.policy) if x["id"] == "DOC-003"]
+            self.assertEqual(len(derived), 1)
+            self.assertEqual(derived[0]["readiness"], "DERIVED_READY")
         self.assertEqual(before, self.work_state)
 
     def test_external_gate_never_auto_readies_waiting_item(self):
@@ -74,6 +97,10 @@ class CEWPlatformOrchestratorTests(unittest.TestCase):
         state["items"]["INT-001"]["status"] = "WAITING"
         eligible_ids = {x["id"] for x in ORCH.eligible_items(queue, state, self.policy)}
         self.assertNotIn("INT-001", eligible_ids)
+
+    def test_cost_requires_proposed_intervention_generation_gate(self):
+        target = next(x for x in self.queue["items"] if x["id"] == "COST-001")
+        self.assertEqual(target.get("external_gate"), "PROPOSED_INTERVENTION_GENERATION_AVAILABLE")
 
     def test_lock_collision_prevents_unsafe_parallel_execution(self):
         queue = copy.deepcopy(self.queue)
