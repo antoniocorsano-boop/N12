@@ -25,6 +25,7 @@ on:
       - 'tests/test_cew_platform_orchestrator.py'
       - 'tools/cew_docintel/**'
       - 'tools/cew_graphic_knowledge/**'
+      - 'tools/cew_graphic_review/**'
       - 'tools/cew_model/**'
       - 'tools/cew_review/**'
       - 'tools/cew_intervention/**'
@@ -52,6 +53,7 @@ on:
       - 'tests/test_cew_platform_orchestrator.py'
       - 'tools/cew_docintel/**'
       - 'tools/cew_graphic_knowledge/**'
+      - 'tools/cew_graphic_review/**'
       - 'tools/cew_model/**'
       - 'tools/cew_review/**'
       - 'tools/cew_intervention/**'
@@ -77,6 +79,8 @@ jobs:
         run: python -m unittest discover -s tools/cew_docintel/tests -v
       - name: Validate cross-project Graphic Knowledge Fabric
         run: python -m unittest discover -s tools/cew_graphic_knowledge/tests -v
+      - name: Validate system Graphic Review Workspace
+        run: python -m unittest discover -s tools/cew_graphic_review/tests -v
       - name: Validate Smart Structural Entity
         run: python -m unittest discover -s tools/cew_model/tests -v
       - name: Validate Human Decision Workspace
@@ -136,10 +140,10 @@ jobs:
         run: python scripts/cew_platform_orchestrator.py runtime-state
       - name: Show current lock-safe execution plan
         run: python scripts/cew_platform_orchestrator.py plan
-      - name: Exercise Graphic Knowledge result template
-        run: python scripts/cew_platform_orchestrator.py result-template GKF-001
-      - name: Exercise Graphic Knowledge checkpoint template
-        run: python scripts/cew_platform_orchestrator.py checkpoint-template GKF-001
+      - name: Exercise system Graphic Review result template
+        run: python scripts/cew_platform_orchestrator.py result-template SYS-REVIEW-001
+      - name: Exercise system Graphic Review checkpoint template
+        run: python scripts/cew_platform_orchestrator.py checkpoint-template SYS-REVIEW-001
       - name: Validate document-intelligence store contract
         run: python tools/cew_docintel/cli.py --db /tmp/tav07-docintel.sqlite3 validate
       - uses: actions/upload-artifact@v4
