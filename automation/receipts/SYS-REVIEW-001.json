@@ -1,0 +1,54 @@
+{
+  "work_item_id": "SYS-REVIEW-001",
+  "outcome": "COMPLETE_PASS",
+  "execution_profile": "HUMAN_REVIEW",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-platform-os-v0",
+  "head_sha": "ccae52139564f3a6073b18e6dbeb810800d1c4b0",
+  "input_generations": [],
+  "input_fingerprints": [
+    "graphic_knowledge_fabric:GKF-001",
+    "pilot_source_sha256:e935df7da1aab9de9fc065d2ab4a8fb36624b2d9ee983ca29f1d5af08f6b2494"
+  ],
+  "selected_providers": {
+    "human.graphic_review": "cew-system-graphic-review-workspace",
+    "knowledge.graphic_conventions": "cew-graphic-knowledge-fabric",
+    "human.review": "cew-human-decision-workspace",
+    "document.symbol_learning": "cew-docintel-symbol-learning"
+  },
+  "outputs": [
+    "tools/cew_graphic_review/workspace.py",
+    "tools/cew_graphic_review/tests/test_workspace.py",
+    "tools/cew_graphic_knowledge/docintel_bridge.py",
+    "automation/CEW_AGENT_CAPABILITY_REGISTRY_v0.json",
+    "automation/CEW_PLATFORM_WORK_QUEUE_v0.json"
+  ],
+  "gates": [
+    {
+      "name": "Validate CEW Platform OS",
+      "run_id": 32972770909,
+      "job_id": 98190161792,
+      "head_sha": "ccae52139564f3a6073b18e6dbeb810800d1c4b0",
+      "status": "PASS"
+    },
+    {
+      "name": "Validate system Graphic Review Workspace",
+      "job_id": 98190161792,
+      "status": "PASS"
+    },
+    {
+      "name": "Validate cross-project Graphic Knowledge Fabric",
+      "job_id": 98190161792,
+      "status": "PASS"
+    }
+  ],
+  "residuals": [
+    "The workspace domain/API is operational but a browser visual shell with raster crop rendering is not yet implemented.",
+    "No real TAV07 semantic label has yet been supplied by a human reviewer.",
+    "Shared family/global knowledge will remain sparse until additional projects contribute reviewed examples."
+  ],
+  "human_decisions": [],
+  "checkpoint_id": null,
+  "next_eligible_action": "Build the reusable browser review shell over SYS-REVIEW-001, then perform the first real N12/TAV07 project labeling through that system tool."
+}
