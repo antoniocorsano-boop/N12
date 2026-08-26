@@ -30,8 +30,8 @@ Level 1: engineering statement. Level 2: supporting source/model context. Level 
 
 A blocked state explains what is unavailable, why it matters, which upstream evidence/decision is missing, whether CEW can continue elsewhere, and the next valid action.
 
-## F7 first vertical slice
+## UX1 first vertical slice
 
-`primary drawing + frozen EvidenceRegion + structural context/entity candidates + epistemic state + bounded human F7 decision + receipt preview`.
+`primary drawing + frozen EvidenceRegion + structural context/entity candidates + epistemic state + bounded human decision + receipt preview`.
 
-It consumes frozen F2 geometry and cannot relocalize evidence.
+UX1 is an experimental work item, not a canonical CEW milestone. It reads frozen `CEW-F2` geometry and cannot relocalize evidence, close F2, emit `EVIDENCE_PROVENANCE_PASS`, or authorize F3 or any later canonical milestone.

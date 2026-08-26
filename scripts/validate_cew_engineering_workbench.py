@@ -8,6 +8,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 WB = ROOT / "ui" / "workbench"
 UX_DOC = ROOT / "docs" / "UX" / "CEW_ENGINEERING_WORKBENCH_v0.md"
+UX_IA_DOC = ROOT / "docs" / "UX" / "CEW_ENGINEERING_INFORMATION_ARCHITECTURE_v1.md"
+UX_FOUNDATION_QUEUE = ROOT / "automation" / "CEW_UX_FOUNDATION_WORK_QUEUE_v1.json"
+UX_IA_CONTRACT = ROOT / "ui" / "foundation" / "contracts" / "information-architecture.json"
 
 REQUIRED = [
     WB / "package.json",
@@ -18,6 +21,9 @@ REQUIRED = [
     WB / ".storybook" / "main.ts",
     ROOT / "scripts" / "cew_workbench_stage_tav06a.sh",
     UX_DOC,
+    UX_IA_DOC,
+    UX_FOUNDATION_QUEUE,
+    UX_IA_CONTRACT,
 ]
 
 EXPECTED_VERSIONS = {
@@ -72,6 +78,23 @@ if "milestone" in decision:
 if "CONFIRMED" in decision["allowed_non_promotive_outcomes"]:
     fail("CONFIRMED cannot be offered without a registered target")
 
+queue = json.loads(UX_FOUNDATION_QUEUE.read_text(encoding="utf-8"))
+queue_items = {item["id"]: item for item in queue.get("items", [])}
+ux1_queue = queue_items.get("UX1-001", {})
+if ux1_queue.get("canonical_context") != "CEW-F2":
+    fail("UX foundation queue does not preserve the CEW-F2 context for UX1")
+if ux1_queue.get("authority") != "EXPERIMENTAL_NON_PROMOTIVE":
+    fail("UX foundation queue grants invalid authority to UX1")
+
+ia = json.loads(UX_IA_CONTRACT.read_text(encoding="utf-8"))
+if "f7_vertical_slice" in ia:
+    fail("UX foundation still models an unauthorized F7 vertical slice")
+ux1_slice = ia.get("ux1_vertical_slice", {})
+if ux1_slice.get("canonical_context") != "CEW-F2":
+    fail("UX1 information architecture does not preserve CEW-F2")
+if ux1_slice.get("authority") != "EXPERIMENTAL_NON_PROMOTIVE":
+    fail("UX1 information architecture authority drift")
+
 src = "\n".join(
     path.read_text(encoding="utf-8")
     for path in (WB / "src").rglob("*")
@@ -92,9 +115,12 @@ governance_surface = "\n".join([
     src,
     snapshot_path.read_text(encoding="utf-8"),
     UX_DOC.read_text(encoding="utf-8"),
+    UX_IA_DOC.read_text(encoding="utf-8"),
+    UX_FOUNDATION_QUEUE.read_text(encoding="utf-8"),
+    UX_IA_CONTRACT.read_text(encoding="utf-8"),
 ])
-if "CEW-F7" in governance_surface:
-    fail("UX1 must not claim the unauthorized CEW-F7 milestone")
+if re.search(r"\b(?:CEW-)?F7\b", governance_surface):
+    fail("UX1/foundation must not claim unauthorized F7 milestone authority")
 
 workflow = ROOT / ".github" / "workflows" / "validate-cew-engineering-workbench.yml"
 if not workflow.exists():
