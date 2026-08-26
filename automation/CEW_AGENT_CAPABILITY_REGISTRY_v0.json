@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "principle": "Work items depend on capabilities and contracts, not on one hard-coded agent or library.",
   "capabilities": {
     "source.identity": {
@@ -48,6 +48,20 @@
         "conflict_exposure",
         "imported_knowledge_not_local_authority",
         "human_validated_generalization"
+      ]
+    },
+    "human.graphic_review": {
+      "class": "CEW_SYSTEM_CAPABILITY",
+      "providers": ["cew-system-graphic-review-workspace"],
+      "selection": "PROJECT_EVIDENCE_PLUS_GRAPHIC_KNOWLEDGE",
+      "required_invariants": [
+        "source_region_beside_suggestion",
+        "explainable_local_affine_family_global_layers",
+        "project_human_semantic_authority",
+        "positive_negative_uncertain_decisions",
+        "source_generation_drift_fails_closed",
+        "project_specialization_before_shared_contribution",
+        "no_automatic_generalization"
       ]
     },
     "knowledge.smart_entity": {
