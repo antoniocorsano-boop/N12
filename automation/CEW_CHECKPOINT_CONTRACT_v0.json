@@ -1,0 +1,38 @@
+{
+  "schema_version": "0.2.0",
+  "purpose": "Allow long-running CEW work to stop and resume without using conversation state as authority.",
+  "required_fields": [
+    "checkpoint_id",
+    "work_item_id",
+    "execution_profile",
+    "attempt_no",
+    "stage",
+    "repository",
+    "branch",
+    "head_sha",
+    "input_fingerprints",
+    "completed_steps",
+    "outputs_so_far",
+    "active_locks",
+    "resume_preconditions",
+    "next_step"
+  ],
+  "rules": [
+    "checkpoint never changes work item completion status",
+    "resume must revalidate repository head and declared input fingerprints",
+    "source drift invalidates checkpoint unless the work item explicitly allows rebasing",
+    "completed immutable artifacts may be reused after validation",
+    "human decision checkpoints remain blocked until a decision receipt exists",
+    "checkpoint state is operational state, not engineering evidence"
+  ],
+  "stages": [
+    "DISCOVER",
+    "PREPARE",
+    "EXECUTE",
+    "SELF_REPAIR",
+    "VALIDATE",
+    "HUMAN_GATE",
+    "MATERIALIZE",
+    "FINAL_GATES"
+  ]
+}
