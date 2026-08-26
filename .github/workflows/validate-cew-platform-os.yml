@@ -8,8 +8,12 @@ on:
       - 'docs/ARCHITECTURE/CEW_OPEN_SOURCE_ADOPTION_MATRIX_v0.md'
       - 'docs/AGENTS/CEW_COMMUNICATION_PROTOCOL_v0.md'
       - 'automation/CEW_PLATFORM_WORK_QUEUE_v0.json'
+      - 'automation/CEW_EXECUTION_POLICY_v0.json'
+      - 'automation/CEW_AGENT_CAPABILITY_REGISTRY_v0.json'
       - 'automation/CEW_AGENT_RESULT_CONTRACT_v0.json'
+      - 'automation/CEW_CHECKPOINT_CONTRACT_v0.json'
       - 'scripts/cew_platform_orchestrator.py'
+      - 'tests/test_cew_platform_orchestrator.py'
       - 'tools/cew_docintel/**'
       - '.github/workflows/validate-cew-platform-os.yml'
   pull_request:
@@ -18,8 +22,12 @@ on:
       - 'docs/ARCHITECTURE/CEW_OPEN_SOURCE_ADOPTION_MATRIX_v0.md'
       - 'docs/AGENTS/CEW_COMMUNICATION_PROTOCOL_v0.md'
       - 'automation/CEW_PLATFORM_WORK_QUEUE_v0.json'
+      - 'automation/CEW_EXECUTION_POLICY_v0.json'
+      - 'automation/CEW_AGENT_CAPABILITY_REGISTRY_v0.json'
       - 'automation/CEW_AGENT_RESULT_CONTRACT_v0.json'
+      - 'automation/CEW_CHECKPOINT_CONTRACT_v0.json'
       - 'scripts/cew_platform_orchestrator.py'
+      - 'tests/test_cew_platform_orchestrator.py'
       - 'tools/cew_docintel/**'
       - '.github/workflows/validate-cew-platform-os.yml'
 
@@ -31,13 +39,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Validate platform queue and completion contract
+      - name: Validate platform contracts
         run: python scripts/cew_platform_orchestrator.py validate
-      - name: Show eligible work without mutating state
-        run: python scripts/cew_platform_orchestrator.py status
+      - name: Validate adaptive planning and result/checkpoint invariants
+        run: python -m unittest discover -s tests -p 'test_cew_platform_orchestrator.py' -v
+      - name: Show current lock-safe execution plan
+        run: python scripts/cew_platform_orchestrator.py plan
+      - name: Exercise result template
+        run: python scripts/cew_platform_orchestrator.py result-template POS-002
+      - name: Exercise checkpoint template
+        run: python scripts/cew_platform_orchestrator.py checkpoint-template POS-002
       - name: Validate inherited document-intelligence foundation
         run: python -m unittest discover -s tools/cew_docintel/tests -v
       - name: Validate inherited document-intelligence store contract
         run: python tools/cew_docintel/cli.py --db /tmp/docintel.sqlite3 validate
 
-# The exact integration head is gated after alignment with the current green Document Intelligence base.
+# Canonical promotion remains disabled. This workflow validates only the experimental Platform OS execution layer.
