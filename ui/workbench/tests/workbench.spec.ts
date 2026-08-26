@@ -10,7 +10,10 @@ test('shows READY evidence and UNBOUND binding without preselected decision', as
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Verifica associazione schema di armatura' })).toBeVisible();
   await expect(page.getByText('Geometria verificata')).toBeVisible();
-  await expect(page.getByText('Non determinato', { exact: true })).toBeVisible();
+
+  const bindingRow = page.locator('.property-grid > div').filter({ hasText: 'Binding strutturale' });
+  await expect(bindingRow).toContainText('UNBOUND');
+  await expect(bindingRow).toContainText('Non determinato');
   await expect(page.getByText('Fonte verificata')).toBeVisible();
 
   const radios = page.getByRole('radio');
@@ -25,7 +28,7 @@ test('shows READY evidence and UNBOUND binding without preselected decision', as
 
 test('creates only a non-promotive receipt proposal', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('radio', { name: /Associazione non determinabile/ }).click();
+  await page.locator('label.decision-option').filter({ hasText: 'Associazione non determinabile' }).click();
   await page.getByLabel('Revisore').fill('Revisore tecnico');
   await page.getByLabel('Osservazione tecnica').fill('La fonte è leggibile ma non consente un binding strutturale affidabile.');
   await page.getByRole('button', { name: 'Prepara ricevuta di decisione' }).click();
