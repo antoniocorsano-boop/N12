@@ -1,0 +1,50 @@
+{
+  "schema_version": "0.1.0",
+  "work_item_id": "DOC-002",
+  "source": {
+    "source_id": "N12/TAV07/R1C3",
+    "label": "TAV.7 — Piano Quarto e Piano Copertura — tile r1_c3",
+    "path": "analysis/source_renders/TAV07/r1_c3.jpg",
+    "git_blob_sha": "1cc042a1b2f5072117d5a3dfac2fe7ee3d342894",
+    "expected_bytes": 660571,
+    "native_width_px": 1014,
+    "native_height_px": 3669
+  },
+  "extraction_source": {
+    "repository": "antoniocorsano-boop/N12",
+    "ref": "exp/scan2dxf-tav07-test",
+    "processor": "scan2dxf-v0.2-real-tav07-test",
+    "coordinate_system": "SOURCE_TILE_NATIVE_PIXELS",
+    "dpi_note": "The historical test assumed 300 DPI for review export only; pixel coordinates remain authoritative for this import and no millimetre measurement is promoted.",
+    "artifacts": {
+      "metrics": {
+        "path": "analysis/scan2dxf_test/TAV07/metrics.json",
+        "git_blob_sha": "d24c06c76e1c38faae700f2fb81398342ca86ede"
+      },
+      "geometry": {
+        "path": "analysis/scan2dxf_test/TAV07/geometry_representative.json",
+        "git_blob_sha": "445cf63dc15561cb60e8cd9ac5b0992ac223ae84",
+        "expected_count": 441
+      },
+      "text": {
+        "path": "analysis/scan2dxf_test/TAV07/text_candidates_representative.json",
+        "git_blob_sha": "cf30c7b9c421d7eef1663e18924e9634ef82c82c",
+        "expected_count": 39
+      }
+    }
+  },
+  "whole_drawing_metrics": {
+    "tile_count": 12,
+    "line_candidate_count": 2685,
+    "ocr_candidate_count": 245,
+    "representative_tile": "r1_c3.jpg"
+  },
+  "import_policy": {
+    "detailed_observation_scope": "REPRESENTATIVE_TILE_ONLY_BECAUSE_ONLY_ITS_DETAILED_JSON_WAS_PERSISTED",
+    "observation_state": "CANDIDATE",
+    "allow_auto_validation": false,
+    "allow_mm_authority": false,
+    "generation_scoped": true,
+    "canonical_promotion": false
+  }
+}
