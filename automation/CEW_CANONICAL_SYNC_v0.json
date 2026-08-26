@@ -1,0 +1,43 @@
+{
+  "schema_version": "0.1.0",
+  "synced_at": "2026-08-26",
+  "authority": "CEW_CANONICAL_STATE_MIRROR",
+  "canonical_branch": "work/cew-f5-knowledge-graph-from-e7c0",
+  "canonical_head_sha": "b4356bc78807257901a0b97892a63d9f4c9744c9",
+  "canonical_head_source": "Merge PR #81: validate real human decision receipts",
+  "milestones": {
+    "CEW-F0": "COMPLETE",
+    "CEW-F1": "COMPLETE",
+    "CEW-F2": "COMPLETE",
+    "CEW-F3": "COMPLETE",
+    "CEW-F4": "COMPLETE",
+    "CEW-F5": "COMPLETE",
+    "CEW-F6": "COMPLETE",
+    "CEW-F7": "IN_PROGRESS",
+    "CEW-F8": "PLANNED"
+  },
+  "verified_gates": {
+    "CEW-F2": {
+      "gate": "EVIDENCE_PROVENANCE_PASS",
+      "reference_head": "b83a271f503f8bb6a6ec8d74591e6e6790534ad1",
+      "run_id": 32872478432,
+      "reference_items": 4,
+      "t6a_g03_structural_binding": "UNBOUND"
+    },
+    "CEW-F7": {
+      "current_gate": "PROMOTION_ENGINE_PASS",
+      "remaining_blocker": "REAL_N12_VALIDATED_HUMAN_DIRECT_PRIMARY_DECISION_REQUIRED",
+      "human_review_pack_run_id": 32892164108,
+      "human_review_pack_artifact_id": 9579861845,
+      "human_review_pack_digest": "sha256:1ccf6733062f2af3d3bf944f36faa09ee98a23a3669307c6a5d43fadb1343574",
+      "human_receipt_validator_run_id": 32892470260
+    }
+  },
+  "platform_effect": {
+    "old_f2_blocker_is_superseded": true,
+    "mod_001_external_gate_satisfied": true,
+    "canonical_write_by_platform": false,
+    "human_f7_decision_may_not_be_synthesized": true
+  },
+  "rule": "Platform OS mirrors canonical CEW state but never promotes canonical milestones itself. Canonical milestone authority remains the canonical CEW branch and its validated receipts."
+}
