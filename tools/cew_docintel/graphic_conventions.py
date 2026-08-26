@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sqlite3
 import uuid
@@ -13,7 +14,9 @@ PRAGMA foreign_keys=ON;
 CREATE TABLE IF NOT EXISTS graphic_training_examples(
  id TEXT PRIMARY KEY,
  observation_id TEXT NOT NULL,
+ candidate_fingerprint TEXT NOT NULL,
  source_version_id TEXT NOT NULL,
+ source_sha256 TEXT NOT NULL,
  generation_id TEXT NOT NULL,
  page INTEGER NOT NULL,
  x0 REAL,
@@ -28,13 +31,16 @@ CREATE TABLE IF NOT EXISTS graphic_training_examples(
  context_json TEXT NOT NULL,
  reviewer TEXT NOT NULL,
  created_at TEXT NOT NULL,
- UNIQUE(observation_id,meaning,reviewer)
+ UNIQUE(candidate_fingerprint,meaning,reviewer)
 );
 CREATE INDEX IF NOT EXISTS idx_graphic_training_meaning ON graphic_training_examples(meaning,verdict);
 CREATE INDEX IF NOT EXISTS idx_graphic_training_feature ON graphic_training_examples(feature_signature);
+CREATE INDEX IF NOT EXISTS idx_graphic_training_candidate ON graphic_training_examples(candidate_fingerprint);
 CREATE TABLE IF NOT EXISTS graphic_meaning_proposals(
  id TEXT PRIMARY KEY,
  observation_id TEXT NOT NULL,
+ candidate_fingerprint TEXT NOT NULL,
+ source_sha256 TEXT NOT NULL,
  meaning TEXT NOT NULL,
  calibrated_score REAL NOT NULL,
  decisive_support REAL NOT NULL,
@@ -49,9 +55,11 @@ CREATE TABLE IF NOT EXISTS graphic_meaning_proposals(
  reviewed_at TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_graphic_proposal_obs ON graphic_meaning_proposals(observation_id,state);
+CREATE INDEX IF NOT EXISTS idx_graphic_proposal_candidate ON graphic_meaning_proposals(candidate_fingerprint,state);
 '''
 
 CALIBRATION_METHOD = 'BETA_1_1_WITH_UNCERTAINTY_DAMPING_V1'
+CANDIDATE_FINGERPRINT_VERSION = 'CEW-GRAPHIC-CANDIDATE-v1'
 
 
 def now() -> str:
@@ -73,6 +81,24 @@ def normalized_text(value: str | None) -> str:
     return ' '.join((value or '').strip().upper().split())
 
 
+def _stable_number(value: float | None) -> float | None:
+    return None if value is None else round(float(value), 6)
+
+
+def candidate_fingerprint(row: sqlite3.Row | dict[str, Any]) -> str:
+    payload = {
+        'version': CANDIDATE_FINGERPRINT_VERSION,
+        'source_sha256': row['source_sha256'],
+        'page': int(row['page']),
+        'bbox_native': [_stable_number(row[k]) for k in ('x0', 'y0', 'x1', 'y1')],
+        'kind': row['kind'],
+        'value_text': normalized_text(row['value_text']),
+        'detector': row['detector'],
+    }
+    raw = json.dumps(payload, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode('utf-8')
+    return 'GCFP-' + hashlib.sha256(raw).hexdigest()
+
+
 def feature_signature(kind: str, value_text: str | None, context: dict[str, Any]) -> str:
     stable_context = {
         k: context[k]
@@ -88,8 +114,9 @@ def feature_signature(kind: str, value_text: str | None, context: dict[str, Any]
 
 def current_observation(c: sqlite3.Connection, observation_id: str) -> sqlite3.Row:
     row = c.execute('''
-        SELECT o.*, b.generation_id
+        SELECT o.*, b.generation_id, sv.sha256 AS source_sha256
         FROM observations o
+        JOIN source_versions sv ON sv.id=o.source_version_id
         JOIN observation_generation_bindings b ON b.observation_id=o.id
         JOIN processing_generations g ON g.id=b.generation_id AND g.state='SUCCEEDED'
         JOIN source_version_processing sp
@@ -118,13 +145,15 @@ def label_example(
         row = current_observation(c, observation_id)
         eid = 'GT-' + uuid.uuid4().hex[:12]
         sig = feature_signature(row['kind'], row['value_text'], context)
+        fp = candidate_fingerprint(row)
         c.execute('''
             INSERT OR REPLACE INTO graphic_training_examples(
-              id,observation_id,source_version_id,generation_id,page,x0,y0,x1,y1,
-              observation_kind,value_text,meaning,verdict,feature_signature,context_json,reviewer,created_at
-            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+              id,observation_id,candidate_fingerprint,source_version_id,source_sha256,generation_id,
+              page,x0,y0,x1,y1,observation_kind,value_text,meaning,verdict,
+              feature_signature,context_json,reviewer,created_at
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ''', (
-            eid, observation_id, row['source_version_id'], row['generation_id'], row['page'],
+            eid, observation_id, fp, row['source_version_id'], row['source_sha256'], row['generation_id'], row['page'],
             row['x0'], row['y0'], row['x1'], row['y1'], row['kind'], row['value_text'],
             meaning.strip(), verdict, sig, canonical_context(context), reviewer.strip(), now()
         ))
@@ -165,6 +194,8 @@ def score_meaning(db: Path, observation_id: str, meaning: str, context: dict[str
     calibrated = 0.5 + (raw - 0.5) * certainty
     return {
         'observation_id': observation_id,
+        'candidate_fingerprint': candidate_fingerprint(candidate),
+        'source_sha256': candidate['source_sha256'],
         'meaning': meaning,
         'calibrated_score': round(calibrated, 6),
         'decisive_support': round(decisive, 6),
@@ -199,13 +230,13 @@ def persist_proposal(db: Path, scored: dict[str, Any]) -> str:
     with connect(db) as c:
         c.execute('''
             INSERT INTO graphic_meaning_proposals(
-              id,observation_id,meaning,calibrated_score,decisive_support,
+              id,observation_id,candidate_fingerprint,source_sha256,meaning,calibrated_score,decisive_support,
               positive_weight,negative_weight,uncertain_weight,calibration_method,state,created_at
-            ) VALUES(?,?,?,?,?,?,?,?,?,'PROPOSED',?)
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,'PROPOSED',?)
         ''', (
-            pid, scored['observation_id'], scored['meaning'], scored['calibrated_score'],
-            scored['decisive_support'], scored['positive_weight'], scored['negative_weight'],
-            scored['uncertain_weight'], scored['calibration_method'], now()
+            pid, scored['observation_id'], scored['candidate_fingerprint'], scored['source_sha256'],
+            scored['meaning'], scored['calibrated_score'], scored['decisive_support'], scored['positive_weight'],
+            scored['negative_weight'], scored['uncertain_weight'], scored['calibration_method'], now()
         ))
         c.commit()
     return pid
@@ -231,8 +262,9 @@ def review_proposal(db: Path, proposal_id: str, decision: str, reviewer: str, ra
 def build_review_package(db: Path, limit: int = 12) -> dict[str, Any]:
     with connect(db) as c:
         rows = c.execute('''
-            SELECT o.*, b.generation_id
+            SELECT o.*, b.generation_id, sv.sha256 AS source_sha256
             FROM observations o
+            JOIN source_versions sv ON sv.id=o.source_version_id
             JOIN observation_generation_bindings b ON b.observation_id=o.id
             JOIN processing_generations g ON g.id=b.generation_id AND g.state='SUCCEEDED'
             JOIN source_version_processing sp
@@ -248,8 +280,10 @@ def build_review_package(db: Path, limit: int = 12) -> dict[str, Any]:
         context = {'drawing_type': 'UNKNOWN_REQUIRES_REVIEW'}
         suggestions = propose_meanings(db, row['id'], context, min_decisive_support=1.0, limit=3)
         candidates.append({
+            'candidate_fingerprint': candidate_fingerprint(row),
             'observation_id': row['id'],
             'source_version_id': row['source_version_id'],
+            'source_sha256': row['source_sha256'],
             'generation_id': row['generation_id'],
             'page': row['page'],
             'bbox_native': [row['x0'], row['y0'], row['x1'], row['y1']],
@@ -262,16 +296,28 @@ def build_review_package(db: Path, limit: int = 12) -> dict[str, Any]:
             'allowed_training_verdicts': ['POSITIVE', 'NEGATIVE', 'UNCERTAIN'],
         })
 
+    package_identity = {
+        'fingerprint_version': CANDIDATE_FINGERPRINT_VERSION,
+        'candidate_fingerprints': [c['candidate_fingerprint'] for c in candidates],
+    }
+    package_fingerprint = hashlib.sha256(
+        json.dumps(package_identity, sort_keys=True, separators=(',', ':')).encode('utf-8')
+    ).hexdigest()
     return {
-        'schema_version': '0.1.0',
+        'schema_version': '0.2.0',
         'work_item_id': 'DOC-003',
         'status': 'BLOCKED_HUMAN_DECISION',
-        'decision_required': 'Label candidate meaning as POSITIVE, NEGATIVE or UNCERTAIN; validation remains explicit human action.',
+        'decision_required': 'Assign a candidate meaning and label it POSITIVE, NEGATIVE or UNCERTAIN; semantic validation remains an explicit human action.',
+        'candidate_fingerprint_version': CANDIDATE_FINGERPRINT_VERSION,
+        'review_package_fingerprint': 'sha256:' + package_fingerprint,
         'candidate_count': len(candidates),
         'candidates': candidates,
         'canonical_promotion': 'DISABLED',
         'semantic_promotion': 'HUMAN_ONLY',
-        'training_preserves': ['source_version_id', 'generation_id', 'page', 'native_bbox', 'context', 'counterexamples'],
+        'training_preserves': [
+            'candidate_fingerprint', 'source_sha256', 'source_version_id', 'generation_id',
+            'page', 'native_bbox', 'context', 'counterexamples'
+        ],
     }
 
 
