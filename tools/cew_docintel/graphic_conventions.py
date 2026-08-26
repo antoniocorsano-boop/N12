@@ -9,6 +9,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+try:
+    from tools.cew_docintel.schema_migrations import ensure_graphic_schema
+except ModuleNotFoundError:
+    from schema_migrations import ensure_graphic_schema
+
 TRAINING_SCHEMA = '''
 PRAGMA foreign_keys=ON;
 CREATE TABLE IF NOT EXISTS graphic_training_examples(
@@ -69,7 +74,7 @@ def now() -> str:
 def connect(path: Path) -> sqlite3.Connection:
     c = sqlite3.connect(path)
     c.row_factory = sqlite3.Row
-    c.executescript(TRAINING_SCHEMA)
+    ensure_graphic_schema(c, TRAINING_SCHEMA, candidate_fingerprint)
     return c
 
 
