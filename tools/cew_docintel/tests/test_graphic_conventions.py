@@ -10,22 +10,26 @@ class GraphicConventionTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.db = Path(self.tmp.name) / 'docintel.sqlite3'
-        with cli.connect(self.db) as c:
+        self._seed_db(self.db, 'SRC-1', 'SV-1', 'GEN-1', ['OBS-1', 'OBS-2', 'OBS-3', 'OBS-4'])
+
+    def _seed_db(self, db, source_id, source_version_id, generation_id, observation_ids):
+        with cli.connect(db) as c:
             ts = cli.now()
-            c.execute('INSERT INTO sources VALUES(?,?,?)', ('SRC-1', 'test', ts))
-            c.execute('INSERT INTO source_versions VALUES(?,?,?,?,?,?)', ('SV-1', 'SRC-1', '/tmp/source.png', 'a'*64, 123, ts))
+            c.execute('INSERT INTO sources VALUES(?,?,?)', (source_id, 'test', ts))
+            c.execute('INSERT INTO source_versions VALUES(?,?,?,?,?,?)', (source_version_id, source_id, '/tmp/source.png', 'a'*64, 123, ts))
             c.execute('''INSERT INTO processing_generations(id,source_version_id,generation_no,processor,processor_version,state,metadata_json,started_at,completed_at)
-                         VALUES(?,?,?,?,?,?,?,?,?)''', ('GEN-1', 'SV-1', 1, 'test', '1', 'SUCCEEDED', '{}', ts, ts))
-            c.execute('INSERT INTO source_version_processing VALUES(?,?,?)', ('SV-1', 'GEN-1', ts))
-            for oid, kind, text, x in [
-                ('OBS-1', 'TEXT_CANDIDATE', 'T1', 0.0),
-                ('OBS-2', 'TEXT_CANDIDATE', 'T1', 10.0),
-                ('OBS-3', 'TEXT_CANDIDATE', 'T1', 20.0),
-                ('OBS-4', 'GEOMETRY_SEGMENT', None, 30.0),
-            ]:
+                         VALUES(?,?,?,?,?,?,?,?,?)''', (generation_id, source_version_id, 1, 'test', '1', 'SUCCEEDED', '{}', ts, ts))
+            c.execute('INSERT INTO source_version_processing VALUES(?,?,?)', (source_version_id, generation_id, ts))
+            records = [
+                (observation_ids[0], 'TEXT_CANDIDATE', 'T1', 0.0),
+                (observation_ids[1], 'TEXT_CANDIDATE', 'T1', 10.0),
+                (observation_ids[2], 'TEXT_CANDIDATE', 'T1', 20.0),
+                (observation_ids[3], 'GEOMETRY_SEGMENT', None, 30.0),
+            ]
+            for oid, kind, text, x in records:
                 c.execute('INSERT INTO observations VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',
-                          (oid, 'SV-1', 1, kind, x, 0.0, x+5.0, 5.0, text, 0.8, 'test-detector', 'CANDIDATE', ts))
-                c.execute('INSERT INTO observation_generation_bindings VALUES(?,?,?)', (oid, 'GEN-1', ts))
+                          (oid, source_version_id, 1, kind, x, 0.0, x+5.0, 5.0, text, 0.8, 'test-detector', 'CANDIDATE', ts))
+                c.execute('INSERT INTO observation_generation_bindings VALUES(?,?,?)', (oid, generation_id, ts))
             c.commit()
 
     def tearDown(self):
@@ -61,6 +65,21 @@ class GraphicConventionTests(unittest.TestCase):
         }
         rerun = dict(base, observation_id='OBS-B', source_version_id='SV-B', generation_id='GEN-B')
         self.assertEqual(gc.candidate_fingerprint(base), gc.candidate_fingerprint(rerun))
+
+    def test_review_package_fingerprint_is_stable_across_runtime_ids(self):
+        rerun_db = Path(self.tmp.name) / 'docintel-rerun.sqlite3'
+        self._seed_db(rerun_db, 'SRC-RERUN', 'SV-RERUN', 'GEN-RERUN', ['OBS-Z9', 'OBS-Z8', 'OBS-Z7', 'OBS-Z6'])
+        first = gc.build_review_package(self.db, limit=4)
+        second = gc.build_review_package(rerun_db, limit=4)
+        self.assertEqual(first['review_package_fingerprint'], second['review_package_fingerprint'])
+        self.assertEqual(
+            [x['candidate_fingerprint'] for x in first['candidates']],
+            [x['candidate_fingerprint'] for x in second['candidates']],
+        )
+        self.assertNotEqual(
+            [x['observation_id'] for x in first['candidates']],
+            [x['observation_id'] for x in second['candidates']],
+        )
 
     def test_counterexample_reduces_score(self):
         ctx = {'drawing_type': 'roof_plan'}
