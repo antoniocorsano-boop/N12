@@ -1,0 +1,244 @@
+{
+  "source": "TAV.7 — Piano Quarto e Piano Copertura",
+  "dpi_assumed_from_source_render": 300.0,
+  "config": {
+    "denoise_kernel": 3,
+    "adaptive_block_size": 41,
+    "adaptive_c": 12,
+    "hough_threshold": 70,
+    "min_line_length_px": 80,
+    "max_line_gap_px": 12,
+    "ocr_min_confidence": 40.0
+  },
+  "representative_tile": "r1_c3.jpg",
+  "tiles": [
+    {
+      "tile": "r1_c1.jpg",
+      "source_path": "analysis/source_renders/TAV07/r1_c1.jpg",
+      "width_px": 1013,
+      "height_px": 3669,
+      "source_bytes": 512093,
+      "line_count": 290,
+      "line_families": {
+        "horizontal": 63,
+        "vertical": 178,
+        "diagonal": 49
+      },
+      "median_line_length_px": 194.5,
+      "max_line_length_px": 759.0,
+      "ocr_candidate_count": 24,
+      "ocr_mean_confidence": 0.625,
+      "ocr_median_confidence": 0.6,
+      "ocr_error": null
+    },
+    {
+      "tile": "r1_c2.jpg",
+      "source_path": "analysis/source_renders/TAV07/r1_c2.jpg",
+      "width_px": 1071,
+      "height_px": 3669,
+      "source_bytes": 817461,
+      "line_count": 333,
+      "line_families": {
+        "horizontal": 64,
+        "vertical": 210,
+        "diagonal": 59
+      },
+      "median_line_length_px": 152.21,
+      "max_line_length_px": 1205.0,
+      "ocr_candidate_count": 50,
+      "ocr_mean_confidence": 0.6328,
+      "ocr_median_confidence": 0.605,
+      "ocr_error": null
+    },
+    {
+      "tile": "r1_c3.jpg",
+      "source_path": "analysis/source_renders/TAV07/r1_c3.jpg",
+      "width_px": 1014,
+      "height_px": 3669,
+      "source_bytes": 660571,
+      "line_count": 441,
+      "line_families": {
+        "horizontal": 68,
+        "vertical": 275,
+        "diagonal": 98
+      },
+      "median_line_length_px": 127.1,
+      "max_line_length_px": 1199.0,
+      "ocr_candidate_count": 39,
+      "ocr_mean_confidence": 0.6385,
+      "ocr_median_confidence": 0.63,
+      "ocr_error": null
+    },
+    {
+      "tile": "r2_c1.jpg",
+      "source_path": "analysis/source_renders/TAV07/r2_c1.jpg",
+      "width_px": 1013,
+      "height_px": 3878,
+      "source_bytes": 449330,
+      "line_count": 240,
+      "line_families": {
+        "horizontal": 82,
+        "vertical": 83,
+        "diagonal": 75
+      },
+      "median_line_length_px": 242.5,
+      "max_line_length_px": 586.33,
+      "ocr_candidate_count": 14,
+      "ocr_mean_confidence": 0.62,
+      "ocr_median_confidence": 0.63,
+      "ocr_error": null
+    },
+    {
+      "tile": "r2_c2.jpg",
+      "source_path": "analysis/source_renders/TAV07/r2_c2.jpg",
+      "width_px": 1071,
+      "height_px": 3878,
+      "source_bytes": 557448,
+      "line_count": 254,
+      "line_families": {
+        "horizontal": 83,
+        "vertical": 80,
+        "diagonal": 91
+      },
+      "median_line_length_px": 222.39,
+      "max_line_length_px": 684.0,
+      "ocr_candidate_count": 16,
+      "ocr_mean_confidence": 0.6837,
+      "ocr_median_confidence": 0.695,
+      "ocr_error": null
+    },
+    {
+      "tile": "r2_c3.jpg",
+      "source_path": "analysis/source_renders/TAV07/r2_c3.jpg",
+      "width_px": 1014,
+      "height_px": 3878,
+      "source_bytes": 518836,
+      "line_count": 291,
+      "line_families": {
+        "horizontal": 69,
+        "vertical": 136,
+        "diagonal": 86
+      },
+      "median_line_length_px": 223.0,
+      "max_line_length_px": 554.71,
+      "ocr_candidate_count": 25,
+      "ocr_mean_confidence": 0.6608,
+      "ocr_median_confidence": 0.61,
+      "ocr_error": null
+    },
+    {
+      "tile": "r3_c1.jpg",
+      "source_path": "analysis/source_renders/TAV07/r3_c1.jpg",
+      "width_px": 1013,
+      "height_px": 3878,
+      "source_bytes": 281973,
+      "line_count": 107,
+      "line_families": {
+        "horizontal": 34,
+        "vertical": 46,
+        "diagonal": 27
+      },
+      "median_line_length_px": 145.0,
+      "max_line_length_px": 468.0,
+      "ocr_candidate_count": 10,
+      "ocr_mean_confidence": 0.642,
+      "ocr_median_confidence": 0.59,
+      "ocr_error": null
+    },
+    {
+      "tile": "r3_c2.jpg",
+      "source_path": "analysis/source_renders/TAV07/r3_c2.jpg",
+      "width_px": 1071,
+      "height_px": 3878,
+      "source_bytes": 438318,
+      "line_count": 234,
+      "line_families": {
+        "horizontal": 81,
+        "vertical": 69,
+        "diagonal": 84
+      },
+      "median_line_length_px": 188.91,
+      "max_line_length_px": 604.0,
+      "ocr_candidate_count": 15,
+      "ocr_mean_confidence": 0.6513,
+      "ocr_median_confidence": 0.65,
+      "ocr_error": null
+    },
+    {
+      "tile": "r3_c3.jpg",
+      "source_path": "analysis/source_renders/TAV07/r3_c3.jpg",
+      "width_px": 1014,
+      "height_px": 3878,
+      "source_bytes": 374873,
+      "line_count": 175,
+      "line_families": {
+        "horizontal": 51,
+        "vertical": 59,
+        "diagonal": 65
+      },
+      "median_line_length_px": 184.0,
+      "max_line_length_px": 839.0,
+      "ocr_candidate_count": 25,
+      "ocr_mean_confidence": 0.6668,
+      "ocr_median_confidence": 0.64,
+      "ocr_error": null
+    },
+    {
+      "tile": "r4_c1.jpg",
+      "source_path": "analysis/source_renders/TAV07/r4_c1.jpg",
+      "width_px": 1013,
+      "height_px": 3670,
+      "source_bytes": 187265,
+      "line_count": 20,
+      "line_families": {
+        "horizontal": 17,
+        "vertical": 3,
+        "diagonal": 0
+      },
+      "median_line_length_px": 200.51,
+      "max_line_length_px": 722.0,
+      "ocr_candidate_count": 5,
+      "ocr_mean_confidence": 0.682,
+      "ocr_median_confidence": 0.66,
+      "ocr_error": null
+    },
+    {
+      "tile": "r4_c2.jpg",
+      "source_path": "analysis/source_renders/TAV07/r4_c2.jpg",
+      "width_px": 1071,
+      "height_px": 3670,
+      "source_bytes": 407584,
+      "line_count": 262,
+      "line_families": {
+        "horizontal": 75,
+        "vertical": 100,
+        "diagonal": 87
+      },
+      "median_line_length_px": 191.5,
+      "max_line_length_px": 592.0,
+      "ocr_candidate_count": 21,
+      "ocr_mean_confidence": 0.7071,
+      "ocr_median_confidence": 0.67,
+      "ocr_error": null
+    },
+    {
+      "tile": "r4_c3.jpg",
+      "source_path": "analysis/source_renders/TAV07/r4_c3.jpg",
+      "width_px": 1014,
+      "height_px": 3670,
+      "source_bytes": 223605,
+      "line_count": 38,
+      "line_families": {
+        "horizontal": 21,
+        "vertical": 12,
+        "diagonal": 5
+      },
+      "median_line_length_px": 176.01,
+      "max_line_length_px": 578.0,
+      "ocr_candidate_count": 1,
+      "ocr_mean_confidence": 0.67,
+      "ocr_median_confidence": 0.67,
+      "ocr_error": null
+    }
+  ]
+}
