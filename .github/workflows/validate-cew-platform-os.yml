@@ -6,6 +6,7 @@ on:
     paths:
       - 'docs/ARCHITECTURE/CEW_PLATFORM_OS_v0.md'
       - 'docs/ARCHITECTURE/CEW_OPEN_SOURCE_ADOPTION_MATRIX_v0.md'
+      - 'docs/ARCHITECTURE/CEW_GRAPHIC_KNOWLEDGE_FABRIC_v0.md'
       - 'docs/AGENTS/CEW_COMMUNICATION_PROTOCOL_v0.md'
       - 'contracts/**'
       - 'automation/CEW_PLATFORM_WORK_QUEUE_v0.json'
@@ -23,6 +24,7 @@ on:
       - 'scripts/cew_degradation_engine.py'
       - 'tests/test_cew_platform_orchestrator.py'
       - 'tools/cew_docintel/**'
+      - 'tools/cew_graphic_knowledge/**'
       - 'tools/cew_model/**'
       - 'tools/cew_review/**'
       - 'tools/cew_intervention/**'
@@ -31,6 +33,7 @@ on:
     paths:
       - 'docs/ARCHITECTURE/CEW_PLATFORM_OS_v0.md'
       - 'docs/ARCHITECTURE/CEW_OPEN_SOURCE_ADOPTION_MATRIX_v0.md'
+      - 'docs/ARCHITECTURE/CEW_GRAPHIC_KNOWLEDGE_FABRIC_v0.md'
       - 'docs/AGENTS/CEW_COMMUNICATION_PROTOCOL_v0.md'
       - 'contracts/**'
       - 'automation/CEW_PLATFORM_WORK_QUEUE_v0.json'
@@ -48,6 +51,7 @@ on:
       - 'scripts/cew_degradation_engine.py'
       - 'tests/test_cew_platform_orchestrator.py'
       - 'tools/cew_docintel/**'
+      - 'tools/cew_graphic_knowledge/**'
       - 'tools/cew_model/**'
       - 'tools/cew_review/**'
       - 'tools/cew_intervention/**'
@@ -69,8 +73,10 @@ jobs:
         run: python scripts/cew_platform_orchestrator.py validate-receipts
       - name: Validate adaptive planning and result/checkpoint invariants
         run: python -m unittest discover -s tests -p 'test_cew_platform_orchestrator.py' -v
-      - name: Validate generation-safe Document Intelligence and graphic conventions
+      - name: Validate generation-safe Document Intelligence and project graphic conventions
         run: python -m unittest discover -s tools/cew_docintel/tests -v
+      - name: Validate cross-project Graphic Knowledge Fabric
+        run: python -m unittest discover -s tools/cew_graphic_knowledge/tests -v
       - name: Validate Smart Structural Entity
         run: python -m unittest discover -s tools/cew_model/tests -v
       - name: Validate Human Decision Workspace
@@ -119,7 +125,7 @@ jobs:
           assert all(len(c['bbox_native'])==4 for c in p['candidates'])
           assert all(c['suggested_meanings']==[] for c in p['candidates'])
           assert all(c['semantic_state']=='UNASSIGNED_REQUIRES_HUMAN_LABEL' for c in p['candidates'])
-          print('TAV07 graphic convention stable human gate: PASS')
+          print('TAV07 project graphic convention human gate: PASS')
           print('review_package_fingerprint='+p['review_package_fingerprint'])
           PY
       - name: Validate degradation capability adoption
@@ -130,10 +136,10 @@ jobs:
         run: python scripts/cew_platform_orchestrator.py runtime-state
       - name: Show current lock-safe execution plan
         run: python scripts/cew_platform_orchestrator.py plan
-      - name: Exercise next work result template
-        run: python scripts/cew_platform_orchestrator.py result-template DOC-003
-      - name: Exercise next work checkpoint template
-        run: python scripts/cew_platform_orchestrator.py checkpoint-template DOC-003
+      - name: Exercise Graphic Knowledge result template
+        run: python scripts/cew_platform_orchestrator.py result-template GKF-001
+      - name: Exercise Graphic Knowledge checkpoint template
+        run: python scripts/cew_platform_orchestrator.py checkpoint-template GKF-001
       - name: Validate document-intelligence store contract
         run: python tools/cew_docintel/cli.py --db /tmp/tav07-docintel.sqlite3 validate
       - uses: actions/upload-artifact@v4
