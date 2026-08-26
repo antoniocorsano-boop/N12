@@ -1,0 +1,21 @@
+{
+  "schema_version":"0.1.0",
+  "contract_id":"CEW_HUMAN_DECISION_WORKSPACE_V0",
+  "case_states":["PENDING","APPROVED","CORRECTED","REJECTED","DEFERRED","STALE_REVIEW"],
+  "decisions":["APPROVE","CORRECT","REJECT","DEFER"],
+  "required_case_fields":["case_id","title","question","candidate_summary","source_fingerprint","evidence"],
+  "required_evidence_fields":["evidence_id","label","summary","locator"],
+  "required_decision_fields":["decision","reviewer","rationale","source_fingerprint"],
+  "ui_rules":[
+    "human-facing title/question/summary precede technical identifiers",
+    "candidate and supporting/counter evidence are presented together",
+    "technical IDs remain available in provenance details but are not primary labels",
+    "one review case requests one bounded professional decision"
+  ],
+  "invalidation_rules":[
+    "source fingerprint drift changes reviewed case to STALE_REVIEW",
+    "stale decision receipt remains historical and is never silently rewritten",
+    "dependent approved artifacts must treat STALE_REVIEW as invalid until re-reviewed"
+  ],
+  "authority":"A decision receipt records human adjudication; it does not change source evidence by itself."
+}

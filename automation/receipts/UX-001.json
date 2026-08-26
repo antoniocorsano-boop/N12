@@ -1,0 +1,40 @@
+{
+  "work_item_id": "UX-001",
+  "outcome": "COMPLETE_PASS",
+  "execution_profile": "HUMAN_REVIEW",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-platform-os-v0",
+  "head_sha": "9e521a53e8dfe4dda9976d9939b6aa47e99fde8d",
+  "input_generations": [],
+  "input_fingerprints": [
+    "base:79d64098eeab3c43be10f49500ba4d059798a91c"
+  ],
+  "selected_providers": {
+    "human.review": "cew-human-decision-workspace",
+    "evidence.provenance": "cew-evidence-foundation"
+  },
+  "outputs": [
+    "contracts/CEW_HUMAN_DECISION_WORKSPACE_v0.json",
+    "tools/cew_review/decision_store.py",
+    "tools/cew_review/tests/test_decision_store.py"
+  ],
+  "gates": [
+    {
+      "name": "Validate CEW Platform OS",
+      "run_id": 32961716538,
+      "job_id": 98155285738,
+      "head_sha": "9e521a53e8dfe4dda9976d9939b6aa47e99fde8d",
+      "status": "PASS"
+    },
+    {
+      "name": "Human Decision Workspace workflow",
+      "tests": 5,
+      "status": "PASS"
+    }
+  ],
+  "residuals": [],
+  "human_decisions": [],
+  "checkpoint_id": null,
+  "next_eligible_action": "Use review packages for DOC-003 and future engineering adjudication"
+}

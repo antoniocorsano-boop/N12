@@ -1,0 +1,60 @@
+{
+  "work_item_id": "INV-001",
+  "outcome": "COMPLETE_PASS",
+  "execution_profile": "ENGINEERING_MODEL",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-platform-os-v0",
+  "head_sha": "cacc8f801c4c5fc31c12a9664b3bb1cda834b270",
+  "input_generations": [
+    "N12 existing-assessment profile consumed by the pre-existing advisory investigation planner"
+  ],
+  "input_fingerprints": [
+    "implementation_head:cacc8f801c4c5fc31c12a9664b3bb1cda834b270",
+    "ci_artifact:sha256:930dffc8ce324d9edd3fc1ccadd456b37d93889abe6dcb4af3315922eb9d1dcb"
+  ],
+  "selected_providers": {
+    "investigation.voi": "cew-investigation-planner",
+    "degradation.registry": "cew-degradation-engine",
+    "knowledge.smart_entity": "cew-smart-entity-core",
+    "human.review": "cew-human-decision-workspace"
+  },
+  "outputs": [
+    "scripts/cew_platform_investigation_adapter.py",
+    "tests/test_cew_platform_investigation_adapter.py",
+    "CI artifact: N12_INVESTIGATION_PLAN_v0.json",
+    "CI artifact: INV001_PLATFORM_ADOPTION_v0.json"
+  ],
+  "gates": [
+    {
+      "name": "Validate CEW Investigation and Dossier",
+      "run_id": 32976209944,
+      "job_id": 98201446742,
+      "head_sha": "cacc8f801c4c5fc31c12a9664b3bb1cda834b270",
+      "status": "PASS"
+    },
+    {
+      "name": "Validate CEW Platform OS",
+      "run_id": 32976214208,
+      "job_id": 98201461432,
+      "head_sha": "cacc8f801c4c5fc31c12a9664b3bb1cda834b270",
+      "status": "PASS"
+    },
+    {
+      "name": "Investigation authority boundary",
+      "status": "PASS",
+      "planner_status": "ADVISORY_PLAN_NOT_EVIDENCE",
+      "ranking_authority": "ADVISORY_ONLY",
+      "value_of_information_ready": false,
+      "human_selection_required": true
+    }
+  ],
+  "residuals": [
+    "True quantitative Value of Information remains NOT_READY until a declared decision variable, threshold/loss function, prior uncertainty model, test likelihood model, test cost model and downstream structural response model exist.",
+    "No investigation candidate is selected for execution by this completion receipt; project execution remains an explicit human engineering decision.",
+    "No test result, LC/FC, material property, geotechnical parameter or reinforcement fact is created by the planner."
+  ],
+  "human_decisions": [],
+  "checkpoint_id": null,
+  "next_eligible_action": "Use the advisory investigation package only inside a human decision workflow; activate quantitative VoI only after its explicit future gate is satisfied."
+}

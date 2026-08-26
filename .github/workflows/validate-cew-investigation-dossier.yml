@@ -1,0 +1,95 @@
+name: Validate CEW Investigation and Dossier
+
+on:
+  push:
+    branches: [exp/cew-platform-os-v0]
+    paths:
+      - 'automation/CEW_INVESTIGATION_PLANNER_CONTRACT_v1.json'
+      - 'scripts/cew_investigation_planner.py'
+      - 'scripts/cew_platform_investigation_adapter.py'
+      - 'tests/test_cew_platform_investigation_adapter.py'
+      - 'tools/cew_dossier/**'
+      - '.github/workflows/validate-cew-investigation-dossier.yml'
+  pull_request:
+    paths:
+      - 'automation/CEW_INVESTIGATION_PLANNER_CONTRACT_v1.json'
+      - 'scripts/cew_investigation_planner.py'
+      - 'scripts/cew_platform_investigation_adapter.py'
+      - 'tests/test_cew_platform_investigation_adapter.py'
+      - 'tools/cew_dossier/**'
+      - '.github/workflows/validate-cew-investigation-dossier.yml'
+
+jobs:
+  investigation-dossier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate Investigation Platform adapter tests
+        run: python -m unittest tests.test_cew_platform_investigation_adapter -v
+      - name: Build real N12 advisory investigation plan
+        run: |
+          python scripts/cew_investigation_planner.py \
+            --profile data/canonical/N12_EXISTING_ASSESSMENT_PROFILE_v1.json \
+            --output /tmp/N12_INVESTIGATION_PLAN_v0.json
+          python scripts/cew_platform_investigation_adapter.py \
+            --plan /tmp/N12_INVESTIGATION_PLAN_v0.json \
+            --output /tmp/INV001_PLATFORM_ADOPTION_v0.json
+      - name: Assert Investigation remains advisory and VoI-gated
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('/tmp/INV001_PLATFORM_ADOPTION_v0.json'))
+          assert p['status']=='PASS'
+          assert p['ranking_authority']=='ADVISORY_ONLY'
+          assert p['value_of_information']['status']=='NOT_READY'
+          assert p['human_selection_required_before_project_execution'] is True
+          assert p['planner_creates_evidence'] is False
+          assert p['canonical_promotion']=='DISABLED'
+          print('INV-001 platform adoption safety: PASS')
+          PY
+      - name: Validate Dossier engine tests
+        run: python -m unittest discover -s tools/cew_dossier/tests -v
+      - name: Build a generation-bound dossier contract probe
+        run: |
+          cat > /tmp/dossier-spec.json <<'JSON'
+          {
+            "project_id": "N12-SYSTEM-PROBE",
+            "global_bindings": [
+              {"kind":"platform_head","id":"CEW-PLATFORM","generation_id":"HEAD-e148967c","fingerprint":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+            ],
+            "sections": [
+              {"section_id":"governance","title":"Governance","state":"AVAILABLE","bindings":[{"kind":"system_health","id":"CEW_SYSTEM_HEALTH_v0","generation_id":"RUN-32975776973","fingerprint":"sha256:0587b76a543b62658b73ddea86fb612bf31484397adb1f184f842a8b6bb1895a"}],"artifact_refs":["CEW_SYSTEM_HEALTH_v0"]},
+              {"section_id":"canonical_model","title":"Canonical model","state":"UNAVAILABLE_BLOCKED","blockers":["MOD-001 BLOCKED_CANONICAL_GATE / CEW-F2 EVIDENCE_PROVENANCE_PASS required"]},
+              {"section_id":"fem","title":"FEM results","state":"UNAVAILABLE_BLOCKED","blockers":["FEM-001 BLOCKED_EVIDENCE"]}
+            ]
+          }
+          JSON
+          python -m tools.cew_dossier.engine build --spec /tmp/dossier-spec.json --output /tmp/CEW_DOSSIER_PROBE_v0.json --html /tmp/CEW_DOSSIER_PROBE_v0.html
+          python -m tools.cew_dossier.engine validate --manifest /tmp/CEW_DOSSIER_PROBE_v0.json
+      - name: Assert dossier does not fill blocked engineering sections
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('/tmp/CEW_DOSSIER_PROBE_v0.json'))
+          assert p['canonical_promotion']=='DISABLED'
+          by={s['section_id']:s for s in p['sections']}
+          assert by['canonical_model']['state']=='UNAVAILABLE_BLOCKED'
+          assert by['fem']['state']=='UNAVAILABLE_BLOCKED'
+          assert by['canonical_model']['artifact_refs']==[]
+          assert p['authority']=='GENERATION_BOUND_MANIFEST_NOT_ENGINEERING_AUTHORITY'
+          print('DOS-001 generation-bound dossier safety: PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CEW_INVESTIGATION_DOSSIER_v0
+          path: |
+            /tmp/N12_INVESTIGATION_PLAN_v0.json
+            /tmp/INV001_PLATFORM_ADOPTION_v0.json
+            /tmp/CEW_DOSSIER_PROBE_v0.json
+            /tmp/CEW_DOSSIER_PROBE_v0.html
+          if-no-files-found: error
+
+# System capability validation only. No investigation result, dossier render or platform adapter may promote CEW canonical truth.

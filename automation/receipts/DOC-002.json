@@ -1,0 +1,74 @@
+{
+  "work_item_id": "DOC-002",
+  "outcome": "COMPLETE_PASS",
+  "execution_profile": "DOCUMENT_INTELLIGENCE",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-platform-os-v0",
+  "head_sha": "d135f5392ef3b4db76218dbdd33b05d19ae488ef",
+  "input_generations": [
+    "runtime ProcessingGeneration created from pinned Scan2DXF v0.2 artifacts"
+  ],
+  "input_fingerprints": [
+    "source_git_blob:1cc042a1b2f5072117d5a3dfac2fe7ee3d342894",
+    "source_sha256:e935df7da1aab9de9fc065d2ab4a8fb36624b2d9ee983ca29f1d5af08f6b2494",
+    "metrics_git_blob:d24c06c76e1c38faae700f2fb81398342ca86ede",
+    "geometry_git_blob:445cf63dc15561cb60e8cd9ac5b0992ac223ae84",
+    "text_git_blob:cf30c7b9c421d7eef1663e18924e9634ef82c82c"
+  ],
+  "selected_providers": {
+    "source.identity": "cew-source-foundation",
+    "document.raster_geometry": "opencv-cew-adapter",
+    "document.ocr_htr": "tesseract-baseline"
+  },
+  "outputs": [
+    "automation/CEW_TAV07_DOCINTEL_IMPORT_MANIFEST_v0.json",
+    "tools/cew_docintel/tav07_real_import.py",
+    "CI artifact: TAV07_DOCINTEL_IMPORT_RECEIPT_v0.json"
+  ],
+  "gates": [
+    {
+      "name": "Validate CEW Platform OS",
+      "run_id": 32962393643,
+      "job_id": 98157399621,
+      "head_sha": "d135f5392ef3b4db76218dbdd33b05d19ae488ef",
+      "status": "PASS"
+    },
+    {
+      "name": "Real TAV07 source identity",
+      "status": "PASS",
+      "source_bytes": 660571,
+      "native_dimensions_px": [1014, 3669]
+    },
+    {
+      "name": "Real TAV07 detailed observation import",
+      "status": "PASS",
+      "geometry_candidates": 441,
+      "text_candidates": 39,
+      "total_candidates": 480,
+      "candidate_state_count": 480,
+      "rejected": 0,
+      "coordinate_system": "SOURCE_TILE_NATIVE_PIXELS"
+    },
+    {
+      "name": "Whole TAV07 metrics binding",
+      "status": "PASS",
+      "tile_count": 12,
+      "line_candidate_count": 2685,
+      "ocr_candidate_count": 245,
+      "detailed_scope": "representative tile only because only its detailed JSON was persisted"
+    },
+    {
+      "name": "Promotion safety",
+      "status": "PASS",
+      "canonical_promotion": "DISABLED",
+      "millimetre_authority": "NOT_AUTHORIZED"
+    }
+  ],
+  "residuals": [
+    "Detailed geometry/OCR JSON is persisted only for representative tile r1_c3; whole-drawing metrics for the other 11 tiles remain summary evidence and are not expanded into invented observations."
+  ],
+  "human_decisions": [],
+  "checkpoint_id": null,
+  "next_eligible_action": "DOC-003 — build graphic-convention active-learning candidates from generation-bound observations"
+}

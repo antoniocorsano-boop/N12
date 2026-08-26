@@ -1,0 +1,60 @@
+{
+  "work_item_id": "DOS-001",
+  "outcome": "COMPLETE_PASS",
+  "execution_profile": "PRODUCT_WORKFLOW",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-platform-os-v0",
+  "head_sha": "cacc8f801c4c5fc31c12a9664b3bb1cda834b270",
+  "input_generations": [
+    "CEW Platform OS W0-W8 system control plane"
+  ],
+  "input_fingerprints": [
+    "implementation_head:cacc8f801c4c5fc31c12a9664b3bb1cda834b270",
+    "ci_artifact:sha256:930dffc8ce324d9edd3fc1ccadd456b37d93889abe6dcb4af3315922eb9d1dcb"
+  ],
+  "selected_providers": {
+    "dossier.lifecycle": "cew-dossier-engine",
+    "knowledge.smart_entity": "cew-smart-entity-core",
+    "evidence.provenance": "cew-evidence-foundation",
+    "human.review": "cew-human-decision-workspace",
+    "workflow.durable_execution": "deterministic-cew-orchestrator"
+  },
+  "outputs": [
+    "tools/cew_dossier/engine.py",
+    "tools/cew_dossier/tests/test_engine.py",
+    "CI artifact: CEW_DOSSIER_PROBE_v0.json",
+    "CI artifact: CEW_DOSSIER_PROBE_v0.html"
+  ],
+  "gates": [
+    {
+      "name": "Validate CEW Investigation and Dossier",
+      "run_id": 32976209944,
+      "job_id": 98201446742,
+      "head_sha": "cacc8f801c4c5fc31c12a9664b3bb1cda834b270",
+      "status": "PASS"
+    },
+    {
+      "name": "Validate CEW Platform OS",
+      "run_id": 32976214208,
+      "job_id": 98201461432,
+      "head_sha": "cacc8f801c4c5fc31c12a9664b3bb1cda834b270",
+      "status": "PASS"
+    },
+    {
+      "name": "Dossier authority boundary",
+      "status": "PASS",
+      "manifest_authority": "GENERATION_BOUND_MANIFEST_NOT_ENGINEERING_AUTHORITY",
+      "blocked_sections_are_explicit": true,
+      "renderers_are_projections": true,
+      "canonical_promotion": "DISABLED"
+    }
+  ],
+  "residuals": [
+    "The real N12 dossier is intentionally incomplete while MOD-001 is BLOCKED_CANONICAL_GATE and FEM-001 is BLOCKED_EVIDENCE; the engine represents those sections as UNAVAILABLE_BLOCKED rather than generating content.",
+    "The validated HTML is only a projection probe. Future PDF or other renderers must consume the same immutable manifest and cannot become engineering authority."
+  ],
+  "human_decisions": [],
+  "checkpoint_id": null,
+  "next_eligible_action": "Continuously regenerate superseding dossier manifests as upstream generations become available; never backfill blocked sections with inferred engineering content."
+}

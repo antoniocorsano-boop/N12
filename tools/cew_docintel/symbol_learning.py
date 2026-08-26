@@ -13,11 +13,14 @@ CREATE TABLE IF NOT EXISTS symbol_training(
 '''
 
 def dbopen(path):
-    c=sqlite3.connect(path); c.row_factory=sqlite3.Row; c.executescript(SCHEMA); return c
+    c=sqlite3.connect(path); c.row_factory=sqlite3.Row; c.execute('PRAGMA foreign_keys=ON'); c.executescript(SCHEMA); return c
 
 def label(db, obs, meaning, verdict, reviewer, context):
     with dbopen(db) as c:
-        if not c.execute('SELECT 1 FROM observations WHERE id=?',(obs,)).fetchone(): raise SystemExit('observation sconosciuta')
+        row=c.execute('''SELECT o.id,b.generation_id FROM observations o
+                         JOIN observation_generation_bindings b ON b.observation_id=o.id
+                         WHERE o.id=?''',(obs,)).fetchone()
+        if not row: raise SystemExit('observation sconosciuta o non vincolata a generation')
         c.execute('INSERT OR REPLACE INTO symbol_training VALUES(?,?,?,?,?)',(obs,meaning,verdict,json.dumps(context,sort_keys=True),reviewer)); c.commit()
 
 def stats(db):
@@ -27,8 +30,10 @@ def stats(db):
 
 def examples(db, meaning):
     with dbopen(db) as c:
-        rows=c.execute('''SELECT t.*,o.source_version_id,o.page,o.x0,o.y0,o.x1,o.y1,o.kind,o.value_text,o.confidence,o.detector
-                          FROM symbol_training t JOIN observations o ON o.id=t.observation_id
+        rows=c.execute('''SELECT t.*,o.source_version_id,b.generation_id,o.page,o.x0,o.y0,o.x1,o.y1,o.kind,o.value_text,o.confidence,o.detector
+                          FROM symbol_training t
+                          JOIN observations o ON o.id=t.observation_id
+                          JOIN observation_generation_bindings b ON b.observation_id=o.id
                           WHERE t.meaning=? ORDER BY t.verdict DESC,t.observation_id''',(meaning,)).fetchall()
         return [dict(r) for r in rows]
 

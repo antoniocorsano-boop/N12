@@ -1,0 +1,56 @@
+{
+  "schema_version": "0.1.0",
+  "work_item_id": "DEG-001",
+  "capability": "degradation.registry",
+  "origin": {
+    "repository": "antoniocorsano-boop/N12",
+    "validated_branch": "work/cew-degradation-engine-v0",
+    "validated_head": "eb934232d605d389abd3fb67b14e03a6a8ed00ea",
+    "registry": {
+      "path": "automation/CEW_DEGRADATION_MODEL_REGISTRY_v1.json",
+      "git_blob_sha": "f5681884b90979be5b1657ba4bafd3cee83599bc"
+    },
+    "safety_engine": {
+      "path": "scripts/cew_degradation_engine.py",
+      "git_blob_sha": "5dc5338f7007e96eacba8d66fa01f7221c6959f8"
+    }
+  },
+  "required_model_fields": [
+    "model_id",
+    "mechanism",
+    "status",
+    "applicability",
+    "inputs",
+    "units",
+    "parameter_provenance",
+    "uncertainty_model",
+    "validity_range",
+    "outputs",
+    "reference_id",
+    "calibration_state",
+    "formula_family",
+    "solver_effect"
+  ],
+  "required_activation_fields": [
+    "reference_id",
+    "project_applicability_decision",
+    "input_parameter_sources",
+    "uncertainty_definition",
+    "units",
+    "validity_range",
+    "calibration_or_justification",
+    "human_review"
+  ],
+  "platform_invariants": [
+    "registry presence never authorizes project use",
+    "applicability is explicit for every mechanism",
+    "parameter provenance and uncertainty model are explicit even when UNSET_PER_PROJECT",
+    "calibration state is explicit",
+    "uncalibrated scaffolds generate no project degradation values",
+    "scenario_output_authorized remains false before project activation review",
+    "degradation output cannot mutate Source/Evidence/SmartProperty evidence state",
+    "project activation requires explicit human review"
+  ],
+  "adoption_state": "ADOPTED_AS_BLOCKED_REFERENCE_CAPABILITY",
+  "canonical_promotion": false
+}

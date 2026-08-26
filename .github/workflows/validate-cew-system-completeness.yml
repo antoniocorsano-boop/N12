@@ -1,0 +1,46 @@
+name: Validate CEW System Completeness
+
+on:
+  push:
+    branches: [exp/cew-platform-os-v0]
+    paths:
+      - 'automation/CEW_SYSTEM_COMPLETENESS_MATRIX_v0.json'
+      - 'automation/CEW_PLATFORM_WORK_QUEUE_v0.json'
+      - 'automation/CEW_PLATFORM_WORK_STATE_v0.json'
+      - 'automation/CEW_AGENT_CAPABILITY_REGISTRY_v0.json'
+      - 'scripts/cew_system_control.py'
+      - 'tests/test_cew_system_control.py'
+      - '.github/workflows/validate-cew-system-completeness.yml'
+  pull_request:
+    paths:
+      - 'automation/CEW_SYSTEM_COMPLETENESS_MATRIX_v0.json'
+      - 'automation/CEW_PLATFORM_WORK_QUEUE_v0.json'
+      - 'automation/CEW_PLATFORM_WORK_STATE_v0.json'
+      - 'automation/CEW_AGENT_CAPABILITY_REGISTRY_v0.json'
+      - 'scripts/cew_system_control.py'
+      - 'tests/test_cew_system_control.py'
+      - '.github/workflows/validate-cew-system-completeness.yml'
+
+jobs:
+  completeness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate W0-W8 architecture coverage
+        run: python scripts/cew_system_control.py validate --output /tmp/CEW_SYSTEM_HEALTH_v0.json
+      - name: Run system-control regression tests
+        run: python -m unittest tests.test_cew_system_control -v
+      - name: Validate existing Platform OS contracts
+        run: python scripts/cew_platform_orchestrator.py validate
+      - name: Show lock-safe next plan
+        run: python scripts/cew_platform_orchestrator.py plan
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CEW_SYSTEM_HEALTH_v0
+          path: /tmp/CEW_SYSTEM_HEALTH_v0.json
+          if-no-files-found: error
+
+# Governance/health gate only. It cannot promote CEW-F2 or later canonical milestones.
