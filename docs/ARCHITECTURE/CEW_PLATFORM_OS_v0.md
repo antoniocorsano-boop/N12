@@ -3,7 +3,7 @@
 Status: EXPERIMENTAL INTEGRATION GOVERNANCE
 Reference pilot: N12
 Base capability branch: `exp/cew-document-intelligence-foundation-v0`
-Canonical CEW boundary remains unchanged: F2 is not closed by this branch and no later milestone is promoted by this work.
+Authority boundary: this branch is non-promotive. Canonical CEW milestone state is owned by the canonical CEW governance branch and receipts; Platform OS consumes those releases but cannot close or promote milestones by itself.
 
 ## 1. Purpose
 
@@ -18,6 +18,8 @@ For CEW the corresponding engineering chain is:
 `SourceVersion -> ProcessingGeneration -> Observation -> CandidateMeaning/Claim -> Supported -> HumanDecision -> CanonicalGeneration -> ScenarioGeneration -> SolverAdapter -> ResultMapping -> Receipt`
 
 Repeated mechanics are automated. Engineering meaning is exposed for human decision. Ambiguity fails closed.
+
+A crucial governance distinction is now explicit: **Platform runtime state is not the canonical milestone registry**. If an upstream canonical gate has already been satisfied elsewhere, Platform OS may release a dependent work item after recording that fact, but it still keeps `canonical_promotion = DISABLED` and cannot rewrite canonical CEW governance.
 
 ## 2. Product decomposition
 
@@ -203,7 +205,7 @@ Platform OS will progressively inventory, test, reconcile and adopt those capabi
 11. Agents must finish authorized mechanical work before asking for human input.
 12. Human review is reserved for genuine semantic/engineering decisions.
 13. A green technical gate never substitutes required visual/engineering validation.
-14. This experimental branch cannot close CEW-F2 or authorize later canonical milestones.
+14. This experimental branch cannot declare canonical milestone closure or authorize canonical promotion by itself.
 
 ## 10. Immediate implementation sequence
 
@@ -246,7 +248,7 @@ This separation is intentional. A future OCR model, FEM engine, database, agent 
 
 ## 12. Execution profiles
 
-The execution policy currently defines six profiles:
+The execution policy currently defines seven profiles:
 
 - `STRICT_EVIDENCE` — provenance/promotion-sensitive work;
 - `DOCUMENT_INTELLIGENCE` — OCR/HTR/vector/graphic reconstruction;
