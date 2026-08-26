@@ -1,0 +1,56 @@
+{
+  "work_item_id": "GKF-001",
+  "outcome": "COMPLETE_PASS",
+  "execution_profile": "DOCUMENT_INTELLIGENCE",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-platform-os-v0",
+  "head_sha": "5ca361c982d1510f23270b95256f39b69e4a082d",
+  "input_generations": [],
+  "input_fingerprints": [
+    "platform_base:54c65ef47ceed870535f49af47a7dc1c2af809eb",
+    "pilot_source_sha256:e935df7da1aab9de9fc065d2ab4a8fb36624b2d9ee983ca29f1d5af08f6b2494"
+  ],
+  "selected_providers": {
+    "knowledge.graphic_conventions": "cew-graphic-knowledge-fabric",
+    "human.review": "cew-human-decision-workspace",
+    "workflow.durable_execution": "deterministic-cew-orchestrator"
+  },
+  "outputs": [
+    "docs/ARCHITECTURE/CEW_GRAPHIC_KNOWLEDGE_FABRIC_v0.md",
+    "tools/cew_graphic_knowledge/fabric.py",
+    "tools/cew_graphic_knowledge/docintel_bridge.py",
+    "tools/cew_graphic_knowledge/tests/test_fabric.py",
+    "tools/cew_graphic_knowledge/tests/test_docintel_bridge.py",
+    "automation/CEW_AGENT_CAPABILITY_REGISTRY_v0.json",
+    "automation/CEW_PLATFORM_WORK_QUEUE_v0.json"
+  ],
+  "gates": [
+    {
+      "name": "Validate CEW Platform OS",
+      "run_id": 32971983490,
+      "job_id": 98187634620,
+      "head_sha": "5ca361c982d1510f23270b95256f39b69e4a082d",
+      "status": "PASS"
+    },
+    {
+      "name": "Validate cross-project Graphic Knowledge Fabric",
+      "job_id": 98187634620,
+      "status": "PASS"
+    },
+    {
+      "name": "project to shared Graphic Knowledge bridge",
+      "job_id": 98187634620,
+      "status": "PASS"
+    }
+  ],
+  "residuals": [
+    "No real multi-project reviewed graphic corpus exists yet; N12/TAV07 remains the first pilot producer.",
+    "Real TAV07 semantic labels are still pending the project human review gate.",
+    "The reference persistence layer is currently SQLite plus content-fingerprinted portable packs; a centralized service is not required for this tranche.",
+    "Visual embeddings and neighbourhood-graph similarity are future resolver providers and are not part of the current deterministic affinity resolver."
+  ],
+  "human_decisions": [],
+  "checkpoint_id": null,
+  "next_eligible_action": "Build SYS-REVIEW-001: system Graphic Review Workspace that combines project evidence with LOCAL/AFFINE/FAMILY/GLOBAL suggestions and persists project specialization decisions."
+}
