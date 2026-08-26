@@ -47,7 +47,7 @@ jobs:
             --output /tmp/tav07-browser/project_review_package.json
       - name: Build real TAV07 system browser review package
         run: |
-          python tools/cew_graphic_review/browser_shell.py build \
+          python -m tools.cew_graphic_review.browser_shell build \
             --project-db /tmp/tav07-browser/project.sqlite3 \
             --fabric-db /tmp/tav07-browser/fabric.sqlite3 \
             --review-db /tmp/tav07-browser/review.sqlite3 \
