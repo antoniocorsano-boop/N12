@@ -1,0 +1,57 @@
+{
+  "work_item_id": "INT-001",
+  "outcome": "COMPLETE_PASS_WITH_REVIEW",
+  "execution_profile": "ENGINEERING_MODEL",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-platform-os-v0",
+  "head_sha": "60b0842a493789d7b0d1ebd68822f31f017229b3",
+  "input_generations": [
+    "ENT-001 smart structural entity contract",
+    "DEG-001 degradation capability adoption"
+  ],
+  "input_fingerprints": [
+    "smart_entity_provider:cew-smart-entity-core",
+    "degradation_registry_blob:f5681884b90979be5b1657ba4bafd3cee83599bc",
+    "human_review_store_blob:2b4e0a4bc0a8aa5ffee5d6acd669ae415e04869f"
+  ],
+  "selected_providers": {
+    "intervention.intelligence": "cew-intervention-engine",
+    "knowledge.smart_entity": "cew-smart-entity-core",
+    "human.review": "cew-human-decision-workspace"
+  },
+  "outputs": [
+    "tools/cew_intervention/contract.py",
+    "tools/cew_intervention/tests/test_contract.py",
+    "automation/CEW_PLATFORM_WORK_QUEUE_v0.json external gate for COST-001"
+  ],
+  "gates": [
+    {
+      "name": "Validate CEW Platform OS",
+      "run_id": 32963533934,
+      "job_id": 98160942450,
+      "head_sha": "60b0842a493789d7b0d1ebd68822f31f017229b3",
+      "status": "PASS"
+    },
+    {
+      "name": "Intervention Intelligence contract tests",
+      "status": "PASS",
+      "test_count": 9
+    }
+  ],
+  "residuals": [
+    "No N12 project intervention has been selected by this tranche.",
+    "A project intervention generation can only be created after an explicit human APPROVE decision over a fingerprinted selection package.",
+    "Any generated intervention state is PROPOSED_NOT_CANONICAL and requires engineering validation.",
+    "COST-001 remains gated by PROPOSED_INTERVENTION_GENERATION_AVAILABLE."
+  ],
+  "human_decisions": [
+    {
+      "scope": "future project intervention selection",
+      "status": "REQUIRED_BEFORE_PROJECT_GENERATION",
+      "allowed_decisions": ["APPROVE", "REJECT", "DEFER"]
+    }
+  ],
+  "checkpoint_id": null,
+  "next_eligible_action": "No automatic project intervention action; build a project-specific fingerprinted selection package only when eligible deficiency/objective/reference evidence exists."
+}
