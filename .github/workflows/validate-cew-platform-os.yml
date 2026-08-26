@@ -5,6 +5,7 @@ on:
     branches: [exp/cew-platform-os-v0]
     paths:
       - 'docs/ARCHITECTURE/CEW_PLATFORM_OS_v0.md'
+      - 'docs/ARCHITECTURE/CEW_OPEN_SOURCE_ADOPTION_MATRIX_v0.md'
       - 'docs/AGENTS/CEW_COMMUNICATION_PROTOCOL_v0.md'
       - 'automation/CEW_PLATFORM_WORK_QUEUE_v0.json'
       - 'automation/CEW_AGENT_RESULT_CONTRACT_v0.json'
@@ -14,6 +15,7 @@ on:
   pull_request:
     paths:
       - 'docs/ARCHITECTURE/CEW_PLATFORM_OS_v0.md'
+      - 'docs/ARCHITECTURE/CEW_OPEN_SOURCE_ADOPTION_MATRIX_v0.md'
       - 'docs/AGENTS/CEW_COMMUNICATION_PROTOCOL_v0.md'
       - 'automation/CEW_PLATFORM_WORK_QUEUE_v0.json'
       - 'automation/CEW_AGENT_RESULT_CONTRACT_v0.json'
