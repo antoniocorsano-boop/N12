@@ -1,0 +1,59 @@
+{
+  "work_item_id": "DOC-003",
+  "outcome": "BLOCKED_HUMAN_DECISION",
+  "execution_profile": "DOCUMENT_INTELLIGENCE",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-platform-os-v0",
+  "head_sha": "60b0842a493789d7b0d1ebd68822f31f017229b3",
+  "input_generations": [
+    "GEN-928101cf9a63"
+  ],
+  "input_fingerprints": [
+    "source_sha256:e935df7da1aab9de9fc065d2ab4a8fb36624b2d9ee983ca29f1d5af08f6b2494",
+    "source_git_blob:1cc042a1b2f5072117d5a3dfac2fe7ee3d342894",
+    "scan2dxf_geometry_blob:445cf63dc15561cb60e8cd9ac5b0992ac223ae84",
+    "scan2dxf_text_blob:cf30c7b9c421d7eef1663e18924e9634ef82c82c"
+  ],
+  "selected_providers": {
+    "document.symbol_learning": "cew-docintel-symbol-learning",
+    "human.review": "cew-human-decision-workspace"
+  },
+  "outputs": [
+    "tools/cew_docintel/graphic_conventions.py",
+    "tools/cew_docintel/tests/test_graphic_conventions.py",
+    "CI artifact: TAV07_GRAPHIC_REVIEW_PACKAGE_v0.json"
+  ],
+  "gates": [
+    {
+      "name": "Validate CEW Platform OS",
+      "run_id": 32963533934,
+      "job_id": 98160942450,
+      "head_sha": "60b0842a493789d7b0d1ebd68822f31f017229b3",
+      "status": "PASS"
+    },
+    {
+      "name": "TAV07 graphic convention human gate",
+      "status": "PASS",
+      "candidate_count": 12,
+      "semantic_promotion": "HUMAN_ONLY",
+      "automatic_meaning_suggestions": 0
+    }
+  ],
+  "residuals": [
+    "No graphic meaning is validated yet for the real TAV07 candidates.",
+    "The first supervised labels must be supplied through human review; learned suggestions may only appear after positive/negative/uncertain examples exist.",
+    "Only the representative TAV07 tile has persisted detailed Scan2DXF observations in this pilot."
+  ],
+  "human_decisions": [
+    {
+      "case": "TAV07_GRAPHIC_CONVENTION_INITIAL_LABELING",
+      "status": "PENDING",
+      "artifact": "CI artifact: TAV07_GRAPHIC_REVIEW_PACKAGE_v0.json",
+      "allowed_training_outcomes": ["POSITIVE", "NEGATIVE", "UNCERTAIN"],
+      "required_action": "Assign or reject/qualify semantic meanings using the original drawing evidence; no automatic semantic promotion is authorized."
+    }
+  ],
+  "checkpoint_id": null,
+  "next_eligible_action": "HUMAN_REVIEW — label selected TAV07 graphic candidates; then rerun active-learning proposals"
+}
