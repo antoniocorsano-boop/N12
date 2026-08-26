@@ -1,0 +1,84 @@
+{
+  "schema_version": "0.1.0",
+  "purpose": "Require every CEW agent run to finish one coherent authorized work item or stop with a machine-readable blocker.",
+  "one_work_item_per_result": true,
+  "allowed_outcomes": [
+    "COMPLETE_PASS",
+    "COMPLETE_PASS_WITH_REVIEW",
+    "BLOCKED_HUMAN_DECISION",
+    "BLOCKED_EVIDENCE",
+    "BLOCKED_CANONICAL_GATE",
+    "FAIL_STOP"
+  ],
+  "required_fields": [
+    "work_item_id",
+    "outcome",
+    "repository",
+    "branch",
+    "head_sha",
+    "input_generations",
+    "outputs",
+    "gates",
+    "residuals",
+    "human_decisions",
+    "next_eligible_action"
+  ],
+  "completion_rules": {
+    "COMPLETE_PASS": [
+      "all declared completion criteria satisfied",
+      "all required outputs exist",
+      "all mandatory gates pass",
+      "provenance/generation bindings exist",
+      "no mandatory human decision remains"
+    ],
+    "COMPLETE_PASS_WITH_REVIEW": [
+      "mechanical and technical work is complete",
+      "all non-human gates pass",
+      "the remaining review does not permit canonical promotion until approved"
+    ],
+    "BLOCKED_HUMAN_DECISION": [
+      "all technically executable work is complete",
+      "at least two materially different valid semantic/engineering choices remain",
+      "evidence and consequences for each choice are supplied"
+    ],
+    "BLOCKED_EVIDENCE": [
+      "required authoritative evidence is absent or ineligible",
+      "the missing evidence is identified precisely",
+      "the agent did not substitute an inference as evidence"
+    ],
+    "BLOCKED_CANONICAL_GATE": [
+      "the requested action would cross an explicit CEW promotion boundary",
+      "the exact blocking gate is identified"
+    ],
+    "FAIL_STOP": [
+      "a required gate failed after in-scope repair attempts",
+      "failure evidence and reproducible diagnostic are supplied"
+    ]
+  },
+  "self_repair_policy": {
+    "required": true,
+    "loop": "execute -> inspect failure -> repair in scope -> rerun -> complete",
+    "do_not_escalate_for": [
+      "ordinary test failure",
+      "schema mismatch repairable inside the tranche",
+      "formatting/lint/build failure",
+      "deterministic import incompatibility",
+      "recoverable tool/version mismatch"
+    ],
+    "escalate_only_for": [
+      "professional semantic decision",
+      "missing authoritative evidence",
+      "authorization/promotion boundary",
+      "irreducible conflicting evidence",
+      "safety/governance gate requiring human approval"
+    ]
+  },
+  "forbidden_completion_claims": [
+    "plan produced",
+    "branch created without required outputs",
+    "candidate created without required gates",
+    "technical PASS used as substitute for required visual/engineering review",
+    "future work promised without executing available in-scope steps"
+  ],
+  "canonical_promotion": "DISABLED_BY_DEFAULT"
+}
