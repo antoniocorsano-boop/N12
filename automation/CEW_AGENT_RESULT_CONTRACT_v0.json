@@ -1,7 +1,8 @@
 {
-  "schema_version": "0.1.0",
-  "purpose": "Require every CEW agent run to finish one coherent authorized work item or stop with a machine-readable blocker.",
+  "schema_version": "0.2.0",
+  "purpose": "Require every CEW agent run to finish one coherent authorized work item or stop with a machine-readable blocker while retaining execution-profile and resume provenance.",
   "one_work_item_per_result": true,
+  "checkpoint_contract": "automation/CEW_CHECKPOINT_CONTRACT_v0.json",
   "allowed_outcomes": [
     "COMPLETE_PASS",
     "COMPLETE_PASS_WITH_REVIEW",
@@ -13,14 +14,19 @@
   "required_fields": [
     "work_item_id",
     "outcome",
+    "execution_profile",
+    "attempt_no",
     "repository",
     "branch",
     "head_sha",
     "input_generations",
+    "input_fingerprints",
+    "selected_providers",
     "outputs",
     "gates",
     "residuals",
     "human_decisions",
+    "checkpoint_id",
     "next_eligible_action"
   ],
   "completion_rules": {
@@ -29,6 +35,7 @@
       "all required outputs exist",
       "all mandatory gates pass",
       "provenance/generation bindings exist",
+      "selected providers satisfy required capabilities",
       "no mandatory human decision remains"
     ],
     "COMPLETE_PASS_WITH_REVIEW": [
@@ -58,6 +65,8 @@
   "self_repair_policy": {
     "required": true,
     "loop": "execute -> inspect failure -> repair in scope -> rerun -> complete",
+    "attempt_budget_source": "execution profile",
+    "checkpoint_before_exhaustion": true,
     "do_not_escalate_for": [
       "ordinary test failure",
       "schema mismatch repairable inside the tranche",
@@ -73,12 +82,19 @@
       "safety/governance gate requiring human approval"
     ]
   },
+  "provider_policy": {
+    "work_item_requires_capability_not_provider": true,
+    "provider_selection_must_be_recorded": true,
+    "provider_change_does_not_change_engineering_meaning_by_itself": true,
+    "provider_output_requires_same_CEW_gates": true
+  },
   "forbidden_completion_claims": [
     "plan produced",
     "branch created without required outputs",
     "candidate created without required gates",
     "technical PASS used as substitute for required visual/engineering review",
-    "future work promised without executing available in-scope steps"
+    "future work promised without executing available in-scope steps",
+    "checkpoint presented as completed work"
   ],
   "canonical_promotion": "DISABLED_BY_DEFAULT"
 }
