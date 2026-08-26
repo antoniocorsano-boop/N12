@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "principle": "Work items depend on capabilities and contracts, not on one hard-coded agent or library.",
   "capabilities": {
     "source.identity": {
@@ -33,7 +33,22 @@
     "document.symbol_learning": {
       "class": "CEW_DOMAIN_CAPABILITY",
       "providers": ["cew-docintel-symbol-learning"],
-      "required_invariants": ["positive_negative_uncertain_labels", "source_context", "human_validated_meaning"]
+      "required_invariants": ["positive_negative_uncertain_labels", "source_context", "human_validated_meaning", "project_bound_examples"]
+    },
+    "knowledge.graphic_conventions": {
+      "class": "CEW_SYSTEM_CAPABILITY",
+      "providers": ["cew-graphic-knowledge-fabric"],
+      "selection": "GLOBAL_FAMILY_PROJECT_AFFINITY_ENSEMBLE",
+      "required_invariants": [
+        "cross_project_provenance",
+        "stable_candidate_identity",
+        "positive_negative_uncertain_transfer",
+        "affinity_weighted_retrieval",
+        "project_specialization_overlay",
+        "conflict_exposure",
+        "imported_knowledge_not_local_authority",
+        "human_validated_generalization"
+      ]
     },
     "knowledge.smart_entity": {
       "class": "CEW_DOMAIN_CAPABILITY",
