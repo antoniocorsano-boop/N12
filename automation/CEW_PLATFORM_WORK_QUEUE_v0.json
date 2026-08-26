@@ -1,0 +1,174 @@
+{
+  "schema_version": "0.1.0",
+  "status": "EXPERIMENTAL_NON_PROMOTIVE",
+  "authority": "platform-integration-work-queue",
+  "canonical_boundary": {
+    "cew_f2": "IN_PROGRESS",
+    "f3_or_later_promotion": "NOT_AUTHORIZED_BY_THIS_QUEUE",
+    "rule": "Experimental platform work may proceed only when it does not promote or repair canonical CEW-F2 evidence implicitly."
+  },
+  "result_contract": "automation/CEW_AGENT_RESULT_CONTRACT_v0.json",
+  "communication_protocol": "docs/AGENTS/CEW_COMMUNICATION_PROTOCOL_v0.md",
+  "items": [
+    {
+      "id": "POS-001",
+      "title": "Platform OS foundation",
+      "workstream": "CORE",
+      "status": "COMPLETE",
+      "depends_on": [],
+      "human_gate": false,
+      "completion": [
+        "platform operating model exists",
+        "communication protocol exists",
+        "work queue and result contract validate",
+        "CI validates platform governance"
+      ]
+    },
+    {
+      "id": "DOC-001",
+      "title": "Generation-safe document intelligence store",
+      "workstream": "W0-W1",
+      "status": "READY",
+      "depends_on": ["POS-001"],
+      "human_gate": false,
+      "completion": [
+        "immutable SourceVersion remains unchanged",
+        "ProcessingGeneration states RUNNING/SUCCEEDED/FAILED exist",
+        "current generation advances only after full success",
+        "failed reprocessing preserves last successful current generation",
+        "observations bind to exact generation"
+      ]
+    },
+    {
+      "id": "DOC-002",
+      "title": "Import real TAV07 Scan2DXF observations",
+      "workstream": "W1",
+      "status": "READY",
+      "depends_on": ["POS-001"],
+      "human_gate": false,
+      "completion": [
+        "all available real TAV07 extraction outputs are imported",
+        "source tile/version identity is retained",
+        "geometry and OCR observations retain native coordinates",
+        "import is idempotent or generation-scoped",
+        "summary receipt records counts and rejects"
+      ]
+    },
+    {
+      "id": "DOC-003",
+      "title": "Graphic convention active-learning loop",
+      "workstream": "W1",
+      "status": "WAITING",
+      "depends_on": ["DOC-001", "DOC-002"],
+      "human_gate": true,
+      "completion": [
+        "training examples include positive, negative and uncertain outcomes",
+        "examples preserve source region and context",
+        "classifier proposes meanings with calibrated evidence",
+        "counterexamples influence scoring",
+        "validated meaning remains human-approved"
+      ]
+    },
+    {
+      "id": "ENT-001",
+      "title": "CEW Smart Structural Entity contract",
+      "workstream": "W2",
+      "status": "READY",
+      "depends_on": ["POS-001"],
+      "human_gate": false,
+      "completion": [
+        "stable entity identity contract exists",
+        "property-level epistemic state is modeled",
+        "evidence lineage and residuals are modeled",
+        "scenario, degradation, solver, intervention and cost bindings are separated",
+        "generation and supersession invariants validate"
+      ]
+    },
+    {
+      "id": "MOD-001",
+      "title": "Canonical structural model generation bridge",
+      "workstream": "W2-W3",
+      "status": "BLOCKED_CANONICAL_GATE",
+      "depends_on": ["ENT-001"],
+      "external_gate": "CEW-F2 EVIDENCE_PROVENANCE_PASS",
+      "human_gate": false,
+      "completion": [
+        "canonical model consumes only eligible evidence/claims",
+        "entity IDs remain stable",
+        "topology is never inferred from proximity alone",
+        "build produces immutable generation and receipt"
+      ]
+    },
+    {
+      "id": "FEM-001",
+      "title": "Independent FEM adapter benchmark",
+      "workstream": "W4",
+      "status": "BLOCKED_EVIDENCE",
+      "depends_on": ["MOD-001"],
+      "external_gate": "N12 calculation inputs eligible",
+      "human_gate": false,
+      "completion": [
+        "solver-independent scenario manifest exists",
+        "at least one open-source solver adapter round-trips entity IDs",
+        "unsupported features are explicit",
+        "cross-solver benchmark receipt exists"
+      ]
+    },
+    {
+      "id": "DEG-001",
+      "title": "Degradation and exposure model registry consolidation",
+      "workstream": "W5",
+      "status": "READY",
+      "depends_on": ["POS-001", "ENT-001"],
+      "human_gate": false,
+      "completion": [
+        "existing CEW degradation work is inventoried",
+        "model applicability and provenance are machine-readable",
+        "calibration/validation state is explicit",
+        "model-derived states cannot mutate evidence"
+      ]
+    },
+    {
+      "id": "INT-001",
+      "title": "Intervention intelligence contract",
+      "workstream": "W6",
+      "status": "WAITING",
+      "depends_on": ["ENT-001", "DEG-001"],
+      "human_gate": true,
+      "completion": [
+        "deficiency-to-objective-to-candidate chain exists",
+        "market/system references are versioned evidence",
+        "applicability constraints are explicit",
+        "human selection creates a proposed intervention generation"
+      ]
+    },
+    {
+      "id": "COST-001",
+      "title": "Quantity and cost generation contract",
+      "workstream": "W7",
+      "status": "WAITING",
+      "depends_on": ["ENT-001", "INT-001"],
+      "human_gate": false,
+      "completion": [
+        "quantities map to entity and model generation",
+        "price sources are generation-bound",
+        "before/after quantities and cost deltas are reproducible",
+        "manual overrides retain rationale"
+      ]
+    },
+    {
+      "id": "UX-001",
+      "title": "Human decision workspace contract",
+      "workstream": "CORE-W1-W6",
+      "status": "READY",
+      "depends_on": ["POS-001"],
+      "human_gate": false,
+      "completion": [
+        "review queues show evidence beside candidate",
+        "approve/correct/reject/defer outcomes are persisted",
+        "review avoids exposing raw technical IDs as primary UI",
+        "decision receipt invalidates dependent artifacts when sources drift"
+      ]
+    }
+  ]
+}
