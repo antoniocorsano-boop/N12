@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WB = ROOT / "ui" / "workbench"
+UX_DOC = ROOT / "docs" / "UX" / "CEW_ENGINEERING_WORKBENCH_v0.md"
 
 REQUIRED = [
     WB / "package.json",
@@ -16,6 +17,7 @@ REQUIRED = [
     WB / "tests" / "workbench.spec.ts",
     WB / ".storybook" / "main.ts",
     ROOT / "scripts" / "cew_workbench_stage_tav06a.sh",
+    UX_DOC,
 ]
 
 EXPECTED_VERSIONS = {
@@ -43,7 +45,8 @@ for name, version in EXPECTED_VERSIONS.items():
     if all_deps.get(name) != version:
         fail(f"{name} must be pinned exactly to {version}")
 
-snapshot = json.loads((WB / "src" / "cew" / "snapshot.json").read_text(encoding="utf-8"))
+snapshot_path = WB / "src" / "cew" / "snapshot.json"
+snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
 if snapshot["canonical_commit"] != "b4356bc78807257901a0b97892a63d9f4c9744c9":
     fail("unexpected canonical snapshot commit")
 if snapshot["source"]["archive_commit"] != "78c20a52db4f391ce0d13b9705b9f04737e218c9":
@@ -56,7 +59,17 @@ if snapshot["structural_context"]["binding_state"] != "UNBOUND":
     fail("T6A-G03 structural binding must remain UNBOUND")
 if snapshot["structural_context"]["candidate_target_id"] is not None:
     fail("UX1 must not invent a structural target")
-if "CONFIRMED" in snapshot["decision"]["allowed_non_promotive_outcomes"]:
+
+decision = snapshot["decision"]
+if decision.get("work_item") != "UX1-001":
+    fail("UX1 decision context must identify work item UX1-001")
+if decision.get("canonical_context") != "CEW-F2":
+    fail("UX1 may read only the current CEW-F2 canonical context")
+if decision.get("authority") != "EXPERIMENTAL_NON_PROMOTIVE":
+    fail("UX1 decision authority must remain experimental and non-promotive")
+if "milestone" in decision:
+    fail("UX1 is an experimental work item, not a canonical CEW milestone")
+if "CONFIRMED" in decision["allowed_non_promotive_outcomes"]:
     fail("CONFIRMED cannot be offered without a registered target")
 
 src = "\n".join(
@@ -75,13 +88,23 @@ if "NON_PROMOTIVE_HUMAN_DECISION_PROPOSAL" not in src:
 if "manifestMatchesSnapshot" not in src:
     fail("source drift guard is missing")
 
+governance_surface = "\n".join([
+    src,
+    snapshot_path.read_text(encoding="utf-8"),
+    UX_DOC.read_text(encoding="utf-8"),
+])
+if "CEW-F7" in governance_surface:
+    fail("UX1 must not claim the unauthorized CEW-F7 milestone")
+
 workflow = ROOT / ".github" / "workflows" / "validate-cew-engineering-workbench.yml"
 if not workflow.exists():
     fail("missing UX1 CI workflow")
 
 print(json.dumps({
     "status": "PASS",
-    "work_item": "UX1-001",
+    "work_item": decision["work_item"],
+    "canonical_context": decision["canonical_context"],
+    "decision_authority": decision["authority"],
     "canonical_snapshot": snapshot["canonical_commit"],
     "evidence_region": snapshot["evidence_region"]["id"],
     "evidence_status": snapshot["evidence_region"]["status"],

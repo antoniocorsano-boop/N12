@@ -41,7 +41,9 @@
   },
   "decision": {
     "receipt_schema": "CEW-HUMAN-DECISION-RECEIPT-v1",
-    "milestone": "CEW-F7",
+    "work_item": "UX1-001",
+    "canonical_context": "CEW-F2",
+    "authority": "EXPERIMENTAL_NON_PROMOTIVE",
     "allowed_non_promotive_outcomes": [
       "UNBOUND",
       "UNREADABLE",

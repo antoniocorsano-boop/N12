@@ -35,6 +35,8 @@ and records the exact archive source:
 
 `READY` evidence never implies a structural binding.
 
+UX1 is an **experimental work item**, not a canonical CEW milestone. Its read context is `CEW-F2` because `T6A-G03` is one of the evidence units governed there. The workbench does not close F2, emit `EVIDENCE_PROVENANCE_PASS`, or authorize F3 or any later canonical milestone.
+
 ## Source staging
 
 The primary PDF is authoritative. The browser raster is derivative review context only.
@@ -54,7 +56,7 @@ Primary language is professional and contextual:
 
 Raw CEW IDs live under **Provenienza tecnica**, not in the primary task language.
 
-No decision is preselected. Because this slice has no registered structural target, `CONFIRMED` is not actionable. The UI exposes only non-promotive F7 outcomes and makes the unavailable confirmed path explicit.
+No decision is preselected. Because this slice has no registered structural target, `CONFIRMED` is not actionable. The UI exposes only non-promotive UX1 review outcomes and makes the unavailable confirmed path explicit.
 
 ## Receipt boundary
 
@@ -64,9 +66,11 @@ The frontend can create only:
 
 with `canonical_write = false`.
 
+The proposal identifies `work_item = UX1-001`, `canonical_context = CEW-F2`, and `authority = EXPERIMENTAL_NON_PROMOTIVE`; it does not claim a canonical milestone transition.
+
 No `POST`, `PUT`, `PATCH` or `DELETE` network path is present in frontend source.
 
-A future governed intake adapter may validate a proposal against the canonical F7 receipt contract; that adapter remains outside this browser tranche.
+A future governed intake adapter may validate a proposal against the human-decision receipt contract; that adapter remains outside this browser tranche and cannot promote evidence merely because a UI proposal exists.
 
 ## OSS implementation
 

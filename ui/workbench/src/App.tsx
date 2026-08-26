@@ -255,11 +255,12 @@ export default function App() {
       <section className="work-area">
         <div className="review-banner">
           <div>
-            <div className="panel-kicker">Revisione tecnica CEW-F7</div>
+            <div className="panel-kicker">Revisione tecnica sperimentale · {snapshot.decision.work_item}</div>
             <h1>Verifica associazione schema di armatura</h1>
             <p>
               Confronta la fonte primaria con il contesto strutturale. La regione è documentata,
-              ma il legame a un elemento del modello non è ancora stabilito.
+              ma il legame a un elemento del modello non è ancora stabilito. Questa superficie legge
+              il contesto canonico {snapshot.decision.canonical_context} senza modificarne lo stato.
             </p>
           </div>
           <div className="banner-state">

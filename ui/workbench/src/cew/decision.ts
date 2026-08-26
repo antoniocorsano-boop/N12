@@ -6,7 +6,9 @@ export type DecisionProposal = {
   proposal_type: 'NON_PROMOTIVE_HUMAN_DECISION_PROPOSAL';
   review_mode: 'HUMAN_REVIEW';
   task_context: {
-    milestone: 'CEW-F7';
+    work_item: 'UX1-001';
+    canonical_context: 'CEW-F2';
+    authority: 'EXPERIMENTAL_NON_PROMOTIVE';
     evidence_region_id: string;
     source_version_id: string;
     canonical_snapshot_id: string;
@@ -36,7 +38,9 @@ export function buildDecisionProposal(
     proposal_type: 'NON_PROMOTIVE_HUMAN_DECISION_PROPOSAL',
     review_mode: 'HUMAN_REVIEW',
     task_context: {
-      milestone: 'CEW-F7',
+      work_item: 'UX1-001',
+      canonical_context: 'CEW-F2',
+      authority: 'EXPERIMENTAL_NON_PROMOTIVE',
       evidence_region_id: snapshot.evidence_region.id,
       source_version_id: snapshot.source.source_version_id,
       canonical_snapshot_id: snapshot.snapshot_id,
