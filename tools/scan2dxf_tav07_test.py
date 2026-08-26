@@ -56,10 +56,13 @@ def detect_lines(binary: np.ndarray) -> list[dict]:
     )
     if raw is None:
         return []
+    # OpenCV 4 commonly returns (N,1,4), while OpenCV 5 may return (N,4).
+    # Normalise both representations to the same stable iteration contract.
+    normalized = np.asarray(raw).reshape(-1, 4)
     h, w = binary.shape[:2]
     diag = max(1.0, math.hypot(h, w))
     out = []
-    for x1, y1, x2, y2 in raw[:, 0, :]:
+    for x1, y1, x2, y2 in normalized:
         dx, dy = float(x2 - x1), float(y2 - y1)
         length = math.hypot(dx, dy)
         angle = math.degrees(math.atan2(dy, dx))
