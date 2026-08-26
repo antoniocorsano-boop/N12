@@ -1,10 +1,10 @@
-import importlib.util
+import sys
 import unittest
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-SPEC=importlib.util.spec_from_file_location('smart_entity',ROOT/'smart_entity.py')
-M=importlib.util.module_from_spec(SPEC); assert SPEC.loader is not None; SPEC.loader.exec_module(M)
+sys.path.insert(0,str(ROOT))
+import smart_entity as M
 
 class SmartEntityTests(unittest.TestCase):
     def entity(self):
