@@ -64,7 +64,7 @@ class SchemaMigrationTests(unittest.TestCase):
                       ('GT-L', 'OBS-L', 'SV-L', 'GEN-L', 1, 10.0, 20.0, 30.0, 40.0,
                        'TEXT_CANDIDATE', 'T1', 'BEAM_TAG', 'POSITIVE', '{}', '{}', 'reviewer', ts))
             c.execute('''INSERT INTO graphic_meaning_proposals
-                         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+                         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
                       ('GP-L', 'OBS-L', 'BEAM_TAG', 0.75, 2.0, 2.0, 0.0, 0.0,
                        'legacy-score', 'PROPOSED', None, None, ts, None))
             c.commit()
