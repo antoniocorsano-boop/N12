@@ -1,0 +1,50 @@
+{
+  "work_item_id": "DOC-001",
+  "outcome": "COMPLETE_PASS",
+  "execution_profile": "DOCUMENT_INTELLIGENCE",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-platform-os-v0",
+  "head_sha": "9e521a53e8dfe4dda9976d9939b6aa47e99fde8d",
+  "input_generations": [],
+  "input_fingerprints": [
+    "base:79d64098eeab3c43be10f49500ba4d059798a91c"
+  ],
+  "selected_providers": {
+    "source.identity": "cew-source-foundation",
+    "document.symbol_learning": "cew-docintel-symbol-learning",
+    "workflow.durable_execution": "deterministic-cew-orchestrator"
+  },
+  "outputs": [
+    "tools/cew_docintel/cli.py",
+    "tools/cew_docintel/import_scan2dxf.py",
+    "tools/cew_docintel/symbol_learning.py",
+    "tools/cew_docintel/tests/test_docintel.py",
+    "tools/cew_docintel/tests/test_symbol_learning.py"
+  ],
+  "gates": [
+    {
+      "name": "Validate CEW Platform OS",
+      "run_id": 32961716538,
+      "job_id": 98155285738,
+      "head_sha": "9e521a53e8dfe4dda9976d9939b6aa47e99fde8d",
+      "status": "PASS"
+    },
+    {
+      "name": "generation-safe Document Intelligence",
+      "tests": 4,
+      "status": "PASS"
+    },
+    {
+      "name": "document-intelligence store contract",
+      "status": "PASS",
+      "unbound_observations": 0,
+      "invalid_generation_bindings": 0,
+      "invalid_current_generations": 0
+    }
+  ],
+  "residuals": [],
+  "human_decisions": [],
+  "checkpoint_id": null,
+  "next_eligible_action": "DOC-002"
+}
