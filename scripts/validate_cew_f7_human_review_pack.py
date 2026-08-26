@@ -21,15 +21,16 @@ def main():
         viewer=b/e['viewer_url'].split('?')[0]
         context=b/e['context_viewer_url'].split('?')[0]
         if not viewer.is_file() or not context.is_file():raise AssertionError(f'missing embedded viewer: {e["task_id"]}')
-        if e.get('context_source') not in ('TAV-05S','TAV-06S'):raise AssertionError('unexpected carpenteria context source')
+        if e.get('context_source') not in ('TAV-05S','TAV-06S'):raise AssertionError('unexpected default carpenteria context source')
     for rel in ('index.html','app.js','human_review_manifest.json','source-viewer/index.html','source-viewer/viewer_manifest.json'):
         if not (b/rel).is_file():raise AssertionError(f'missing review pack file {rel}')
     vm=json.loads((b/'source-viewer/viewer_manifest.json').read_text(encoding='utf-8'))
     context_codes={x.get('source_code') for x in vm.get('context_sources',[])}
-    if context_codes!={'TAV-05S','TAV-06S'}:raise AssertionError(f'carpenteria context coverage drift: {context_codes}')
+    expected_context={'TAV-04','TAV-05S','TAV-06S','TAV-06E'}
+    if context_codes!=expected_context:raise AssertionError(f'context coverage drift: {context_codes}')
     js=(b/'app.js').read_text(encoding='utf-8')
     for token in ('CONFIRMED','direct_primary_evidence_observed','authority_acknowledgement','target_id','Esporta la decisione in JSON'):
         if token not in js:raise AssertionError(f'human decision control missing: {token}')
     if re.search(r'canonical_write[^\n]*true',json.dumps(m),flags=re.I):raise AssertionError('review pack gained canonical write')
-    print('HUMAN_DECISION_INTAKE_PACK_PASS');print('TASKS=4/4');print('PREFILLED_OUTCOMES=0');print('PREFILLED_HUMAN_OBSERVATIONS=0');print('PREFILLED_DIRECT_PRIMARY_CLAIMS=0');print('PREFILLED_PROMOTION_TARGETS=0');print('PRIMARY_SOURCE_VIEWER=EMBEDDED');print('CARPENTERIA_CONTEXT=TAV-05S,TAV-06S');print('CANONICAL_WRITE=FORBIDDEN');print('M0G_REOPEN=FORBIDDEN');return 0
+    print('HUMAN_DECISION_INTAKE_PACK_PASS');print('TASKS=4/4');print('PREFILLED_OUTCOMES=0');print('PREFILLED_HUMAN_OBSERVATIONS=0');print('PREFILLED_DIRECT_PRIMARY_CLAIMS=0');print('PREFILLED_PROMOTION_TARGETS=0');print('PRIMARY_SOURCE_VIEWER=EMBEDDED');print('CARPENTERIA_CONTEXT=TAV-05S,TAV-06S');print('TORRINO_CONTEXT=TAV-04,TAV-06E');print('CANONICAL_WRITE=FORBIDDEN');print('M0G_REOPEN=FORBIDDEN');return 0
 if __name__=='__main__':raise SystemExit(main())
