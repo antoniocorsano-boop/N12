@@ -271,7 +271,16 @@ def build_review_package(db: Path, limit: int = 12) -> dict[str, Any]:
               ON sp.source_version_id=o.source_version_id
              AND sp.current_generation_id=b.generation_id
             WHERE o.state IN ('CANDIDATE','SUPPORTED')
-            ORDER BY o.kind, o.confidence DESC, o.id
+            ORDER BY
+              o.kind,
+              o.confidence DESC,
+              o.page,
+              o.x0,
+              o.y0,
+              o.x1,
+              o.y1,
+              COALESCE(o.value_text,''),
+              o.detector
             LIMIT ?
         ''', (limit,)).fetchall()
 
