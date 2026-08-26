@@ -1,0 +1,40 @@
+{
+  "work_item_id": "ENT-001",
+  "outcome": "COMPLETE_PASS",
+  "execution_profile": "ENGINEERING_MODEL",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-platform-os-v0",
+  "head_sha": "9e521a53e8dfe4dda9976d9939b6aa47e99fde8d",
+  "input_generations": [],
+  "input_fingerprints": [
+    "base:79d64098eeab3c43be10f49500ba4d059798a91c"
+  ],
+  "selected_providers": {
+    "knowledge.smart_entity": "cew-smart-entity-core",
+    "evidence.provenance": "cew-evidence-foundation"
+  },
+  "outputs": [
+    "contracts/CEW_SMART_STRUCTURAL_ENTITY_v0.json",
+    "tools/cew_model/smart_entity.py",
+    "tools/cew_model/tests/test_smart_entity.py"
+  ],
+  "gates": [
+    {
+      "name": "Validate CEW Platform OS",
+      "run_id": 32961716538,
+      "job_id": 98155285738,
+      "head_sha": "9e521a53e8dfe4dda9976d9939b6aa47e99fde8d",
+      "status": "PASS"
+    },
+    {
+      "name": "Smart Structural Entity invariants",
+      "tests": 8,
+      "status": "PASS"
+    }
+  ],
+  "residuals": [],
+  "human_decisions": [],
+  "checkpoint_id": null,
+  "next_eligible_action": "DEG-001; MOD-001 remains blocked by CEW-F2 gate"
+}
