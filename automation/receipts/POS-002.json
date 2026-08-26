@@ -1,0 +1,48 @@
+{
+  "work_item_id": "POS-002",
+  "outcome": "COMPLETE_PASS",
+  "execution_profile": "PRODUCT_WORKFLOW",
+  "attempt_no": 1,
+  "repository": "antoniocorsano-boop/N12",
+  "branch": "exp/cew-platform-os-v0",
+  "head_sha": "5fc6d5693cf719a7f29cc0e93f5161bcdac58b85",
+  "input_generations": [],
+  "input_fingerprints": [
+    "base:79d64098eeab3c43be10f49500ba4d059798a91c"
+  ],
+  "selected_providers": {
+    "workflow.durable_execution": "deterministic-cew-orchestrator"
+  },
+  "outputs": [
+    "automation/CEW_EXECUTION_POLICY_v0.json",
+    "automation/CEW_AGENT_CAPABILITY_REGISTRY_v0.json",
+    "automation/CEW_CHECKPOINT_CONTRACT_v0.json",
+    "automation/CEW_AGENT_RESULT_CONTRACT_v0.json",
+    "automation/CEW_PLATFORM_WORK_QUEUE_v0.json",
+    "scripts/cew_platform_orchestrator.py",
+    "tests/test_cew_platform_orchestrator.py",
+    "docs/ARCHITECTURE/CEW_PLATFORM_OS_v0.md"
+  ],
+  "gates": [
+    {
+      "name": "Validate CEW Platform OS",
+      "run_id": 32960694757,
+      "head_sha": "5fc6d5693cf719a7f29cc0e93f5161bcdac58b85",
+      "status": "PASS"
+    },
+    {
+      "name": "adaptive planning and result/checkpoint invariants",
+      "job_id": 98152152946,
+      "status": "PASS"
+    },
+    {
+      "name": "inherited document-intelligence regression",
+      "job_id": 98152152946,
+      "status": "PASS"
+    }
+  ],
+  "residuals": [],
+  "human_decisions": [],
+  "checkpoint_id": null,
+  "next_eligible_action": "Schedule lock-safe batch: DOC-001, ENT-001, UX-001"
+}
