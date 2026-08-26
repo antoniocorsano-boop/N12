@@ -210,6 +210,7 @@
       "depends_on": ["ENT-001", "INT-001"],
       "requires_capabilities": ["quantity.cost", "knowledge.smart_entity"],
       "execution": {"mode": "PARALLEL_SAFE", "locks": ["quantity-cost-contract"], "batch_key": "intervention"},
+      "external_gate": "PROPOSED_INTERVENTION_GENERATION_AVAILABLE",
       "human_gate": false,
       "completion": [
         "quantities map to entity and model generation",
