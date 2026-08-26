@@ -31,12 +31,10 @@ class CEWPlatformOrchestratorTests(unittest.TestCase):
     def test_serial_work_is_exclusive_when_runtime_marks_it_ready(self):
         state = copy.deepcopy(self.work_state)
         state["items"]["POS-002"]["status"] = "READY"
-        for wid, value in state["items"].items():
-            if wid not in {"POS-001", "POS-002"} and value["status"] == "READY":
-                value["status"] = "WAITING"
         plan = ORCH.build_plan(self.queue, self.policy, self.registry, work_state=state)
         self.assertEqual([x["id"] for x in plan], ["POS-002"])
         self.assertEqual(plan[0]["execution"]["mode"], "SERIAL")
+        self.assertEqual(plan[0]["readiness"], "EXPLICIT_READY")
 
     def test_current_plan_is_lock_safe_dependency_complete_and_priority_ordered(self):
         plan = ORCH.build_plan(self.queue, self.policy, self.registry, work_state=self.work_state)
@@ -47,22 +45,42 @@ class CEWPlatformOrchestratorTests(unittest.TestCase):
         priorities = []
         for item in plan:
             source = by_id[item["id"]]
-            self.assertEqual(source["status"], "READY")
+            self.assertIn(item["readiness"], {"EXPLICIT_READY", "DERIVED_READY"})
+            if source["status"] == "READY":
+                self.assertEqual(item["readiness"], "EXPLICIT_READY")
+            if source["status"] == "WAITING":
+                self.assertEqual(item["readiness"], "DERIVED_READY")
             self.assertTrue(all(by_id[d]["status"] == "COMPLETE" for d in source.get("depends_on", [])))
+            self.assertFalse(source.get("external_gate") and item["readiness"] == "DERIVED_READY")
             locks.extend(item["execution"]["locks"])
             priorities.append(item["priority"])
         self.assertEqual(len(locks), len(set(locks)))
         self.assertEqual(priorities, sorted(priorities))
 
+    def test_waiting_items_auto_ready_when_dependencies_complete_without_state_mutation(self):
+        before = copy.deepcopy(self.work_state)
+        eligible = ORCH.eligible_items(self.queue, self.work_state, self.policy)
+        derived = [x for x in eligible if x.get("readiness") == "DERIVED_READY"]
+        self.assertTrue(derived)
+        for item in derived:
+            self.assertEqual(self.work_state["items"][item["id"]]["status"], "WAITING")
+        self.assertEqual(before, self.work_state)
+
+    def test_external_gate_never_auto_readies_waiting_item(self):
+        queue = copy.deepcopy(self.queue)
+        state = copy.deepcopy(self.work_state)
+        target = next(x for x in queue["items"] if x["id"] == "INT-001")
+        target["external_gate"] = "SYNTHETIC_EXTERNAL_GATE"
+        state["items"]["INT-001"]["status"] = "WAITING"
+        eligible_ids = {x["id"] for x in ORCH.eligible_items(queue, state, self.policy)}
+        self.assertNotIn("INT-001", eligible_ids)
+
     def test_lock_collision_prevents_unsafe_parallel_execution(self):
         queue = copy.deepcopy(self.queue)
         state = copy.deepcopy(self.work_state)
         by_id = {x["id"]: x for x in queue["items"]}
-        for wid, value in state["items"].items():
-            if wid in {"DOC-001", "ENT-001"}:
-                value["status"] = "READY"
-            elif value["status"] == "READY":
-                value["status"] = "WAITING"
+        state["items"]["DOC-001"]["status"] = "READY"
+        state["items"]["ENT-001"]["status"] = "READY"
         state["items"]["POS-002"]["status"] = "COMPLETE"
         by_id["ENT-001"]["execution"]["locks"] = list(by_id["DOC-001"]["execution"]["locks"])
         plan = ORCH.build_plan(queue, self.policy, self.registry, work_state=state)
