@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "purpose": "Runtime state overlay for CEW work items. Queue definitions remain declarative; status, receipts and checkpoints evolve here.",
-  "updated_from_head": "5fc6d5693cf719a7f29cc0e93f5161bcdac58b85",
+  "updated_from_head": "9e521a53e8dfe4dda9976d9939b6aa47e99fde8d",
   "items": {
     "POS-001": {
       "status": "COMPLETE",
@@ -14,12 +14,12 @@
       "checkpoint": null
     },
     "DOC-001": {
-      "status": "READY",
-      "receipt": null,
+      "status": "COMPLETE",
+      "receipt": "automation/receipts/DOC-001.json",
       "checkpoint": null
     },
     "DOC-002": {
-      "status": "WAITING",
+      "status": "READY",
       "receipt": null,
       "checkpoint": null
     },
@@ -29,8 +29,8 @@
       "checkpoint": null
     },
     "ENT-001": {
-      "status": "READY",
-      "receipt": null,
+      "status": "COMPLETE",
+      "receipt": "automation/receipts/ENT-001.json",
       "checkpoint": null
     },
     "MOD-001": {
@@ -44,7 +44,7 @@
       "checkpoint": null
     },
     "DEG-001": {
-      "status": "WAITING",
+      "status": "READY",
       "receipt": null,
       "checkpoint": null
     },
@@ -59,8 +59,8 @@
       "checkpoint": null
     },
     "UX-001": {
-      "status": "READY",
-      "receipt": null,
+      "status": "COMPLETE",
+      "receipt": "automation/receipts/UX-001.json",
       "checkpoint": null
     }
   }
