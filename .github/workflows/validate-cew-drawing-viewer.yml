@@ -1,0 +1,56 @@
+name: Validate CEW Drawing Viewer
+
+on:
+  pull_request:
+    paths:
+      - 'app.py'
+      - 'scripts/cew_drawing_viewer.py'
+      - 'scripts/validate_cew_drawing_viewer.py'
+      - 'scripts/cew_source_evidence_workspace.py'
+      - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/tavole_originali_remote_index_v1.csv'
+      - 'automation/outbox/CEW_B12_DRAWING_VIEWER_TASK_v1.json'
+      - '.github/workflows/validate-cew-drawing-viewer.yml'
+
+jobs:
+  validate-drawing-viewer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax
+        run: |
+          python -m py_compile scripts/cew_drawing_viewer.py
+          python -m py_compile scripts/validate_cew_drawing_viewer.py
+          python -m py_compile app.py
+      - name: Install runtime dependencies
+        run: pip install -r requirements.txt
+      - name: Validate governed viewer and fail-closed geometry
+        run: python scripts/validate_cew_drawing_viewer.py
+      - name: Route and response contract smoke
+        env:
+          CEW_AUTH_DISABLED_FOR_TEST: '1'
+          CEW_AUDIT_BACKEND_MODE: 'LOCAL_TEST_ONLY'
+        run: |
+          python - <<'PY'
+          import app
+          routes={r.path for r in app.app.routes}
+          assert '/drawings/{source_id}' in routes
+          assert '/api/drawing/render/{source_id}' in routes
+          r=app.drawing_card('TAV-05A')
+          assert r.status_code==200
+          html=r.body.decode('utf-8')
+          for marker in ['Adatta pagina','Adatta larghezza','Reset orientamento','PDF verificato','CEW-N12-REG-G01-R06']:
+              assert marker in html, marker
+          h=app.healthz()
+          assert h['drawing_viewer']=='B12_PREP_AVAILABLE_NOT_PROMOTED'
+          assert h['canonical_write_authorized'] is False
+          print('CEW B1.2 VIEWER ROUTE SMOKE: PASS')
+          PY
+      - name: Preserve HVA and promotion boundary
+        run: |
+          echo 'UX-DOC-02 = HVA_REQUIRED'
+          echo 'UX-DOC-03 = HVA_REQUIRED'
+          echo 'B1.2 parallel preparation = allowed'
+          echo 'B1.2 promotion = forbidden until B1.1 HVA/dependency passes'
