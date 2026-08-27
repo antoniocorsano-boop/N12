@@ -32,6 +32,12 @@ def csv_rows(path: Path) -> list[dict]:
         return list(csv.DictReader(f))
 
 
+def visible_text(page: str) -> str:
+    without_style = re.sub(r"<style\b[^>]*>.*?</style>", " ", page, flags=re.I | re.S)
+    without_script = re.sub(r"<script\b[^>]*>.*?</script>", " ", without_style, flags=re.I | re.S)
+    return re.sub(r"<[^>]+>", " ", without_script)
+
+
 def main() -> int:
     errors: list[str] = []
     for path in [STATE, ISSUES, TASKS, TERMINOLOGY, LIFECYCLE, CONTRACT, APP]:
@@ -50,6 +56,7 @@ def main() -> int:
     contract = CONTRACT.read_text(encoding="utf-8")
     app_text = APP.read_text(encoding="utf-8")
     page = project_home.build_project_home(state, issues, tasks, terminology, lifecycle)
+    visible = visible_text(page)
 
     if terminology.get("audience") != "STRUCTURAL_ENGINEER":
         errors.append("terminology audience must be STRUCTURAL_ENGINEER")
@@ -86,7 +93,7 @@ def main() -> int:
     for pid in [f"P{i}" for i in range(17)]:
         if f'>{pid}<' not in page:
             errors.append(f"HF-HOME-05 lifecycle phase not visible: {pid}")
-    if "%" in page or "percent" in page.lower():
+    if re.search(r"\b\d{1,3}\s*%", visible) or "percent complete" in visible.lower() or "percentuale di completamento" in visible.lower() or "<progress" in page.lower():
         errors.append("HF-HOME-05 false percentage/progress representation detected")
     if "non sostituisce i gate ingegneristici" not in page:
         errors.append("HF-HOME-05 engineering readiness distinction missing")
