@@ -17,6 +17,7 @@ SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
+import cew_document_drawing_workspace as document_workspace
 import cew_f7_native_review_service as review_service
 import cew_project_control_room as control_room
 import cew_project_home as project_home
@@ -80,6 +81,8 @@ def healthz():
         "auth_configured": _auth_configured(),
         "audit_backend": backend,
         "production_receipt_submit_ready": backend in PRODUCTION_AUDIT_BACKENDS,
+        "document_workspace": "B11_AVAILABLE",
+        "drawing_register": "B11_AVAILABLE",
         "source_workspace": "B1_AVAILABLE",
         "source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED",
         "canonical_write_authorized": False,
@@ -135,6 +138,23 @@ def project_home_route():
     terminology = review_service.load_json(TERMINOLOGY)
     lifecycle = review_service.load_json(LIFECYCLE)
     return HTMLResponse(project_home.build_project_home(state, issues, tasks, terminology, lifecycle))
+
+
+@app.get("/documents", response_class=HTMLResponse)
+def document_library():
+    return HTMLResponse(document_workspace.build_document_library())
+
+
+@app.get("/drawings", response_class=HTMLResponse)
+def drawing_register():
+    return HTMLResponse(document_workspace.build_drawing_register())
+
+
+@app.get("/drawings/{source_id}", response_class=HTMLResponse)
+def drawing_card(source_id: str):
+    if source_id not in source_workspace.maps()["sources"]:
+        return HTMLResponse("<h1>Tavola non trovata</h1><a href='/drawings'>Torna alle tavole</a>", status_code=404)
+    return HTMLResponse(document_workspace.build_drawing_card(source_id))
 
 
 @app.get("/sources", response_class=HTMLResponse)
