@@ -5,12 +5,18 @@
   "target_payloads": {
     "CEW-TARGET-REINFORCEMENT-OBSERVATION": {
       "payload_kind": "REINFORCEMENT_ASSERTION",
-      "parser_policy": "EXACT_DIRECTIONAL_REINFORCEMENT_GRAMMAR_V1",
+      "parser_policy": "EXPLICIT_DIRECTIONAL_REINFORCEMENT_NATURAL_TEXT_V2",
       "required_components": ["upper", "lower"],
       "component_schema": {
         "count": "positive_integer",
         "diameter_mm": "positive_integer"
       },
+      "accepted_explicit_tokens": {
+        "bar_symbol": ["Φ", "Ø", "φ", "f", "F", "phi"],
+        "direction_terms": ["superiori", "inferiori"],
+        "clause_separator": ["+", "e"]
+      },
+      "natural_language_prefix_suffix_allowed": true,
       "raw_human_observation_required": true
     }
   },
@@ -18,7 +24,9 @@
     "generic_total_is_not_equivalent_to_directional_reinforcement": true,
     "upper_and_lower_must_remain_separate": true,
     "free_text_semantic_inference_forbidden": true,
-    "exact_grammar_tokenization_may_emit_patch_candidate": true,
+    "explicit_directional_tokens_may_emit_patch_candidate": true,
+    "natural_language_context_must_not_be_rewritten": true,
+    "missing_direction_count_or_diameter_blocks_semantic_payload": true,
     "raw_human_observation_must_be_preserved_verbatim": true,
     "payload_candidate_never_authorizes_canonical_write": true
   }
