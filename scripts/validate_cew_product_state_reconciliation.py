@@ -100,8 +100,11 @@ def main() -> int:
             errors.append(f"runtime production {key} mismatch: {runtime.get(key)!r}")
     if runtime.get("auth_configured") is not True:
         errors.append("production auth must be recorded configured")
-    if runtime.get("smoke_status") != "PASS_HUMAN_OBSERVED_2026-08-27":
-        errors.append("production smoke observation missing")
+    smoke_status = str(runtime.get("smoke_status") or "")
+    if not smoke_status.startswith("PASS_HUMAN_OBSERVED_2026-08-27"):
+        errors.append("production smoke observation missing or malformed")
+    if "latest_project_home_v2_deployed" in runtime and not isinstance(runtime.get("latest_project_home_v2_deployed"), bool):
+        errors.append("latest_project_home_v2_deployed must be boolean when present")
 
     lowered = STATE.read_text(encoding="utf-8").lower()
     stale_fragments = ["netlify", "pending_vercel", "vercel_preview_pending", "created_pending_first_code_deploy"]
@@ -144,6 +147,7 @@ def main() -> int:
     print(f"CURRENT_PRODUCT_WORK_ITEM = {current.get('id')}")
     print("N12_ENGINEERING_AUTHORITY = knowledge/CURRENT_STATE.json")
     print("PRODUCTION_RUNTIME = VERCEL_FASTAPI + NEON_APPEND_ONLY")
+    print(f"PRODUCTION_SMOKE = {smoke_status}")
     print("CANONICAL_WRITE_AUTHORIZED = false")
     return 0
 
