@@ -1,29 +1,24 @@
 {
   "schema_version": "1.0",
-  "work_item_id": "CEW-A0-STATE-RECONCILIATION",
+  "work_item_id": "CEW-A1-PRODUCT-SPINE",
   "agent_role": "PRODUCT_STATE_AGENT",
   "decision": "PASS",
   "target_outputs": [
-    "automation/CEW_PRODUCT_STATE_RECONCILIATION_v1.json",
-    "scripts/validate_cew_product_state_reconciliation.py",
-    "data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json"
+    "automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json"
   ],
   "validation": {
     "DATA_GATE": "PASS",
-    "INTEGRATION_GATE": "PASS",
-    "QA_GATE": "PASS"
+    "ENGINEERING_GATE": "PASS"
   },
   "residuals": [],
-  "authority_boundary": "A0 changed CEW product/runtime state semantics and compatibility readers only. It did not change N12 engineering facts, evidence, structural geometry, properties, residual decisions or calculation readiness.",
+  "authority_boundary": "A1 defines CEW lifecycle/product primitives and engineering authority references only. It does not change N12 engineering facts, close residuals, authorize calculation readiness, approve EngineeringRulePack content or exercise responsible-engineer authority.",
   "audit_paths": [
-    ".github/workflows/validate-cew-product-transformation.yml#run-33079458086",
-    ".github/workflows/validate-cew-control-room.yml#run-33079458101",
-    ".github/workflows/validate-cew-evidence-map.yml#run-33079458301",
-    ".github/workflows/validate-cew-f7-native-review-ui.yml#run-33079458152",
-    ".github/workflows/validate-cew-user-web-pilot.yml#run-33079458051",
-    ".github/workflows/validate-cew-existing-assessment.yml#run-33079458172",
-    ".github/workflows/validate-cew-netlify-audit.yml#run-33079458102",
-    ".github/workflows/validate-cew-evidence-region-pack.yml#run-33079458055",
-    ".github/workflows/validate-knowledge-system.yml#run-33079458047"
+    ".github/workflows/validate-cew-product-transformation.yml#run-33106495116",
+    ".github/workflows/validate-cew-control-room.yml#run-33106495121",
+    ".github/workflows/validate-cew-evidence-map.yml#run-33106495113",
+    ".github/workflows/validate-cew-user-web-pilot.yml#run-33106495131",
+    ".github/workflows/validate-cew-f7-native-review-ui.yml#run-33106495147",
+    ".github/workflows/validate-cew-existing-assessment.yml#run-33106495156",
+    ".github/workflows/validate-knowledge-system.yml#run-33106495144"
   ]
 }
