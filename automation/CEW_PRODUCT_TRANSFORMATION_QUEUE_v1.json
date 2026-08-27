@@ -53,11 +53,14 @@
       "priority": 40,
       "wave": "B",
       "agent_role": "SOURCE_EVIDENCE_AGENT",
-      "state": "READY",
+      "state": "RESIDUAL",
       "objective": "Deliver Source Hub and Evidence Workspace with immutable intake, MICRO/MESO/MACRO context, linked entity context and natural-language human decisions.",
       "dependencies": ["CEW-A2-PROJECT-HOME-HUMAN-FACTORS"],
       "target_outputs": ["docs/PRODUCT/CEW_SOURCE_HUB_V1_CONTRACT.md", "docs/PRODUCT/CEW_EVIDENCE_WORKSPACE_V1_CONTRACT.md"],
-      "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE", "HUMAN_FACTORS_GATE", "PRODUCTION_SMOKE"]
+      "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE", "HUMAN_FACTORS_GATE", "PRODUCTION_SMOKE"],
+      "current_validation": {"DATA_GATE": "PASS", "ENGINEERING_GATE": "PASS", "HUMAN_GATE": "PASS", "HUMAN_FACTORS_GATE": "PASS", "PRODUCTION_SMOKE": "NOT_SATISFIED"},
+      "residual_id": "CEW-B1-PROD-01",
+      "residual_reason": "B1 code and governed evidence journey are green; production deploy/smoke remains unavailable through the currently exposed Vercel integration."
     },
     {
       "id": "CEW-B2-RECONSTRUCTION-PROPERTIES",
