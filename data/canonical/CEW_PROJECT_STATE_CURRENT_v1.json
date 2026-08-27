@@ -1,101 +1,171 @@
 {
-  "schema_version": "1.8",
+  "schema_version": "2.0",
   "product": "CEW",
   "vertical": "CEW-EX",
   "reference_project": "N12",
-  "state_role": "SINGLE_OPERATIONAL_SOURCE_OF_TRUTH",
+  "state_role": "CEW_PRODUCT_RUNTIME_STATE",
   "status": "CURRENT",
   "updated": "2026-08-27",
-  "maturity": {"current_level":"L3_INTERACTIVE_ENGINEERING_TWIN_WITH_L4_COMPONENTS","target_next":"L4_ASSESSMENT_READY","note":"L4 is not achieved until the calculation-model blockers are closed or explicitly covered by authorized assessment rules."},
-  "canonical_documents": {
-    "product_vision":"docs/ARCHITECTURE/CEW_PRODUCT_VISION_AND_EXISTING_WORKFLOW_v1.md",
-    "stakeholder_blueprint":"docs/ARCHITECTURE/CEW_STAKEHOLDER_PRODUCT_BLUEPRINT_v2.md",
-    "full_stakeholder_review":"docs/ARCHITECTURE/CEW_STAKEHOLDER_PRODUCT_REVIEW_FULL_v1.md",
-    "benchmark_review":"docs/RESEARCH/CEW_PRODUCT_BENCHMARK_AND_MATURITY_REVIEW_v1.md",
-    "module_contract":"automation/CEW_PRODUCT_MODULE_CONTRACT_v1.json",
-    "native_human_review_service":"automation/CEW_F7_NATIVE_REVIEW_SERVICE_CONTRACT_v1.json",
-    "user_web_pilot":"automation/CEW_USER_WEB_PILOT_CONTRACT_v1.json",
-    "netlify_audit":"automation/CEW_NETLIFY_AUDIT_CONTRACT_v1.json",
-    "exposure_condition_research":"docs/RESEARCH/CEW_EXPOSURE_CONDITION_RESEARCH_v1.md",
-    "r3_b05_b06_routing":"docs/ANALYSIS/CEW_R3_B05_B06_RESOLUTION_ROUTING_v1.md",
-    "r3_b06_subrouting":"docs/ANALYSIS/CEW_R3_B06_RESIDUAL_SUBROUTING_v1.md",
-    "r3_g4_hires_machine_review":"data/canonical/N12_G4_HIRES_MACHINE_REVIEW_RECEIPT_v1.json"
+  "program": {
+    "goal": "CEW-GOAL-01",
+    "program": "docs/PROGRAM/CEW_PRODUCT_COMPLETION_PROGRAM_v1.md",
+    "audit": "docs/AUDIT/CEW_PRODUCT_AUDIT_HUMAN_CENTRIC_2026-08-27_v1.md",
+    "architecture": "docs/ARCHITECTURE/CEW_HUMAN_CENTRIC_STRUCTURAL_PRODUCT_v1.md",
+    "roadmap": "docs/ROADMAP/CEW_HUMAN_CENTRIC_PRODUCT_TRANSFORMATION_v1.md",
+    "phase_contract": "automation/CEW_HUMAN_CENTRIC_PHASE_CONTRACT_v1.json",
+    "agent_contract": "automation/CEW_PRODUCT_AGENT_CONTRACT_v1.json",
+    "result_contract": "automation/CEW_PRODUCT_AGENT_RESULT_CONTRACT_v1.json",
+    "queue": "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json",
+    "orchestrator": "scripts/cew_product_orchestrator.py",
+    "reconciliation": "automation/CEW_PRODUCT_STATE_RECONCILIATION_v1.json",
+    "architecture_pr": 95
   },
-  "implemented_modules": [
-    {"id":"EVIDENCE_CORE","status":"OPERATIONAL_REFERENCE","gate":"N12 Knowledge System"},
-    {"id":"CANONICAL_STRUCTURAL_MODEL_BUILDER","status":"OPERATIONAL_V0","gate":"Validate CEW Structural Model Builder"},
-    {"id":"STRUCTURAL_VIEWER","status":"OPERATIONAL_V0","gate":"Validate CEW Structural Viewer"},
-    {"id":"VIEWER_EVIDENCE_SCENARIO_OVERLAY","status":"OPERATIONAL_V0","gate":"Validate CEW Viewer Evidence Overlay"},
-    {"id":"EXISTING_ASSESSMENT_ENGINE","status":"OPERATIONAL_V1","gate":"Validate CEW Existing Assessment Engine"},
-    {"id":"INVESTIGATION_PLANNER","status":"OPERATIONAL_V0_ADVISORY","gate":"Validate CEW Investigation Planner"},
-    {"id":"DEGRADATION_ENGINE","status":"SAFETY_GATE_ONLY","gate":"Validate CEW Degradation Engine"},
-    {"id":"EXPOSURE_CONDITION_MODEL","status":"OPERATIONAL_V0_EVIDENCE_PENDING","gate":"Validate CEW Exposure Condition"},
-    {"id":"PROJECT_CONTROL_ROOM","status":"OPERATIONAL_V1_NATIVE_HUMAN_REVIEW","gate":"Validate CEW Control Room"},
-    {"id":"HUMAN_EVIDENCE_REVIEW","status":"OPERATIONAL_V1_NATIVE_SUBMIT_NO_CANONICAL_WRITE","gate":"Validate CEW F7 Native Review UI"},
-    {"id":"USER_WEB_RUNTIME","status":"IMPLEMENTED_SINGLE_OPERATOR_PILOT_NETLIFY_AUDIT_PENDING_DEPLOY","gate":"Validate CEW User Web Pilot"},
-    {"id":"RUNTIME_AUDIT_PERSISTENCE","status":"IMPLEMENTED_NETLIFY_HTTPS_APPEND_ONLY_PENDING_FIRST_DEPLOY","gate":"Validate CEW Netlify Audit"},
-    {"id":"UNIVERSAL_RESIDUAL_WORKSPACE","status":"OPERATIONAL_V0_DATA_CONTRACT","gate":"Validate CEW Control Room"},
-    {"id":"SYNCHRONIZED_EVIDENCE_MAP","status":"IN_PROGRESS_HIRES_REVIEW_CANDIDATES","gate":"Validate CEW Evidence Map"},
-    {"id":"EVIDENCE_REGION_REVIEW_PACK","status":"OPERATIONAL_FALLBACK_AND_CI_REFERENCE","gate":"Validate CEW Evidence Region Pack"}
-  ],
-  "current_calculation_blockers": [
-    {"id":"M1E-B01","domain":"CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL","impact":"BLOCKING"},
-    {"id":"M1E-B02","domain":"NUMERIC_LOADS_MASSES_AND_COMBINATIONS","impact":"BLOCKING"},
-    {"id":"M1E-B04","domain":"FOUNDATION_NUMERIC_Z","impact":"BLOCKING"},
-    {"id":"M1E-B05","domain":"FOUNDATION_SECTION_AND_REINFORCEMENT_COVERAGE","impact":"LOCAL_BLOCKING","routing_class":"CONFIRMED_DOCUMENTARY_GAP"},
-    {"id":"M1E-B06","domain":"SUPERSTRUCTURE_REINFORCEMENT_RESIDUALS","impact":"LOCAL_BLOCKING","routing_class":"MIXED_RESIDUAL_ROUTING"},
-    {"id":"M1E-B07","domain":"CURRENT_GEOTECHNICAL_MODEL","impact":"BLOCKING"}
-  ],
-  "roadmap": [
-    {"id":"R1","name":"Project Control Room v0","status":"COMPLETE","depends_on":[]},
-    {"id":"R2","name":"Universal Residual Workspace v0","status":"COMPLETE","depends_on":["R1"]},
-    {"id":"R3","name":"Synchronized 2D/3D Evidence Map","status":"IN_PROGRESS","depends_on":["R2"]},
-    {"id":"R4","name":"Field / Investigation Pack","status":"PLANNED","depends_on":["R2"]},
-    {"id":"R5","name":"Solver Round Trip","status":"PLANNED","depends_on":["R1","R2"]},
-    {"id":"R6","name":"Scenario / Sensitivity","status":"PLANNED","depends_on":["R5"]},
-    {"id":"R7","name":"Intervention Generations","status":"PLANNED","depends_on":["R5"]}
-  ],
-  "current_work_item": {
-    "id":"CEW-R3-SYNCHRONIZED-EVIDENCE-MAP-V0",
-    "objective":"Create bidirectional navigation between source/evidence context and canonical 3D entities without making the UI or crop geometry an engineering authority.",
-    "branch":"work/cew-r3-g4-hires-candidates-v0",
-    "state":"IN_PROGRESS",
-    "progress": {
-      "source_context_bound_issues":["M1E-B02","M1E-B05","M1E-B06"],
-      "confirmed_documentary_gap_issues":["M1E-B05"],
-      "mixed_residual_routing_issues":["M1E-B06"],
-      "evidence_snippet_candidates":1,
-      "g4_group_scope_review_targets":3,
-      "g4_machine_visual_direct_label_candidates":2,
-      "g4_machine_visual_partial_state_confirmed_candidates":1,
-      "column_primary_source_search_closed":7,
-      "canonical_evidence_snippets":0,
-      "canonical_3d_viewpoints":0,
-      "last_completed_slice":"CEW User Web Pilot merge 69b43e8d4245d1b2a427cbbda319709c2eb80da9",
-      "active_subslice":"Provision persistent isolated Netlify audit storage for the user-facing CEW runtime without moving F7 policy or canonical authority out of CEW.",
-      "native_human_review_tasks":4,
-      "native_human_review_submit":"OPERATIONAL_NO_MANUAL_JSON_HANDOFF",
-      "f7_promotion_bridge_status":"OPERATIONAL_NO_CANONICAL_WRITE",
-      "user_web_runtime":"IMPLEMENTED_PENDING_VERCEL_PREVIEW_AND_AUTHENTICATED_SMOKE",
-      "netlify_audit_site":"cew-pilot:CREATED_PENDING_FIRST_CODE_DEPLOY",
-      "production_audit_policy":"FAIL_CLOSED_UNLESS_NETLIFY_AUDIT_HTTPS_OR_SUPABASE_APPEND_ONLY_CONFIGURED",
-      "hires_findings":["P02 L=1040: direct 2phi12 label visually readable candidate","P07-P08 partial sagomato: missing continuation dimension still not directly written","P10 L=865: direct 2phi12 label visually readable candidate"]
+  "product_maturity": {
+    "engineering_kernel": "STRONG_REFERENCE_IMPLEMENTATION",
+    "integration": "PARTIAL",
+    "user_workflow": "PILOT_ONLY_NOT_PRODUCT_COMPLETE",
+    "human_factors": "NOT_VALIDATED",
+    "production_runtime": "AVAILABLE_SINGLE_OPERATOR",
+    "assessment_ready": false,
+    "decision_ready": false,
+    "target": "PRODUCTION_GRADE_HUMAN_CENTRED_STRUCTURAL_ENGINEERING_WORKFLOW"
+  },
+  "runtime": {
+    "production": {
+      "platform": "VERCEL_FASTAPI",
+      "url": "https://cew-pilot.vercel.app",
+      "service": "CEW_USER_RUNTIME",
+      "entrypoint": "deploy/cew_user_runtime.py",
+      "auth_configured": true,
+      "authentication_mode": "SINGLE_OPERATOR",
+      "audit_backend": "NEON_APPEND_ONLY",
+      "audit_adapter": "scripts/cew_runtime_audit_store.py",
+      "production_receipt_submit_ready": true,
+      "canonical_write_authorized": false,
+      "smoke_status": "PASS_HUMAN_OBSERVED_2026-08-27",
+      "runtime_validation_workflow": ".github/workflows/validate-cew-neon-user-runtime.yml"
     }
   },
-  "anti_drift_rules": [
-    "Every product slice must read CEW_PROJECT_STATE_CURRENT before implementation.",
-    "Every merged slice must update CEW_PROJECT_STATE_CURRENT in the same PR or an immediately linked state-update PR.",
-    "There is exactly one current work item; parallel technical tasks are children of it, not competing current states.",
-    "Historical architecture/research documents are immutable versioned references; CURRENT state is never reconstructed from conversation memory.",
-    "A residual is closed only by evidence, explicit authorized modeling rule, or documented engineering decision with receipt.",
-    "No UI state may become canonical engineering authority.",
-    "Confirmed documentary gaps must not trigger cyclic blind rereading without a new evidence hypothesis.",
-    "Evidence-link candidates are never counted as approved EvidenceSnippet objects.",
-    "Issue-level routing must preserve mixed residual-level states and must not flatten closed-search, review-target, conflict or measurement-required subroutes into a single generic action.",
-    "Machine visual review findings may populate the human review queue but cannot promote canonical reinforcement values or create single-member bindings by themselves.",
-    "Native human-review runtime receipts are audit inputs only; UI submit may create governed patch candidates but never canonical writes.",
-    "The user-facing production runtime must fail closed when authentication or persistent append-only audit storage is not configured; ephemeral production receipt storage is forbidden.",
-    "External audit persistence services may store validated receipts only and must never evaluate epistemic promotion or authorize canonical writes."
+  "capability_maturity": [
+    {
+      "id": "SOURCE_EVIDENCE_KERNEL",
+      "engine_available": true,
+      "integrated": true,
+      "user_workflow_available": "PARTIAL",
+      "human_factors_validated": false,
+      "production_ready": false
+    },
+    {
+      "id": "CANONICAL_STRUCTURAL_MODEL",
+      "engine_available": true,
+      "integrated": true,
+      "user_workflow_available": "PARTIAL",
+      "human_factors_validated": false,
+      "production_ready": false
+    },
+    {
+      "id": "HUMAN_EVIDENCE_REVIEW",
+      "engine_available": true,
+      "integrated": true,
+      "user_workflow_available": "PILOT",
+      "human_factors_validated": false,
+      "production_ready": "LIMITED_SINGLE_OPERATOR_PILOT"
+    },
+    {
+      "id": "AUDIT_PERSISTENCE",
+      "engine_available": true,
+      "integrated": true,
+      "user_workflow_available": "NOT_APPLICABLE",
+      "human_factors_validated": "NOT_APPLICABLE",
+      "production_ready": true
+    },
+    {
+      "id": "PROJECT_HOME",
+      "engine_available": true,
+      "integrated": "PARTIAL",
+      "user_workflow_available": "TECHNICAL_PILOT_ONLY",
+      "human_factors_validated": false,
+      "production_ready": false
+    },
+    {
+      "id": "INVESTIGATION",
+      "engine_available": "ADVISORY_ONLY",
+      "integrated": false,
+      "user_workflow_available": false,
+      "human_factors_validated": false,
+      "production_ready": false
+    },
+    {
+      "id": "SOLVER_FEM_ROUNDTRIP",
+      "engine_available": "LEGACY_PROTOTYPE_ONLY",
+      "integrated": false,
+      "user_workflow_available": false,
+      "human_factors_validated": false,
+      "production_ready": false
+    },
+    {
+      "id": "VERIFICATION_INTERVENTION_LIFECYCLE",
+      "engine_available": "PARTIAL_OR_PLANNED",
+      "integrated": false,
+      "user_workflow_available": false,
+      "human_factors_validated": false,
+      "production_ready": false
+    }
   ],
-  "next_action":"Deploy the isolated Netlify cew-pilot audit service and database migration, configure the shared audit secret, then deploy the CEW FastAPI runtime with CEW_ACCESS_PASSWORD/CEW_SESSION_SECRET and CEW_AUDIT_HTTPS_URL/CEW_AUDIT_SHARED_SECRET. Run an authenticated production smoke before allowing ERW-N12-001/R08 submission."
+  "engineering_state": {
+    "reference_project": "N12",
+    "authority_path": "knowledge/CURRENT_STATE.json",
+    "queue_path": "automation/N12_WORK_QUEUE_v1.json",
+    "current_work_item": "M1E-CALCULATION-MODEL-HANDOFF",
+    "current_work_item_state": "RESIDUAL",
+    "calculation_model_ready": false,
+    "projection_policy": "REFERENCE_ONLY_DO_NOT_DUPLICATE_ENGINEERING_FACTS_IN_CEW_PRODUCT_STATE",
+    "phase_projection": [
+      {"phase_id": "P0", "title": "Project Definition", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PLANNED_PRODUCT_WORKSPACE"},
+      {"phase_id": "P1", "title": "Source Acquisition / CDE", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_FOUNDATION_PRESENT_WORKSPACE_NOT_INTEGRATED"},
+      {"phase_id": "P2", "title": "Document Understanding", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_FOUNDATION_PRESENT_WORKSPACE_NOT_INTEGRATED"},
+      {"phase_id": "P3", "title": "Evidence / Claim Reconstruction", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_AVAILABLE_PARTIAL_USER_WORKFLOW"},
+      {"phase_id": "P4", "title": "Historical-Critical Analysis & Survey Baseline", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PLANNED_PRODUCT_WORKSPACE"},
+      {"phase_id": "P5", "title": "Geometry & Topology", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_AVAILABLE_WORKSPACE_NOT_INTEGRATED"},
+      {"phase_id": "P6", "title": "Structural Semantics / Asset Graph", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_AVAILABLE_WORKSPACE_NOT_INTEGRATED"},
+      {"phase_id": "P7", "title": "Engineering Properties", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_AVAILABLE_FRAGMENTED_WORKFLOW"},
+      {"phase_id": "P8", "title": "Condition / Exposure / Degradation", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "EARLY_ENGINE_AVAILABLE_WORKSPACE_NOT_INTEGRATED"},
+      {"phase_id": "P9", "title": "Knowledge Level / Investigation", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ADVISORY_ENGINE_AVAILABLE_WORKSPACE_NOT_INTEGRATED"},
+      {"phase_id": "P10", "title": "Canonical AS-IS Generation", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "CANONICAL_MODEL_ENGINE_AVAILABLE_AUTHORIZATION_WORKFLOW_PLANNED"},
+      {"phase_id": "P11", "title": "Assessment Scenarios / Model Rules", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "EARLY_ENGINE_AVAILABLE_AUTHORIZATION_WORKFLOW_PLANNED"},
+      {"phase_id": "P12", "title": "Calculation Model / Solver Handoff", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PLANNED_CURRENT_CANONICAL_ROUNDTRIP"},
+      {"phase_id": "P13", "title": "FEM / Structural Analysis", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "LEGACY_PROTOTYPE_ONLY_CURRENT_ADAPTER_PLANNED"},
+      {"phase_id": "P14", "title": "Verification / Assessment", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PLANNED"},
+      {"phase_id": "P15", "title": "Intervention Design", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PLANNED"},
+      {"phase_id": "P16", "title": "Execution / As-built / Monitoring", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PLANNED"}
+    ]
+  },
+  "current_product_work_item": {
+    "id": "CEW-A0-STATE-RECONCILIATION",
+    "agent_role": "PRODUCT_STATE_AGENT",
+    "state": "READY",
+    "queue": "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json",
+    "goal": "CEW-GOAL-01"
+  },
+  "governance": {
+    "promotion": "SERIALIZED_BY_PRODUCT_ORCHESTRATOR",
+    "parallel_preparation": true,
+    "one_result_per_agent_work_item": true,
+    "human_engineering_authority_required_where_declared": true,
+    "ui_is_engineering_authority": false,
+    "agent_output_is_engineering_authority": false,
+    "solver_output_rewrites_evidence": false,
+    "canonical_write_from_user_runtime": false
+  },
+  "anti_drift_rules": [
+    "CEW CURRENT owns product/runtime state only; N12 engineering facts remain owned by knowledge/CURRENT_STATE.json and governed canonical artifacts.",
+    "Every CEW product slice must match the selected work item in automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json.",
+    "Every completed product work item requires a result handshake, required gates and a receipt before the next item is released.",
+    "A technical engine is not product-complete until integration, user-workflow and applicable human-factors/production gates pass.",
+    "Production runtime must fail closed when authentication or persistent append-only audit storage is unavailable.",
+    "No UI, agent result or solver result may become engineering authority by itself.",
+    "No human observation may be normalized with loss of engineering meaning.",
+    "Missing engineering information remains explicit and cannot be closed for product continuity."
+  ],
+  "next_action": "Validate CEW-A0 state reconciliation. If PASS, archive an A0 result receipt, release CEW-A1-PRODUCT-SPINE and implement P0-P16 lifecycle primitives."
 }
