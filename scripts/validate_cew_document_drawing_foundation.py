@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import importlib.util
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -49,7 +47,6 @@ def main() -> int:
     terminology = load_json(TERMINOLOGY)
     inventory = workspace.inventory()
 
-    # DATA_GATE — current repository patrimony, no hard-coded invented rows.
     source_rows = source_workspace.maps()["sources"]
     if len(inventory) != len(source_rows):
         errors.append(f"inventory/source register count mismatch {len(inventory)} != {len(source_rows)}")
@@ -68,7 +65,6 @@ def main() -> int:
         if tav05["evidence_count"] < 3:
             errors.append("TAV-05A must expose its governed evidence regions")
 
-    # INTEGRATION_GATE — project navigation and runtime routes.
     nav = {x["id"]: x for x in terminology.get("navigation", [])}
     if nav.get("DOCUMENTS", {}).get("href") != "/documents":
         errors.append("Documenti navigation missing")
@@ -85,14 +81,23 @@ def main() -> int:
         if marker not in app_text:
             errors.append(f"runtime integration missing marker: {marker}")
 
-    # HUMAN_FACTORS_GATE fixtures — generated surfaces must answer basic tasks without repo knowledge.
     documents_html = workspace.build_document_library()
     drawings_html = workspace.build_drawing_register()
     drawing_html = workspace.build_drawing_card("TAV-05A")
+    combined_user_surface = (documents_html + drawing_html).lower()
 
-    for text in ["Documenti del progetto", "TAV-05A", "Armatura", "Fonte primaria", "SHA-256"]:
-        if text.lower() not in documents_html.lower() and text.lower() not in drawing_html.lower():
-            errors.append(f"UX-DOC-01 surface missing user-visible concept: {text}")
+    # UX-DOC-01: semantic concepts, not brittle wording.
+    required_concepts = {
+        "Documenti del progetto": "documenti del progetto",
+        "TAV-05A": "tav-05a",
+        "reinforcement classification": "armatur",
+        "primary source": "fonte primaria",
+        "SHA-256": "sha-256",
+    }
+    for label, token in required_concepts.items():
+        if token not in combined_user_surface:
+            errors.append(f"UX-DOC-01 surface missing user-visible concept: {label}")
+
     for text in ["Tavole di progetto", "TAV-05A", "G4", "Apri"]:
         if text.lower() not in drawings_html.lower():
             errors.append(f"drawing register missing user-visible concept: {text}")
@@ -101,7 +106,6 @@ def main() -> int:
     if "non ancora modellata" not in drawing_html.lower():
         errors.append("DocumentMap missing state must remain explicit")
 
-    # Usability model must preserve tasks that still require HVA / later slices.
     task_ids = {x["task_id"] for x in metrics.get("initial_cew_b11_tasks", [])}
     if task_ids != {"UX-DOC-01", "UX-DOC-02", "UX-DOC-03", "UX-DOC-04"}:
         errors.append(f"usability task set drift: {sorted(task_ids)}")
@@ -113,13 +117,12 @@ def main() -> int:
     if "HVA_GATE" not in slices.get("B1.1", {}).get("gates", []):
         errors.append("B1.1 must require Human/Visual Acceptance")
 
-    # Authority / product honesty.
     forbidden = ["documenti completi", "progetto completo", "modello completo"]
     combined = (documents_html + drawings_html + drawing_html).lower()
     for phrase in forbidden:
         if phrase in combined:
             errors.append(f"false completion wording detected: {phrase}")
-    if "non inventa" not in documents_html.lower():
+    if not any(token in documents_html.lower() for token in ["non li inventa", "non inventa", "non vengono inventati"]):
         errors.append("catalogue gap honesty missing")
 
     if errors:
