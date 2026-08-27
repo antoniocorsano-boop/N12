@@ -34,26 +34,31 @@ jobs:
         run: pip install -r requirements.txt
       - name: Validate B1.1 data, integration and usability fixtures
         run: python scripts/validate_cew_document_drawing_foundation.py
-      - name: Authenticated route smoke without production secrets
+      - name: Route registry and response smoke without production secrets
         env:
           CEW_AUTH_DISABLED_FOR_TEST: '1'
           CEW_AUDIT_BACKEND_MODE: 'LOCAL_TEST_ONLY'
         run: |
           python - <<'PY'
-          from fastapi.testclient import TestClient
           import app
-          c=TestClient(app.app)
-          for path, marker in [
-              ('/documents','Documenti del progetto'),
-              ('/drawings','Tavole di progetto'),
-              ('/drawings/TAV-05A','TAV-05A'),
-          ]:
-              r=c.get(path)
-              assert r.status_code == 200, (path, r.status_code)
-              assert marker in r.text, (path, marker)
-          h=c.get('/healthz').json()
-          assert h['document_workspace']=='B11_AVAILABLE'
-          assert h['drawing_register']=='B11_AVAILABLE'
+
+          registered = {route.path for route in app.app.routes}
+          for path in ['/documents', '/drawings', '/drawings/{source_id}']:
+              assert path in registered, (path, sorted(registered))
+
+          responses = [
+              (app.document_library(), 'Documenti del progetto'),
+              (app.drawing_register(), 'Tavole di progetto'),
+              (app.drawing_card('TAV-05A'), 'TAV-05A'),
+          ]
+          for response, marker in responses:
+              assert response.status_code == 200
+              text = response.body.decode('utf-8')
+              assert marker in text, marker
+
+          h = app.healthz()
+          assert h['document_workspace'] == 'B11_AVAILABLE'
+          assert h['drawing_register'] == 'B11_AVAILABLE'
           assert h['canonical_write_authorized'] is False
           print('CEW B1.1 ROUTE SMOKE: PASS')
           PY
