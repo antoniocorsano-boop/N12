@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "slice_id": "B1.1",
+  "work_item_id": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
+  "decision": "AUTOMATED_GATES_PASS_HVA_REQUIRED",
+  "agent_role": "SOURCE_EVIDENCE_AGENT",
+  "baseline_ref": "work/cew-human-centric-structural-product-v1",
+  "baseline_sha": "f9f571190e2e91af3bb47b66c7c725667dda92aa",
+  "validated_head_sha": "65a9a79409fd476e761c9911bfdebc5b89737131",
+  "pull_request": 96,
+  "outputs": [
+    "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v1.md",
+    "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v1.md",
+    "automation/CEW_USABILITY_METRICS_MODEL_v1.json",
+    "docs/PRODUCT/CEW_DOCUMENT_DRAWING_WORKSPACE_V1_CONTRACT.md",
+    "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json",
+    "scripts/cew_document_drawing_workspace.py",
+    "scripts/validate_cew_document_drawing_foundation.py",
+    ".github/workflows/validate-cew-document-drawing-foundation.yml",
+    "app.py",
+    "automation/CEW_TERMINOLOGY_LAYER_v1.json"
+  ],
+  "verified_runs": {
+    "document_drawing_foundation": 33119058115,
+    "product_transformation": 33119058152,
+    "source_evidence_journey": 33119058030,
+    "user_web_pilot": 33119058116,
+    "neon_user_runtime": 33119058102,
+    "control_room": 33119058045,
+    "evidence_map": 33119058063,
+    "evidence_region_pack": 33119058267,
+    "existing_assessment": 33119058067,
+    "knowledge_system": 33119058137,
+    "legacy_audit_regression": 33119058079,
+    "production_baseline_runtime": 33119058038
+  },
+  "automated_usability_fixtures": {
+    "UX-DOC-01": "PASS_CANDIDATE",
+    "UX-DOC-04": "PASS_CANDIDATE",
+    "UX-DOC-02": "HVA_REQUIRED_B1_2",
+    "UX-DOC-03": "HVA_REQUIRED_B1_2_B1_6"
+  },
+  "preview_deployment": {
+    "provider": "VERCEL",
+    "status": "SUCCESS",
+    "source_sha": "65a9a79409fd476e761c9911bfdebc5b89737131",
+    "production_promotion_authorized": false
+  },
+  "authority_boundary": "This slice exposes existing governed project-document metadata as product views only. It does not promote N12 engineering facts, mutate immutable source bytes, modify F2 geometry, or authorize canonical writes.",
+  "blocking_gate": "HVA_GATE",
+  "slice_complete": false,
+  "canonical_write_authorized": false,
+  "next_candidate": "CEW-B1.2-DRAWING-VIEWER",
+  "next_candidate_release_authorized": false
+}
