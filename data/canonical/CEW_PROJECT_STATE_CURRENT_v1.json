@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.6",
+  "schema_version": "1.7",
   "product": "CEW",
   "vertical": "CEW-EX",
   "reference_project": "N12",
@@ -14,6 +14,7 @@
     "benchmark_review":"docs/RESEARCH/CEW_PRODUCT_BENCHMARK_AND_MATURITY_REVIEW_v1.md",
     "module_contract":"automation/CEW_PRODUCT_MODULE_CONTRACT_v1.json",
     "native_human_review_service":"automation/CEW_F7_NATIVE_REVIEW_SERVICE_CONTRACT_v1.json",
+    "user_web_pilot":"automation/CEW_USER_WEB_PILOT_CONTRACT_v1.json",
     "exposure_condition_research":"docs/RESEARCH/CEW_EXPOSURE_CONDITION_RESEARCH_v1.md",
     "r3_b05_b06_routing":"docs/ANALYSIS/CEW_R3_B05_B06_RESOLUTION_ROUTING_v1.md",
     "r3_b06_subrouting":"docs/ANALYSIS/CEW_R3_B06_RESIDUAL_SUBROUTING_v1.md",
@@ -30,6 +31,7 @@
     {"id":"EXPOSURE_CONDITION_MODEL","status":"OPERATIONAL_V0_EVIDENCE_PENDING","gate":"Validate CEW Exposure Condition"},
     {"id":"PROJECT_CONTROL_ROOM","status":"OPERATIONAL_V1_NATIVE_HUMAN_REVIEW","gate":"Validate CEW Control Room"},
     {"id":"HUMAN_EVIDENCE_REVIEW","status":"OPERATIONAL_V1_NATIVE_SUBMIT_NO_CANONICAL_WRITE","gate":"Validate CEW F7 Native Review UI"},
+    {"id":"USER_WEB_RUNTIME","status":"IMPLEMENTED_SINGLE_OPERATOR_PILOT_PENDING_EXTERNAL_PROVISIONING","gate":"Validate CEW User Web Pilot"},
     {"id":"UNIVERSAL_RESIDUAL_WORKSPACE","status":"OPERATIONAL_V0_DATA_CONTRACT","gate":"Validate CEW Control Room"},
     {"id":"SYNCHRONIZED_EVIDENCE_MAP","status":"IN_PROGRESS_HIRES_REVIEW_CANDIDATES","gate":"Validate CEW Evidence Map"},
     {"id":"EVIDENCE_REGION_REVIEW_PACK","status":"OPERATIONAL_FALLBACK_AND_CI_REFERENCE","gate":"Validate CEW Evidence Region Pack"}
@@ -67,11 +69,13 @@
       "column_primary_source_search_closed":7,
       "canonical_evidence_snippets":0,
       "canonical_3d_viewpoints":0,
-      "last_completed_slice":"CEW-F7 receipt bridge PR-90",
-      "active_subslice":"Native Human Evidence Review in Project Control Room; browser submit to validated receipt bridge and governed patch-candidate boundary without canonical write.",
+      "last_completed_slice":"CEW-F7 native Control Room review merge 3b4224d333a86a2bc37ec2d8514476863f92270b",
+      "active_subslice":"User-facing CEW Single-Operator Web Pilot: authenticated browser shell plus persistent append-only human receipt audit without canonical write.",
       "native_human_review_tasks":4,
       "native_human_review_submit":"OPERATIONAL_NO_MANUAL_JSON_HANDOFF",
       "f7_promotion_bridge_status":"OPERATIONAL_NO_CANONICAL_WRITE",
+      "user_web_runtime":"IMPLEMENTED_PENDING_VERCEL_AND_ISOLATED_CEW_AUDIT_DATABASE",
+      "production_audit_policy":"FAIL_CLOSED_UNLESS_SUPABASE_APPEND_ONLY_CONFIGURED",
       "hires_findings":["P02 L=1040: direct 2phi12 label visually readable candidate","P07-P08 partial sagomato: missing continuation dimension still not directly written","P10 L=865: direct 2phi12 label visually readable candidate"]
     }
   },
@@ -86,7 +90,8 @@
     "Evidence-link candidates are never counted as approved EvidenceSnippet objects.",
     "Issue-level routing must preserve mixed residual-level states and must not flatten closed-search, review-target, conflict or measurement-required subroutes into a single generic action.",
     "Machine visual review findings may populate the human review queue but cannot promote canonical reinforcement values or create single-member bindings by themselves.",
-    "Native human-review runtime receipts are audit inputs only; UI submit may create governed patch candidates but never canonical writes."
+    "Native human-review runtime receipts are audit inputs only; UI submit may create governed patch candidates but never canonical writes.",
+    "The user-facing production runtime must fail closed when authentication or persistent append-only audit storage is not configured; ephemeral production receipt storage is forbidden."
   ],
-  "next_action":"Use the native Project Control Room Human Evidence Review on ERW-N12-001/R08 to submit the technician's already-observed direct-primary reading. CEW must validate the receipt, preserve directional reinforcement semantics, emit at most a governed patch candidate with canonical_write_authorized=false, and keep R09/R10/R11 independent."
+  "next_action":"Provision an isolated CEW audit database, apply CEW_USER_WEB_PILOT_SUPABASE_v1.sql, configure CEW_ACCESS_PASSWORD/CEW_SESSION_SECRET and server-side audit credentials, deploy the FastAPI entrypoint to Vercel, then run an authenticated browser smoke before allowing the technician to submit ERW-N12-001/R08."
 }
