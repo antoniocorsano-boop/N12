@@ -47,70 +47,14 @@
     }
   },
   "capability_maturity": [
-    {
-      "id": "SOURCE_EVIDENCE_KERNEL",
-      "engine_available": true,
-      "integrated": true,
-      "user_workflow_available": "PARTIAL",
-      "human_factors_validated": false,
-      "production_ready": false
-    },
-    {
-      "id": "CANONICAL_STRUCTURAL_MODEL",
-      "engine_available": true,
-      "integrated": true,
-      "user_workflow_available": "PARTIAL",
-      "human_factors_validated": false,
-      "production_ready": false
-    },
-    {
-      "id": "HUMAN_EVIDENCE_REVIEW",
-      "engine_available": true,
-      "integrated": true,
-      "user_workflow_available": "PILOT",
-      "human_factors_validated": false,
-      "production_ready": "LIMITED_SINGLE_OPERATOR_PILOT"
-    },
-    {
-      "id": "AUDIT_PERSISTENCE",
-      "engine_available": true,
-      "integrated": true,
-      "user_workflow_available": "NOT_APPLICABLE",
-      "human_factors_validated": "NOT_APPLICABLE",
-      "production_ready": true
-    },
-    {
-      "id": "PROJECT_HOME",
-      "engine_available": true,
-      "integrated": "PARTIAL",
-      "user_workflow_available": "TECHNICAL_PILOT_ONLY",
-      "human_factors_validated": false,
-      "production_ready": false
-    },
-    {
-      "id": "INVESTIGATION",
-      "engine_available": "ADVISORY_ONLY",
-      "integrated": false,
-      "user_workflow_available": false,
-      "human_factors_validated": false,
-      "production_ready": false
-    },
-    {
-      "id": "SOLVER_FEM_ROUNDTRIP",
-      "engine_available": "LEGACY_PROTOTYPE_ONLY",
-      "integrated": false,
-      "user_workflow_available": false,
-      "human_factors_validated": false,
-      "production_ready": false
-    },
-    {
-      "id": "VERIFICATION_INTERVENTION_LIFECYCLE",
-      "engine_available": "PARTIAL_OR_PLANNED",
-      "integrated": false,
-      "user_workflow_available": false,
-      "human_factors_validated": false,
-      "production_ready": false
-    }
+    {"id": "SOURCE_EVIDENCE_KERNEL", "engine_available": true, "integrated": true, "user_workflow_available": "PARTIAL", "human_factors_validated": false, "production_ready": false},
+    {"id": "CANONICAL_STRUCTURAL_MODEL", "engine_available": true, "integrated": true, "user_workflow_available": "PARTIAL", "human_factors_validated": false, "production_ready": false},
+    {"id": "HUMAN_EVIDENCE_REVIEW", "engine_available": true, "integrated": true, "user_workflow_available": "PILOT", "human_factors_validated": false, "production_ready": "LIMITED_SINGLE_OPERATOR_PILOT"},
+    {"id": "AUDIT_PERSISTENCE", "engine_available": true, "integrated": true, "user_workflow_available": "NOT_APPLICABLE", "human_factors_validated": "NOT_APPLICABLE", "production_ready": true},
+    {"id": "PROJECT_HOME", "engine_available": true, "integrated": "PARTIAL", "user_workflow_available": "TECHNICAL_PILOT_ONLY", "human_factors_validated": false, "production_ready": false},
+    {"id": "INVESTIGATION", "engine_available": "ADVISORY_ONLY", "integrated": false, "user_workflow_available": false, "human_factors_validated": false, "production_ready": false},
+    {"id": "SOLVER_FEM_ROUNDTRIP", "engine_available": "LEGACY_PROTOTYPE_ONLY", "integrated": false, "user_workflow_available": false, "human_factors_validated": false, "production_ready": false},
+    {"id": "VERIFICATION_INTERVENTION_LIFECYCLE", "engine_available": "PARTIAL_OR_PLANNED", "integrated": false, "user_workflow_available": false, "human_factors_validated": false, "production_ready": false}
   ],
   "engineering_state": {
     "reference_project": "N12",
@@ -141,7 +85,7 @@
     ]
   },
   "current_product_work_item": {
-    "id": "CEW-A0-STATE-RECONCILIATION",
+    "id": "CEW-A1-PRODUCT-SPINE",
     "agent_role": "PRODUCT_STATE_AGENT",
     "state": "READY",
     "queue": "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json",
@@ -167,5 +111,5 @@
     "No human observation may be normalized with loss of engineering meaning.",
     "Missing engineering information remains explicit and cannot be closed for product continuity."
   ],
-  "next_action": "Validate CEW-A0 state reconciliation. If PASS, archive an A0 result receipt, release CEW-A1-PRODUCT-SPINE and implement P0-P16 lifecycle primitives."
+  "next_action": "Execute CEW-A1-PRODUCT-SPINE: implement P0-P16 lifecycle primitives, phase gates, deliverables, engineering decisions, information requirements, engineering rule-pack references and work packages."
 }
