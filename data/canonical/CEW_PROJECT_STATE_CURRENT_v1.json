@@ -13,6 +13,7 @@
     "architecture": "docs/ARCHITECTURE/CEW_HUMAN_CENTRIC_STRUCTURAL_PRODUCT_v1.md",
     "roadmap": "docs/ROADMAP/CEW_HUMAN_CENTRIC_PRODUCT_TRANSFORMATION_v1.md",
     "phase_contract": "automation/CEW_HUMAN_CENTRIC_PHASE_CONTRACT_v1.json",
+    "lifecycle_model": "automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json",
     "agent_contract": "automation/CEW_PRODUCT_AGENT_CONTRACT_v1.json",
     "result_contract": "automation/CEW_PRODUCT_AGENT_RESULT_CONTRACT_v1.json",
     "queue": "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json",
@@ -24,7 +25,7 @@
     "engineering_kernel": "STRONG_REFERENCE_IMPLEMENTATION",
     "integration": "PARTIAL",
     "user_workflow": "PILOT_ONLY_NOT_PRODUCT_COMPLETE",
-    "human_factors": "NOT_VALIDATED",
+    "human_factors": "A2_IN_PROGRESS",
     "production_runtime": "AVAILABLE_SINGLE_OPERATOR",
     "assessment_ready": false,
     "decision_ready": false,
@@ -35,7 +36,7 @@
       "platform": "VERCEL_FASTAPI",
       "url": "https://cew-pilot.vercel.app",
       "service": "CEW_USER_RUNTIME",
-      "entrypoint": "deploy/cew_user_runtime.py",
+      "entrypoint": "app.py",
       "auth_configured": true,
       "authentication_mode": "SINGLE_OPERATOR",
       "audit_backend": "NEON_APPEND_ONLY",
@@ -51,7 +52,7 @@
     {"id": "CANONICAL_STRUCTURAL_MODEL", "engine_available": true, "integrated": true, "user_workflow_available": "PARTIAL", "human_factors_validated": false, "production_ready": false},
     {"id": "HUMAN_EVIDENCE_REVIEW", "engine_available": true, "integrated": true, "user_workflow_available": "PILOT", "human_factors_validated": false, "production_ready": "LIMITED_SINGLE_OPERATOR_PILOT"},
     {"id": "AUDIT_PERSISTENCE", "engine_available": true, "integrated": true, "user_workflow_available": "NOT_APPLICABLE", "human_factors_validated": "NOT_APPLICABLE", "production_ready": true},
-    {"id": "PROJECT_HOME", "engine_available": true, "integrated": "PARTIAL", "user_workflow_available": "TECHNICAL_PILOT_ONLY", "human_factors_validated": false, "production_ready": false},
+    {"id": "PROJECT_HOME", "engine_available": true, "integrated": "A2_IN_PROGRESS", "user_workflow_available": "LIFECYCLE_REDESIGN_IN_PROGRESS", "human_factors_validated": false, "production_ready": false},
     {"id": "INVESTIGATION", "engine_available": "ADVISORY_ONLY", "integrated": false, "user_workflow_available": false, "human_factors_validated": false, "production_ready": false},
     {"id": "SOLVER_FEM_ROUNDTRIP", "engine_available": "LEGACY_PROTOTYPE_ONLY", "integrated": false, "user_workflow_available": false, "human_factors_validated": false, "production_ready": false},
     {"id": "VERIFICATION_INTERVENTION_LIFECYCLE", "engine_available": "PARTIAL_OR_PLANNED", "integrated": false, "user_workflow_available": false, "human_factors_validated": false, "production_ready": false}
@@ -65,7 +66,7 @@
     "calculation_model_ready": false,
     "projection_policy": "REFERENCE_ONLY_DO_NOT_DUPLICATE_ENGINEERING_FACTS_IN_CEW_PRODUCT_STATE",
     "phase_projection": [
-      {"phase_id": "P0", "title": "Project Definition", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PLANNED_PRODUCT_WORKSPACE"},
+      {"phase_id": "P0", "title": "Project Definition", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PROJECT_HOME_V2_IN_PROGRESS"},
       {"phase_id": "P1", "title": "Source Acquisition / CDE", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_FOUNDATION_PRESENT_WORKSPACE_NOT_INTEGRATED"},
       {"phase_id": "P2", "title": "Document Understanding", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_FOUNDATION_PRESENT_WORKSPACE_NOT_INTEGRATED"},
       {"phase_id": "P3", "title": "Evidence / Claim Reconstruction", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_AVAILABLE_PARTIAL_USER_WORKFLOW"},
@@ -85,8 +86,8 @@
     ]
   },
   "current_product_work_item": {
-    "id": "CEW-A1-PRODUCT-SPINE",
-    "agent_role": "PRODUCT_STATE_AGENT",
+    "id": "CEW-A2-PROJECT-HOME-HUMAN-FACTORS",
+    "agent_role": "HUMAN_FACTORS_AGENT",
     "state": "READY",
     "queue": "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json",
     "goal": "CEW-GOAL-01"
@@ -111,5 +112,5 @@
     "No human observation may be normalized with loss of engineering meaning.",
     "Missing engineering information remains explicit and cannot be closed for product continuity."
   ],
-  "next_action": "Execute CEW-A1-PRODUCT-SPINE: implement P0-P16 lifecycle primitives, phase gates, deliverables, engineering decisions, information requirements, engineering rule-pack references and work packages."
+  "next_action": "Execute CEW-A2-PROJECT-HOME-HUMAN-FACTORS: deliver lifecycle-based Project Home, terminology layer, human-factors acceptance fixtures and integrate them into the authenticated runtime without changing engineering authority."
 }
