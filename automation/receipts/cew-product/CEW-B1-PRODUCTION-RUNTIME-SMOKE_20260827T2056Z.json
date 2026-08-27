@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "work_item_id": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
+  "residual_id": "CEW-B1-PROD-01",
+  "receipt_type": "EXTERNAL_PRODUCTION_RUNTIME_SMOKE",
+  "observed_at": "2026-08-27T20:56:00Z",
+  "production_url": "https://cew-pilot.vercel.app",
+  "production_source_commit": "7fadbe9285eae59ee0b0cc0789f371916f895f7b",
+  "validation_head": "e2ade2ba67a97907c7e91912aca3134a33462f05",
+  "workflow": {
+    "name": "Validate CEW B1 Production Runtime",
+    "run_id": 33115893068,
+    "run_number": 2,
+    "conclusion": "success",
+    "checks": {
+      "production_health_contract": "PASS",
+      "authentication_guard_sources": "PASS",
+      "authentication_guard_evidence_review": "PASS",
+      "authentication_guard_source_render": "PASS"
+    }
+  },
+  "expected_health_contract": {
+    "service": "CEW_USER_RUNTIME",
+    "status": "OK",
+    "auth_configured": true,
+    "audit_backend": "NEON_APPEND_ONLY",
+    "production_receipt_submit_ready": true,
+    "source_workspace": "B1_AVAILABLE",
+    "source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED",
+    "canonical_write_authorized": false
+  },
+  "same_head_regressions": {
+    "product_transformation": "PASS",
+    "control_room": "PASS",
+    "source_evidence_journey": "PASS",
+    "promotion_engine": "PASS",
+    "f7_native_review": "PASS",
+    "neon_runtime": "PASS",
+    "evidence_map": "PASS",
+    "evidence_region_pack": "PASS",
+    "existing_assessment": "PASS",
+    "user_web_pilot": "PASS",
+    "knowledge_system": "PASS"
+  },
+  "remaining_unverified": [
+    "Authenticated browser session opens Source Hub successfully",
+    "Authenticated TAV-05A immutable PDF retrieval succeeds in Production",
+    "Authenticated MICRO/MESO/MACRO render succeeds in Production",
+    "Evidence Workspace displays the correct F2 region in the user browser"
+  ],
+  "production_smoke_complete": false,
+  "promotion_authorized": false,
+  "canonical_write": false,
+  "engineering_authority_exercised": false,
+  "note": "This receipt proves the deployed B1 runtime contract and auth boundary from an external GitHub runner. It deliberately does not claim the authenticated visual source/render journey because no operator credential was exposed to CI."
+}
