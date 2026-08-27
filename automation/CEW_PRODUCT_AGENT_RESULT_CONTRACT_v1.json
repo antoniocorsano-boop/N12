@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW_PRODUCT_AGENT_RESULT_HANDSHAKE",
+  "program_goal": "CEW-GOAL-01",
+  "inbox": "automation/inbox/CEW_PRODUCT_AGENT_RESULT.json",
+  "receipt_dir": "automation/receipts/cew-product",
+  "max_work_items_per_result": 1,
+  "allowed_decisions": ["PASS", "PASS_WITH_WATCH", "RESIDUAL", "BLOCKED", "CONFLICT", "HUMAN_AUTHORITY_REQUIRED"],
+  "required_fields": [
+    "schema_version",
+    "work_item_id",
+    "agent_role",
+    "decision",
+    "target_outputs",
+    "validation",
+    "residuals",
+    "authority_boundary",
+    "audit_paths"
+  ],
+  "pass_rules": {
+    "work_item_must_match_orchestrator_selection": true,
+    "target_outputs_must_match_queue_item": true,
+    "validation_must_include_required_gates": true,
+    "authority_boundary_must_be_explicit": true,
+    "human_authority_items_cannot_auto_complete": true
+  },
+  "non_pass_rules": {
+    "RESIDUAL": "Keep the smallest unresolved product or engineering dependency explicit and do not promote.",
+    "BLOCKED": "Identify the missing dependency or capability and stop.",
+    "CONFLICT": "Preserve competing claims or states; do not use last-write-wins.",
+    "HUMAN_AUTHORITY_REQUIRED": "Prepare the decision pack and stop before the professional decision."
+  },
+  "forbidden": [
+    "multiple work items in one result",
+    "changing the selected work item by agent preference",
+    "altering N12 engineering data from product work",
+    "declaring production readiness from a script-only capability",
+    "bypassing human-factors gates for user-facing modules",
+    "bypassing human engineering authority"
+  ]
+}
