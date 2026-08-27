@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RECEIPT_VALIDATOR = ROOT / "scripts" / "validate_cew_human_decision_receipt.py"
 PATCH_BUILDER = ROOT / "scripts" / "build_cew_canonical_patch_candidates.py"
 BRIDGE_AUTHORITY = "VALIDATED_HUMAN_RECEIPT_TO_PROMOTION_REQUEST_ONLY_NO_CANONICAL_WRITE"
+BLOCK_REASON = "SEMANTIC_EXPLICIT_DIRECTIONAL_CLAUSES_REQUIRED"
 
 
 def load_module(name: str, path: Path):
@@ -92,7 +93,7 @@ def main() -> int:
 
     blocks = candidates.get("human_receipt_semantic_blocks", [])
     aggregate = [b for b in blocks if b.get("fixture_id") == "CEW-F7-BRIDGE-FIX-AGGREGATE"]
-    if len(aggregate) != 1 or aggregate[0].get("reason_code") != "SEMANTIC_DIRECTIONAL_GRAMMAR_REQUIRED":
+    if len(aggregate) != 1 or aggregate[0].get("reason_code") != BLOCK_REASON:
         raise AssertionError("generic 4 Φ12 was not fail-closed at semantic boundary")
 
     validator = load_module("receipt_validator", RECEIPT_VALIDATOR)
@@ -109,11 +110,24 @@ def main() -> int:
     must_reject(validator, unknown_target)
 
     patch_builder = load_module("patch_builder", PATCH_BUILDER)
-    parsed, reason = patch_builder.reinforcement_payload("2 Φ12 superiori + 2 Φ12 inferiori")
+    exact_text = "2 Φ12 superiori + 2 Φ12 inferiori"
+    parsed, reason = patch_builder.reinforcement_payload(exact_text)
     if reason is not None or parsed is None:
-        raise AssertionError("exact directional grammar did not parse")
+        raise AssertionError("exact directional form did not parse")
+    if parsed.get("raw_human_observation") != exact_text:
+        raise AssertionError("exact directional raw observation changed")
+
+    natural_text = "i filari lunghi 1040 son 2 f 12 superiori e 2 f 12 inferiori"
+    natural, natural_reason = patch_builder.reinforcement_payload(natural_text)
+    if natural_reason is not None or natural is None:
+        raise AssertionError("natural explicit directional text did not parse")
+    if natural.get("upper") != {"count": 2, "diameter_mm": 12} or natural.get("lower") != {"count": 2, "diameter_mm": 12}:
+        raise AssertionError("natural explicit directional semantics drifted")
+    if natural.get("raw_human_observation") != natural_text:
+        raise AssertionError("natural raw human observation not preserved verbatim")
+
     parsed_generic, generic_reason = patch_builder.reinforcement_payload("4 Φ12")
-    if parsed_generic is not None or generic_reason != "SEMANTIC_DIRECTIONAL_GRAMMAR_REQUIRED":
+    if parsed_generic is not None or generic_reason != BLOCK_REASON:
         raise AssertionError("generic reinforcement total was semantically inferred")
 
     print("CEW_F7_HUMAN_RECEIPT_BRIDGE_VALIDATION_PASS")
@@ -121,6 +135,7 @@ def main() -> int:
     print("PROMOTION_EVALUATE_REUSED_UNCHANGED=PASS")
     print("UPPER_REINFORCEMENT=2x12_PRESERVED")
     print("LOWER_REINFORCEMENT=2x12_PRESERVED")
+    print("NATURAL_DIRECTIONAL_TEXT=PASS_RAW_PRESERVED")
     print("GENERIC_4x12_COLLAPSE=REJECTED")
     print("NEGATIVE_RECEIPT_GUARDS=3/3_REJECTED")
     print("CURRENT_N12_CANONICAL_PATCH=0")
