@@ -1,0 +1,248 @@
+{
+  "schema_version": "1.0",
+  "model_id": "CEW_PROJECT_LIFECYCLE_MODEL",
+  "program_goal": "CEW-GOAL-01",
+  "product": "CEW",
+  "vertical": "CEW-EX",
+  "status": "PRODUCT_SPINE_DATA_MODEL_V1",
+  "source_contract": "automation/CEW_HUMAN_CENTRIC_PHASE_CONTRACT_v1.json",
+  "engineering_state_authority": "knowledge/CURRENT_STATE.json",
+  "product_state_authority": "data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json",
+  "principle": "Project lifecycle state organizes work and decisions but never upgrades engineering evidence or calculation readiness by itself.",
+  "primitive_schemas": {
+    "ProjectPhase": {
+      "required": ["phase_id", "name", "dominant_question", "workspace_id", "gate_id", "state", "dependencies", "deliverable_ids"],
+      "states": ["NOT_STARTED", "AVAILABLE", "IN_PROGRESS", "REVIEW_REQUIRED", "HUMAN_AUTHORITY_REQUIRED", "RESIDUAL", "BLOCKED", "COMPLETE", "SUPERSEDED"],
+      "authority": "PRODUCT_WORKFLOW_STATE_ONLY"
+    },
+    "PhaseGate": {
+      "required": ["gate_id", "phase_id", "required_deliverables", "required_checks", "authority_level", "state"],
+      "states": ["NOT_EVALUATED", "PASS", "PASS_WITH_WATCH", "RESIDUAL", "BLOCKED", "FAIL", "HUMAN_AUTHORITY_REQUIRED"],
+      "rule": "Gate PASS means phase deliverables satisfy their declared use; it does not promote source evidence or solver eligibility unless the specific engineering gate explicitly authorizes that use."
+    },
+    "PhaseDeliverable": {
+      "required": ["deliverable_id", "phase_id", "type", "status", "authority_path", "use_state"],
+      "states": ["MISSING", "WORKING", "REVIEW_REQUIRED", "APPROVED_FOR_USE", "SUPERSEDED", "ARCHIVED"],
+      "rule": "Information-use state is distinct from epistemic state."
+    },
+    "EngineeringDecision": {
+      "required": ["decision_id", "phase_id", "question", "authority_level", "state", "evidence_requirements", "decision_record"],
+      "states": ["NOT_REQUIRED", "PENDING", "READY_FOR_HUMAN", "DECIDED", "REJECTED", "SUPERSEDED"],
+      "authority_levels": ["A_MACHINE_DETERMINISTIC", "B_MACHINE_PROPOSES_HUMAN_REVIEWS", "C_HUMAN_ENGINEERING_AUTHORITY"],
+      "rule": "Level C decisions cannot be auto-completed by agents or UI state."
+    },
+    "InformationRequirement": {
+      "required": ["requirement_id", "phase_id", "purpose", "target_scope", "required_information", "minimum_authority", "verification_method", "state"],
+      "states": ["DECLARED", "SATISFIED", "PARTIALLY_SATISFIED", "NOT_SATISFIED", "WAIVED_BY_AUTHORIZED_RULE", "SUPERSEDED"],
+      "rule": "A requirement is declared before the downstream decision or solver projection that consumes it."
+    },
+    "EngineeringRulePackReference": {
+      "required": ["reference_id", "phase_id", "jurisdiction", "rule_pack_id", "version", "approval_state"],
+      "approval_states": ["PROPOSED", "HUMAN_REVIEW_REQUIRED", "APPROVED", "REJECTED", "SUPERSEDED"],
+      "rule": "A rule pack reference identifies an approved ruleset; it cannot silently fill missing evidence."
+    },
+    "WorkPackage": {
+      "required": ["work_package_id", "phase_id", "objective", "owner_role", "inputs", "outputs", "gates", "state"],
+      "states": ["CANDIDATE", "READY", "IN_PROGRESS", "WAITING_EVIDENCE", "WAITING_HUMAN", "RESIDUAL", "BLOCKED", "COMPLETE", "SUPERSEDED"],
+      "rule": "Local residuals block only the affected scope unless an explicit dependency propagates the block."
+    }
+  },
+  "transition_policy": {
+    "phase_release": "A phase becomes AVAILABLE when all declared phase dependencies are COMPLETE or when an explicit nonblocking parallel-work rule permits scoped work.",
+    "parallel_work": true,
+    "local_residuals_do_not_block_unrelated_scopes": true,
+    "automatic_phase_completion_forbidden": true,
+    "human_authority_stop_state": "HUMAN_AUTHORITY_REQUIRED",
+    "engineering_truth_source": "Reference authoritative engineering artifacts; never copy detailed engineering truth into lifecycle objects as a second authority.",
+    "supersession": "Lifecycle records are superseded with lineage; they are not silently overwritten."
+  },
+  "phase_templates": [
+    {
+      "phase_id": "P0",
+      "name": "PROJECT_DEFINITION",
+      "dominant_question": "What are we assessing and why?",
+      "workspace_id": "PROJECT_HOME",
+      "gate_id": "PROJECT_DEFINED",
+      "dependencies": [],
+      "deliverable_ids": ["ProjectCharter", "AssetRecord", "EngineeringRulePackSelection", "InitialInformationRequirementSet", "ResponsibilityMatrix"],
+      "primary_authority": "RESPONSIBLE_ENGINEER"
+    },
+    {
+      "phase_id": "P1",
+      "name": "SOURCE_ACQUISITION_CDE",
+      "dominant_question": "What information do I have, where did it come from and what is its status?",
+      "workspace_id": "SOURCES",
+      "gate_id": "SOURCE_BASELINE_READY",
+      "dependencies": ["P0"],
+      "deliverable_ids": ["SourceRegister", "SourceVersionGraph", "MissingSourceChecklist", "SourceAuthorityAndUseClassification"],
+      "primary_authority": "PROJECT_INFORMATION_OWNER"
+    },
+    {
+      "phase_id": "P2",
+      "name": "DOCUMENT_UNDERSTANDING",
+      "dominant_question": "What is contained in each source and where are the engineering-relevant regions?",
+      "workspace_id": "SOURCES",
+      "gate_id": "DOCUMENT_MAP_READY",
+      "dependencies": ["P1"],
+      "deliverable_ids": ["PageRegistry", "DrawingDocumentIndex", "SourceSheetMap", "EvidenceRegionCandidates", "DocumentResiduals"],
+      "primary_authority": "EVIDENCE_DOCUMENT_SPECIALIST"
+    },
+    {
+      "phase_id": "P3",
+      "name": "EVIDENCE_CLAIM_RECONSTRUCTION",
+      "dominant_question": "What does the source actually document?",
+      "workspace_id": "EVIDENCE",
+      "gate_id": "TRACEABLE_EVIDENCE_READY",
+      "dependencies": ["P2"],
+      "deliverable_ids": ["ClaimLedger", "EvidenceLedger", "ConflictRegister", "HumanReviewReceipts", "EvidenceResiduals"],
+      "primary_authority": "ENGINEER_OR_DOMAIN_REVIEWER"
+    },
+    {
+      "phase_id": "P4",
+      "name": "HISTORICAL_CRITICAL_ANALYSIS_AND_SURVEY_BASELINE",
+      "dominant_question": "What is the structural history and what current geometry/condition can be established?",
+      "workspace_id": "RECONSTRUCTION",
+      "gate_id": "REFERENCE_BASELINE_ESTABLISHED",
+      "dependencies": ["P3"],
+      "deliverable_ids": ["HistoricalCriticalRecord", "SurveyBaseline", "HistoricalCurrentChangeRegister"],
+      "primary_authority": "RESPONSIBLE_ENGINEER"
+    },
+    {
+      "phase_id": "P5",
+      "name": "GEOMETRY_TOPOLOGY_RECONSTRUCTION",
+      "dominant_question": "Where are the structural objects and how are they connected?",
+      "workspace_id": "RECONSTRUCTION",
+      "gate_id": "GEOMETRY_TOPOLOGY_READY",
+      "dependencies": ["P3", "P4"],
+      "deliverable_ids": ["GeometricKernel", "TopologyGraph", "StructuralIdentityCandidates", "RigidOffsetAndZoneGraph", "TopologyResiduals"],
+      "primary_authority": "STRUCTURAL_MODEL_ENGINEER"
+    },
+    {
+      "phase_id": "P6",
+      "name": "STRUCTURAL_SEMANTICS_ASSET_GRAPH",
+      "dominant_question": "What structural role does each reconstructed object perform?",
+      "workspace_id": "STRUCTURAL_MODEL",
+      "gate_id": "STRUCTURAL_IDENTITY_READY",
+      "dependencies": ["P5"],
+      "deliverable_ids": ["StructuralAssetGraph", "ExternalIdentityRegistry"],
+      "primary_authority": "STRUCTURAL_MODEL_ENGINEER"
+    },
+    {
+      "phase_id": "P7",
+      "name": "ENGINEERING_PROPERTIES",
+      "dominant_question": "Do structural entities have the properties required for the intended assessment?",
+      "workspace_id": "PROPERTIES",
+      "gate_id": "ENGINEERING_PROPERTIES_READY",
+      "dependencies": ["P6"],
+      "deliverable_ids": ["SectionBindings", "ReinforcementBindings", "MaterialKnowledgeRegister", "LoadMassModel", "BoundaryConditions", "FoundationModelInputs", "GeotechnicalInputs", "CalculationBlockers"],
+      "primary_authority": "RESPONSIBLE_ENGINEER_AND_DOMAIN_SPECIALISTS"
+    },
+    {
+      "phase_id": "P8",
+      "name": "CONDITION_EXPOSURE_DEGRADATION",
+      "dominant_question": "What is the current physical state and which mechanisms may affect performance?",
+      "workspace_id": "CONDITION",
+      "gate_id": "CONDITION_BASELINE_READY",
+      "dependencies": ["P3", "P6"],
+      "deliverable_ids": ["ConditionMap", "ExposureZones", "Observations", "Measurements", "DamageStates", "DegradationEligibilityAndResiduals"],
+      "primary_authority": "CONDITION_DURABILITY_SPECIALIST"
+    },
+    {
+      "phase_id": "P9",
+      "name": "KNOWLEDGE_LEVEL_INVESTIGATION",
+      "dominant_question": "What is still unknown, what matters to the decision and which investigation is worth performing?",
+      "workspace_id": "INVESTIGATIONS",
+      "gate_id": "KNOWLEDGE_STRATEGY_AUTHORIZED",
+      "dependencies": ["P7", "P8"],
+      "deliverable_ids": ["KnowledgeDecisionPack", "InvestigationPlan", "FieldPacks", "InvestigationResults", "UpdatedClaims"],
+      "primary_authority": "RESPONSIBLE_ENGINEER_AND_DOMAIN_SPECIALISTS"
+    },
+    {
+      "phase_id": "P10",
+      "name": "CANONICAL_AS_IS_GENERATION",
+      "dominant_question": "What is the current authorized structural representation before analysis assumptions are applied?",
+      "workspace_id": "STRUCTURAL_MODEL",
+      "gate_id": "AS_IS_GENERATION_APPROVED",
+      "dependencies": ["P6", "P7"],
+      "deliverable_ids": ["AsIsGeneration", "GenerationReadinessReceipt"],
+      "primary_authority": "RESPONSIBLE_ENGINEER"
+    },
+    {
+      "phase_id": "P11",
+      "name": "ASSESSMENT_SCENARIOS_MODEL_RULES",
+      "dominant_question": "Which admissible assumptions define the calculation scenario?",
+      "workspace_id": "SCENARIOS",
+      "gate_id": "SCENARIO_AUTHORIZED",
+      "dependencies": ["P9", "P10"],
+      "deliverable_ids": ["Scenario", "ModelRulePack", "ScenarioDelta", "ScenarioApproval"],
+      "primary_authority": "RESPONSIBLE_ENGINEER"
+    },
+    {
+      "phase_id": "P12",
+      "name": "CALCULATION_MODEL_SOLVER_HANDOFF",
+      "dominant_question": "Is the authorized scenario technically and epistemically ready to be projected into a solver?",
+      "workspace_id": "ANALYSIS_FEM",
+      "gate_id": "CALCULATION_MODEL_READY",
+      "dependencies": ["P11"],
+      "deliverable_ids": ["SolverProjection", "EntitySolverMap", "UnsupportedFeatureReport", "NumericalIdealizationReport", "AdapterQAReceipt", "ExecutionAuthorization"],
+      "primary_authority": "RESPONSIBLE_ENGINEER"
+    },
+    {
+      "phase_id": "P13",
+      "name": "FEM_STRUCTURAL_ANALYSIS",
+      "dominant_question": "Did the numerical analysis execute as intended and is the result set technically valid?",
+      "workspace_id": "ANALYSIS_FEM",
+      "gate_id": "ANALYSIS_VALIDATED",
+      "dependencies": ["P12"],
+      "deliverable_ids": ["SolverRunReceipt", "ImmutableResultBundle", "AnalysisQADiagnostics", "AnalysisResiduals"],
+      "primary_authority": "STRUCTURAL_ANALYSIS_ENGINEER"
+    },
+    {
+      "phase_id": "P14",
+      "name": "VERIFICATION_ASSESSMENT",
+      "dominant_question": "What is the structural conclusion, why, and how robust is it?",
+      "workspace_id": "VERIFICATION",
+      "gate_id": "ASSESSMENT_CONCLUSION_APPROVED",
+      "dependencies": ["P13"],
+      "deliverable_ids": ["VerificationRegister", "EngineeringAssessment", "DecisionRisks", "AssessmentApproval"],
+      "primary_authority": "RESPONSIBLE_ENGINEER"
+    },
+    {
+      "phase_id": "P15",
+      "name": "INTERVENTION_DESIGN",
+      "dominant_question": "What intervention options resolve the identified deficiencies and with what consequences?",
+      "workspace_id": "INTERVENTIONS",
+      "gate_id": "INTERVENTION_GENERATION_APPROVED",
+      "dependencies": ["P14"],
+      "deliverable_ids": ["InterventionAlternatives", "ProposedGenerations", "AlternativeAnalyses", "InterventionComparison", "InterventionApproval"],
+      "primary_authority": "RESPONSIBLE_ENGINEER"
+    },
+    {
+      "phase_id": "P16",
+      "name": "EXECUTION_AS_BUILT_MONITORING",
+      "dominant_question": "What was actually executed and how does the asset evolve after intervention?",
+      "workspace_id": "DOSSIER_AUDIT",
+      "gate_id": "LIFECYCLE_BASELINE_ESTABLISHED",
+      "dependencies": ["P15"],
+      "deliverable_ids": ["ExecutedGeneration", "AsBuiltEvidencePack", "MonitoringBaseline", "AssetDossier", "ReassessmentTriggers"],
+      "primary_authority": "RESPONSIBLE_ENGINEER_ASSET_OWNER"
+    }
+  ],
+  "cross_phase_rules": [
+    "P0-P16 order is a dependency graph, not a forced linear wizard.",
+    "Independent work packages may proceed while local residuals remain open.",
+    "Every downstream solver/result object must retain stable CEW entity identity and generation/scenario lineage.",
+    "Information requirements must exist before the decisions or solver projections that consume them.",
+    "Human-factor acceptance is required for every user-facing workspace before product-complete status.",
+    "EngineeringRulePack approval remains a Level C human engineering decision.",
+    "Calculation-model readiness remains owned by engineering gates, not phase navigation."
+  ],
+  "n12_projection": {
+    "authority_path": "knowledge/CURRENT_STATE.json",
+    "queue_path": "automation/N12_WORK_QUEUE_v1.json",
+    "policy": "READ_BY_REFERENCE_ONLY",
+    "calculation_model_ready": false,
+    "current_engineering_work_item": "M1E-CALCULATION-MODEL-HANDOFF",
+    "current_engineering_state": "RESIDUAL"
+  }
+}
