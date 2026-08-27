@@ -23,10 +23,10 @@
   },
   "product_maturity": {
     "engineering_kernel": "STRONG_REFERENCE_IMPLEMENTATION",
-    "integration": "PARTIAL",
-    "user_workflow": "PROJECT_HOME_V2_VALIDATED_SOURCE_EVIDENCE_JOURNEY_IN_PROGRESS",
-    "human_factors": "PROJECT_HOME_V2_VALIDATED_ONLY",
-    "production_runtime": "AVAILABLE_SINGLE_OPERATOR_PRE_A2_DEPLOY",
+    "integration": "B1_SOURCE_EVIDENCE_CI_VALIDATED",
+    "user_workflow": "PROJECT_HOME_V2_PLUS_SOURCE_EVIDENCE_CI_VALIDATED_PENDING_PRODUCTION_SMOKE",
+    "human_factors": "PROJECT_HOME_V2_AND_B1_SOURCE_EVIDENCE_VALIDATED_IN_CI",
+    "production_runtime": "AVAILABLE_SINGLE_OPERATOR_PRE_B1_DEPLOY",
     "assessment_ready": false,
     "decision_ready": false,
     "target": "PRODUCTION_GRADE_HUMAN_CENTRED_STRUCTURAL_ENGINEERING_WORKFLOW"
@@ -45,13 +45,15 @@
       "canonical_write_authorized": false,
       "smoke_status": "PASS_HUMAN_OBSERVED_2026-08-27_PRE_A2",
       "latest_project_home_v2_deployed": false,
+      "latest_b1_source_evidence_deployed": false,
+      "b1_production_residual": "CEW-B1-PROD-01",
       "runtime_validation_workflow": ".github/workflows/validate-cew-neon-user-runtime.yml"
     }
   },
   "capability_maturity": [
-    {"id": "SOURCE_EVIDENCE_KERNEL", "engine_available": true, "integrated": true, "user_workflow_available": "B1_IN_PROGRESS", "human_factors_validated": false, "production_ready": false},
+    {"id": "SOURCE_EVIDENCE_KERNEL", "engine_available": true, "integrated": true, "user_workflow_available": "SOURCE_HUB_AND_EVIDENCE_WORKSPACE_CI_VALIDATED", "human_factors_validated": true, "production_ready": false},
     {"id": "CANONICAL_STRUCTURAL_MODEL", "engine_available": true, "integrated": true, "user_workflow_available": "PARTIAL", "human_factors_validated": false, "production_ready": false},
-    {"id": "HUMAN_EVIDENCE_REVIEW", "engine_available": true, "integrated": true, "user_workflow_available": "PILOT_BEING_UPGRADED_BY_B1", "human_factors_validated": false, "production_ready": "LIMITED_SINGLE_OPERATOR_PILOT"},
+    {"id": "HUMAN_EVIDENCE_REVIEW", "engine_available": true, "integrated": true, "user_workflow_available": "NATURAL_LANGUAGE_EVIDENCE_WORKSPACE_CI_VALIDATED", "human_factors_validated": true, "production_ready": false},
     {"id": "AUDIT_PERSISTENCE", "engine_available": true, "integrated": true, "user_workflow_available": "NOT_APPLICABLE", "human_factors_validated": "NOT_APPLICABLE", "production_ready": true},
     {"id": "PROJECT_HOME", "engine_available": true, "integrated": true, "user_workflow_available": "PROJECT_HOME_V2", "human_factors_validated": true, "production_ready": false},
     {"id": "INVESTIGATION", "engine_available": "ADVISORY_ONLY", "integrated": false, "user_workflow_available": false, "human_factors_validated": false, "production_ready": false},
@@ -67,10 +69,10 @@
     "calculation_model_ready": false,
     "projection_policy": "REFERENCE_ONLY_DO_NOT_DUPLICATE_ENGINEERING_FACTS_IN_CEW_PRODUCT_STATE",
     "phase_projection": [
-      {"phase_id": "P0", "title": "Project Definition", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PROJECT_HOME_V2_VALIDATED_PENDING_PRODUCTION_DEPLOY"},
-      {"phase_id": "P1", "title": "Source Acquisition / CDE", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_SOURCE_HUB_IN_PROGRESS"},
-      {"phase_id": "P2", "title": "Document Understanding", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_SOURCE_HUB_IN_PROGRESS"},
-      {"phase_id": "P3", "title": "Evidence / Claim Reconstruction", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_EVIDENCE_WORKSPACE_IN_PROGRESS"},
+      {"phase_id": "P0", "title": "Project Definition", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PROJECT_HOME_V2_CI_VALIDATED_PENDING_PRODUCTION_DEPLOY"},
+      {"phase_id": "P1", "title": "Source Acquisition / CDE", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_SOURCE_HUB_CI_VALIDATED_PENDING_PRODUCTION_SMOKE"},
+      {"phase_id": "P2", "title": "Document Understanding", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_SOURCE_HUB_CI_VALIDATED_PENDING_PRODUCTION_SMOKE"},
+      {"phase_id": "P3", "title": "Evidence / Claim Reconstruction", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_EVIDENCE_WORKSPACE_CI_VALIDATED_PENDING_PRODUCTION_SMOKE"},
       {"phase_id": "P4", "title": "Historical-Critical Analysis & Survey Baseline", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PLANNED_PRODUCT_WORKSPACE"},
       {"phase_id": "P5", "title": "Geometry & Topology", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_AVAILABLE_WORKSPACE_NOT_INTEGRATED"},
       {"phase_id": "P6", "title": "Structural Semantics / Asset Graph", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_AVAILABLE_WORKSPACE_NOT_INTEGRATED"},
@@ -89,7 +91,8 @@
   "current_product_work_item": {
     "id": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
     "agent_role": "SOURCE_EVIDENCE_AGENT",
-    "state": "READY",
+    "state": "RESIDUAL",
+    "residual_id": "CEW-B1-PROD-01",
     "queue": "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json",
     "goal": "CEW-GOAL-01"
   },
@@ -111,7 +114,8 @@
     "Production runtime must fail closed when authentication or persistent append-only audit storage is unavailable.",
     "No UI, agent result or solver result may become engineering authority by itself.",
     "No human observation may be normalized with loss of engineering meaning.",
-    "Missing engineering information remains explicit and cannot be closed for product continuity."
+    "Missing engineering information remains explicit and cannot be closed for product continuity.",
+    "B2 and later work may be prepared in parallel while B1 is residual, but no downstream work item may be released or promoted until B1 PRODUCTION_SMOKE passes."
   ],
-  "next_action": "Execute CEW-B1-SOURCE-EVIDENCE-JOURNEY: implement Source Hub and Evidence Workspace around immutable source versions, MICRO/MESO/MACRO source context, linked structural context, natural-language human review and a production smoke without changing canonical engineering authority."
+  "next_action": "Resolve CEW-B1-PROD-01 by establishing a functioning Vercel deploy channel, deploying the current B1 runtime and performing the real production smoke. Parallel B2 preparation is allowed but remains non-promotable."
 }
