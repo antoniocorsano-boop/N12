@@ -19,15 +19,17 @@ if str(SCRIPTS) not in sys.path:
 
 import cew_f7_native_review_service as review_service
 import cew_project_control_room as control_room
+import cew_project_home as project_home
 import cew_runtime_audit_store as audit_store
 
-# Production and local runtime use the same F7 pipeline; only the audit backend changes.
 review_service.persist_runtime_receipt = audit_store.persist_runtime_receipt
 
-app = FastAPI(title="CEW Project Control Room", docs_url=None, redoc_url=None)
+app = FastAPI(title="CEW — Structural Existing Workflow", docs_url=None, redoc_url=None)
 SESSION_COOKIE = "cew_session"
 SESSION_PURPOSE = b"CEW_SINGLE_OPERATOR_PILOT_V1"
 PRODUCTION_AUDIT_BACKENDS = {"SUPABASE_APPEND_ONLY", "NETLIFY_AUDIT_HTTPS", "NEON_APPEND_ONLY"}
+TERMINOLOGY = ROOT / "automation/CEW_TERMINOLOGY_LAYER_v1.json"
+LIFECYCLE = ROOT / "automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json"
 
 
 def _auth_disabled_for_test() -> bool:
@@ -56,13 +58,12 @@ def _login_page(message: str = "") -> str:
     note = f"<p class='error'>{html.escape(message)}</p>" if message else ""
     config_note = "" if _auth_configured() else "<p class='error'>CEW non è ancora configurato per l'accesso utente.</p>"
     return f'''<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CEW — Accesso</title>
-<style>body{{font-family:system-ui;background:#f4f6f8;margin:0;color:#17202a}}main{{max-width:440px;margin:10vh auto;background:white;padding:28px;border:1px solid #d8dde3;border-radius:12px}}input,button{{width:100%;box-sizing:border-box;padding:11px;margin-top:8px}}button{{background:#17202a;color:white;border:0;border-radius:7px;font-weight:700}}.error{{color:#a12622}}</style></head><body><main><h1>CEW</h1><p>Project Control Room — accesso tecnico</p>{config_note}{note}<form method="post" action="/login"><label>Password operatore<input type="password" name="password" autocomplete="current-password" autofocus></label><button type="submit">Accedi</button></form></main></body></html>'''
+<style>body{{font-family:system-ui;background:#f4f6f8;margin:0;color:#17202a}}main{{max-width:440px;margin:10vh auto;background:white;padding:28px;border:1px solid #d8dde3;border-radius:12px}}input,button{{width:100%;box-sizing:border-box;padding:11px;margin-top:8px}}button{{background:#173f5f;color:white;border:0;border-radius:7px;font-weight:700}}.error{{color:#a12622}}.muted{{color:#5d6875}}</style></head><body><main><h1>CEW</h1><p>Ambiente di lavoro per la valutazione strutturale dell’esistente</p><p class="muted">Accesso operatore</p>{config_note}{note}<form method="post" action="/login"><label>Password<input type="password" name="password" autocomplete="current-password" autofocus></label><button type="submit">Accedi al progetto</button></form></main></body></html>'''
 
 
 @app.middleware("http")
 async def access_guard(request: Request, call_next):
-    path = request.url.path
-    if path in {"/healthz", "/login"}:
+    if request.url.path in {"/healthz", "/login"}:
         return await call_next(request)
     if not _authorized(request):
         return RedirectResponse(url="/login", status_code=303)
@@ -73,7 +74,7 @@ async def access_guard(request: Request, call_next):
 def healthz():
     backend = audit_store.backend_status()
     return {
-        "service": "CEW_USER_WEB_PILOT",
+        "service": "CEW_USER_RUNTIME",
         "status": "OK" if (_auth_configured() or _auth_disabled_for_test()) else "CONFIG_REQUIRED",
         "auth_configured": _auth_configured(),
         "audit_backend": backend,
@@ -117,14 +118,28 @@ def logout():
     return response
 
 
+def _runtime_inputs():
+    return (
+        review_service.load_json(review_service.STATE),
+        review_service.load_json(review_service.ISSUES),
+        review_service.rows(review_service.TASKS),
+    )
+
+
 @app.get("/", response_class=HTMLResponse)
-def control_room_home():
-    state = review_service.load_json(review_service.STATE)
-    issues = review_service.load_json(review_service.ISSUES)
-    tasks = review_service.rows(review_service.TASKS)
+def project_home_route():
+    state, issues, tasks = _runtime_inputs()
+    terminology = review_service.load_json(TERMINOLOGY)
+    lifecycle = review_service.load_json(LIFECYCLE)
+    return HTMLResponse(project_home.build_project_home(state, issues, tasks, terminology, lifecycle))
+
+
+@app.get("/technical/control-room", response_class=HTMLResponse)
+def technical_control_room():
+    state, issues, tasks = _runtime_inputs()
     body = control_room.build(state, issues, tasks)
     marker = "</header>"
-    toolbar = "<div style='max-width:1400px;margin:auto;padding:0 32px 12px'><form method='post' action='/logout'><button style='padding:7px 10px'>Esci</button></form></div>"
+    toolbar = "<div style='max-width:1400px;margin:auto;padding:0 32px 12px;display:flex;gap:12px;align-items:center'><a href='/' style='font-weight:700'>← Torna al progetto</a><form method='post' action='/logout'><button style='padding:7px 10px'>Esci</button></form></div>"
     return HTMLResponse(body.replace(marker, marker + toolbar, 1))
 
 
