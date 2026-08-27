@@ -23,10 +23,10 @@
   },
   "product_maturity": {
     "engineering_kernel": "STRONG_REFERENCE_IMPLEMENTATION",
-    "integration": "B1_SOURCE_EVIDENCE_CI_VALIDATED",
-    "user_workflow": "PROJECT_HOME_V2_PLUS_SOURCE_EVIDENCE_CI_VALIDATED_PENDING_PRODUCTION_SMOKE",
+    "integration": "B1_SOURCE_EVIDENCE_PRODUCTION_DEPLOYED_SMOKE_PARTIAL",
+    "user_workflow": "PROJECT_HOME_V2_PLUS_SOURCE_EVIDENCE_PRODUCTION_DEPLOYED_AUTHENTICATED_SMOKE_PENDING",
     "human_factors": "PROJECT_HOME_V2_AND_B1_SOURCE_EVIDENCE_VALIDATED_IN_CI",
-    "production_runtime": "AVAILABLE_SINGLE_OPERATOR_PRE_B1_DEPLOY",
+    "production_runtime": "B1_PRODUCTION_CURRENT_READY_AUTHENTICATED_SOURCE_SMOKE_PENDING",
     "assessment_ready": false,
     "decision_ready": false,
     "target": "PRODUCTION_GRADE_HUMAN_CENTRED_STRUCTURAL_ENGINEERING_WORKFLOW"
@@ -43,19 +43,23 @@
       "audit_adapter": "scripts/cew_runtime_audit_store.py",
       "production_receipt_submit_ready": true,
       "canonical_write_authorized": false,
-      "smoke_status": "PASS_HUMAN_OBSERVED_2026-08-27_PRE_A2",
-      "latest_project_home_v2_deployed": false,
-      "latest_b1_source_evidence_deployed": false,
+      "smoke_status": "B1_PRODUCTION_DEPLOY_PASS_AUTHENTICATED_SOURCE_SMOKE_PENDING",
+      "production_source_branch": "work/cew-human-centric-structural-product-v1",
+      "production_source_commit": "7fadbe9285eae59ee0b0cc0789f371916f895f7b",
+      "production_environment_state": "READY_CURRENT",
+      "latest_project_home_v2_deployed": true,
+      "latest_b1_source_evidence_deployed": true,
       "b1_production_residual": "CEW-B1-PROD-01",
+      "b1_deployment_receipt": "automation/receipts/cew-product/CEW-B1-PRODUCTION-DEPLOY_20260827T203710Z.json",
       "runtime_validation_workflow": ".github/workflows/validate-cew-neon-user-runtime.yml"
     }
   },
   "capability_maturity": [
-    {"id": "SOURCE_EVIDENCE_KERNEL", "engine_available": true, "integrated": true, "user_workflow_available": "SOURCE_HUB_AND_EVIDENCE_WORKSPACE_CI_VALIDATED", "human_factors_validated": true, "production_ready": false},
+    {"id": "SOURCE_EVIDENCE_KERNEL", "engine_available": true, "integrated": true, "user_workflow_available": "SOURCE_HUB_AND_EVIDENCE_WORKSPACE_PRODUCTION_DEPLOYED", "human_factors_validated": true, "production_ready": "SMOKE_PENDING"},
     {"id": "CANONICAL_STRUCTURAL_MODEL", "engine_available": true, "integrated": true, "user_workflow_available": "PARTIAL", "human_factors_validated": false, "production_ready": false},
-    {"id": "HUMAN_EVIDENCE_REVIEW", "engine_available": true, "integrated": true, "user_workflow_available": "NATURAL_LANGUAGE_EVIDENCE_WORKSPACE_CI_VALIDATED", "human_factors_validated": true, "production_ready": false},
+    {"id": "HUMAN_EVIDENCE_REVIEW", "engine_available": true, "integrated": true, "user_workflow_available": "NATURAL_LANGUAGE_EVIDENCE_WORKSPACE_PRODUCTION_DEPLOYED", "human_factors_validated": true, "production_ready": "SMOKE_PENDING"},
     {"id": "AUDIT_PERSISTENCE", "engine_available": true, "integrated": true, "user_workflow_available": "NOT_APPLICABLE", "human_factors_validated": "NOT_APPLICABLE", "production_ready": true},
-    {"id": "PROJECT_HOME", "engine_available": true, "integrated": true, "user_workflow_available": "PROJECT_HOME_V2", "human_factors_validated": true, "production_ready": false},
+    {"id": "PROJECT_HOME", "engine_available": true, "integrated": true, "user_workflow_available": "PROJECT_HOME_V2_PRODUCTION_DEPLOYED", "human_factors_validated": true, "production_ready": "SMOKE_PENDING"},
     {"id": "INVESTIGATION", "engine_available": "ADVISORY_ONLY", "integrated": false, "user_workflow_available": false, "human_factors_validated": false, "production_ready": false},
     {"id": "SOLVER_FEM_ROUNDTRIP", "engine_available": "LEGACY_PROTOTYPE_ONLY", "integrated": false, "user_workflow_available": false, "human_factors_validated": false, "production_ready": false},
     {"id": "VERIFICATION_INTERVENTION_LIFECYCLE", "engine_available": "PARTIAL_OR_PLANNED", "integrated": false, "user_workflow_available": false, "human_factors_validated": false, "production_ready": false}
@@ -69,10 +73,10 @@
     "calculation_model_ready": false,
     "projection_policy": "REFERENCE_ONLY_DO_NOT_DUPLICATE_ENGINEERING_FACTS_IN_CEW_PRODUCT_STATE",
     "phase_projection": [
-      {"phase_id": "P0", "title": "Project Definition", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PROJECT_HOME_V2_CI_VALIDATED_PENDING_PRODUCTION_DEPLOY"},
-      {"phase_id": "P1", "title": "Source Acquisition / CDE", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_SOURCE_HUB_CI_VALIDATED_PENDING_PRODUCTION_SMOKE"},
-      {"phase_id": "P2", "title": "Document Understanding", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_SOURCE_HUB_CI_VALIDATED_PENDING_PRODUCTION_SMOKE"},
-      {"phase_id": "P3", "title": "Evidence / Claim Reconstruction", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_EVIDENCE_WORKSPACE_CI_VALIDATED_PENDING_PRODUCTION_SMOKE"},
+      {"phase_id": "P0", "title": "Project Definition", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PROJECT_HOME_V2_PRODUCTION_DEPLOYED_SMOKE_PENDING"},
+      {"phase_id": "P1", "title": "Source Acquisition / CDE", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_SOURCE_HUB_PRODUCTION_DEPLOYED_AUTHENTICATED_SMOKE_PENDING"},
+      {"phase_id": "P2", "title": "Document Understanding", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_SOURCE_HUB_PRODUCTION_DEPLOYED_AUTHENTICATED_SMOKE_PENDING"},
+      {"phase_id": "P3", "title": "Evidence / Claim Reconstruction", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_EVIDENCE_WORKSPACE_PRODUCTION_DEPLOYED_AUTHENTICATED_SMOKE_PENDING"},
       {"phase_id": "P4", "title": "Historical-Critical Analysis & Survey Baseline", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PLANNED_PRODUCT_WORKSPACE"},
       {"phase_id": "P5", "title": "Geometry & Topology", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_AVAILABLE_WORKSPACE_NOT_INTEGRATED"},
       {"phase_id": "P6", "title": "Structural Semantics / Asset Graph", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_AVAILABLE_WORKSPACE_NOT_INTEGRATED"},
@@ -117,5 +121,5 @@
     "Missing engineering information remains explicit and cannot be closed for product continuity.",
     "B2 and later work may be prepared in parallel while B1 is residual, but no downstream work item may be released or promoted until B1 PRODUCTION_SMOKE passes."
   ],
-  "next_action": "Resolve CEW-B1-PROD-01 by establishing a functioning Vercel deploy channel, deploying the current B1 runtime and performing the real production smoke. Parallel B2 preparation is allowed but remains non-promotable."
+  "next_action": "Complete CEW-B1-PROD-01 by authenticating to the current Production runtime and verifying health, Project Home, Source Hub, immutable source SHA-256 retrieval and MICRO/MESO/MACRO Evidence Workspace rendering. Do not submit a synthetic human evidence receipt. Parallel B2 preparation remains allowed but non-promotable."
 }
