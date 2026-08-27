@@ -1,0 +1,65 @@
+name: Validate CEW Document Drawing Foundation
+
+on:
+  pull_request:
+    paths:
+      - 'app.py'
+      - 'scripts/cew_document_drawing_workspace.py'
+      - 'scripts/validate_cew_document_drawing_foundation.py'
+      - 'automation/CEW_TERMINOLOGY_LAYER_v1.json'
+      - 'automation/CEW_USABILITY_METRICS_MODEL_v1.json'
+      - 'automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json'
+      - 'docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v1.md'
+      - 'docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v1.md'
+      - 'docs/PRODUCT/CEW_DOCUMENT_DRAWING_WORKSPACE_V1_CONTRACT.md'
+      - 'data/canonical/tavole_originali_remote_index_v1.csv'
+      - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_PAGE_TRANSFORM_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_DERIVED_ASSET_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - '.github/workflows/validate-cew-document-drawing-foundation.yml'
+
+jobs:
+  validate-document-drawing-foundation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax
+        run: |
+          python -m py_compile scripts/cew_document_drawing_workspace.py
+          python -m py_compile scripts/validate_cew_document_drawing_foundation.py
+          python -m py_compile app.py
+      - name: Install runtime dependencies
+        run: pip install -r requirements.txt
+      - name: Validate B1.1 data, integration and usability fixtures
+        run: python scripts/validate_cew_document_drawing_foundation.py
+      - name: Authenticated route smoke without production secrets
+        env:
+          CEW_AUTH_DISABLED_FOR_TEST: '1'
+          CEW_AUDIT_BACKEND_MODE: 'LOCAL_TEST_ONLY'
+        run: |
+          python - <<'PY'
+          from fastapi.testclient import TestClient
+          import app
+          c=TestClient(app.app)
+          for path, marker in [
+              ('/documents','Documenti del progetto'),
+              ('/drawings','Tavole di progetto'),
+              ('/drawings/TAV-05A','TAV-05A'),
+          ]:
+              r=c.get(path)
+              assert r.status_code == 200, (path, r.status_code)
+              assert marker in r.text, (path, marker)
+          h=c.get('/healthz').json()
+          assert h['document_workspace']=='B11_AVAILABLE'
+          assert h['drawing_register']=='B11_AVAILABLE'
+          assert h['canonical_write_authorized'] is False
+          print('CEW B1.1 ROUTE SMOKE: PASS')
+          PY
+      - name: Declare HVA boundary
+        run: |
+          echo 'UX-DOC-01 automated fixture: PASS candidate'
+          echo 'UX-DOC-04 automated fixture: PASS candidate'
+          echo 'UX-DOC-02: HVA_REQUIRED in B1.2 viewer slice'
+          echo 'UX-DOC-03: HVA_REQUIRED in B1.2/B1.6 source-evidence round trip'
