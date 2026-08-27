@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "preparation_id": "CEW-B2-PARALLEL-PREPARATION",
+  "work_item_id": "CEW-B2-RECONSTRUCTION-PROPERTIES",
+  "agent_role": "RECONSTRUCTION_AGENT",
+  "state": "PREPARED_NOT_RELEASED",
+  "release_forbidden_while": "CEW-B1-SOURCE-EVIDENCE-JOURNEY != COMPLETE",
+  "current_blocking_predecessor": "CEW-B1-PROD-01",
+  "authority_inputs": [
+    "knowledge/CURRENT_STATE.json",
+    "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
+    "data/canonical/M1S_SECTION_GATE_v1.csv",
+    "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv",
+    "data/canonical/M1M_MATERIAL_GATE_v1.csv",
+    "data/canonical/M1L_LOAD_GATE_v1.csv",
+    "data/canonical/M1F_FOUNDATION_GATE_v1.csv",
+    "data/canonical/M1E_CALCULATION_MODEL_HANDOFF_v1.json"
+  ],
+  "stale_or_non_authoritative_inputs": [
+    {
+      "path": "model/M0-G/STATUS.md",
+      "role": "HISTORICAL_ONLY",
+      "reason": "Predates later frozen/revalidated M0-G CURRENT handoff and cannot override knowledge/CURRENT_STATE.json."
+    },
+    {
+      "path": "data/canonical/CEW_ERW_SOURCE_ASSET_STATUS_v1.csv",
+      "role": "PRE_F2_HISTORICAL_ONLY",
+      "reason": "Predates current F2 READY Page/Transform/EvidenceRegion/viewer bindings."
+    }
+  ],
+  "prepared_outputs": [
+    "docs/PRODUCT/CEW_RECONSTRUCTION_WORKSPACE_V1_CONTRACT.md",
+    "docs/PRODUCT/CEW_STRUCTURAL_MODEL_WORKSPACE_V1_CONTRACT.md",
+    "docs/PRODUCT/CEW_PROPERTY_WORKSPACES_V1_CONTRACT.md"
+  ],
+  "current_engineering_truth": {
+    "m0g_geometry_topology": "FROZEN_PASS_WITH_WATCH_REVALIDATED_B055",
+    "ordinary_sections": "359_OF_359_USABLE_WITH_WATCHES",
+    "reinforcement": "PASS_WITH_WATCH_RESIDUALS_REMAIN",
+    "materials": "PASS_WITH_WATCH_CURRENT_CONCRETE_LC_FC_ND",
+    "loads": "PASS_WITH_WATCH_ZERO_UNSOURCED_NUMERIC_ROWS_NUMERIC_EXECUTION_NOT_READY",
+    "foundation": "38_SUPPORTS_55_PRIMARY_MEMBERS_WITH_PROPERTY_AND_EXECUTION_WATCHES",
+    "calculation_model_ready": false,
+    "m1e_blocking_domains": 6
+  },
+  "invariants": [
+    "EVIDENCE_STATE_AND_USE_STATE_ARE_DISTINCT",
+    "GEOMETRIC_PROXIMITY_DOES_NOT_CREATE_CONNECTIVITY",
+    "RIGID_OFFSETS_ARE_NOT_ORDINARY_MEMBERS",
+    "SUPPORTED_IS_NOT_DIRECT_DOC",
+    "HISTORICAL_VALUES_ARE_NOT_CURRENT_SOLVER_PARAMETERS",
+    "SOLVER_PROJECTION_DOES_NOT_REWRITE_EVIDENCE",
+    "ND_FIELDS_ARE_NOT_FILLED_FOR_VISUAL_COMPLETENESS",
+    "CALCULATION_MODEL_READY_REMAINS_FALSE_UNTIL_ENGINEERING_GATE"
+  ],
+  "promotion_authorized": false,
+  "canonical_write_authorized": false
+}
