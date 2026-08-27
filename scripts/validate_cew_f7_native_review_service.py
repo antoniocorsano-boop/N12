@@ -8,6 +8,7 @@ from pathlib import Path
 import cew_f7_native_review_service as service
 
 ROOT = Path(__file__).resolve().parents[1]
+BLOCK_REASON = "SEMANTIC_EXPLICIT_DIRECTIONAL_CLAUSES_REQUIRED"
 
 
 def receipt(decision_id: str, observation: str) -> dict:
@@ -30,6 +31,21 @@ def receipt(decision_id: str, observation: str) -> dict:
         "reopen_approval_id": "",
         "authority_acknowledgement": schema["authority_acknowledgement_exact"],
     }
+
+
+def assert_directional_candidate(result: dict, raw: str) -> None:
+    if result["state"] != "PATCH_CANDIDATE_READY_NO_WRITE":
+        raise AssertionError(f"directional receipt did not reach governed candidate: {result}")
+    candidate = result["patch_candidate"]
+    sem = candidate["semantic_payload"]
+    if sem["upper"] != {"count": 2, "diameter_mm": 12} or sem["lower"] != {"count": 2, "diameter_mm": 12}:
+        raise AssertionError("directional reinforcement semantics collapsed or drifted")
+    if sem["raw_human_observation"] != raw:
+        raise AssertionError("raw human observation not preserved verbatim")
+    if sem.get("directional_separation_preserved") is not True:
+        raise AssertionError("directional separation invariant lost")
+    if candidate["canonical_write_authorized"] is not False or candidate["canonical_write_performed"] is not False:
+        raise AssertionError("native candidate gained canonical write authority")
 
 
 def main() -> int:
@@ -75,42 +91,39 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as td:
         store = service.ensure_runtime_store(Path(td) / "receipts")
 
-        positive = service.process_receipt(receipt("NATIVE-POSITIVE", "2 Φ12 superiori + 2 Φ12 inferiori"), store)
-        if positive["state"] != "PATCH_CANDIDATE_READY_NO_WRITE":
-            raise AssertionError(f"directional receipt did not reach governed candidate: {positive}")
-        candidate = positive["patch_candidate"]
-        sem = candidate["semantic_payload"]
-        if sem["upper"] != {"count": 2, "diameter_mm": 12} or sem["lower"] != {"count": 2, "diameter_mm": 12}:
-            raise AssertionError("directional reinforcement semantics collapsed or drifted")
-        if sem["raw_human_observation"] != "2 Φ12 superiori + 2 Φ12 inferiori":
-            raise AssertionError("raw human observation not preserved verbatim")
-        if candidate["canonical_write_authorized"] is not False or candidate["canonical_write_performed"] is not False:
-            raise AssertionError("native candidate gained canonical write authority")
+        exact_raw = "2 Φ12 superiori + 2 Φ12 inferiori"
+        positive = service.process_receipt(receipt("NATIVE-POSITIVE", exact_raw), store)
+        assert_directional_candidate(positive, exact_raw)
+
+        natural_raw = "i filari lunghi 1040 son 2 f 12 superiori e 2 f 12 inferiori"
+        natural = service.process_receipt(receipt("NATIVE-NATURAL", natural_raw), store)
+        assert_directional_candidate(natural, natural_raw)
 
         aggregate = service.process_receipt(receipt("NATIVE-AGGREGATE", "4 Φ12"), store)
-        if aggregate["state"] != "SEMANTIC_BLOCKED" or "SEMANTIC_DIRECTIONAL_GRAMMAR_REQUIRED" not in aggregate["reason_codes"]:
+        if aggregate["state"] != "SEMANTIC_BLOCKED" or BLOCK_REASON not in aggregate["reason_codes"]:
             raise AssertionError("aggregate reinforcement was not fail-closed")
 
-        bad_ack = receipt("NATIVE-BAD-ACK", "2 Φ12 superiori + 2 Φ12 inferiori")
+        bad_ack = receipt("NATIVE-BAD-ACK", exact_raw)
         bad_ack["authority_acknowledgement"] = "true"
         rejected = service.process_receipt(bad_ack, store)
         if rejected["state"] != "RECEIPT_REJECTED":
             raise AssertionError("invalid authority acknowledgement was accepted")
 
-        injected = receipt("NATIVE-FIXTURE-INJECTION", "2 Φ12 superiori + 2 Φ12 inferiori")
+        injected = receipt("NATIVE-FIXTURE-INJECTION", exact_raw)
         injected["fixture_only"] = True
         rejected_fixture = service.process_receipt(injected, store)
         if rejected_fixture["state"] != "RECEIPT_REJECTED" or "UNEXPECTED_FIELDS_FORBIDDEN" not in rejected_fixture["reason_codes"]:
             raise AssertionError("interactive fixture field injection was accepted")
 
         persisted = list(store.glob("*.json"))
-        if len(persisted) != 2:
+        if len(persisted) != 3:
             raise AssertionError(f"runtime audit persistence count drift: {len(persisted)}")
 
     print("CEW_F7_NATIVE_REVIEW_SERVICE_PASS")
     print("CONTROL_ROOM_NATIVE_REVIEW=PASS")
     print("HUMAN_FIELDS_PREFILLED=0")
     print("DIRECTIONAL_R08_TO_PATCH_CANDIDATE=PASS")
+    print("NATURAL_DIRECTIONAL_R08_TO_PATCH_CANDIDATE=PASS_RAW_PRESERVED")
     print("AGGREGATE_4PHI12=SEMANTIC_BLOCKED")
     print("INVALID_AUTHORITY_ACK=REJECTED")
     print("INTERACTIVE_FIXTURE_INJECTION=REJECTED")
