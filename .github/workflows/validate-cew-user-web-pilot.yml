@@ -1,0 +1,64 @@
+name: Validate CEW User Web Pilot
+
+on:
+  pull_request:
+    paths:
+      - 'app.py'
+      - 'requirements.txt'
+      - 'vercel.json'
+      - 'scripts/cew_runtime_audit_store.py'
+      - 'scripts/validate_cew_user_web_pilot.py'
+      - 'automation/CEW_USER_WEB_PILOT_CONTRACT_v1.json'
+      - 'automation/CEW_USER_WEB_PILOT_SUPABASE_v1.sql'
+      - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_PROMOTION_ENGINE_PATCH_v1.csv'
+      - '.github/workflows/validate-cew-user-web-pilot.yml'
+
+jobs:
+  web-pilot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install runtime
+        run: python -m pip install -r requirements.txt
+      - name: Syntax
+        run: python -m py_compile app.py scripts/cew_runtime_audit_store.py scripts/validate_cew_user_web_pilot.py
+      - name: Validate web pilot contract
+        run: python scripts/validate_cew_user_web_pilot.py
+      - name: Preserve F7 authority gate
+        run: python scripts/validate_cew_f7_native_review_service.py
+      - name: Authenticated browser smoke
+        env:
+          CEW_ACCESS_PASSWORD: pilot-test-password
+          CEW_SESSION_SECRET: pilot-test-session-secret-at-least-32-bytes
+          CEW_LOCAL_AUDIT_DIR: /tmp/cew-runtime-audit
+        run: |
+          python -m uvicorn app:app --host 127.0.0.1 --port 8765 >/tmp/cew-web.log 2>&1 &
+          PID=$!
+          trap 'kill $PID || true' EXIT
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8765/healthz >/tmp/health.json && break
+            sleep 1
+          done
+          python - <<'PY'
+          import json
+          h=json.load(open('/tmp/health.json'))
+          assert h['service']=='CEW_USER_WEB_PILOT'
+          assert h['auth_configured'] is True
+          assert h['audit_backend']=='FILESYSTEM_APPEND_ONLY'
+          assert h['canonical_write_authorized'] is False
+          PY
+          CODE=$(curl -sS -o /tmp/unauth.html -w '%{http_code}' http://127.0.0.1:8765/)
+          test "$CODE" = "303"
+          CODE=$(curl -sS -c /tmp/cookies.txt -o /tmp/login.out -w '%{http_code}' -X POST -d 'password=pilot-test-password' http://127.0.0.1:8765/login)
+          test "$CODE" = "303"
+          curl -fsS -b /tmp/cookies.txt http://127.0.0.1:8765/ >/tmp/control-room.html
+          grep -q 'CEW Project Control Room' /tmp/control-room.html
+          grep -q 'ERW-N12-001' /tmp/control-room.html
+          curl -fsS -b /tmp/cookies.txt 'http://127.0.0.1:8765/review/f7?task=ERW-N12-001' >/tmp/r08.html
+          grep -q 'Revisione evidenza F7' /tmp/r08.html
+          grep -q 'Invia a CEW' /tmp/r08.html
+          echo 'CEW USER BROWSER SMOKE: PASS'

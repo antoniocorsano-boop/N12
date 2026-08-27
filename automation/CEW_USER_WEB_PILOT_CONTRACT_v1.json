@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW-USER-WEB-PILOT-v1",
+  "milestone": "CEW-F7",
+  "purpose": "Expose the CEW Project Control Room and F7 human evidence review as an authenticated browser application while preserving the existing receipt, promotion and governed-writer authority boundaries.",
+  "user_mode": "SINGLE_OPERATOR_PILOT",
+  "entrypoint": "app.py",
+  "deployment_target": "VERCEL_FASTAPI",
+  "routes": {
+    "login": "/login",
+    "control_room": "/",
+    "f7_review": "/review/f7?task=<task_id>",
+    "f7_receipt_submit": "/api/f7/receipt",
+    "health": "/healthz"
+  },
+  "required_production_environment": [
+    "CEW_ACCESS_PASSWORD",
+    "CEW_SESSION_SECRET",
+    "CEW_AUDIT_SUPABASE_URL",
+    "CEW_AUDIT_SUPABASE_SERVICE_ROLE_KEY"
+  ],
+  "security_invariants": {
+    "browser_routes_require_authenticated_session": true,
+    "session_cookie_http_only": true,
+    "production_session_cookie_secure": true,
+    "service_role_key_never_exposed_to_browser": true,
+    "production_submit_fails_closed_without_persistent_audit_backend": true
+  },
+  "authority_invariants": {
+    "ui_is_engineering_authority": false,
+    "runtime_audit_is_canonical_authority": false,
+    "human_receipt_requires_existing_F7_validator": true,
+    "promotion_uses_existing_F7_bridge_and_engine": true,
+    "canonical_write_authorized_by_web_pilot": false,
+    "canonical_write_performed_by_web_pilot": false,
+    "m0g_reopen_performed_by_web_pilot": false,
+    "f2_evidence_mutation_performed_by_web_pilot": false
+  },
+  "audit": {
+    "production_backend": "SUPABASE_APPEND_ONLY",
+    "table": "cew_human_receipt_audit",
+    "update_delete_forbidden": true,
+    "duplicate_decision_id_rejected": true,
+    "receipt_sha256_required": true,
+    "authority": "RUNTIME_AUDIT_ONLY"
+  },
+  "acceptance": [
+    "Unauthenticated browser request is redirected to login.",
+    "Authenticated operator can open Control Room and F7 task UI.",
+    "A valid human receipt is processed by the existing CEW F7 pipeline.",
+    "Production receipt submission is rejected when persistent audit storage is not configured.",
+    "No route or storage operation writes canonical engineering data."
+  ]
+}
