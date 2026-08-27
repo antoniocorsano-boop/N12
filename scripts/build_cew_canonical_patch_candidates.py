@@ -12,8 +12,13 @@ ROOT = Path(__file__).resolve().parents[1]
 TARGETS = ROOT / "data/canonical/CEW_PROMOTION_TARGET_REGISTRY_v1.csv"
 FIXTURES = ROOT / "analysis/cew/CEW_F7_PROMOTION_POLICY_FIXTURES_v1.json"
 PAYLOAD_CONTRACT = ROOT / "automation/CEW_F7_PATCH_PAYLOAD_CONTRACT_v1.json"
+
+# B1 natural-language compatibility is deliberately narrow: CEW extracts only
+# direction, count and diameter when both directional clauses are explicit.
+# Prefix/suffix prose is allowed; missing semantics are never inferred.
 DIRECTIONAL_REINFORCEMENT = re.compile(
-    r"^\s*(\d+)\s*[ΦØ]\s*(\d+)\s+superiori\s*\+\s*(\d+)\s*[ΦØ]\s*(\d+)\s+inferiori\s*$",
+    r"(?<!\d)(\d+)\s*(?:[ΦØφ]|[fF]|phi)\s*(\d+)\s+superiori\s*(?:\+|\be\b)\s*"
+    r"(\d+)\s*(?:[ΦØφ]|[fF]|phi)\s*(\d+)\s+inferiori\b",
     re.IGNORECASE,
 )
 
@@ -29,19 +34,21 @@ def stable_id(obj: dict) -> str:
 
 
 def reinforcement_payload(observation: str) -> tuple[dict | None, str | None]:
-    match = DIRECTIONAL_REINFORCEMENT.fullmatch(observation)
-    if not match:
-        return None, "SEMANTIC_DIRECTIONAL_GRAMMAR_REQUIRED"
+    matches = list(DIRECTIONAL_REINFORCEMENT.finditer(observation))
+    if len(matches) != 1:
+        return None, "SEMANTIC_EXPLICIT_DIRECTIONAL_CLAUSES_REQUIRED"
+    match = matches[0]
     uc, ud, lc, ld = (int(x) for x in match.groups())
     if min(uc, ud, lc, ld) <= 0:
         return None, "SEMANTIC_DIRECTIONAL_VALUES_MUST_BE_POSITIVE"
     return {
         "kind": "REINFORCEMENT_ASSERTION",
         "raw_human_observation": observation,
-        "parser_policy": "EXACT_DIRECTIONAL_REINFORCEMENT_GRAMMAR_V1",
+        "parser_policy": "EXPLICIT_DIRECTIONAL_REINFORCEMENT_NATURAL_TEXT_V2",
         "upper": {"count": uc, "diameter_mm": ud},
         "lower": {"count": lc, "diameter_mm": ld},
         "directional_separation_preserved": True,
+        "semantic_extraction": "EXPLICIT_TOKENS_ONLY_NO_FREE_TEXT_INFERENCE",
     }, None
 
 
@@ -70,6 +77,7 @@ def main() -> int:
         "generic_total_is_not_equivalent_to_directional_reinforcement",
         "upper_and_lower_must_remain_separate",
         "free_text_semantic_inference_forbidden",
+        "explicit_directional_tokens_may_emit_patch_candidate",
         "raw_human_observation_must_be_preserved_verbatim",
         "payload_candidate_never_authorizes_canonical_write",
     ):
@@ -170,6 +178,7 @@ def main() -> int:
     print(f"HUMAN_RECEIPT_SEMANTIC_BLOCKS={len(semantic_blocks)}")
     print(f"POLICY_FIXTURE_PATCH_CANDIDATES={len(candidates)}")
     print("DIRECTIONAL_REINFORCEMENT_COLLAPSE=FORBIDDEN")
+    print("NATURAL_TEXT_EXTRACTION=EXPLICIT_TOKENS_ONLY")
     print("CANONICAL_WRITE=FORBIDDEN")
     return 0
 
