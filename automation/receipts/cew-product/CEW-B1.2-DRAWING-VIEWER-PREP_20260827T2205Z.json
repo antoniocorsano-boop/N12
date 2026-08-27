@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "slice_id": "B1.2",
+  "task_id": "CEW-B1.2-DRAWING-VIEWER",
+  "decision": "AUTOMATED_GATES_PASS_DEPENDENCY_AND_HVA_BLOCKED",
+  "stacked_pull_request": 97,
+  "base_branch": "work/cew-b11-document-drawing-foundation",
+  "base_sha_at_pr_open": "9358e7225eaba46b4da89676f4deeff516505cfe",
+  "validated_technical_head_sha": "63bc2e02d3fdaacbafd9b9a44c8b27f33e91065c",
+  "verified_runs": {
+    "drawing_viewer": 33120650679,
+    "document_drawing_foundation": 33120650537,
+    "product_transformation": 33120650481,
+    "source_evidence_journey": 33120650529,
+    "user_web_pilot": 33120650814,
+    "neon_user_runtime": 33120650547,
+    "n12_knowledge_system": 33120650566,
+    "legacy_audit_regression": 33120650524,
+    "production_baseline_runtime": 33120650573
+  },
+  "viewer_capabilities": [
+    "fit_page",
+    "fit_width",
+    "zoom",
+    "pan",
+    "rotate_clockwise_90",
+    "rotate_counterclockwise_90",
+    "reset_orientation",
+    "toggle_evidence_overlays",
+    "verified_pdf_action",
+    "evidence_navigation"
+  ],
+  "engineering_controls": {
+    "source_sha256_verified_before_render": true,
+    "page_dimension_consistency_required": true,
+    "dimension_mismatch_fail_closed": true,
+    "overlay_geometry_source": "CEW_EVIDENCE_REGION_REGISTRY_NORMALIZED_0_1",
+    "viewer_rotation_mutates_source": false,
+    "viewer_rotation_mutates_page_transform": false,
+    "viewer_rotation_mutates_evidence_region": false,
+    "derived_authority": "READING_AID_ONLY",
+    "canonical_write_authorized": false
+  },
+  "preview": {
+    "status": "READY",
+    "url": "https://cew-pilot-git-work-cew-b12-dr-e98199-antonios-projects-051b8d71.vercel.app",
+    "connector_access": "UNAVAILABLE_DUE_TO_VERCEL_PREVIEW_PROTECTION",
+    "product_failure_inferred": false
+  },
+  "blocking_gates": [
+    "B1.1_HVA_DEPENDENCY",
+    "B1.2_HVA_UX_DOC_02",
+    "B1.2_HVA_UX_DOC_03"
+  ],
+  "parallel_preparation_complete": true,
+  "slice_complete": false,
+  "promotion_authorized": false,
+  "production_promotion_authorized": false
+}
