@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0",
+  "reconciliation_id": "CEW-A0-STATE-RECONCILIATION",
+  "program_goal": "CEW-GOAL-01",
+  "status": "PROPOSED_FOR_GATE",
+  "date": "2026-08-27",
+  "problem": "CEW product CURRENT state had drifted from merged runtime capability and duplicated engineering-project facts that already have a separate N12 authority.",
+  "authority_split": {
+    "cew_product_runtime_state": {
+      "authority_path": "data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json",
+      "owns": [
+        "product program and current product work item",
+        "runtime deployment capability",
+        "product module maturity dimensions",
+        "human-centred lifecycle/workspace implementation status",
+        "product governance and release gates"
+      ],
+      "must_not_own": [
+        "N12 structural geometry facts",
+        "N12 sections/materials/reinforcement/load values",
+        "N12 foundation or geotechnical facts",
+        "N12 calculation residual truth"
+      ]
+    },
+    "n12_engineering_state": {
+      "authority_path": "knowledge/CURRENT_STATE.json",
+      "queue_path": "automation/N12_WORK_QUEUE_v1.json",
+      "owns": [
+        "reference-project engineering state",
+        "engineering work items and residuals",
+        "canonical structural facts and their gates",
+        "calculation-model readiness"
+      ]
+    }
+  },
+  "runtime_reconciliation": {
+    "merged_runtime_sha": "164f8ad924536d2a386c1095d15f8115d218a943",
+    "runtime_entrypoints": [
+      "app.py",
+      "deploy/cew_user_runtime.py"
+    ],
+    "audit_adapter": "scripts/cew_runtime_audit_store.py",
+    "runtime_validation_workflow": ".github/workflows/validate-cew-neon-user-runtime.yml",
+    "production_platform": "VERCEL_FASTAPI",
+    "production_url": "https://cew-pilot.vercel.app",
+    "service": "CEW_USER_RUNTIME",
+    "authentication": "CONFIGURED_SINGLE_OPERATOR",
+    "audit_backend": "NEON_APPEND_ONLY",
+    "production_receipt_submit_ready": true,
+    "canonical_write_authorized": false,
+    "production_smoke": {
+      "status": "PASS_HUMAN_OBSERVED",
+      "observed_at": "2026-08-27",
+      "health_contract": {
+        "service": "CEW_USER_RUNTIME",
+        "status": "OK",
+        "auth_configured": true,
+        "audit_backend": "NEON_APPEND_ONLY",
+        "production_receipt_submit_ready": true,
+        "canonical_write_authorized": false
+      },
+      "authority": "PRODUCT_RUNTIME_OBSERVATION_ONLY"
+    }
+  },
+  "stale_state_removed": [
+    "Netlify audit as active production path",
+    "Vercel deployment pending",
+    "production smoke pending",
+    "R3 evidence-map implementation as CEW product current work item"
+  ],
+  "product_program": {
+    "goal": "CEW-GOAL-01",
+    "program": "docs/PROGRAM/CEW_PRODUCT_COMPLETION_PROGRAM_v1.md",
+    "architecture": "docs/ARCHITECTURE/CEW_HUMAN_CENTRIC_STRUCTURAL_PRODUCT_v1.md",
+    "phase_contract": "automation/CEW_HUMAN_CENTRIC_PHASE_CONTRACT_v1.json",
+    "agent_contract": "automation/CEW_PRODUCT_AGENT_CONTRACT_v1.json",
+    "result_contract": "automation/CEW_PRODUCT_AGENT_RESULT_CONTRACT_v1.json",
+    "queue": "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json",
+    "orchestrator": "scripts/cew_product_orchestrator.py"
+  },
+  "validation_rules": [
+    "CEW product state and N12 engineering state have distinct authority paths",
+    "CEW CURRENT state contains no active Netlify/pending-Vercel production declaration",
+    "production runtime reports Neon append-only and canonical_write_authorized=false",
+    "current CEW product work item matches the Product Orchestrator queue selection",
+    "P0 through P16 are represented by pointer/projection rather than duplicated N12 engineering data",
+    "runtime/product capabilities are not called product-complete unless required integration and human-factors gates pass"
+  ]
+}
