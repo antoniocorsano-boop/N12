@@ -1,0 +1,24 @@
+name: Validate CEW Neon User Runtime
+on:
+  pull_request:
+    paths:
+      - 'deploy/cew_user_runtime.py'
+      - 'scripts/cew_runtime_audit_store.py'
+      - 'scripts/validate_cew_neon_user_runtime.py'
+      - 'app.py'
+      - 'requirements.txt'
+      - '.github/workflows/validate-cew-neon-user-runtime.yml'
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python -m py_compile app.py scripts/cew_runtime_audit_store.py deploy/cew_user_runtime.py scripts/validate_cew_neon_user_runtime.py
+      - run: python scripts/validate_cew_neon_user_runtime.py
+      - name: Preserve native F7 authority gate
+        run: python scripts/validate_cew_f7_native_review_service.py

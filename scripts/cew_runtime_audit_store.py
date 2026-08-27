@@ -16,6 +16,9 @@ def _raw(receipt: dict) -> str:
 
 
 def backend_status() -> str:
+    neon_url = os.getenv("CEW_AUDIT_NEON_DATABASE_URL", "").strip()
+    if neon_url:
+        return "NEON_APPEND_ONLY"
     https_url = os.getenv("CEW_AUDIT_HTTPS_URL", "").strip()
     https_secret = os.getenv("CEW_AUDIT_SHARED_SECRET", "").strip()
     if https_url and https_secret:
@@ -45,6 +48,50 @@ def _persist_file(receipt: dict, store: Path, digest: str) -> dict:
         "sha256": digest,
         "authority": "RUNTIME_AUDIT_ONLY",
         "audit_backend": "FILESYSTEM_APPEND_ONLY",
+        "canonical_write": False,
+    }
+
+
+def _persist_neon(receipt: dict, digest: str) -> dict:
+    try:
+        import psycopg
+        from psycopg.errors import UniqueViolation
+    except Exception as e:
+        raise ValueError("Neon audit driver unavailable") from e
+
+    payload = {
+        "decision_id": receipt["decision_id"],
+        "task_id": receipt.get("task_id"),
+        "residual_id": receipt.get("residual_id"),
+        "receipt_sha256": digest,
+        "receipt_json": json.dumps(receipt, ensure_ascii=False, separators=(",", ":")),
+        "authority": "RUNTIME_AUDIT_ONLY",
+        "canonical_write": False,
+        "submitted_at": receipt.get("timestamp"),
+    }
+    sql = """
+        INSERT INTO public.cew_human_receipt_audit
+          (decision_id, task_id, residual_id, receipt_sha256, receipt_json,
+           authority, canonical_write, submitted_at)
+        VALUES
+          (%(decision_id)s, %(task_id)s, %(residual_id)s, %(receipt_sha256)s,
+           %(receipt_json)s::jsonb, %(authority)s, %(canonical_write)s, %(submitted_at)s)
+    """
+    try:
+        with psycopg.connect(os.environ["CEW_AUDIT_NEON_DATABASE_URL"], connect_timeout=10) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, payload)
+            conn.commit()
+    except UniqueViolation as e:
+        raise ValueError("duplicate decision_id: runtime receipt already exists") from e
+    except Exception as e:
+        raise ValueError("Neon audit persistence failed") from e
+
+    return {
+        "runtime_receipt_id": str(receipt["decision_id"]),
+        "sha256": digest,
+        "authority": "RUNTIME_AUDIT_ONLY",
+        "audit_backend": "NEON_APPEND_ONLY",
         "canonical_write": False,
     }
 
@@ -143,6 +190,8 @@ def persist_runtime_receipt(receipt: dict, store: Path) -> dict:
         raise ValueError("decision_id contains unsafe characters")
     digest = hashlib.sha256(_raw(receipt).encode("utf-8")).hexdigest()
     backend = backend_status()
+    if backend == "NEON_APPEND_ONLY":
+        return _persist_neon(receipt, digest)
     if backend == "NETLIFY_AUDIT_HTTPS":
         return _persist_https(receipt, digest)
     if backend == "SUPABASE_APPEND_ONLY":
