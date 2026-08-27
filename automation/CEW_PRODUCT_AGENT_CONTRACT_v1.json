@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW_PRODUCT_AGENT_EXECUTION",
+  "program_goal": "CEW-GOAL-01",
+  "queue": "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json",
+  "result_contract": "automation/CEW_PRODUCT_AGENT_RESULT_CONTRACT_v1.json",
+  "orchestrator": "scripts/cew_product_orchestrator.py",
+  "max_work_items_per_agent_result": 1,
+  "parallel_preparation_allowed": true,
+  "promotion_policy": "SERIALIZED_BY_PRODUCT_ORCHESTRATOR",
+  "engineering_state_authority": "knowledge/CURRENT_STATE.json and governed N12 canonical artifacts",
+  "product_state_authority": "data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json after CEW-A0 reconciliation",
+  "agent_roles": {
+    "PRODUCT_STATE_AGENT": {
+      "goal": "Eliminate product-state drift and map N12 engineering state into CEW lifecycle phases without changing engineering facts.",
+      "forbidden": ["changing N12 engineering facts", "closing engineering residuals"]
+    },
+    "HUMAN_FACTORS_AGENT": {
+      "goal": "Make each workspace answer one dominant engineering question and pass representative task acceptance.",
+      "forbidden": ["engineering approval", "hiding uncertainty", "requiring repository knowledge"]
+    },
+    "SOURCE_EVIDENCE_AGENT": {
+      "goal": "Make source intake and human evidence resolution usable while preserving immutable provenance.",
+      "forbidden": ["silent claim promotion", "parser-specific required user grammar"]
+    },
+    "RECONSTRUCTION_AGENT": {
+      "goal": "Integrate source, 2D, table, 3D and residual context over stable structural identities.",
+      "forbidden": ["proximity connectivity", "reopening frozen geometry without governed evidence"]
+    },
+    "PROPERTIES_INVESTIGATION_AGENT": {
+      "goal": "Expose engineering properties, blockers and executable investigation work packages.",
+      "forbidden": ["inventing missing inputs", "promoting test plans to measurements"]
+    },
+    "RULE_SCENARIO_AGENT": {
+      "goal": "Make information requirements, engineering rule packs and scenario deltas explicit and versioned.",
+      "forbidden": ["approving rules on behalf of the responsible engineer", "presenting assumptions as measurements"]
+    },
+    "SOLVER_FEM_AGENT": {
+      "goal": "Build solver-neutral and solver-specific projections from the current canonical generation with complete round-trip identity.",
+      "forbidden": ["using M0-OS-0002 as current authority", "solver output rewriting evidence", "hiding unsupported features"]
+    },
+    "VERIFICATION_INTERVENTION_AGENT": {
+      "goal": "Build traceable verification, intervention and lifecycle generation workflows.",
+      "forbidden": ["final professional approval", "mutating AS-IS history"]
+    },
+    "QA_ASSURANCE_AGENT": {
+      "goal": "Validate contracts, traceability, security, human factors and release readiness independently.",
+      "forbidden": ["altering engineering meaning to make tests pass"]
+    }
+  },
+  "allowed_result_decisions": ["PASS", "PASS_WITH_WATCH", "RESIDUAL", "BLOCKED", "CONFLICT", "HUMAN_AUTHORITY_REQUIRED"],
+  "global_invariants": [
+    "UI_STATE_IS_NEVER_ENGINEERING_AUTHORITY",
+    "AGENT_OUTPUT_IS_NEVER_ENGINEERING_AUTHORITY_BY_ITSELF",
+    "SOLVER_OUTPUT_NEVER_REWRITES_SOURCE_EVIDENCE",
+    "MODEL_PRECISION_NEVER_UPGRADES_EVIDENCE_PRECISION",
+    "MISSING_INFORMATION_IS_NEVER_SILENTLY_FILLED",
+    "GEOMETRIC_PROXIMITY_DOES_NOT_CREATE_STRUCTURAL_CONNECTIVITY",
+    "HUMAN_OBSERVATION_MUST_NOT_BE_NORMALIZED_WITH_INFORMATION_LOSS",
+    "SCENARIO_ASSUMPTIONS_ARE_NOT_MEASUREMENTS",
+    "INTERVENTION_DOES_NOT_MUTATE_AS_IS_HISTORY",
+    "DECISION_GRADE_RESULTS_REQUIRE_BIDIRECTIONAL_TRACEABILITY"
+  ]
+}
