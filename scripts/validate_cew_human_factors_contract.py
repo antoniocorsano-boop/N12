@@ -75,8 +75,11 @@ def main() -> int:
         if text not in page:
             errors.append(f"HF-HOME-01 missing visible orientation text: {text}")
 
-    if "Rivedi evidenza" not in page or "/review/f7?task=" not in page:
+    evidence_route = "/evidence/review?task=" in page or "/review/f7?task=" in page
+    if "Rivedi evidenza" not in page or not evidence_route:
         errors.append("HF-HOME-02 evidence-review action missing")
+    if "/sources" not in page:
+        errors.append("HF-HOME-02 Source Hub navigation missing")
     if "Dettagli tecnici e audit" not in page or "/technical/control-room" not in page:
         errors.append("HF-HOME-06 technical detail route missing")
 
