@@ -7,7 +7,9 @@ on:
       - 'data/canonical/N12_ISSUES_CURRENT_v1.json'
       - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
       - 'automation/CEW_ISSUE_RESIDUAL_CONTRACT_v1.json'
+      - 'automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json'
       - 'scripts/cew_project_control_room.py'
+      - 'scripts/validate_cew_product_state_reconciliation.py'
       - '.github/workflows/validate-cew-control-room.yml'
 
 jobs:
@@ -26,22 +28,25 @@ jobs:
             --output artifacts/cew-control-room/index.html
           grep -q 'Revisione umana evidenze F7' artifacts/cew-control-room/index.html
           grep -q '/review/f7?task=ERW-N12-001' artifacts/cew-control-room/index.html
-      - name: Assert anti-drift and issue coverage
+      - name: Assert authority split and issue coverage
         run: |
           python - <<'PY'
           import json
           s=json.load(open('data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'))
           i=json.load(open('data/canonical/N12_ISSUES_CURRENT_v1.json'))
           issue_blockers={g for x in i['issues'] for g in x.get('blocking_gate_ids',[]) if g=='M1E'}
-          assert len(s['current_calculation_blockers']) == 6
+          assert s['state_role']=='CEW_PRODUCT_RUNTIME_STATE'
+          assert s['engineering_state']['authority_path']=='knowledge/CURRENT_STATE.json'
+          assert s['engineering_state']['calculation_model_ready'] is False
           assert len(i['issues']) == 6
-          assert s['current_work_item']['state'] == 'IN_PROGRESS'
           assert len(s['anti_drift_rules']) >= 5
           assert all(x['state'] in {'OPEN','IN_REVIEW','WAITING_EVIDENCE','WAITING_INVESTIGATION','PROPOSED_RESOLUTION','RESOLVED','SUPERSEDED'} for x in i['issues'])
           assert all(x['impact'] in {'BLOCKING','LOCAL_BLOCKING','NON_BLOCKING','INFORMATIONAL'} for x in i['issues'])
           assert issue_blockers == {'M1E'}
-          print('CEW CONTROL ROOM CONTRACT: PASS | blockers=6 | issues=6 | native_f7=4')
+          print('CEW CONTROL ROOM CONTRACT: PASS | product_state=2.0 | N12 issues=6 | native_f7=4')
           PY
+      - name: Validate product-state reconciliation
+        run: python scripts/validate_cew_product_state_reconciliation.py
       - uses: actions/upload-artifact@v4
         with:
           name: cew-control-room-n12
