@@ -30,7 +30,12 @@ jobs:
           r=json.load(open('data/canonical/N12_B06_RESIDUAL_ROUTING_CURRENT_v1.json'))
           h=json.load(open('data/canonical/N12_G4_HIRES_MACHINE_REVIEW_RECEIPT_v1.json'))
 
-          assert s['current_work_item']['id']=='CEW-R3-SYNCHRONIZED-EVIDENCE-MAP-V0'
+          # CEW product CURRENT no longer owns N12 engineering facts. The Evidence Map
+          # validates its own governed N12 artifacts and only checks the authority split.
+          assert s['state_role']=='CEW_PRODUCT_RUNTIME_STATE'
+          assert s['engineering_state']['authority_path']=='knowledge/CURRENT_STATE.json'
+          assert s['engineering_state']['queue_path']=='automation/N12_WORK_QUEUE_v1.json'
+          assert s['engineering_state']['calculation_model_ready'] is False
           assert c['contract_id']=='CEW_EVIDENCE_VIEWPOINT_CONTRACT'
           assert m['coverage']['current_issue_count']==6
           assert m['coverage']['issues_with_structured_source_context']==len(m['source_to_entity_links'])==3
@@ -95,26 +100,23 @@ jobs:
           assert issues['N12-ISS-M1E-B06']['routing_class']=='MIXED_RESIDUAL_ROUTING'
           assert issues['N12-ISS-M1E-B06']['evidence_snippet_refs']==[]
 
-          blockers={x['id']:x for x in s['current_calculation_blockers']}
-          assert blockers['M1E-B05']['routing_class']=='CONFIRMED_DOCUMENTARY_GAP'
-          assert blockers['M1E-B06']['routing_class']=='MIXED_RESIDUAL_ROUTING'
-          p=s['current_work_item']['progress']
-          assert p['evidence_snippet_candidates']==1
-          assert p['g4_group_scope_review_targets']==3
-          assert p['g4_machine_visual_direct_label_candidates']==2
-          assert p['g4_machine_visual_partial_state_confirmed_candidates']==1
-          assert p['column_primary_source_search_closed']==7
-          assert p['canonical_evidence_snippets']==0
+          # Counts/routing now come from their domain artifacts, never CEW product CURRENT.
+          assert m['coverage']['issues_with_evidence_snippet_candidate']==1
+          assert len(review_targets)==3
+          assert h['summary']['direct_label_candidates']==2
+          assert h['summary']['partial_state_confirmed_candidates']==1
+          assert sum(x['route']=='CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED' for x in routes)==7
+          assert m['coverage']['issues_with_canonical_evidence_snippet']==0
 
           analysis1=Path('docs/ANALYSIS/CEW_R3_B05_B06_RESOLUTION_ROUTING_v1.md').read_text(encoding='utf-8')
           analysis2=Path('docs/ANALYSIS/CEW_R3_B06_RESIDUAL_SUBROUTING_v1.md').read_text(encoding='utf-8')
           assert 'confirmed documentary coverage gap' in analysis1.lower()
           assert 'CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED' in analysis2
 
-          guards='\n'.join(m['guards'])+'\n'+'\n'.join(s['anti_drift_rules'])+'\n'+'\n'.join(r['guards'])+'\n'+'\n'.join(h['guards'])
+          guards='\n'.join(m['guards'])+'\n'+'\n'.join(r['guards'])+'\n'+'\n'.join(h['guards'])
           assert 'candidate' in guards.lower() and 'approved' in guards.lower()
           assert 'single-member binding' in guards.lower()
           assert 'human' in guards.lower()
 
-          print('CEW EVIDENCE MAP: PASS | B06=MIXED | G4 HiRes direct-label candidates=2 | partial-confirmed=1 | promoted_values=0 | approved_snippets=0')
+          print('CEW EVIDENCE MAP: PASS | authority=N12 domain artifacts | B06=MIXED | promoted_values=0 | approved_snippets=0')
           PY

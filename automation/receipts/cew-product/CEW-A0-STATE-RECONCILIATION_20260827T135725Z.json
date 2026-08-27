@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "work_item_id": "CEW-A0-STATE-RECONCILIATION",
+  "decision": "PASS",
+  "agent_role": "PRODUCT_STATE_AGENT",
+  "ingested_at": "2026-08-27T13:57:25Z",
+  "selected_before": "CEW-A0-STATE-RECONCILIATION",
+  "released_after": "CEW-A1-PRODUCT-SPINE",
+  "result": {
+    "target_outputs": [
+      "automation/CEW_PRODUCT_STATE_RECONCILIATION_v1.json",
+      "scripts/validate_cew_product_state_reconciliation.py",
+      "data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json"
+    ],
+    "validation": {
+      "DATA_GATE": "PASS",
+      "INTEGRATION_GATE": "PASS",
+      "QA_GATE": "PASS"
+    },
+    "residuals": [],
+    "authority_boundary": "No N12 engineering fact, evidence, model geometry, engineering property, residual decision or calculation readiness was changed by A0."
+  },
+  "verified_runs": {
+    "product_transformation": 33079458086,
+    "control_room": 33079458101,
+    "evidence_map": 33079458301,
+    "f7_native_review": 33079458152,
+    "user_web_pilot": 33079458051,
+    "existing_assessment": 33079458172,
+    "knowledge_system": 33079458047,
+    "legacy_audit_regression": 33079458102,
+    "evidence_region_pack": 33079458055
+  },
+  "canonical_write": false,
+  "engineering_authority_exercised": false
+}

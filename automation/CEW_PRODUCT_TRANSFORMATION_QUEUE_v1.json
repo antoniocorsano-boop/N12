@@ -1,0 +1,129 @@
+{
+  "schema_version": "1.0",
+  "queue_id": "CEW_PRODUCT_TRANSFORMATION_QUEUE",
+  "program_goal": "CEW-GOAL-01",
+  "updated_at": "2026-08-27",
+  "selection_rule": "Select the lowest-priority incomplete item whose dependencies are COMPLETE. IN_PROGRESS, RESIDUAL, CONFLICT and HUMAN_AUTHORITY_REQUIRED take precedence. Parallel preparation is allowed but cannot change promotion state.",
+  "promotion_rule": "Only a valid CEW product agent result handshake may move a work item to COMPLETE. Human-authority gates cannot be satisfied by an agent.",
+  "items": [
+    {
+      "id": "CEW-A0-STATE-RECONCILIATION",
+      "priority": 10,
+      "wave": "A",
+      "agent_role": "PRODUCT_STATE_AGENT",
+      "state": "COMPLETE",
+      "objective": "Reconcile CEW product/runtime state with merged code and explicitly project N12 engineering state into P0-P16 without changing engineering facts.",
+      "dependencies": [],
+      "target_outputs": ["automation/CEW_PRODUCT_STATE_RECONCILIATION_v1.json", "scripts/validate_cew_product_state_reconciliation.py", "data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json"],
+      "required_gates": ["DATA_GATE", "INTEGRATION_GATE", "QA_GATE"],
+      "completion_decision": "PASS",
+      "completed_at": "2026-08-27T13:57:25Z",
+      "result_receipt": "automation/receipts/cew-product/CEW-A0-STATE-RECONCILIATION_20260827T135725Z.json"
+    },
+    {
+      "id": "CEW-A1-PRODUCT-SPINE",
+      "priority": 20,
+      "wave": "A",
+      "agent_role": "PRODUCT_STATE_AGENT",
+      "state": "COMPLETE",
+      "objective": "Implement lifecycle primitives P0-P16, phase gates, deliverables, engineering decisions, information requirements, rule-pack references and work packages.",
+      "dependencies": ["CEW-A0-STATE-RECONCILIATION"],
+      "target_outputs": ["automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json"],
+      "required_gates": ["DATA_GATE", "ENGINEERING_GATE"],
+      "completion_decision": "PASS",
+      "completed_at": "2026-08-27T19:04:00Z",
+      "result_receipt": "automation/receipts/cew-product/CEW-A1-PRODUCT-SPINE_20260827T190400Z.json"
+    },
+    {
+      "id": "CEW-A2-PROJECT-HOME-HUMAN-FACTORS",
+      "priority": 30,
+      "wave": "A",
+      "agent_role": "HUMAN_FACTORS_AGENT",
+      "state": "COMPLETE",
+      "objective": "Replace repository-oriented control room semantics with lifecycle-based Project Home, engineering terminology and human-factors acceptance fixtures.",
+      "dependencies": ["CEW-A1-PRODUCT-SPINE"],
+      "target_outputs": ["docs/PRODUCT/CEW_PROJECT_HOME_V2_CONTRACT_v1.md", "automation/CEW_TERMINOLOGY_LAYER_v1.json", "scripts/validate_cew_human_factors_contract.py"],
+      "required_gates": ["INTEGRATION_GATE", "HUMAN_FACTORS_GATE"],
+      "completion_decision": "PASS",
+      "completed_at": "2026-08-27T19:20:00Z",
+      "result_receipt": "automation/receipts/cew-product/CEW-A2-PROJECT-HOME-HUMAN-FACTORS_20260827T192000Z.json"
+    },
+    {
+      "id": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
+      "priority": 40,
+      "wave": "B",
+      "agent_role": "SOURCE_EVIDENCE_AGENT",
+      "state": "RESIDUAL",
+      "objective": "Deliver Source Hub and Evidence Workspace with immutable intake, MICRO/MESO/MACRO context, linked entity context and natural-language human decisions.",
+      "dependencies": ["CEW-A2-PROJECT-HOME-HUMAN-FACTORS"],
+      "target_outputs": ["docs/PRODUCT/CEW_SOURCE_HUB_V1_CONTRACT.md", "docs/PRODUCT/CEW_EVIDENCE_WORKSPACE_V1_CONTRACT.md"],
+      "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE", "HUMAN_FACTORS_GATE", "PRODUCTION_SMOKE"],
+      "current_validation": {
+        "DATA_GATE": "PASS",
+        "ENGINEERING_GATE": "PASS",
+        "HUMAN_GATE": "PASS",
+        "HUMAN_FACTORS_GATE": "PASS",
+        "PRODUCTION_DEPLOY": "PASS",
+        "PRODUCTION_SMOKE": "PARTIAL_AUTHENTICATED_SOURCE_SMOKE_PENDING"
+      },
+      "residual_id": "CEW-B1-PROD-01",
+      "residual_reason": "Current B1 runtime is Production/Current/Ready on Vercel from commit 7fadbe9285eae59ee0b0cc0789f371916f895f7b. Remaining gate is authenticated verification of health, Source Hub, immutable source SHA-256 retrieval and MICRO/MESO/MACRO Evidence Workspace rendering without a synthetic human receipt.",
+      "deployment_receipt": "automation/receipts/cew-product/CEW-B1-PRODUCTION-DEPLOY_20260827T203710Z.json"
+    },
+    {
+      "id": "CEW-B2-RECONSTRUCTION-PROPERTIES",
+      "priority": 50,
+      "wave": "B",
+      "agent_role": "RECONSTRUCTION_AGENT",
+      "state": "WAITING",
+      "objective": "Integrate source, 2D, table, 3D, residuals, structural model and engineering properties over stable entity identity.",
+      "dependencies": ["CEW-B1-SOURCE-EVIDENCE-JOURNEY"],
+      "target_outputs": ["docs/PRODUCT/CEW_RECONSTRUCTION_WORKSPACE_V1_CONTRACT.md", "docs/PRODUCT/CEW_STRUCTURAL_MODEL_WORKSPACE_V1_CONTRACT.md", "docs/PRODUCT/CEW_PROPERTY_WORKSPACES_V1_CONTRACT.md"],
+      "required_gates": ["ENGINEERING_GATE", "INTEGRATION_GATE", "HUMAN_FACTORS_GATE"]
+    },
+    {
+      "id": "CEW-C1-ASSESSMENT-READINESS",
+      "priority": 60,
+      "wave": "C",
+      "agent_role": "RULE_SCENARIO_AGENT",
+      "state": "WAITING",
+      "objective": "Implement EngineeringRulePack, InformationRequirements, executable investigations, knowledge decision pack, AS-IS generation and authorized scenarios.",
+      "dependencies": ["CEW-B2-RECONSTRUCTION-PROPERTIES"],
+      "target_outputs": ["automation/CEW_ENGINEERING_RULE_PACK_v1.json", "automation/CEW_INFORMATION_REQUIREMENTS_v1.json", "docs/PRODUCT/CEW_INVESTIGATION_WORKSPACE_V1_CONTRACT.md", "automation/CEW_ASIS_SCENARIO_CONTRACT_v1.json"],
+      "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_AUTHORITY_GATE", "HUMAN_FACTORS_GATE"]
+    },
+    {
+      "id": "CEW-D1-SOLVER-FEM-ROUNDTRIP",
+      "priority": 70,
+      "wave": "D",
+      "agent_role": "SOLVER_FEM_AGENT",
+      "state": "WAITING",
+      "objective": "Retire stale prototype authority and deliver solver-neutral projection, current-canonical OpenSees adapter, EdiLus handoff, immutable run/results and result-to-entity mapping.",
+      "dependencies": ["CEW-C1-ASSESSMENT-READINESS"],
+      "target_outputs": ["docs/MODEL/CEW_LEGACY_FEM_STATUS_v1.md", "automation/CEW_SOLVER_PROJECTION_CONTRACT_v1.json", "model/open_source_fem/current_adapter/README.md", "docs/MODEL/CEW_EDILUS_HANDOFF_v1.md", "automation/CEW_SOLVER_RUN_RESULT_CONTRACT_v1.json", "docs/PRODUCT/CEW_RESULT_MAP_V1_CONTRACT.md"],
+      "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "INTEGRATION_GATE", "HUMAN_AUTHORITY_GATE", "QA_GATE"]
+    },
+    {
+      "id": "CEW-E1-VERIFICATION-LIFECYCLE",
+      "priority": 80,
+      "wave": "E",
+      "agent_role": "VERIFICATION_INTERVENTION_AGENT",
+      "state": "WAITING",
+      "objective": "Deliver verification, sensitivity, intervention generations, executed/as-built generation, monitoring/reassessment and technical dossier workflow.",
+      "dependencies": ["CEW-D1-SOLVER-FEM-ROUNDTRIP"],
+      "target_outputs": ["docs/PRODUCT/CEW_VERIFICATION_WORKSPACE_V1_CONTRACT.md", "automation/CEW_SENSITIVITY_CONTRACT_v1.json", "automation/CEW_INTERVENTION_GENERATION_CONTRACT_v1.json", "automation/CEW_EXECUTED_GENERATION_CONTRACT_v1.json", "automation/CEW_MONITORING_REASSESSMENT_CONTRACT_v1.json", "docs/PRODUCT/CEW_DOSSIER_BUILDER_V1_CONTRACT.md"],
+      "required_gates": ["ENGINEERING_GATE", "HUMAN_AUTHORITY_GATE", "HUMAN_FACTORS_GATE"]
+    },
+    {
+      "id": "CEW-Z0-PRODUCTION-ACCEPTANCE",
+      "priority": 1000,
+      "wave": "Z",
+      "agent_role": "QA_ASSURANCE_AGENT",
+      "state": "WAITING",
+      "objective": "Demonstrate the complete source-to-decision CEW workflow on N12 without repository knowledge and with complete bidirectional traceability.",
+      "dependencies": ["CEW-E1-VERIFICATION-LIFECYCLE"],
+      "target_outputs": ["docs/ACCEPTANCE/CEW_GOAL_01_PRODUCTION_ACCEPTANCE_v1.md"],
+      "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_AUTHORITY_GATE", "INTEGRATION_GATE", "HUMAN_FACTORS_GATE", "SECURITY_GATE", "PRODUCTION_SMOKE"]
+    }
+  ]
+}

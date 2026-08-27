@@ -1,0 +1,261 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW_HUMAN_CENTRIC_STRUCTURAL_LIFECYCLE",
+  "product": "CEW",
+  "vertical": "CEW-EX",
+  "status": "PROPOSED_CANONICAL_PRODUCT_CONTRACT",
+  "reference_project": "N12",
+  "development_model": "HUMAN_CENTRED_STRUCTURAL_ENGINEERING_LIFECYCLE",
+  "development_loop": [
+    "CONTEXT",
+    "ENGINEERING_DECISION",
+    "INFORMATION_NEED",
+    "WORKSPACE_DESIGN",
+    "AUTOMATION_BOUNDARY",
+    "ENGINEERING_GATE",
+    "HUMAN_FACTORS_GATE",
+    "RELEASE",
+    "OBSERVE_AND_ITERATE"
+  ],
+  "product_navigation": [
+    "PROJECT_HOME",
+    "SOURCES",
+    "EVIDENCE",
+    "RECONSTRUCTION",
+    "STRUCTURAL_MODEL",
+    "PROPERTIES",
+    "CONDITION",
+    "INVESTIGATIONS",
+    "SCENARIOS",
+    "ANALYSIS_FEM",
+    "VERIFICATION",
+    "INTERVENTIONS",
+    "DOSSIER_AUDIT"
+  ],
+  "maturity_dimensions": [
+    "ENGINE_AVAILABLE",
+    "DATA_CONTRACT_VALIDATED",
+    "INTEGRATED_WITH_PROJECT_GRAPH",
+    "USER_WORKFLOW_AVAILABLE",
+    "ENGINEERING_GATE_VALIDATED",
+    "HUMAN_FACTORS_VALIDATED",
+    "PRODUCTION_READY"
+  ],
+  "human_authority_levels": {
+    "A_MACHINE_DETERMINISTIC": "schema/hash/identity/count/topology/unit and other deterministic checks",
+    "B_MACHINE_PROPOSES_HUMAN_REVIEWS": "ambiguous evidence, claim promotion, conflict adjudication, modeling-rule proposals",
+    "C_HUMAN_ENGINEERING_AUTHORITY": "rule-pack approval, knowledge strategy, investigations, solver authorization, verification conclusions, interventions and generation approvals"
+  },
+  "core_new_primitives": [
+    "ProjectPhase",
+    "PhaseGate",
+    "PhaseDeliverable",
+    "EngineeringDecision",
+    "InformationRequirement",
+    "EngineeringRulePack",
+    "WorkPackage"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "PROJECT_DEFINITION",
+      "dominant_question": "What are we assessing and why?",
+      "primary_workspace": "PROJECT_HOME",
+      "deliverables": ["ProjectCharter", "AssetRecord", "EngineeringRulePackSelection", "InitialInformationRequirementSet", "ResponsibilityMatrix"],
+      "gate": "PROJECT_DEFINED",
+      "primary_human_authority": "RESPONSIBLE_ENGINEER",
+      "dependencies": []
+    },
+    {
+      "id": "P1",
+      "name": "SOURCE_ACQUISITION_CDE",
+      "dominant_question": "What information do I have, where did it come from and what is its status?",
+      "primary_workspace": "SOURCES",
+      "deliverables": ["SourceRegister", "SourceVersionGraph", "MissingSourceChecklist", "SourceAuthorityAndUseClassification"],
+      "gate": "SOURCE_BASELINE_READY",
+      "primary_human_authority": "PROJECT_INFORMATION_OWNER",
+      "dependencies": ["P0"]
+    },
+    {
+      "id": "P2",
+      "name": "DOCUMENT_UNDERSTANDING",
+      "dominant_question": "What is contained in each source and where are the engineering-relevant regions?",
+      "primary_workspace": "SOURCES",
+      "deliverables": ["PageRegistry", "DrawingDocumentIndex", "SourceSheetMap", "EvidenceRegionCandidates", "DocumentResiduals"],
+      "gate": "DOCUMENT_MAP_READY",
+      "primary_human_authority": "EVIDENCE_DOCUMENT_SPECIALIST",
+      "dependencies": ["P1"]
+    },
+    {
+      "id": "P3",
+      "name": "EVIDENCE_CLAIM_RECONSTRUCTION",
+      "dominant_question": "What does the source actually document?",
+      "primary_workspace": "EVIDENCE",
+      "deliverables": ["ClaimLedger", "EvidenceLedger", "ConflictRegister", "HumanReviewReceipts", "EvidenceResiduals"],
+      "gate": "TRACEABLE_EVIDENCE_READY",
+      "primary_human_authority": "ENGINEER_OR_DOMAIN_REVIEWER",
+      "dependencies": ["P2"]
+    },
+    {
+      "id": "P4",
+      "name": "HISTORICAL_CRITICAL_ANALYSIS_AND_SURVEY_BASELINE",
+      "dominant_question": "What is the structural history and what current geometry/condition can be established?",
+      "primary_workspace": "RECONSTRUCTION",
+      "deliverables": ["HistoricalCriticalRecord", "SurveyBaseline", "HistoricalCurrentChangeRegister"],
+      "gate": "REFERENCE_BASELINE_ESTABLISHED",
+      "primary_human_authority": "RESPONSIBLE_ENGINEER",
+      "dependencies": ["P3"]
+    },
+    {
+      "id": "P5",
+      "name": "GEOMETRY_TOPOLOGY_RECONSTRUCTION",
+      "dominant_question": "Where are the structural objects and how are they connected?",
+      "primary_workspace": "RECONSTRUCTION",
+      "deliverables": ["GeometricKernel", "TopologyGraph", "StructuralIdentityCandidates", "RigidOffsetAndZoneGraph", "TopologyResiduals"],
+      "gate": "GEOMETRY_TOPOLOGY_READY",
+      "primary_human_authority": "STRUCTURAL_MODEL_ENGINEER",
+      "dependencies": ["P3", "P4"]
+    },
+    {
+      "id": "P6",
+      "name": "STRUCTURAL_SEMANTICS_ASSET_GRAPH",
+      "dominant_question": "What structural role does each reconstructed object perform?",
+      "primary_workspace": "STRUCTURAL_MODEL",
+      "deliverables": ["StructuralAssetGraph", "ExternalIdentityRegistry"],
+      "gate": "STRUCTURAL_IDENTITY_READY",
+      "primary_human_authority": "STRUCTURAL_MODEL_ENGINEER",
+      "dependencies": ["P5"]
+    },
+    {
+      "id": "P7",
+      "name": "ENGINEERING_PROPERTIES",
+      "dominant_question": "Do structural entities have the properties required for the intended assessment?",
+      "primary_workspace": "PROPERTIES",
+      "deliverables": ["SectionBindings", "ReinforcementBindings", "MaterialKnowledgeRegister", "LoadMassModel", "BoundaryConditions", "FoundationModelInputs", "GeotechnicalInputs", "CalculationBlockers"],
+      "gate": "ENGINEERING_PROPERTIES_READY",
+      "primary_human_authority": "RESPONSIBLE_ENGINEER_AND_DOMAIN_SPECIALISTS",
+      "dependencies": ["P6"]
+    },
+    {
+      "id": "P8",
+      "name": "CONDITION_EXPOSURE_DEGRADATION",
+      "dominant_question": "What is the current physical state and which mechanisms may affect performance?",
+      "primary_workspace": "CONDITION",
+      "deliverables": ["ConditionMap", "ExposureZones", "Observations", "Measurements", "DamageStates", "DegradationEligibilityAndResiduals"],
+      "gate": "CONDITION_BASELINE_READY",
+      "primary_human_authority": "CONDITION_DURABILITY_SPECIALIST",
+      "dependencies": ["P3", "P6"]
+    },
+    {
+      "id": "P9",
+      "name": "KNOWLEDGE_LEVEL_INVESTIGATION",
+      "dominant_question": "What is still unknown, what matters to the decision and which investigation is worth performing?",
+      "primary_workspace": "INVESTIGATIONS",
+      "deliverables": ["KnowledgeDecisionPack", "InvestigationPlan", "FieldPacks", "InvestigationResults", "UpdatedClaims"],
+      "gate": "KNOWLEDGE_STRATEGY_AUTHORIZED",
+      "primary_human_authority": "RESPONSIBLE_ENGINEER_AND_DOMAIN_SPECIALISTS",
+      "dependencies": ["P7", "P8"]
+    },
+    {
+      "id": "P10",
+      "name": "CANONICAL_AS_IS_GENERATION",
+      "dominant_question": "What is the current authorized structural representation before analysis assumptions are applied?",
+      "primary_workspace": "STRUCTURAL_MODEL",
+      "deliverables": ["AsIsGeneration", "GenerationReadinessReceipt"],
+      "gate": "AS_IS_GENERATION_APPROVED",
+      "primary_human_authority": "RESPONSIBLE_ENGINEER",
+      "dependencies": ["P6", "P7"]
+    },
+    {
+      "id": "P11",
+      "name": "ASSESSMENT_SCENARIOS_MODEL_RULES",
+      "dominant_question": "Which admissible assumptions define the calculation scenario?",
+      "primary_workspace": "SCENARIOS",
+      "deliverables": ["Scenario", "ModelRulePack", "ScenarioDelta", "ScenarioApproval"],
+      "gate": "SCENARIO_AUTHORIZED",
+      "primary_human_authority": "RESPONSIBLE_ENGINEER",
+      "dependencies": ["P9", "P10"]
+    },
+    {
+      "id": "P12",
+      "name": "CALCULATION_MODEL_SOLVER_HANDOFF",
+      "dominant_question": "Is the authorized scenario technically and epistemically ready to be projected into a solver?",
+      "primary_workspace": "ANALYSIS_FEM",
+      "deliverables": ["SolverProjection", "EntitySolverMap", "UnsupportedFeatureReport", "NumericalIdealizationReport", "AdapterQAReceipt", "ExecutionAuthorization"],
+      "gate": "CALCULATION_MODEL_READY",
+      "primary_human_authority": "RESPONSIBLE_ENGINEER",
+      "dependencies": ["P11"]
+    },
+    {
+      "id": "P13",
+      "name": "FEM_STRUCTURAL_ANALYSIS",
+      "dominant_question": "Did the numerical analysis execute as intended and is the result set technically valid?",
+      "primary_workspace": "ANALYSIS_FEM",
+      "deliverables": ["SolverRunReceipt", "ImmutableResultBundle", "AnalysisQADiagnostics", "AnalysisResiduals"],
+      "gate": "ANALYSIS_VALIDATED",
+      "primary_human_authority": "STRUCTURAL_ANALYSIS_ENGINEER",
+      "dependencies": ["P12"]
+    },
+    {
+      "id": "P14",
+      "name": "VERIFICATION_ASSESSMENT",
+      "dominant_question": "What is the structural conclusion, why, and how robust is it?",
+      "primary_workspace": "VERIFICATION",
+      "deliverables": ["VerificationRegister", "EngineeringAssessment", "DecisionRisks", "AssessmentApproval"],
+      "gate": "ASSESSMENT_CONCLUSION_APPROVED",
+      "primary_human_authority": "RESPONSIBLE_ENGINEER",
+      "dependencies": ["P13"]
+    },
+    {
+      "id": "P15",
+      "name": "INTERVENTION_DESIGN",
+      "dominant_question": "What intervention options resolve the identified deficiencies and with what consequences?",
+      "primary_workspace": "INTERVENTIONS",
+      "deliverables": ["InterventionAlternatives", "ProposedGenerations", "AlternativeAnalyses", "InterventionComparison", "InterventionApproval"],
+      "gate": "INTERVENTION_GENERATION_APPROVED",
+      "primary_human_authority": "RESPONSIBLE_ENGINEER",
+      "dependencies": ["P14"]
+    },
+    {
+      "id": "P16",
+      "name": "EXECUTION_AS_BUILT_MONITORING",
+      "dominant_question": "What was actually executed and how does the asset evolve after intervention?",
+      "primary_workspace": "DOSSIER_AUDIT",
+      "deliverables": ["ExecutedGeneration", "AsBuiltEvidencePack", "MonitoringBaseline", "AssetDossier", "ReassessmentTriggers"],
+      "gate": "LIFECYCLE_BASELINE_ESTABLISHED",
+      "primary_human_authority": "RESPONSIBLE_ENGINEER_ASSET_OWNER",
+      "dependencies": ["P15"]
+    }
+  ],
+  "evidence_workspace_requirement": {
+    "required_contexts": ["MICRO", "MESO", "MACRO"],
+    "simultaneously_visible": ["SOURCE_EVIDENCE", "ENGINEERING_ENTITY_CONTEXT", "HUMAN_DECISION"],
+    "natural_engineering_language_required": true,
+    "parser_specific_user_grammar_forbidden": true
+  },
+  "solver_round_trip": {
+    "chain": ["CANONICAL_GENERATION", "AUTHORIZED_SCENARIO", "MODEL_RULE_PACK", "SOLVER_PROJECTION", "ADAPTER_QA", "EXECUTION", "RESULT_IMPORT", "ENTITY_MAPPING", "VERIFICATION"],
+    "required_projection_outputs": ["projection_id", "projection_hash", "entity_solver_map", "units", "unsupported_features", "residual_exclusions", "numerical_idealizations", "solver_version"],
+    "initial_targets": ["EDILUS_EE", "OPENSEES_CURRENT_CANONICAL"],
+    "independent_crosscheck_targets": ["CODE_ASTER_OR_EQUIVALENT_WHEN_CONFIGURED"],
+    "legacy_prototype_policy": "M0-OS-0002_IS_HISTORICAL_PROTOTYPE_NOT_CURRENT_SOLVER_AUTHORITY"
+  },
+  "human_factors_acceptance_scenarios": [
+    "HF-EVIDENCE-01",
+    "HF-GEOMETRY-01",
+    "HF-INVESTIGATION-01",
+    "HF-SOLVER-01",
+    "HF-RESULT-01"
+  ],
+  "authority_invariants": [
+    "UI_STATE_IS_NEVER_ENGINEERING_AUTHORITY",
+    "SOLVER_OUTPUT_NEVER_REWRITES_SOURCE_EVIDENCE",
+    "MODEL_PRECISION_NEVER_UPGRADES_EVIDENCE_PRECISION",
+    "MISSING_INFORMATION_IS_NEVER_SILENTLY_FILLED",
+    "GEOMETRIC_PROXIMITY_DOES_NOT_CREATE_STRUCTURAL_CONNECTIVITY",
+    "HUMAN_OBSERVATION_MUST_NOT_BE_NORMALIZED_WITH_INFORMATION_LOSS",
+    "SCENARIO_ASSUMPTIONS_ARE_NOT_MEASUREMENTS",
+    "INTERVENTION_DOES_NOT_MUTATE_AS_IS_HISTORY",
+    "DECISION_GRADE_RESULTS_REQUIRE_BIDIRECTIONAL_TRACEABILITY"
+  ]
+}

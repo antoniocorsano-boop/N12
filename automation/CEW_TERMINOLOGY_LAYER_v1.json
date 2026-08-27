@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "layer_id": "CEW_TERMINOLOGY_LAYER",
+  "program_goal": "CEW-GOAL-01",
+  "status": "A2_PRODUCT_TERMINOLOGY_B1_NAVIGATION",
+  "audience": "STRUCTURAL_ENGINEER",
+  "rules": {
+    "primary_ui_language": "ITALIAN_ENGINEERING_PLAIN_LANGUAGE",
+    "internal_ids_primary_navigation": false,
+    "internal_ids_available_in_technical_detail": true,
+    "uncertainty_must_remain_visible": true,
+    "human_authority_must_remain_explicit": true,
+    "canonical_write_implication_forbidden": true
+  },
+  "terms": {
+    "PROJECT_HOME": {"primary": "Progetto", "secondary": "Project Home"},
+    "CURRENT_WORK_ITEM": {"primary": "Attività corrente", "secondary": "Work item"},
+    "RESIDUAL": {"primary": "Dato da completare", "alternative": "Questione aperta"},
+    "HUMAN_REVIEW_TASK": {"primary": "Revisione evidenza", "action": "Rivedi evidenza"},
+    "EVIDENCE_REGION": {"primary": "Fonte da verificare", "technical": "Regione di evidenza"},
+    "SOURCE_VERSION": {"primary": "Versione della fonte", "technical": "SourceVersion"},
+    "HUMAN_AUTHORITY_REQUIRED": {"primary": "Decisione dell’ingegnere richiesta"},
+    "CALCULATION_MODEL_NOT_READY": {"primary": "Modello di calcolo non ancora autorizzabile"},
+    "CALCULATION_MODEL_READY": {"primary": "Modello di calcolo pronto per autorizzazione"},
+    "CANONICAL_WRITE_FALSE": {"primary": "La revisione non modifica automaticamente i dati ingegneristici approvati"},
+    "TECHNICAL_CONTROL_ROOM": {"primary": "Dettagli tecnici e audit", "secondary": "Control Room"}
+  },
+  "navigation": [
+    {"id": "SOURCES", "label": "Fonti", "href": "/sources", "state": "B1_ACTIVE"},
+    {"id": "EVIDENCE", "label": "Evidenze", "href": "/sources", "state": "B1_ACTIVE_THROUGH_SOURCE_CONTEXT"},
+    {"id": "RECONSTRUCTION", "label": "Ricostruzione"},
+    {"id": "STRUCTURAL_MODEL", "label": "Modello strutturale"},
+    {"id": "PROPERTIES", "label": "Proprietà"},
+    {"id": "CONDITION", "label": "Condizione"},
+    {"id": "INVESTIGATIONS", "label": "Indagini"},
+    {"id": "SCENARIOS", "label": "Scenari"},
+    {"id": "ANALYSIS_FEM", "label": "Analisi FEM"},
+    {"id": "VERIFICATION", "label": "Verifiche"},
+    {"id": "INTERVENTIONS", "label": "Interventi"},
+    {"id": "DOSSIER_AUDIT", "label": "Dossier e audit"}
+  ],
+  "lifecycle_groups": [
+    {"id": "DEFINE_COLLECT", "label": "Definisci e raccogli", "phases": ["P0", "P1", "P2"]},
+    {"id": "RECONSTRUCT_UNDERSTAND", "label": "Ricostruisci e comprendi", "phases": ["P3", "P4", "P5", "P6", "P7", "P8"]},
+    {"id": "COMPLETE_KNOWLEDGE", "label": "Completa la conoscenza", "phases": ["P9"]},
+    {"id": "PREPARE_ASSESSMENT_MODEL", "label": "Prepara il modello di valutazione", "phases": ["P10", "P11", "P12"]},
+    {"id": "ANALYZE_VERIFY", "label": "Analizza e verifica", "phases": ["P13", "P14"]},
+    {"id": "DESIGN_MANAGE_INTERVENTION", "label": "Progetta e gestisci l’intervento", "phases": ["P15", "P16"]}
+  ],
+  "forbidden_primary_labels": [
+    "ERW",
+    "M1E",
+    "F7",
+    "CURRENT_WORK_ITEM",
+    "RESIDUAL_QUEUE",
+    "GATE_ID",
+    "BRANCH",
+    "COMMIT_SHA"
+  ]
+}

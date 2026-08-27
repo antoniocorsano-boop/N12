@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "work_item_id": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
+  "agent_role": "SOURCE_EVIDENCE_AGENT",
+  "decision": "RESIDUAL",
+  "recorded_at": "2026-08-27T19:45:00Z",
+  "validation": {
+    "DATA_GATE": "PASS",
+    "ENGINEERING_GATE": "PASS",
+    "HUMAN_GATE": "PASS",
+    "HUMAN_FACTORS_GATE": "PASS",
+    "PRODUCTION_SMOKE": "NOT_SATISFIED"
+  },
+  "residual": {
+    "residual_id": "CEW-B1-PROD-01",
+    "scope": "PRODUCTION_DEPLOYMENT",
+    "blocking_gate": "PRODUCTION_SMOKE",
+    "cause": "The available Vercel connector lists no CEW project in the connected team. Its deploy action is also internally inconsistent: the exposed action schema accepts no arguments while the backend rejects the call because target, name and files are required. No repository Vercel token or deploy hook is present.",
+    "closure_condition": "Deploy the current CEW B1 runtime to an authenticated production Vercel project and verify the real Source Hub / immutable PDF hash / MICRO-MESO-MACRO Evidence Workspace journey without submitting a synthetic human receipt."
+  },
+  "verified_repository_runs": {
+    "source_evidence_journey": 33109878025,
+    "user_web_pilot": 33109877981,
+    "product_transformation": 33109878032,
+    "promotion_engine": 33109878026,
+    "f7_native_review": 33109878010,
+    "neon_user_runtime": 33109878002,
+    "evidence_map": 33109878028,
+    "evidence_region_pack": 33109878033,
+    "existing_assessment": 33109878050,
+    "knowledge_system": 33109877989
+  },
+  "canonical_write": false,
+  "engineering_authority_exercised": false,
+  "next_work_item_released": false
+}

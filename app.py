@@ -10,7 +10,7 @@ from pathlib import Path
 from urllib.parse import parse_qs
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
 ROOT = Path(__file__).resolve().parent
 SCRIPTS = ROOT / "scripts"
@@ -19,15 +19,18 @@ if str(SCRIPTS) not in sys.path:
 
 import cew_f7_native_review_service as review_service
 import cew_project_control_room as control_room
+import cew_project_home as project_home
 import cew_runtime_audit_store as audit_store
+import cew_source_evidence_workspace as source_workspace
 
-# Production and local runtime use the same F7 pipeline; only the audit backend changes.
 review_service.persist_runtime_receipt = audit_store.persist_runtime_receipt
 
-app = FastAPI(title="CEW Project Control Room", docs_url=None, redoc_url=None)
+app = FastAPI(title="CEW — Structural Existing Workflow", docs_url=None, redoc_url=None)
 SESSION_COOKIE = "cew_session"
 SESSION_PURPOSE = b"CEW_SINGLE_OPERATOR_PILOT_V1"
 PRODUCTION_AUDIT_BACKENDS = {"SUPABASE_APPEND_ONLY", "NETLIFY_AUDIT_HTTPS", "NEON_APPEND_ONLY"}
+TERMINOLOGY = ROOT / "automation/CEW_TERMINOLOGY_LAYER_v1.json"
+LIFECYCLE = ROOT / "automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json"
 
 
 def _auth_disabled_for_test() -> bool:
@@ -56,13 +59,12 @@ def _login_page(message: str = "") -> str:
     note = f"<p class='error'>{html.escape(message)}</p>" if message else ""
     config_note = "" if _auth_configured() else "<p class='error'>CEW non è ancora configurato per l'accesso utente.</p>"
     return f'''<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CEW — Accesso</title>
-<style>body{{font-family:system-ui;background:#f4f6f8;margin:0;color:#17202a}}main{{max-width:440px;margin:10vh auto;background:white;padding:28px;border:1px solid #d8dde3;border-radius:12px}}input,button{{width:100%;box-sizing:border-box;padding:11px;margin-top:8px}}button{{background:#17202a;color:white;border:0;border-radius:7px;font-weight:700}}.error{{color:#a12622}}</style></head><body><main><h1>CEW</h1><p>Project Control Room — accesso tecnico</p>{config_note}{note}<form method="post" action="/login"><label>Password operatore<input type="password" name="password" autocomplete="current-password" autofocus></label><button type="submit">Accedi</button></form></main></body></html>'''
+<style>body{{font-family:system-ui;background:#f4f6f8;margin:0;color:#17202a}}main{{max-width:440px;margin:10vh auto;background:white;padding:28px;border:1px solid #d8dde3;border-radius:12px}}input,button{{width:100%;box-sizing:border-box;padding:11px;margin-top:8px}}button{{background:#173f5f;color:white;border:0;border-radius:7px;font-weight:700}}.error{{color:#a12622}}.muted{{color:#5d6875}}</style></head><body><main><h1>CEW</h1><p>Ambiente di lavoro per la valutazione strutturale dell’esistente</p><p class="muted">Accesso operatore</p>{config_note}{note}<form method="post" action="/login"><label>Password<input type="password" name="password" autocomplete="current-password" autofocus></label><button type="submit">Accedi al progetto</button></form></main></body></html>'''
 
 
 @app.middleware("http")
 async def access_guard(request: Request, call_next):
-    path = request.url.path
-    if path in {"/healthz", "/login"}:
+    if request.url.path in {"/healthz", "/login"}:
         return await call_next(request)
     if not _authorized(request):
         return RedirectResponse(url="/login", status_code=303)
@@ -73,11 +75,13 @@ async def access_guard(request: Request, call_next):
 def healthz():
     backend = audit_store.backend_status()
     return {
-        "service": "CEW_USER_WEB_PILOT",
+        "service": "CEW_USER_RUNTIME",
         "status": "OK" if (_auth_configured() or _auth_disabled_for_test()) else "CONFIG_REQUIRED",
         "auth_configured": _auth_configured(),
         "audit_backend": backend,
         "production_receipt_submit_ready": backend in PRODUCTION_AUDIT_BACKENDS,
+        "source_workspace": "B1_AVAILABLE",
+        "source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED",
         "canonical_write_authorized": False,
     }
 
@@ -117,20 +121,101 @@ def logout():
     return response
 
 
+def _runtime_inputs():
+    return (
+        review_service.load_json(review_service.STATE),
+        review_service.load_json(review_service.ISSUES),
+        review_service.rows(review_service.TASKS),
+    )
+
+
 @app.get("/", response_class=HTMLResponse)
-def control_room_home():
-    state = review_service.load_json(review_service.STATE)
-    issues = review_service.load_json(review_service.ISSUES)
-    tasks = review_service.rows(review_service.TASKS)
+def project_home_route():
+    state, issues, tasks = _runtime_inputs()
+    terminology = review_service.load_json(TERMINOLOGY)
+    lifecycle = review_service.load_json(LIFECYCLE)
+    return HTMLResponse(project_home.build_project_home(state, issues, tasks, terminology, lifecycle))
+
+
+@app.get("/sources", response_class=HTMLResponse)
+def source_hub():
+    return HTMLResponse(source_workspace.build_source_hub())
+
+
+@app.get("/sources/{source_id}", response_class=HTMLResponse)
+def source_detail(source_id: str):
+    if source_id not in source_workspace.maps()["sources"]:
+        return HTMLResponse("<h1>Fonte non trovata</h1><a href='/sources'>Torna alle fonti</a>", status_code=404)
+    return HTMLResponse(source_workspace.build_source_detail(source_id))
+
+
+@app.get("/evidence/review", response_class=HTMLResponse)
+def evidence_workspace(task: str = ""):
+    try:
+        source_workspace.task_context(task)
+    except (KeyError, ValueError):
+        return HTMLResponse("<h1>Evidenza non disponibile</h1><a href='/sources'>Torna alle fonti</a>", status_code=404)
+    return HTMLResponse(source_workspace.build_evidence_workspace(task))
+
+
+@app.get("/api/source/pdf/{source_id}")
+def source_pdf(source_id: str):
+    try:
+        payload, source = source_workspace.fetch_verified_source(source_id)
+    except KeyError as exc:
+        return JSONResponse({"state": "SOURCE_NOT_FOUND", "reason": str(exc)}, status_code=404)
+    except ValueError as exc:
+        return JSONResponse({"state": "SOURCE_INTEGRITY_REJECTED", "reason": str(exc)}, status_code=422)
+    except Exception:
+        return JSONResponse({"state": "SOURCE_ACCESS_UNAVAILABLE", "reason": "VERIFIED_SOURCE_RETRIEVAL_FAILED"}, status_code=503)
+    filename = source.get("canonical_filename", f"{source_id}.pdf").replace('"', "")
+    return Response(
+        content=payload,
+        media_type="application/pdf",
+        headers={
+            "Cache-Control": "private, max-age=300",
+            "Content-Disposition": f'inline; filename="{filename}"',
+            "X-CEW-Primary-Source": "VERIFIED_IMMUTABLE_PDF",
+            "X-CEW-Source-SHA256": source["sha256"],
+        },
+    )
+
+
+@app.get("/api/source/render")
+def source_render(task: str = "", scale: str = "MICRO"):
+    try:
+        png, ctx = source_workspace.render_task_source(task, scale)
+    except KeyError as exc:
+        return JSONResponse({"state": "EVIDENCE_SOURCE_NOT_FOUND", "reason": str(exc)}, status_code=404)
+    except ValueError as exc:
+        return JSONResponse({"state": "EVIDENCE_RENDER_REJECTED", "reason": str(exc)}, status_code=422)
+    except Exception:
+        return JSONResponse({"state": "EVIDENCE_RENDER_UNAVAILABLE", "reason": "VERIFIED_RENDER_FAILED"}, status_code=503)
+    return Response(
+        content=png,
+        media_type="image/png",
+        headers={
+            "Cache-Control": "private, max-age=300",
+            "X-CEW-Source-SHA256": ctx["verified_sha256"],
+            "X-CEW-Source-Scale": ctx["scale"],
+            "X-CEW-Derived-Authority": "READING_AID_ONLY",
+            "X-CEW-Canonical-Write": "false",
+        },
+    )
+
+
+@app.get("/technical/control-room", response_class=HTMLResponse)
+def technical_control_room():
+    state, issues, tasks = _runtime_inputs()
     body = control_room.build(state, issues, tasks)
     marker = "</header>"
-    toolbar = "<div style='max-width:1400px;margin:auto;padding:0 32px 12px'><form method='post' action='/logout'><button style='padding:7px 10px'>Esci</button></form></div>"
+    toolbar = "<div style='max-width:1400px;margin:auto;padding:0 32px 12px;display:flex;gap:12px;align-items:center'><a href='/' style='font-weight:700'>← Torna al progetto</a><form method='post' action='/logout'><button style='padding:7px 10px'>Esci</button></form></div>"
     return HTMLResponse(body.replace(marker, marker + toolbar, 1))
 
 
 @app.get("/review/f7", response_class=HTMLResponse)
 def review_f7(task: str = ""):
-    return HTMLResponse(review_service.render_review(task))
+    return RedirectResponse(url=f"/evidence/review?task={task}", status_code=307)
 
 
 @app.post("/api/f7/receipt")

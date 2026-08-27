@@ -1,0 +1,86 @@
+name: Validate CEW B1 Production Runtime
+
+on:
+  pull_request:
+    paths:
+      - 'app.py'
+      - 'scripts/cew_source_evidence_workspace.py'
+      - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
+      - 'automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json'
+      - '.github/workflows/validate-cew-b1-production-runtime.yml'
+  workflow_dispatch:
+
+jobs:
+  production-runtime-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify public B1 health contract on Production
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, time, urllib.request
+
+          url = 'https://cew-pilot.vercel.app/healthz'
+          last = None
+          for attempt in range(12):
+              try:
+                  req = urllib.request.Request(url, headers={'User-Agent':'CEW-B1-PRODUCTION-SMOKE/1'})
+                  with urllib.request.urlopen(req, timeout=15) as r:
+                      body = r.read().decode('utf-8')
+                      assert r.status == 200, r.status
+                      data = json.loads(body)
+                      expected = {
+                          'service': 'CEW_USER_RUNTIME',
+                          'status': 'OK',
+                          'auth_configured': True,
+                          'audit_backend': 'NEON_APPEND_ONLY',
+                          'production_receipt_submit_ready': True,
+                          'source_workspace': 'B1_AVAILABLE',
+                          'source_integrity_policy': 'IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED',
+                          'canonical_write_authorized': False,
+                      }
+                      for key, value in expected.items():
+                          assert data.get(key) == value, f'{key}: expected {value!r}, got {data.get(key)!r}'
+                      print('CEW_B1_PRODUCTION_HEALTH = PASS')
+                      print(json.dumps(data, sort_keys=True))
+                      break
+              except Exception as exc:
+                  last = exc
+                  if attempt == 11:
+                      raise
+                  time.sleep(5)
+          else:
+              raise last or RuntimeError('health smoke failed')
+          PY
+
+      - name: Verify B1 source routes remain authentication-protected
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import urllib.error, urllib.request
+
+          for path in ['/sources', '/evidence/review?task=ERW-N12-001', '/api/source/render?task=ERW-N12-001&scale=MICRO']:
+              url = 'https://cew-pilot.vercel.app' + path
+              opener = urllib.request.build_opener(urllib.request.HTTPHandler())
+              req = urllib.request.Request(url, method='GET', headers={'User-Agent':'CEW-B1-PRODUCTION-SMOKE/1'})
+              try:
+                  r = opener.open(req, timeout=15)
+                  status = r.getcode()
+                  location = r.headers.get('Location','')
+              except urllib.error.HTTPError as exc:
+                  status = exc.code
+                  location = exc.headers.get('Location','')
+              # urllib may follow redirects depending on environment; final login page is also acceptable.
+              if status in (301,302,303,307,308):
+                  assert location.endswith('/login') or location == '/login', (path, status, location)
+              elif status == 200:
+                  body = r.read().decode('utf-8','replace')
+                  assert 'Accesso operatore' in body or '<title>CEW — Accesso</title>' in body, (path, status)
+              else:
+                  raise AssertionError((path, status, location))
+              print(f'AUTH_GUARD {path} = PASS ({status})')
+          print('CEW_B1_PRODUCTION_AUTH_GUARD = PASS')
+          PY

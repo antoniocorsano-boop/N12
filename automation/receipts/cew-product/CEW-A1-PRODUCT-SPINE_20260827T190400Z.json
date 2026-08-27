@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "work_item_id": "CEW-A1-PRODUCT-SPINE",
+  "decision": "PASS",
+  "agent_role": "PRODUCT_STATE_AGENT",
+  "ingested_at": "2026-08-27T19:04:00Z",
+  "selected_before": "CEW-A1-PRODUCT-SPINE",
+  "released_after": "CEW-A2-PROJECT-HOME-HUMAN-FACTORS",
+  "result": {
+    "target_outputs": ["automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json"],
+    "validation": {"DATA_GATE": "PASS", "ENGINEERING_GATE": "PASS"},
+    "residuals": [],
+    "authority_boundary": "No N12 engineering fact, residual, calculation readiness, rule-pack approval or human engineering decision was changed by A1."
+  },
+  "verified_runs": {
+    "product_transformation": 33106495116,
+    "control_room": 33106495121,
+    "evidence_map": 33106495113,
+    "user_web_pilot": 33106495131,
+    "f7_native_review": 33106495147,
+    "existing_assessment": 33106495156,
+    "knowledge_system": 33106495144
+  },
+  "canonical_write": false,
+  "engineering_authority_exercised": false
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "id": "CEW-B1-GIT-DEPLOY-TRIGGER-20260827",
+  "program_goal": "CEW-GOAL-01",
+  "work_item": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
+  "purpose": "Trigger the first Vercel Git-integrated deployment after connecting antoniocorsano-boop/N12 to the existing cew-pilot project.",
+  "git_repository": "antoniocorsano-boop/N12",
+  "git_branch": "work/cew-human-centric-structural-product-v1",
+  "expected_deployment_type": "PREVIEW_UNLESS_BRANCH_IS_CONFIGURED_AS_PRODUCTION",
+  "production_smoke_authorized": false,
+  "canonical_write_authorized": false,
+  "engineering_authority_exercised": false,
+  "note": "This artifact changes no engineering fact. It exists only to create a post-connection Git event that Vercel can deploy and expose through GitHub status checks."
+}
