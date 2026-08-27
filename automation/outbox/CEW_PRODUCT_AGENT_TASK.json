@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "work_item_id": "CEW-A1-PRODUCT-SPINE",
+  "agent_role": "PRODUCT_STATE_AGENT",
+  "agent_goal": "Eliminate product-state drift and map N12 engineering state into CEW lifecycle phases without changing engineering facts.",
+  "objective": "Implement lifecycle primitives P0-P16, phase gates, deliverables, engineering decisions, information requirements, rule-pack references and work packages.",
+  "dependencies": ["CEW-A0-STATE-RECONCILIATION"],
+  "target_outputs": ["automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json"],
+  "required_gates": ["DATA_GATE", "ENGINEERING_GATE"],
+  "global_invariants": [
+    "UI_STATE_IS_NEVER_ENGINEERING_AUTHORITY",
+    "AGENT_OUTPUT_IS_NEVER_ENGINEERING_AUTHORITY_BY_ITSELF",
+    "SOLVER_OUTPUT_NEVER_REWRITES_SOURCE_EVIDENCE",
+    "MODEL_PRECISION_NEVER_UPGRADES_EVIDENCE_PRECISION",
+    "MISSING_INFORMATION_IS_NEVER_SILENTLY_FILLED",
+    "GEOMETRIC_PROXIMITY_DOES_NOT_CREATE_STRUCTURAL_CONNECTIVITY",
+    "HUMAN_OBSERVATION_MUST_NOT_BE_NORMALIZED_WITH_INFORMATION_LOSS",
+    "SCENARIO_ASSUMPTIONS_ARE_NOT_MEASUREMENTS",
+    "INTERVENTION_DOES_NOT_MUTATE_AS_IS_HISTORY",
+    "DECISION_GRADE_RESULTS_REQUIRE_BIDIRECTIONAL_TRACEABILITY"
+  ],
+  "forbidden": [
+    "changing N12 engineering facts",
+    "closing engineering residuals",
+    "making phase completion imply engineering readiness",
+    "duplicating N12 detailed engineering truth into CEW product state"
+  ],
+  "authority_boundary": "A1 defines product lifecycle primitives and references engineering authority; it does not make engineering decisions or promote N12 facts.",
+  "result_contract": "automation/CEW_PRODUCT_AGENT_RESULT_CONTRACT_v1.json",
+  "result_inbox": "automation/inbox/CEW_PRODUCT_AGENT_RESULT.json"
+}
