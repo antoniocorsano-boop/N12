@@ -12,13 +12,17 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import build_cew_canonical_patch_candidates as patch_builder
+import cew_project_home as project_home
 import cew_source_evidence_workspace as workspace
 
 SOURCE_CONTRACT = ROOT / "docs/PRODUCT/CEW_SOURCE_HUB_V1_CONTRACT.md"
 EVIDENCE_CONTRACT = ROOT / "docs/PRODUCT/CEW_EVIDENCE_WORKSPACE_V1_CONTRACT.md"
 APP = ROOT / "app.py"
-HOME = ROOT / "scripts/cew_project_home.py"
 PAYLOAD_CONTRACT = ROOT / "automation/CEW_F7_PATCH_PAYLOAD_CONTRACT_v1.json"
+STATE = ROOT / "data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json"
+ISSUES = ROOT / "data/canonical/N12_ISSUES_CURRENT_v1.json"
+TERMINOLOGY = ROOT / "automation/CEW_TERMINOLOGY_LAYER_v1.json"
+LIFECYCLE = ROOT / "automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json"
 
 
 def fail(errors: list[str]) -> int:
@@ -30,7 +34,7 @@ def fail(errors: list[str]) -> int:
 
 def main() -> int:
     errors: list[str] = []
-    for path in [SOURCE_CONTRACT, EVIDENCE_CONTRACT, APP, HOME, PAYLOAD_CONTRACT]:
+    for path in [SOURCE_CONTRACT, EVIDENCE_CONTRACT, APP, PAYLOAD_CONTRACT, STATE, ISSUES, TERMINOLOGY, LIFECYCLE]:
         if not path.exists():
             errors.append(f"missing artifact: {path.relative_to(ROOT)}")
     if errors:
@@ -90,7 +94,6 @@ def main() -> int:
         if marker not in module_text:
             errors.append(f"runtime integrity marker missing: {marker}")
 
-    # Hash verification is deterministic and fail-closed.
     payload = b"CEW-B1-INTEGRITY-FIXTURE"
     fake = {"sha256": hashlib.sha256(payload).hexdigest()}
     try:
@@ -104,10 +107,9 @@ def main() -> int:
         if "SOURCE_SHA256_MISMATCH" not in str(exc):
             errors.append(f"wrong SHA failure reason: {exc}")
 
-    # MICRO/MESO/MACRO must all derive from one PDF/page and one canonical region.
     try:
-        import fitz
-        doc = fitz.open()
+        import pymupdf
+        doc = pymupdf.open()
         page = doc.new_page(width=600, height=800)
         page.insert_text((70, 180), "2 F12 superiori + 2 F12 inferiori", fontsize=14)
         pdf = doc.tobytes()
@@ -138,8 +140,6 @@ def main() -> int:
     if "UNBOUND" not in r11 or "non seleziona automaticamente il membro più vicino" not in r11:
         errors.append("R11 unbound honesty boundary missing")
 
-    # Human natural-language compatibility: explicit tokens may be extracted,
-    # but the raw observation must remain byte-for-byte equivalent as text.
     natural = "i filari lunghi 1040 son 2 f 12 superiori e 2 f 12 inferiori"
     semantic, reason = patch_builder.reinforcement_payload(natural)
     if reason or not semantic:
@@ -174,15 +174,20 @@ def main() -> int:
             errors.append(f"semantic authority invariant missing: {key}")
 
     app_text = APP.read_text(encoding="utf-8")
-    home_text = HOME.read_text(encoding="utf-8")
     for route in ['@app.get("/sources"', '@app.get("/sources/{source_id}"', '@app.get("/evidence/review"', '@app.get("/api/source/pdf/{source_id}"', '@app.get("/api/source/render"']:
         if route not in app_text:
             errors.append(f"runtime route missing: {route}")
     if '"source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED"' not in app_text:
         errors.append("health source-integrity policy marker missing")
-    if "href='/sources'" not in home_text and 'href="/sources"' not in home_text:
+
+    state = json.loads(STATE.read_text(encoding="utf-8"))
+    issues = json.loads(ISSUES.read_text(encoding="utf-8"))
+    terminology = json.loads(TERMINOLOGY.read_text(encoding="utf-8"))
+    lifecycle = json.loads(LIFECYCLE.read_text(encoding="utf-8"))
+    home_html = project_home.build_project_home(state, issues, list(tasks.values()), terminology, lifecycle)
+    if "/sources" not in home_html:
         errors.append("Project Home -> Source Hub navigation missing")
-    if "/evidence/review?task=" not in home_text:
+    if "/evidence/review?task=" not in home_html:
         errors.append("Project Home -> Evidence Workspace action missing")
 
     if errors:
