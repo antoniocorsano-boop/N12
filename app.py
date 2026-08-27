@@ -27,6 +27,7 @@ review_service.persist_runtime_receipt = audit_store.persist_runtime_receipt
 app = FastAPI(title="CEW Project Control Room", docs_url=None, redoc_url=None)
 SESSION_COOKIE = "cew_session"
 SESSION_PURPOSE = b"CEW_SINGLE_OPERATOR_PILOT_V1"
+PRODUCTION_AUDIT_BACKENDS = {"SUPABASE_APPEND_ONLY", "NETLIFY_AUDIT_HTTPS"}
 
 
 def _auth_disabled_for_test() -> bool:
@@ -76,7 +77,7 @@ def healthz():
         "status": "OK" if (_auth_configured() or _auth_disabled_for_test()) else "CONFIG_REQUIRED",
         "auth_configured": _auth_configured(),
         "audit_backend": backend,
-        "production_receipt_submit_ready": backend == "SUPABASE_APPEND_ONLY",
+        "production_receipt_submit_ready": backend in PRODUCTION_AUDIT_BACKENDS,
         "canonical_write_authorized": False,
     }
 

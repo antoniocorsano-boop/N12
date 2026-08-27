@@ -16,6 +16,10 @@ def _raw(receipt: dict) -> str:
 
 
 def backend_status() -> str:
+    https_url = os.getenv("CEW_AUDIT_HTTPS_URL", "").strip()
+    https_secret = os.getenv("CEW_AUDIT_SHARED_SECRET", "").strip()
+    if https_url and https_secret:
+        return "NETLIFY_AUDIT_HTTPS"
     url = os.getenv("CEW_AUDIT_SUPABASE_URL", "").strip()
     key = os.getenv("CEW_AUDIT_SUPABASE_SERVICE_ROLE_KEY", "").strip()
     if url and key:
@@ -41,6 +45,49 @@ def _persist_file(receipt: dict, store: Path, digest: str) -> dict:
         "sha256": digest,
         "authority": "RUNTIME_AUDIT_ONLY",
         "audit_backend": "FILESYSTEM_APPEND_ONLY",
+        "canonical_write": False,
+    }
+
+
+def _persist_https(receipt: dict, digest: str) -> dict:
+    endpoint = os.environ["CEW_AUDIT_HTTPS_URL"].strip()
+    secret = os.environ["CEW_AUDIT_SHARED_SECRET"]
+    payload = {
+        "decision_id": receipt["decision_id"],
+        "task_id": receipt.get("task_id"),
+        "residual_id": receipt.get("residual_id"),
+        "receipt_sha256": digest,
+        "receipt_json": receipt,
+        "authority": "RUNTIME_AUDIT_ONLY",
+        "canonical_write": False,
+        "submitted_at": receipt.get("timestamp"),
+    }
+    req = request.Request(
+        endpoint,
+        data=json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8"),
+        method="POST",
+        headers={
+            "Authorization": f"Bearer {secret}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+    )
+    try:
+        with request.urlopen(req, timeout=12) as resp:
+            if resp.status not in (200, 201, 204):
+                raise ValueError(f"unexpected audit storage status: {resp.status}")
+    except error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        if e.code == 409 or "duplicate" in body.lower():
+            raise ValueError("duplicate decision_id: runtime receipt already exists") from e
+        raise ValueError(f"Netlify audit persistence failed: HTTP {e.code}") from e
+    except error.URLError as e:
+        raise ValueError("Netlify audit persistence unavailable") from e
+    return {
+        "runtime_receipt_id": str(receipt["decision_id"]),
+        "sha256": digest,
+        "authority": "RUNTIME_AUDIT_ONLY",
+        "audit_backend": "NETLIFY_AUDIT_HTTPS",
         "canonical_write": False,
     }
 
@@ -96,6 +143,8 @@ def persist_runtime_receipt(receipt: dict, store: Path) -> dict:
         raise ValueError("decision_id contains unsafe characters")
     digest = hashlib.sha256(_raw(receipt).encode("utf-8")).hexdigest()
     backend = backend_status()
+    if backend == "NETLIFY_AUDIT_HTTPS":
+        return _persist_https(receipt, digest)
     if backend == "SUPABASE_APPEND_ONLY":
         return _persist_supabase(receipt, digest)
     if backend == "UNCONFIGURED_PRODUCTION":
