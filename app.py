@@ -27,7 +27,7 @@ review_service.persist_runtime_receipt = audit_store.persist_runtime_receipt
 app = FastAPI(title="CEW Project Control Room", docs_url=None, redoc_url=None)
 SESSION_COOKIE = "cew_session"
 SESSION_PURPOSE = b"CEW_SINGLE_OPERATOR_PILOT_V1"
-PRODUCTION_AUDIT_BACKENDS = {"SUPABASE_APPEND_ONLY", "NETLIFY_AUDIT_HTTPS"}
+PRODUCTION_AUDIT_BACKENDS = {"SUPABASE_APPEND_ONLY", "NETLIFY_AUDIT_HTTPS", "NEON_APPEND_ONLY"}
 
 
 def _auth_disabled_for_test() -> bool:
