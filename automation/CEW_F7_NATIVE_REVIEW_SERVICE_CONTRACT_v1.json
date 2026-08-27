@@ -1,0 +1,53 @@
+{
+  "contract_id": "CEW-F7-NATIVE-REVIEW-SERVICE-v1",
+  "milestone": "CEW-F7",
+  "product_surface": "PROJECT_CONTROL_ROOM",
+  "purpose": "Expose governed human evidence review inside CEW without download/upload handoffs and without granting the UI canonical engineering authority.",
+  "routes": {
+    "control_room": "/",
+    "human_review": "/review/f7?task=<task_id>",
+    "receipt_submit": "POST /api/f7/receipt"
+  },
+  "mandatory_pipeline": [
+    "CEW_HUMAN_DECISION_RECEIPT_SCHEMA_v1",
+    "validate_cew_human_decision_receipt",
+    "build_cew_f7_promotion_requests.normalize_receipt",
+    "run_cew_promotion_engine.evaluate",
+    "CEW_F7_PATCH_PAYLOAD_CONTRACT_v1",
+    "build_cew_canonical_patch_candidates.semantic_payload_for"
+  ],
+  "ui_invariants": {
+    "prefilled_outcome_forbidden": true,
+    "prefilled_human_observation_forbidden": true,
+    "prefilled_direct_primary_claim_forbidden": true,
+    "prefilled_promotion_target_forbidden": true,
+    "prefilled_epistemic_promotion_forbidden": true,
+    "human_authority_acknowledgement_requires_explicit_checkbox": true,
+    "receipt_is_submitted_by_cew_without_manual_json_download": true
+  },
+  "authority_invariants": {
+    "ui_state_is_engineering_authority": false,
+    "service_may_impersonate_human_reviewer": false,
+    "service_may_create_human_observation": false,
+    "service_may_infer_structural_payload_from_unconstrained_free_text": false,
+    "service_may_write_canonical_directly": false,
+    "service_may_modify_f2_geometry": false,
+    "service_may_reopen_m0g": false,
+    "fixture_fields_accepted_from_interactive_api": false,
+    "validated_receipt_may_be_persisted_as_runtime_audit_only": true,
+    "runtime_audit_may_feed_canonical": false,
+    "patch_candidate_always_requires_separate_write_authorization": true
+  },
+  "runtime_receipt_store": {
+    "default": "artifacts/cew-runtime/human-receipts",
+    "authority": "RUNTIME_AUDIT_ONLY",
+    "append_only_filename": "<decision_id>.json",
+    "canonical_write": false
+  },
+  "response_states": [
+    "RECEIPT_REJECTED",
+    "RETAIN_RESIDUAL",
+    "SEMANTIC_BLOCKED",
+    "PATCH_CANDIDATE_READY_NO_WRITE"
+  ]
+}
