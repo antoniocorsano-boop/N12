@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "work_item_id": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
+  "residual_id": "CEW-B1-PROD-01",
+  "receipt_type": "PRODUCTION_DEPLOYMENT_PARTIAL_GATE_RECEIPT",
+  "decision": "DEPLOY_PASS_SMOKE_PENDING",
+  "observed_at": "2026-08-27T20:37:10Z",
+  "deployment": {
+    "platform": "VERCEL",
+    "project": "cew-pilot",
+    "production_url": "https://cew-pilot.vercel.app",
+    "source_branch": "work/cew-human-centric-structural-product-v1",
+    "source_commit": "7fadbe9285eae59ee0b0cc0789f371916f895f7b",
+    "environment": "Production",
+    "status": "Ready",
+    "current": true,
+    "git_integration": "CONNECTED_ANTONIOCORSANO_BOOP_N12"
+  },
+  "evidence": {
+    "github_vercel_status": "SUCCESS_DEPLOYMENT_HAS_COMPLETED",
+    "github_status_context": "Vercel",
+    "vercel_dashboard_human_observation": "Production Current Ready on commit 7fadbe9 from work/cew-human-centric-structural-product-v1"
+  },
+  "gate_state": {
+    "PRODUCTION_DEPLOY": "PASS",
+    "AUTHENTICATED_HEALTH_AND_SOURCE_SMOKE": "PENDING",
+    "PRODUCTION_SMOKE": "PARTIAL_NOT_PROMOTABLE"
+  },
+  "authority_boundary": {
+    "canonical_write": false,
+    "engineering_authority_exercised": false,
+    "human_evidence_receipt_submitted": false,
+    "n12_engineering_facts_changed": false
+  },
+  "next_required_check": "Authenticate to the current Production runtime and verify health, Project Home, Source Hub, immutable source SHA-256 retrieval, and MICRO/MESO/MACRO Evidence Workspace rendering without submitting a synthetic human evidence receipt."
+}
