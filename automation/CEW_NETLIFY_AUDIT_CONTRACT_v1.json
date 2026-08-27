@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW-NETLIFY-AUDIT-v1",
+  "purpose": "Persist validated CEW human-review receipts in an isolated append-only Netlify Database service without granting engineering or canonical-write authority.",
+  "service_role": "RUNTIME_AUDIT_PERSISTENCE_ONLY",
+  "authority": "DERIVED_RUNTIME_AUDIT",
+  "may_feed_canonical_directly": false,
+  "canonical_write_authorized": false,
+  "canonical_write_performed": false,
+  "transport": {
+    "mode": "HTTPS_POST",
+    "authentication": "BEARER_SHARED_SECRET",
+    "required_runtime_variables": [
+      "CEW_AUDIT_HTTPS_URL",
+      "CEW_AUDIT_SHARED_SECRET"
+    ]
+  },
+  "accepted_envelope": [
+    "decision_id",
+    "task_id",
+    "residual_id",
+    "receipt_sha256",
+    "receipt_json",
+    "authority",
+    "canonical_write",
+    "submitted_at"
+  ],
+  "required_invariants": [
+    "authority MUST equal RUNTIME_AUDIT_ONLY",
+    "canonical_write MUST equal false",
+    "receipt_sha256 MUST match the stable canonical JSON digest of receipt_json",
+    "decision_id MUST match receipt_json.decision_id",
+    "duplicate decision_id MUST be rejected",
+    "UPDATE MUST be rejected by the database",
+    "DELETE MUST be rejected by the database",
+    "TRUNCATE MUST be rejected by the database",
+    "the audit service MUST NOT evaluate epistemic promotion",
+    "the audit service MUST NOT create or authorize canonical patches"
+  ],
+  "runtime_selection": {
+    "preferred_when_configured": "NETLIFY_AUDIT_HTTPS",
+    "alternative_supported": "SUPABASE_APPEND_ONLY",
+    "local_development_only": "FILESYSTEM_APPEND_ONLY",
+    "production_without_persistent_backend": "FAIL_CLOSED"
+  },
+  "reference_site": {
+    "provider": "Netlify",
+    "site_name": "cew-pilot",
+    "site_id": "dc27968c-3018-4766-b956-2590e9349ce5",
+    "status": "CREATED_PENDING_FIRST_CODE_DEPLOY"
+  }
+}
