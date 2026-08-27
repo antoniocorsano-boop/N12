@@ -48,8 +48,9 @@ def main() -> int:
     queue = load(QUEUE)
     recon = load(RECON)
 
-    if str(state.get("schema_version")) != "2.0":
-        errors.append("CEW product state schema_version must be 2.0")
+    schema_version = str(state.get("schema_version") or "")
+    if not schema_version.startswith("2."):
+        errors.append("CEW product state schema_version must remain in governed 2.x family")
     if state.get("state_role") != "CEW_PRODUCT_RUNTIME_STATE":
         errors.append("CEW state_role must be CEW_PRODUCT_RUNTIME_STATE")
     if state.get("product") != "CEW" or state.get("vertical") != "CEW-EX":
@@ -106,16 +107,14 @@ def main() -> int:
         "PASS_HUMAN_OBSERVED_",
         "B1_PRODUCTION_DEPLOY_PASS_",
         "B1_PRODUCTION_SMOKE_PASS",
+        "PRIOR_B1_SOURCE_EVIDENCE_RUNTIME_SMOKE_PASS_",
     )
     if not any(smoke_status.startswith(prefix) for prefix in valid_smoke_prefixes):
         errors.append("production smoke/deploy state missing or malformed")
 
     latest_home = runtime.get("latest_project_home_v2_deployed")
     latest_b1 = runtime.get("latest_b1_source_evidence_deployed")
-    for name, value in (
-        ("latest_project_home_v2_deployed", latest_home),
-        ("latest_b1_source_evidence_deployed", latest_b1),
-    ):
+    for name, value in (("latest_project_home_v2_deployed", latest_home), ("latest_b1_source_evidence_deployed", latest_b1)):
         if value is not None and not isinstance(value, bool):
             errors.append(f"{name} must be boolean when present")
 
@@ -128,6 +127,13 @@ def main() -> int:
                 errors.append("B1 production residual after deployment must record latest_b1_source_evidence_deployed=true")
             if not runtime.get("production_source_commit"):
                 errors.append("B1 production residual after deployment must record production_source_commit")
+        elif current.get("state") == "IN_PROGRESS":
+            if current.get("current_slice") != "B1.1":
+                errors.append("extended B1 IN_PROGRESS must identify current_slice B1.1")
+            if current.get("slice_plan") != "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json":
+                errors.append("extended B1 must bind the document/drawing agent plan")
+            if runtime.get("latest_b11_document_drawing_deployed") is not False:
+                errors.append("B1.1 branch work must not be recorded as deployed before promotion")
         elif current.get("state") == "COMPLETE" and not smoke_status.startswith("B1_PRODUCTION_SMOKE_PASS"):
             errors.append("B1 COMPLETE requires B1_PRODUCTION_SMOKE_PASS")
 
@@ -169,6 +175,7 @@ def main() -> int:
 
     print("CEW_PRODUCT_STATE_RECONCILIATION = PASS")
     print(f"CURRENT_PRODUCT_WORK_ITEM = {current.get('id')}")
+    print(f"CURRENT_PRODUCT_SLICE = {current.get('current_slice')}")
     print("N12_ENGINEERING_AUTHORITY = knowledge/CURRENT_STATE.json")
     print("PRODUCTION_RUNTIME = VERCEL_FASTAPI + NEON_APPEND_ONLY")
     print(f"PRODUCTION_SMOKE_STATE = {smoke_status}")

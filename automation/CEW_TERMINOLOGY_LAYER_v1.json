@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "layer_id": "CEW_TERMINOLOGY_LAYER",
   "program_goal": "CEW-GOAL-01",
-  "status": "A2_PRODUCT_TERMINOLOGY_B1_NAVIGATION",
+  "status": "A2_PRODUCT_TERMINOLOGY_B11_DOCUMENT_DRAWING_NAVIGATION",
   "audience": "STRUCTURAL_ENGINEER",
   "rules": {
     "primary_ui_language": "ITALIAN_ENGINEERING_PLAIN_LANGUAGE",
@@ -14,6 +14,8 @@
   },
   "terms": {
     "PROJECT_HOME": {"primary": "Progetto", "secondary": "Project Home"},
+    "DOCUMENTS": {"primary": "Documenti", "secondary": "Document Library"},
+    "DRAWINGS": {"primary": "Tavole", "secondary": "Drawing Register"},
     "CURRENT_WORK_ITEM": {"primary": "Attività corrente", "secondary": "Work item"},
     "RESIDUAL": {"primary": "Dato da completare", "alternative": "Questione aperta"},
     "HUMAN_REVIEW_TASK": {"primary": "Revisione evidenza", "action": "Rivedi evidenza"},
@@ -26,6 +28,8 @@
     "TECHNICAL_CONTROL_ROOM": {"primary": "Dettagli tecnici e audit", "secondary": "Control Room"}
   },
   "navigation": [
+    {"id": "DOCUMENTS", "label": "Documenti", "href": "/documents", "state": "B11_ACTIVE"},
+    {"id": "DRAWINGS", "label": "Tavole", "href": "/drawings", "state": "B11_ACTIVE"},
     {"id": "SOURCES", "label": "Fonti", "href": "/sources", "state": "B1_ACTIVE"},
     {"id": "EVIDENCE", "label": "Evidenze", "href": "/sources", "state": "B1_ACTIVE_THROUGH_SOURCE_CONTEXT"},
     {"id": "RECONSTRUCTION", "label": "Ricostruzione"},
@@ -47,14 +51,5 @@
     {"id": "ANALYZE_VERIFY", "label": "Analizza e verifica", "phases": ["P13", "P14"]},
     {"id": "DESIGN_MANAGE_INTERVENTION", "label": "Progetta e gestisci l’intervento", "phases": ["P15", "P16"]}
   ],
-  "forbidden_primary_labels": [
-    "ERW",
-    "M1E",
-    "F7",
-    "CURRENT_WORK_ITEM",
-    "RESIDUAL_QUEUE",
-    "GATE_ID",
-    "BRANCH",
-    "COMMIT_SHA"
-  ]
+  "forbidden_primary_labels": ["ERW", "M1E", "F7", "CURRENT_WORK_ITEM", "RESIDUAL_QUEUE", "GATE_ID", "BRANCH", "COMMIT_SHA"]
 }

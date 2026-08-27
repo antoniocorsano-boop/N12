@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "plan_id": "CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN",
+  "program_goal": "CEW-GOAL-01",
+  "status": "EXECUTION_ACTIVE",
+  "development_model": "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v1.md",
+  "human_centred_model": "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v1.md",
+  "usability_model": "automation/CEW_USABILITY_METRICS_MODEL_v1.json",
+  "product_contract": "docs/PRODUCT/CEW_DOCUMENT_DRAWING_WORKSPACE_V1_CONTRACT.md",
+  "promotion_policy": "PARALLEL_ANALYSIS_SERIAL_PROMOTION",
+  "slices": [
+    {
+      "id": "B1.1",
+      "owner": "SOURCE_EVIDENCE_AGENT",
+      "state": "IN_PROGRESS",
+      "goal": "Expose the existing N12 document and drawing patrimony as a usable library/register.",
+      "outputs": ["/documents", "/drawings", "document/drawing view models"],
+      "gates": ["DATA_GATE", "INTEGRATION_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE"]
+    },
+    {
+      "id": "B1.2",
+      "owner": "SOURCE_EVIDENCE_AGENT",
+      "state": "WAITING",
+      "depends_on": ["B1.1"],
+      "goal": "Deliver the drawing viewer with zoom/pan/fit/90-degree display rotation and evidence overlays.",
+      "outputs": ["/drawings/{source_id}", "viewer orientation state", "overlay controls"],
+      "gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE"]
+    },
+    {
+      "id": "B1.3",
+      "owner": "SOURCE_EVIDENCE_AGENT",
+      "state": "WAITING",
+      "depends_on": ["B1.2"],
+      "goal": "Add DocumentMap and document-understanding states without treating machine extraction as authority.",
+      "outputs": ["DrawingDocumentIndex", "DocumentMap", "document residuals"],
+      "gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE"]
+    },
+    {
+      "id": "B1.4",
+      "owner": "SOURCE_EVIDENCE_AGENT",
+      "state": "WAITING",
+      "depends_on": ["B1.3"],
+      "goal": "Add intake/versioning for new documents with hash, duplicate detection and human classification review.",
+      "outputs": ["IntakeCandidate", "SourceVersion workflow", "missing-source workflow"],
+      "gates": ["DATA_GATE", "SECURITY_GATE", "HUMAN_GATE", "PRODUCTION_SMOKE"]
+    },
+    {
+      "id": "B1.5",
+      "owner": "SOURCE_EVIDENCE_AGENT",
+      "state": "WAITING",
+      "depends_on": ["B1.3"],
+      "goal": "Integrate OCR/vector/AI candidates into DocumentMap with explicit review state.",
+      "outputs": ["machine candidates", "review queue", "extraction provenance"],
+      "gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE"]
+    },
+    {
+      "id": "B1.6",
+      "owner": "SOURCE_EVIDENCE_AGENT",
+      "state": "WAITING",
+      "depends_on": ["B1.2", "B1.3"],
+      "goal": "Create/select EvidenceRegion candidates from the drawing workspace while preserving F2 authority rules.",
+      "outputs": ["evidence candidate workflow", "drawing-to-evidence navigation"],
+      "gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE", "HUMAN_FACTORS_GATE"]
+    },
+    {
+      "id": "B1.7",
+      "owner": "HUMAN_FACTORS_AGENT",
+      "state": "WAITING",
+      "depends_on": ["B1.1", "B1.2", "B1.6"],
+      "goal": "Benchmark the complete Documents -> Drawings -> Evidence journey and certify B1 product usability.",
+      "outputs": ["usability benchmark receipt", "HVA receipt", "production smoke receipt"],
+      "gates": ["HUMAN_FACTORS_GATE", "HVA_GATE", "PRODUCTION_SMOKE"]
+    }
+  ],
+  "stop_rules": [
+    "Do not release B2 while B1 document/drawing journey remains incomplete.",
+    "Do not re-upload existing immutable N12 sources merely to make the UI work.",
+    "Do not turn viewer rotation into source or evidence geometry mutation.",
+    "Do not promote OCR/vector/AI findings without their declared human/engineering gate.",
+    "Do not mark a task successful if the user reaches the wrong document or believes a derived aid is primary authority."
+  ]
+}

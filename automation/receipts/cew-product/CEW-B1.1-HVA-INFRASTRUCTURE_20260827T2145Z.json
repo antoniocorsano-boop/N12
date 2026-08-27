@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "slice_id": "B1.1",
+  "decision": "HVA_PENDING_PREVIEW_AVAILABLE_CONNECTOR_ACCESS_UNAVAILABLE",
+  "pull_request": 96,
+  "head_sha": "853ecfa4e41d8bf8679cb4e59822f9bb39e98cee",
+  "preview_url": "https://cew-pilot-git-work-cew-b11-do-e3c3b3-antonios-projects-051b8d71.vercel.app",
+  "vercel_status": "READY",
+  "connector_access": "UNAVAILABLE",
+  "hva_gate": "PENDING_HUMAN_OBSERVATION",
+  "product_failure_inferred": false,
+  "production_promotion_authorized": false,
+  "b12_parallel_preparation_allowed": true,
+  "b12_promotion_authorized": false
+}
