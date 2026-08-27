@@ -18,6 +18,7 @@ ISSUES = ROOT / "data/canonical/N12_ISSUES_CURRENT_v1.json"
 TASKS = ROOT / "data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv"
 TERMINOLOGY = ROOT / "automation/CEW_TERMINOLOGY_LAYER_v1.json"
 LIFECYCLE = ROOT / "automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json"
+QUEUE = ROOT / "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json"
 CONTRACT = ROOT / "docs/PRODUCT/CEW_PROJECT_HOME_V2_CONTRACT_v1.md"
 APP = ROOT / "app.py"
 
@@ -40,7 +41,7 @@ def visible_text(page: str) -> str:
 
 def main() -> int:
     errors: list[str] = []
-    for path in [STATE, ISSUES, TASKS, TERMINOLOGY, LIFECYCLE, CONTRACT, APP]:
+    for path in [STATE, ISSUES, TASKS, TERMINOLOGY, LIFECYCLE, QUEUE, CONTRACT, APP]:
         if not path.exists():
             errors.append(f"missing artifact: {path.relative_to(ROOT)}")
     if errors:
@@ -53,6 +54,7 @@ def main() -> int:
     tasks = csv_rows(TASKS)
     terminology = load_json(TERMINOLOGY)
     lifecycle = load_json(LIFECYCLE)
+    queue = load_json(QUEUE)
     contract = CONTRACT.read_text(encoding="utf-8")
     app_text = APP.read_text(encoding="utf-8")
     page = project_home.build_project_home(state, issues, tasks, terminology, lifecycle)
@@ -115,9 +117,23 @@ def main() -> int:
         if fixture not in contract:
             errors.append(f"human-factors fixture missing from contract: {fixture}")
 
+    items = {item["id"]: item for item in queue.get("items", [])}
+    a2 = items.get("CEW-A2-PROJECT-HOME-HUMAN-FACTORS", {})
+    if a2.get("state") not in {"READY", "IN_PROGRESS", "COMPLETE"}:
+        errors.append(f"A2 has invalid human-factors validation state: {a2.get('state')}")
+    if a2.get("state") == "COMPLETE":
+        receipt = a2.get("result_receipt")
+        if not receipt:
+            errors.append("completed A2 must declare result_receipt")
+        elif not (ROOT / receipt).exists():
+            errors.append(f"completed A2 receipt missing: {receipt}")
+
     current = state.get("current_product_work_item", {})
-    if current.get("id") != "CEW-A2-PROJECT-HOME-HUMAN-FACTORS":
-        errors.append("A2 must be current while human-factors gate is being established")
+    if current.get("id") == "CEW-A2-PROJECT-HOME-HUMAN-FACTORS":
+        if current.get("agent_role") != "HUMAN_FACTORS_AGENT":
+            errors.append("A2 current agent role mismatch")
+    elif a2.get("state") != "COMPLETE":
+        errors.append("A2 can stop being current only after COMPLETE")
 
     if errors:
         print("CEW_HUMAN_FACTORS_PROJECT_HOME = FAIL")
@@ -132,6 +148,7 @@ def main() -> int:
     print("HF_HOME_04_INCOMPLETE_STATE_VISIBILITY = PASS")
     print("HF_HOME_05_LIFECYCLE_NO_FALSE_PROGRESS = PASS")
     print("HF_HOME_06_TECHNICAL_DETAIL_REACHABLE = PASS")
+    print(f"A2_STATE = {a2.get('state')}")
     return 0
 
 
