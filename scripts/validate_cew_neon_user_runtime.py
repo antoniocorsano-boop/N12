@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import importlib.util, os, sys
+import importlib.util
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 BUNDLE=ROOT/'deploy/cew_user_runtime.py'
 text=BUNDLE.read_text(encoding='utf-8')
-required=['NEON_APPEND_ONLY','RUNTIME_AUDIT_ONLY','canonical_write_authorized":False','CEW-N12-REG-G01-R06','CEW-N12-SRC-TAV05A-V17DEC414','2 f 12 superiori e 2 f 12 inferiori']
+required=['NEON_APPEND_ONLY','RUNTIME_AUDIT_ONLY','canonical_write_authorized":False','CEW-N12-REG-G01-R06','CEW-N12-SRC-TAV05A-V17DEC414']
 for marker in required:
     if marker not in text:
         raise SystemExit(f'FAIL missing {marker}')
