@@ -85,10 +85,10 @@ def main() -> int:
             if m.get(field) != expected:
                 errors.append(f"{pid}: {field} drift from phase contract")
 
-    # Validate dependency graph is acyclic and only references prior declared phases.
     graph = {p["phase_id"]: list(p.get("dependencies", [])) for p in templates}
     visiting: set[str] = set()
     visited: set[str] = set()
+
     def visit(node: str) -> None:
         if node in visited:
             return
@@ -103,6 +103,7 @@ def main() -> int:
                 visit(dep)
         visiting.remove(node)
         visited.add(node)
+
     for node in graph:
         visit(node)
 
@@ -136,17 +137,27 @@ def main() -> int:
     if n12.get("calculation_model_ready") is not False:
         errors.append("A1 may not mark N12 calculation model ready")
 
-    # Product state / queue must agree that A1 is current.
-    current = state.get("current_product_work_item", {})
-    if current.get("id") != "CEW-A1-PRODUCT-SPINE" or current.get("agent_role") != "PRODUCT_STATE_AGENT":
-        errors.append("CURRENT product work item is not CEW-A1-PRODUCT-SPINE")
     items = {i["id"]: i for i in queue.get("items", [])}
-    if items.get("CEW-A0-STATE-RECONCILIATION", {}).get("state") != "COMPLETE":
-        errors.append("A0 must be COMPLETE before A1")
-    if items.get("CEW-A1-PRODUCT-SPINE", {}).get("state") != "READY":
-        errors.append("A1 must be READY while being validated")
+    a0 = items.get("CEW-A0-STATE-RECONCILIATION", {})
+    a1 = items.get("CEW-A1-PRODUCT-SPINE", {})
+    if a0.get("state") != "COMPLETE":
+        errors.append("A0 must be COMPLETE before lifecycle validation")
+    if a1.get("state") not in {"READY", "IN_PROGRESS", "COMPLETE"}:
+        errors.append(f"A1 has invalid lifecycle validation state: {a1.get('state')}")
+    if a1.get("state") == "COMPLETE":
+        receipt = a1.get("result_receipt")
+        if not receipt:
+            errors.append("completed A1 must declare result_receipt")
+        elif not (ROOT / receipt).exists():
+            errors.append(f"completed A1 receipt missing: {receipt}")
 
-    # Ensure no detailed N12 engineering facts are embedded in lifecycle model.
+    current = state.get("current_product_work_item", {})
+    if current.get("id") == "CEW-A1-PRODUCT-SPINE":
+        if current.get("agent_role") != "PRODUCT_STATE_AGENT":
+            errors.append("A1 current agent role mismatch")
+    elif a1.get("state") != "COMPLETE":
+        errors.append("A1 can stop being current only after COMPLETE")
+
     forbidden_keys = {
         "analytical_nodes", "ordinary_members", "support_count", "foundation_members",
         "reinforcement_values", "material_values", "load_values", "geotechnical_values"
@@ -165,6 +176,7 @@ def main() -> int:
     print("CEW_PROJECT_LIFECYCLE_MODEL = PASS")
     print("PHASES = P0-P16")
     print("PRIMITIVES = 7")
+    print(f"A1_STATE = {a1.get('state')}")
     print("ENGINEERING_AUTHORITY = knowledge/CURRENT_STATE.json")
     print("AUTOMATIC_PHASE_COMPLETION = FORBIDDEN")
     print("N12_CALCULATION_MODEL_READY = false")
