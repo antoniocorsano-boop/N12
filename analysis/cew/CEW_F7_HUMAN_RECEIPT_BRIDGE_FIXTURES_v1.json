@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "authority": "POLICY_CONFORMANCE_ONLY_NOT_A_HUMAN_DECISION_NOT_CANONICAL_EVIDENCE",
+  "receipts": [
+    {
+      "schema_version": "1.0",
+      "decision_id": "CEW-F7-BRIDGE-FIX-DIRECTIONAL",
+      "task_id": "ERW-N12-001",
+      "residual_id": "M1E-B06-R08",
+      "review_mode": "HUMAN_REVIEW",
+      "reviewer": "synthetic-policy-fixture",
+      "timestamp": "2000-01-01T00:00:00Z",
+      "outcome": "CONFIRMED",
+      "human_observation": "2 Φ12 superiori + 2 Φ12 inferiori",
+      "evidence_regions": ["CEW-N12-REG-G01-R06"],
+      "source_versions": ["CEW-N12-SRC-TAV05A-V17DEC414"],
+      "direct_primary_evidence_observed": true,
+      "requested_epistemic_state": "DOC",
+      "target_id": "CEW-TARGET-REINFORCEMENT-OBSERVATION",
+      "reopen_approval_id": "",
+      "authority_acknowledgement": "I reviewed the cited immutable primary-source evidence and understand this receipt is not itself a canonical write.",
+      "fixture_only": true,
+      "fixture_id": "CEW-F7-BRIDGE-FIX-DIRECTIONAL"
+    },
+    {
+      "schema_version": "1.0",
+      "decision_id": "CEW-F7-BRIDGE-FIX-AGGREGATE",
+      "task_id": "ERW-N12-001",
+      "residual_id": "M1E-B06-R08",
+      "review_mode": "HUMAN_REVIEW",
+      "reviewer": "synthetic-policy-fixture",
+      "timestamp": "2000-01-01T00:00:01Z",
+      "outcome": "CONFIRMED",
+      "human_observation": "4 Φ12",
+      "evidence_regions": ["CEW-N12-REG-G01-R06"],
+      "source_versions": ["CEW-N12-SRC-TAV05A-V17DEC414"],
+      "direct_primary_evidence_observed": true,
+      "requested_epistemic_state": "DOC",
+      "target_id": "CEW-TARGET-REINFORCEMENT-OBSERVATION",
+      "reopen_approval_id": "",
+      "authority_acknowledgement": "I reviewed the cited immutable primary-source evidence and understand this receipt is not itself a canonical write.",
+      "fixture_only": true,
+      "fixture_id": "CEW-F7-BRIDGE-FIX-AGGREGATE"
+    }
+  ]
+}
