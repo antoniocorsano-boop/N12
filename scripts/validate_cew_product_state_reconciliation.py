@@ -100,11 +100,36 @@ def main() -> int:
             errors.append(f"runtime production {key} mismatch: {runtime.get(key)!r}")
     if runtime.get("auth_configured") is not True:
         errors.append("production auth must be recorded configured")
+
     smoke_status = str(runtime.get("smoke_status") or "")
-    if not smoke_status.startswith("PASS_HUMAN_OBSERVED_2026-08-27"):
-        errors.append("production smoke observation missing or malformed")
-    if "latest_project_home_v2_deployed" in runtime and not isinstance(runtime.get("latest_project_home_v2_deployed"), bool):
-        errors.append("latest_project_home_v2_deployed must be boolean when present")
+    valid_smoke_prefixes = (
+        "PASS_HUMAN_OBSERVED_",
+        "B1_PRODUCTION_DEPLOY_PASS_",
+        "B1_PRODUCTION_SMOKE_PASS",
+    )
+    if not any(smoke_status.startswith(prefix) for prefix in valid_smoke_prefixes):
+        errors.append("production smoke/deploy state missing or malformed")
+
+    latest_home = runtime.get("latest_project_home_v2_deployed")
+    latest_b1 = runtime.get("latest_b1_source_evidence_deployed")
+    for name, value in (
+        ("latest_project_home_v2_deployed", latest_home),
+        ("latest_b1_source_evidence_deployed", latest_b1),
+    ):
+        if value is not None and not isinstance(value, bool):
+            errors.append(f"{name} must be boolean when present")
+
+    current = state.get("current_product_work_item", {})
+    if current.get("id") == "CEW-B1-SOURCE-EVIDENCE-JOURNEY":
+        if current.get("state") == "RESIDUAL":
+            if "PENDING" not in smoke_status:
+                errors.append("B1 RESIDUAL must retain an explicit pending production-smoke state")
+            if latest_b1 is not True:
+                errors.append("B1 production residual after deployment must record latest_b1_source_evidence_deployed=true")
+            if not runtime.get("production_source_commit"):
+                errors.append("B1 production residual after deployment must record production_source_commit")
+        elif current.get("state") == "COMPLETE" and not smoke_status.startswith("B1_PRODUCTION_SMOKE_PASS"):
+            errors.append("B1 COMPLETE requires B1_PRODUCTION_SMOKE_PASS")
 
     lowered = STATE.read_text(encoding="utf-8").lower()
     stale_fragments = ["netlify", "pending_vercel", "vercel_preview_pending", "created_pending_first_code_deploy"]
@@ -128,7 +153,6 @@ def main() -> int:
         errors.append("reconciliation contract changed N12 authority")
 
     selected = selected_item(queue)
-    current = state.get("current_product_work_item", {})
     if not selected:
         errors.append("product queue has no selected work item")
     elif current.get("id") != selected.get("id") or current.get("agent_role") != selected.get("agent_role"):
@@ -147,7 +171,7 @@ def main() -> int:
     print(f"CURRENT_PRODUCT_WORK_ITEM = {current.get('id')}")
     print("N12_ENGINEERING_AUTHORITY = knowledge/CURRENT_STATE.json")
     print("PRODUCTION_RUNTIME = VERCEL_FASTAPI + NEON_APPEND_ONLY")
-    print(f"PRODUCTION_SMOKE = {smoke_status}")
+    print(f"PRODUCTION_SMOKE_STATE = {smoke_status}")
     print("CANONICAL_WRITE_AUTHORIZED = false")
     return 0
 
