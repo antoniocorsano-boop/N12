@@ -18,6 +18,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import cew_document_drawing_workspace as document_workspace
+import cew_drawing_viewer as drawing_viewer
 import cew_f7_native_review_service as review_service
 import cew_project_control_room as control_room
 import cew_project_home as project_home
@@ -83,6 +84,7 @@ def healthz():
         "production_receipt_submit_ready": backend in PRODUCTION_AUDIT_BACKENDS,
         "document_workspace": "B11_AVAILABLE",
         "drawing_register": "B11_AVAILABLE",
+        "drawing_viewer": "B12_PREP_AVAILABLE_NOT_PROMOTED",
         "source_workspace": "B1_AVAILABLE",
         "source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED",
         "canonical_write_authorized": False,
@@ -154,7 +156,7 @@ def drawing_register():
 def drawing_card(source_id: str):
     if source_id not in source_workspace.maps()["sources"]:
         return HTMLResponse("<h1>Tavola non trovata</h1><a href='/drawings'>Torna alle tavole</a>", status_code=404)
-    return HTMLResponse(document_workspace.build_drawing_card(source_id))
+    return HTMLResponse(drawing_viewer.build_viewer(source_id))
 
 
 @app.get("/sources", response_class=HTMLResponse)
@@ -197,6 +199,30 @@ def source_pdf(source_id: str):
             "Content-Disposition": f'inline; filename="{filename}"',
             "X-CEW-Primary-Source": "VERIFIED_IMMUTABLE_PDF",
             "X-CEW-Source-SHA256": source["sha256"],
+        },
+    )
+
+
+@app.get("/api/drawing/render/{source_id}")
+def drawing_render(source_id: str, dpi: int = drawing_viewer.DEFAULT_DPI):
+    try:
+        png, ctx = drawing_viewer.render_full_page(source_id, dpi)
+    except KeyError as exc:
+        return JSONResponse({"state": "DRAWING_SOURCE_NOT_FOUND", "reason": str(exc)}, status_code=404)
+    except ValueError as exc:
+        return JSONResponse({"state": "DRAWING_RENDER_REJECTED", "reason": str(exc)}, status_code=422)
+    except Exception:
+        return JSONResponse({"state": "DRAWING_RENDER_UNAVAILABLE", "reason": "VERIFIED_DRAWING_RENDER_FAILED"}, status_code=503)
+    return Response(
+        content=png,
+        media_type="image/png",
+        headers={
+            "Cache-Control": "private, max-age=300",
+            "X-CEW-Source-SHA256": ctx["verified_sha256"],
+            "X-CEW-Page-ID": ctx["page"]["page_id"],
+            "X-CEW-Drawing-DPI": str(ctx["dpi"]),
+            "X-CEW-Derived-Authority": "READING_AID_ONLY",
+            "X-CEW-Canonical-Write": "false",
         },
     )
 
