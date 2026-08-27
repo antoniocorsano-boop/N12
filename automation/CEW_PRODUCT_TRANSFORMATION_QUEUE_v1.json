@@ -11,7 +11,7 @@
       "priority": 10,
       "wave": "A",
       "agent_role": "PRODUCT_STATE_AGENT",
-      "state": "READY",
+      "state": "COMPLETE",
       "objective": "Reconcile CEW product/runtime state with merged code and explicitly project N12 engineering state into P0-P16 without changing engineering facts.",
       "dependencies": [],
       "target_outputs": [
@@ -19,14 +19,17 @@
         "scripts/validate_cew_product_state_reconciliation.py",
         "data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json"
       ],
-      "required_gates": ["DATA_GATE", "INTEGRATION_GATE", "QA_GATE"]
+      "required_gates": ["DATA_GATE", "INTEGRATION_GATE", "QA_GATE"],
+      "completion_decision": "PASS",
+      "completed_at": "2026-08-27T13:57:25Z",
+      "result_receipt": "automation/receipts/cew-product/CEW-A0-STATE-RECONCILIATION_20260827T135725Z.json"
     },
     {
       "id": "CEW-A1-PRODUCT-SPINE",
       "priority": 20,
       "wave": "A",
       "agent_role": "PRODUCT_STATE_AGENT",
-      "state": "WAITING",
+      "state": "READY",
       "objective": "Implement lifecycle primitives P0-P16, phase gates, deliverables, engineering decisions, information requirements, rule-pack references and work packages.",
       "dependencies": ["CEW-A0-STATE-RECONCILIATION"],
       "target_outputs": [
