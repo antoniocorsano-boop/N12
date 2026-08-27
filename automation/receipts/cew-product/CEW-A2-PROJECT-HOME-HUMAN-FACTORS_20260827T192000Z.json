@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "work_item_id": "CEW-A2-PROJECT-HOME-HUMAN-FACTORS",
+  "decision": "PASS",
+  "agent_role": "HUMAN_FACTORS_AGENT",
+  "ingested_at": "2026-08-27T19:20:00Z",
+  "selected_before": "CEW-A2-PROJECT-HOME-HUMAN-FACTORS",
+  "released_after": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
+  "result": {
+    "target_outputs": [
+      "docs/PRODUCT/CEW_PROJECT_HOME_V2_CONTRACT_v1.md",
+      "automation/CEW_TERMINOLOGY_LAYER_v1.json",
+      "scripts/validate_cew_human_factors_contract.py"
+    ],
+    "validation": {
+      "INTEGRATION_GATE": "PASS",
+      "HUMAN_FACTORS_GATE": "PASS"
+    },
+    "residuals": [],
+    "authority_boundary": "Project Home v2 is a navigation and human-factors layer only; N12 engineering authority remains unchanged."
+  },
+  "verified_runs": {
+    "product_transformation": 33107679990,
+    "user_web_pilot": 33107680057,
+    "neon_user_runtime": 33107680017,
+    "control_room": 33107680021,
+    "f7_native_review": 33107679937,
+    "evidence_map": 33107680115,
+    "existing_assessment": 33107680005,
+    "knowledge_system": 33107679952
+  },
+  "independent_regression_watch": {
+    "evidence_region_pack_run": 33107680124,
+    "state_at_receipt": "IN_PROGRESS_NOT_REQUIRED_FOR_A2_PROMOTION"
+  },
+  "canonical_write": false,
+  "engineering_authority_exercised": false
+}
