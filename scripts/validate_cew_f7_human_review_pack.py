@@ -5,22 +5,26 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 CONTRACT=ROOT/'automation/CEW_HUMAN_DECISION_INTAKE_CONTRACT_v1.json'
+RECEIPT_SCHEMA=ROOT/'automation/CEW_HUMAN_DECISION_RECEIPT_SCHEMA_v1.json'
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--built-dir',required=True);a=ap.parse_args();b=Path(a.built_dir)
-    c=json.loads(CONTRACT.read_text(encoding='utf-8'));m=json.loads((b/'human_review_manifest.json').read_text(encoding='utf-8'))
+    c=json.loads(CONTRACT.read_text(encoding='utf-8'));rs=json.loads(RECEIPT_SCHEMA.read_text(encoding='utf-8'));m=json.loads((b/'human_review_manifest.json').read_text(encoding='utf-8'))
     if c.get('milestone')!='CEW-F7' or m.get('authority')!='HUMAN_REVIEW_INPUT_ONLY':raise AssertionError('intake authority drift')
+    if m.get('receipt_schema_id')!=rs.get('schema_id'):raise AssertionError('receipt schema identity drift')
     inv=c['authority_invariants'];false_keys=['pack_may_prefill_outcome','pack_may_prefill_human_observation','pack_may_claim_direct_primary_evidence','pack_may_select_promotion_target','pack_may_request_epistemic_promotion','pack_may_write_canonical','pack_may_modify_f2_geometry','pack_may_reopen_m0g']
     if any(inv[k] is not False for k in false_keys):raise AssertionError('intake authority weakened')
     if len(m.get('entries',[]))!=4 or m.get('prefilled_decisions')!=0:raise AssertionError('review inventory/prefill drift')
     if m.get('compact_review') is not True:raise AssertionError('compact review contract missing')
     expected_unlocated={'ERW-N12-001','ERW-N12-002'}
+    ack=rs['authority_acknowledgement_exact']
     for e in m['entries']:
         d=e['decision_template']
         if d['review_mode']!='HUMAN_REVIEW':raise AssertionError('review mode drift')
-        for k in ('decision_id','reviewer','timestamp','outcome','human_observation','requested_epistemic_state','target_id','reopen_approval_id'):
+        for k in ('decision_id','reviewer','timestamp','outcome','human_observation','requested_epistemic_state','target_id','reopen_approval_id','authority_acknowledgement'):
             if d[k] != '':raise AssertionError(f'forbidden prefill: {e["task_id"]}/{k}')
-        if d['direct_primary_evidence_observed'] is not None or d['authority_acknowledgement'] is not False:raise AssertionError('human acknowledgement prefilled')
+        if d['direct_primary_evidence_observed'] is not None:raise AssertionError('direct-primary acknowledgement prefilled')
+        if e.get('authority_acknowledgement_exact')!=ack:raise AssertionError(f'receipt acknowledgement schema drift: {e["task_id"]}')
         if len(d['evidence_regions'])!=1 or len(d['source_versions'])!=1:raise AssertionError('evidence provenance missing')
         for key in ('element_it','known_it','missing_it','technical_it'):
             if not str(e.get(key,'')).strip():raise AssertionError(f'compact field missing: {e["task_id"]}/{key}')
@@ -43,13 +47,16 @@ def main():
         if token not in js:raise AssertionError(f'compact review control missing: {token}')
     for legacy in ('Cosa devi controllare','1. Dove guardare:','2. Cosa cercare:','Non fare questo:','Quando puoi confermare:','Registra il risultato'):
         if legacy in js or legacy in html:raise AssertionError(f'verbose legacy review block reintroduced: {legacy}')
-    for token in ('CONFIRMED','direct_primary_evidence_observed','authority_acknowledgement','target_id','Esporta la decisione in JSON'):
+    for token in ('CONFIRMED','direct_primary_evidence_observed','authority_acknowledgement','authority_acknowledgement_exact','target_id','Esporta la decisione in JSON'):
         if token not in js:raise AssertionError(f'human decision control missing: {token}')
+    if "el.dataset.k==='authority_acknowledgement'" not in js or "e.authority_acknowledgement_exact" not in js:
+        raise AssertionError('receipt acknowledgement exporter is not schema-compatible')
     if '.compact-grid' not in html or 'Revisione tecnica essenziale' not in html:raise AssertionError('compact shell missing')
     if re.search(r'canonical_write[^\n]*true',json.dumps(m),flags=re.I):raise AssertionError('review pack gained canonical write')
     print('HUMAN_DECISION_INTAKE_PACK_PASS')
     print('TASKS=4/4')
     print('COMPACT_REVIEW=PASS')
+    print('RECEIPT_SCHEMA_COMPATIBILITY=PASS')
     print('UNVERIFIED_FILARE_LABELS=EXPLICIT')
     print('PREFILLED_OUTCOMES=0')
     print('PREFILLED_HUMAN_OBSERVATIONS=0')
