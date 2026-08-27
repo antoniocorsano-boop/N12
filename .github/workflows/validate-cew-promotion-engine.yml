@@ -4,17 +4,24 @@ on:
   pull_request:
     paths:
       - 'automation/CEW_PROMOTION_ENGINE_CONTRACT_v1.json'
+      - 'automation/CEW_HUMAN_DECISION_RECEIPT_SCHEMA_v1.json'
+      - 'automation/CEW_F7_PATCH_PAYLOAD_CONTRACT_v1.json'
       - 'data/canonical/CEW_PROMOTION_TARGET_REGISTRY_v1.csv'
       - 'data/canonical/CEW_SYSTEM_MILESTONES_v1.csv'
       - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
       - 'data/canonical/M1E_B06_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv'
       - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
       - 'data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv'
       - 'analysis/cew/CEW_F7_PROMOTION_POLICY_FIXTURES_v1.json'
+      - 'analysis/cew/CEW_F7_HUMAN_RECEIPT_BRIDGE_FIXTURES_v1.json'
       - 'scripts/build_cew_erw_queue.py'
       - 'scripts/build_cew_erw_decision_receipts.py'
+      - 'scripts/build_cew_f7_promotion_requests.py'
+      - 'scripts/validate_cew_human_decision_receipt.py'
       - 'scripts/run_cew_promotion_engine.py'
       - 'scripts/validate_cew_promotion_engine.py'
+      - 'scripts/validate_cew_f7_receipt_bridge.py'
       - 'scripts/build_cew_promotion_orchestration.py'
       - 'scripts/validate_cew_promotion_orchestration.py'
       - 'scripts/build_cew_canonical_patch_candidates.py'
@@ -23,19 +30,27 @@ on:
   push:
     branches:
       - 'work/cew-f7-promotion-engine-from-4474c6'
+      - 'work/cew-f7-receipt-bridge'
     paths:
       - 'automation/CEW_PROMOTION_ENGINE_CONTRACT_v1.json'
+      - 'automation/CEW_HUMAN_DECISION_RECEIPT_SCHEMA_v1.json'
+      - 'automation/CEW_F7_PATCH_PAYLOAD_CONTRACT_v1.json'
       - 'data/canonical/CEW_PROMOTION_TARGET_REGISTRY_v1.csv'
       - 'data/canonical/CEW_SYSTEM_MILESTONES_v1.csv'
       - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
       - 'data/canonical/M1E_B06_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv'
       - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
       - 'data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv'
       - 'analysis/cew/CEW_F7_PROMOTION_POLICY_FIXTURES_v1.json'
+      - 'analysis/cew/CEW_F7_HUMAN_RECEIPT_BRIDGE_FIXTURES_v1.json'
       - 'scripts/build_cew_erw_queue.py'
       - 'scripts/build_cew_erw_decision_receipts.py'
+      - 'scripts/build_cew_f7_promotion_requests.py'
+      - 'scripts/validate_cew_human_decision_receipt.py'
       - 'scripts/run_cew_promotion_engine.py'
       - 'scripts/validate_cew_promotion_engine.py'
+      - 'scripts/validate_cew_f7_receipt_bridge.py'
       - 'scripts/build_cew_promotion_orchestration.py'
       - 'scripts/validate_cew_promotion_orchestration.py'
       - 'scripts/build_cew_canonical_patch_candidates.py'
@@ -60,10 +75,16 @@ jobs:
         run: |
           python scripts/build_cew_erw_queue.py --out cew-f7-queue
           python scripts/build_cew_erw_decision_receipts.py --queue-bundle cew-f7-queue/erw_queue_bundle.json --out cew-f7-receipts
-      - name: Evaluate current decisions and policy fixtures
+      - name: Validate and bridge F7 human receipt conformance fixtures
+        run: |
+          python scripts/build_cew_f7_promotion_requests.py \
+            --receipts analysis/cew/CEW_F7_HUMAN_RECEIPT_BRIDGE_FIXTURES_v1.json \
+            --out cew-f7-human-bridge
+      - name: Evaluate current decisions, human receipt requests and policy fixtures
         run: |
           python scripts/run_cew_promotion_engine.py \
             --receipts cew-f7-receipts/decision_receipts.json \
+            --f7-requests cew-f7-human-bridge/promotion_requests.json \
             --fixtures analysis/cew/CEW_F7_PROMOTION_POLICY_FIXTURES_v1.json \
             --out cew-f7-promotion
       - name: Validate F7 promotion authority boundary
@@ -80,6 +101,13 @@ jobs:
           python scripts/build_cew_canonical_patch_candidates.py \
             --evaluations cew-f7-promotion/promotion_evaluations.json \
             --out cew-f7-patch-candidates
+      - name: Validate F7 receipt bridge and lossless reinforcement semantics
+        run: |
+          python scripts/validate_cew_f7_receipt_bridge.py \
+            --requests cew-f7-human-bridge/promotion_requests.json \
+            --evaluations cew-f7-promotion/promotion_evaluations.json \
+            --candidates cew-f7-patch-candidates/canonical_patch_candidates.json \
+            --fixtures analysis/cew/CEW_F7_HUMAN_RECEIPT_BRIDGE_FIXTURES_v1.json
       - name: Prove governed writer authority boundary
         run: python scripts/validate_cew_governed_writer_boundary.py --candidates cew-f7-patch-candidates/canonical_patch_candidates.json
       - name: Upload F7 promotion orchestration and patch-candidate receipts
@@ -87,6 +115,7 @@ jobs:
         with:
           name: cew-f7-promotion-engine-slice
           path: |
+            cew-f7-human-bridge/
             cew-f7-promotion/
             cew-f7-orchestration/
             cew-f7-patch-candidates/

@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "automation" / "CEW_PROMOTION_ENGINE_CONTRACT_v1.json"
 TARGETS = ROOT / "data" / "canonical" / "CEW_PROMOTION_TARGET_REGISTRY_v1.csv"
 ORDER = {"ND": 0, "INF": 1, "RIF": 2, "MIS": 3, "DOC": 4}
+F7_REQUEST_AUTHORITY = "VALIDATED_HUMAN_RECEIPT_TO_PROMOTION_REQUEST_ONLY_NO_CANONICAL_WRITE"
 
 
 def rows(path: Path) -> list[dict[str, str]]:
@@ -80,6 +81,17 @@ def evaluate(req: dict, targets: dict[str, dict[str, str]]) -> dict:
     }
 
 
+def evaluate_with_context(req: dict, targets: dict[str, dict[str, str]]) -> dict:
+    result = evaluate(req, targets)
+    for key in (
+        "task_id", "residual_id", "human_observation", "evidence_regions", "source_versions",
+        "reviewer", "timestamp", "source", "fixture_only", "fixture_id", "reopen_approval_id"
+    ):
+        if key in req:
+            result[key] = req[key]
+    return result
+
+
 def current_requests(receipts: dict) -> list[dict]:
     out = []
     for item in receipts.get("decisions", []):
@@ -100,10 +112,25 @@ def current_requests(receipts: dict) -> list[dict]:
     return out
 
 
+def load_f7_requests(path: Path | None) -> list[dict]:
+    if path is None:
+        return []
+    bundle = json.loads(path.read_text(encoding="utf-8"))
+    if bundle.get("authority") != F7_REQUEST_AUTHORITY:
+        raise AssertionError("F7 promotion request authority drift")
+    if bundle.get("canonical_write_performed") is not False:
+        raise AssertionError("F7 promotion request bridge performed canonical write")
+    requests = list(bundle.get("requests", []))
+    if any(r.get("source") != "F7_VALIDATED_HUMAN_RECEIPT" for r in requests):
+        raise AssertionError("unvalidated source entered F7 promotion request input")
+    return requests
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--receipts", required=True)
     ap.add_argument("--fixtures")
+    ap.add_argument("--f7-requests")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
@@ -113,6 +140,10 @@ def main() -> int:
     targets = {r["target_id"].strip(): r for r in rows(TARGETS)}
     receipts = json.loads(Path(args.receipts).read_text(encoding="utf-8"))
     current = [evaluate(r, targets) for r in current_requests(receipts)]
+    human_receipt_evaluations = [
+        evaluate_with_context(r, targets)
+        for r in load_f7_requests(Path(args.f7_requests) if args.f7_requests else None)
+    ]
 
     fixtures = []
     if args.fixtures:
@@ -135,13 +166,16 @@ def main() -> int:
         "milestone": "CEW-F7",
         "authority": "PROMOTION_EVALUATION_ONLY_NO_CANONICAL_WRITE",
         "current_n12": current,
+        "human_receipt_evaluations": human_receipt_evaluations,
         "policy_fixtures": fixtures,
         "canonical_write_performed": False
     }
-    (out / "promotion_evaluations.json").write_text(json.dumps(bundle, indent=2) + "\n", encoding="utf-8")
+    (out / "promotion_evaluations.json").write_text(json.dumps(bundle, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print("CEW_PROMOTION_ENGINE_EVALUATED")
     print(f"CURRENT_N12_DECISIONS={len(current)}")
     print(f"CURRENT_N12_ELIGIBLE={sum(1 for x in current if x['eligible'])}")
+    print(f"F7_HUMAN_RECEIPT_EVALUATIONS={len(human_receipt_evaluations)}")
+    print(f"F7_HUMAN_RECEIPT_ELIGIBLE={sum(1 for x in human_receipt_evaluations if x['eligible'])}")
     print(f"POLICY_FIXTURES={len(fixtures)}")
     print("CANONICAL_WRITE=FORBIDDEN")
     return 0

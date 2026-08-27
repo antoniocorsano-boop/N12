@@ -1,0 +1,25 @@
+{
+  "contract_id": "CEW-F7-PATCH-PAYLOAD-CONTRACT-v1",
+  "milestone": "CEW-F7",
+  "authority": "PATCH_PAYLOAD_VALIDATION_ONLY_NO_CANONICAL_WRITE",
+  "target_payloads": {
+    "CEW-TARGET-REINFORCEMENT-OBSERVATION": {
+      "payload_kind": "REINFORCEMENT_ASSERTION",
+      "parser_policy": "EXACT_DIRECTIONAL_REINFORCEMENT_GRAMMAR_V1",
+      "required_components": ["upper", "lower"],
+      "component_schema": {
+        "count": "positive_integer",
+        "diameter_mm": "positive_integer"
+      },
+      "raw_human_observation_required": true
+    }
+  },
+  "invariants": {
+    "generic_total_is_not_equivalent_to_directional_reinforcement": true,
+    "upper_and_lower_must_remain_separate": true,
+    "free_text_semantic_inference_forbidden": true,
+    "exact_grammar_tokenization_may_emit_patch_candidate": true,
+    "raw_human_observation_must_be_preserved_verbatim": true,
+    "payload_candidate_never_authorizes_canonical_write": true
+  }
+}
