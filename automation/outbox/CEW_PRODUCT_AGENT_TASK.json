@@ -1,31 +1,34 @@
 {
   "schema_version": "1.0",
   "program_goal": "CEW-GOAL-01",
-  "work_item_id": "CEW-A2-PROJECT-HOME-HUMAN-FACTORS",
-  "agent_role": "HUMAN_FACTORS_AGENT",
-  "agent_goal": "Make CEW understandable and operable by a structural engineer without repository knowledge while preserving every engineering authority boundary.",
-  "objective": "Replace repository-oriented control room semantics with lifecycle-based Project Home, engineering terminology and human-factors acceptance fixtures.",
-  "dependencies": ["CEW-A1-PRODUCT-SPINE"],
+  "work_item_id": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
+  "agent_role": "SOURCE_EVIDENCE_AGENT",
+  "agent_goal": "Turn immutable project sources and governed evidence bindings into an engineer-usable source/evidence journey without weakening provenance or human authority.",
+  "objective": "Deliver Source Hub and Evidence Workspace with immutable intake, MICRO/MESO/MACRO context, linked entity context and natural-language human decisions.",
+  "dependencies": ["CEW-A2-PROJECT-HOME-HUMAN-FACTORS"],
   "target_outputs": [
-    "docs/PRODUCT/CEW_PROJECT_HOME_V2_CONTRACT_v1.md",
-    "automation/CEW_TERMINOLOGY_LAYER_v1.json",
-    "scripts/validate_cew_human_factors_contract.py"
+    "docs/PRODUCT/CEW_SOURCE_HUB_V1_CONTRACT.md",
+    "docs/PRODUCT/CEW_EVIDENCE_WORKSPACE_V1_CONTRACT.md"
   ],
-  "required_gates": ["INTEGRATION_GATE", "HUMAN_FACTORS_GATE"],
+  "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE", "HUMAN_FACTORS_GATE", "PRODUCTION_SMOKE"],
   "global_invariants": [
-    "UI_STATE_IS_NEVER_ENGINEERING_AUTHORITY",
-    "MISSING_INFORMATION_IS_NEVER_SILENTLY_FILLED",
-    "HUMAN_OBSERVATION_MUST_NOT_BE_NORMALIZED_WITH_INFORMATION_LOSS",
+    "SOURCE_VERSION_IS_IMMUTABLE",
+    "EVIDENCE_CONTEXT_NEVER_BECOMES_ENGINEERING_AUTHORITY_BY_PROXIMITY",
+    "HUMAN_OBSERVATION_IS_PRESERVED_VERBATIM",
+    "PARSER_SPECIFIC_USER_GRAMMAR_IS_FORBIDDEN",
+    "UI_SUBMIT_IS_NOT_CANONICAL_WRITE",
+    "MODEL_PRECISION_NEVER_UPGRADES_EVIDENCE_PRECISION",
     "DECISION_GRADE_RESULTS_REQUIRE_BIDIRECTIONAL_TRACEABILITY"
   ],
   "forbidden": [
-    "requiring repository knowledge for normal use",
-    "using internal IDs as primary navigation",
-    "calling a product workflow status an engineering conclusion",
-    "hiding uncertainty or missing information",
-    "removing access to technical provenance"
+    "editing or replacing immutable SourceVersion content",
+    "inventing a source-to-member binding from geometric proximity",
+    "requiring ERW/M1E/F7 identifiers for normal review",
+    "requiring the engineer to write machine grammar",
+    "normalizing away upper/lower or other directional engineering meaning",
+    "silently promoting evidence or closing residuals"
   ],
-  "authority_boundary": "A2 changes presentation, navigation and interaction only. It may expose engineering state but may not alter it.",
+  "authority_boundary": "B1 may render sources, evidence context and linked model context, collect human decisions and create governed review outputs. It may not exercise responsible-engineer authority or write canonical engineering data directly.",
   "result_contract": "automation/CEW_PRODUCT_AGENT_RESULT_CONTRACT_v1.json",
   "result_inbox": "automation/inbox/CEW_PRODUCT_AGENT_RESULT.json"
 }
