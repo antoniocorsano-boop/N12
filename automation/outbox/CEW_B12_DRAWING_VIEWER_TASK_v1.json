@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "task_id": "CEW-B1.2-DRAWING-VIEWER",
+  "program_goal": "CEW-GOAL-01",
+  "agent_role": "SOURCE_EVIDENCE_AGENT",
+  "state": "WAITING_FOR_B1_1_HVA",
+  "depends_on": ["B1.1"],
+  "goal": "Make original project drawings readable and navigable in CEW without changing source or evidence authority.",
+  "user_need": "A structural engineer must open a drawing, orient it correctly, zoom/pan, understand the whole sheet and move to/from governed evidence without repository knowledge.",
+  "required_features": [
+    "fit page",
+    "fit width",
+    "zoom",
+    "pan",
+    "rotate clockwise 90 degrees",
+    "rotate counter-clockwise 90 degrees",
+    "reset orientation",
+    "show/hide governed EvidenceRegion overlays",
+    "open verified original PDF",
+    "navigate drawing to evidence and back"
+  ],
+  "authority_rules": [
+    "viewer rotation is display state only",
+    "SourceVersion bytes remain immutable",
+    "Page/PageTransform/EvidenceRegion are not rewritten by viewer orientation",
+    "derived rendering remains reading aid only",
+    "visual proximity does not create structural binding"
+  ],
+  "usability_tasks": ["UX-DOC-02", "UX-DOC-03"],
+  "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "INTEGRATION_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE", "PRODUCTION_SMOKE"],
+  "promotion_authorized": false
+}
