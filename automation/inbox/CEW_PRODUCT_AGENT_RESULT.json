@@ -1,27 +1,40 @@
 {
   "schema_version": "1.0",
-  "work_item_id": "CEW-A2-PROJECT-HOME-HUMAN-FACTORS",
-  "agent_role": "HUMAN_FACTORS_AGENT",
-  "decision": "PASS",
+  "work_item_id": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
+  "agent_role": "SOURCE_EVIDENCE_AGENT",
+  "decision": "RESIDUAL",
   "target_outputs": [
-    "docs/PRODUCT/CEW_PROJECT_HOME_V2_CONTRACT_v1.md",
-    "automation/CEW_TERMINOLOGY_LAYER_v1.json",
-    "scripts/validate_cew_human_factors_contract.py"
+    "docs/PRODUCT/CEW_SOURCE_HUB_V1_CONTRACT.md",
+    "docs/PRODUCT/CEW_EVIDENCE_WORKSPACE_V1_CONTRACT.md"
   ],
   "validation": {
-    "INTEGRATION_GATE": "PASS",
-    "HUMAN_FACTORS_GATE": "PASS"
+    "DATA_GATE": "PASS",
+    "ENGINEERING_GATE": "PASS",
+    "HUMAN_GATE": "PASS",
+    "HUMAN_FACTORS_GATE": "PASS",
+    "PRODUCTION_SMOKE": "NOT_SATISFIED"
   },
-  "residuals": [],
-  "authority_boundary": "A2 changes navigation, presentation, terminology and authenticated Project Home interaction only. It does not alter N12 engineering facts, evidence authority, calculation readiness, human engineering decisions or canonical write authority.",
+  "residuals": [
+    {
+      "residual_id": "CEW-B1-PROD-01",
+      "scope": "PRODUCTION_DEPLOYMENT",
+      "state": "RESIDUAL",
+      "blocking_gate": "PRODUCTION_SMOKE",
+      "description": "The B1 Source Hub and Evidence Workspace are implemented and CI-validated, but the current Vercel connector exposes no visible CEW project and its deploy action has an inconsistent schema: the published tool accepts no arguments while the backend requires target, name and files. A real B1 production deploy and smoke therefore cannot be certified from the available integration.",
+      "required_resolution": "Establish a functioning CEW Vercel project/deploy channel, deploy the current branch, then verify authenticated Project Home -> Source Hub -> verified primary-source PDF/render -> Evidence Workspace MICRO/MESO/MACRO without submitting a fabricated production human receipt."
+    }
+  ],
+  "authority_boundary": "B1 adds source/evidence user workflow, verified immutable-source retrieval, derived reading views and natural-language review compatibility only. It does not modify F2 geometry, N12 engineering facts, structural bindings, calculation readiness or canonical write authority.",
   "audit_paths": [
-    ".github/workflows/validate-cew-product-transformation.yml#run-33107679990",
-    ".github/workflows/validate-cew-user-web-pilot.yml#run-33107680057",
-    ".github/workflows/validate-cew-neon-user-runtime.yml#run-33107680017",
-    ".github/workflows/validate-cew-control-room.yml#run-33107680021",
-    ".github/workflows/validate-cew-f7-native-review-ui.yml#run-33107679937",
-    ".github/workflows/validate-cew-evidence-map.yml#run-33107680115",
-    ".github/workflows/validate-cew-existing-assessment.yml#run-33107680005",
-    ".github/workflows/validate-knowledge-system.yml#run-33107679952"
+    ".github/workflows/validate-cew-source-evidence-journey.yml#run-33109878025",
+    ".github/workflows/validate-cew-user-web-pilot.yml#run-33109877981",
+    ".github/workflows/validate-cew-product-transformation.yml#run-33109878032",
+    ".github/workflows/validate-cew-promotion-engine.yml#run-33109878026",
+    ".github/workflows/validate-cew-f7-native-review-ui.yml#run-33109878010",
+    ".github/workflows/validate-cew-neon-user-runtime.yml#run-33109878002",
+    ".github/workflows/validate-cew-evidence-map.yml#run-33109878028",
+    ".github/workflows/validate-cew-evidence-region-pack.yml#run-33109878033",
+    ".github/workflows/validate-cew-existing-assessment.yml#run-33109878050",
+    ".github/workflows/validate-knowledge-system.yml#run-33109877989"
   ]
 }
