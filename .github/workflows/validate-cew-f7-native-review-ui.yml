@@ -1,0 +1,79 @@
+name: Validate CEW F7 Native Review UI
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_F7_NATIVE_REVIEW_SERVICE_CONTRACT_v1.json'
+      - 'automation/CEW_HUMAN_DECISION_RECEIPT_SCHEMA_v1.json'
+      - 'automation/CEW_F7_PATCH_PAYLOAD_CONTRACT_v1.json'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_PROMOTION_TARGET_REGISTRY_v1.csv'
+      - 'scripts/cew_project_control_room.py'
+      - 'scripts/cew_f7_native_review_service.py'
+      - 'scripts/validate_cew_f7_native_review_service.py'
+      - 'scripts/validate_cew_human_decision_receipt.py'
+      - 'scripts/build_cew_f7_promotion_requests.py'
+      - 'scripts/run_cew_promotion_engine.py'
+      - 'scripts/build_cew_canonical_patch_candidates.py'
+      - '.github/workflows/validate-cew-f7-native-review-ui.yml'
+  push:
+    branches:
+      - 'work/cew-f7-native-review-ui'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-review:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax
+        run: |
+          python -m py_compile scripts/cew_project_control_room.py
+          python -m py_compile scripts/cew_f7_native_review_service.py
+          python -m py_compile scripts/validate_cew_f7_native_review_service.py
+      - name: Validate CEW foundation and human receipt authority
+        run: |
+          python scripts/validate_cew_system_foundation.py
+          python scripts/validate_cew_human_decision_receipt.py --negative-self-test
+      - name: Validate native Control Room review path
+        run: python scripts/validate_cew_f7_native_review_service.py
+      - name: Prove service starts and exposes health endpoint
+        run: |
+          python scripts/cew_f7_native_review_service.py --host 127.0.0.1 --port 8765 --receipt-store /tmp/cew-native-review-receipts > /tmp/cew-native-review.log 2>&1 &
+          PID=$!
+          trap 'kill $PID || true' EXIT
+          python - <<'PY'
+          import json,time,urllib.request
+          for _ in range(30):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:8765/healthz', timeout=1) as r:
+                      data=json.load(r)
+                  assert data['status']=='ok'
+                  assert data['canonical_write'] is False
+                  print('CEW_NATIVE_REVIEW_HTTP_HEALTH=PASS')
+                  break
+              except Exception:
+                  time.sleep(.2)
+          else:
+              raise SystemExit('native review service did not become healthy')
+          PY
+      - name: Publish non-authoritative Control Room preview
+        run: |
+          python scripts/cew_project_control_room.py \
+            --state data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json \
+            --issues data/canonical/N12_ISSUES_CURRENT_v1.json \
+            --f7-tasks data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv \
+            --output artifacts/cew-native-review-preview/index.html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cew-f7-native-review-ui-preview
+          path: artifacts/cew-native-review-preview/
+          if-no-files-found: error
+          retention-days: 14
