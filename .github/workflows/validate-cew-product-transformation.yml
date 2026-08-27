@@ -7,8 +7,10 @@ on:
       - 'docs/AUDIT/CEW_PRODUCT_AUDIT_HUMAN_CENTRIC_2026-08-27_v1.md'
       - 'docs/ARCHITECTURE/CEW_HUMAN_CENTRIC_STRUCTURAL_PRODUCT_v1.md'
       - 'docs/ROADMAP/CEW_HUMAN_CENTRIC_PRODUCT_TRANSFORMATION_v1.md'
+      - 'docs/PRODUCT/CEW_PROJECT_HOME_V2_CONTRACT_v1.md'
       - 'automation/CEW_HUMAN_CENTRIC_PHASE_CONTRACT_v1.json'
       - 'automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json'
+      - 'automation/CEW_TERMINOLOGY_LAYER_v1.json'
       - 'automation/CEW_PRODUCT_AGENT_CONTRACT_v1.json'
       - 'automation/CEW_PRODUCT_AGENT_RESULT_CONTRACT_v1.json'
       - 'automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json'
@@ -17,9 +19,12 @@ on:
       - 'automation/inbox/CEW_PRODUCT_AGENT_RESULT.json'
       - 'automation/receipts/cew-product/**'
       - 'scripts/cew_product_orchestrator.py'
+      - 'scripts/cew_project_home.py'
       - 'scripts/validate_cew_product_state_reconciliation.py'
       - 'scripts/validate_cew_project_lifecycle_model.py'
+      - 'scripts/validate_cew_human_factors_contract.py'
       - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
+      - 'app.py'
       - '.github/workflows/validate-cew-product-transformation.yml'
   workflow_dispatch:
 
@@ -31,12 +36,10 @@ jobs:
       - name: Python syntax
         run: |
           python -m py_compile scripts/cew_product_orchestrator.py
-          if [ -f scripts/validate_cew_product_state_reconciliation.py ]; then
-            python -m py_compile scripts/validate_cew_product_state_reconciliation.py
-          fi
-          if [ -f scripts/validate_cew_project_lifecycle_model.py ]; then
-            python -m py_compile scripts/validate_cew_project_lifecycle_model.py
-          fi
+          python -m py_compile scripts/cew_project_home.py
+          python -m py_compile scripts/validate_cew_product_state_reconciliation.py
+          python -m py_compile scripts/validate_cew_project_lifecycle_model.py
+          python -m py_compile scripts/validate_cew_human_factors_contract.py
       - name: Validate product orchestrator
         run: python scripts/cew_product_orchestrator.py validate
       - name: Show selected work package
@@ -45,3 +48,5 @@ jobs:
         run: python scripts/validate_cew_product_state_reconciliation.py
       - name: Validate P0-P16 lifecycle product spine
         run: python scripts/validate_cew_project_lifecycle_model.py
+      - name: Validate Project Home human factors
+        run: python scripts/validate_cew_human_factors_contract.py
