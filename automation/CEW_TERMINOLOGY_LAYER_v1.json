@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "layer_id": "CEW_TERMINOLOGY_LAYER",
   "program_goal": "CEW-GOAL-01",
-  "status": "A2_PRODUCT_TERMINOLOGY",
+  "status": "A2_PRODUCT_TERMINOLOGY_B1_NAVIGATION",
   "audience": "STRUCTURAL_ENGINEER",
   "rules": {
     "primary_ui_language": "ITALIAN_ENGINEERING_PLAIN_LANGUAGE",
@@ -26,8 +26,8 @@
     "TECHNICAL_CONTROL_ROOM": {"primary": "Dettagli tecnici e audit", "secondary": "Control Room"}
   },
   "navigation": [
-    {"id": "SOURCES", "label": "Fonti"},
-    {"id": "EVIDENCE", "label": "Evidenze"},
+    {"id": "SOURCES", "label": "Fonti", "href": "/sources", "state": "B1_ACTIVE"},
+    {"id": "EVIDENCE", "label": "Evidenze", "href": "/sources", "state": "B1_ACTIVE_THROUGH_SOURCE_CONTEXT"},
     {"id": "RECONSTRUCTION", "label": "Ricostruzione"},
     {"id": "STRUCTURAL_MODEL", "label": "Modello strutturale"},
     {"id": "PROPERTIES", "label": "Proprietà"},
