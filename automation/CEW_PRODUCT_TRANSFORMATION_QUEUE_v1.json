@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "queue_id": "CEW_PRODUCT_TRANSFORMATION_QUEUE",
   "program_goal": "CEW-GOAL-01",
   "updated_at": "2026-08-27",
@@ -53,22 +53,30 @@
       "priority": 40,
       "wave": "B",
       "agent_role": "SOURCE_EVIDENCE_AGENT",
-      "state": "RESIDUAL",
-      "objective": "Deliver Source Hub and Evidence Workspace with immutable intake, MICRO/MESO/MACRO context, linked entity context and natural-language human decisions.",
+      "state": "IN_PROGRESS",
+      "objective": "Deliver the complete project-document journey: document library, drawing register/viewer, immutable intake/versioning, document understanding, governed evidence extraction and natural-language human review.",
       "dependencies": ["CEW-A2-PROJECT-HOME-HUMAN-FACTORS"],
-      "target_outputs": ["docs/PRODUCT/CEW_SOURCE_HUB_V1_CONTRACT.md", "docs/PRODUCT/CEW_EVIDENCE_WORKSPACE_V1_CONTRACT.md"],
-      "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE", "HUMAN_FACTORS_GATE", "PRODUCTION_SMOKE"],
+      "target_outputs": [
+        "docs/PRODUCT/CEW_SOURCE_HUB_V1_CONTRACT.md",
+        "docs/PRODUCT/CEW_EVIDENCE_WORKSPACE_V1_CONTRACT.md",
+        "docs/PRODUCT/CEW_DOCUMENT_DRAWING_WORKSPACE_V1_CONTRACT.md",
+        "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json",
+        "automation/CEW_USABILITY_METRICS_MODEL_v1.json"
+      ],
+      "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE", "SECURITY_GATE", "PRODUCTION_SMOKE"],
+      "current_slice": "B1.1",
+      "current_slice_state": "IN_PROGRESS",
       "current_validation": {
-        "DATA_GATE": "PASS",
-        "ENGINEERING_GATE": "PASS",
-        "HUMAN_GATE": "PASS",
-        "HUMAN_FACTORS_GATE": "PASS",
-        "PRODUCTION_DEPLOY": "PASS",
-        "PRODUCTION_SMOKE": "PARTIAL_AUTHENTICATED_SOURCE_SMOKE_PENDING"
+        "SOURCE_EVIDENCE_DATA_GATE": "PASS",
+        "SOURCE_EVIDENCE_ENGINEERING_GATE": "PASS",
+        "SOURCE_EVIDENCE_HUMAN_GATE": "PASS",
+        "B1_1_DOCUMENT_DRAWING_FOUNDATION": "IN_PROGRESS",
+        "HVA_GATE": "NOT_YET_SATISFIED_FOR_EXTENDED_B1",
+        "PRODUCTION_SMOKE": "RESET_REQUIRED_AFTER_DOCUMENT_DRAWING_EXTENSION"
       },
-      "residual_id": "CEW-B1-PROD-01",
-      "residual_reason": "Current B1 runtime is Production/Current/Ready on Vercel from commit 7fadbe9285eae59ee0b0cc0789f371916f895f7b. Remaining gate is authenticated verification of health, Source Hub, immutable source SHA-256 retrieval and MICRO/MESO/MACRO Evidence Workspace rendering without a synthetic human receipt.",
-      "deployment_receipt": "automation/receipts/cew-product/CEW-B1-PRODUCTION-DEPLOY_20260827T203710Z.json"
+      "discovery_reason": "Human use of the deployed B1 service showed that evidence review was exposed before a usable P1/P2 document and drawing management journey. B1 is therefore extended rather than falsely completed.",
+      "subplan": "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json",
+      "prior_deployment_receipt": "automation/receipts/cew-product/CEW-B1-PRODUCTION-DEPLOY_20260827T203710Z.json"
     },
     {
       "id": "CEW-B2-RECONSTRUCTION-PROPERTIES",
