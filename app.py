@@ -10,7 +10,7 @@ from pathlib import Path
 from urllib.parse import parse_qs
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
 ROOT = Path(__file__).resolve().parent
 SCRIPTS = ROOT / "scripts"
@@ -21,6 +21,7 @@ import cew_f7_native_review_service as review_service
 import cew_project_control_room as control_room
 import cew_project_home as project_home
 import cew_runtime_audit_store as audit_store
+import cew_source_evidence_workspace as source_workspace
 
 review_service.persist_runtime_receipt = audit_store.persist_runtime_receipt
 
@@ -79,6 +80,8 @@ def healthz():
         "auth_configured": _auth_configured(),
         "audit_backend": backend,
         "production_receipt_submit_ready": backend in PRODUCTION_AUDIT_BACKENDS,
+        "source_workspace": "B1_AVAILABLE",
+        "source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED",
         "canonical_write_authorized": False,
     }
 
@@ -134,6 +137,73 @@ def project_home_route():
     return HTMLResponse(project_home.build_project_home(state, issues, tasks, terminology, lifecycle))
 
 
+@app.get("/sources", response_class=HTMLResponse)
+def source_hub():
+    return HTMLResponse(source_workspace.build_source_hub())
+
+
+@app.get("/sources/{source_id}", response_class=HTMLResponse)
+def source_detail(source_id: str):
+    if source_id not in source_workspace.maps()["sources"]:
+        return HTMLResponse("<h1>Fonte non trovata</h1><a href='/sources'>Torna alle fonti</a>", status_code=404)
+    return HTMLResponse(source_workspace.build_source_detail(source_id))
+
+
+@app.get("/evidence/review", response_class=HTMLResponse)
+def evidence_workspace(task: str = ""):
+    try:
+        source_workspace.task_context(task)
+    except (KeyError, ValueError):
+        return HTMLResponse("<h1>Evidenza non disponibile</h1><a href='/sources'>Torna alle fonti</a>", status_code=404)
+    return HTMLResponse(source_workspace.build_evidence_workspace(task))
+
+
+@app.get("/api/source/pdf/{source_id}")
+def source_pdf(source_id: str):
+    try:
+        payload, source = source_workspace.fetch_verified_source(source_id)
+    except KeyError as exc:
+        return JSONResponse({"state": "SOURCE_NOT_FOUND", "reason": str(exc)}, status_code=404)
+    except ValueError as exc:
+        return JSONResponse({"state": "SOURCE_INTEGRITY_REJECTED", "reason": str(exc)}, status_code=422)
+    except Exception:
+        return JSONResponse({"state": "SOURCE_ACCESS_UNAVAILABLE", "reason": "VERIFIED_SOURCE_RETRIEVAL_FAILED"}, status_code=503)
+    filename = source.get("canonical_filename", f"{source_id}.pdf").replace('"', "")
+    return Response(
+        content=payload,
+        media_type="application/pdf",
+        headers={
+            "Cache-Control": "private, max-age=300",
+            "Content-Disposition": f'inline; filename="{filename}"',
+            "X-CEW-Primary-Source": "VERIFIED_IMMUTABLE_PDF",
+            "X-CEW-Source-SHA256": source["sha256"],
+        },
+    )
+
+
+@app.get("/api/source/render")
+def source_render(task: str = "", scale: str = "MICRO"):
+    try:
+        png, ctx = source_workspace.render_task_source(task, scale)
+    except KeyError as exc:
+        return JSONResponse({"state": "EVIDENCE_SOURCE_NOT_FOUND", "reason": str(exc)}, status_code=404)
+    except ValueError as exc:
+        return JSONResponse({"state": "EVIDENCE_RENDER_REJECTED", "reason": str(exc)}, status_code=422)
+    except Exception:
+        return JSONResponse({"state": "EVIDENCE_RENDER_UNAVAILABLE", "reason": "VERIFIED_RENDER_FAILED"}, status_code=503)
+    return Response(
+        content=png,
+        media_type="image/png",
+        headers={
+            "Cache-Control": "private, max-age=300",
+            "X-CEW-Source-SHA256": ctx["verified_sha256"],
+            "X-CEW-Source-Scale": ctx["scale"],
+            "X-CEW-Derived-Authority": "READING_AID_ONLY",
+            "X-CEW-Canonical-Write": "false",
+        },
+    )
+
+
 @app.get("/technical/control-room", response_class=HTMLResponse)
 def technical_control_room():
     state, issues, tasks = _runtime_inputs()
@@ -145,7 +215,7 @@ def technical_control_room():
 
 @app.get("/review/f7", response_class=HTMLResponse)
 def review_f7(task: str = ""):
-    return HTMLResponse(review_service.render_review(task))
+    return RedirectResponse(url=f"/evidence/review?task={task}", status_code=307)
 
 
 @app.post("/api/f7/receipt")
