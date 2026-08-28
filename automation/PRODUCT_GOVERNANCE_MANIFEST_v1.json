@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "manifest_id": "PRODUCT_GOVERNANCE_MANIFEST",
+  "status": "CANONICAL",
+  "updated": "2026-08-28",
+  "purpose": "Machine-readable authority map for product, development, human-evidence and documentation governance across CEW and eTwin.",
+  "repository_governance": {
+    "operating_model": "docs/GOVERNANCE/AI_NATIVE_PRODUCT_AGENCY_OPERATING_MODEL_v1.md",
+    "documentation_authority_model": "docs/GOVERNANCE/DOCUMENTATION_AUTHORITY_MODEL_v1.md",
+    "documentation_index": "docs/README.md"
+  },
+  "current_models": {
+    "cew_development_model": "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v2.md",
+    "cew_human_centred_model": "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v2.md",
+    "cew_product_program": "docs/PROGRAM/CEW_PRODUCT_COMPLETION_PROGRAM_v1.md",
+    "cew_product_architecture": "docs/ARCHITECTURE/CEW_HUMAN_CENTRIC_STRUCTURAL_PRODUCT_v1.md",
+    "etwin_platform_program": "docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md",
+    "etwin_agentic_orchestration": "docs/PROGRAM/ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v1.md"
+  },
+  "current_state": {
+    "n12_engineering_authority": "knowledge/CURRENT_STATE.json",
+    "cew_product_runtime_state": "data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json",
+    "etwin_program_manifest": "automation/ETW_PROGRAM_MANIFEST_v1.json",
+    "etwin_program_status": "automation/ETW_PROGRAM_STATUS_v1.json",
+    "etwin_development_queue": "automation/ETW_DEVELOPMENT_QUEUE_v1.json",
+    "etwin_human_gate_state": "automation/ETW_HUMAN_GATE_STATE_v1.json"
+  },
+  "human_evidence": {
+    "cew_usability_metrics_model": "automation/CEW_USABILITY_METRICS_MODEL_v1.json",
+    "historical_b17_acceptance_contract": "automation/CEW_B1_USABILITY_ACCEPTANCE_CONTRACT_v1.json",
+    "current_human_factors_decision": "docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md",
+    "rule": "Participant professional work, observation/telemetry, reviewer decision and receipt generation are separate layers. The B1.7 v1 participant surface is not the target acceptance interaction for promotion."
+  },
+  "supersession": [
+    {
+      "role": "CEW_DEVELOPMENT_MODEL",
+      "superseded": "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v1.md",
+      "current": "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v2.md"
+    },
+    {
+      "role": "CEW_HUMAN_CENTRED_MODEL",
+      "superseded": "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v1.md",
+      "current": "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v2.md"
+    }
+  ],
+  "authority_boundaries": {
+    "product_state_is_engineering_authority": false,
+    "ui_state_is_engineering_authority": false,
+    "agent_output_is_engineering_authority": false,
+    "solver_output_rewrites_source_evidence": false,
+    "deployment_implies_promotion": false,
+    "ci_implies_human_acceptance": false,
+    "production_implies_canonical_authority": false,
+    "human_observation_may_be_lossily_normalized": false
+  },
+  "required_agent_read_order": [
+    "automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json",
+    "repository_governance.operating_model",
+    "repository_governance.documentation_authority_model",
+    "relevant current_models product/programme contract",
+    "relevant current_state state/queue",
+    "applicable capability contract",
+    "applicable decision records and receipts"
+  ]
+}
