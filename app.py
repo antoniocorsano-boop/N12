@@ -18,6 +18,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import cew_document_drawing_workspace as document_workspace
+import cew_document_intake as document_intake
 import cew_document_map_page as document_map_page
 import cew_drawing_viewer as drawing_viewer
 import cew_f7_native_review_service as review_service
@@ -87,6 +88,8 @@ def healthz():
         "drawing_register": "B11_AVAILABLE",
         "drawing_viewer": "B12_PREP_AVAILABLE_NOT_PROMOTED",
         "document_map": "B13_PREP_AVAILABLE_NOT_PROMOTED",
+        "document_intake": "B14_METADATA_ONLY_PREP_AVAILABLE_NOT_PROMOTED",
+        "document_byte_storage": "NOT_CONFIGURED",
         "source_workspace": "B1_AVAILABLE",
         "source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED",
         "canonical_write_authorized": False,
@@ -147,6 +150,26 @@ def project_home_route():
 @app.get("/documents", response_class=HTMLResponse)
 def document_library():
     return HTMLResponse(document_workspace.build_document_library())
+
+
+@app.get("/documents/intake", response_class=HTMLResponse)
+def document_intake_page():
+    return HTMLResponse(document_intake.build_intake_page())
+
+
+@app.post("/api/intake/analyze")
+async def document_intake_analyze(request: Request):
+    try:
+        payload = await request.json()
+    except Exception:
+        return JSONResponse({"state": "FAILED", "reason_codes": ["INVALID_JSON"], "bytes_uploaded": False, "canonical_write_authorized": False}, status_code=400)
+    if not isinstance(payload, dict):
+        return JSONResponse({"state": "FAILED", "reason_codes": ["JSON_OBJECT_REQUIRED"], "bytes_uploaded": False, "canonical_write_authorized": False}, status_code=400)
+    try:
+        result = document_intake.analyze_metadata(payload)
+    except ValueError as exc:
+        return JSONResponse({"state": "FAILED", "reason_codes": [str(exc)], "bytes_uploaded": False, "canonical_write_authorized": False}, status_code=422)
+    return JSONResponse(result, headers={"Cache-Control": "no-store"})
 
 
 @app.get("/drawings", response_class=HTMLResponse)
