@@ -6,6 +6,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json"
+AGENT_OPERATING = ROOT / "automation/AI_NATIVE_AGENT_OPERATING_CONTRACT_v1.json"
+DECISION_REGISTER = ROOT / "automation/PRODUCT_DECISION_REGISTER_v1.json"
 CEW_STATE = ROOT / "data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json"
 B1_HUMAN = ROOT / "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json"
 ETW_STATUS = ROOT / "automation/ETW_PROGRAM_STATUS_v1.json"
@@ -35,6 +37,8 @@ def iter_repo_paths(value):
 
 def main() -> None:
     manifest = load(MANIFEST)
+    agents = load(AGENT_OPERATING)
+    decisions = load(DECISION_REGISTER)
     cew = load(CEW_STATE)
     b1 = load(B1_HUMAN)
     etw_status = load(ETW_STATUS)
@@ -45,6 +49,10 @@ def main() -> None:
     # Every concrete governed path in the cross-product manifest must exist.
     for path_str in sorted(set(iter_repo_paths(manifest))):
         assert_path(path_str)
+
+    governance = manifest["repository_governance"]
+    assert governance["agent_operating_contract"] == "automation/AI_NATIVE_AGENT_OPERATING_CONTRACT_v1.json"
+    assert governance["product_decision_register"] == "automation/PRODUCT_DECISION_REGISTER_v1.json"
 
     models = manifest["current_models"]
     assert models["cew_development_model"].endswith("CEW_CODE_DEVELOPMENT_MODEL_v2.md")
@@ -61,6 +69,26 @@ def main() -> None:
     assert boundaries["production_implies_canonical_authority"] is False
     assert boundaries["human_observation_may_be_lossily_normalized"] is False
     assert boundaries["participant_may_self_approve_release"] is False
+
+    # Cross-product agent authority must remain least-authority and non-professional.
+    assert agents["status"] == "REQUIRED_CROSS_PRODUCT_CONTRACT"
+    principles = agents["principles"]
+    assert principles["least_authority"] is True
+    assert principles["read_does_not_imply_write"] is True
+    assert principles["proposal_does_not_imply_approval"] is True
+    assert principles["implementation_does_not_imply_promotion"] is True
+    assert principles["agent_output_is_professional_authority"] is False
+    assert principles["one_promotion_owner_per_slice"] is True
+    assert principles["support_agent_can_promote"] is False
+    assert principles["human_professional_gate_may_be_bypassed"] is False
+
+    # Material Human Factors decision must be persisted, not conversation-only.
+    by_id = {row["decision_id"]: row for row in decisions.get("decisions", [])}
+    assert "PRODUCT-HF-001" in by_id
+    hf_decision = by_id["PRODUCT-HF-001"]
+    assert hf_decision["state"] == "ACCEPTED"
+    assert hf_decision["record"] == "docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md"
+    assert_path(hf_decision["record"])
 
     # CEW current state must consume current governance rather than reconstruct it.
     program = cew["program"]
@@ -99,6 +127,9 @@ def main() -> None:
     assert "A0_HUMAN_FACTORS_V2_REVALIDATION" in etw_status["promotion_blockers"]
     assert etw_status["production_promotion_authorized"] is False
 
+    # v1 compatibility keys are retained for the already-prepared orchestration.
+    assert etw_manifest["plan"].endswith("ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md")
+    assert etw_manifest["orchestration_model"].endswith("ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v1.md")
     assert etw_manifest["current_promotion_plan"] == models["etwin_platform_promotion_program"]
     assert etw_manifest["current_promotion_orchestration_model"] == models["etwin_agentic_promotion_orchestration"]
     assert etw_manifest["a0_revalidation_required_before_promotion"] is True
