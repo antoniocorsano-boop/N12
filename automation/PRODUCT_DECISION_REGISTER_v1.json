@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "register_id": "PRODUCT_DECISION_REGISTER",
   "status": "CANONICAL",
   "updated": "2026-08-28",
@@ -21,6 +21,29 @@
       "required_follow_on": [
         "CEW B1 Human Acceptance v2 implementation",
         "eTwin Human Factors v2 revalidation before ETW-A0 promotion"
+      ]
+    },
+    {
+      "decision_id": "ETWIN-SPEC-001",
+      "title": "Controlled Requirement Flexibility",
+      "state": "ACCEPTED",
+      "date": "2026-08-28",
+      "record": "docs/DECISIONI/ETWIN_SPEC_001_FLEXIBLE_REQUIREMENT_GOVERNANCE_v1.md",
+      "applies_to": ["eTwin platform requirements", "eTwin capability contracts", "eTwin experimental implementations"],
+      "supersedes_or_changes": [
+        "implicit treatment of all eTwin specification statements as equally rigid"
+      ],
+      "does_not_invalidate": [
+        "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v2",
+        "ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v2",
+        "ETW-A0 v1 preparation evidence",
+        "CEW authority",
+        "N12 engineering authority"
+      ],
+      "required_follow_on": [
+        "classify material eTwin deltas as INVARIANT, SPECIFIED, OPEN, EXPERIMENTAL or DOMAIN_OWNED where useful",
+        "do not promote OPEN or EXPERIMENTAL items by implementation convenience",
+        "keep A0-Z0 as the only current eTwin platform promotion sequence"
       ]
     }
   ]
