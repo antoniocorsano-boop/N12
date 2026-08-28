@@ -84,7 +84,17 @@ def main() -> int:
     observation = layers.get("observation_layer", {})
     if observation.get("visible_to_participant_by_default") is not False:
         errors.append("telemetry must remain invisible by default")
-    for metric in ["time_on_task_seconds", "interaction_count", "help_requests", "backtracks_or_recovery_actions", "navigation_path", "viewer_states", "task_outcome"]:
+    for metric in [
+        "time_on_task_seconds",
+        "interaction_count",
+        "help_requests",
+        "backtracks_or_recovery_actions",
+        "navigation_revisit_count",
+        "navigation_path",
+        "viewer_states",
+        "source_scale_states",
+        "task_outcome",
+    ]:
         if metric not in observation.get("metrics", []):
             errors.append(f"missing B1.8 observation metric: {metric}")
 
@@ -114,14 +124,17 @@ def main() -> int:
     for task_id, start_path in expected_starts.items():
         if by_id.get(task_id, {}).get("start_path") != start_path:
             errors.append(f"{task_id} start path drift")
+    if by_id.get("UX-DOC-01", {}).get("automatic_success_signal") != "FINAL_NAVIGATION_PATH_/drawings/TAV-05A":
+        errors.append("UX-DOC-01 must require the correct drawing as final context")
     if by_id.get("UX-DOC-02", {}).get("accepted_mental_model") != "DISPLAY_VIEW_ONLY":
         errors.append("UX-DOC-02 must test viewer-only mental model")
+    if by_id.get("UX-DOC-03", {}).get("automatic_success_signal") != "SOURCE_SCALE_MACRO_OBSERVED_AND_FINAL_STATE_MICRO":
+        errors.append("UX-DOC-03 must use the real MICRO/MACRO Evidence Workspace interaction")
     if by_id.get("UX-DOC-03", {}).get("accepted_mental_model") != "ROUND_TRIP_UNDERSTOOD":
-        errors.append("UX-DOC-03 must test evidence/drawing round-trip comprehension")
+        errors.append("UX-DOC-03 must test evidence/source-context round-trip comprehension")
     if by_id.get("UX-DOC-04", {}).get("accepted_mental_model") != "PRIMARY_PDF":
         errors.append("UX-DOC-04 must preserve primary-PDF authority")
 
-    # Inspect the participant rendering function separately from reviewer code.
     try:
         participant_source = implementation.split("function renderParticipant()", 1)[1].split("function startTask()", 1)[0]
         reviewer_source = implementation.split("function renderReviewer()", 1)[1].split("function exportReceipt", 1)[0]
@@ -136,15 +149,17 @@ def main() -> int:
     for required in ["Attività ${i+1} di ${TASKS.length}", "Svolgi il lavoro come faresti normalmente", "Mostra un suggerimento"]:
         if required not in html:
             errors.append(f"participant experience missing marker: {required}")
-    for required in ["AREA REVISIONE HVA", "Decisione HVA", "Esporta receipt HVA"]:
+    for required in ["AREA REVISIONE HVA", "Decisione HVA", "Esporta receipt HVA", "Accessibilità manuale:"]:
         if required not in reviewer_source:
             errors.append(f"reviewer surface missing marker: {required}")
 
-    # Automatic behavior evidence must cover the four critical journeys.
     for marker in [
         "/drawings/TAV-05A",
         "/evidence/review?task=ERW-N12-001",
         "Viewer (90|180|270)°",
+        "recordSourceScaleState",
+        "startsWith('MACRO')",
+        "startsWith('MICRO')",
         "DISPLAY_VIEW_ONLY",
         "ROUND_TRIP_UNDERSTOOD",
         "PRIMARY_PDF",
@@ -160,6 +175,7 @@ def main() -> int:
         errors.append("B1.8 acceptance layer must not submit receipts to runtime APIs")
     for marker in [
         "receipt_type:'CEW_B1_HUMAN_ACCEPTANCE_V2'",
+        "accessibility_gate_state:'REQUIRED_NOT_SATISFIED'",
         "production_smoke_required:true",
         "production_smoke_state:'REQUIRED_NOT_SATISFIED'",
         "slice_complete:false",
@@ -188,6 +204,7 @@ def main() -> int:
     print("PARTICIPANT_REVIEWER_SEPARATION = PASS")
     print("LIVE_TELEMETRY_VISIBLE_TO_PARTICIPANT = false")
     print("AUTOMATIC_FALSE_SUCCESS_SIGNALS = PASS")
+    print("EVIDENCE_CONTEXT_OBSERVATION = MICRO_MACRO_MICRO")
     print("HUMAN_HVA = REQUIRED_NOT_SATISFIED")
     print("ACCESSIBILITY_GATE = REQUIRED_NOT_SATISFIED")
     print("PRODUCTION_SMOKE_AFTER_HVA = REQUIRED")
