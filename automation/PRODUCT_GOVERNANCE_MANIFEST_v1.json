@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "manifest_id": "PRODUCT_GOVERNANCE_MANIFEST",
   "status": "CANONICAL",
   "updated": "2026-08-28",
@@ -7,7 +7,9 @@
   "repository_governance": {
     "operating_model": "docs/GOVERNANCE/AI_NATIVE_PRODUCT_AGENCY_OPERATING_MODEL_v1.md",
     "documentation_authority_model": "docs/GOVERNANCE/DOCUMENTATION_AUTHORITY_MODEL_v1.md",
-    "documentation_index": "docs/README.md"
+    "documentation_index": "docs/README.md",
+    "agent_operating_contract": "automation/AI_NATIVE_AGENT_OPERATING_CONTRACT_v1.json",
+    "product_decision_register": "automation/PRODUCT_DECISION_REGISTER_v1.json"
   },
   "current_models": {
     "cew_development_model": "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v2.md",
@@ -82,9 +84,11 @@
     "automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json",
     "repository_governance.operating_model",
     "repository_governance.documentation_authority_model",
+    "repository_governance.agent_operating_contract",
     "relevant current_models product/programme contract",
     "relevant current_state state/queue",
     "applicable capability contract",
+    "repository_governance.product_decision_register",
     "applicable decision records and receipts"
   ]
 }
