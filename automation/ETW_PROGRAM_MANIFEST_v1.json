@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
   "status": "CANONICAL",
   "execution_state": "AUTHORIZED_FOR_PREPARATION",
@@ -28,5 +28,26 @@
   "a0_preparation_evidence_preserved": true,
   "a0_revalidation_required_before_promotion": true,
   "engineering_authority_unchanged": true,
-  "n12_engineering_authority": "knowledge/CURRENT_STATE.json and governed canonical artifacts"
+  "n12_engineering_authority": "knowledge/CURRENT_STATE.json and governed canonical artifacts",
+  "requirement_governance": {
+    "decision": "docs/DECISIONI/ETWIN_SPEC_001_FLEXIBLE_REQUIREMENT_GOVERNANCE_v1.md",
+    "decision_id": "ETWIN-SPEC-001",
+    "classes": ["INVARIANT", "SPECIFIED", "OPEN", "EXPERIMENTAL", "DOMAIN_OWNED"],
+    "rule": "Flexibility is allowed inside authority, isolation, provenance and promotion boundaries; changing a boundary requires explicit governed contract change."
+  },
+  "spec_reconciliation": {
+    "state": "SP2_PARTIAL_ADMISSION_NONPROMOTIVE",
+    "sp0_genealogy": "docs/AUDIT/ETWIN_GENEALOGY_REGISTER_SP0_v1.md",
+    "sp1_conformance": "docs/AUDIT/ETWIN_SPEC_CONFORMANCE_MATRIX_SP1_v1.md",
+    "plan": "docs/PROGRAM/ETWIN_SPEC_RECONCILIATION_PLAN_v1.md",
+    "discovery_branch_is_current_l1": false,
+    "parallel_platform_lifecycle_created": false,
+    "a0_z0_sequence_unchanged": true
+  },
+  "platform_acceptance_hardening": {
+    "red_team_matrix": "docs/ACCEPTANCE/ETWIN_PLATFORM_RED_TEAM_MATRIX_v1.md",
+    "technical_pass_implies_hva": false,
+    "technical_pass_implies_promotion": false,
+    "knowledge_reuse_implies_same_revision_acceptance": false
+  }
 }
