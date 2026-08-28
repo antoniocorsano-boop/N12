@@ -1,8 +1,9 @@
 # ETWIN-SPEC-001 — Governo flessibile dei requisiti eTwin
 
 **Data:** 2026-08-28  
-**Stato:** `PROPOSED_FOR_ADMISSION`  
-**Effetto immediato:** `NONE` finché non ammesso nella linea di programma corrente  
+**Stato:** `ACCEPTED`  
+**Ammissione:** registrata in `automation/PRODUCT_DECISION_REGISTER_v1.json`  
+**Effetto:** convenzione di classificazione dei requisiti eTwin; nessuna promozione di prodotto o engineering authority  
 **Ambito:** classificazione e gestione evolutiva dei requisiti eTwin  
 **Non modifica:** authority CEW, N12 engineering authority, programma A0→Z0, Human System, promotion semantics
 
@@ -15,7 +16,7 @@ Una specifica tecnica può diventare dannosa in due modi opposti:
 
 La soluzione non è rendere tutto modificabile. È distinguere **che cosa può evolvere facilmente e che cosa richiede una revisione governata**.
 
-## 2. Decisione proposta
+## 2. Decisione
 
 I requisiti eTwin possono essere annotati con una delle seguenti classi, subordinate alla gerarchia documentale L0–L7 già vigente.
 
@@ -72,22 +73,11 @@ Non possono essere modificati per convenienza implementativa:
 
 ### `OPEN → SPECIFIED`
 
-Richiede:
-
-- problema e alternative dichiarate;
-- evidenza sufficiente (discovery, test, HVA o prova tecnica secondo il rischio);
-- decisione tracciata se materialmente rilevante;
-- aggiornamento del contratto che possiede il requisito.
+Richiede problema e alternative dichiarate, evidenza sufficiente, decisione tracciata quando materialmente rilevante e aggiornamento del contratto proprietario.
 
 ### `EXPERIMENTAL → SPECIFIED`
 
-Richiede:
-
-- evidenza che l'esperimento risolve il bisogno dichiarato;
-- conformance con gli `INVARIANT`;
-- regression/safety test applicabili;
-- eventuale HVA;
-- ammissione esplicita. L'uso prolungato non vale come promozione.
+Richiede evidenza che l'esperimento risolve il bisogno dichiarato, conformità agli `INVARIANT`, regression/safety test applicabili, eventuale HVA e ammissione esplicita. L'uso prolungato non vale come promozione.
 
 ### `SPECIFIED → nuova forma compatibile`
 
@@ -95,14 +85,7 @@ Può usare una revisione minore se non cambia il significato contrattuale né i 
 
 ### modifica di `INVARIANT`
 
-È una decisione architetturale/materiale. Deve produrre almeno:
-
-- decision record;
-- impatto su authority/sicurezza/dati;
-- piano di migrazione;
-- regressioni;
-- revisione L1/L2 pertinente;
-- nuova evidenza di acceptance.
+È una decisione architetturale/materiale e richiede almeno decision record, impatto su authority/sicurezza/dati, piano di migrazione, regressioni, revisione L1/L2 pertinente e nuova evidenza di acceptance.
 
 ### `DOMAIN_OWNED`
 
@@ -112,16 +95,11 @@ Non ha transizione autonoma in eTwin. Cambia solo quando cambia il contratto del
 
 Un requisito `OPEN` non può essere implementato scegliendo silenziosamente una delle opzioni se la scelta produce effetti persistenti o autoritativi.
 
-Un artefatto `EXPERIMENTAL` non può:
-
-- essere assunto come source of truth;
-- creare canonical write;
-- soddisfare un gate di promozione salvo che il contratto del gate lo ammetta espressamente;
-- ridefinire una semantica `DOMAIN_OWNED`.
+Un artefatto `EXPERIMENTAL` non può essere assunto come source of truth, creare canonical write, soddisfare un gate di promozione salvo ammissione espressa dal gate, né ridefinire una semantica `DOMAIN_OWNED`.
 
 ## 7. Versionamento
 
-La convenzione proposta è:
+La convenzione è:
 
 - `PATCH` — chiarimento senza cambio semantico;
 - `MINOR` — estensione compatibile o chiusura governata di un `OPEN`;
@@ -133,22 +111,17 @@ Il versionamento documentale effettivo resta soggetto al `DOCUMENTATION_AUTHORIT
 
 Le classi derivano dal lavoro di discovery persistito sul ramo storico `docs/etwin-system-spec-v1`, ma **questa decisione non ammette quel ramo come contratto L1**.
 
-SP-1 deve invece usare le classi come strumento di confronto fra:
+La matrice SP-1 usa le classi per distinguere requisiti già coperti da eTwin v2, requisiti nuovi realmente utili, aspetti `OPEN`, elementi che duplicano CEW/N12 e prototipi da conservare come `EXPERIMENTAL`.
 
-- requisiti già coperti da eTwin v2;
-- requisiti nuovi realmente utili;
-- aspetti `OPEN` da mantenere tali;
-- elementi da respingere perché duplicano CEW/N12;
-- prototipi da conservare come `EXPERIMENTAL`.
+## 9. Conseguenze dell'ammissione
 
-## 9. Criterio di ammissione
+L'ammissione di ETWIN-SPEC-001:
 
-La decisione può diventare corrente solo se:
+1. non modifica `ETWIN_PLATFORM_EXTENSION_OVER_CEW_v2` come current L1;
+2. non modifica capability ownership eTwin/CEW/N12;
+3. non modifica il programma A0→Z0;
+4. non rende current authority la branch discovery `docs/etwin-system-spec-v1`;
+5. consente alle future specifiche/capability contract eTwin di dichiarare esplicitamente il proprio grado di stabilità;
+6. impone fail-closed per `OPEN` ed `EXPERIMENTAL` quando una scelta avrebbe effetto persistente o autoritativo.
 
-1. è compatibile con `PRODUCT_GOVERNANCE_MANIFEST_v1.json`;
-2. non cambia capability ownership eTwin/CEW/N12;
-3. non cambia il programma A0→Z0;
-4. viene riferita dal contratto/documentazione appropriata o dal Product Decision Register;
-5. il validator di governance resta PASS.
-
-Fino ad allora: `PROPOSED_FOR_ADMISSION / NON_PROMOTIVE`.
+**Decisione:** `ACCEPTED — NON_PROMOTIVE`.
