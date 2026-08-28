@@ -13,19 +13,22 @@ This index makes the repository readable without reconstructing product policy f
 2. **How documentation authority works**  
    `docs/GOVERNANCE/DOCUMENTATION_AUTHORITY_MODEL_v1.md`
 
-3. **Current CEW product programme**  
+3. **Who owns which capability across eTwin / CEW / N12**  
+   `docs/GOVERNANCE/CEW_ETWIN_PRODUCT_FAMILY_CAPABILITY_MAP_v1.md`
+
+4. **Current CEW product programme**  
    `docs/PROGRAM/CEW_PRODUCT_COMPLETION_PROGRAM_v1.md`
 
-4. **Current CEW development model**  
+5. **Current CEW development model**  
    `docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v2.md`
 
-5. **Current CEW human-centred / GOV.UK model**  
+6. **Current CEW human-centred / GOV.UK model**  
    `docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v2.md`
 
-6. **Current eTwin platform promotion programme**  
+7. **Current eTwin platform promotion programme**  
    `docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v2.md`
 
-7. **Current eTwin agentic promotion orchestration**  
+8. **Current eTwin agentic promotion orchestration**  
    `docs/PROGRAM/ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v2.md`
 
 ## Historical preparation contracts
@@ -55,19 +58,31 @@ This reports current CEW product/runtime maturity and points to governing contra
 
 `automation/ETW_PROGRAM_STATUS_v1.json` and the eTwin queue/gate state referenced by `automation/ETW_PROGRAM_MANIFEST_v1.json`.
 
-These execution-state files may retain references to the v1 preparation contract while the already-prepared A0 branch remains unpromoted. Future promotion is governed by the cross-product manifest and v2 programme.
+These execution-state files retain v1 compatibility references for the already-prepared A0 branch. Future promotion is governed by the cross-product manifest and v2 programme.
 
 ### Cross-product governance
 
 `automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json`
 
-This is the first machine-readable file agents should consult for current product/documentation authority.
+This is the first machine-readable file agents consult for current product/documentation authority.
+
+### Cross-product agent rules
+
+`automation/AI_NATIVE_AGENT_OPERATING_CONTRACT_v1.json`
+
+Agents are a bounded workforce with least authority. Read does not imply write; proposal does not imply approval; implementation does not imply promotion.
+
+### Product decisions
+
+`automation/PRODUCT_DECISION_REGISTER_v1.json`
+
+Material product/governance changes are persisted here and linked to durable decision records.
 
 ## Directory map
 
 | Directory | Role |
 |---|---|
-| `docs/GOVERNANCE/` | cross-product operating and authority rules |
+| `docs/GOVERNANCE/` | cross-product operating, authority and capability-boundary rules |
 | `docs/PROGRAM/` | product/programme delivery models |
 | `docs/ARCHITECTURE/` | system/product architecture |
 | `docs/PRODUCT/` | bounded capability contracts |
@@ -106,11 +121,13 @@ For cross-cutting product work agents read, in order:
 
 1. `automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json`;
 2. L0 governance docs referenced there;
-3. the relevant current product/programme plan;
-4. current state;
-5. selected queue/work item;
-6. capability contract(s);
-7. applicable decision records;
-8. relevant receipts/evidence.
+3. the product-family capability map;
+4. the cross-product agent operating contract;
+5. the relevant current product/programme plan;
+6. current state;
+7. selected queue/work item;
+8. capability contract(s);
+9. product decision register and applicable decision records;
+10. relevant receipts/evidence.
 
 Agents do not infer current policy from chat history or modification timestamps.
