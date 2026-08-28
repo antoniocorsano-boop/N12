@@ -8,6 +8,7 @@ on:
       - 'scripts/cew_b1_acceptance_lab.py'
       - 'scripts/cew_b1_human_acceptance_v2.py'
       - 'scripts/cew_b1_human_acceptance_v2_hardening.py'
+      - 'scripts/cew_b1_dual_workspace.py'
       - 'scripts/cew_evidence_viewer_interaction.py'
       - 'scripts/cew_runtime_render_budget.py'
       - 'scripts/cew_runtime_render_cache.py'
@@ -16,12 +17,19 @@ on:
       - 'scripts/validate_cew_runtime_render_cache.py'
       - 'scripts/validate_cew_evidence_viewer_interaction.py'
       - 'scripts/validate_cew_b18_hva_hardening.py'
+      - 'scripts/validate_cew_b18_dual_workspace.py'
       - 'scripts/validate_cew_b1_usability_acceptance.py'
       - 'automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json'
+      - 'automation/CEW_B18_DUAL_WORKSPACE_HVA_CONTRACT_v1.json'
       - 'automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json'
       - 'automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json'
       - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
+      - 'data/canonical/CEW_DOCUMENT_MAP_REGISTRY_v1.json'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
       - 'docs/ACCEPTANCE/CEW_B1_HUMAN_ACCEPTANCE_V2_PLAN.md'
+      - 'docs/ACCEPTANCE/CEW_B18_DUAL_WORKSPACE_CONTRACT_v1.md'
       - '.github/workflows/validate-cew-b1-usability-acceptance.yml'
   workflow_dispatch:
 
@@ -37,6 +45,7 @@ jobs:
         run: |
           python -m py_compile scripts/cew_b1_human_acceptance_v2.py
           python -m py_compile scripts/cew_b1_human_acceptance_v2_hardening.py
+          python -m py_compile scripts/cew_b1_dual_workspace.py
           python -m py_compile scripts/cew_evidence_viewer_interaction.py
           python -m py_compile scripts/cew_runtime_render_budget.py
           python -m py_compile scripts/cew_runtime_render_cache.py
@@ -46,12 +55,15 @@ jobs:
           python -m py_compile scripts/validate_cew_evidence_viewer_interaction.py
           python -m py_compile scripts/cew_b1_acceptance_lab.py
           python -m py_compile scripts/validate_cew_b18_hva_hardening.py
+          python -m py_compile scripts/validate_cew_b18_dual_workspace.py
           python -m py_compile scripts/validate_cew_b1_usability_acceptance.py
           python -m py_compile app.py
       - name: Install runtime dependencies
         run: pip install -r requirements.txt
       - name: Validate B1.8 participant, observation, reviewer and receipt boundaries
         run: python scripts/validate_cew_b1_usability_acceptance.py
+      - name: Validate provenance-backed dual workspace boundaries
+        run: python scripts/validate_cew_b18_dual_workspace.py
       - name: Validate same-revision HVA hardening
         run: python scripts/validate_cew_b18_hva_hardening.py
       - name: Validate bounded raster generation policy
@@ -73,6 +85,7 @@ jobs:
           import app
           routes={r.path for r in app.app.routes}
           assert '/acceptance/b1' in routes
+          assert '/evidence/dual-workspace' in routes
           response=app.b1_acceptance_lab()
           assert response.status_code == 200
           text=response.body.decode('utf-8')
@@ -89,14 +102,24 @@ jobs:
           assert 'id="evidenceViewport"' in evidence_text
           assert '＋ Ingrandisci' in evidence_text
           assert 'Reset vista' in evidence_text
+          dual=app.evidence_dual_workspace('ERW-N12-001')
+          dual_text=dual.body.decode('utf-8')
+          assert dual.status_code == 200
+          assert 'SOURCE PANEL' in dual_text
+          assert 'TECHNICAL REPRESENTATION PANEL' in dual_text
+          assert 'length=1040; quantity=UNREADABLE; diameter=UNREADABLE' in dual_text
+          assert 'Geometria strutturale: <span class="open-state">OPEN/ND</span>' in dual_text
+          assert 'canonical_write:false' in dual_text
           h=app.healthz()
           assert h['b1_acceptance_lab']=='B18_IMPLEMENTED_CANDIDATE_HVA_PENDING'
+          assert h['b18_dual_workspace']=='IMPLEMENTED_CANDIDATE_HVA_PENDING'
           assert h['canonical_write_authorized'] is False
-          print('CEW B1.8 HUMAN ACCEPTANCE ROUTE: PASS')
+          print('CEW B1.8 HUMAN ACCEPTANCE + DUAL WORKSPACE ROUTES: PASS')
           PY
       - name: Preserve human and promotion gates
         run: |
           echo 'Automated gate validates the B1.8 acceptance implementation only.'
+          echo 'DUAL_WORKSPACE_HVA = REQUIRED_NOT_SATISFIED'
           echo 'HVA_GATE = REQUIRED_NOT_SATISFIED'
           echo 'ACCESSIBILITY_GATE = REQUIRED_NOT_SATISFIED'
           echo 'PRODUCTION_SMOKE = REQUIRED_AFTER_HVA_ON_ACCEPTED_REVISION'
