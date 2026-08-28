@@ -6,6 +6,8 @@ on:
       - 'app.py'
       - 'scripts/cew_b1_acceptance_lab.py'
       - 'scripts/cew_b1_human_acceptance_v2.py'
+      - 'scripts/cew_b1_human_acceptance_v2_hardening.py'
+      - 'scripts/validate_cew_b18_hva_hardening.py'
       - 'scripts/validate_cew_b1_usability_acceptance.py'
       - 'automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json'
       - 'automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json'
@@ -26,17 +28,23 @@ jobs:
       - name: Syntax
         run: |
           python -m py_compile scripts/cew_b1_human_acceptance_v2.py
+          python -m py_compile scripts/cew_b1_human_acceptance_v2_hardening.py
           python -m py_compile scripts/cew_b1_acceptance_lab.py
+          python -m py_compile scripts/validate_cew_b18_hva_hardening.py
           python -m py_compile scripts/validate_cew_b1_usability_acceptance.py
           python -m py_compile app.py
       - name: Install runtime dependencies
         run: pip install -r requirements.txt
       - name: Validate B1.8 participant, observation, reviewer and receipt boundaries
         run: python scripts/validate_cew_b1_usability_acceptance.py
+      - name: Validate same-revision HVA hardening
+        run: python scripts/validate_cew_b18_hva_hardening.py
       - name: Route and health smoke
         env:
           CEW_AUTH_DISABLED_FOR_TEST: '1'
           CEW_AUDIT_BACKEND_MODE: 'LOCAL_TEST_ONLY'
+          RENDER_GIT_COMMIT: '0123456789abcdef0123456789abcdef01234567'
+          RENDER_EXTERNAL_URL: 'https://cew-hva.example.invalid'
         run: |
           python - <<'PY'
           import app
@@ -48,6 +56,9 @@ jobs:
           assert 'Verifica del percorso documentale' in text
           assert 'Svolgi il lavoro come faresti normalmente' in text
           assert 'AREA REVISIONE HVA' in text
+          assert '0123456789abcdef0123456789abcdef01234567' in text
+          assert 'stored.runtime_revision!==RUNTIME_REVISION' in text
+          assert 'WRONG_SOURCE_OR_VERSION' in text
           h=app.healthz()
           assert h['b1_acceptance_lab']=='B18_IMPLEMENTED_CANDIDATE_HVA_PENDING'
           assert h['canonical_write_authorized'] is False
