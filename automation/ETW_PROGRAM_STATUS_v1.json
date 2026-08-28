@@ -5,9 +5,26 @@
   "selected_work_item": "ETW-A0",
   "selected_owner": "ETW_PLATFORM_IDENTITY_AGENT",
   "execution_mode": "PREP_ONLY",
-  "promotion_blockers": ["CEW_PROMOTED_BASELINE"],
+  "promotion_blockers": [
+    "CEW_PROMOTED_BASELINE",
+    "A0_HUMAN_FACTORS_V2_REVALIDATION",
+    "A0_PRODUCTION_SMOKE",
+    "APPROVE_PLATFORM_BOUNDARY"
+  ],
   "next_human_gate": "APPROVE_PLATFORM_BOUNDARY",
   "next_release_after_gate": "ETW-A1",
   "parallel_support_active": true,
-  "production_promotion_authorized": false
+  "production_promotion_authorized": false,
+  "observed_external_preparation": {
+    "state": "PREPARED_BLOCKED_PROMOTION",
+    "prepared_head_sha": "36b101ed32cb61263609c84f17b740c2446be9c1",
+    "prepared_under_program": "docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md",
+    "prepared_under_orchestration": "docs/PROGRAM/ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v1.md",
+    "automated_preparation_gates": "PASS",
+    "effect": "Preparation evidence is preserved. Future promotion requires reconciliation against current v2 governance/human contracts."
+  },
+  "current_promotion_program": "docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v2.md",
+  "current_promotion_orchestration": "docs/PROGRAM/ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v2.md",
+  "governance_manifest": "automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json",
+  "next_admissible_program_action": "Complete CEW B1 Human Acceptance v2 and CEW promotion; freeze CEW_PROMOTED_BASELINE; then revalidate ETW-A0 before APPROVE_PLATFORM_BOUNDARY and ETW-A1 release."
 }

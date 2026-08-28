@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "register_id": "PRODUCT_DECISION_REGISTER",
+  "status": "CANONICAL",
+  "updated": "2026-08-28",
+  "decisions": [
+    {
+      "decision_id": "PRODUCT-HF-001",
+      "title": "Participant / Reviewer Separation",
+      "state": "ACCEPTED",
+      "date": "2026-08-28",
+      "record": "docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md",
+      "applies_to": ["CEW", "eTwin", "future human-acceptance instruments"],
+      "supersedes_or_changes": [
+        "CEW B1.7 v1 participant interaction as target promotion model"
+      ],
+      "does_not_invalidate": [
+        "B1.7 deterministic instrument implementation evidence",
+        "ETW-A0 v1 preparation evidence"
+      ],
+      "required_follow_on": [
+        "CEW B1 Human Acceptance v2 implementation",
+        "eTwin Human Factors v2 revalidation before ETW-A0 promotion"
+      ]
+    }
+  ]
+}

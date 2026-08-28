@@ -1,17 +1,21 @@
 {
-  "schema_version": "2.1",
+  "schema_version": "2.2",
   "product": "CEW",
   "vertical": "CEW-EX",
   "reference_project": "N12",
   "state_role": "CEW_PRODUCT_RUNTIME_STATE",
   "status": "CURRENT",
-  "updated": "2026-08-27",
+  "updated": "2026-08-28",
   "program": {
     "goal": "CEW-GOAL-01",
+    "governance_manifest": "automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json",
+    "agency_operating_model": "docs/GOVERNANCE/AI_NATIVE_PRODUCT_AGENCY_OPERATING_MODEL_v1.md",
     "program": "docs/PROGRAM/CEW_PRODUCT_COMPLETION_PROGRAM_v1.md",
-    "code_development_model": "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v1.md",
-    "human_centred_model": "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v1.md",
+    "code_development_model": "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v2.md",
+    "human_centred_model": "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v2.md",
     "usability_model": "automation/CEW_USABILITY_METRICS_MODEL_v1.json",
+    "current_b1_human_acceptance_contract": "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json",
+    "human_factors_decision": "docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md",
     "audit": "docs/AUDIT/CEW_PRODUCT_AUDIT_HUMAN_CENTRIC_2026-08-27_v1.md",
     "architecture": "docs/ARCHITECTURE/CEW_HUMAN_CENTRIC_STRUCTURAL_PRODUCT_v1.md",
     "roadmap": "docs/ROADMAP/CEW_HUMAN_CENTRIC_PRODUCT_TRANSFORMATION_v1.md",
@@ -26,9 +30,9 @@
   },
   "product_maturity": {
     "engineering_kernel": "STRONG_REFERENCE_IMPLEMENTATION",
-    "integration": "B1_DOCUMENT_DRAWING_EXTENSION_IN_PROGRESS",
-    "user_workflow": "PROJECT_HOME_V2_PLUS_SOURCE_EVIDENCE_PRODUCTION_AND_B11_DOCUMENT_DRAWING_FOUNDATION_IN_BRANCH",
-    "human_factors": "GOVUK_PLUS_TASK_USABILITY_MODEL_ACTIVE_B11_HVA_PENDING",
+    "integration": "B1_DOCUMENT_DRAWING_EVIDENCE_STACK_B11_TO_B17_PREPARED_NOT_PROMOTED",
+    "user_workflow": "PROJECT_HOME_V2_AND_PRIOR_SOURCE_EVIDENCE_PRODUCTION_PLUS_EXTENDED_B1_PREVIEW_CANDIDATE",
+    "human_factors": "B17_V1_INSTRUMENT_TECHNICALLY_VALIDATED_BUT_PARTICIPANT_INTERACTION_REQUIRES_V2_REWORK",
     "production_runtime": "PRIOR_B1_PRODUCTION_READY_EXTENDED_B1_NOT_YET_PROMOTED",
     "assessment_ready": false,
     "decision_ready": false,
@@ -46,27 +50,100 @@
       "audit_adapter": "scripts/cew_runtime_audit_store.py",
       "production_receipt_submit_ready": true,
       "canonical_write_authorized": false,
-      "smoke_status": "PRIOR_B1_SOURCE_EVIDENCE_RUNTIME_SMOKE_PASS_EXTENDED_B1_REQUIRES_NEW_SMOKE",
+      "smoke_status": "PRIOR_B1_SOURCE_EVIDENCE_RUNTIME_SMOKE_PASS_EXTENDED_B1_REQUIRES_NEW_SAME_REVISION_SMOKE_AFTER_HVA_V2",
       "production_source_branch": "work/cew-human-centric-structural-product-v1",
       "production_source_commit": "7fadbe9285eae59ee0b0cc0789f371916f895f7b",
       "production_environment_state": "READY_CURRENT_FOR_PRIOR_B1",
       "latest_project_home_v2_deployed": true,
       "latest_b1_source_evidence_deployed": true,
-      "latest_b11_document_drawing_deployed": false,
+      "latest_extended_b1_document_drawing_deployed": false,
       "b1_deployment_receipt": "automation/receipts/cew-product/CEW-B1-PRODUCTION-DEPLOY_20260827T203710Z.json",
       "runtime_validation_workflow": ".github/workflows/validate-cew-neon-user-runtime.yml"
+    },
+    "preview": {
+      "extended_b1_candidate_sha": "cab1c53b62b2b70294b6b7e8d7dddd14ccdcb832",
+      "branch": "work/cew-b17-usability-acceptance-prep",
+      "deployment_status": "VERCEL_READY",
+      "automated_gate_status": "PASS",
+      "human_acceptance_status": "V1_INSTRUMENT_OBSERVED_REQUIRES_V2_REWORK",
+      "production_promotion_authorized": false,
+      "canonical_write_authorized": false
     }
   },
   "capability_maturity": [
-    {"id": "DOCUMENT_DRAWING_WORKSPACE", "engine_available": true, "integrated": "B11_FOUNDATION_IN_BRANCH", "user_workflow_available": "DOCUMENT_LIBRARY_AND_DRAWING_REGISTER_IMPLEMENTED_NOT_PROMOTED", "human_factors_validated": "AUTOMATED_FIXTURES_ONLY_HVA_PENDING", "production_ready": false},
-    {"id": "SOURCE_EVIDENCE_KERNEL", "engine_available": true, "integrated": true, "user_workflow_available": "SOURCE_HUB_AND_EVIDENCE_WORKSPACE_PRODUCTION_DEPLOYED", "human_factors_validated": true, "production_ready": "PRIOR_B1_SMOKE_PASS_EXTENDED_JOURNEY_PENDING"},
-    {"id": "CANONICAL_STRUCTURAL_MODEL", "engine_available": true, "integrated": true, "user_workflow_available": "PARTIAL", "human_factors_validated": false, "production_ready": false},
-    {"id": "HUMAN_EVIDENCE_REVIEW", "engine_available": true, "integrated": true, "user_workflow_available": "NATURAL_LANGUAGE_EVIDENCE_WORKSPACE_PRODUCTION_DEPLOYED", "human_factors_validated": true, "production_ready": "EXTENDED_DOCUMENT_JOURNEY_PENDING"},
-    {"id": "AUDIT_PERSISTENCE", "engine_available": true, "integrated": true, "user_workflow_available": "NOT_APPLICABLE", "human_factors_validated": "NOT_APPLICABLE", "production_ready": true},
-    {"id": "PROJECT_HOME", "engine_available": true, "integrated": true, "user_workflow_available": "PROJECT_HOME_V2_PRODUCTION_DEPLOYED", "human_factors_validated": true, "production_ready": true},
-    {"id": "INVESTIGATION", "engine_available": "ADVISORY_ONLY", "integrated": false, "user_workflow_available": false, "human_factors_validated": false, "production_ready": false},
-    {"id": "SOLVER_FEM_ROUNDTRIP", "engine_available": "LEGACY_PROTOTYPE_ONLY", "integrated": false, "user_workflow_available": false, "human_factors_validated": false, "production_ready": false},
-    {"id": "VERIFICATION_INTERVENTION_LIFECYCLE", "engine_available": "PARTIAL_OR_PLANNED", "integrated": false, "user_workflow_available": false, "human_factors_validated": false, "production_ready": false}
+    {
+      "id": "DOCUMENT_DRAWING_WORKSPACE",
+      "engine_available": true,
+      "integrated": "B11_TO_B17_PREPARED_IN_STACK",
+      "user_workflow_available": "EXTENDED_B1_PREVIEW_CANDIDATE",
+      "human_factors_validated": "NO_V2_HVA_PENDING",
+      "human_factors_finding": "PARTICIPANT_REVIEWER_ROLE_COLLAPSE_IN_B17_V1_ACCEPTANCE_INSTRUMENT",
+      "production_ready": false
+    },
+    {
+      "id": "SOURCE_EVIDENCE_KERNEL",
+      "engine_available": true,
+      "integrated": true,
+      "user_workflow_available": "SOURCE_HUB_AND_EVIDENCE_WORKSPACE_PRODUCTION_DEPLOYED",
+      "human_factors_validated": true,
+      "production_ready": "PRIOR_B1_SMOKE_PASS_EXTENDED_JOURNEY_PENDING"
+    },
+    {
+      "id": "CANONICAL_STRUCTURAL_MODEL",
+      "engine_available": true,
+      "integrated": true,
+      "user_workflow_available": "PARTIAL",
+      "human_factors_validated": false,
+      "production_ready": false
+    },
+    {
+      "id": "HUMAN_EVIDENCE_REVIEW",
+      "engine_available": true,
+      "integrated": true,
+      "user_workflow_available": "NATURAL_LANGUAGE_EVIDENCE_WORKSPACE_PRODUCTION_DEPLOYED",
+      "human_factors_validated": true,
+      "production_ready": "EXTENDED_DOCUMENT_JOURNEY_PENDING"
+    },
+    {
+      "id": "AUDIT_PERSISTENCE",
+      "engine_available": true,
+      "integrated": true,
+      "user_workflow_available": "NOT_APPLICABLE",
+      "human_factors_validated": "NOT_APPLICABLE",
+      "production_ready": true
+    },
+    {
+      "id": "PROJECT_HOME",
+      "engine_available": true,
+      "integrated": true,
+      "user_workflow_available": "PROJECT_HOME_V2_PRODUCTION_DEPLOYED",
+      "human_factors_validated": true,
+      "production_ready": true
+    },
+    {
+      "id": "INVESTIGATION",
+      "engine_available": "ADVISORY_ONLY",
+      "integrated": false,
+      "user_workflow_available": false,
+      "human_factors_validated": false,
+      "production_ready": false
+    },
+    {
+      "id": "SOLVER_FEM_ROUNDTRIP",
+      "engine_available": "LEGACY_PROTOTYPE_ONLY",
+      "integrated": false,
+      "user_workflow_available": false,
+      "human_factors_validated": false,
+      "production_ready": false
+    },
+    {
+      "id": "VERIFICATION_INTERVENTION_LIFECYCLE",
+      "engine_available": "PARTIAL_OR_PLANNED",
+      "integrated": false,
+      "user_workflow_available": false,
+      "human_factors_validated": false,
+      "production_ready": false
+    }
   ],
   "engineering_state": {
     "reference_project": "N12",
@@ -78,9 +155,9 @@
     "projection_policy": "REFERENCE_ONLY_DO_NOT_DUPLICATE_ENGINEERING_FACTS_IN_CEW_PRODUCT_STATE",
     "phase_projection": [
       {"phase_id": "P0", "title": "Project Definition", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PROJECT_HOME_V2_PRODUCTION_DEPLOYED"},
-      {"phase_id": "P1", "title": "Source Acquisition / CDE", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B11_DOCUMENT_LIBRARY_FOUNDATION_IN_PROGRESS_INTAKE_VERSIONING_WAITING"},
-      {"phase_id": "P2", "title": "Document Understanding", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B11_DRAWING_REGISTER_FOUNDATION_IN_PROGRESS_VIEWER_DOCUMENT_MAP_WAITING"},
-      {"phase_id": "P3", "title": "Evidence / Claim Reconstruction", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_EVIDENCE_WORKSPACE_PRODUCTION_DEPLOYED_REQUIRES_INTEGRATION_WITH_DOCUMENT_JOURNEY"},
+      {"phase_id": "P1", "title": "Source Acquisition / CDE", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_DOCUMENT_LIBRARY_AND_METADATA_INTAKE_PREPARED_NOT_PROMOTED"},
+      {"phase_id": "P2", "title": "Document Understanding", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_DRAWING_VIEWER_DOCUMENT_MAP_MACHINE_CANDIDATE_STACK_PREPARED_NOT_PROMOTED"},
+      {"phase_id": "P3", "title": "Evidence / Claim Reconstruction", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "B1_EVIDENCE_WORKSPACE_PRODUCTION_DEPLOYED_PLUS_EVIDENCE_REGION_CANDIDATE_BOUNDARY_PREPARED"},
       {"phase_id": "P4", "title": "Historical-Critical Analysis & Survey Baseline", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "PLANNED_PRODUCT_WORKSPACE"},
       {"phase_id": "P5", "title": "Geometry & Topology", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_AVAILABLE_WORKSPACE_NOT_INTEGRATED"},
       {"phase_id": "P6", "title": "Structural Semantics / Asset Graph", "authority_path": "knowledge/CURRENT_STATE.json", "workspace_status": "ENGINE_AVAILABLE_WORKSPACE_NOT_INTEGRATED"},
@@ -99,33 +176,48 @@
   "current_product_work_item": {
     "id": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
     "agent_role": "SOURCE_EVIDENCE_AGENT",
-    "state": "IN_PROGRESS",
-    "current_slice": "B1.1",
+    "state": "IN_PROGRESS_BLOCKED_HUMAN_ACCEPTANCE_V2_AND_PROMOTION",
+    "current_slice": "B1.8",
+    "prior_candidate_sha": "cab1c53b62b2b70294b6b7e8d7dddd14ccdcb832",
     "slice_plan": "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json",
+    "human_acceptance_contract": "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json",
     "queue": "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json",
-    "goal": "CEW-GOAL-01"
+    "goal": "CEW-GOAL-01",
+    "promotion_blockers": [
+      "HUMAN_ACCEPTANCE_V2_NOT_IMPLEMENTED_OR_EXECUTED",
+      "EXTENDED_B1_SAME_REVISION_PRODUCTION_SMOKE_NOT_SATISFIED",
+      "B1_PROMOTION_NOT_COMPLETED"
+    ]
   },
   "governance": {
     "promotion": "SERIALIZED_BY_PRODUCT_ORCHESTRATOR",
     "parallel_preparation": true,
     "one_result_per_agent_work_item": true,
+    "one_promotion_owner_per_slice": true,
     "human_engineering_authority_required_where_declared": true,
+    "participant_and_reviewer_separated": true,
+    "telemetry_hidden_from_participant_by_default": true,
     "ui_is_engineering_authority": false,
     "agent_output_is_engineering_authority": false,
     "solver_output_rewrites_evidence": false,
     "canonical_write_from_user_runtime": false,
-    "development_model": "SMALL_VERTICAL_SLICE_PR_GATES_HVA_PRODUCTION_SMOKE_RECEIPT"
+    "deployment_implies_promotion": false,
+    "ci_implies_human_acceptance": false,
+    "development_model": "CAPABILITY_FIRST_VERTICAL_SLICE_PR_GATES_INDEPENDENT_ASSURANCE_HUMAN_EVIDENCE_SAME_REVISION_SMOKE_RECEIPT_PROMOTION"
   },
   "anti_drift_rules": [
     "CEW CURRENT owns product/runtime state only; N12 engineering facts remain owned by knowledge/CURRENT_STATE.json and governed canonical artifacts.",
-    "Every CEW product slice must match the selected work item in automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json.",
-    "Every completed product slice requires its declared automated gates plus HVA/usability evidence where user-facing.",
-    "A successful build or technical engine is not product-complete without the complete user journey.",
-    "Production runtime must fail closed when authentication or persistent append-only audit storage is unavailable.",
+    "Agents read automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json before cross-cutting product work.",
+    "Every CEW product slice must map to a declared capability and selected work item in the persistent queue.",
+    "Every completed user-facing slice requires applicable automated gates plus human evidence under the current human-centred contract.",
+    "A successful build, CI run or deployment is not product-complete without the complete user journey and required promotion evidence.",
+    "Participant professional work is separated from reviewer release governance and receipt mechanics.",
+    "Production runtime must fail closed when authentication or required persistent audit storage is unavailable.",
     "No UI, agent result or solver result may become engineering authority by itself.",
     "No human observation may be normalized with loss of engineering meaning.",
     "Missing engineering information remains explicit and cannot be closed for product continuity.",
-    "B2 and later work may be prepared in parallel but cannot be released while B1 Document -> Drawing -> Evidence journey is incomplete."
+    "B2 and later work may be prepared in parallel but cannot be promoted while B1 is incomplete.",
+    "Evidence from a different immutable revision cannot silently satisfy the current promotion candidate."
   ],
-  "next_action": "Complete B1.1 Document & Drawing Foundation through dedicated PR gates and HVA/usability evidence. Then release B1.2 Drawing Viewer with orientation/zoom/pan/overlay controls. B2 remains non-promotable."
+  "next_action": "Implement B1.8 Human-Centred Acceptance v2 with separate participant, observation, reviewer and receipt layers; execute the representative B1 tasks on one immutable candidate; resolve any non-compensable blocker; run required Production smoke on the same accepted revision; promote B1 and freeze CEW_PROMOTED_BASELINE before ETW-A0 promotion revalidation."
 }

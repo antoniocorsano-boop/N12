@@ -1,0 +1,112 @@
+{
+  "schema_version": "2.0",
+  "contract_id": "CEW_B1_HUMAN_ACCEPTANCE",
+  "status": "DESIGN_REQUIRED_NOT_IMPLEMENTED",
+  "program_goal": "CEW-GOAL-01",
+  "capability": "FIND_INSPECT_AND_VERIFY_GOVERNED_PROJECT_DRAWINGS",
+  "governing_human_model": "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v2.md",
+  "decision_basis": "docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md",
+  "historical_contract": "automation/CEW_B1_USABILITY_ACCEPTANCE_CONTRACT_v1.json",
+  "layers": {
+    "participant_surface": {
+      "purpose": "Let the participant perform realistic professional work without operating release governance.",
+      "show_internal_task_ids": false,
+      "show_runtime_sha": false,
+      "show_gate_state": false,
+      "show_live_test_counters": false,
+      "show_release_decision": false,
+      "show_receipt_export": false,
+      "one_dominant_task_at_a_time": true
+    },
+    "observation_layer": {
+      "visible_to_participant_by_default": false,
+      "metrics": [
+        "time_on_task_seconds",
+        "interaction_count",
+        "help_requests",
+        "backtracks_or_recovery_actions",
+        "navigation_path",
+        "task_outcome"
+      ]
+    },
+    "reviewer_surface": {
+      "separate_from_participant_surface": true,
+      "shows_candidate_revision": true,
+      "shows_environment": true,
+      "shows_task_evidence": true,
+      "shows_critical_blockers": true,
+      "shows_usability_residuals": true,
+      "shows_mental_model_findings": true,
+      "shows_accessibility_findings": true,
+      "owns_hva_decision": true
+    },
+    "receipt_layer": {
+      "generated_after_reviewer_decision": true,
+      "revision_bound": true,
+      "engineering_authority_effect": "NONE",
+      "canonical_write_authorized": false
+    }
+  },
+  "tasks": [
+    {
+      "task_id": "UX-DOC-01",
+      "participant_prompt_it": "Devi controllare la carpenteria del IV impalcato. Trova la tavola corretta e aprila.",
+      "internal_success_condition": "Correct governed drawing/source is opened without repository-path knowledge and the participant can identify the original source status.",
+      "critical_checks": [
+        "wrong_source_or_wrong_version_selection",
+        "primary_source_correctly_identified"
+      ]
+    },
+    {
+      "task_id": "UX-DOC-02",
+      "participant_prompt_it": "La tavola non è comoda da leggere. Sistemala per leggerla e poi riporta la vista come prima.",
+      "internal_success_condition": "Participant can use display orientation controls and return to the initial view.",
+      "post_task_mental_model_question_it": "Secondo te, durante questa operazione hai modificato il documento originale?",
+      "accepted_mental_model": "DISPLAY_VIEW_ONLY",
+      "critical_checks": [
+        "source_orientation_correction_needed",
+        "viewer_state_misread_as_source_mutation"
+      ]
+    },
+    {
+      "task_id": "UX-DOC-03",
+      "participant_prompt_it": "Vuoi verificare da quale parte della tavola deriva questa evidenza. Apri il contesto della fonte e poi torna all’evidenza.",
+      "internal_success_condition": "Document/evidence round trip succeeds without requiring internal identifiers.",
+      "critical_checks": [
+        "document_to_evidence_navigation_success",
+        "provenance_lookup_success"
+      ]
+    },
+    {
+      "task_id": "UX-DOC-04",
+      "participant_prompt_it": "Hai il documento originale e una copia preparata per facilitarne la lettura. Quale useresti come fonte da verificare o citare?",
+      "internal_success_condition": "Participant distinguishes the authoritative primary document from a derived reading aid.",
+      "critical_checks": [
+        "primary_source_correctly_identified",
+        "derived_reading_aid_correctly_identified"
+      ]
+    }
+  ],
+  "non_compensable_blockers": [
+    "FALSE_SUCCESS",
+    "WRONG_PROJECT_OR_SCOPE",
+    "WRONG_SOURCE_OR_VERSION",
+    "PRIMARY_DERIVED_AUTHORITY_CONFUSION",
+    "VIEWER_STATE_MISREAD_AS_SOURCE_MUTATION",
+    "CANONICAL_WRITE_MISCONCEPTION",
+    "PROVENANCE_BREAK",
+    "CROSS_PROJECT_LEAKAGE",
+    "CROSS_DISCIPLINE_LEAKAGE"
+  ],
+  "usability_residuals_are_separate_from_blockers": true,
+  "reviewer_decisions": [
+    "PASS_FOR_B1",
+    "PASS_WITH_NONCRITICAL_USABILITY_RESIDUAL",
+    "FAIL_REWORK_REQUIRED"
+  ],
+  "promotion_rule": "B1 remains IN_PROGRESS until the v2 participant/reviewer acceptance design is implemented, a real reviewer evaluates representative tasks on one immutable candidate, no non-compensable blocker remains, and the same accepted revision passes the required Production smoke.",
+  "current_b17_v1_evidence_effect": "INSTRUMENT_IMPLEMENTATION_VALIDATED_BUT_PARTICIPANT_INTERACTION_REQUIRES_REWORK",
+  "production_promotion_authorized": false,
+  "canonical_write_authorized": false,
+  "engineering_authority_effect": "NONE"
+}

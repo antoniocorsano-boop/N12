@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "AI_NATIVE_AGENT_OPERATING_CONTRACT",
+  "status": "REQUIRED_CROSS_PRODUCT_CONTRACT",
+  "governing_model": "docs/GOVERNANCE/AI_NATIVE_PRODUCT_AGENCY_OPERATING_MODEL_v1.md",
+  "required_agent_fields": [
+    "agent_id",
+    "mission",
+    "owned_work_items",
+    "admitted_inputs",
+    "allowed_outputs",
+    "write_scope",
+    "forbidden_writes",
+    "promotion_authority",
+    "professional_authority",
+    "required_independent_checks",
+    "escalation_conditions"
+  ],
+  "principles": {
+    "least_authority": true,
+    "read_does_not_imply_write": true,
+    "proposal_does_not_imply_approval": true,
+    "implementation_does_not_imply_promotion": true,
+    "agent_output_is_professional_authority": false,
+    "one_promotion_owner_per_slice": true,
+    "support_agent_can_promote": false,
+    "independent_assurance_required_when_declared": true,
+    "human_professional_gate_may_be_bypassed": false
+  },
+  "standard_support_roles": {
+    "SECURITY_ISOLATION": {
+      "mission": "Independently verify authentication, isolation, privacy and fail-closed runtime boundaries.",
+      "promotion_authority": "NONE"
+    },
+    "CONTRACT_COMPATIBILITY": {
+      "mission": "Independently verify compatibility with admitted baselines and shared contracts.",
+      "promotion_authority": "NONE"
+    },
+    "HUMAN_FACTORS": {
+      "mission": "Prepare or evaluate representative human journeys under the current human-centred contract.",
+      "promotion_authority": "NONE",
+      "professional_authority": "NONE"
+    },
+    "AUTHORITY_AUDIT": {
+      "mission": "Independently verify that product/runtime/read-model behavior does not create unauthorized domain or canonical authority.",
+      "promotion_authority": "NONE"
+    },
+    "QA_ASSURANCE": {
+      "mission": "Independently verify deterministic behavior, regressions, evidence completeness and release readiness.",
+      "promotion_authority": "NONE"
+    }
+  },
+  "global_stop_conditions": [
+    "WRITE_OUTSIDE_DECLARED_SCOPE",
+    "MISSING_REQUIRED_AUTHORITY",
+    "UNRESOLVED_SOURCE_OR_VERSION_IDENTITY",
+    "CROSS_PROJECT_LEAKAGE",
+    "CROSS_DISCIPLINE_LEAKAGE",
+    "FALSE_SUCCESS_ON_SAFETY_CRITICAL_TASK",
+    "PROFESSIONAL_DECISION_AUTOMATION_OUTSIDE_CONTRACT",
+    "MISMATCHED_ACCEPTANCE_REVISION",
+    "CANONICAL_WRITE_OUTSIDE_AUTHORIZED_BOUNDARY",
+    "TEST_WEAKENING_ONLY_TO_OBTAIN_GREEN"
+  ],
+  "handoff_rule": "Agents return bounded result/evidence packages. The orchestrator resolves declared dependencies and promotion gates; it does not infer professional authority."
+}

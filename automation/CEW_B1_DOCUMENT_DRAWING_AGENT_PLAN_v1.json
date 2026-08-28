@@ -1,82 +1,126 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "plan_id": "CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN",
   "program_goal": "CEW-GOAL-01",
-  "status": "EXECUTION_ACTIVE",
-  "development_model": "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v1.md",
-  "human_centred_model": "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v1.md",
+  "status": "EXECUTION_ACTIVE_BLOCKED_HUMAN_ACCEPTANCE_V2",
+  "updated": "2026-08-28",
+  "development_model": "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v2.md",
+  "human_centred_model": "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v2.md",
   "usability_model": "automation/CEW_USABILITY_METRICS_MODEL_v1.json",
+  "human_acceptance_contract": "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json",
+  "human_factors_decision": "docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md",
   "product_contract": "docs/PRODUCT/CEW_DOCUMENT_DRAWING_WORKSPACE_V1_CONTRACT.md",
-  "promotion_policy": "PARALLEL_ANALYSIS_SERIAL_PROMOTION",
+  "promotion_policy": "PARALLEL_PREPARATION_SERIAL_PROMOTION_SAME_REVISION_HUMAN_ACCEPTANCE",
+  "capability": "A structural engineer can find, inspect and verify governed project drawings and move between drawing context and evidence without repository knowledge or authority confusion.",
   "slices": [
     {
       "id": "B1.1",
       "owner": "SOURCE_EVIDENCE_AGENT",
-      "state": "IN_PROGRESS",
+      "state": "PREPARED_BLOCKED_PROMOTION",
       "goal": "Expose the existing N12 document and drawing patrimony as a usable library/register.",
       "outputs": ["/documents", "/drawings", "document/drawing view models"],
-      "gates": ["DATA_GATE", "INTEGRATION_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE"]
+      "gates": ["DATA_GATE", "INTEGRATION_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE"],
+      "promotion_note": "Technical preparation exists; human/promotion evidence is evaluated at the integrated B1 boundary."
     },
     {
       "id": "B1.2",
       "owner": "SOURCE_EVIDENCE_AGENT",
-      "state": "WAITING",
+      "state": "PREPARED_BLOCKED_PROMOTION",
       "depends_on": ["B1.1"],
       "goal": "Deliver the drawing viewer with zoom/pan/fit/90-degree display rotation and evidence overlays.",
       "outputs": ["/drawings/{source_id}", "viewer orientation state", "overlay controls"],
-      "gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE"]
+      "gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE"],
+      "promotion_note": "Viewer preparation is display-only and remains noncanonical until integrated B1 promotion."
     },
     {
       "id": "B1.3",
       "owner": "SOURCE_EVIDENCE_AGENT",
-      "state": "WAITING",
+      "state": "PREPARED_BLOCKED_PROMOTION",
       "depends_on": ["B1.2"],
       "goal": "Add DocumentMap and document-understanding states without treating machine extraction as authority.",
       "outputs": ["DrawingDocumentIndex", "DocumentMap", "document residuals"],
-      "gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE"]
+      "gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE"],
+      "promotion_note": "Document-understanding validation does not imply DOC or structural binding."
     },
     {
       "id": "B1.4",
       "owner": "SOURCE_EVIDENCE_AGENT",
-      "state": "WAITING",
+      "state": "PREPARED_BLOCKED_PERSISTENCE_AND_PROMOTION",
       "depends_on": ["B1.3"],
-      "goal": "Add intake/versioning for new documents with hash, duplicate detection and human classification review.",
-      "outputs": ["IntakeCandidate", "SourceVersion workflow", "missing-source workflow"],
-      "gates": ["DATA_GATE", "SECURITY_GATE", "HUMAN_GATE", "PRODUCTION_SMOKE"]
+      "goal": "Add intake/versioning for new documents with browser-local hash, duplicate/version analysis and human classification review.",
+      "outputs": ["IntakeCandidate", "SourceVersion proposal workflow", "missing-source workflow"],
+      "gates": ["DATA_GATE", "SECURITY_GATE", "HUMAN_GATE", "PRODUCTION_SMOKE"],
+      "open_boundary": "Private document-byte persistence remains separately governed; metadata analysis alone cannot create SourceVersion."
     },
     {
       "id": "B1.5",
       "owner": "SOURCE_EVIDENCE_AGENT",
-      "state": "WAITING",
+      "state": "PREPARED_BLOCKED_PROMOTION",
       "depends_on": ["B1.3"],
-      "goal": "Integrate OCR/vector/AI candidates into DocumentMap with explicit review state.",
+      "goal": "Integrate OCR/vector/AI candidates into DocumentMap with explicit provenance and review state.",
       "outputs": ["machine candidates", "review queue", "extraction provenance"],
-      "gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE"]
+      "gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE"],
+      "promotion_note": "Machine output cannot self-promote engineering or documentary truth."
     },
     {
       "id": "B1.6",
       "owner": "SOURCE_EVIDENCE_AGENT",
-      "state": "WAITING",
+      "state": "PREPARED_BLOCKED_PERSISTENCE_AND_PROMOTION",
       "depends_on": ["B1.2", "B1.3"],
       "goal": "Create/select EvidenceRegion candidates from the drawing workspace while preserving F2 authority rules.",
-      "outputs": ["evidence candidate workflow", "drawing-to-evidence navigation"],
-      "gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE", "HUMAN_FACTORS_GATE"]
+      "outputs": ["EvidenceRegionCandidate workflow", "drawing-to-evidence navigation"],
+      "gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE", "HUMAN_FACTORS_GATE"],
+      "open_boundary": "Candidate persistence/promotion remains separate from F2 EvidenceRegion authority."
     },
     {
       "id": "B1.7",
       "owner": "HUMAN_FACTORS_AGENT",
-      "state": "WAITING",
+      "state": "HISTORICAL_INSTRUMENT_VALIDATED_INTERACTION_REWORK_REQUIRED",
       "depends_on": ["B1.1", "B1.2", "B1.6"],
-      "goal": "Benchmark the complete Documents -> Drawings -> Evidence journey and certify B1 product usability.",
-      "outputs": ["usability benchmark receipt", "HVA receipt", "production smoke receipt"],
-      "gates": ["HUMAN_FACTORS_GATE", "HVA_GATE", "PRODUCTION_SMOKE"]
+      "goal": "Prepare a measurable Acceptance Lab for the complete Documents -> Drawings -> Evidence journey.",
+      "outputs": ["usability measurement instrument", "revision-bound receipt export mechanism"],
+      "gates": ["HUMAN_FACTORS_GATE"],
+      "observed_result": "Deterministic instrument behavior validated; direct participant use exposed role/telemetry/governance overload.",
+      "decision": "docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md",
+      "promotion_effect": "NONE"
+    },
+    {
+      "id": "B1.8",
+      "owner": "HUMAN_FACTORS_AGENT",
+      "state": "IN_PROGRESS_DESIGN_REQUIRED",
+      "depends_on": ["B1.1", "B1.2", "B1.3", "B1.4", "B1.5", "B1.6"],
+      "supersedes_interaction_of": "B1.7",
+      "goal": "Implement and execute Human-Centred Acceptance v2 with participant, observation, reviewer and receipt layers separated.",
+      "outputs": [
+        "participant professional-task surface",
+        "invisible observation/telemetry layer",
+        "separate reviewer surface",
+        "post-task mental-model checks",
+        "revision-bound HVA receipt",
+        "same-revision Production smoke receipt"
+      ],
+      "gates": ["HUMAN_FACTORS_GATE", "HVA_GATE", "ACCESSIBILITY_GATE", "PRODUCTION_SMOKE"],
+      "contract": "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json",
+      "promotion_rule": "B1 can be promoted only after no non-compensable blocker remains and the accepted immutable revision passes required Production smoke."
     }
   ],
+  "non_compensable_human_blockers": [
+    "FALSE_SUCCESS",
+    "WRONG_PROJECT_OR_SCOPE",
+    "WRONG_SOURCE_OR_VERSION",
+    "PRIMARY_DERIVED_AUTHORITY_CONFUSION",
+    "VIEWER_STATE_MISREAD_AS_SOURCE_MUTATION",
+    "CANONICAL_WRITE_MISCONCEPTION",
+    "PROVENANCE_BREAK"
+  ],
   "stop_rules": [
-    "Do not release B2 while B1 document/drawing journey remains incomplete.",
+    "Do not release B2 while B1 document/drawing/evidence journey remains incomplete.",
     "Do not re-upload existing immutable N12 sources merely to make the UI work.",
-    "Do not turn viewer rotation into source or evidence geometry mutation.",
+    "Do not turn viewer rotation into SourceVersion/Page/EvidenceRegion mutation.",
     "Do not promote OCR/vector/AI findings without their declared human/engineering gate.",
-    "Do not mark a task successful if the user reaches the wrong document or believes a derived aid is primary authority."
+    "Do not mark a task successful if the user reaches the wrong document or believes a derived aid is primary authority.",
+    "Do not treat the B1.7 v1 instrument PASS as HVA PASS after the observed participant-surface defect.",
+    "Do not let the participant self-approve the release or operate receipt governance.",
+    "Do not use acceptance evidence from a different immutable revision to satisfy B1 promotion."
   ]
 }
