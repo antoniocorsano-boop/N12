@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "slice_id": "B1.4",
+  "task_id": "CEW-B1.4-INTAKE-VERSIONING",
+  "decision": "AUTOMATED_GATES_PASS_STORAGE_AND_HVA_BLOCKED",
+  "validated_head_sha": "aa9ef4badaf1df997576abaee79837d14be9e2ee",
+  "base_branch": "work/cew-b13-document-map-prep",
+  "base_sha": "592fd6b4094e706e728a9458c97c80a591f068f6",
+  "pull_request": 99,
+  "verified_runs": {
+    "document_intake": 33139646329,
+    "document_map": 33139646297,
+    "drawing_viewer": 33139646243,
+    "document_drawing_foundation": 33139646298,
+    "source_evidence_journey": 33139646254,
+    "product_transformation": 33139646261,
+    "user_web_pilot": 33139646349,
+    "neon_user_runtime": 33139646250,
+    "existing_assessment": 33139646241,
+    "knowledge_system": 33139646253,
+    "netlify_audit_regression": 33139646233,
+    "production_baseline_runtime": 33139646232
+  },
+  "preview_deployment": {
+    "status": "SUCCESS",
+    "url": "https://cew-pilot-git-work-cew-b14-in-e82721-antonios-projects-051b8d71.vercel.app",
+    "production_promotion_authorized": false
+  },
+  "verified_behavior": {
+    "exact_tav05a_hash": "EXACT_DUPLICATE",
+    "explicit_existing_source_new_hash": "NEW_VERSION_CANDIDATE",
+    "unmatched_hash": "SOURCE_DECISION_REQUIRED",
+    "filename_similarity_creates_binding": false,
+    "metadata_analysis_uploads_document_bytes": false,
+    "canonical_write_authorized": false
+  },
+  "storage": {
+    "private_byte_store": "NOT_CONFIGURED",
+    "stored_hash_reverification_required": true,
+    "sourceversion_creation_authorized": false
+  },
+  "blocking_gates": [
+    "B1.1_HVA",
+    "B1.2_HVA",
+    "B1.3_HUMAN_REVIEW_JOURNEY_ACCEPTANCE",
+    "PRIVATE_DOCUMENT_BYTE_STORAGE_NOT_CONFIGURED",
+    "B1.4_HVA",
+    "B1.4_PRODUCTION_SMOKE"
+  ],
+  "slice_complete": false,
+  "promotion_authorized": false,
+  "canonical_write_authorized": false
+}
