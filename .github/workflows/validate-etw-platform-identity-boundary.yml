@@ -1,0 +1,54 @@
+name: Validate eTwin Platform Identity Boundary
+
+on:
+  pull_request:
+    paths:
+      - 'docs/ARCHITECTURE/ETW_PLATFORM_IDENTITY_BOUNDARY_v1.md'
+      - 'automation/ETW_CEW_CONTRACT_BASELINE_v1.json'
+      - 'automation/ETW_PLATFORM_SCOPE_MODEL_v1.json'
+      - 'automation/ETW_A0_USABILITY_TASKS_v1.json'
+      - 'automation/ETW_A0_WORK_PACKAGE_v1.json'
+      - 'scripts/etw_cew_source_inventory_adapter.py'
+      - 'scripts/etw_scope_context.py'
+      - 'scripts/validate_etw_platform_identity_boundary.py'
+      - '.github/workflows/validate-etw-platform-identity-boundary.yml'
+      - 'data/canonical/tavole_originali_remote_index_v1.csv'
+      - 'automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json'
+      - 'docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v1.md'
+      - 'docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v1.md'
+      - 'automation/CEW_USABILITY_METRICS_MODEL_v1.json'
+
+jobs:
+  validate-a0-platform-identity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python syntax
+        run: |
+          python -m py_compile scripts/etw_cew_source_inventory_adapter.py
+          python -m py_compile scripts/etw_scope_context.py
+          python -m py_compile scripts/validate_etw_platform_identity_boundary.py
+          python -m py_compile scripts/etw_orchestrator.py
+
+      - name: Validate CEW source inventory adapter
+        run: python scripts/etw_cew_source_inventory_adapter.py --validate
+
+      - name: Validate fail-closed ScopeContext runtime
+        run: python scripts/etw_scope_context.py --validate
+
+      - name: Integrated A0 preparation gate
+        run: python scripts/validate_etw_platform_identity_boundary.py
+
+      - name: Assert PREP-only promotion boundary
+        run: |
+          python - <<'PY'
+          import json, subprocess
+          s=json.loads(subprocess.check_output(['python','scripts/etw_orchestrator.py','status'], text=True))
+          assert s['decision']=='READY_FOR_AGENT', s
+          assert s['selected_work_item']['id']=='ETW-A0', s
+          assert s['selection_reason']=='PREP_ONLY', s
+          assert 'CEW_PROMOTED_BASELINE' in s['promotion_blockers'], s
+          assert s['external_gate_state']['CEW_PROMOTED_BASELINE']=='NOT_SATISFIED', s
+          print('ETW A0 PROMOTION BOUNDARY: PASS')
+          PY
