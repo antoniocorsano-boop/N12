@@ -1,0 +1,83 @@
+name: Validate eTwin Program Orchestration
+
+on:
+  pull_request:
+    paths:
+      - 'docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md'
+      - 'docs/PROGRAM/ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v1.md'
+      - 'automation/ETW_SPECIALIST_AGENT_CONTRACT_v1.json'
+      - 'automation/ETW_AGENT_RESULT_CONTRACT_v1.json'
+      - 'automation/ETW_DEVELOPMENT_QUEUE_v1.json'
+      - 'automation/ETW_HUMAN_GATE_STATE_v1.json'
+      - 'scripts/etw_orchestrator.py'
+      - '.github/workflows/validate-etw-program-orchestration.yml'
+
+jobs:
+  validate-etw-orchestration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python syntax
+        run: python -m py_compile scripts/etw_orchestrator.py
+
+      - name: Validate eTwin contracts and queue
+        run: python scripts/etw_orchestrator.py validate
+
+      - name: Assert current orchestration state
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+
+          raw = subprocess.check_output(['python','scripts/etw_orchestrator.py','status'], text=True)
+          s = json.loads(raw)
+          assert s['decision'] == 'READY_FOR_AGENT', s
+          assert s['selected_work_item']['id'] == 'ETW-A0', s
+          assert s['selected_work_item']['state'] == 'PREP_ONLY', s
+          assert s['selection_reason'] == 'PREP_ONLY', s
+          assert 'CEW_PROMOTED_BASELINE' in s['promotion_blockers'], s
+          assert s['external_gate_state']['CEW_PROMOTED_BASELINE'] == 'NOT_SATISFIED', s
+          assert s['external_gate_state']['APPROVE_PLATFORM_BOUNDARY'] == 'PENDING', s
+          print('ETW CURRENT SELECTION: PASS')
+          PY
+
+      - name: Generate and validate first owner task
+        run: |
+          python scripts/etw_orchestrator.py make-task > /tmp/etw-task.json
+          python - <<'PY'
+          import json
+          p=json.load(open('/tmp/etw-task.json'))
+          assert p['work_item_id']=='ETW-A0'
+          assert p['agent_role']=='ETW_PLATFORM_IDENTITY_AGENT'
+          assert p['execution_mode']=='PREP_ONLY'
+          assert 'CEW_PROMOTED_BASELINE' in p['promotion_blockers']
+          assert set(p['required_gates']) == {'DATA_GATE','INTEGRATION_GATE','SECURITY_GATE','QA_GATE'}
+          print('ETW A0 PREP TASK: PASS')
+          PY
+
+      - name: Validate support-agent non-promotion boundary
+        run: |
+          for role in ETW_SECURITY_ISOLATION_AGENT ETW_HUMAN_FACTORS_AGENT ETW_AUTHORITY_AUDIT_AGENT ETW_CONTRACT_COMPATIBILITY_AGENT; do
+            python scripts/etw_orchestrator.py make-support-task --role "$role" > /tmp/support.json
+            python - <<'PY'
+          import json
+          p=json.load(open('/tmp/support.json'))
+          assert p['supports_work_item_id']=='ETW-A0'
+          assert p['may_promote'] is False
+          print('ETW SUPPORT TASK:', p['support_role'], 'PASS')
+          PY
+          done
+
+      - name: Assert A1 remains blocked
+        run: |
+          python - <<'PY'
+          import json
+          q=json.load(open('automation/ETW_DEVELOPMENT_QUEUE_v1.json'))
+          a1=next(x for x in q['items'] if x['id']=='ETW-A1')
+          assert a1['state']=='WAITING'
+          gates=json.load(open('automation/ETW_HUMAN_GATE_STATE_v1.json'))['gates']
+          assert gates['APPROVE_PLATFORM_BOUNDARY']['state']=='PENDING'
+          assert 'ETW-A1' in gates['APPROVE_PLATFORM_BOUNDARY']['blocks_release_of']
+          print('ETW A1 RELEASE BLOCK: PASS')
+          PY
