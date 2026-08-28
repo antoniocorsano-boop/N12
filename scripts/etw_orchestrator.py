@@ -299,7 +299,7 @@ def make_support_task(role: str) -> dict[str, Any]:
         "support_role": role,
         "supports_work_item_id": selected["id"],
         "goal": support[role]["goal"],
-        "may_promote": false,
+        "may_promote": False,
         "owner_agent_role": selected["agent_role"],
         "required_gates": selected.get("required_gates", []),
         "critical_safety_metrics": selected.get("critical_safety_metrics", []),
