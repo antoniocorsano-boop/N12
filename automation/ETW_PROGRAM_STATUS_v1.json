@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "state": "PREPARATION_ACTIVE",
+  "selected_work_item": "ETW-A0",
+  "selected_owner": "ETW_PLATFORM_IDENTITY_AGENT",
+  "execution_mode": "PREP_ONLY",
+  "promotion_blockers": ["CEW_PROMOTED_BASELINE"],
+  "next_human_gate": "APPROVE_PLATFORM_BOUNDARY",
+  "next_release_after_gate": "ETW-A1",
+  "parallel_support_active": true,
+  "production_promotion_authorized": false
+}
