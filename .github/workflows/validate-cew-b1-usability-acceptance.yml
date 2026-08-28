@@ -7,6 +7,8 @@ on:
       - 'scripts/cew_b1_acceptance_lab.py'
       - 'scripts/cew_b1_human_acceptance_v2.py'
       - 'scripts/cew_b1_human_acceptance_v2_hardening.py'
+      - 'scripts/cew_runtime_render_budget.py'
+      - 'scripts/validate_cew_runtime_render_budget.py'
       - 'scripts/validate_cew_b18_hva_hardening.py'
       - 'scripts/validate_cew_b1_usability_acceptance.py'
       - 'automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json'
@@ -29,6 +31,8 @@ jobs:
         run: |
           python -m py_compile scripts/cew_b1_human_acceptance_v2.py
           python -m py_compile scripts/cew_b1_human_acceptance_v2_hardening.py
+          python -m py_compile scripts/cew_runtime_render_budget.py
+          python -m py_compile scripts/validate_cew_runtime_render_budget.py
           python -m py_compile scripts/cew_b1_acceptance_lab.py
           python -m py_compile scripts/validate_cew_b18_hva_hardening.py
           python -m py_compile scripts/validate_cew_b1_usability_acceptance.py
@@ -39,6 +43,8 @@ jobs:
         run: python scripts/validate_cew_b1_usability_acceptance.py
       - name: Validate same-revision HVA hardening
         run: python scripts/validate_cew_b18_hva_hardening.py
+      - name: Validate bounded runtime raster budget
+        run: python scripts/validate_cew_runtime_render_budget.py
       - name: Route and health smoke
         env:
           CEW_AUTH_DISABLED_FOR_TEST: '1'
