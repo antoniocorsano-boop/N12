@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "model_id": "CEW_DOCUMENT_MAP_MODEL",
+  "program_goal": "CEW-GOAL-01",
+  "status": "B13_PREPARATION",
+  "adoption_source": "docs/MIGRATION/CEW_DOCINTEL_V0_ADOPTION_v1.md",
+  "authority_policy": "DOCUMENT_UNDERSTANDING_ONLY_NO_CANONICAL_ENGINEERING_PROMOTION",
+  "feature_states": ["UNKNOWN", "DETECTED", "CANDIDATE", "SUPPORTED", "VALIDATED", "REJECTED"],
+  "map_states": ["UNMAPPED", "PARTIAL", "REVIEW_REQUIRED", "REVIEWED_FOR_DOCUMENT_USE", "SUPERSEDED"],
+  "feature_types": [
+    "DRAWING_TITLE",
+    "DRAWING_NUMBER",
+    "DRAWING_SCALE",
+    "READING_ORIENTATION",
+    "PROJECT_LEVEL",
+    "FRAME_OR_GRID_REFERENCE",
+    "SECTION_OR_ELEVATION_REFERENCE",
+    "DETAIL",
+    "SCHEDULE_OR_TABLE",
+    "EXPLODED_REINFORCEMENT_VIEW",
+    "LEGEND",
+    "DIMENSION_CHAIN",
+    "CALLOUT",
+    "NOTE",
+    "UNRESOLVED_REGION"
+  ],
+  "candidate_required_fields": [
+    "candidate_id",
+    "source_version_id",
+    "page_id",
+    "feature_type",
+    "state",
+    "detector_or_author",
+    "created_at"
+  ],
+  "candidate_optional_fields": [
+    "bbox_normalized_0_1",
+    "value_text",
+    "confidence",
+    "source_basis",
+    "reviewer",
+    "reviewed_at",
+    "review_note"
+  ],
+  "document_map_required_fields": [
+    "document_map_id",
+    "source_id",
+    "source_version_id",
+    "page_id",
+    "state",
+    "registered_metadata",
+    "validated_feature_ids",
+    "candidate_feature_ids",
+    "evidence_region_ids",
+    "unknown_fields"
+  ],
+  "registered_metadata_policy": "May project existing governed metadata such as source class, project level, immutable source status and page readiness without claiming it was read from the drawing itself.",
+  "validation_policy": {
+    "machine_can_create": ["DETECTED", "CANDIDATE"],
+    "deterministic_rule_can_create": ["DETECTED", "CANDIDATE", "SUPPORTED"],
+    "human_review_required_for": ["VALIDATED", "REJECTED"],
+    "validated_means": "HUMAN_REVIEWED_FOR_DOCUMENT_UNDERSTANDING_ONLY",
+    "canonical_engineering_promotion": false,
+    "structural_binding_created": false
+  },
+  "evidence_boundary": {
+    "document_feature_candidate_is_evidence_region": false,
+    "validated_document_feature_is_evidence_region": false,
+    "evidence_region_creation_requires_separate_f2_governed_workflow": true,
+    "existing_evidence_regions_may_be_linked_read_only": true
+  },
+  "initial_supported_sources": ["TAV-05A", "TAV-06A"],
+  "initial_population_policy": "Populate only existing registered metadata and governed EvidenceRegion references. All drawing-internal semantic fields remain UNKNOWN until reviewed evidence/candidate data exists."
+}
