@@ -7,6 +7,8 @@
   "current_execution_mode": "PREP_ONLY",
   "promotion_authorized": false,
   "promotion_blocker": "CEW_PROMOTED_BASELINE",
+  "plan": "docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md",
+  "orchestration_model": "docs/PROGRAM/ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v1.md",
   "preparation_plan": "docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md",
   "preparation_orchestration_model": "docs/PROGRAM/ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v1.md",
   "current_promotion_plan": "docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v2.md",
