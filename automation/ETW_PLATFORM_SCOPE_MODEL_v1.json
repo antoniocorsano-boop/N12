@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "model_id": "ETW_PLATFORM_SCOPE_MODEL",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "slice_id": "ETW-A0",
+  "state": "PREPARED_NOT_PROMOTED",
+  "authority": "PLATFORM_CONTEXT_ONLY",
+  "projects": [
+    {
+      "project_id": "N12",
+      "project_name": "N12",
+      "kind": "REAL_REFERENCE_PROJECT",
+      "state": "ACTIVE"
+    },
+    {
+      "project_id": "TEST_PROJECT",
+      "project_name": "Test Project",
+      "kind": "TEST_ONLY_FIXTURE",
+      "state": "TEST_ONLY",
+      "engineering_data_allowed": false
+    }
+  ],
+  "disciplines": [
+    {
+      "discipline_id": "STRUCTURES",
+      "label": "Strutture"
+    },
+    {
+      "discipline_id": "ARCHITECTURE",
+      "label": "Architettura"
+    }
+  ],
+  "project_discipline_scopes": [
+    {
+      "project_id": "N12",
+      "discipline_id": "STRUCTURES",
+      "scope_state": "ACTIVE",
+      "module_state": "CEW_BOUND",
+      "source_inventory_mode": "CEW_DELEGATED",
+      "domain_entities_available": true,
+      "platform_may_reclassify_sources": false
+    },
+    {
+      "project_id": "N12",
+      "discipline_id": "ARCHITECTURE",
+      "scope_state": "NOT_YET_RELEASED",
+      "module_state": "DOMAIN_CONTRACT_NOT_YET_RELEASED",
+      "source_inventory_mode": "READ_ONLY_EXPLICIT_REGISTRY_CLASSIFICATION",
+      "source_registry_class_filter": "architettonica",
+      "domain_entities_available": false,
+      "architectural_properties_available": false,
+      "synthetic_engineering_data": false
+    },
+    {
+      "project_id": "TEST_PROJECT",
+      "discipline_id": "STRUCTURES",
+      "scope_state": "TEST_ONLY",
+      "module_state": "TEST_ONLY",
+      "source_inventory_mode": "EMPTY_TEST_FIXTURE",
+      "domain_entities_available": false,
+      "engineering_data_allowed": false
+    }
+  ],
+  "scope_context_schema": {
+    "required": ["project_id", "discipline_id", "scope_state"],
+    "identity": "project_id + discipline_id",
+    "propagation_targets": [
+      "route",
+      "query",
+      "cache_key",
+      "async_request_token",
+      "deep_link",
+      "browser_history",
+      "audit_context"
+    ],
+    "resolution_policy": "EXACT_ONLY_FAIL_CLOSED",
+    "default_project": null,
+    "default_discipline": null,
+    "implicit_n12_fallback": false
+  },
+  "invalid_context_states": [
+    "MISSING_PROJECT",
+    "UNKNOWN_PROJECT",
+    "MISSING_DISCIPLINE",
+    "UNKNOWN_DISCIPLINE",
+    "SCOPE_NOT_DECLARED",
+    "SCOPE_NOT_AUTHORIZED"
+  ],
+  "a0_forbidden_objects": [
+    "persisted project/source ownership binding",
+    "ArchitecturalEntity",
+    "ArchitecturalProperty",
+    "CrossDisciplineRelation",
+    "new SourceVersion",
+    "new EvidenceRegion"
+  ],
+  "critical_safety_metrics": {
+    "cross_project_leakage": "MUST_BE_FALSE",
+    "cross_discipline_leakage": "MUST_BE_FALSE",
+    "cross_discipline_false_equivalence": "MUST_BE_FALSE",
+    "discipline_owner_misidentification": "MUST_BE_FALSE"
+  },
+  "promotion": {
+    "prep_allowed": true,
+    "complete_allowed": false,
+    "blocker": "CEW_PROMOTED_BASELINE"
+  }
+}
