@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "model_id": "CEW_USABILITY_METRICS_MODEL",
   "status": "REQUIRED_PRODUCT_METRICS_CONTRACT",
   "primary_reference": "GOV.UK Service Manual usability benchmarking",
@@ -9,24 +9,9 @@
     "https://www.gov.uk/service-manual/service-standard/point-10-define-success-publish-performance-data"
   ],
   "usability_dimensions": {
-    "effectiveness": [
-      "task_success",
-      "task_abandonment",
-      "false_success",
-      "critical_error_count"
-    ],
-    "efficiency": [
-      "time_on_task_seconds",
-      "interaction_count",
-      "help_requests",
-      "backtracks_or_recovery_actions"
-    ],
-    "satisfaction_confidence": [
-      "ease_1_to_5",
-      "confidence_correct_1_to_5",
-      "perceived_time_1_to_5",
-      "free_comment"
-    ]
+    "effectiveness": ["task_success", "task_abandonment", "false_success", "critical_error_count"],
+    "efficiency": ["time_on_task_seconds", "interaction_count", "help_requests", "backtracks_or_recovery_actions"],
+    "satisfaction_confidence": ["ease_1_to_5", "confidence_correct_1_to_5", "perceived_time_1_to_5", "free_comment"]
   },
   "cew_safety_and_engineering_metrics": [
     "authority_boundary_errors",
@@ -38,45 +23,32 @@
     "unbound_relationship_misread_as_bound",
     "canonical_write_misconception",
     "source_orientation_correction_needed",
-    "document_to_evidence_navigation_success"
+    "document_to_evidence_navigation_success",
+    "duplicate_misread_as_new_version",
+    "machine_candidate_misread_as_validated",
+    "evidence_region_candidate_misread_as_evidence_region"
   ],
-  "task_result_states": [
-    "SUCCESS",
-    "SUCCESS_WITH_HELP",
-    "ABANDONED",
-    "FALSE_SUCCESS",
-    "BLOCKED_BY_PRODUCT",
-    "BLOCKED_BY_ENGINEERING_INFORMATION"
-  ],
+  "task_result_states": ["SUCCESS", "SUCCESS_WITH_HELP", "ABANDONED", "FALSE_SUCCESS", "BLOCKED_BY_PRODUCT", "BLOCKED_BY_ENGINEERING_INFORMATION"],
   "benchmark_policy": {
     "representative_tasks_required": true,
     "baseline_before_major_redesign": true,
     "repeat_after_material_change": true,
     "compare_same_task_across_rounds": true,
     "metrics_combined_with_observation": true,
-    "completion_rate_alone_is_insufficient": true
+    "completion_rate_alone_is_insufficient": true,
+    "critical_authority_false_success_tolerance": 0
   },
   "initial_cew_b11_tasks": [
-    {
-      "task_id": "UX-DOC-01",
-      "goal": "Find TAV-05A from the project without knowing its repository path and identify its discipline, level, status and original file.",
-      "success_condition": "Correct drawing opened from Document/Drawing Workspace and primary-source status understood."
-    },
-    {
-      "task_id": "UX-DOC-02",
-      "goal": "Open TAV-05A in a readable orientation, rotate the view if necessary and return to the original orientation without modifying the SourceVersion.",
-      "success_condition": "User can read the drawing and understands rotation as viewer state only."
-    },
-    {
-      "task_id": "UX-DOC-03",
-      "goal": "Navigate from TAV-05A to the G01-R06 evidence and back to the complete drawing context.",
-      "success_condition": "Source -> evidence -> source round trip succeeds without internal IDs."
-    },
-    {
-      "task_id": "UX-DOC-04",
-      "goal": "Distinguish the primary PDF from a derived 300 dpi reading aid.",
-      "success_condition": "User correctly identifies authority and reproducibility states."
-    }
+    {"task_id": "UX-DOC-01", "goal": "Find TAV-05A from the project without knowing its repository path and identify its discipline, level, status and original file.", "success_condition": "Correct drawing opened from Document/Drawing Workspace and primary-source status understood."},
+    {"task_id": "UX-DOC-02", "goal": "Open TAV-05A in a readable orientation, rotate the view if necessary and return to the original orientation without modifying the SourceVersion.", "success_condition": "User can read the drawing and understands rotation as viewer state only."},
+    {"task_id": "UX-DOC-03", "goal": "Navigate from TAV-05A to the G01-R06 evidence and back to the complete drawing context.", "success_condition": "Source -> evidence -> source round trip succeeds without internal IDs."},
+    {"task_id": "UX-DOC-04", "goal": "Distinguish the primary PDF from a derived 300 dpi reading aid.", "success_condition": "User correctly identifies authority and reproducibility states."}
   ],
-  "release_rule": "A user-facing slice cannot be marked product-complete solely from CI. Applicable representative tasks must have HVA/usability evidence and no unresolved critical authority/provenance misunderstanding."
+  "extended_b1_tasks": [
+    {"task_id": "UX-INTAKE-01", "slice": "B1.4", "goal": "Select a file already present in N12 and understand that the exact hash means duplicate, with no upload required.", "success_condition": "EXACT_DUPLICATE understood; no new SourceVersion expected; local-hash privacy boundary understood."},
+    {"task_id": "UX-INTAKE-02", "slice": "B1.4", "goal": "Select a changed file and deliberately identify it as a possible new version of an existing Source.", "success_condition": "NEW_VERSION_CANDIDATE understood as a human decision, not an automatic version binding."},
+    {"task_id": "UX-DOCMAP-01", "slice": "B1.3/B1.5", "goal": "Distinguish registered metadata, machine candidates, human-validated document features and unknown fields.", "success_condition": "No candidate/validated document feature is mistaken for DOC, EvidenceRegion or structural binding."},
+    {"task_id": "UX-EVIDENCE-01", "slice": "B1.6", "goal": "Select a region on a governed drawing and understand that the result is an EvidenceRegionCandidate awaiting F2 review.", "success_condition": "Correct region/page context retained; candidate not mistaken for approved EvidenceRegion or Observation."}
+  ],
+  "release_rule": "A user-facing slice cannot be marked product-complete solely from CI. Applicable representative tasks must have HVA/usability evidence and no unresolved critical authority/provenance misunderstanding. B1 release additionally requires all extended_b1_tasks applicable to the promoted runtime and zero critical authority false successes."
 }
