@@ -1,5 +1,5 @@
 {
-  "schema_version": "2.2",
+  "schema_version": "2.3",
   "product": "CEW",
   "vertical": "CEW-EX",
   "reference_project": "N12",
@@ -30,9 +30,9 @@
   },
   "product_maturity": {
     "engineering_kernel": "STRONG_REFERENCE_IMPLEMENTATION",
-    "integration": "B1_DOCUMENT_DRAWING_EVIDENCE_STACK_B11_TO_B17_PREPARED_NOT_PROMOTED",
-    "user_workflow": "PROJECT_HOME_V2_AND_PRIOR_SOURCE_EVIDENCE_PRODUCTION_PLUS_EXTENDED_B1_PREVIEW_CANDIDATE",
-    "human_factors": "B17_V1_INSTRUMENT_TECHNICALLY_VALIDATED_BUT_PARTICIPANT_INTERACTION_REQUIRES_V2_REWORK",
+    "integration": "B1_DOCUMENT_DRAWING_EVIDENCE_STACK_B11_TO_B18_IMPLEMENTED_CANDIDATE_NOT_PROMOTED",
+    "user_workflow": "PROJECT_HOME_V2_AND_PRIOR_SOURCE_EVIDENCE_PRODUCTION_PLUS_B18_HUMAN_ACCEPTANCE_CANDIDATE",
+    "human_factors": "B18_PARTICIPANT_REVIEWER_IMPLEMENTED_HVA_AND_ACCESSIBILITY_PENDING",
     "production_runtime": "PRIOR_B1_PRODUCTION_READY_EXTENDED_B1_NOT_YET_PROMOTED",
     "assessment_ready": false,
     "decision_ready": false,
@@ -61,11 +61,13 @@
       "runtime_validation_workflow": ".github/workflows/validate-cew-neon-user-runtime.yml"
     },
     "preview": {
-      "extended_b1_candidate_sha": "cab1c53b62b2b70294b6b7e8d7dddd14ccdcb832",
-      "branch": "work/cew-b17-usability-acceptance-prep",
-      "deployment_status": "VERCEL_READY",
-      "automated_gate_status": "PASS",
-      "human_acceptance_status": "V1_INSTRUMENT_OBSERVED_REQUIRES_V2_REWORK",
+      "previous_b17_candidate_sha": "cab1c53b62b2b70294b6b7e8d7dddd14ccdcb832",
+      "previous_b17_branch": "work/cew-b17-usability-acceptance-prep",
+      "b18_branch": "work/cew-b18-human-centred-acceptance-v2",
+      "b18_candidate_revision": "BRANCH_HEAD_PENDING_FREEZE_AFTER_AUTOMATED_GATES",
+      "b18_implementation_status": "IMPLEMENTED_CANDIDATE_HVA_PENDING",
+      "human_acceptance_status": "REQUIRED_NOT_EXECUTED",
+      "accessibility_status": "REQUIRED_NOT_SATISFIED",
       "production_promotion_authorized": false,
       "canonical_write_authorized": false
     }
@@ -74,10 +76,10 @@
     {
       "id": "DOCUMENT_DRAWING_WORKSPACE",
       "engine_available": true,
-      "integrated": "B11_TO_B17_PREPARED_IN_STACK",
-      "user_workflow_available": "EXTENDED_B1_PREVIEW_CANDIDATE",
-      "human_factors_validated": "NO_V2_HVA_PENDING",
-      "human_factors_finding": "PARTICIPANT_REVIEWER_ROLE_COLLAPSE_IN_B17_V1_ACCEPTANCE_INSTRUMENT",
+      "integrated": "B11_TO_B18_IMPLEMENTED_CANDIDATE",
+      "user_workflow_available": "B18_HUMAN_ACCEPTANCE_CANDIDATE",
+      "human_factors_validated": "NO_HVA_PENDING",
+      "human_factors_finding": "B17_ROLE_COLLAPSE_CORRECTED_IN_B18_IMPLEMENTATION_REQUIRES_REAL_HVA",
       "production_ready": false
     },
     {
@@ -176,15 +178,20 @@
   "current_product_work_item": {
     "id": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
     "agent_role": "SOURCE_EVIDENCE_AGENT",
-    "state": "IN_PROGRESS_BLOCKED_HUMAN_ACCEPTANCE_V2_AND_PROMOTION",
+    "state": "IN_PROGRESS_IMPLEMENTED_CANDIDATE_HVA_PENDING",
     "current_slice": "B1.8",
-    "prior_candidate_sha": "cab1c53b62b2b70294b6b7e8d7dddd14ccdcb832",
+    "previous_b17_candidate_sha": "cab1c53b62b2b70294b6b7e8d7dddd14ccdcb832",
+    "b18_branch": "work/cew-b18-human-centred-acceptance-v2",
+    "candidate_revision": "BRANCH_HEAD_PENDING_FREEZE_AFTER_AUTOMATED_GATES",
     "slice_plan": "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json",
     "human_acceptance_contract": "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json",
     "queue": "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json",
     "goal": "CEW-GOAL-01",
     "promotion_blockers": [
-      "HUMAN_ACCEPTANCE_V2_NOT_IMPLEMENTED_OR_EXECUTED",
+      "B1_4_PRIVATE_BYTE_PERSISTENCE_BOUNDARY_REQUIRES_RECONCILIATION_OR_EXPLICIT_SCOPE_DECISION",
+      "B1_6_CANDIDATE_PERSISTENCE_PROMOTION_BOUNDARY_REQUIRES_RECONCILIATION_OR_EXPLICIT_SCOPE_DECISION",
+      "HUMAN_ACCEPTANCE_V2_NOT_EXECUTED",
+      "B1_8_ACCESSIBILITY_GATE_NOT_SATISFIED",
       "EXTENDED_B1_SAME_REVISION_PRODUCTION_SMOKE_NOT_SATISFIED",
       "B1_PROMOTION_NOT_COMPLETED"
     ]
@@ -219,5 +226,5 @@
     "B2 and later work may be prepared in parallel but cannot be promoted while B1 is incomplete.",
     "Evidence from a different immutable revision cannot silently satisfy the current promotion candidate."
   ],
-  "next_action": "Implement B1.8 Human-Centred Acceptance v2 with separate participant, observation, reviewer and receipt layers; execute the representative B1 tasks on one immutable candidate; resolve any non-compensable blocker; run required Production smoke on the same accepted revision; promote B1 and freeze CEW_PROMOTED_BASELINE before ETW-A0 promotion revalidation."
+  "next_action": "Run automated B1.8 implementation and accessibility-preparation gates, freeze one immutable Preview candidate, execute the real participant/reviewer Human Acceptance v2, resolve any non-compensable blocker, run required Production smoke on the same accepted revision, promote B1 and freeze CEW_PROMOTED_BASELINE before ETW-A0 promotion revalidation."
 }

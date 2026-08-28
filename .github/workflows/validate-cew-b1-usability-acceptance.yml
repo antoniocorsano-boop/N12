@@ -1,17 +1,22 @@
-name: Validate CEW B1 Usability Acceptance
+name: Validate CEW B1 Human Acceptance v2
 
 on:
   pull_request:
     paths:
       - 'app.py'
       - 'scripts/cew_b1_acceptance_lab.py'
+      - 'scripts/cew_b1_human_acceptance_v2.py'
       - 'scripts/validate_cew_b1_usability_acceptance.py'
-      - 'automation/CEW_B1_USABILITY_ACCEPTANCE_CONTRACT_v1.json'
-      - 'automation/CEW_USABILITY_METRICS_MODEL_v1.json'
+      - 'automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json'
+      - 'automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json'
+      - 'automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json'
+      - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
+      - 'docs/ACCEPTANCE/CEW_B1_HUMAN_ACCEPTANCE_V2_PLAN.md'
       - '.github/workflows/validate-cew-b1-usability-acceptance.yml'
+  workflow_dispatch:
 
 jobs:
-  validate-b1-usability-acceptance:
+  validate-b1-human-acceptance-v2:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,12 +25,13 @@ jobs:
           python-version: '3.12'
       - name: Syntax
         run: |
+          python -m py_compile scripts/cew_b1_human_acceptance_v2.py
           python -m py_compile scripts/cew_b1_acceptance_lab.py
           python -m py_compile scripts/validate_cew_b1_usability_acceptance.py
           python -m py_compile app.py
       - name: Install runtime dependencies
         run: pip install -r requirements.txt
-      - name: Validate acceptance contract and blocker semantics
+      - name: Validate B1.8 participant, observation, reviewer and receipt boundaries
         run: python scripts/validate_cew_b1_usability_acceptance.py
       - name: Route and health smoke
         env:
@@ -39,15 +45,20 @@ jobs:
           response=app.b1_acceptance_lab()
           assert response.status_code == 200
           text=response.body.decode('utf-8')
-          assert 'Acceptance Lab' in text
+          assert 'Verifica del percorso documentale' in text
+          assert 'Svolgi il lavoro come faresti normalmente' in text
+          assert 'AREA REVISIONE HVA' in text
           h=app.healthz()
-          assert h['b1_acceptance_lab']=='B17_PREP_AVAILABLE_NOT_PROMOTED'
+          assert h['b1_acceptance_lab']=='B18_IMPLEMENTED_CANDIDATE_HVA_PENDING'
           assert h['canonical_write_authorized'] is False
-          print('CEW B1.7 ACCEPTANCE LAB ROUTE: PASS')
+          print('CEW B1.8 HUMAN ACCEPTANCE ROUTE: PASS')
           PY
-      - name: Preserve human gate
+      - name: Preserve human and promotion gates
         run: |
-          echo 'Automated gate validates the measurement instrument only.'
-          echo 'HVA_GATE = REQUIRED_NOT_AUTOMATED'
-          echo 'PRODUCTION_SMOKE = REQUIRED_AFTER_HVA'
+          echo 'Automated gate validates the B1.8 acceptance implementation only.'
+          echo 'HVA_GATE = REQUIRED_NOT_SATISFIED'
+          echo 'ACCESSIBILITY_GATE = REQUIRED_NOT_SATISFIED'
+          echo 'PRODUCTION_SMOKE = REQUIRED_AFTER_HVA_ON_ACCEPTED_REVISION'
           echo 'SLICE_COMPLETE = false'
+          echo 'PRODUCTION_PROMOTION_AUTHORIZED = false'
+          echo 'CANONICAL_WRITE_AUTHORIZED = false'
