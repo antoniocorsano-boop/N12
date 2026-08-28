@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "task_id": "CEW-B1.5-MACHINE-CANDIDATES",
+  "program_goal": "CEW-GOAL-01",
+  "agent_role": "SOURCE_EVIDENCE_AGENT",
+  "state": "PREP_IN_PROGRESS_BLOCKED_HUMAN_ACCEPTANCE",
+  "depends_on": ["B1.1", "B1.2", "B1.3", "B1.4"],
+  "goal": "Normalize OCR, vector, raster, Scan2DXF and AI detector outputs into provenance-bearing DocumentFeatureCandidates that require human review and cannot promote engineering truth.",
+  "reuse_sources": [
+    "exp/cew-document-intelligence-foundation-v0",
+    "PR-59 exp/vector-concordance-g2-g5"
+  ],
+  "outputs": [
+    "docs/PRODUCT/CEW_MACHINE_DOCUMENT_CANDIDATES_V1_CONTRACT.md",
+    "scripts/cew_machine_document_candidates.py",
+    "scripts/validate_cew_machine_document_candidates.py"
+  ],
+  "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE", "QA_GATE"],
+  "promotion_blockers": [
+    "UPSTREAM_B1_HVA",
+    "B1.5_MACHINE_CANDIDATE_REVIEW_HVA",
+    "DETECTOR_EXECUTION_PROVENANCE_FOR_PRODUCTION_NOT_YET_ACCEPTED"
+  ],
+  "invariants": [
+    "machine state cannot be VALIDATED",
+    "detector confidence is not epistemic authority",
+    "consensus SUPPORTED remains noncanonical",
+    "unregistered Page fails closed",
+    "SourceVersion/Page mismatch fails closed",
+    "non-normalized coordinates require explicit projection note",
+    "candidate does not create EvidenceRegion",
+    "candidate does not create structural binding",
+    "candidate does not change DOC/MIS/RIF/INF/ND"
+  ],
+  "promotion_authorized": false,
+  "canonical_write_authorized": false
+}

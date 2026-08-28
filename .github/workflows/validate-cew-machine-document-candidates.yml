@@ -1,0 +1,32 @@
+name: Validate CEW Machine Document Candidates
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/cew_machine_document_candidates.py'
+      - 'scripts/validate_cew_machine_document_candidates.py'
+      - 'docs/PRODUCT/CEW_MACHINE_DOCUMENT_CANDIDATES_V1_CONTRACT.md'
+      - 'automation/outbox/CEW_B15_MACHINE_CANDIDATES_TASK_v1.json'
+      - 'automation/CEW_DOCUMENT_MAP_MODEL_v1.json'
+      - 'automation/CEW_DOCUMENT_FEATURE_CANDIDATES_v1.json'
+      - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
+      - '.github/workflows/validate-cew-machine-document-candidates.yml'
+
+jobs:
+  validate-machine-document-candidates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax
+        run: |
+          python -m py_compile scripts/cew_machine_document_candidates.py
+          python -m py_compile scripts/validate_cew_machine_document_candidates.py
+      - name: Validate normalization and authority boundary
+        run: python scripts/validate_cew_machine_document_candidates.py
+      - name: Declare human review boundary
+        run: |
+          echo 'Machine VALIDATED: forbidden'
+          echo 'Detector consensus -> canonical engineering fact: false'
+          echo 'Candidate -> EvidenceRegion automatic: false'
+          echo 'Candidate -> structural binding automatic: false'
+          echo 'Production promotion: forbidden pending HVA/provenance acceptance'
