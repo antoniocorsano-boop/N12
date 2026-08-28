@@ -49,7 +49,7 @@ def main() -> int:
         "addEventListener('keydown'",
         "evidencePointers.size===2",
         "touch-action:none",
-        "Pan usato",
+        "evidencePanEver?'usato':'non usato'",
         "Zoom ${Math.round(evidenceZoom*100)}%",
         "rotateEvidence",
         "fitEvidenceView",
