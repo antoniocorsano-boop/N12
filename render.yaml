@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: cew-hva-candidate
+    runtime: python
+    plan: free
+    region: frankfurt
+    branch: work/etw-platform-extension-program-v1
+    autoDeployTrigger: off
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /readyz
+    envVars:
+      - key: CEW_RUNTIME_ROLE
+        value: CANDIDATE_HVA
+      - key: CEW_AUTH_DISABLED_FOR_TEST
+        value: "0"
+      - key: CEW_ACCESS_PASSWORD
+        sync: false
+      - key: CEW_SESSION_SECRET
+        generateValue: true
+      - key: CEW_AUDIT_NEON_DATABASE_URL
+        sync: false
