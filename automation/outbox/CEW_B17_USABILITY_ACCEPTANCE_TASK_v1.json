@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "task_id": "CEW-B1.7-USABILITY-ACCEPTANCE",
+  "program_goal": "CEW-GOAL-01",
+  "agent_role": "HUMAN_FACTORS_AGENT",
+  "state": "PREP_IN_PROGRESS_BLOCKED_HVA_AND_PRODUCTION",
+  "depends_on": ["B1.1", "B1.2", "B1.6"],
+  "goal": "Measure and human-accept the complete Documents -> Drawings -> Evidence journey before B1 promotion.",
+  "instrument": "/acceptance/b1",
+  "representative_tasks": ["UX-DOC-01", "UX-DOC-02", "UX-DOC-03", "UX-DOC-04"],
+  "required_outputs": [
+    "usability task results",
+    "human HVA decision",
+    "revision-bound HVA receipt",
+    "same-revision Production smoke receipt"
+  ],
+  "blocking_conditions": [
+    "FALSE_SUCCESS",
+    "wrong source or SourceVersion",
+    "authority-boundary misunderstanding",
+    "canonical-write misconception",
+    "task blocked by product",
+    "missing human HVA decision",
+    "missing Production smoke on accepted revision"
+  ],
+  "automation_boundary": {
+    "automated_gate_validates_instrument_only": true,
+    "automated_gate_can_satisfy_hva": false,
+    "automated_gate_can_promote_b1": false,
+    "production_promotion_authorized": false,
+    "canonical_write_authorized": false
+  }
+}

@@ -17,6 +17,7 @@ SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
+import cew_b1_acceptance_lab as acceptance_lab
 import cew_document_drawing_workspace as document_workspace
 import cew_document_intake as document_intake
 import cew_document_map_page as document_map_page
@@ -90,6 +91,7 @@ def healthz():
         "document_map": "B13_PREP_AVAILABLE_NOT_PROMOTED",
         "document_intake": "B14_METADATA_ONLY_PREP_AVAILABLE_NOT_PROMOTED",
         "document_byte_storage": "NOT_CONFIGURED",
+        "b1_acceptance_lab": "B17_PREP_AVAILABLE_NOT_PROMOTED",
         "source_workspace": "B1_AVAILABLE",
         "source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED",
         "canonical_write_authorized": False,
@@ -145,6 +147,11 @@ def project_home_route():
     terminology = review_service.load_json(TERMINOLOGY)
     lifecycle = review_service.load_json(LIFECYCLE)
     return HTMLResponse(project_home.build_project_home(state, issues, tasks, terminology, lifecycle))
+
+
+@app.get("/acceptance/b1", response_class=HTMLResponse)
+def b1_acceptance_lab():
+    return HTMLResponse(acceptance_lab.build_lab())
 
 
 @app.get("/documents", response_class=HTMLResponse)

@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW_B1_USABILITY_ACCEPTANCE",
+  "program_goal": "CEW-GOAL-01",
+  "slice_id": "B1.7",
+  "status": "PREPARATION_NON_PROMOTIVE",
+  "basis": "automation/CEW_USABILITY_METRICS_MODEL_v1.json",
+  "journey": "Project -> Documents -> Drawings -> Drawing Viewer -> DocumentMap -> Evidence -> Drawing context",
+  "task_ids": ["UX-DOC-01", "UX-DOC-02", "UX-DOC-03", "UX-DOC-04"],
+  "result_states": ["SUCCESS", "SUCCESS_WITH_HELP", "ABANDONED", "FALSE_SUCCESS", "BLOCKED_BY_PRODUCT", "BLOCKED_BY_ENGINEERING_INFORMATION"],
+  "required_metrics": [
+    "time_on_task_seconds",
+    "interaction_count",
+    "help_requests",
+    "backtracks_or_recovery_actions",
+    "ease_1_to_5",
+    "confidence_correct_1_to_5",
+    "perceived_time_1_to_5",
+    "free_comment"
+  ],
+  "critical_checks": [
+    "wrong_source_or_wrong_version_selection",
+    "authority_boundary_errors",
+    "canonical_write_misconception",
+    "document_to_evidence_navigation_success",
+    "primary_source_correctly_identified",
+    "derived_reading_aid_correctly_identified"
+  ],
+  "acceptance_rules": {
+    "all_four_tasks_observed": true,
+    "false_success_allowed": false,
+    "critical_authority_error_allowed": false,
+    "wrong_source_or_version_allowed": false,
+    "ux_doc_01_required": ["SUCCESS", "SUCCESS_WITH_HELP"],
+    "ux_doc_02_required": ["SUCCESS", "SUCCESS_WITH_HELP"],
+    "ux_doc_03_required": ["SUCCESS", "SUCCESS_WITH_HELP"],
+    "ux_doc_04_required": ["SUCCESS", "SUCCESS_WITH_HELP"],
+    "completion_rate_alone_is_sufficient": false,
+    "human_hva_decision_required": true,
+    "production_smoke_after_hva_required": true
+  },
+  "allowed_hva_decisions": ["PASS_FOR_B1", "PASS_WITH_NONCRITICAL_USABILITY_RESIDUAL", "FAIL_REWORK_REQUIRED"],
+  "promotion_rule": "B1 remains IN_PROGRESS until a real operator completes the representative tasks, a human HVA decision is receipted, and the same accepted product revision passes Production smoke.",
+  "authority": {
+    "acceptance_lab_is_engineering_authority": false,
+    "receipt_is_canonical_engineering_write": false,
+    "receipt_changes_epistemic_state": false,
+    "receipt_changes_f2_geometry": false,
+    "receipt_creates_structural_binding": false,
+    "canonical_write_authorized": false
+  }
+}
