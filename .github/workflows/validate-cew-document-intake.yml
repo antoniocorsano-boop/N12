@@ -1,0 +1,75 @@
+name: Validate CEW Document Intake
+
+on:
+  pull_request:
+    paths:
+      - 'app.py'
+      - 'scripts/cew_document_intake.py'
+      - 'scripts/validate_cew_document_intake.py'
+      - 'automation/CEW_DOCUMENT_INTAKE_MODEL_v1.json'
+      - 'automation/outbox/CEW_B14_INTAKE_VERSIONING_TASK_v1.json'
+      - 'docs/PRODUCT/CEW_DOCUMENT_INTAKE_VERSIONING_V1_CONTRACT.md'
+      - 'data/canonical/tavole_originali_remote_index_v1.csv'
+      - '.github/workflows/validate-cew-document-intake.yml'
+
+jobs:
+  validate-document-intake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax
+        run: |
+          python -m py_compile scripts/cew_document_intake.py
+          python -m py_compile scripts/validate_cew_document_intake.py
+          python -m py_compile app.py
+      - name: Install runtime dependencies
+        run: pip install -r requirements.txt
+      - name: Validate metadata-only intake and version decisions
+        run: python scripts/validate_cew_document_intake.py
+      - name: Runtime route and fail-closed smoke
+        env:
+          CEW_AUTH_DISABLED_FOR_TEST: '1'
+          CEW_AUDIT_BACKEND_MODE: 'LOCAL_TEST_ONLY'
+        run: |
+          python - <<'PY'
+          import asyncio
+          import json
+          import app
+
+          registered={r.path for r in app.app.routes}
+          assert '/documents/intake' in registered
+          assert '/api/intake/analyze' in registered
+          page=app.document_intake_page()
+          assert page.status_code==200
+          text=page.body.decode('utf-8').lower()
+          assert 'sha-256' in text and 'nessun byte' in text
+
+          class Req:
+              async def json(self):
+                  return {
+                      'filename':'existing.pdf',
+                      'size_bytes':1186994,
+                      'mime_type':'application/pdf',
+                      'sha256':'17dec414f0f0505e2cd2acb519029afba7672df1793a580badb8b59b6214f325',
+                      'selected_source_id':''
+                  }
+          response=asyncio.run(app.document_intake_analyze(Req()))
+          payload=json.loads(response.body)
+          assert payload['state']=='EXACT_DUPLICATE'
+          assert payload['matching_source_id']=='TAV-05A'
+          assert payload['bytes_uploaded'] is False
+          assert payload['canonical_write_authorized'] is False
+
+          h=app.healthz()
+          assert h['document_intake']=='B14_METADATA_ONLY_PREP_AVAILABLE_NOT_PROMOTED'
+          assert h['document_byte_storage']=='NOT_CONFIGURED'
+          assert h['canonical_write_authorized'] is False
+          print('CEW B1.4 INTAKE ROUTE: PASS')
+          PY
+      - name: Declare storage and human boundary
+        run: |
+          echo 'Metadata analysis uploads document bytes: false'
+          echo 'Private byte storage: NOT_CONFIGURED'
+          echo 'Human source/version decision: required'
+          echo 'Human classification: required'
+          echo 'Production promotion: forbidden'
