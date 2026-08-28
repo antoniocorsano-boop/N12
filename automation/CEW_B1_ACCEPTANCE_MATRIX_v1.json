@@ -1,0 +1,48 @@
+{
+  "schema_version":"1.0",
+  "matrix_id":"CEW_B1_ACCEPTANCE_MATRIX",
+  "program_goal":"CEW-GOAL-01",
+  "status":"B17_PREPARATION_TRUTHFUL_BLOCKED",
+  "release_target":"CEW-B1-SOURCE-EVIDENCE-JOURNEY",
+  "release_condition":"ALL_REQUIRED_GATES_PASS_ON_PROMOTED_EQUIVALENT_AND_NO_CRITICAL_HUMAN_FACTORS_RESIDUAL",
+  "slices":[
+    {"id":"B1.1","name":"Document & Drawing Foundation","pr":96,"automated_gates":"PASS","preview":"SUCCESS","hva":"PENDING","promotion":"BLOCKED","receipt":"automation/receipts/cew-product/CEW-B1.1-DOCUMENT-DRAWING-FOUNDATION_20260827T2140Z.json"},
+    {"id":"B1.2","name":"Governed Drawing Viewer","pr":97,"automated_gates":"PASS","preview":"SUCCESS","hva":"PENDING","promotion":"BLOCKED","receipt":"automation/receipts/cew-product/CEW-B1.2-DRAWING-VIEWER-PREP_20260827T2205Z.json"},
+    {"id":"B1.3","name":"DocumentMap / Document Intelligence","pr":98,"automated_gates":"PASS","preview":"SUCCESS","human_review_journey":"PENDING","promotion":"BLOCKED","receipt":"automation/receipts/cew-product/CEW-B1.3-DOCUMENT-MAP-PREP_20260828T0340Z.json"},
+    {"id":"B1.4","name":"Intake & Versioning","pr":99,"automated_gates":"PASS","preview":"SUCCESS","private_byte_storage":"NOT_CONFIGURED","hva":"PENDING","production_smoke":"PENDING","promotion":"BLOCKED","receipt":"automation/receipts/cew-product/CEW-B1.4-INTAKE-VERSIONING-PREP_20260828T0350Z.json"},
+    {"id":"B1.5","name":"Machine Document Candidates","pr":100,"automated_gates":"PASS","preview":"SUCCESS","candidate_review_hva":"PENDING","production_detector_provenance":"PENDING","promotion":"BLOCKED","receipt":"automation/receipts/cew-product/CEW-B1.5-MACHINE-CANDIDATES-PREP_20260828T0355Z.json"},
+    {"id":"B1.6","name":"EvidenceRegion Candidates","pr":101,"automated_gates":"PASS","preview":"SUCCESS","selection_ui_hva":"PENDING","candidate_append_only_store":"NOT_APPLIED","f2_promotion_review":"REQUIRED","promotion":"BLOCKED","receipt":"automation/receipts/cew-product/CEW-B1.6-EVIDENCE-REGION-CANDIDATE-PREP_20260828T0405Z.json"}
+  ],
+  "usability_tasks":[
+    {"task_id":"UX-DOC-01","goal":"Find and understand TAV-05A without repository knowledge","required_for_b1":true,"state":"HVA_PENDING"},
+    {"task_id":"UX-DOC-02","goal":"Orient/zoom/pan TAV-05A without changing SourceVersion authority","required_for_b1":true,"state":"HVA_PENDING"},
+    {"task_id":"UX-DOC-03","goal":"Complete Drawing -> Evidence -> Drawing round trip","required_for_b1":true,"state":"HVA_PENDING"},
+    {"task_id":"UX-DOC-04","goal":"Distinguish primary PDF from derived reading aid","required_for_b1":true,"state":"HVA_PENDING"},
+    {"task_id":"UX-INTAKE-01","goal":"Recognize exact duplicate without uploading bytes","required_for_b1":true,"state":"HVA_PENDING"},
+    {"task_id":"UX-INTAKE-02","goal":"Identify a changed file as a version candidate through explicit human source decision","required_for_b1":true,"state":"HVA_PENDING"},
+    {"task_id":"UX-DOCMAP-01","goal":"Distinguish registered metadata, machine candidates, validated document features and unknowns","required_for_b1":true,"state":"HVA_PENDING"},
+    {"task_id":"UX-EVIDENCE-01","goal":"Select a page region and understand that the result is a candidate, not approved EvidenceRegion","required_for_b1":true,"state":"IMPLEMENTATION_AND_HVA_PENDING"}
+  ],
+  "critical_release_gates":{
+    "AUTOMATED_REGRESSION":"PASS_ON_PREPARATION_SLICES",
+    "GOVUK_TASK_USABILITY":"PENDING",
+    "HVA":"PENDING",
+    "PRIVATE_DOCUMENT_BYTE_STORAGE":"NOT_CONFIGURED",
+    "CANDIDATE_APPEND_ONLY_STORE":"NOT_APPLIED",
+    "EXTENDED_B1_PRODUCTION_DEPLOY":"NOT_PERFORMED",
+    "EXTENDED_B1_PRODUCTION_SMOKE":"NOT_PERFORMED",
+    "SOURCE_TO_EVIDENCE_ROUNDTRIP":"NOT_ACCEPTED",
+    "AUTHORITY_MISUNDERSTANDING_CRITICAL_ERRORS":"MUST_BE_ZERO"
+  },
+  "release_rules":[
+    "B2 cannot be released while any critical gate is not PASS.",
+    "Automated green CI cannot substitute for HVA/usability evidence.",
+    "Preview Ready cannot substitute for Production smoke.",
+    "Storage configuration cannot substitute for hash-integrity verification.",
+    "Candidate persistence cannot substitute for F2 promotion review.",
+    "No critical false success involving source authority, derived assets, candidate status or structural binding is acceptable."
+  ],
+  "b1_release_authorized":false,
+  "b2_release_authorized":false,
+  "canonical_write_authorized":false
+}
