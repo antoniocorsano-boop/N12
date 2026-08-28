@@ -9,6 +9,8 @@ MANIFEST = ROOT / "automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json"
 AGENT_OPERATING = ROOT / "automation/AI_NATIVE_AGENT_OPERATING_CONTRACT_v1.json"
 DECISION_REGISTER = ROOT / "automation/PRODUCT_DECISION_REGISTER_v1.json"
 CEW_STATE = ROOT / "data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json"
+CEW_QUEUE = ROOT / "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json"
+CEW_B1_PLAN = ROOT / "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json"
 B1_HUMAN = ROOT / "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json"
 ETW_STATUS = ROOT / "automation/ETW_PROGRAM_STATUS_v1.json"
 ETW_MANIFEST = ROOT / "automation/ETW_PROGRAM_MANIFEST_v1.json"
@@ -40,6 +42,8 @@ def main() -> None:
     agents = load(AGENT_OPERATING)
     decisions = load(DECISION_REGISTER)
     cew = load(CEW_STATE)
+    cew_queue = load(CEW_QUEUE)
+    b1_plan = load(CEW_B1_PLAN)
     b1 = load(B1_HUMAN)
     etw_status = load(ETW_STATUS)
     etw_manifest = load(ETW_MANIFEST)
@@ -53,6 +57,11 @@ def main() -> None:
     governance = manifest["repository_governance"]
     assert governance["agent_operating_contract"] == "automation/AI_NATIVE_AGENT_OPERATING_CONTRACT_v1.json"
     assert governance["product_decision_register"] == "automation/PRODUCT_DECISION_REGISTER_v1.json"
+    assert governance["product_family_capability_map"].endswith("CEW_ETWIN_PRODUCT_FAMILY_CAPABILITY_MAP_v1.md")
+
+    current_state = manifest["current_state"]
+    assert current_state["cew_product_queue"] == "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json"
+    assert current_state["cew_b1_execution_plan"] == "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json"
 
     models = manifest["current_models"]
     assert models["cew_development_model"].endswith("CEW_CODE_DEVELOPMENT_MODEL_v2.md")
@@ -106,6 +115,24 @@ def main() -> None:
     assert cew["governance"]["ci_implies_human_acceptance"] is False
     assert cew["governance"]["deployment_implies_promotion"] is False
 
+    # CEW queue, current state and B1 subplan must identify the same active slice.
+    queue_b1 = next(row for row in cew_queue["items"] if row["id"] == "CEW-B1-SOURCE-EVIDENCE-JOURNEY")
+    assert queue_b1["state"] == "IN_PROGRESS"
+    assert queue_b1["current_slice"] == "B1.8"
+    assert queue_b1["human_acceptance_contract"] == "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json"
+    assert "B1_8_HUMAN_ACCEPTANCE_V2_NOT_IMPLEMENTED_OR_EXECUTED" in queue_b1["promotion_blockers"]
+    assert current["id"] == queue_b1["id"]
+    assert current["current_slice"] == queue_b1["current_slice"]
+
+    plan_by_id = {row["id"]: row for row in b1_plan["slices"]}
+    assert b1_plan["development_model"] == models["cew_development_model"]
+    assert b1_plan["human_centred_model"] == models["cew_human_centred_model"]
+    assert b1_plan["human_acceptance_contract"] == "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json"
+    assert plan_by_id["B1.7"]["state"] == "HISTORICAL_INSTRUMENT_VALIDATED_INTERACTION_REWORK_REQUIRED"
+    assert plan_by_id["B1.7"]["promotion_effect"] == "NONE"
+    assert plan_by_id["B1.8"]["state"] == "IN_PROGRESS_DESIGN_REQUIRED"
+    assert plan_by_id["B1.8"]["contract"] == "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json"
+
     # B1 v2 must encode the human separation discovered through real use.
     assert b1["status"] == "DESIGN_REQUIRED_NOT_IMPLEMENTED"
     layers = b1["layers"]
@@ -128,6 +155,8 @@ def main() -> None:
     assert etw_status["production_promotion_authorized"] is False
 
     # v1 compatibility keys are retained for the already-prepared orchestration.
+    assert etw_manifest["schema_version"] == "1.0"
+    assert etw_manifest["status"] == "CANONICAL"
     assert etw_manifest["plan"].endswith("ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md")
     assert etw_manifest["orchestration_model"].endswith("ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v1.md")
     assert etw_manifest["current_promotion_plan"] == models["etwin_platform_promotion_program"]
