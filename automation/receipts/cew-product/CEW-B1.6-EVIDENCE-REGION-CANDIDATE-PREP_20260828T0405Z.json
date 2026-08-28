@@ -1,0 +1,19 @@
+{
+  "schema_version":"1.0",
+  "program_goal":"CEW-GOAL-01",
+  "slice_id":"B1.6",
+  "task_id":"CEW-B1.6-EVIDENCE-REGION-CANDIDATE",
+  "decision":"AUTOMATED_GATES_PASS_PERSISTENCE_AND_HVA_BLOCKED",
+  "validated_head_sha":"dff3fabc45922b85cc10bfe588d406452d27459b",
+  "base_branch":"work/cew-b15-machine-candidates-prep",
+  "base_sha":"5989a95352a8cb9f04b3410e0fcb29b441003214",
+  "pull_request":101,
+  "verified_runs":{"evidence_region_candidate":33140058103,"existing_assessment":33140058004,"knowledge_system":33140058026},
+  "vercel_preview_status":"SUCCESS",
+  "verified_behavior":{"ready_page_required":true,"sourceversion_page_match_required":true,"normalized_bbox_only":true,"candidate_is_evidence_region":false,"observation_created":false,"structural_binding_created":false,"epistemic_state_changed":false,"f2_registry_written":false,"canonical_write_authorized":false},
+  "persistence":{"migration":"migrations/cew/004_evidence_region_candidate_audit_PROPOSED_NOT_APPLIED.sql","production_migration_applied":false,"authority":"PRODUCT_AUDIT_ONLY_PROPOSED"},
+  "blocking_gates":["UPSTREAM_B1_HVA","B1.6_SELECTION_UI_HVA","CANDIDATE_APPEND_ONLY_STORE_NOT_APPLIED","F2_PROMOTION_REVIEW_REQUIRED"],
+  "slice_complete":false,
+  "promotion_authorized":false,
+  "canonical_write_authorized":false
+}
