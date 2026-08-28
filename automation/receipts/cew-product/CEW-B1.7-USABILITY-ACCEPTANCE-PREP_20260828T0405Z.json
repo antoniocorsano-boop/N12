@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "slice_id": "B1.7",
+  "work_item_id": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
+  "decision": "AUTOMATED_INSTRUMENT_PASS_HVA_REQUIRED",
+  "agent_role": "HUMAN_FACTORS_AGENT",
+  "base_branch": "work/cew-b16-evidence-region-candidates-prep",
+  "validated_head_sha": "26c6e53fe9fe213c76bb7f81b950237c1e833f01",
+  "pull_request": 102,
+  "preview_url": "https://cew-pilot-git-work-cew-b17-us-bf9de7-antonios-projects-051b8d71.vercel.app",
+  "instrument_path": "/acceptance/b1",
+  "verified_runs": {
+    "b1_usability_acceptance": 33140524138,
+    "product_transformation": 33140524082,
+    "document_drawing_foundation": 33140524149,
+    "drawing_viewer": 33140524056,
+    "document_map": 33140524119,
+    "document_intake": 33140524104,
+    "source_evidence_journey": 33140524069,
+    "user_web_pilot": 33140524058,
+    "neon_user_runtime": 33140524015,
+    "knowledge_system": 33140524064,
+    "existing_assessment": 33140524043,
+    "netlify_regression": 33140524036,
+    "prior_production_baseline_runtime": 33140524042
+  },
+  "representative_tasks": ["UX-DOC-01", "UX-DOC-02", "UX-DOC-03", "UX-DOC-04"],
+  "blocking_semantics_validated": [
+    "FALSE_SUCCESS",
+    "WRONG_SOURCE_OR_VERSION",
+    "AUTHORITY_BOUNDARY_ERROR",
+    "CANONICAL_WRITE_MISCONCEPTION",
+    "BLOCKED_BY_PRODUCT"
+  ],
+  "hva_gate": "REQUIRED_NOT_SATISFIED",
+  "production_smoke": "REQUIRED_AFTER_HVA_NOT_SATISFIED",
+  "slice_complete": false,
+  "production_promotion_authorized": false,
+  "canonical_write_authorized": false,
+  "engineering_authority_effect": "NONE",
+  "next_action": "Run the four representative tasks in the authenticated B1 Acceptance Lab on this preview revision, export a human-reviewed HVA receipt, resolve any critical usability residual, then perform Production smoke on the accepted revision before B1 promotion."
+}
