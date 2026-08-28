@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "work_package_id": "ETW_A0_PLATFORM_IDENTITY_PREP",
   "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
   "slice_id": "ETW-A0",
@@ -13,12 +13,11 @@
     {
       "id": "A0-W0-CONTRACT-FREEZE",
       "owner": "ETW_CONTRACT_COMPATIBILITY_AGENT",
-      "state": "READY",
+      "state": "COMPLETE",
       "parallel_group": 0,
       "objective": "Map and fingerprint the CEW contracts and source registry consumed by A0 without mutating them.",
-      "outputs": [
-        "automation/ETW_CEW_CONTRACT_BASELINE_v1.json"
-      ],
+      "outputs": ["automation/ETW_CEW_CONTRACT_BASELINE_v1.json"],
+      "completion_evidence": ["frozen path/blob SHA for lifecycle, development, human-centred, usability and source registry contracts"],
       "acceptance": [
         "P0-P16 lifecycle contract SHA/path recorded",
         "CEW code-development/HVA/usability contracts recorded",
@@ -30,7 +29,7 @@
     {
       "id": "A0-W1-SCOPE-MODEL",
       "owner": "ETW_PLATFORM_IDENTITY_AGENT",
-      "state": "WAITING",
+      "state": "COMPLETE",
       "depends_on": ["A0-W0-CONTRACT-FREEZE"],
       "parallel_group": 1,
       "objective": "Define Project, Discipline, ProjectDisciplineScope and ScopeContext with hard project boundary and fail-closed states.",
@@ -43,36 +42,33 @@
         "N12/Architecture NOT_YET_RELEASED",
         "TEST_PROJECT/Structures TEST_ONLY",
         "missing/unknown/unauthorized scope has no fallback",
-        "no ProjectSourceBinding introduced"
+        "no persisted project/source binding introduced"
       ]
     },
     {
       "id": "A0-W2-INVENTORY-ADAPTER",
       "owner": "ETW_PLATFORM_IDENTITY_AGENT",
-      "state": "WAITING",
+      "state": "COMPLETE",
       "depends_on": ["A0-W0-CONTRACT-FREEZE"],
       "parallel_group": 1,
       "objective": "Implement read-only CEWSourceInventoryAdapter and ScopeInventoryProjection over the existing CEW source registry.",
-      "outputs": [
-        "scripts/etw_cew_source_inventory_adapter.py"
-      ],
+      "outputs": ["scripts/etw_cew_source_inventory_adapter.py"],
       "acceptance": [
-        "TAV-01/TAV-02/TAV-03/TAV-04 derived from registry, not hard-coded",
-        "identity uses ID plus exact source/hash information available in CEW",
+        "architectural sources derived from registry classe=architettonica, not hard-coded IDs",
+        "identity carries exact source/hash information available in CEW",
         "Architecture entity/property count remains zero",
+        "Structures source ownership remains delegated to CEW in A0",
         "adapter performs no write or migration"
       ]
     },
     {
       "id": "A0-W3-SCOPE-RUNTIME",
       "owner": "ETW_PLATFORM_IDENTITY_AGENT",
-      "state": "WAITING",
+      "state": "COMPLETE",
       "depends_on": ["A0-W1-SCOPE-MODEL", "A0-W2-INVENTORY-ADAPTER"],
       "parallel_group": 2,
       "objective": "Implement ScopeContext propagation for route, query, cache, async response handling and deep-link/history restoration.",
-      "outputs": [
-        "scripts/etw_scope_context.py"
-      ],
+      "outputs": ["scripts/etw_scope_context.py"],
       "acceptance": [
         "project_id checked below UI layer",
         "old-scope async responses discarded",
@@ -84,13 +80,11 @@
     {
       "id": "A0-W4-SECURITY-ISOLATION",
       "owner": "ETW_SECURITY_ISOLATION_AGENT",
-      "state": "WAITING",
+      "state": "READY",
       "depends_on": ["A0-W3-SCOPE-RUNTIME"],
       "parallel_group": 3,
       "objective": "Independently attack project/scope isolation and prove fail-closed behavior.",
-      "outputs": [
-        "automation/receipts/etw-platform/ETW-A0-SECURITY-ISOLATION-PREP.json"
-      ],
+      "outputs": ["automation/receipts/etw-platform/ETW-A0-SECURITY-ISOLATION-PREP.json"],
       "acceptance": [
         "N12 -> TEST_PROJECT leakage = false",
         "Structures -> Architecture domain leakage = false",
@@ -101,13 +95,11 @@
     {
       "id": "A0-W5-AUTHORITY-AUDIT",
       "owner": "ETW_AUTHORITY_AUDIT_AGENT",
-      "state": "WAITING",
+      "state": "READY",
       "depends_on": ["A0-W1-SCOPE-MODEL", "A0-W2-INVENTORY-ADAPTER"],
       "parallel_group": 2,
       "objective": "Prove the platform shell does not migrate CEW primitives or reinterpret architectural documents as domain entities.",
-      "outputs": [
-        "automation/receipts/etw-platform/ETW-A0-AUTHORITY-AUDIT-PREP.json"
-      ],
+      "outputs": ["automation/receipts/etw-platform/ETW-A0-AUTHORITY-AUDIT-PREP.json"],
       "acceptance": [
         "CEW authority unchanged",
         "SourceVersion immutable identity unchanged",
@@ -119,13 +111,11 @@
     {
       "id": "A0-W6-HUMAN-FACTORS",
       "owner": "ETW_HUMAN_FACTORS_AGENT",
-      "state": "WAITING",
+      "state": "COMPLETE",
       "depends_on": ["A0-W3-SCOPE-RUNTIME"],
       "parallel_group": 3,
       "objective": "Prepare representative A0 HVA tasks and benchmark metrics without auto-certifying the slice.",
-      "outputs": [
-        "automation/ETW_A0_USABILITY_TASKS_v1.json"
-      ],
+      "outputs": ["automation/ETW_A0_USABILITY_TASKS_v1.json"],
       "acceptance": [
         "user distinguishes ACTIVE/NOT_YET_RELEASED/TEST_ONLY",
         "user understands sources-present/domain-not-released",
@@ -136,7 +126,7 @@
     {
       "id": "A0-W7-INTEGRATED-PREP-GATE",
       "owner": "ETW_PLATFORM_IDENTITY_AGENT",
-      "state": "WAITING",
+      "state": "IN_PROGRESS",
       "depends_on": ["A0-W4-SECURITY-ISOLATION", "A0-W5-AUTHORITY-AUDIT", "A0-W6-HUMAN-FACTORS"],
       "parallel_group": 4,
       "objective": "Run integrated deterministic preparation gates and return PREP_PASS or a blocking result.",
