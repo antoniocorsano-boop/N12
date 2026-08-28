@@ -15,9 +15,10 @@ import cew_source_evidence_workspace as source_workspace
 
 METRICS = ROOT / "automation/CEW_USABILITY_METRICS_MODEL_v1.json"
 PLAN = ROOT / "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json"
+HUMAN_ACCEPTANCE = ROOT / "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json"
 CONTRACT = ROOT / "docs/PRODUCT/CEW_DOCUMENT_DRAWING_WORKSPACE_V1_CONTRACT.md"
-CODE_MODEL = ROOT / "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v1.md"
-HUMAN_MODEL = ROOT / "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v1.md"
+CODE_MODEL = ROOT / "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v2.md"
+HUMAN_MODEL = ROOT / "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v2.md"
 TERMINOLOGY = ROOT / "automation/CEW_TERMINOLOGY_LAYER_v1.json"
 APP = ROOT / "app.py"
 
@@ -35,7 +36,7 @@ def fail(errors: list[str]) -> int:
 
 def main() -> int:
     errors: list[str] = []
-    required = [METRICS, PLAN, CONTRACT, CODE_MODEL, HUMAN_MODEL, TERMINOLOGY, APP]
+    required = [METRICS, PLAN, HUMAN_ACCEPTANCE, CONTRACT, CODE_MODEL, HUMAN_MODEL, TERMINOLOGY, APP]
     for path in required:
         if not path.exists():
             errors.append(f"missing artifact: {path.relative_to(ROOT)}")
@@ -44,6 +45,7 @@ def main() -> int:
 
     metrics = load_json(METRICS)
     plan = load_json(PLAN)
+    human_acceptance = load_json(HUMAN_ACCEPTANCE)
     terminology = load_json(TERMINOLOGY)
     inventory = workspace.inventory()
 
@@ -109,13 +111,25 @@ def main() -> int:
     task_ids = {x["task_id"] for x in metrics.get("initial_cew_b11_tasks", [])}
     if task_ids != {"UX-DOC-01", "UX-DOC-02", "UX-DOC-03", "UX-DOC-04"}:
         errors.append(f"usability task set drift: {sorted(task_ids)}")
+
+    # The foundation validator must validate the foundation without pretending
+    # it is still the active orchestration slice. B1.1/B1.2 are prepared but
+    # explicitly non-promoted; B1.8 owns the current human-acceptance work.
     slices = {x["id"]: x for x in plan.get("slices", [])}
-    if slices.get("B1.1", {}).get("state") != "IN_PROGRESS":
-        errors.append("B1.1 must be the active agent slice")
-    if slices.get("B1.2", {}).get("state") != "WAITING":
-        errors.append("viewer B1.2 must not be represented as already complete")
+    if slices.get("B1.1", {}).get("state") != "PREPARED_BLOCKED_PROMOTION":
+        errors.append("B1.1 must remain technically prepared and blocked from promotion")
+    if slices.get("B1.2", {}).get("state") != "PREPARED_BLOCKED_PROMOTION":
+        errors.append("B1.2 viewer must remain technically prepared and blocked from promotion")
+    if slices.get("B1.8", {}).get("state") != "IN_PROGRESS_DESIGN_REQUIRED":
+        errors.append("B1.8 Human Acceptance v2 must be the current B1 human slice")
+    if slices.get("B1.8", {}).get("contract") != "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json":
+        errors.append("B1.8 must bind the current Human Acceptance v2 contract")
     if "HVA_GATE" not in slices.get("B1.1", {}).get("gates", []):
-        errors.append("B1.1 must require Human/Visual Acceptance")
+        errors.append("B1.1 integrated promotion must still require Human/Visual Acceptance")
+    if "HVA_GATE" not in slices.get("B1.8", {}).get("gates", []):
+        errors.append("B1.8 must require HVA_GATE")
+    if human_acceptance.get("production_promotion_authorized") is not False:
+        errors.append("Human Acceptance v2 design must not authorize Production promotion before execution")
 
     forbidden = ["documenti completi", "progetto completo", "modello completo"]
     combined = (documents_html + drawings_html + drawing_html).lower()
@@ -133,8 +147,10 @@ def main() -> int:
     print(f"TAV05A_EVIDENCE_REGIONS = {tav05['evidence_count'] if tav05 else 0}")
     print("UX_DOC_01 = AUTOMATED_FIXTURE_PASS")
     print("UX_DOC_04 = AUTOMATED_FIXTURE_PASS")
-    print("UX_DOC_02 = HVA_REQUIRED_B1_2")
-    print("UX_DOC_03 = HVA_REQUIRED_B1_2_B1_6")
+    print("B1_1_STATE = PREPARED_BLOCKED_PROMOTION")
+    print("B1_2_STATE = PREPARED_BLOCKED_PROMOTION")
+    print("B1_8_STATE = IN_PROGRESS_DESIGN_REQUIRED")
+    print("HVA_V2 = REQUIRED_NOT_SATISFIED")
     print("CANONICAL_WRITE_AUTHORIZED = false")
     return 0
 
