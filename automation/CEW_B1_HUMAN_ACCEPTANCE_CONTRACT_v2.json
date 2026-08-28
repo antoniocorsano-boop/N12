@@ -1,5 +1,5 @@
 {
-  "schema_version": "2.2",
+  "schema_version": "2.3",
   "contract_id": "CEW_B1_HUMAN_ACCEPTANCE",
   "status": "IMPLEMENTED_CANDIDATE_HVA_PENDING",
   "program_goal": "CEW-GOAL-01",
@@ -44,6 +44,7 @@
       "automatic_observations": [
         "correct_drawing_reached",
         "viewer_rotation_observed_and_reset",
+        "evidence_zoom_and_pan_observed",
         "evidence_macro_context_observed_and_returned_to_micro",
         "revisited_navigation_path"
       ]
@@ -94,13 +95,14 @@
     },
     {
       "task_id": "UX-DOC-03",
-      "participant_prompt_it": "Vuoi verificare da quale parte della tavola deriva questa evidenza. Guarda la tavola completa e poi torna al dettaglio dell’evidenza.",
+      "participant_prompt_it": "Vuoi verificare da quale parte della tavola deriva questa evidenza. Ingrandisci il dettaglio e spostati per controllarlo; poi guarda la tavola completa e torna al dettaglio dell’evidenza.",
       "start_path": "/evidence/review?task=ERW-N12-001",
-      "internal_success_condition": "Within the governed Evidence Workspace, the participant moves from evidence detail to full-page source context and back to the evidence detail using the real MICRO/MACRO controls.",
-      "automatic_success_signal": "SOURCE_SCALE_MACRO_OBSERVED_AND_FINAL_STATE_MICRO",
-      "post_task_mental_model_question_it": "Sei riuscito a vedere la tavola completa e poi a tornare al dettaglio dell’evidenza?",
+      "internal_success_condition": "Within the governed Evidence Workspace, the participant uses zoom and pan to inspect the evidence, moves from detail to full-page source context, and returns to the evidence detail using the real MICRO/MACRO controls.",
+      "automatic_success_signal": "EVIDENCE_ZOOM_PAN_OBSERVED_AND_SOURCE_SCALE_MACRO_OBSERVED_AND_FINAL_STATE_MICRO",
+      "post_task_mental_model_question_it": "Sei riuscito a ispezionare il dettaglio, vedere la tavola completa e poi tornare all’evidenza?",
       "accepted_mental_model": "ROUND_TRIP_UNDERSTOOD",
       "critical_checks": [
+        "evidence_zoom_pan_inspection_success",
         "document_to_evidence_navigation_success",
         "provenance_lookup_success"
       ]
