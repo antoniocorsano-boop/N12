@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "task_id": "CEW-B1.4-INTAKE-VERSIONING",
+  "program_goal": "CEW-GOAL-01",
+  "agent_role": "SOURCE_EVIDENCE_AGENT",
+  "state": "PREP_IN_PROGRESS_BLOCKED_STORAGE_AND_HVA",
+  "depends_on": ["B1.1", "B1.2", "B1.3"],
+  "goal": "Let project users identify duplicates and version relationships for new documents before any bytes leave the device, then stop safely until private storage and human classification are authorized.",
+  "outputs": [
+    "docs/PRODUCT/CEW_DOCUMENT_INTAKE_VERSIONING_V1_CONTRACT.md",
+    "automation/CEW_DOCUMENT_INTAKE_MODEL_v1.json",
+    "scripts/cew_document_intake.py",
+    "scripts/validate_cew_document_intake.py",
+    "/documents/intake",
+    "/api/intake/analyze"
+  ],
+  "required_gates": ["DATA_GATE", "SECURITY_GATE", "HUMAN_GATE", "HUMAN_FACTORS_GATE", "PRODUCTION_SMOKE"],
+  "promotion_blockers": [
+    "B1.1_HVA",
+    "B1.2_HVA",
+    "B1.3_HUMAN_REVIEW_JOURNEY_ACCEPTANCE",
+    "PRIVATE_DOCUMENT_BYTE_STORAGE_NOT_CONFIGURED",
+    "B1.4_HVA_NOT_SATISFIED",
+    "B1.4_PRODUCTION_SMOKE_NOT_SATISFIED"
+  ],
+  "invariants": [
+    "browser computes SHA-256 locally",
+    "metadata-only analysis uploads no document bytes",
+    "exact SHA match is duplicate not new version",
+    "filename similarity never creates source binding",
+    "explicit existing source plus new SHA creates version candidate only",
+    "human source/version decision required",
+    "human document classification required",
+    "immutable SourceVersion is never overwritten",
+    "metadata analysis does not create canonical writes"
+  ],
+  "byte_storage_state": "NOT_CONFIGURED",
+  "promotion_authorized": false,
+  "canonical_write_authorized": false
+}
