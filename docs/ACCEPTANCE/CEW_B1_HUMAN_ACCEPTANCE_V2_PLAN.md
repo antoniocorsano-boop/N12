@@ -15,7 +15,7 @@ B1.8 does not change SourceVersion, Page, PageTransform, EvidenceRegion, enginee
 The acceptance experience is separated into four layers:
 
 1. **Participant** — performs one realistic professional task at a time.
-2. **Observation** — records declared metrics and paths without exposing live test counters.
+2. **Observation** — records declared metrics and product states without exposing live test counters.
 3. **Reviewer** — interprets task evidence, mental models, blockers and usability residuals.
 4. **Receipt** — exports revision-bound HVA evidence only after reviewer action.
 
@@ -26,7 +26,7 @@ The participant is not asked to decide whether B1 passes and does not export gov
 - Participant: `/acceptance/b1`
 - Reviewer: `/acceptance/b1#review`
 
-The reviewer mode is intentionally separate from the participant flow even though both are served by one static application route.
+The reviewer mode is intentionally separate from the participant flow even though both are served by one application route.
 
 ## 4. Representative tasks
 
@@ -34,7 +34,7 @@ The reviewer mode is intentionally separate from the participant flow even thoug
 
 > Devi controllare la carpenteria del IV impalcato. Trova la tavola corretta e aprila.
 
-Internal success signal: the journey reaches governed drawing `TAV-05A` without requiring repository knowledge.
+Internal success signal: the final work context is governed drawing `TAV-05A`, reached without repository knowledge.
 
 ### Task 2 — make the drawing readable
 
@@ -42,11 +42,13 @@ Internal success signal: the journey reaches governed drawing `TAV-05A` without 
 
 The observer checks that a rotated display state was used and that the final display state returns to 0°. After the task the participant is asked whether the original document changed. Accepted mental model: **display/view only**.
 
-### Task 3 — evidence and drawing context
+### Task 3 — evidence and source context
 
-> Vuoi verificare da quale parte della tavola deriva questa evidenza. Apri il contesto della fonte e poi torna all’evidenza.
+> Vuoi verificare da quale parte della tavola deriva questa evidenza. Guarda la tavola completa e poi torna al dettaglio dell’evidenza.
 
-The reference evidence is the governed `ERW-N12-001 -> CEW-N12-REG-G01-R06 -> TAV-05A` chain. The evaluation verifies that the participant understands the source/evidence round trip without needing internal identifiers.
+The reference evidence is the governed `ERW-N12-001 -> CEW-N12-REG-G01-R06 -> TAV-05A` chain.
+
+The test follows the product interaction that actually exists: inside the Evidence Workspace, **MICRO** is the evidence detail and **MACRO** is the complete-page context derived from the same governed Page/Transform/EvidenceRegion chain. Success requires observing MACRO and returning to MICRO. B1.8 does not invent a `/drawings/...` navigation merely to make the test convenient.
 
 ### Task 4 — original vs reading aid
 
@@ -62,8 +64,10 @@ Collected locally for the acceptance session:
 - interaction count;
 - help requests;
 - recovery/backtrack signals;
+- navigation revisit count;
 - navigation path;
 - drawing viewer states;
+- Evidence Workspace source-scale states (`MICRO / MESO / MACRO`);
 - task outcome;
 - ease and confidence;
 - post-task mental-model response;
@@ -104,6 +108,8 @@ Allowed decisions:
 
 If a critical blocker is present, the implementation prevents exporting a PASS decision.
 
+The reviewer also sees that the **manual accessibility gate remains unsatisfied**; HVA does not silently replace it.
+
 ## 9. Receipt boundary
 
 The HVA receipt:
@@ -112,6 +118,7 @@ The HVA receipt:
 - contains the immutable runtime revision and deployment identity;
 - contains task evidence, critical blockers and usability residuals;
 - records the human reviewer and decision;
+- records accessibility as `REQUIRED_NOT_SATISFIED` until separately accepted;
 - requires subsequent same-revision Production smoke;
 - does not authorize canonical writes;
 - has no engineering-authority effect;
@@ -127,6 +134,7 @@ The manual pass must include at least:
 
 - keyboard-only completion of the participant flow;
 - keyboard access to viewer controls used by Task 2;
+- keyboard access to MICRO/MACRO source-context controls used by Task 3;
 - visible focus on interactive controls;
 - usable participant flow at narrow/mobile viewport;
 - labels/questions understandable without relying on colour;
