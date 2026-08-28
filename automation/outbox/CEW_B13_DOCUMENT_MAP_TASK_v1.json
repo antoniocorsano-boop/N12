@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "task_id": "CEW-B1.3-DOCUMENT-MAP",
+  "program_goal": "CEW-GOAL-01",
+  "agent_role": "SOURCE_EVIDENCE_AGENT",
+  "state": "PREP_IN_PROGRESS_BLOCKED_PROMOTION",
+  "depends_on": ["B1.1", "B1.2"],
+  "goal": "Represent what CEW understands about each drawing without turning OCR/vector/AI detections into engineering authority.",
+  "adoption_source": "exp/cew-document-intelligence-foundation-v0",
+  "outputs": [
+    "docs/MIGRATION/CEW_DOCINTEL_V0_ADOPTION_v1.md",
+    "automation/CEW_DOCUMENT_MAP_MODEL_v1.json",
+    "data/canonical/CEW_DOCUMENT_MAP_REGISTRY_v1.json",
+    "automation/CEW_DOCUMENT_FEATURE_CANDIDATES_v1.json",
+    "scripts/cew_document_map.py",
+    "scripts/cew_document_map_page.py"
+  ],
+  "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE", "INTEGRATION_GATE", "HUMAN_FACTORS_GATE"],
+  "promotion_blockers": ["B1.1_HVA", "B1.2_HVA", "B1.3_HUMAN_REVIEW_JOURNEY_NOT_YET_ACCEPTED"],
+  "authority_rules": [
+    "machine detections remain DETECTED/CANDIDATE",
+    "VALIDATED requires human review",
+    "VALIDATED is document-understanding state only",
+    "candidate does not create EvidenceRegion automatically",
+    "DocumentMap does not create structural binding",
+    "DocumentMap does not create DOC or canonical engineering facts",
+    "experimental SQLite store is not Production authority"
+  ],
+  "promotion_authorized": false,
+  "canonical_write_authorized": false
+}
