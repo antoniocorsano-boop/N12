@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "slice_id": "B1.5",
+  "task_id": "CEW-B1.5-MACHINE-CANDIDATES",
+  "decision": "AUTOMATED_GATES_PASS_HUMAN_ACCEPTANCE_REQUIRED",
+  "validated_head_sha": "0b2d3a38a7cc595c156c9110d095c5ebce5c6893",
+  "base_branch": "work/cew-b14-intake-versioning-prep",
+  "base_sha": "3c451cadc1ea2e3ca09fb9e903ffb3b8788b8e2b",
+  "pull_request": 100,
+  "verified_runs": {
+    "machine_document_candidates": 33139873539,
+    "knowledge_system": 33139873498
+  },
+  "preview_deployment": {
+    "status": "SUCCESS",
+    "url": "https://cew-pilot-git-work-cew-b15-ma-353636-antonios-projects-051b8d71.vercel.app",
+    "production_promotion_authorized": false
+  },
+  "reuse": {
+    "document_intelligence": "exp/cew-document-intelligence-foundation-v0",
+    "independent_raster_vector_concordance": "PR-59 exp/vector-concordance-g2-g5"
+  },
+  "verified_behavior": {
+    "tav05a_ready_page_candidate": "PASS",
+    "tav06s_without_current_page": "FAIL_CLOSED_AS_REQUIRED",
+    "machine_validated_allowed": false,
+    "consensus_supported_is_canonical": false,
+    "candidate_creates_evidence_region": false,
+    "candidate_creates_structural_binding": false,
+    "canonical_engineering_promotion": false
+  },
+  "blocking_gates": [
+    "UPSTREAM_B1_HVA",
+    "B1.5_MACHINE_CANDIDATE_REVIEW_HVA",
+    "DETECTOR_EXECUTION_PROVENANCE_FOR_PRODUCTION_NOT_YET_ACCEPTED"
+  ],
+  "slice_complete": false,
+  "promotion_authorized": false,
+  "canonical_write_authorized": false
+}
