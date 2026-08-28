@@ -51,6 +51,7 @@ def main() -> int:
         "addEventListener('keydown'",
         "evidencePointers.size===2",
         "touch-action:none",
+        "evidenceZoomEver?'usato':'non usato'",
         "evidencePanEver?'usato':'non usato'",
         "Zoom ${Math.round(evidenceZoom*100)}%",
         "rotateEvidence",
@@ -74,8 +75,8 @@ def main() -> int:
     require(text, "La revisione non è una scrittura canonica")
 
     print("CEW_EVIDENCE_VIEWER_INTERACTION = PASS")
-    print("ZOOM = AVAILABLE")
-    print("PAN_POINTER = AVAILABLE")
+    print("ZOOM = AVAILABLE_AND_OBSERVABLE")
+    print("PAN_POINTER = AVAILABLE_AND_OBSERVABLE")
     print("PINCH_TOUCH = AVAILABLE")
     print("WHEEL_TRACKPAD = AVAILABLE")
     print("KEYBOARD = AVAILABLE")
