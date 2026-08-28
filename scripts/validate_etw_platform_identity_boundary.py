@@ -20,6 +20,8 @@ SCOPE_MODEL = ROOT / "automation/ETW_PLATFORM_SCOPE_MODEL_v1.json"
 USABILITY = ROOT / "automation/ETW_A0_USABILITY_TASKS_v1.json"
 IDENTITY_CONTRACT = ROOT / "docs/ARCHITECTURE/ETW_PLATFORM_IDENTITY_BOUNDARY_v1.md"
 WORK_PACKAGE = ROOT / "automation/ETW_A0_WORK_PACKAGE_v1.json"
+QUEUE = ROOT / "automation/ETW_DEVELOPMENT_QUEUE_v1.json"
+PREP_RECEIPT = ROOT / "automation/receipts/etw-platform/ETW-A0-PREP-PASS_v1.json"
 SOURCE_REGISTRY = ROOT / "data/canonical/tavole_originali_remote_index_v1.csv"
 
 
@@ -44,7 +46,7 @@ def fail(errors: list[str]) -> int:
 
 def main() -> int:
     errors: list[str] = []
-    for path in [BASELINE, SCOPE_MODEL, USABILITY, IDENTITY_CONTRACT, WORK_PACKAGE, SOURCE_REGISTRY]:
+    for path in [BASELINE, SCOPE_MODEL, USABILITY, IDENTITY_CONTRACT, WORK_PACKAGE, QUEUE, SOURCE_REGISTRY]:
         if not path.exists():
             errors.append(f"missing A0 artifact: {path.relative_to(ROOT)}")
     if errors:
@@ -53,6 +55,7 @@ def main() -> int:
     baseline = load_json(BASELINE)
     model = load_json(SCOPE_MODEL)
     usability = load_json(USABILITY)
+    queue = load_json(QUEUE)
 
     # W0 / DATA_GATE — frozen contract files still match their recorded content identities.
     for contract in baseline.get("contracts", []):
@@ -154,14 +157,33 @@ def main() -> int:
         if metric not in non_compensable:
             errors.append(f"Human Factors missing non-compensable safety metric {metric}")
 
-    # Orchestrator boundary — PREP cannot release A1.
+    # Orchestrator boundary — supports both pre-ingest and persisted PREP_PASS states.
+    by_id = {item["id"]: item for item in queue.get("items", [])}
+    a0 = by_id.get("ETW-A0", {})
+    a1 = by_id.get("ETW-A1", {})
     status_raw = subprocess.check_output([sys.executable, "scripts/etw_orchestrator.py", "status"], cwd=ROOT, text=True)
     status = json.loads(status_raw)
-    selected = status.get("selected_work_item") or {}
-    if selected.get("id") != "ETW-A0" or status.get("selection_reason") != "PREP_ONLY":
-        errors.append("orchestrator is not selecting ETW-A0 PREP_ONLY")
-    if "CEW_PROMOTED_BASELINE" not in status.get("promotion_blockers", []):
-        errors.append("orchestrator lost CEW promoted baseline blocker")
+    a0_state = a0.get("state")
+
+    if a0_state == "PREP_ONLY":
+        selected = status.get("selected_work_item") or {}
+        if selected.get("id") != "ETW-A0" or status.get("selection_reason") != "PREP_ONLY":
+            errors.append("orchestrator is not selecting ETW-A0 PREP_ONLY")
+        if "CEW_PROMOTED_BASELINE" not in status.get("promotion_blockers", []):
+            errors.append("orchestrator lost CEW promoted baseline blocker")
+    elif a0_state == "PREPARED_BLOCKED_PROMOTION":
+        if not PREP_RECEIPT.exists():
+            errors.append("persisted A0 PREP_PASS state is missing its receipt")
+        if a0.get("preparation_decision") != "PREP_PASS":
+            errors.append("persisted A0 state is missing PREP_PASS decision")
+        if "CEW_PROMOTED_BASELINE" not in a0.get("promotion_blockers", []):
+            errors.append("persisted A0 state lost CEW promoted baseline blocker")
+        if a1.get("state") != "WAITING":
+            errors.append("ETW-A1 was released before A0 promotion")
+        if status.get("decision") != "BLOCKED_DEPENDENCY" or status.get("selected_work_item") is not None:
+            errors.append("orchestrator should stop with no selected item after persisted A0 PREP_PASS")
+    else:
+        errors.append(f"unexpected ETW-A0 preparation state: {a0_state}")
 
     if errors:
         return fail(errors)
@@ -177,6 +199,7 @@ def main() -> int:
     print("TEST_PROJECT_SOURCE_COUNT = 0")
     print("CROSS_PROJECT_LEAKAGE = false")
     print("CROSS_DISCIPLINE_LEAKAGE = false")
+    print(f"PERSISTED_A0_STATE = {a0_state}")
     print("HUMAN_FACTORS_GATE = PREPARED_NOT_EXECUTED")
     print("HVA_GATE = NOT_SATISFIED")
     print("PRODUCTION_SMOKE = NOT_SATISFIED")
