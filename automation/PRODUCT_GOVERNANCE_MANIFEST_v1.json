@@ -1,16 +1,18 @@
 {
-  "schema_version": "1.4",
+  "schema_version": "1.5",
   "manifest_id": "PRODUCT_GOVERNANCE_MANIFEST",
   "status": "CANONICAL",
   "updated": "2026-08-28",
-  "purpose": "Machine-readable authority map for product, development, human-evidence and documentation governance across CEW and eTwin.",
+  "purpose": "Machine-readable authority map for product, development, human-evidence, deployment and documentation governance across CEW and eTwin.",
   "repository_governance": {
     "operating_model": "docs/GOVERNANCE/AI_NATIVE_PRODUCT_AGENCY_OPERATING_MODEL_v1.md",
     "documentation_authority_model": "docs/GOVERNANCE/DOCUMENTATION_AUTHORITY_MODEL_v1.md",
     "product_family_capability_map": "docs/GOVERNANCE/CEW_ETWIN_PRODUCT_FAMILY_CAPABILITY_MAP_v1.md",
     "documentation_index": "docs/README.md",
     "agent_operating_contract": "automation/AI_NATIVE_AGENT_OPERATING_CONTRACT_v1.json",
-    "product_decision_register": "automation/PRODUCT_DECISION_REGISTER_v1.json"
+    "product_decision_register": "automation/PRODUCT_DECISION_REGISTER_v1.json",
+    "cew_vercel_deploy_policy": "automation/CEW_VERCEL_DEPLOY_POLICY_v1.json",
+    "cew_vercel_deploy_policy_doc": "docs/GOVERNANCE/CEW_VERCEL_CANDIDATE_DEPLOY_POLICY_v1.md"
   },
   "current_models": {
     "cew_development_model": "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v2.md",
@@ -82,7 +84,8 @@
     "ci_implies_human_acceptance": false,
     "production_implies_canonical_authority": false,
     "human_observation_may_be_lossily_normalized": false,
-    "participant_may_self_approve_release": false
+    "participant_may_self_approve_release": false,
+    "git_push_implies_vercel_preview": false
   },
   "required_agent_read_order": [
     "automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json",
@@ -90,6 +93,7 @@
     "repository_governance.documentation_authority_model",
     "repository_governance.product_family_capability_map",
     "repository_governance.agent_operating_contract",
+    "repository_governance.cew_vercel_deploy_policy",
     "relevant current_models product/programme contract",
     "relevant current_state state/queue",
     "applicable capability contract",
