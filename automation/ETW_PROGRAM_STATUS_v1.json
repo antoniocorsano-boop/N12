@@ -26,5 +26,5 @@
   "current_promotion_program": "docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v2.md",
   "current_promotion_orchestration": "docs/PROGRAM/ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v2.md",
   "governance_manifest": "automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json",
-  "next_admissible_program_action": "Complete CEW B1 Human Acceptance v2 and CEW promotion; freeze CEW_PROMOTED_BASELINE; then revalidate ETW-A0 before APPPROVE_PLATFORM_BOUNDARY and ETW-A1 release."
+  "next_admissible_program_action": "Complete CEW B1 Human Acceptance v2 and CEW promotion; freeze CEW_PROMOTED_BASELINE; then revalidate ETW-A0 before APPROVE_PLATFORM_BOUNDARY and ETW-A1 release."
 }
