@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "work_item_id": "ETW-A0",
+  "owner": "ETW_PLATFORM_IDENTITY_AGENT",
+  "support_agents": [
+    {
+      "role": "ETW_SECURITY_ISOLATION_AGENT",
+      "focus": ["cross_project_leakage", "cross_discipline_leakage", "route/query/cache/async isolation", "fail-closed invalid scope"]
+    },
+    {
+      "role": "ETW_HUMAN_FACTORS_AGENT",
+      "focus": ["scope comprehension", "ACTIVE vs NOT_YET_RELEASED vs TEST_ONLY", "false success", "deep-link task usability"]
+    },
+    {
+      "role": "ETW_AUTHORITY_AUDIT_AGENT",
+      "focus": ["read-only CEWSourceInventoryAdapter", "no primitive migration", "document available != interpreted domain", "source count provenance"]
+    },
+    {
+      "role": "ETW_CONTRACT_COMPATIBILITY_AGENT",
+      "focus": ["frozen CEW contract baseline", "adapter compatibility", "baseline drift detection", "promoted-baseline reconciliation"]
+    }
+  ],
+  "promotion_effect": "NONE",
+  "owner_expected_decision_before_cew_promotion": "PREP_PASS"
+}
