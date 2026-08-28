@@ -91,7 +91,7 @@ def healthz():
         "document_map": "B13_PREP_AVAILABLE_NOT_PROMOTED",
         "document_intake": "B14_METADATA_ONLY_PREP_AVAILABLE_NOT_PROMOTED",
         "document_byte_storage": "NOT_CONFIGURED",
-        "b1_acceptance_lab": "B17_PREP_AVAILABLE_NOT_PROMOTED",
+        "b1_acceptance_lab": "B18_IMPLEMENTED_CANDIDATE_HVA_PENDING",
         "source_workspace": "B1_AVAILABLE",
         "source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED",
         "canonical_write_authorized": False,
