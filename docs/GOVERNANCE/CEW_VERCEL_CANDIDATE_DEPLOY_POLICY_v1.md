@@ -7,13 +7,11 @@ Machine contract: `automation/CEW_VERCEL_DEPLOY_POLICY_v1.json`
 
 ## 1. Problem
 
-Vercel Hobby limits deployments within a rolling/free-plan quota. The previous Git integration created a Preview deployment for each qualifying Git push/PR revision. In an AI-native development loop this couples implementation frequency to hosting consumption and can exhaust the deployment quota before a human-acceptance candidate exists.
-
-This is the wrong lifecycle relationship.
+Vercel Hobby limits deployments within its free-plan quota. The previous Git integration created a Preview deployment for each qualifying Git push/PR revision. In an AI-native development loop this couples implementation frequency to hosting consumption and can exhaust the deployment quota before a human-acceptance candidate exists.
 
 The desired chain is:
 
-`WORKING COMMITS -> GITHUB GATES -> IMMUTABLE CANDIDATE -> ONE VERCEL PREVIEW -> HUMAN EVALUATION`
+`WORKING COMMITS -> GITHUB GATES -> IMMUTABLE CANDIDATE -> GATED PREVIEW REF -> ONE VERCEL PREVIEW -> HUMAN EVALUATION`
 
 not:
 
@@ -21,100 +19,150 @@ not:
 
 ## 2. Decision
 
-Automatic Vercel Git deployments are disabled in `vercel.json`:
+The Vercel Git Integration remains connected, but ordinary branches are disabled in `vercel.json`:
 
-`git.deploymentEnabled = false`
+```json
+"git": {
+  "deploymentEnabled": {
+    "**": false,
+    "vercel-preview/**": true
+  }
+}
+```
 
-A Vercel deployment is instead created by the controlled GitHub Actions workflow:
+Only refs whose name matches `vercel-preview/**` may cause an automatic Vercel deployment.
+
+GitHub Actions creates such a ref **only after** the exact candidate SHA satisfies the declared same-SHA gate set.
+
+Therefore Vercel still performs the deployment through the existing Git Integration, but it never sees ordinary working branches as deployable candidates.
+
+## 3. Why the preview ref is safe
+
+The preview branch is only a Git reference. It does not create a new commit.
+
+Example:
+
+`vercel-preview/b341bcb53f23-r1 -> b341bcb53f23e8b9d0e8653596b98cec2f5be0e3`
+
+The source revision deployed by Vercel is therefore exactly the already-validated SHA.
+
+The ref does not:
+
+- rewrite history;
+- change the candidate;
+- create engineering authority;
+- satisfy HVA;
+- promote B1.
+
+## 4. Candidate rules
+
+Before a gated preview ref may be created:
+
+1. the candidate must be a full immutable SHA;
+2. the SHA must be the head of an open pull request;
+3. every workflow listed in `CEW_VERCEL_DEPLOY_POLICY_v1.json` must have its latest same-SHA run at `completed/success`;
+4. the generated ref must point to that exact SHA;
+5. the first automatic generation is `r1`;
+6. repeated workflow triggers for the same SHA/generation are idempotent and do not create another push.
+
+The GitHub workflow persists a commit status:
+
+`CEW/Vercel Candidate Trigger`
+
+when the candidate ref has been admitted.
+
+The Vercel integration then supplies its own deployment status on the same commit.
+
+## 5. Automatic trigger
+
+The workflow:
 
 `.github/workflows/deploy-cew-vercel-candidate.yml`
 
-The workflow checks out an **exact immutable SHA**, verifies the declared GitHub gates on that same SHA and deploys only after the candidate gate is green.
+listens for completion of selected late CEW gates.
 
-## 3. Preview rules
+Every invocation re-checks the complete required gate list. If the set is not fully green, the workflow exits without creating a Vercel ref.
 
-A Preview candidate must satisfy all of the following:
+When the complete gate set becomes green, the deterministic `r1` ref is created once.
 
-1. SHA is a full immutable Git commit SHA;
-2. SHA is the head of an open pull request;
-3. all workflows listed in `CEW_VERCEL_DEPLOY_POLICY_v1.json` have a latest same-SHA run with `completed/success`;
-4. there is no already-successful `CEW/Vercel Candidate Preview` status for that SHA;
-5. CI has access to the Vercel credential through GitHub Actions secret `VERCEL_TOKEN`;
-6. the deployment targets `cew-pilot` under scope `antonios-projects-051b8d71`.
+This converts many intermediate commits into **zero Vercel deployments** and normally converts one accepted technical candidate into **one Preview deployment**.
 
-The Preview status is persisted on the commit as:
+## 6. Manual retry without changing candidate SHA
 
-`CEW/Vercel Candidate Preview`.
+The workflow also supports `workflow_dispatch` with:
 
-This status is deployment evidence only. It does not satisfy HVA, accessibility, engineering authority or product promotion.
+- `candidate_sha`;
+- `retry_generation`.
 
-## 4. Automatic trigger
+This is used only for operational recovery, for example after Vercel returns a temporary quota/rate-limit error.
 
-The candidate-deploy workflow listens for completion of selected late/aggregate CEW gates. Every invocation re-checks the full required gate list.
+A retry uses a new technical ref such as:
 
-Therefore an early trigger exits without deployment while other required gates are still incomplete. Once the same SHA has the full green set, one controlled Preview may be emitted.
+`vercel-preview/<same-sha>-r2`
 
-A SHA-scoped GitHub Actions concurrency group plus the commit deployment status prevent repeated deployments of the same accepted candidate.
+while still pointing to the **same immutable candidate SHA**.
 
-## 5. Manual trigger
+Therefore a hosting retry does not invalidate the GitHub gate evidence and does not require a code change merely to obtain a new Preview attempt.
 
-The same workflow supports `workflow_dispatch` for an explicitly supplied `candidate_sha`.
+## 7. Credentials
 
-This does **not** bypass the Preview gate: Preview mode still requires an open PR head and the complete declared same-SHA gate set.
+No Vercel token is required.
 
-Manual dispatch exists for operational recovery, for example after an external Vercel quota reset, without requiring a new Git commit and therefore without invalidating the candidate's automated evidence.
+The controlled workflow only creates a Git ref using the built-in GitHub Actions token. The existing Vercel Git Integration performs the deployment.
 
-## 6. Production boundary
+Consequences:
 
-Disabling Git auto-deploy also deliberately removes automatic Production publication from Git pushes.
+- no `VERCEL_TOKEN` repository secret;
+- no Vercel credential in files, logs or comments;
+- no duplicated deployment credential lifecycle;
+- the existing Vercel/GitHub trust boundary remains the deployment mechanism.
 
-Production may be requested only through controlled dispatch and only when:
+## 8. Production boundary
 
-- `automation/CEW_PROMOTED_BASELINE_v1.json` exists;
-- the requested SHA is explicitly contained in that promoted-baseline artifact;
-- the deployment is manually requested as `production`.
+This policy deliberately governs **Preview candidates only**.
 
-Until CEW promotion creates that baseline artifact, the workflow fails closed for Production.
+Ordinary Git branches, including development and product programme branches, remain disabled from automatic Vercel deployment by the catch-all `"**": false` rule.
 
-This preserves:
+Production is **not** re-enabled by this policy. A future Production mechanism must remain downstream of:
+
+`HVA -> accessibility -> B1 promotion -> CEW_PROMOTED_BASELINE`
+
+and must have its own explicit production-deployment contract.
+
+Thus:
 
 `Preview != HVA != Production != canonical engineering authority`.
 
-## 7. Credential boundary
+## 9. Existing Production
 
-The repository never stores a Vercel token.
+Adopting this policy does not remove or modify any already-running Production deployment. It changes only which future Git refs are admitted to create deployments.
 
-One GitHub Actions secret is required:
+## 10. Quota effect
 
-`VERCEL_TOKEN`
+Under the new model:
 
-The secret must be configured in repository Actions secrets. Missing credentials cause the workflow to stop before deployment.
+- ordinary working commit: **0 Vercel deployments**;
+- additional commit before all gates green: **0 Vercel deployments**;
+- first green candidate: normally **1 Preview**;
+- external quota failure: no code change; after quota reset an explicit `r2` retry may create **1 additional Preview attempt**;
+- actual product rework: new SHA, new gate set, new candidate Preview.
 
-The project and scope identifiers are non-secret deployment configuration and remain declared in the machine policy.
+This aligns hosting consumption with product maturity instead of coding frequency.
 
-## 8. Existing Production
+## 11. Current B1.8 candidate
 
-Adopting this policy does not delete or modify an existing Production deployment. It changes only the creation path for **future** deployments.
+The already-frozen B1.8 candidate `b341bcb53f23e8b9d0e8653596b98cec2f5be0e3` predates this policy, so its own `vercel.json` still permits ordinary Git integration behavior.
 
-## 9. Quota effect
+The default-branch orchestrator is designed to support explicit retry of that same SHA after quota reset without creating a new commit. Future candidates created from the policy-admitted CEW baseline will automatically inherit the gated-branch rules.
 
-With this model, ten or twenty commits inside one slice consume GitHub CI but normally consume **zero Vercel deployments** until a green immutable candidate emerges.
-
-A candidate should normally consume:
-
-- one Preview deployment for HVA;
-- later, one Production deployment after promotion.
-
-New deployments caused by actual rework are deliberate because the candidate SHA has changed and the acceptance evidence must be regenerated.
-
-## 10. Stop rules
+## 12. Stop rules
 
 Never:
 
-- re-enable automatic Git previews merely to obtain a convenient URL;
-- deploy a SHA whose declared candidate gates are not all green;
-- create another Preview for a SHA that already has successful candidate deployment evidence;
-- change the SHA only to work around a hosting quota;
-- use an older deployment as evidence for a newer candidate;
-- deploy Production without the promoted-baseline boundary;
-- store `VERCEL_TOKEN` in repository files, comments or logs.
+- re-enable ordinary branch previews merely for convenience;
+- create a `vercel-preview/**` ref before the same-SHA gate set is green;
+- point a candidate ref at a different SHA than the accepted candidate;
+- change code merely to retry a hosting quota failure;
+- use an older deployment as evidence for a newer SHA;
+- interpret a Vercel deployment as HVA or product promotion;
+- use this Preview policy to bypass the future Production promotion boundary.
