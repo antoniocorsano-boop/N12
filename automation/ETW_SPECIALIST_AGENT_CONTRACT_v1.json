@@ -1,0 +1,144 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "ETW_SPECIALIST_AGENT_EXECUTION",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "program_plan": "docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md",
+  "queue": "automation/ETW_DEVELOPMENT_QUEUE_v1.json",
+  "result_contract": "automation/ETW_AGENT_RESULT_CONTRACT_v1.json",
+  "orchestrator": "scripts/etw_orchestrator.py",
+  "max_promotion_work_items_active": 1,
+  "max_work_items_per_agent_result": 1,
+  "parallel_preparation_allowed": true,
+  "promotion_policy": "SERIALIZED_BY_ETW_ORCHESTRATOR",
+  "external_authorities": {
+    "cew_product_state": "data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json",
+    "n12_engineering_state": "knowledge/CURRENT_STATE.json",
+    "cew_promoted_baseline": "EXTERNAL_REQUIRED_DEPENDENCY_FOR_ETW_A0_COMPLETION"
+  },
+  "promotion_owner_roles": {
+    "ETW_PLATFORM_IDENTITY_AGENT": {
+      "owns": ["ETW-A0"],
+      "goal": "Establish Project/Discipline/ScopeContext and fail-closed multi-project isolation over a frozen CEW contract baseline.",
+      "forbidden": [
+        "creating ProjectSourceBinding in A0",
+        "promoting A0 before CEW_PROMOTED_BASELINE",
+        "hard-coding the architectural source count",
+        "implicit fallback to N12",
+        "creating ArchitecturalEntity before A3"
+      ]
+    },
+    "ETW_SOURCE_SCOPE_AGENT": {
+      "owns": ["ETW-A1"],
+      "goal": "Materialize idempotent project-scoped source bindings without changing SourceVersion identity or F1/F2 history.",
+      "forbidden": [
+        "binding by latest",
+        "duplicating SourceVersion",
+        "independent contradictory scope for derived Page/DocumentMap/EvidenceRegion",
+        "inventing common or unclassified N12 sources"
+      ]
+    },
+    "ETW_PORTFOLIO_HUMAN_FACTORS_AGENT": {
+      "owns": ["ETW-A2"],
+      "goal": "Deliver a portfolio and scope-switching journey understandable without repository knowledge and measurable with CEW/GOV.UK metrics.",
+      "forbidden": [
+        "treating NOT_YET_RELEASED as empty/no-source",
+        "masking TEST_ONLY state",
+        "using visual polish as HVA evidence",
+        "accepting false success"
+      ]
+    },
+    "ETW_CROSS_DISCIPLINE_AGENT": {
+      "owns": ["ETW-A3"],
+      "goal": "Release one evidence-backed Architecture vertical and explicit CrossDisciplineRelation without identity conflation.",
+      "forbidden": [
+        "global Architecture ingestion in A3",
+        "matching TAV-02 by label only",
+        "geometry implies identity",
+        "source DOC implies entity DOC",
+        "review admission upgrades epistemic state"
+      ]
+    },
+    "ETW_PROPERTY_ASSERTION_AGENT": {
+      "owns": ["ETW-A4"],
+      "goal": "Model property genealogy and relation-based compare without collapsing competing assertions into one authoritative active value.",
+      "forbidden": [
+        "last-write-wins property truth",
+        "deleting competing assertions",
+        "resolved projection presented as documentary truth",
+        "relation interpreted as identity"
+      ]
+    },
+    "ETW_DECISION_AUTHORITY_AGENT": {
+      "owns": ["ETW-A5"],
+      "goal": "Expose one real CEW Level-C decision vertical with explicit HUMAN_AUTHORITY_REQUIRED and append-only audit.",
+      "forbidden": [
+        "auto-completing Level C",
+        "UI canonical write",
+        "inventing professional decisions",
+        "creating a competing eTwin lifecycle"
+      ]
+    },
+    "ETW_MULTIDISCIPLINARY_VIEWER_AGENT": {
+      "owns": ["ETW-A6"],
+      "goal": "Visualize only governed entities, relations, assertions and evidence without creating semantic authority.",
+      "forbidden": [
+        "viewer creates identity",
+        "placeholder geometry presented as verified engineering truth",
+        "colour-only semantics",
+        "absorbing global Production Acceptance into A6"
+      ]
+    },
+    "ETW_QA_ASSURANCE_AGENT": {
+      "owns": ["ETW-Z0"],
+      "goal": "Perform frozen-candidate platform acceptance without functional fixes or artificial advancement of N12.",
+      "forbidden": [
+        "functional fixes in Z0",
+        "persisting TEST_ONLY lifecycle fixtures as N12 history",
+        "claiming nonexistent human receipts",
+        "compensating safety failure with efficiency metrics"
+      ]
+    }
+  },
+  "support_agent_roles": {
+    "ETW_SECURITY_ISOLATION_AGENT": {
+      "goal": "Independently test project/scope authorization, route/query/cache/async isolation and fail-closed behaviour.",
+      "may_promote": false
+    },
+    "ETW_HUMAN_FACTORS_AGENT": {
+      "goal": "Design and run representative HVA/usability tasks using the existing CEW/GOV.UK metrics contract.",
+      "may_promote": false
+    },
+    "ETW_AUTHORITY_AUDIT_AGENT": {
+      "goal": "Check CEW/eTwin authority boundaries, baseline reconciliation, SourceVersion lineage and append-only decision provenance.",
+      "may_promote": false
+    },
+    "ETW_CONTRACT_COMPATIBILITY_AGENT": {
+      "goal": "Detect drift between the frozen CEW contract baseline, promoted CEW baseline and the eTwin adapter contract.",
+      "may_promote": false
+    }
+  },
+  "allowed_result_decisions": [
+    "PREP_PASS",
+    "PASS",
+    "PASS_WITH_WATCH",
+    "RESIDUAL",
+    "BLOCKED",
+    "CONFLICT",
+    "HUMAN_AUTHORITY_REQUIRED"
+  ],
+  "global_invariants": [
+    "ETWIN_DOES_NOT_REPLACE_CEW_AUTHORITY",
+    "PROJECT_ID_IS_A_HARD_DATA_AND_API_BOUNDARY",
+    "DISCIPLINE_CONTEXT_DOES_NOT_TRANSFER_DOMAIN_TRUTH",
+    "SOURCEVERSION_IDENTITY_REMAINS_IMMUTABLE_AND_PROJECT_INDEPENDENT",
+    "DERIVED_OBJECT_SCOPE_MUST_MATCH_SOURCE_LINEAGE",
+    "SPATIAL_COINCIDENCE_DOES_NOT_CREATE_IDENTITY",
+    "SOURCE_DOC_DOES_NOT_PROMOTE_ENTITY_OR_PROPERTY_DOC",
+    "WORKFLOW_ADMISSION_DOES_NOT_PROMOTE_EPISTEMIC_STATE",
+    "LEVEL_C_REQUIRES_HUMAN_AUTHORITY",
+    "SNAPSHOT_OR_READMODEL_IS_NEVER_AUTHORITY",
+    "CRITICAL_SAFETY_METRIC_FAILURE_IS_NON_COMPENSABLE",
+    "Z0_CONTAINS_NO_FUNCTIONAL_FIXES",
+    "TEST_ONLY_FIXTURES_NEVER_ENTER_N12_ENGINEERING_HISTORY"
+  ]
+}
