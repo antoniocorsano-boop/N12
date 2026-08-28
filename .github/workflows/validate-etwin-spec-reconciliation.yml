@@ -1,0 +1,82 @@
+name: Validate eTwin Spec Reconciliation
+
+on:
+  push:
+    branches:
+      - 'docs/etwin-spec-reconciliation-*'
+    paths:
+      - 'docs/AUDIT/ETWIN_*'
+      - 'docs/DECISIONI/ETWIN_SPEC_*'
+      - 'docs/PROGRAM/ETWIN_SPEC_RECONCILIATION_*'
+      - 'docs/ACCEPTANCE/ETWIN_PLATFORM_RED_TEAM_*'
+      - 'automation/PRODUCT_DECISION_REGISTER_v1.json'
+      - 'automation/ETW_PROGRAM_MANIFEST_v1.json'
+      - 'scripts/validate_product_governance.py'
+      - '.github/workflows/validate-product-governance.yml'
+      - '.github/workflows/validate-etwin-spec-reconciliation.yml'
+  pull_request:
+    paths:
+      - 'docs/AUDIT/ETWIN_*'
+      - 'docs/DECISIONI/ETWIN_SPEC_*'
+      - 'docs/PROGRAM/ETWIN_SPEC_RECONCILIATION_*'
+      - 'docs/ACCEPTANCE/ETWIN_PLATFORM_RED_TEAM_*'
+      - 'automation/PRODUCT_DECISION_REGISTER_v1.json'
+      - 'automation/ETW_PROGRAM_MANIFEST_v1.json'
+      - 'scripts/validate_product_governance.py'
+      - '.github/workflows/validate-product-governance.yml'
+      - '.github/workflows/validate-etwin-spec-reconciliation.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-reconciliation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate Python syntax
+        run: |
+          python -m py_compile scripts/validate_product_governance.py
+          python -m py_compile scripts/etw_orchestrator.py
+
+      - name: Validate cross-product governance
+        run: python scripts/validate_product_governance.py
+
+      - name: Validate eTwin orchestrator contracts
+        run: python scripts/etw_orchestrator.py validate
+
+      - name: Assert reconciliation is non-promotive
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('.')
+          etw = json.loads((root/'automation/ETW_PROGRAM_MANIFEST_v1.json').read_text())
+          decisions = json.loads((root/'automation/PRODUCT_DECISION_REGISTER_v1.json').read_text())
+
+          assert etw['schema_version'] == '1.1'
+          assert etw['current_slice'] == 'ETW-A0'
+          assert etw['current_execution_mode'] == 'PREP_ONLY'
+          assert etw['promotion_authorized'] is False
+          assert etw['promotion_blocker'] == 'CEW_PROMOTED_BASELINE'
+          assert etw['cew_promoted_baseline_sha'] is None
+          assert etw['a0_revalidation_required_before_promotion'] is True
+          assert etw['engineering_authority_unchanged'] is True
+
+          recon = etw['spec_reconciliation']
+          assert recon['discovery_branch_is_current_l1'] is False
+          assert recon['parallel_platform_lifecycle_created'] is False
+          assert recon['a0_z0_sequence_unchanged'] is True
+
+          by_id = {d['decision_id']: d for d in decisions['decisions']}
+          assert by_id['ETWIN-SPEC-001']['state'] == 'ACCEPTED'
+
+          q = json.loads((root/'automation/ETW_DEVELOPMENT_QUEUE_v1.json').read_text())
+          a1 = next(x for x in q['items'] if x['id'] == 'ETW-A1')
+          assert a1['state'] == 'WAITING'
+
+          print('ETWIN_SPEC_RECONCILIATION_PASS')
+          PY
