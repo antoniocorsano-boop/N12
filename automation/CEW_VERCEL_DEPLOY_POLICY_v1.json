@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.1",
+  "policy_id": "CEW_VERCEL_DEPLOY_POLICY",
+  "status": "REQUIRED",
+  "provider": "VERCEL",
+  "project_slug": "cew-pilot",
+  "team_slug": "antonios-projects-051b8d71",
+  "git_integration": "ENABLED_FOR_GATED_BRANCHES_ONLY",
+  "automatic_branch_rules": {
+    "**": false,
+    "vercel-preview/**": true
+  },
+  "preview_mode": "GATED_CANDIDATE_REF_ONLY",
+  "candidate_ref_prefix": "vercel-preview/",
+  "preview_required_workflows": [
+    "Validate CEW B1 Human Acceptance v2",
+    "Validate Product Governance",
+    "Validate CEW Product Transformation",
+    "Validate CEW Document Drawing Foundation",
+    "Validate CEW Drawing Viewer",
+    "Validate CEW Document Map",
+    "Validate CEW Document Intake",
+    "Validate CEW Source Evidence Journey",
+    "Validate CEW Evidence Region Pack",
+    "Validate CEW Existing Assessment Engine",
+    "Validate CEW Neon User Runtime",
+    "Validate CEW B1 Production Runtime",
+    "Validate CEW User Web Pilot",
+    "Validate CEW Control Room",
+    "Validate CEW Evidence Map",
+    "Validate CEW Netlify Audit",
+    "Validate N12 Knowledge System"
+  ],
+  "candidate_rules": {
+    "immutable_sha_required": true,
+    "open_pull_request_head_required": true,
+    "all_required_workflows_success": true,
+    "preview_ref_must_point_to_exact_candidate_sha": true,
+    "automatic_first_generation": 1,
+    "manual_retry_may_increment_generation_without_changing_sha": true,
+    "deployment_does_not_imply_hva": true,
+    "deployment_does_not_imply_promotion": true
+  },
+  "credentials": {
+    "vercel_token_required": false,
+    "github_token_source": "GITHUB_ACTIONS_BUILT_IN_TOKEN",
+    "repository_secret_required": false
+  },
+  "production_rules": {
+    "automatic_git_production_deploy": false,
+    "production_not_implemented_by_candidate_ref_policy": true,
+    "cew_promoted_baseline_required_before_any_future_production_deploy": true
+  },
+  "notes": [
+    "Ordinary branches match ** = false and therefore do not trigger Vercel deployments.",
+    "Only vercel-preview/** refs are admitted by Vercel Git Integration.",
+    "GitHub Actions creates the admitted preview ref only after all declared same-SHA gates are green.",
+    "The preview ref points to the exact candidate commit, so the deployed source revision is identical to the validated revision.",
+    "No Vercel credential is stored or required in GitHub because the existing Vercel Git Integration performs the actual deployment.",
+    "Production remains a separate promotion concern and is not re-enabled by this policy."
+  ]
+}

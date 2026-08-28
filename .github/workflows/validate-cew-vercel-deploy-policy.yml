@@ -1,0 +1,29 @@
+name: Validate CEW Vercel Deploy Policy
+
+on:
+  pull_request:
+    paths:
+      - 'vercel.json'
+      - 'automation/CEW_VERCEL_DEPLOY_POLICY_v1.json'
+      - 'automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json'
+      - 'docs/GOVERNANCE/CEW_VERCEL_CANDIDATE_DEPLOY_POLICY_v1.md'
+      - 'scripts/check_cew_vercel_candidate_runs.py'
+      - 'scripts/validate_cew_vercel_deploy_policy.py'
+      - '.github/workflows/deploy-cew-vercel-candidate.yml'
+      - '.github/workflows/validate-cew-vercel-deploy-policy.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-vercel-deploy-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate Python syntax
+        run: |
+          python -m py_compile scripts/check_cew_vercel_candidate_runs.py
+          python -m py_compile scripts/validate_cew_vercel_deploy_policy.py
+      - name: Validate Vercel deployment governance
+        run: python scripts/validate_cew_vercel_deploy_policy.py
