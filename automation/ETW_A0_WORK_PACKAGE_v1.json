@@ -1,0 +1,168 @@
+{
+  "schema_version": "1.0",
+  "work_package_id": "ETW_A0_PLATFORM_IDENTITY_PREP",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "slice_id": "ETW-A0",
+  "execution_mode": "PREP_ONLY",
+  "promotion_authorized": false,
+  "promotion_blockers": ["CEW_PROMOTED_BASELINE"],
+  "owner": "ETW_PLATFORM_IDENTITY_AGENT",
+  "baseline_sha": "1c62ae02faf7c88e4743e0b089ac2f76cb819bf2",
+  "cew_contract_baseline_sha": "cab1c53b62b2b70294b6b7e8d7dddd14ccdcb832",
+  "workstreams": [
+    {
+      "id": "A0-W0-CONTRACT-FREEZE",
+      "owner": "ETW_CONTRACT_COMPATIBILITY_AGENT",
+      "state": "READY",
+      "parallel_group": 0,
+      "objective": "Map and fingerprint the CEW contracts and source registry consumed by A0 without mutating them.",
+      "outputs": [
+        "automation/ETW_CEW_CONTRACT_BASELINE_v1.json"
+      ],
+      "acceptance": [
+        "P0-P16 lifecycle contract SHA/path recorded",
+        "CEW code-development/HVA/usability contracts recorded",
+        "source-registry identity/path recorded",
+        "adapter compatibility surface explicit",
+        "no assumption of CEW promoted status"
+      ]
+    },
+    {
+      "id": "A0-W1-SCOPE-MODEL",
+      "owner": "ETW_PLATFORM_IDENTITY_AGENT",
+      "state": "WAITING",
+      "depends_on": ["A0-W0-CONTRACT-FREEZE"],
+      "parallel_group": 1,
+      "objective": "Define Project, Discipline, ProjectDisciplineScope and ScopeContext with hard project boundary and fail-closed states.",
+      "outputs": [
+        "docs/ARCHITECTURE/ETW_PLATFORM_IDENTITY_BOUNDARY_v1.md",
+        "automation/ETW_PLATFORM_SCOPE_MODEL_v1.json"
+      ],
+      "acceptance": [
+        "N12/Structures ACTIVE+CEW_BOUND",
+        "N12/Architecture NOT_YET_RELEASED",
+        "TEST_PROJECT/Structures TEST_ONLY",
+        "missing/unknown/unauthorized scope has no fallback",
+        "no ProjectSourceBinding introduced"
+      ]
+    },
+    {
+      "id": "A0-W2-INVENTORY-ADAPTER",
+      "owner": "ETW_PLATFORM_IDENTITY_AGENT",
+      "state": "WAITING",
+      "depends_on": ["A0-W0-CONTRACT-FREEZE"],
+      "parallel_group": 1,
+      "objective": "Implement read-only CEWSourceInventoryAdapter and ScopeInventoryProjection over the existing CEW source registry.",
+      "outputs": [
+        "scripts/etw_cew_source_inventory_adapter.py"
+      ],
+      "acceptance": [
+        "TAV-01/TAV-02/TAV-03/TAV-04 derived from registry, not hard-coded",
+        "identity uses ID plus exact source/hash information available in CEW",
+        "Architecture entity/property count remains zero",
+        "adapter performs no write or migration"
+      ]
+    },
+    {
+      "id": "A0-W3-SCOPE-RUNTIME",
+      "owner": "ETW_PLATFORM_IDENTITY_AGENT",
+      "state": "WAITING",
+      "depends_on": ["A0-W1-SCOPE-MODEL", "A0-W2-INVENTORY-ADAPTER"],
+      "parallel_group": 2,
+      "objective": "Implement ScopeContext propagation for route, query, cache, async response handling and deep-link/history restoration.",
+      "outputs": [
+        "scripts/etw_scope_context.py"
+      ],
+      "acceptance": [
+        "project_id checked below UI layer",
+        "old-scope async responses discarded",
+        "cache keys include project/scope",
+        "deep-link/reload/history restore exact context",
+        "no implicit N12 fallback"
+      ]
+    },
+    {
+      "id": "A0-W4-SECURITY-ISOLATION",
+      "owner": "ETW_SECURITY_ISOLATION_AGENT",
+      "state": "WAITING",
+      "depends_on": ["A0-W3-SCOPE-RUNTIME"],
+      "parallel_group": 3,
+      "objective": "Independently attack project/scope isolation and prove fail-closed behavior.",
+      "outputs": [
+        "automation/receipts/etw-platform/ETW-A0-SECURITY-ISOLATION-PREP.json"
+      ],
+      "acceptance": [
+        "N12 -> TEST_PROJECT leakage = false",
+        "Structures -> Architecture domain leakage = false",
+        "invalid scope fail-closed",
+        "query/cache/async leakage = false"
+      ]
+    },
+    {
+      "id": "A0-W5-AUTHORITY-AUDIT",
+      "owner": "ETW_AUTHORITY_AUDIT_AGENT",
+      "state": "WAITING",
+      "depends_on": ["A0-W1-SCOPE-MODEL", "A0-W2-INVENTORY-ADAPTER"],
+      "parallel_group": 2,
+      "objective": "Prove the platform shell does not migrate CEW primitives or reinterpret architectural documents as domain entities.",
+      "outputs": [
+        "automation/receipts/etw-platform/ETW-A0-AUTHORITY-AUDIT-PREP.json"
+      ],
+      "acceptance": [
+        "CEW authority unchanged",
+        "SourceVersion immutable identity unchanged",
+        "document available != interpreted domain",
+        "no ArchitecturalEntity/property introduced",
+        "source count provenance traceable"
+      ]
+    },
+    {
+      "id": "A0-W6-HUMAN-FACTORS",
+      "owner": "ETW_HUMAN_FACTORS_AGENT",
+      "state": "WAITING",
+      "depends_on": ["A0-W3-SCOPE-RUNTIME"],
+      "parallel_group": 3,
+      "objective": "Prepare representative A0 HVA tasks and benchmark metrics without auto-certifying the slice.",
+      "outputs": [
+        "automation/ETW_A0_USABILITY_TASKS_v1.json"
+      ],
+      "acceptance": [
+        "user distinguishes ACTIVE/NOT_YET_RELEASED/TEST_ONLY",
+        "user understands sources-present/domain-not-released",
+        "false success explicitly measurable",
+        "cross-project/cross-discipline leakage are critical failure states"
+      ]
+    },
+    {
+      "id": "A0-W7-INTEGRATED-PREP-GATE",
+      "owner": "ETW_PLATFORM_IDENTITY_AGENT",
+      "state": "WAITING",
+      "depends_on": ["A0-W4-SECURITY-ISOLATION", "A0-W5-AUTHORITY-AUDIT", "A0-W6-HUMAN-FACTORS"],
+      "parallel_group": 4,
+      "objective": "Run integrated deterministic preparation gates and return PREP_PASS or a blocking result.",
+      "outputs": [
+        "scripts/validate_etw_platform_identity_boundary.py",
+        ".github/workflows/validate-etw-platform-identity-boundary.yml"
+      ],
+      "acceptance": [
+        "DATA_GATE PASS",
+        "INTEGRATION_GATE PASS",
+        "SECURITY_GATE PASS",
+        "QA_GATE PASS",
+        "critical safety metrics have no violation",
+        "result decision cannot exceed PREP_PASS while CEW promoted baseline is absent"
+      ]
+    }
+  ],
+  "promotion_phase_after_prep": {
+    "state": "BLOCKED",
+    "requires": [
+      "CEW_PROMOTED_BASELINE",
+      "HUMAN_FACTORS_GATE",
+      "HVA_GATE",
+      "PRODUCTION_SMOKE",
+      "APPROVE_PLATFORM_BOUNDARY"
+    ],
+    "rule": "Preparation output is revalidated against the compatible promoted CEW baseline before any A0 COMPLETE decision."
+  }
+}
