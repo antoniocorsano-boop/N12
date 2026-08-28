@@ -97,6 +97,14 @@ def main() -> int:
     ]:
         if metric not in observation.get("metrics", []):
             errors.append(f"missing B1.8 observation metric: {metric}")
+    for automatic in [
+        "correct_drawing_reached",
+        "viewer_rotation_observed_and_reset",
+        "evidence_zoom_and_pan_observed",
+        "evidence_macro_context_observed_and_returned_to_micro",
+    ]:
+        if automatic not in observation.get("automatic_observations", []):
+            errors.append(f"missing B1.8 automatic observation: {automatic}")
 
     reviewer = layers.get("reviewer_surface", {})
     if reviewer.get("separate_from_participant_surface") is not True:
@@ -128,8 +136,10 @@ def main() -> int:
         errors.append("UX-DOC-01 must require the correct drawing as final context")
     if by_id.get("UX-DOC-02", {}).get("accepted_mental_model") != "DISPLAY_VIEW_ONLY":
         errors.append("UX-DOC-02 must test viewer-only mental model")
-    if by_id.get("UX-DOC-03", {}).get("automatic_success_signal") != "SOURCE_SCALE_MACRO_OBSERVED_AND_FINAL_STATE_MICRO":
-        errors.append("UX-DOC-03 must use the real MICRO/MACRO Evidence Workspace interaction")
+    if by_id.get("UX-DOC-03", {}).get("automatic_success_signal") != "EVIDENCE_ZOOM_PAN_OBSERVED_AND_SOURCE_SCALE_MACRO_OBSERVED_AND_FINAL_STATE_MICRO":
+        errors.append("UX-DOC-03 must require real zoom/pan inspection plus MICRO/MACRO round-trip")
+    if "Ingrandisci il dettaglio e spostati" not in by_id.get("UX-DOC-03", {}).get("participant_prompt_it", ""):
+        errors.append("UX-DOC-03 participant prompt must exercise evidence inspection naturally")
     if by_id.get("UX-DOC-03", {}).get("accepted_mental_model") != "ROUND_TRIP_UNDERSTOOD":
         errors.append("UX-DOC-03 must test evidence/source-context round-trip comprehension")
     if by_id.get("UX-DOC-04", {}).get("accepted_mental_model") != "PRIMARY_PDF":
@@ -171,6 +181,14 @@ def main() -> int:
         if marker not in implementation:
             errors.append(f"B1.8 implementation missing critical marker: {marker}")
 
+    for hardened_marker in [
+        "Evidenza · Zoom ",
+        "Pan usato",
+        "zoomed&&panned&&macro&&finalMicro",
+    ]:
+        if hardened_marker not in html:
+            errors.append(f"B1.8 hardened participant logic missing inspection marker: {hardened_marker}")
+
     if "fetch('/api" in implementation or 'fetch("/api' in implementation:
         errors.append("B1.8 acceptance layer must not submit receipts to runtime APIs")
     for marker in [
@@ -204,7 +222,7 @@ def main() -> int:
     print("PARTICIPANT_REVIEWER_SEPARATION = PASS")
     print("LIVE_TELEMETRY_VISIBLE_TO_PARTICIPANT = false")
     print("AUTOMATIC_FALSE_SUCCESS_SIGNALS = PASS")
-    print("EVIDENCE_CONTEXT_OBSERVATION = MICRO_MACRO_MICRO")
+    print("EVIDENCE_CONTEXT_OBSERVATION = ZOOM_PAN_MICRO_MACRO_MICRO")
     print("HUMAN_HVA = REQUIRED_NOT_SATISFIED")
     print("ACCESSIBILITY_GATE = REQUIRED_NOT_SATISFIED")
     print("PRODUCTION_SMOKE_AFTER_HVA = REQUIRED")
