@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "task_set_id": "ETW_A0_USABILITY_TASKS",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "slice_id": "ETW-A0",
+  "workstream_id": "A0-W6-HUMAN-FACTORS",
+  "state": "PREPARED_FOR_HVA_NOT_EXECUTED",
+  "metrics_contract": "automation/CEW_USABILITY_METRICS_MODEL_v1.json",
+  "participant": "Engineer or project professional who does not need repository knowledge",
+  "tasks": [
+    {
+      "task_id": "ETW-A0-UX-01",
+      "prompt": "Open project N12 in Structures and determine whether this discipline is available for work and which specialist module owns it.",
+      "start_scope": null,
+      "target_scope": "N12/STRUCTURES",
+      "success_condition": "User identifies ACTIVE + CEW_BOUND without relying on repository identifiers.",
+      "critical_failures": [
+        "wrong project",
+        "wrong discipline",
+        "discipline owner misidentification",
+        "cross-project leakage"
+      ]
+    },
+    {
+      "task_id": "ETW-A0-UX-02",
+      "prompt": "Switch N12 to Architecture and explain what information is already available and what is not yet available.",
+      "start_scope": "N12/STRUCTURES",
+      "target_scope": "N12/ARCHITECTURE",
+      "success_condition": "User understands that architectural source documents are available read-only while the Architecture domain/workspace and ArchitecturalEntity/property model are not yet released.",
+      "critical_failures": [
+        "sources-present interpreted as Architecture domain released",
+        "source DOC interpreted as entity/property DOC",
+        "structural data shown as architectural domain truth",
+        "false success"
+      ]
+    },
+    {
+      "task_id": "ETW-A0-UX-03",
+      "prompt": "Switch from N12 to TEST_PROJECT / Structures and verify whether any N12 engineering information follows you.",
+      "start_scope": "N12/ARCHITECTURE",
+      "target_scope": "TEST_PROJECT/STRUCTURES",
+      "success_condition": "User identifies TEST_ONLY and sees zero N12 engineering source/domain data.",
+      "critical_failures": [
+        "cross-project leakage",
+        "N12 source visible in TEST_PROJECT",
+        "TEST_ONLY state misunderstood",
+        "false success"
+      ]
+    },
+    {
+      "task_id": "ETW-A0-UX-04",
+      "prompt": "Open an invalid or incomplete project/discipline deep link and determine what eTwin does.",
+      "start_scope": null,
+      "target_scope": "INVALID_CONTEXT",
+      "success_condition": "Service fails closed and does not silently open N12 or another valid scope.",
+      "critical_failures": [
+        "implicit N12 fallback",
+        "silent scope repair",
+        "cross-project leakage",
+        "false success"
+      ]
+    }
+  ],
+  "measurements": {
+    "effectiveness": ["task_success", "task_abandonment", "false_success", "critical_error_count"],
+    "efficiency": ["time_on_task_seconds", "interaction_count", "help_requests", "backtracks_or_recovery_actions"],
+    "satisfaction_confidence": ["ease_1_to_5", "confidence_correct_1_to_5", "perceived_time_1_to_5", "free_comment"],
+    "cew_safety": ["authority_boundary_errors", "provenance_lookup_success", "epistemic_state_misunderstanding", "canonical_write_misconception"],
+    "etwin_safety": ["cross_project_leakage", "cross_discipline_leakage", "cross_discipline_false_equivalence", "discipline_owner_misidentification", "spatial_relation_misread_as_identity"]
+  },
+  "non_compensable_failures": [
+    "cross_project_leakage",
+    "cross_discipline_leakage",
+    "cross_discipline_false_equivalence",
+    "authority_boundary_errors",
+    "false_success_on_scope_or_authority"
+  ],
+  "release_rule": "This artifact prepares HVA only. ETW-A0 cannot be product-complete from automated tests or this task definition."
+}

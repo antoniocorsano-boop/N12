@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.2",
+  "work_package_id": "ETW_A0_PLATFORM_IDENTITY_PREP",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "slice_id": "ETW-A0",
+  "state": "PREPARED_BLOCKED_PROMOTION",
+  "execution_mode": "PREP_ONLY",
+  "preparation_decision": "PREP_PASS",
+  "preparation_receipt": "automation/receipts/etw-platform/ETW-A0-PREP-PASS_v1.json",
+  "promotion_authorized": false,
+  "promotion_blockers": ["CEW_PROMOTED_BASELINE", "HVA_GATE", "PRODUCTION_SMOKE", "APPROVE_PLATFORM_BOUNDARY"],
+  "owner": "ETW_PLATFORM_IDENTITY_AGENT",
+  "baseline_sha": "1c62ae02faf7c88e4743e0b089ac2f76cb819bf2",
+  "cew_contract_baseline_sha": "cab1c53b62b2b70294b6b7e8d7dddd14ccdcb832",
+  "validated_head_sha": "16ee9f7c8cdc43ce7b5cdeb4897a950a4f7eee95",
+  "workstreams": [
+    {
+      "id": "A0-W0-CONTRACT-FREEZE",
+      "owner": "ETW_CONTRACT_COMPATIBILITY_AGENT",
+      "state": "COMPLETE_FOR_PREP",
+      "parallel_group": 0,
+      "outputs": ["automation/ETW_CEW_CONTRACT_BASELINE_v1.json"]
+    },
+    {
+      "id": "A0-W1-SCOPE-MODEL",
+      "owner": "ETW_PLATFORM_IDENTITY_AGENT",
+      "state": "COMPLETE_FOR_PREP",
+      "depends_on": ["A0-W0-CONTRACT-FREEZE"],
+      "parallel_group": 1,
+      "outputs": ["docs/ARCHITECTURE/ETW_PLATFORM_IDENTITY_BOUNDARY_v1.md", "automation/ETW_PLATFORM_SCOPE_MODEL_v1.json"]
+    },
+    {
+      "id": "A0-W2-INVENTORY-ADAPTER",
+      "owner": "ETW_PLATFORM_IDENTITY_AGENT",
+      "state": "COMPLETE_FOR_PREP",
+      "depends_on": ["A0-W0-CONTRACT-FREEZE"],
+      "parallel_group": 1,
+      "outputs": ["scripts/etw_cew_source_inventory_adapter.py"]
+    },
+    {
+      "id": "A0-W3-SCOPE-RUNTIME",
+      "owner": "ETW_PLATFORM_IDENTITY_AGENT",
+      "state": "COMPLETE_FOR_PREP",
+      "depends_on": ["A0-W1-SCOPE-MODEL", "A0-W2-INVENTORY-ADAPTER"],
+      "parallel_group": 2,
+      "outputs": ["scripts/etw_scope_context.py"]
+    },
+    {
+      "id": "A0-W4-SECURITY-ISOLATION",
+      "owner": "ETW_SECURITY_ISOLATION_AGENT",
+      "state": "COMPLETE_FOR_PREP",
+      "depends_on": ["A0-W3-SCOPE-RUNTIME"],
+      "parallel_group": 3,
+      "outputs": ["automation/receipts/etw-platform/ETW-A0-SECURITY-ISOLATION-PREP.json"],
+      "result": "PASS"
+    },
+    {
+      "id": "A0-W5-AUTHORITY-AUDIT",
+      "owner": "ETW_AUTHORITY_AUDIT_AGENT",
+      "state": "COMPLETE_FOR_PREP",
+      "depends_on": ["A0-W1-SCOPE-MODEL", "A0-W2-INVENTORY-ADAPTER"],
+      "parallel_group": 2,
+      "outputs": ["automation/receipts/etw-platform/ETW-A0-AUTHORITY-AUDIT-PREP.json"],
+      "result": "PASS"
+    },
+    {
+      "id": "A0-W6-HUMAN-FACTORS",
+      "owner": "ETW_HUMAN_FACTORS_AGENT",
+      "state": "COMPLETE_FOR_PREP",
+      "depends_on": ["A0-W3-SCOPE-RUNTIME"],
+      "parallel_group": 3,
+      "outputs": ["automation/ETW_A0_USABILITY_TASKS_v1.json"],
+      "result": "TASKS_PREPARED_HVA_NOT_EXECUTED"
+    },
+    {
+      "id": "A0-W7-INTEGRATED-PREP-GATE",
+      "owner": "ETW_PLATFORM_IDENTITY_AGENT",
+      "state": "COMPLETE_FOR_PREP",
+      "depends_on": ["A0-W4-SECURITY-ISOLATION", "A0-W5-AUTHORITY-AUDIT", "A0-W6-HUMAN-FACTORS"],
+      "parallel_group": 4,
+      "outputs": ["scripts/validate_etw_platform_identity_boundary.py", ".github/workflows/validate-etw-platform-identity-boundary.yml"],
+      "result": "PREP_PASS"
+    }
+  ],
+  "prep_validation": {
+    "DATA_GATE": "PASS",
+    "INTEGRATION_GATE": "PASS",
+    "SECURITY_GATE": "PASS",
+    "AUTHORITY_AUDIT": "PASS",
+    "QA_GATE": "PASS",
+    "cross_project_leakage": false,
+    "cross_discipline_leakage": false,
+    "architecture_source_count": 4,
+    "architecture_domain_entity_count": 0,
+    "test_project_source_count": 0
+  },
+  "promotion_phase_after_prep": {
+    "state": "BLOCKED",
+    "requires": ["CEW_PROMOTED_BASELINE", "HUMAN_FACTORS_GATE", "HVA_GATE", "PRODUCTION_SMOKE", "APPROVE_PLATFORM_BOUNDARY"],
+    "rule": "Preparation output is revalidated against the compatible promoted CEW baseline before any A0 COMPLETE decision."
+  }
+}

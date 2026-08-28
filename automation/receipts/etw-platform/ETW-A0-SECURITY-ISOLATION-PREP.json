@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "receipt_id": "ETW-A0-SECURITY-ISOLATION-PREP",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "slice_id": "ETW-A0",
+  "workstream_id": "A0-W4-SECURITY-ISOLATION",
+  "agent_role": "ETW_SECURITY_ISOLATION_AGENT",
+  "decision": "PASS_FOR_PREPARATION",
+  "validated_head_sha": "8193772eec89236f6bb8a63166098eca79d7ca30",
+  "github_actions": {
+    "workflow": "Validate eTwin Platform Identity Boundary",
+    "run_id": 33150608980,
+    "job_id": 98781464119,
+    "conclusion": "success"
+  },
+  "checks": {
+    "invalid_scope_fail_closed": "PASS",
+    "n12_to_test_project_leakage": false,
+    "structures_to_architecture_domain_leakage": false,
+    "cache_scope_collision": false,
+    "stale_async_response_after_project_switch": "REJECTED",
+    "stale_async_response_after_discipline_switch": "REJECTED",
+    "test_project_source_count": 0
+  },
+  "critical_safety_metrics": {
+    "cross_project_leakage": false,
+    "cross_discipline_leakage": false
+  },
+  "authority_boundary": "Security verification only. This receipt does not promote ETW-A0, authorize canonical write, create source bindings or alter N12/CEW authority.",
+  "promotion_authorized": false
+}

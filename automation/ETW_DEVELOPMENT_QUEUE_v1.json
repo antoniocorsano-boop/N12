@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "queue_id": "ETW_DEVELOPMENT_QUEUE",
   "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
   "program_plan": "docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md",
@@ -11,7 +11,7 @@
     "cew_contract_baseline_ref": "work/cew-b17-usability-acceptance-prep",
     "cew_promoted_baseline_sha": null,
     "cew_promoted_baseline_state": "NOT_YET_AVAILABLE",
-    "rule": "A0 PREP_ONLY may use the contract baseline. A0 COMPLETE requires a compatible CEW promoted baseline."
+    "rule": "A0 preparation may use the contract baseline. A0 COMPLETE requires a compatible CEW promoted baseline."
   },
   "items": [
     {
@@ -19,8 +19,12 @@
       "priority": 10,
       "title": "Platform Identity Boundary",
       "agent_role": "ETW_PLATFORM_IDENTITY_AGENT",
-      "state": "PREP_ONLY",
+      "state": "PREPARED_BLOCKED_PROMOTION",
       "execution_mode": "PREP_ONLY",
+      "preparation_decision": "PREP_PASS",
+      "prepared_head_sha": "16ee9f7c8cdc43ce7b5cdeb4897a950a4f7eee95",
+      "preparation_receipt": "automation/receipts/etw-platform/ETW-A0-PREP-PASS_v1.json",
+      "promotion_blockers": ["CEW_PROMOTED_BASELINE", "HVA_GATE", "PRODUCTION_SMOKE", "APPROVE_PLATFORM_BOUNDARY"],
       "objective": "Establish Project, Discipline, ProjectDisciplineScope, ScopeContext and a read-only CEW source inventory projection with fail-closed project/scope isolation.",
       "dependencies": [],
       "external_promotion_dependencies": ["CEW_PROMOTED_BASELINE"],
@@ -32,15 +36,7 @@
         "scripts/validate_etw_platform_identity_boundary.py",
         ".github/workflows/validate-etw-platform-identity-boundary.yml"
       ],
-      "required_gates": [
-        "DATA_GATE",
-        "INTEGRATION_GATE",
-        "SECURITY_GATE",
-        "HUMAN_FACTORS_GATE",
-        "HVA_GATE",
-        "PRODUCTION_SMOKE",
-        "QA_GATE"
-      ],
+      "required_gates": ["DATA_GATE", "INTEGRATION_GATE", "SECURITY_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE", "PRODUCTION_SMOKE", "QA_GATE"],
       "prep_required_gates": ["DATA_GATE", "INTEGRATION_GATE", "SECURITY_GATE", "QA_GATE"],
       "critical_safety_metrics": ["cross_project_leakage", "cross_discipline_leakage"]
     },
@@ -53,14 +49,7 @@
       "execution_mode": "PROMOTABLE",
       "objective": "Materialize ProjectScopedReference and idempotent ProjectSourceBinding without changing SourceVersion identity or historical CEW evidence lineage.",
       "dependencies": ["ETW-A0"],
-      "target_outputs": [
-        "docs/ARCHITECTURE/ETW_PROJECT_SCOPE_BINDING_v1.md",
-        "automation/ETW_PROJECT_SCOPED_REFERENCE_SCHEMA_v1.json",
-        "automation/ETW_PROJECT_SOURCE_BINDING_SCHEMA_v1.json",
-        "scripts/etw_project_source_binding.py",
-        "scripts/validate_etw_project_scope_binding.py",
-        ".github/workflows/validate-etw-project-scope-binding.yml"
-      ],
+      "target_outputs": ["docs/ARCHITECTURE/ETW_PROJECT_SCOPE_BINDING_v1.md", "automation/ETW_PROJECT_SCOPED_REFERENCE_SCHEMA_v1.json", "automation/ETW_PROJECT_SOURCE_BINDING_SCHEMA_v1.json", "scripts/etw_project_source_binding.py", "scripts/validate_etw_project_scope_binding.py", ".github/workflows/validate-etw-project-scope-binding.yml"],
       "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "INTEGRATION_GATE", "SECURITY_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE", "PRODUCTION_SMOKE", "QA_GATE"],
       "critical_safety_metrics": ["cross_project_leakage", "wrong_source_or_version_selection", "canonical_write_misconception"]
     },
@@ -73,13 +62,7 @@
       "execution_mode": "PROMOTABLE",
       "objective": "Deliver the first human-facing Portfolio and scope-switching journey for N12/Structures, N12/Architecture NOT_YET_RELEASED and TEST_PROJECT/Structures TEST_ONLY.",
       "dependencies": ["ETW-A1"],
-      "target_outputs": [
-        "docs/PRODUCT/ETW_PORTFOLIO_V1_CONTRACT.md",
-        "automation/ETW_PORTFOLIO_USABILITY_TASKS_v1.json",
-        "scripts/etw_portfolio.py",
-        "scripts/validate_etw_portfolio.py",
-        ".github/workflows/validate-etw-portfolio.yml"
-      ],
+      "target_outputs": ["docs/PRODUCT/ETW_PORTFOLIO_V1_CONTRACT.md", "automation/ETW_PORTFOLIO_USABILITY_TASKS_v1.json", "scripts/etw_portfolio.py", "scripts/validate_etw_portfolio.py", ".github/workflows/validate-etw-portfolio.yml"],
       "required_gates": ["INTEGRATION_GATE", "SECURITY_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE", "PRODUCTION_SMOKE", "QA_GATE"],
       "critical_safety_metrics": ["cross_project_leakage", "cross_discipline_leakage", "discipline_owner_misidentification"]
     },
@@ -93,14 +76,7 @@
       "objective": "Release Architecture through one evidence-backed TAV-02 vertical and explicit CrossDisciplineRelation without identity conflation.",
       "dependencies": ["ETW-A2"],
       "human_gate_after": "APPROVE_CROSSDISCIPLINE_CONTRACT",
-      "target_outputs": [
-        "docs/ARCHITECTURE/ETW_ARCHITECTURE_DISCIPLINE_CONTRACT_v1.md",
-        "automation/ETW_CROSS_DISCIPLINE_RELATION_SCHEMA_v1.json",
-        "automation/ETW_ARCHITECTURAL_ENTITY_ADMISSION_v1.json",
-        "scripts/etw_cross_discipline_identity.py",
-        "scripts/validate_etw_cross_discipline_identity.py",
-        ".github/workflows/validate-etw-cross-discipline-identity.yml"
-      ],
+      "target_outputs": ["docs/ARCHITECTURE/ETW_ARCHITECTURE_DISCIPLINE_CONTRACT_v1.md", "automation/ETW_CROSS_DISCIPLINE_RELATION_SCHEMA_v1.json", "automation/ETW_ARCHITECTURAL_ENTITY_ADMISSION_v1.json", "scripts/etw_cross_discipline_identity.py", "scripts/validate_etw_cross_discipline_identity.py", ".github/workflows/validate-etw-cross-discipline-identity.yml"],
       "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "INTEGRATION_GATE", "HUMAN_AUTHORITY_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE", "PRODUCTION_SMOKE", "QA_GATE"],
       "critical_safety_metrics": ["cross_discipline_false_equivalence", "discipline_owner_misidentification", "spatial_relation_misread_as_identity"]
     },
@@ -114,14 +90,7 @@
       "objective": "Expose competing PropertyAssertions and qualified ResolvedPropertyProjection for governed cross-discipline entities without losing genealogy.",
       "dependencies": ["ETW-A3"],
       "external_promotion_dependencies": ["APPROVE_CROSSDISCIPLINE_CONTRACT"],
-      "target_outputs": [
-        "docs/ARCHITECTURE/ETW_PROPERTY_ASSERTION_MODEL_v1.md",
-        "docs/PRODUCT/ETW_COMPARE_WORKSPACE_V1_CONTRACT.md",
-        "automation/ETW_PROPERTY_ASSERTION_SCHEMA_v1.json",
-        "scripts/etw_property_compare.py",
-        "scripts/validate_etw_property_assertions.py",
-        ".github/workflows/validate-etw-property-assertions.yml"
-      ],
+      "target_outputs": ["docs/ARCHITECTURE/ETW_PROPERTY_ASSERTION_MODEL_v1.md", "docs/PRODUCT/ETW_COMPARE_WORKSPACE_V1_CONTRACT.md", "automation/ETW_PROPERTY_ASSERTION_SCHEMA_v1.json", "scripts/etw_property_compare.py", "scripts/validate_etw_property_assertions.py", ".github/workflows/validate-etw-property-assertions.yml"],
       "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "INTEGRATION_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE", "PRODUCTION_SMOKE", "QA_GATE"],
       "critical_safety_metrics": ["cross_discipline_false_equivalence", "epistemic_state_misunderstanding", "wrong_source_or_version_selection"]
     },
@@ -134,13 +103,7 @@
       "execution_mode": "PROMOTABLE",
       "objective": "Prove one real CEW Level-C decision vertical with HUMAN_AUTHORITY_REQUIRED, append-only receipt and preserved project/scope provenance.",
       "dependencies": ["ETW-A4"],
-      "target_outputs": [
-        "docs/PRODUCT/ETW_DECISION_COCKPIT_V1_CONTRACT.md",
-        "automation/ETW_LEVEL_C_DECISION_BINDING_v1.json",
-        "scripts/etw_decision_cockpit.py",
-        "scripts/validate_etw_level_c_decision.py",
-        ".github/workflows/validate-etw-level-c-decision.yml"
-      ],
+      "target_outputs": ["docs/PRODUCT/ETW_DECISION_COCKPIT_V1_CONTRACT.md", "automation/ETW_LEVEL_C_DECISION_BINDING_v1.json", "scripts/etw_decision_cockpit.py", "scripts/validate_etw_level_c_decision.py", ".github/workflows/validate-etw-level-c-decision.yml"],
       "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_AUTHORITY_GATE", "INTEGRATION_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE", "PRODUCTION_SMOKE", "QA_GATE"],
       "critical_safety_metrics": ["authority_boundary_errors", "canonical_write_misconception", "provenance_lookup_success"]
     },
@@ -153,13 +116,7 @@
       "execution_mode": "PROMOTABLE",
       "objective": "Visualize only governed discipline entities and cross-discipline relations while preserving ScopeContext, provenance and epistemic semantics.",
       "dependencies": ["ETW-A5"],
-      "target_outputs": [
-        "docs/PRODUCT/ETW_MULTIDISCIPLINARY_VIEWER_V1_CONTRACT.md",
-        "automation/ETW_VIEWER_USABILITY_TASKS_v1.json",
-        "scripts/etw_multidisciplinary_viewer.py",
-        "scripts/validate_etw_multidisciplinary_viewer.py",
-        ".github/workflows/validate-etw-multidisciplinary-viewer.yml"
-      ],
+      "target_outputs": ["docs/PRODUCT/ETW_MULTIDISCIPLINARY_VIEWER_V1_CONTRACT.md", "automation/ETW_VIEWER_USABILITY_TASKS_v1.json", "scripts/etw_multidisciplinary_viewer.py", "scripts/validate_etw_multidisciplinary_viewer.py", ".github/workflows/validate-etw-multidisciplinary-viewer.yml"],
       "required_gates": ["INTEGRATION_GATE", "ENGINEERING_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE", "PRODUCTION_SMOKE", "QA_GATE"],
       "critical_safety_metrics": ["spatial_relation_misread_as_identity", "cross_discipline_false_equivalence", "cross_project_leakage", "cross_discipline_leakage"]
     },
@@ -173,13 +130,7 @@
       "objective": "Validate the frozen eTwin candidate end-to-end without functional fixes or artificial advancement of N12 engineering history.",
       "dependencies": ["ETW-A6"],
       "human_gate_after": "APPROVE_PRODUCTION_ACCEPTANCE",
-      "target_outputs": [
-        "docs/ACCEPTANCE/ETW_PLATFORM_PRODUCTION_ACCEPTANCE_v1.md",
-        "automation/ETW_ACCEPTANCE_FROZEN_MANIFEST_v1.json",
-        "automation/ETW_Z0_REPLAY_FIXTURE_POLICY_v1.json",
-        "scripts/validate_etw_platform_production_acceptance.py",
-        ".github/workflows/validate-etw-platform-production-acceptance.yml"
-      ],
+      "target_outputs": ["docs/ACCEPTANCE/ETW_PLATFORM_PRODUCTION_ACCEPTANCE_v1.md", "automation/ETW_ACCEPTANCE_FROZEN_MANIFEST_v1.json", "automation/ETW_Z0_REPLAY_FIXTURE_POLICY_v1.json", "scripts/validate_etw_platform_production_acceptance.py", ".github/workflows/validate-etw-platform-production-acceptance.yml"],
       "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_AUTHORITY_GATE", "INTEGRATION_GATE", "SECURITY_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE", "PRODUCTION_SMOKE", "QA_GATE"],
       "critical_safety_metrics": ["cross_project_leakage", "cross_discipline_leakage", "cross_discipline_false_equivalence", "authority_boundary_errors", "canonical_write_misconception"]
     }

@@ -1,13 +1,30 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.2",
   "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
-  "state": "PREPARATION_ACTIVE",
-  "selected_work_item": "ETW-A0",
-  "selected_owner": "ETW_PLATFORM_IDENTITY_AGENT",
-  "execution_mode": "PREP_ONLY",
-  "promotion_blockers": ["CEW_PROMOTED_BASELINE"],
+  "state": "A0_PREPARED_BLOCKED_PROMOTION",
+  "selected_work_item": null,
+  "blocked_work_item": "ETW-A0",
+  "selected_owner": null,
+  "execution_mode": "BLOCKED_DEPENDENCY",
+  "preparation_decision": "PREP_PASS",
+  "validated_head_sha": "f97729e1c800ed14314ee0d8b2436df2af987ae2",
+  "preparation_receipt": "automation/receipts/etw-platform/ETW-A0-PREP-PASS_v1.json",
+  "validated_runs": {
+    "etw_platform_identity": 33151178271,
+    "etw_program_orchestration": 33151178257,
+    "n12_knowledge_regression": 33151178260
+  },
+  "promotion_blockers": [
+    "CEW_PROMOTED_BASELINE",
+    "HUMAN_FACTORS_GATE",
+    "HVA_GATE",
+    "PRODUCTION_SMOKE",
+    "APPROVE_PLATFORM_BOUNDARY"
+  ],
   "next_human_gate": "APPROVE_PLATFORM_BOUNDARY",
   "next_release_after_gate": "ETW-A1",
-  "parallel_support_active": true,
-  "production_promotion_authorized": false
+  "a1_release_authorized": false,
+  "parallel_support_active": false,
+  "production_promotion_authorized": false,
+  "authority_boundary": "A0 preparation is complete but not promoted. CEW/N12 authority is unchanged."
 }

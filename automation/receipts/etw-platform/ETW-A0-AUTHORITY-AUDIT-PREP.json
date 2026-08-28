@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "receipt_id": "ETW-A0-AUTHORITY-AUDIT-PREP",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "slice_id": "ETW-A0",
+  "workstream_id": "A0-W5-AUTHORITY-AUDIT",
+  "agent_role": "ETW_AUTHORITY_AUDIT_AGENT",
+  "decision": "PASS_FOR_PREPARATION",
+  "validated_head_sha": "8193772eec89236f6bb8a63166098eca79d7ca30",
+  "github_actions": {
+    "workflow": "Validate eTwin Platform Identity Boundary",
+    "run_id": 33150608980,
+    "job_id": 98781464119,
+    "conclusion": "success"
+  },
+  "checks": {
+    "cew_contract_fingerprints_match": true,
+    "source_registry_read_only": true,
+    "sourceversion_identity_changed": false,
+    "project_source_binding_created": false,
+    "architecture_source_count": 4,
+    "architecture_domain_entity_count": 0,
+    "architecture_domain_property_count": 0,
+    "document_available_interpreted_as_domain": false,
+    "n12_engineering_state_changed": false
+  },
+  "authority_boundary": "A0 is a platform read-model/context preparation only. CEW and N12 remain the engineering authorities; source availability is not promoted to Architecture entity/property truth.",
+  "promotion_authorized": false
+}

@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0",
+  "work_item_id": "ETW-A0",
+  "agent_role": "ETW_PLATFORM_IDENTITY_AGENT",
+  "decision": "PREP_PASS",
+  "baseline": {
+    "etw_base_sha": "1c62ae02faf7c88e4743e0b089ac2f76cb819bf2",
+    "cew_contract_baseline_sha": "cab1c53b62b2b70294b6b7e8d7dddd14ccdcb832",
+    "cew_promoted_baseline_sha": null,
+    "validated_head_sha": "8193772eec89236f6bb8a63166098eca79d7ca30"
+  },
+  "target_outputs": [
+    "docs/ARCHITECTURE/ETW_PLATFORM_IDENTITY_BOUNDARY_v1.md",
+    "automation/ETW_PLATFORM_SCOPE_MODEL_v1.json",
+    "scripts/etw_scope_context.py",
+    "scripts/etw_cew_source_inventory_adapter.py",
+    "scripts/validate_etw_platform_identity_boundary.py",
+    ".github/workflows/validate-etw-platform-identity-boundary.yml"
+  ],
+  "validation": {
+    "DATA_GATE": "PASS",
+    "INTEGRATION_GATE": "PASS",
+    "SECURITY_GATE": "PASS",
+    "QA_GATE": "PASS",
+    "AUTHORITY_AUDIT": "PASS",
+    "HUMAN_FACTORS_GATE": "PREPARED_NOT_EXECUTED",
+    "HVA_GATE": "NOT_SATISFIED",
+    "PRODUCTION_SMOKE": "NOT_SATISFIED"
+  },
+  "usability": {
+    "cross_project_leakage": false,
+    "cross_discipline_leakage": false,
+    "cross_discipline_false_equivalence": false,
+    "discipline_owner_misidentification": false,
+    "authority_boundary_errors": false,
+    "human_factors_task_set": "PREPARED_NOT_EXECUTED"
+  },
+  "residuals": [
+    {
+      "id": "ETW-A0-R01",
+      "type": "EXTERNAL_PROMOTION_DEPENDENCY",
+      "state": "OPEN",
+      "dependency": "CEW_PROMOTED_BASELINE"
+    },
+    {
+      "id": "ETW-A0-R02",
+      "type": "HUMAN_FACTORS_HVA",
+      "state": "OPEN",
+      "dependency": "HVA_GATE"
+    },
+    {
+      "id": "ETW-A0-R03",
+      "type": "PRODUCTION_VALIDATION",
+      "state": "OPEN",
+      "dependency": "PRODUCTION_SMOKE"
+    },
+    {
+      "id": "ETW-A0-R04",
+      "type": "HUMAN_PLATFORM_BOUNDARY_APPROVAL",
+      "state": "OPEN",
+      "dependency": "APPROVE_PLATFORM_BOUNDARY"
+    }
+  ],
+  "promotion_blockers": [
+    "CEW_PROMOTED_BASELINE",
+    "HVA_GATE",
+    "PRODUCTION_SMOKE",
+    "APPROVE_PLATFORM_BOUNDARY"
+  ],
+  "authority_boundary": "PREP_PASS certifies only deterministic preparation of Project/Discipline/ScopeContext and read-only CEW source inventory projection. It does not promote ETW-A0, create ProjectSourceBinding, release Architecture domain entities/properties, alter CEW/N12 engineering authority or exercise human authority.",
+  "audit_paths": [
+    "automation/ETW_CEW_CONTRACT_BASELINE_v1.json",
+    "automation/ETW_A0_USABILITY_TASKS_v1.json",
+    "automation/receipts/etw-platform/ETW-A0-SECURITY-ISOLATION-PREP.json",
+    "automation/receipts/etw-platform/ETW-A0-AUTHORITY-AUDIT-PREP.json"
+  ]
+}

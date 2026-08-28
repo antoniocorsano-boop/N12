@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "baseline_id": "ETW_CEW_CONTRACT_BASELINE",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "slice_id": "ETW-A0",
+  "workstream_id": "A0-W0-CONTRACT-FREEZE",
+  "state": "FROZEN_FOR_PREPARATION",
+  "cew_contract_baseline": {
+    "commit_sha": "cab1c53b62b2b70294b6b7e8d7dddd14ccdcb832",
+    "ref": "work/cew-b17-usability-acceptance-prep",
+    "promoted": false,
+    "use": "ETW_PREPARATION_ONLY"
+  },
+  "contracts": [
+    {
+      "id": "CEW_PROJECT_LIFECYCLE_MODEL",
+      "path": "automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json",
+      "blob_sha": "da682e060e05768e8092747f05da4dd15d94be62",
+      "required_semantics": [
+        "P0-P16 lifecycle dependency graph",
+        "Level-C EngineeringDecision remains human authority",
+        "information-use state remains distinct from epistemic state"
+      ]
+    },
+    {
+      "id": "CEW_CODE_DEVELOPMENT_MODEL",
+      "path": "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v1.md",
+      "blob_sha": "8bb736cbd350ff9d52806dc23031048c62a13283",
+      "required_semantics": [
+        "small vertical slice",
+        "dedicated branch and PR",
+        "automated gates plus HVA plus production smoke",
+        "parallel preparation with serialized promotion"
+      ]
+    },
+    {
+      "id": "CEW_HUMAN_CENTRED_GOVUK_MODEL",
+      "path": "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v1.md",
+      "blob_sha": "83b1390e562e947595bdc80f16214b48db228903",
+      "required_semantics": [
+        "whole-problem service design",
+        "simple accessible joined-up service",
+        "measurable success",
+        "production reliability"
+      ]
+    },
+    {
+      "id": "CEW_USABILITY_METRICS_MODEL",
+      "path": "automation/CEW_USABILITY_METRICS_MODEL_v1.json",
+      "blob_sha": "abb58ba3c22c136adc1d00a3a3e22150b1989d7e",
+      "required_semantics": [
+        "effectiveness",
+        "efficiency",
+        "satisfaction and confidence",
+        "authority/provenance safety metrics",
+        "false success is explicit"
+      ]
+    },
+    {
+      "id": "CEW_N12_SOURCE_REGISTRY",
+      "path": "data/canonical/tavole_originali_remote_index_v1.csv",
+      "blob_sha": "3deb14bd3eaf83041b43ae92586269ed2512c138",
+      "authority": "READ_ONLY_INPUT_TO_A0_ADAPTER",
+      "identity_fields": ["id", "git_blob_sha", "sha256", "status"],
+      "classification_fields": ["classe", "livello_uso", "ruolo"]
+    }
+  ],
+  "adapter_compatibility_surface": {
+    "may_read": [
+      "CEW source registry",
+      "CEW lifecycle/product contracts",
+      "CEW usability contract"
+    ],
+    "may_project": [
+      "Project",
+      "Discipline",
+      "ProjectDisciplineScope",
+      "ScopeContext",
+      "ScopeInventoryProjection"
+    ],
+    "must_not_create_in_A0": [
+      "ProjectSourceBinding",
+      "ArchitecturalEntity",
+      "ArchitecturalProperty",
+      "CrossDisciplineRelation",
+      "new SourceVersion",
+      "new EvidenceRegion"
+    ],
+    "must_not_mutate": [
+      "Source",
+      "SourceVersion",
+      "Page",
+      "DocumentMap",
+      "EvidenceRegion",
+      "N12 engineering state",
+      "CEW lifecycle state"
+    ]
+  },
+  "promotion_boundary": {
+    "a0_prep_allowed": true,
+    "a0_complete_allowed": false,
+    "blocker": "CEW_PROMOTED_BASELINE",
+    "rule": "This fingerprint proves compatibility for preparation only and never promotes the CEW contract baseline."
+  }
+}
