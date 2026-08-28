@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.0",
   "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
   "state": "PREPARATION_ACTIVE",
   "selected_work_item": "ETW-A0",
