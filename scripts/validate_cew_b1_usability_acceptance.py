@@ -11,6 +11,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import cew_b1_acceptance_lab as lab
+import cew_source_evidence_workspace as source_workspace
 
 CONTRACT = ROOT / "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json"
 IMPLEMENTATION = ROOT / "scripts/cew_b1_human_acceptance_v2.py"
@@ -36,6 +37,7 @@ def main() -> int:
     implementation = IMPLEMENTATION.read_text(encoding="utf-8")
     app_text = APP.read_text(encoding="utf-8")
     html = lab.build_lab()
+    evidence_html = source_workspace.build_evidence_workspace("ERW-N12-001")
 
     expected = ["UX-DOC-01", "UX-DOC-02", "UX-DOC-03", "UX-DOC-04"]
     tasks = lab.task_specs()
@@ -184,10 +186,11 @@ def main() -> int:
     for hardened_marker in [
         "Evidenza · Zoom ",
         "Pan usato",
-        "zoomed&&panned&&macro&&finalMicro",
     ]:
-        if hardened_marker not in html:
-            errors.append(f"B1.8 hardened participant logic missing inspection marker: {hardened_marker}")
+        if hardened_marker not in evidence_html:
+            errors.append(f"B1.8 evidence surface missing inspection marker: {hardened_marker}")
+    if "zoomed&&panned&&macro&&finalMicro" not in html:
+        errors.append("B1.8 hardened participant logic missing zoom/pan outcome rule")
 
     if "fetch('/api" in implementation or 'fetch("/api' in implementation:
         errors.append("B1.8 acceptance layer must not submit receipts to runtime APIs")
