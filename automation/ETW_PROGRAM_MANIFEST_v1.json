@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.0",
   "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
-  "status": "CANONICAL_EXECUTION_COMPATIBILITY_MANIFEST",
+  "status": "CANONICAL",
   "execution_state": "AUTHORIZED_FOR_PREPARATION",
   "current_slice": "ETW-A0",
   "current_execution_mode": "PREP_ONLY",
