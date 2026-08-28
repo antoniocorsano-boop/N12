@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "policy_id": "CEW_CANDIDATE_RUNTIME_POLICY",
+  "status": "REQUIRED",
+  "purpose": "Provide a stable, low-cost runtime for immutable CEW Human Acceptance candidates without coupling development commit frequency to hosting deployments.",
+  "primary_provider": {
+    "provider": "RENDER",
+    "service_name": "cew-hva-candidate",
+    "service_role": "CANDIDATE_HVA",
+    "plan": "free",
+    "region": "frankfurt",
+    "blueprint": "render.yaml",
+    "auto_deploy": false,
+    "deploy_mode": "SPECIFIC_IMMUTABLE_COMMIT",
+    "health_path": "/readyz",
+    "public_runtime": true,
+    "production_authority": false
+  },
+  "fallback_provider": {
+    "provider": "VERCEL",
+    "policy": "automation/CEW_VERCEL_DEPLOY_POLICY_v1.json",
+    "role": "CONTROLLED_PREVIEW_FALLBACK",
+    "automatic_working_commit_deploy": false,
+    "production_authority": false
+  },
+  "candidate_rules": {
+    "full_sha_required": true,
+    "same_sha_as_automated_gate_candidate": true,
+    "manual_specific_commit_deploy_required": true,
+    "auto_deploy_for_working_commits_forbidden": true,
+    "provider_change_does_not_change_candidate_identity": true,
+    "deployment_does_not_imply_hva": true,
+    "deployment_does_not_imply_promotion": true,
+    "deployment_does_not_imply_engineering_authority": true
+  },
+  "readiness_contract": {
+    "endpoint": "/readyz",
+    "required_http_status": 200,
+    "required_runtime_provider": "RENDER",
+    "required_runtime_role": "CANDIDATE_HVA",
+    "runtime_revision_must_equal_candidate_sha": true,
+    "auth_configured": true,
+    "persistent_audit_backend_required": true,
+    "allowed_audit_backends": [
+      "NEON_APPEND_ONLY",
+      "SUPABASE_APPEND_ONLY",
+      "NETLIFY_AUDIT_HTTPS"
+    ],
+    "canonical_write_authorized": false
+  },
+  "render_required_secrets": [
+    "CEW_ACCESS_PASSWORD",
+    "CEW_AUDIT_NEON_DATABASE_URL"
+  ],
+  "render_generated_secrets": [
+    "CEW_SESSION_SECRET"
+  ],
+  "render_fail_closed_rules": [
+    "CEW_AUTH_DISABLED_FOR_TEST cannot disable auth on a managed Render runtime.",
+    "A Render runtime without a persistent audit backend is not ready.",
+    "The Render ephemeral filesystem is never accepted as HVA receipt persistence.",
+    "A candidate whose RENDER_GIT_COMMIT does not match the accepted SHA cannot satisfy HVA runtime identity."
+  ],
+  "free_tier_operational_rules": {
+    "cold_start_expected_after_idle": true,
+    "prewarm_before_hva_session": true,
+    "prewarm_is_not_acceptance_evidence": true,
+    "free_runtime_not_declared_production": true
+  }
+}

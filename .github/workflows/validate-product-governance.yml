@@ -12,16 +12,23 @@ on:
       - 'docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md'
       - 'docs/ACCEPTANCE/AI_NATIVE_PRODUCT_GOVERNANCE_ACCEPTANCE_v1.md'
       - 'docs/README.md'
+      - 'render.yaml'
+      - 'app.py'
       - 'automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json'
       - 'automation/AI_NATIVE_AGENT_OPERATING_CONTRACT_v1.json'
       - 'automation/PRODUCT_DECISION_REGISTER_v1.json'
+      - 'automation/CEW_CANDIDATE_RUNTIME_POLICY_v1.json'
+      - 'automation/CEW_CANDIDATE_RUNTIME_STATE_v1.json'
       - 'automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json'
       - 'automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json'
       - 'automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json'
       - 'automation/ETW_PROGRAM_MANIFEST_v1.json'
       - 'automation/ETW_PROGRAM_STATUS_v1.json'
       - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
+      - 'scripts/cew_runtime_audit_store.py'
+      - 'scripts/validate_cew_candidate_runtime_policy.py'
       - 'scripts/validate_product_governance.py'
+      - '.github/workflows/validate-cew-candidate-runtime.yml'
       - '.github/workflows/validate-product-governance.yml'
   workflow_dispatch:
 
@@ -34,6 +41,10 @@ jobs:
         with:
           python-version: '3.12'
       - name: Validate syntax
-        run: python -m py_compile scripts/validate_product_governance.py
+        run: |
+          python -m py_compile scripts/validate_product_governance.py
+          python -m py_compile scripts/validate_cew_candidate_runtime_policy.py
       - name: Validate governance authority and state consistency
         run: python scripts/validate_product_governance.py
+      - name: Validate candidate runtime authority boundary
+        run: python scripts/validate_cew_candidate_runtime_policy.py

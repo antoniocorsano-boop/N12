@@ -25,10 +25,13 @@ This index makes the repository readable without reconstructing product policy f
 6. **Current CEW human-centred / GOV.UK model**  
    `docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v2.md`
 
-7. **Current eTwin platform promotion programme**  
+7. **Current CEW Candidate/HVA runtime policy**  
+   `docs/GOVERNANCE/CEW_CANDIDATE_RUNTIME_POLICY_v1.md`
+
+8. **Current eTwin platform promotion programme**  
    `docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v2.md`
 
-8. **Current eTwin agentic promotion orchestration**  
+9. **Current eTwin agentic promotion orchestration**  
    `docs/PROGRAM/ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v2.md`
 
 ## Historical preparation contracts
@@ -53,6 +56,26 @@ CEW/eTwin product documentation does not replace or upgrade N12 engineering fact
 `data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json`
 
 This reports current CEW product/runtime maturity and points to governing contracts.
+
+### CEW Candidate/HVA runtime
+
+Primary provider for the current phase:
+
+`Render / cew-hva-candidate`
+
+Machine policy:
+
+`automation/CEW_CANDIDATE_RUNTIME_POLICY_v1.json`
+
+Runtime state:
+
+`automation/CEW_CANDIDATE_RUNTIME_STATE_v1.json`
+
+Infrastructure definition:
+
+`render.yaml`
+
+Render is an operational Candidate/HVA runtime only. Deployment does not imply HVA, promotion or engineering authority. Vercel remains a controlled Preview fallback under `automation/CEW_VERCEL_DEPLOY_POLICY_v1.json`.
 
 ### eTwin programme state
 
@@ -82,7 +105,7 @@ Material product/governance changes are persisted here and linked to durable dec
 
 | Directory | Role |
 |---|---|
-| `docs/GOVERNANCE/` | cross-product operating, authority and capability-boundary rules |
+| `docs/GOVERNANCE/` | cross-product operating, authority, runtime and capability-boundary rules |
 | `docs/PROGRAM/` | product/programme delivery models |
 | `docs/ARCHITECTURE/` | system/product architecture |
 | `docs/PRODUCT/` | bounded capability contracts |
@@ -111,6 +134,14 @@ Historical B1.7 instrument contract:
 
 The v1 instrument remains evidence of what was implemented and observed; it is not silently rewritten.
 
+## Candidate runtime rule
+
+The HVA runtime is deployed only after one immutable SHA is selected and has passed the declared automated gates. The runtime must expose the exact SHA and pass `/readyz` before participant observation begins.
+
+Working commits do not require Candidate/HVA deployment.
+
+Render Free may cold-start after inactivity; the service is warmed and `/readyz` is verified before a session. The warm-up itself is operational preparation and does not count as HVA evidence.
+
 ## Historical documents
 
 Historical documents remain deliberately available. A file with an older version number is not automatically current authority. Use `automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json` and decision records to resolve the current governing document.
@@ -123,11 +154,12 @@ For cross-cutting product work agents read, in order:
 2. L0 governance docs referenced there;
 3. the product-family capability map;
 4. the cross-product agent operating contract;
-5. the relevant current product/programme plan;
-6. current state;
-7. selected queue/work item;
-8. capability contract(s);
-9. product decision register and applicable decision records;
-10. relevant receipts/evidence.
+5. the Candidate Runtime policy when work affects deployed human evaluation;
+6. the relevant current product/programme plan;
+7. current state;
+8. selected queue/work item;
+9. capability contract(s);
+10. product decision register and applicable decision records;
+11. relevant receipts/evidence.
 
 Agents do not infer current policy from chat history or modification timestamps.

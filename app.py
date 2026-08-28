@@ -38,8 +38,29 @@ TERMINOLOGY = ROOT / "automation/CEW_TERMINOLOGY_LAYER_v1.json"
 LIFECYCLE = ROOT / "automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json"
 
 
+def _managed_runtime() -> bool:
+    return bool(os.getenv("VERCEL") or os.getenv("RENDER"))
+
+
+def _runtime_provider() -> str:
+    if os.getenv("RENDER"):
+        return "RENDER"
+    if os.getenv("VERCEL"):
+        return "VERCEL"
+    return "LOCAL"
+
+
+def _runtime_revision() -> str:
+    return (
+        os.getenv("RENDER_GIT_COMMIT")
+        or os.getenv("VERCEL_GIT_COMMIT_SHA")
+        or os.getenv("CEW_RUNTIME_REVISION")
+        or "LOCAL"
+    )
+
+
 def _auth_disabled_for_test() -> bool:
-    return os.getenv("CEW_AUTH_DISABLED_FOR_TEST") == "1" and not os.getenv("VERCEL")
+    return os.getenv("CEW_AUTH_DISABLED_FOR_TEST") == "1" and not _managed_runtime()
 
 
 def _auth_configured() -> bool:
@@ -69,7 +90,7 @@ def _login_page(message: str = "") -> str:
 
 @app.middleware("http")
 async def access_guard(request: Request, call_next):
-    if request.url.path in {"/healthz", "/login"}:
+    if request.url.path in {"/healthz", "/readyz", "/login"}:
         return await call_next(request)
     if not _authorized(request):
         return RedirectResponse(url="/login", status_code=303)
@@ -82,6 +103,9 @@ def healthz():
     return {
         "service": "CEW_USER_RUNTIME",
         "status": "OK" if (_auth_configured() or _auth_disabled_for_test()) else "CONFIG_REQUIRED",
+        "runtime_provider": _runtime_provider(),
+        "runtime_revision": _runtime_revision(),
+        "runtime_role": os.getenv("CEW_RUNTIME_ROLE", "UNSPECIFIED"),
         "auth_configured": _auth_configured(),
         "audit_backend": backend,
         "production_receipt_submit_ready": backend in PRODUCTION_AUDIT_BACKENDS,
@@ -96,6 +120,24 @@ def healthz():
         "source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED",
         "canonical_write_authorized": False,
     }
+
+
+@app.get("/readyz")
+def readyz():
+    backend = audit_store.backend_status()
+    ready = _auth_configured() and backend in PRODUCTION_AUDIT_BACKENDS
+    payload = {
+        "service": "CEW_USER_RUNTIME",
+        "status": "READY" if ready else "CONFIG_REQUIRED",
+        "runtime_provider": _runtime_provider(),
+        "runtime_revision": _runtime_revision(),
+        "runtime_role": os.getenv("CEW_RUNTIME_ROLE", "UNSPECIFIED"),
+        "auth_configured": _auth_configured(),
+        "audit_backend": backend,
+        "persistent_audit_ready": backend in PRODUCTION_AUDIT_BACKENDS,
+        "canonical_write_authorized": False,
+    }
+    return JSONResponse(payload, status_code=200 if ready else 503, headers={"Cache-Control": "no-store"})
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -119,7 +161,7 @@ async def login_post(request: Request):
         SESSION_COOKIE,
         _session_value(),
         httponly=True,
-        secure=bool(os.getenv("VERCEL")) or request.url.scheme == "https",
+        secure=_managed_runtime() or request.url.scheme == "https",
         samesite="lax",
         max_age=12 * 60 * 60,
     )
