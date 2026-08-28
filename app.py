@@ -18,6 +18,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import cew_b1_acceptance_lab as acceptance_lab
+import cew_b1_dual_workspace as dual_workspace
 import cew_document_drawing_workspace as document_workspace
 import cew_document_intake as document_intake
 import cew_document_map_page as document_map_page
@@ -116,6 +117,7 @@ def healthz():
         "document_intake": "B14_METADATA_ONLY_PREP_AVAILABLE_NOT_PROMOTED",
         "document_byte_storage": "NOT_CONFIGURED",
         "b1_acceptance_lab": "B18_IMPLEMENTED_CANDIDATE_HVA_PENDING",
+        "b18_dual_workspace": "IMPLEMENTED_CANDIDATE_HVA_PENDING",
         "source_workspace": "B1_AVAILABLE",
         "source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED",
         "canonical_write_authorized": False,
@@ -259,6 +261,15 @@ def evidence_workspace(task: str = ""):
     except (KeyError, ValueError):
         return HTMLResponse("<h1>Evidenza non disponibile</h1><a href='/sources'>Torna alle fonti</a>", status_code=404)
     return HTMLResponse(source_workspace.build_evidence_workspace(task))
+
+
+@app.get("/evidence/dual-workspace", response_class=HTMLResponse)
+def evidence_dual_workspace(task: str = ""):
+    try:
+        source_workspace.task_context(task)
+    except (KeyError, ValueError):
+        return HTMLResponse("<h1>Workspace duale non disponibile</h1><p>Fail closed: provenienza incompleta o task non valido.</p><a href='/sources'>Torna alle fonti</a>", status_code=404)
+    return HTMLResponse(dual_workspace.build_workspace(task, source_workspace))
 
 
 @app.get("/api/source/pdf/{source_id}")
