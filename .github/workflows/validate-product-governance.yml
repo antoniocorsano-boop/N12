@@ -12,6 +12,8 @@ on:
       - 'docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md'
       - 'docs/README.md'
       - 'automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json'
+      - 'automation/AI_NATIVE_AGENT_OPERATING_CONTRACT_v1.json'
+      - 'automation/PRODUCT_DECISION_REGISTER_v1.json'
       - 'automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json'
       - 'automation/ETW_PROGRAM_MANIFEST_v1.json'
       - 'automation/ETW_PROGRAM_STATUS_v1.json'
