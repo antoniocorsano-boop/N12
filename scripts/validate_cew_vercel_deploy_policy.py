@@ -24,12 +24,14 @@ def main() -> int:
     governance = json.loads(GOVERNANCE.read_text(encoding="utf-8"))
     workflow = WORKFLOW.read_text(encoding="utf-8")
 
-    assert vercel.get("git", {}).get("deploymentEnabled") is False, (
-        "Vercel Git auto-deploy must remain disabled; candidate deployment is controlled by GitHub Actions"
-    )
-    assert policy["git_auto_deploy"] is False
-    assert policy["preview_mode"] == "GATED_CANDIDATE_ONLY"
-    assert policy["production_mode"] == "MANUAL_AFTER_CEW_PROMOTION_ONLY"
+    deployment_rules = vercel.get("git", {}).get("deploymentEnabled")
+    assert isinstance(deployment_rules, dict), "Vercel deploymentEnabled must be an explicit branch-rule map"
+    assert deployment_rules.get("**") is False, "ordinary Git branches must not auto-deploy"
+    assert deployment_rules.get("vercel-preview/**") is True, "only gated preview refs may trigger Vercel"
+
+    assert policy["git_integration"] == "ENABLED_FOR_GATED_BRANCHES_ONLY"
+    assert policy["preview_mode"] == "GATED_CANDIDATE_REF_ONLY"
+    assert policy["candidate_ref_prefix"] == "vercel-preview/"
     assert len(policy["preview_required_workflows"]) >= 10
     assert len(policy["preview_required_workflows"]) == len(set(policy["preview_required_workflows"]))
 
@@ -37,18 +39,21 @@ def main() -> int:
     assert rules["immutable_sha_required"] is True
     assert rules["open_pull_request_head_required"] is True
     assert rules["all_required_workflows_success"] is True
-    assert rules["duplicate_preview_for_same_sha_forbidden"] is True
+    assert rules["preview_ref_must_point_to_exact_candidate_sha"] is True
+    assert rules["automatic_first_generation"] == 1
+    assert rules["manual_retry_may_increment_generation_without_changing_sha"] is True
     assert rules["deployment_does_not_imply_hva"] is True
     assert rules["deployment_does_not_imply_promotion"] is True
 
+    credentials = policy["credentials"]
+    assert credentials["vercel_token_required"] is False
+    assert credentials["repository_secret_required"] is False
+    assert credentials["github_token_source"] == "GITHUB_ACTIONS_BUILT_IN_TOKEN"
+
     prod = policy["production_rules"]
     assert prod["automatic_git_production_deploy"] is False
-    assert prod["cew_promoted_baseline_required"] is True
-    assert prod["same_sha_as_promoted_baseline_required"] is True
-    assert prod["manual_dispatch_required"] is True
-
-    assert policy["authentication"]["github_secret_required"] == "VERCEL_TOKEN"
-    assert policy["authentication"]["repository_must_not_store_token"] is True
+    assert prod["production_not_implemented_by_candidate_ref_policy"] is True
+    assert prod["cew_promoted_baseline_required_before_any_future_production_deploy"] is True
 
     gov = governance["repository_governance"]
     assert gov["cew_vercel_deploy_policy"] == "automation/CEW_VERCEL_DEPLOY_POLICY_v1.json"
@@ -58,25 +63,31 @@ def main() -> int:
         "workflow_run:",
         "workflow_dispatch:",
         "check_cew_vercel_candidate_runs.py",
-        "CEW/Vercel Candidate Preview",
-        "VERCEL_TOKEN",
-        "automation/CEW_PROMOTED_BASELINE_v1.json",
-        "vercel@latest deploy",
+        "vercel-preview/",
+        "git/refs",
+        "CEW/Vercel Candidate Trigger",
         "open pull request",
+        "retry_generation",
     ]
     for marker in required_markers:
-        assert marker in workflow, f"deployment workflow missing marker: {marker}"
+        assert marker in workflow, f"candidate-ref workflow missing marker: {marker}"
 
-    # Secrets must only be referenced symbolically, never embedded as token values.
-    forbidden_literals = ["vcp_", "VERCEL_TOKEN="]
-    for literal in forbidden_literals:
-        assert literal not in workflow, f"possible credential literal in workflow: {literal}"
+    forbidden_markers = [
+        "VERCEL_TOKEN",
+        "vercel@latest deploy",
+        "--prod",
+        "CEW_PROMOTED_BASELINE_v1.json",
+        "vcp_",
+    ]
+    for marker in forbidden_markers:
+        assert marker not in workflow, f"candidate-ref workflow must not contain direct Vercel deploy/credential marker: {marker}"
 
     print("CEW_VERCEL_DEPLOY_POLICY_PASS")
-    print("GIT_AUTO_DEPLOY = false")
+    print("ORDINARY_GIT_AUTO_DEPLOY = false")
+    print("GATED_PREVIEW_REF = vercel-preview/**")
     print(f"PREVIEW_REQUIRED_WORKFLOWS = {len(policy['preview_required_workflows'])}")
-    print("PREVIEW = GATED_CANDIDATE_ONLY")
-    print("PRODUCTION = PROMOTED_BASELINE_REQUIRED")
+    print("VERCEL_TOKEN_REQUIRED = false")
+    print("PRODUCTION_AUTO_DEPLOY = false")
     return 0
 
 
