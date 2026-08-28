@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "model_id": "CEW_DOCUMENT_INTAKE_MODEL",
+  "program_goal": "CEW-GOAL-01",
+  "status": "B14_PREPARATION",
+  "contract": "docs/PRODUCT/CEW_DOCUMENT_INTAKE_VERSIONING_V1_CONTRACT.md",
+  "states": [
+    "LOCAL_SELECTED",
+    "HASH_READY",
+    "EXACT_DUPLICATE",
+    "SOURCE_DECISION_REQUIRED",
+    "NEW_SOURCE_CANDIDATE",
+    "NEW_VERSION_CANDIDATE",
+    "HUMAN_CLASSIFICATION_REQUIRED",
+    "STORAGE_AUTHORIZATION_REQUIRED",
+    "STORED_PRIVATE",
+    "SOURCEVERSION_PROPOSAL_READY",
+    "REJECTED",
+    "FAILED"
+  ],
+  "metadata_analysis_fields": ["filename", "size_bytes", "mime_type", "sha256", "selected_source_id"],
+  "human_classification_fields": ["document_family", "discipline", "project_level_or_scope", "project_role", "source_decision", "origin_note"],
+  "duplicate_policy": {
+    "exact_sha256": "EXACT_DUPLICATE",
+    "filename_only_binding": "FORBIDDEN",
+    "explicit_existing_source_plus_new_hash": "NEW_VERSION_CANDIDATE",
+    "no_match_no_explicit_source": "SOURCE_DECISION_REQUIRED"
+  },
+  "storage_policy": {
+    "production_adapter_state": "NOT_CONFIGURED_IN_B14_PREPARATION",
+    "private_by_default_required": true,
+    "stored_hash_reverification_required": true,
+    "public_raw_url_forbidden": true,
+    "metadata_only_analysis_uploads_bytes": false
+  },
+  "promotion_policy": {
+    "sourceversion_overwrite": false,
+    "metadata_analysis_is_canonical_write": false,
+    "stored_private_is_canonical_write": false,
+    "sourceversion_proposal_is_canonical_write": false,
+    "human_source_decision_required": true,
+    "human_classification_required": true
+  },
+  "authority": "PRODUCT_INTAKE_WORKFLOW_ONLY"
+}
