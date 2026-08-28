@@ -8,6 +8,9 @@ on:
       - 'automation/ETW_PLATFORM_SCOPE_MODEL_v1.json'
       - 'automation/ETW_A0_USABILITY_TASKS_v1.json'
       - 'automation/ETW_A0_WORK_PACKAGE_v1.json'
+      - 'automation/inbox/ETW_AGENT_RESULT.json'
+      - 'automation/receipts/etw-platform/ETW-A0-SECURITY-ISOLATION-PREP.json'
+      - 'automation/receipts/etw-platform/ETW-A0-AUTHORITY-AUDIT-PREP.json'
       - 'scripts/etw_cew_source_inventory_adapter.py'
       - 'scripts/etw_scope_context.py'
       - 'scripts/validate_etw_platform_identity_boundary.py'
@@ -40,7 +43,7 @@ jobs:
       - name: Integrated A0 preparation gate
         run: python scripts/validate_etw_platform_identity_boundary.py
 
-      - name: Assert PREP-only promotion boundary
+      - name: Assert PREP-only promotion boundary before ingest
         run: |
           python - <<'PY'
           import json, subprocess
@@ -50,5 +53,32 @@ jobs:
           assert s['selection_reason']=='PREP_ONLY', s
           assert 'CEW_PROMOTED_BASELINE' in s['promotion_blockers'], s
           assert s['external_gate_state']['CEW_PROMOTED_BASELINE']=='NOT_SATISFIED', s
-          print('ETW A0 PROMOTION BOUNDARY: PASS')
+          print('ETW A0 PRE-INGEST PROMOTION BOUNDARY: PASS')
+          PY
+
+      - name: Simulate orchestrated PREP_PASS ingest
+        run: |
+          python scripts/etw_orchestrator.py ingest --result automation/inbox/ETW_AGENT_RESULT.json > /tmp/etw-ingest.json
+          cat /tmp/etw-ingest.json
+          python - <<'PY'
+          import json
+          queue=json.load(open('automation/ETW_DEVELOPMENT_QUEUE_v1.json'))
+          by_id={item['id']:item for item in queue['items']}
+          a0=by_id['ETW-A0']
+          a1=by_id['ETW-A1']
+          assert a0['state']=='PREPARED_BLOCKED_PROMOTION', a0
+          assert a0['preparation_decision']=='PREP_PASS', a0
+          assert 'CEW_PROMOTED_BASELINE' in a0['promotion_blockers'], a0
+          assert a1['state']=='WAITING', a1
+          print('ETW A0 ORCHESTRATED PREP_PASS TRANSITION: PASS')
+          PY
+
+      - name: Assert post-ingest A1 remains unreleased
+        run: |
+          python - <<'PY'
+          import json, subprocess
+          s=json.loads(subprocess.check_output(['python','scripts/etw_orchestrator.py','status'], text=True))
+          assert s['selected_work_item']['id']=='ETW-A0', s
+          assert s['selection_reason']=='NO_ELIGIBLE_ITEM' or s['decision']=='BLOCKED_DEPENDENCY' or s['selected_work_item']['state']=='PREPARED_BLOCKED_PROMOTION', s
+          print('ETW A1 RELEASE BLOCK: PASS')
           PY
