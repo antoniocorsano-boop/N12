@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.3",
+  "schema_version": "1.4",
   "manifest_id": "PRODUCT_GOVERNANCE_MANIFEST",
   "status": "CANONICAL",
   "updated": "2026-08-28",
@@ -29,6 +29,8 @@
   "current_state": {
     "n12_engineering_authority": "knowledge/CURRENT_STATE.json",
     "cew_product_runtime_state": "data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json",
+    "cew_product_queue": "automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json",
+    "cew_b1_execution_plan": "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json",
     "etwin_program_manifest": "automation/ETW_PROGRAM_MANIFEST_v1.json",
     "etwin_program_status": "automation/ETW_PROGRAM_STATUS_v1.json",
     "etwin_development_queue": "automation/ETW_DEVELOPMENT_QUEUE_v1.json",
@@ -38,6 +40,7 @@
     "cew_usability_metrics_model": "automation/CEW_USABILITY_METRICS_MODEL_v1.json",
     "historical_b17_acceptance_contract": "automation/CEW_B1_USABILITY_ACCEPTANCE_CONTRACT_v1.json",
     "current_b1_acceptance_contract": "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json",
+    "current_b1_execution_plan": "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json",
     "current_human_factors_decision": "docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md",
     "rule": "Participant professional work, observation/telemetry, reviewer decision and receipt generation are separate layers. The B1.7 v1 participant surface is historical instrument evidence and is not the target acceptance interaction for promotion."
   },
