@@ -78,7 +78,8 @@ jobs:
           python - <<'PY'
           import json, subprocess
           s=json.loads(subprocess.check_output(['python','scripts/etw_orchestrator.py','status'], text=True))
-          assert s['selected_work_item']['id']=='ETW-A0', s
-          assert s['selection_reason']=='NO_ELIGIBLE_ITEM' or s['decision']=='BLOCKED_DEPENDENCY' or s['selected_work_item']['state']=='PREPARED_BLOCKED_PROMOTION', s
+          assert s['decision']=='BLOCKED_DEPENDENCY', s
+          assert s['selected_work_item'] is None, s
+          assert s['completion']['complete'] == 0, s
           print('ETW A1 RELEASE BLOCK: PASS')
           PY
