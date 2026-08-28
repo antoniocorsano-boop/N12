@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "ETW_AGENT_RESULT_HANDSHAKE",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "inbox": "automation/inbox/ETW_AGENT_RESULT.json",
+  "receipt_dir": "automation/receipts/etw-platform",
+  "max_work_items_per_result": 1,
+  "allowed_decisions": [
+    "PREP_PASS",
+    "PASS",
+    "PASS_WITH_WATCH",
+    "RESIDUAL",
+    "BLOCKED",
+    "CONFLICT",
+    "HUMAN_AUTHORITY_REQUIRED"
+  ],
+  "required_fields": [
+    "schema_version",
+    "work_item_id",
+    "agent_role",
+    "decision",
+    "baseline",
+    "target_outputs",
+    "validation",
+    "usability",
+    "residuals",
+    "authority_boundary",
+    "audit_paths"
+  ],
+  "baseline_required_fields": [
+    "etw_base_sha",
+    "cew_contract_baseline_sha",
+    "cew_promoted_baseline_sha"
+  ],
+  "pass_rules": {
+    "work_item_must_match_orchestrator_selection": true,
+    "agent_role_must_own_selected_item": true,
+    "target_outputs_must_match_queue_item": true,
+    "all_required_gates_must_pass": true,
+    "user_facing_items_require_hva": true,
+    "production_changes_require_production_smoke": true,
+    "authority_boundary_must_be_explicit": true,
+    "critical_safety_failures_block_pass": true,
+    "human_authority_items_cannot_auto_complete": true,
+    "promotion_requires_no_open_external_blocker": true
+  },
+  "prep_pass_rules": {
+    "only_allowed_when_execution_mode_is_PREP_ONLY": true,
+    "does_not_mark_item_complete": true,
+    "moves_item_to_PREPARED_BLOCKED_PROMOTION": true,
+    "requires_automated_gates_for_prepared_outputs": true,
+    "must_list_remaining_promotion_blockers": true
+  },
+  "non_pass_rules": {
+    "RESIDUAL": "Keep the smallest unresolved dependency explicit and do not promote.",
+    "BLOCKED": "Identify the missing dependency/capability and stop.",
+    "CONFLICT": "Preserve competing states; no last-write-wins.",
+    "HUMAN_AUTHORITY_REQUIRED": "Prepare the decision pack and stop before professional authority."
+  },
+  "critical_safety_metrics": [
+    "cross_project_leakage",
+    "cross_discipline_leakage",
+    "cross_discipline_false_equivalence",
+    "discipline_owner_misidentification",
+    "spatial_relation_misread_as_identity",
+    "authority_boundary_errors",
+    "canonical_write_misconception"
+  ],
+  "forbidden": [
+    "multiple work items in one result",
+    "changing work item by agent preference",
+    "promoting ETW-A0 before CEW_PROMOTED_BASELINE",
+    "altering N12 engineering facts from platform work",
+    "declaring HVA from automated CI",
+    "declaring Production readiness from Vercel Ready alone",
+    "bypassing human engineering authority",
+    "using TEST_ONLY fixtures as actual N12 history"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "state_id": "CEW_CANDIDATE_RUNTIME_STATE",
+  "status": "RENDER_PRIMARY_CONFIGURED_IN_REPOSITORY_EXTERNAL_BINDING_PENDING",
+  "updated": "2026-08-28",
+  "primary_provider": "RENDER",
+  "primary_service": "cew-hva-candidate",
+  "primary_region": "frankfurt",
+  "primary_plan": "free",
+  "primary_blueprint": "render.yaml",
+  "primary_auto_deploy": false,
+  "fallback_provider": "VERCEL",
+  "fallback_policy": "automation/CEW_VERCEL_DEPLOY_POLICY_v1.json",
+  "external_binding_required": true,
+  "external_binding_steps": [
+    "Create/connect one Render Blueprint instance from render.yaml.",
+    "Provide CEW_ACCESS_PASSWORD in Render environment configuration.",
+    "Provide CEW_AUDIT_NEON_DATABASE_URL in Render environment configuration.",
+    "Confirm /readyz returns HTTP 200 and runtime_provider=RENDER.",
+    "Deploy the exact immutable HVA candidate SHA using Render Deploy a specific commit."
+  ],
+  "current_hva_candidate": {
+    "sha": "b341bcb53f23e8b9d0e8653596b98cec2f5be0e3",
+    "state": "HISTORICAL_AUTOMATED_VALIDATED_CANDIDATE_REQUIRES_RUNTIME_HARDENING_REVISION_BEFORE_RENDER_HVA",
+    "reason": "The existing candidate predates the /readyz and Render managed-runtime hardening introduced by this policy. It remains valid historical automated evidence but is not the target Render HVA revision."
+  },
+  "next_candidate_rule": "The next B1.8 candidate must include the Render managed-runtime hardening, pass the full automated gate set on one immutable SHA, then be deployed to Render by exact SHA before HVA.",
+  "production_authorized": false,
+  "canonical_write_authorized": false,
+  "engineering_authority_effect": "NONE"
+}

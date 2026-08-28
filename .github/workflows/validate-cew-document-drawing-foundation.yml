@@ -9,8 +9,9 @@ on:
       - 'automation/CEW_TERMINOLOGY_LAYER_v1.json'
       - 'automation/CEW_USABILITY_METRICS_MODEL_v1.json'
       - 'automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json'
-      - 'docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v1.md'
-      - 'docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v1.md'
+      - 'automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json'
+      - 'docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v2.md'
+      - 'docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v2.md'
       - 'docs/PRODUCT/CEW_DOCUMENT_DRAWING_WORKSPACE_V1_CONTRACT.md'
       - 'data/canonical/tavole_originali_remote_index_v1.csv'
       - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
@@ -32,7 +33,7 @@ jobs:
           python -m py_compile app.py
       - name: Install runtime dependencies
         run: pip install -r requirements.txt
-      - name: Validate B1.1 data, integration and usability fixtures
+      - name: Validate document/drawing foundation and current B1 acceptance boundary
         run: python scripts/validate_cew_document_drawing_foundation.py
       - name: Route registry and response smoke without production secrets
         env:
@@ -60,11 +61,13 @@ jobs:
           assert h['document_workspace'] == 'B11_AVAILABLE'
           assert h['drawing_register'] == 'B11_AVAILABLE'
           assert h['canonical_write_authorized'] is False
-          print('CEW B1.1 ROUTE SMOKE: PASS')
+          print('CEW DOCUMENT/DRAWING FOUNDATION ROUTE SMOKE: PASS')
           PY
-      - name: Declare HVA boundary
+      - name: Preserve current human-acceptance boundary
         run: |
           echo 'UX-DOC-01 automated fixture: PASS candidate'
           echo 'UX-DOC-04 automated fixture: PASS candidate'
-          echo 'UX-DOC-02: HVA_REQUIRED in B1.2 viewer slice'
-          echo 'UX-DOC-03: HVA_REQUIRED in B1.2/B1.6 source-evidence round trip'
+          echo 'B1.1/B1.2 = PREPARED_BLOCKED_PROMOTION'
+          echo 'B1.8 = HUMAN_ACCEPTANCE_V2_DESIGN_REQUIRED'
+          echo 'HVA_GATE = REQUIRED_NOT_SATISFIED'
+          echo 'PRODUCTION_PROMOTION_AUTHORIZED = false'

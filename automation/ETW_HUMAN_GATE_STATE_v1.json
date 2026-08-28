@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "ETW_EXTERNAL_AND_HUMAN_GATE_STATE",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "gates": {
+    "CEW_PROMOTED_BASELINE": {
+      "kind": "EXTERNAL_BASELINE",
+      "state": "NOT_SATISFIED",
+      "required_for_completion": ["ETW-A0"],
+      "evidence": null,
+      "rule": "Must identify an immutable compatible CEW SHA whose applicable automated gates, HVA, Production smoke, receipt and promotion are complete."
+    },
+    "APPROVE_PLATFORM_BOUNDARY": {
+      "kind": "HUMAN_PRODUCT_AUTHORITY",
+      "state": "PENDING",
+      "after_item": "ETW-A0",
+      "blocks_release_of": ["ETW-A1"],
+      "evidence": null,
+      "rule": "Human approval after A0 proves CEW-bound Structures, Architecture source inventory without domain admission, TEST_ONLY isolation, fail-closed scope and no primitive migration."
+    },
+    "APPROVE_CROSSDISCIPLINE_CONTRACT": {
+      "kind": "HUMAN_PRODUCT_AND_ENGINEERING_BOUNDARY",
+      "state": "PENDING",
+      "after_item": "ETW-A3",
+      "blocks_release_of": ["ETW-A4"],
+      "evidence": null,
+      "rule": "Human approval requires ArchitectureDisciplineContract, exact TAV-02 identity, reviewed single vertical and verified geometry-not-identity/source-DOC-not-entity-DOC invariants."
+    },
+    "APPROVE_PRODUCTION_ACCEPTANCE": {
+      "kind": "HUMAN_PRODUCT_AUTHORITY",
+      "state": "PENDING",
+      "after_item": "ETW-Z0",
+      "blocks_release_of": ["ETW_PLATFORM_V1_PRODUCTION"],
+      "evidence": null,
+      "rule": "Final human authorization requires reconciled frozen-candidate dossier, gates, HVA, smoke, zero critical safety failures and non-mutating P0-P16 replay."
+    }
+  },
+  "mutation_policy": {
+    "agents_may_set_human_gate_pass": false,
+    "agents_may_set_cew_promoted_baseline": false,
+    "human_gate_evidence_must_be_append_only_receipt": true,
+    "external_baseline_evidence_must_include_sha_and_receipt_paths": true
+  }
+}

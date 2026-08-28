@@ -27,7 +27,7 @@ def backend_status() -> str:
     key = os.getenv("CEW_AUDIT_SUPABASE_SERVICE_ROLE_KEY", "").strip()
     if url and key:
         return "SUPABASE_APPEND_ONLY"
-    if os.getenv("VERCEL"):
+    if os.getenv("VERCEL") or os.getenv("RENDER"):
         return "UNCONFIGURED_PRODUCTION"
     return "FILESYSTEM_APPEND_ONLY"
 
