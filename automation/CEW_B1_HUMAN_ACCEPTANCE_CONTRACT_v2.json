@@ -42,7 +42,7 @@
       "automatic_observations": [
         "correct_drawing_reached",
         "viewer_rotation_observed_and_reset",
-        "evidence_to_drawing_round_trip",
+        "evidence_to_drawing_to_evidence_round_trip",
         "revisited_navigation_path"
       ]
     },
@@ -71,11 +71,10 @@
       "task_id": "UX-DOC-01",
       "participant_prompt_it": "Devi controllare la carpenteria del IV impalcato. Trova la tavola corretta e aprila.",
       "start_path": "/",
-      "internal_success_condition": "Correct governed drawing/source is opened without repository-path knowledge and the participant can identify the original source status.",
+      "internal_success_condition": "Correct governed drawing is opened without repository-path knowledge; primary/derived authority comprehension is evaluated independently in UX-DOC-04.",
       "automatic_success_signal": "NAVIGATION_CONTAINS_/drawings/TAV-05A",
       "critical_checks": [
-        "wrong_source_or_wrong_version_selection",
-        "primary_source_correctly_identified"
+        "wrong_source_or_wrong_version_selection"
       ]
     },
     {
@@ -95,8 +94,8 @@
       "task_id": "UX-DOC-03",
       "participant_prompt_it": "Vuoi verificare da quale parte della tavola deriva questa evidenza. Apri il contesto della fonte e poi torna all’evidenza.",
       "start_path": "/evidence/review?task=ERW-N12-001",
-      "internal_success_condition": "Evidence/drawing round trip succeeds without requiring internal identifiers.",
-      "automatic_success_signal": "EVIDENCE_VISITED_THEN_TAV05A_DRAWING_CONTEXT_REACHED",
+      "internal_success_condition": "Evidence -> complete drawing context -> evidence round trip succeeds without requiring internal identifiers.",
+      "automatic_success_signal": "EVIDENCE_TO_TAV05A_DRAWING_TO_EVIDENCE_ROUND_TRIP",
       "post_task_mental_model_question_it": "Sei riuscito a vedere il contesto completo della tavola e poi a tornare all’evidenza?",
       "accepted_mental_model": "ROUND_TRIP_UNDERSTOOD",
       "critical_checks": [
