@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "registry_id": "CEW_DOCUMENT_FEATURE_CANDIDATES",
+  "status": "NON_CANONICAL_PRODUCT_REVIEW_STATE",
+  "authority": "DOCUMENT_UNDERSTANDING_CANDIDATES_ONLY",
+  "canonical_engineering_promotion": false,
+  "source_model": "automation/CEW_DOCUMENT_MAP_MODEL_v1.json",
+  "adoption_source": "exp/cew-document-intelligence-foundation-v0",
+  "candidates": [],
+  "note": "Registry intentionally starts empty. Machine/OCR/vector/AI or human-authored candidates must carry source_version_id, page_id, feature_type, detector_or_author, state and provenance before they appear here."
+}
