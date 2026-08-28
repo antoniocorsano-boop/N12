@@ -1,0 +1,84 @@
+name: Validate CEW Candidate Runtime
+
+on:
+  pull_request:
+    paths:
+      - 'render.yaml'
+      - 'app.py'
+      - 'scripts/cew_runtime_audit_store.py'
+      - 'scripts/validate_cew_candidate_runtime_policy.py'
+      - 'automation/CEW_CANDIDATE_RUNTIME_POLICY_v1.json'
+      - 'automation/CEW_CANDIDATE_RUNTIME_STATE_v1.json'
+      - 'automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json'
+      - 'docs/GOVERNANCE/CEW_CANDIDATE_RUNTIME_POLICY_v1.md'
+      - '.github/workflows/validate-cew-candidate-runtime.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-candidate-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install runtime dependencies
+        run: pip install -r requirements.txt
+      - name: Validate policy and repository contract
+        run: python scripts/validate_cew_candidate_runtime_policy.py
+      - name: Render managed runtime fails closed without secrets
+        env:
+          RENDER: 'true'
+          RENDER_GIT_COMMIT: '1111111111111111111111111111111111111111'
+          CEW_RUNTIME_ROLE: 'CANDIDATE_HVA'
+          CEW_AUTH_DISABLED_FOR_TEST: '1'
+        run: |
+          python - <<'PY'
+          import json
+          import app
+          import cew_runtime_audit_store as audit
+
+          assert app._managed_runtime() is True
+          assert app._auth_disabled_for_test() is False
+          assert app._runtime_provider() == 'RENDER'
+          assert app._runtime_revision() == '1111111111111111111111111111111111111111'
+          assert audit.backend_status() == 'UNCONFIGURED_PRODUCTION'
+          response = app.readyz()
+          assert response.status_code == 503
+          payload = json.loads(response.body)
+          assert payload['status'] == 'CONFIG_REQUIRED'
+          assert payload['runtime_provider'] == 'RENDER'
+          assert payload['runtime_role'] == 'CANDIDATE_HVA'
+          assert payload['canonical_write_authorized'] is False
+          print('RENDER_FAIL_CLOSED = PASS')
+          PY
+      - name: Render managed runtime becomes ready only with auth and persistent audit
+        env:
+          RENDER: 'true'
+          RENDER_GIT_COMMIT: '2222222222222222222222222222222222222222'
+          CEW_RUNTIME_ROLE: 'CANDIDATE_HVA'
+          CEW_AUTH_DISABLED_FOR_TEST: '1'
+          CEW_ACCESS_PASSWORD: 'ci-only-password'
+          CEW_SESSION_SECRET: 'ci-only-session-secret'
+          CEW_AUDIT_NEON_DATABASE_URL: 'postgresql://ci-only-placeholder.invalid/cew'
+        run: |
+          python - <<'PY'
+          import json
+          import app
+          import cew_runtime_audit_store as audit
+
+          assert app._auth_disabled_for_test() is False
+          assert audit.backend_status() == 'NEON_APPEND_ONLY'
+          response = app.readyz()
+          assert response.status_code == 200
+          payload = json.loads(response.body)
+          assert payload['status'] == 'READY'
+          assert payload['runtime_provider'] == 'RENDER'
+          assert payload['runtime_revision'] == '2222222222222222222222222222222222222222'
+          assert payload['runtime_role'] == 'CANDIDATE_HVA'
+          assert payload['auth_configured'] is True
+          assert payload['persistent_audit_ready'] is True
+          assert payload['audit_backend'] == 'NEON_APPEND_ONLY'
+          assert payload['canonical_write_authorized'] is False
+          print('RENDER_READINESS_CONTRACT = PASS')
+          PY
