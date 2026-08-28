@@ -1,0 +1,193 @@
+name: Deploy CEW Vercel Candidate
+
+on:
+  workflow_run:
+    workflows:
+      - Validate CEW B1 Human Acceptance v2
+      - Validate CEW Evidence Region Pack
+      - Validate Product Governance
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Immutable candidate SHA to expose to Vercel
+        required: true
+        type: string
+      retry_generation:
+        description: Retry generation for the same SHA after an external quota failure
+        required: true
+        default: '1'
+        type: string
+
+permissions:
+  actions: read
+  contents: write
+  pull-requests: read
+  statuses: write
+
+concurrency:
+  group: cew-vercel-candidate-${{ github.event_name == 'workflow_dispatch' && inputs.candidate_sha || github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  candidate-ref:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Resolve immutable candidate
+        id: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            SHA='${{ inputs.candidate_sha }}'
+            GENERATION='${{ inputs.retry_generation }}'
+          else
+            SHA='${{ github.event.workflow_run.head_sha }}'
+            GENERATION='1'
+          fi
+          if [[ ! "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Invalid candidate SHA: $SHA" >&2
+            exit 2
+          fi
+          if [[ ! "$GENERATION" =~ ^[1-9][0-9]*$ ]]; then
+            echo "Invalid retry generation: $GENERATION" >&2
+            exit 2
+          fi
+          SHORT=${SHA:0:12}
+          REF="vercel-preview/${SHORT}-r${GENERATION}"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "generation=$GENERATION" >> "$GITHUB_OUTPUT"
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout exact candidate SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.candidate.outputs.sha }}
+          fetch-depth: 1
+
+      - name: Require candidate to be an open PR head
+        id: pr
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA='${{ steps.candidate.outputs.sha }}'
+          gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/commits/${SHA}/pulls" > /tmp/pulls.json
+          COUNT=$(jq --arg sha "$SHA" '[.[] | select(.state == "open" and .head.sha == $sha)] | length' /tmp/pulls.json)
+          if [[ "$COUNT" -lt 1 ]]; then
+            echo "Candidate ref refused: SHA is not the head of an open pull request." >&2
+            exit 1
+          fi
+          PR_NUMBER=$(jq -r --arg sha "$SHA" '[.[] | select(.state == "open" and .head.sha == $sha)][0].number' /tmp/pulls.json)
+          echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Read all same-SHA workflow runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA='${{ steps.candidate.outputs.sha }}'
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${SHA}&per_page=100" > /tmp/runs.json
+
+      - name: Evaluate CEW candidate readiness
+        id: readiness
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          required = [
+              "Validate CEW B1 Human Acceptance v2",
+              "Validate Product Governance",
+              "Validate CEW Product Transformation",
+              "Validate CEW Document Drawing Foundation",
+              "Validate CEW Drawing Viewer",
+              "Validate CEW Document Map",
+              "Validate CEW Document Intake",
+              "Validate CEW Source Evidence Journey",
+              "Validate CEW Evidence Region Pack",
+              "Validate CEW Existing Assessment Engine",
+              "Validate CEW Neon User Runtime",
+              "Validate CEW B1 Production Runtime",
+              "Validate CEW User Web Pilot",
+              "Validate CEW Control Room",
+              "Validate CEW Evidence Map",
+              "Validate CEW Netlify Audit",
+              "Validate N12 Knowledge System",
+          ]
+          payload = json.loads(Path('/tmp/runs.json').read_text())
+          latest = {}
+          for run in sorted(payload.get('workflow_runs', []), key=lambda r: int(r.get('run_number', 0)), reverse=True):
+              name = run.get('name')
+              if name and name not in latest:
+                  latest[name] = run
+          problems = []
+          for name in required:
+              run = latest.get(name)
+              if not run:
+                  problems.append(f'MISSING {name}')
+              elif run.get('status') != 'completed' or run.get('conclusion') != 'success':
+                  problems.append(f"NOT_GREEN {name}: {run.get('status')}/{run.get('conclusion')}")
+          out = Path(os.environ['GITHUB_OUTPUT'])
+          if problems:
+              out.write_text('ready=false\n', encoding='utf-8')
+              print('CEW Vercel candidate = WAITING')
+              print('\n'.join(problems))
+          else:
+              out.write_text('ready=true\n', encoding='utf-8')
+              print('CEW Vercel candidate = READY')
+              print(f'Required workflows = {len(required)}')
+          PY
+
+      - name: Stop cleanly while candidate is not ready
+        if: steps.readiness.outputs.ready != 'true'
+        run: echo 'No Vercel preview ref created.'
+
+      - name: Check deterministic candidate ref
+        if: steps.readiness.outputs.ready == 'true'
+        id: existing
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA='${{ steps.candidate.outputs.sha }}'
+          REF='${{ steps.candidate.outputs.ref }}'
+          if gh api "/repos/${GITHUB_REPOSITORY}/git/ref/heads/${REF}" > /tmp/ref.json 2>/dev/null; then
+            EXISTING=$(jq -r '.object.sha' /tmp/ref.json)
+            if [[ "$EXISTING" != "$SHA" ]]; then
+              echo "Candidate ref collision: $REF points to $EXISTING, expected $SHA" >&2
+              exit 1
+            fi
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Candidate ref already exists at exact SHA; no duplicate push."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create gated Vercel Preview ref
+        if: steps.readiness.outputs.ready == 'true' && steps.existing.outputs.exists != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA='${{ steps.candidate.outputs.sha }}'
+          REF='${{ steps.candidate.outputs.ref }}'
+          gh api -X POST "/repos/${GITHUB_REPOSITORY}/git/refs" \
+            -f ref="refs/heads/${REF}" \
+            -f sha="$SHA"
+          echo "Created refs/heads/$REF -> $SHA"
+
+      - name: Record candidate trigger evidence
+        if: steps.readiness.outputs.ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA='${{ steps.candidate.outputs.sha }}'
+          REF='${{ steps.candidate.outputs.ref }}'
+          PR='${{ steps.pr.outputs.number }}'
+          BRANCH_URL="https://github.com/${GITHUB_REPOSITORY}/tree/${REF}"
+          gh api -X POST "/repos/${GITHUB_REPOSITORY}/statuses/${SHA}" \
+            -f state=success \
+            -f context='CEW/Vercel Candidate Trigger' \
+            -f description="Green candidate exposed as ${REF}" \
+            -f target_url="$BRANCH_URL"
+          gh issue comment "$PR" --body "CEW candidate gates are green on immutable SHA \`$SHA\`. Created gated Vercel Preview ref \`$REF\` pointing to the same SHA. Vercel Git Integration may now create this Preview; HVA and promotion remain separate."
