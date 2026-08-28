@@ -1,10 +1,10 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "queue_id": "CEW_PRODUCT_TRANSFORMATION_QUEUE",
   "program_goal": "CEW-GOAL-01",
-  "updated_at": "2026-08-27",
+  "updated_at": "2026-08-28",
   "selection_rule": "Select the lowest-priority incomplete item whose dependencies are COMPLETE. IN_PROGRESS, RESIDUAL, CONFLICT and HUMAN_AUTHORITY_REQUIRED take precedence. Parallel preparation is allowed but cannot change promotion state.",
-  "promotion_rule": "Only a valid CEW product agent result handshake may move a work item to COMPLETE. Human-authority gates cannot be satisfied by an agent.",
+  "promotion_rule": "Only a valid CEW product result handshake with all declared deterministic, independent, human and release evidence may move a work item to COMPLETE. Human/professional gates cannot be satisfied by an agent.",
   "items": [
     {
       "id": "CEW-A0-STATE-RECONCILIATION",
@@ -54,29 +54,43 @@
       "wave": "B",
       "agent_role": "SOURCE_EVIDENCE_AGENT",
       "state": "IN_PROGRESS",
-      "objective": "Deliver the complete project-document journey: document library, drawing register/viewer, immutable intake/versioning, document understanding, governed evidence extraction and natural-language human review.",
+      "objective": "Deliver the complete governed project-document-drawing-evidence capability so a structural engineer can find, inspect and verify project drawings without repository knowledge or authority confusion.",
       "dependencies": ["CEW-A2-PROJECT-HOME-HUMAN-FACTORS"],
       "target_outputs": [
         "docs/PRODUCT/CEW_SOURCE_HUB_V1_CONTRACT.md",
         "docs/PRODUCT/CEW_EVIDENCE_WORKSPACE_V1_CONTRACT.md",
         "docs/PRODUCT/CEW_DOCUMENT_DRAWING_WORKSPACE_V1_CONTRACT.md",
         "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json",
-        "automation/CEW_USABILITY_METRICS_MODEL_v1.json"
+        "automation/CEW_USABILITY_METRICS_MODEL_v1.json",
+        "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json"
       ],
-      "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE", "SECURITY_GATE", "PRODUCTION_SMOKE"],
-      "current_slice": "B1.1",
-      "current_slice_state": "IN_PROGRESS",
+      "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE", "SECURITY_GATE", "ACCESSIBILITY_GATE", "PRODUCTION_SMOKE"],
+      "current_slice": "B1.8",
+      "current_slice_state": "IN_PROGRESS_DESIGN_REQUIRED",
       "current_validation": {
-        "SOURCE_EVIDENCE_DATA_GATE": "PASS",
-        "SOURCE_EVIDENCE_ENGINEERING_GATE": "PASS",
-        "SOURCE_EVIDENCE_HUMAN_GATE": "PASS",
-        "B1_1_DOCUMENT_DRAWING_FOUNDATION": "IN_PROGRESS",
-        "HVA_GATE": "NOT_YET_SATISFIED_FOR_EXTENDED_B1",
-        "PRODUCTION_SMOKE": "RESET_REQUIRED_AFTER_DOCUMENT_DRAWING_EXTENSION"
+        "SOURCE_EVIDENCE_DATA_GATE": "PASS_PRIOR_SCOPE",
+        "SOURCE_EVIDENCE_ENGINEERING_GATE": "PASS_PRIOR_SCOPE",
+        "SOURCE_EVIDENCE_HUMAN_GATE": "PASS_PRIOR_SCOPE",
+        "B1_1_TO_B1_6_TECHNICAL_PREPARATION": "PREPARED_NOT_PROMOTED",
+        "B1_7_AUTOMATED_INSTRUMENT": "PASS_INSTRUMENT_ONLY_INTERACTION_REWORK_REQUIRED",
+        "HUMAN_ACCEPTANCE_V2": "NOT_IMPLEMENTED_NOT_EXECUTED",
+        "ACCESSIBILITY_GATE": "REQUIRED_FOR_B18_NOT_SATISFIED",
+        "HVA_GATE": "REQUIRED_NOT_SATISFIED",
+        "PRODUCTION_SMOKE": "REQUIRED_AFTER_HVA_ON_ACCEPTED_REVISION"
       },
-      "discovery_reason": "Human use of the deployed B1 service showed that evidence review was exposed before a usable P1/P2 document and drawing management journey. B1 is therefore extended rather than falsely completed.",
+      "discovery_reason": "Human use first reopened B1 because evidence review preceded a usable P1/P2 document/drawing journey. Direct use of the B1.7 Acceptance Lab then exposed participant/reviewer/telemetry/governance role collapse, requiring Human Acceptance v2 before promotion.",
       "subplan": "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json",
-      "prior_deployment_receipt": "automation/receipts/cew-product/CEW-B1-PRODUCTION-DEPLOY_20260827T203710Z.json"
+      "human_acceptance_contract": "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json",
+      "human_factors_decision": "docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md",
+      "prior_candidate_sha": "cab1c53b62b2b70294b6b7e8d7dddd14ccdcb832",
+      "prior_deployment_receipt": "automation/receipts/cew-product/CEW-B1-PRODUCTION-DEPLOY_20260827T203710Z.json",
+      "promotion_blockers": [
+        "B1_4_PRIVATE_BYTE_PERSISTENCE_BOUNDARY_REQUIRES_RECONCILIATION_OR_EXPLICIT_SCOPE_DECISION",
+        "B1_6_CANDIDATE_PERSISTENCE_PROMOTION_BOUNDARY_REQUIRES_RECONCILIATION_OR_EXPLICIT_SCOPE_DECISION",
+        "B1_8_HUMAN_ACCEPTANCE_V2_NOT_IMPLEMENTED_OR_EXECUTED",
+        "B1_8_ACCESSIBILITY_GATE_NOT_SATISFIED",
+        "EXTENDED_B1_SAME_REVISION_PRODUCTION_SMOKE_NOT_SATISFIED"
+      ]
     },
     {
       "id": "CEW-B2-RECONSTRUCTION-PROPERTIES",
@@ -131,7 +145,7 @@
       "objective": "Demonstrate the complete source-to-decision CEW workflow on N12 without repository knowledge and with complete bidirectional traceability.",
       "dependencies": ["CEW-E1-VERIFICATION-LIFECYCLE"],
       "target_outputs": ["docs/ACCEPTANCE/CEW_GOAL_01_PRODUCTION_ACCEPTANCE_v1.md"],
-      "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_AUTHORITY_GATE", "INTEGRATION_GATE", "HUMAN_FACTORS_GATE", "SECURITY_GATE", "PRODUCTION_SMOKE"]
+      "required_gates": ["DATA_GATE", "ENGINEERING_GATE", "HUMAN_AUTHORITY_GATE", "INTEGRATION_GATE", "HUMAN_FACTORS_GATE", "SECURITY_GATE", "ACCESSIBILITY_GATE", "PRODUCTION_SMOKE"]
     }
   ]
 }
