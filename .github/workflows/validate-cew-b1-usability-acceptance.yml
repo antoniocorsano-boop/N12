@@ -8,11 +8,13 @@ on:
       - 'scripts/cew_b1_acceptance_lab.py'
       - 'scripts/cew_b1_human_acceptance_v2.py'
       - 'scripts/cew_b1_human_acceptance_v2_hardening.py'
+      - 'scripts/cew_evidence_viewer_interaction.py'
       - 'scripts/cew_runtime_render_budget.py'
       - 'scripts/cew_runtime_render_cache.py'
       - 'scripts/build_cew_runtime_render_cache.py'
       - 'scripts/validate_cew_runtime_render_budget.py'
       - 'scripts/validate_cew_runtime_render_cache.py'
+      - 'scripts/validate_cew_evidence_viewer_interaction.py'
       - 'scripts/validate_cew_b18_hva_hardening.py'
       - 'scripts/validate_cew_b1_usability_acceptance.py'
       - 'automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json'
@@ -35,11 +37,13 @@ jobs:
         run: |
           python -m py_compile scripts/cew_b1_human_acceptance_v2.py
           python -m py_compile scripts/cew_b1_human_acceptance_v2_hardening.py
+          python -m py_compile scripts/cew_evidence_viewer_interaction.py
           python -m py_compile scripts/cew_runtime_render_budget.py
           python -m py_compile scripts/cew_runtime_render_cache.py
           python -m py_compile scripts/build_cew_runtime_render_cache.py
           python -m py_compile scripts/validate_cew_runtime_render_budget.py
           python -m py_compile scripts/validate_cew_runtime_render_cache.py
+          python -m py_compile scripts/validate_cew_evidence_viewer_interaction.py
           python -m py_compile scripts/cew_b1_acceptance_lab.py
           python -m py_compile scripts/validate_cew_b18_hva_hardening.py
           python -m py_compile scripts/validate_cew_b1_usability_acceptance.py
@@ -56,6 +60,8 @@ jobs:
         run: python scripts/build_cew_runtime_render_cache.py
       - name: Validate managed-runtime render cache and exact route wiring
         run: python scripts/validate_cew_runtime_render_cache.py
+      - name: Validate evidence zoom pan and inspection controls
+        run: python scripts/validate_cew_evidence_viewer_interaction.py
       - name: Route and health smoke
         env:
           CEW_AUTH_DISABLED_FOR_TEST: '1'
@@ -72,10 +78,17 @@ jobs:
           text=response.body.decode('utf-8')
           assert 'Verifica del percorso documentale' in text
           assert 'Svolgi il lavoro come faresti normalmente' in text
+          assert 'Ingrandisci il dettaglio e spostati' in text
           assert 'AREA REVISIONE HVA' in text
           assert '0123456789abcdef0123456789abcdef01234567' in text
           assert 'stored.runtime_revision!==RUNTIME_REVISION' in text
           assert 'WRONG_SOURCE_OR_VERSION' in text
+          assert "zoomed&&panned&&macro&&finalMicro" in text
+          evidence=app.evidence_workspace('ERW-N12-001')
+          evidence_text=evidence.body.decode('utf-8')
+          assert 'id="evidenceViewport"' in evidence_text
+          assert '＋ Ingrandisci' in evidence_text
+          assert 'Reset vista' in evidence_text
           h=app.healthz()
           assert h['b1_acceptance_lab']=='B18_IMPLEMENTED_CANDIDATE_HVA_PENDING'
           assert h['canonical_write_authorized'] is False
