@@ -1,13 +1,19 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
   "state": "A0_PREPARED_BLOCKED_PROMOTION",
-  "selected_work_item": "ETW-A0",
-  "selected_owner": "ETW_PLATFORM_IDENTITY_AGENT",
-  "execution_mode": "PREPARED_BLOCKED_PROMOTION",
+  "selected_work_item": null,
+  "blocked_work_item": "ETW-A0",
+  "selected_owner": null,
+  "execution_mode": "BLOCKED_DEPENDENCY",
   "preparation_decision": "PREP_PASS",
-  "validated_head_sha": "16ee9f7c8cdc43ce7b5cdeb4897a950a4f7eee95",
+  "validated_head_sha": "f97729e1c800ed14314ee0d8b2436df2af987ae2",
   "preparation_receipt": "automation/receipts/etw-platform/ETW-A0-PREP-PASS_v1.json",
+  "validated_runs": {
+    "etw_platform_identity": 33151178271,
+    "etw_program_orchestration": 33151178257,
+    "n12_knowledge_regression": 33151178260
+  },
   "promotion_blockers": [
     "CEW_PROMOTED_BASELINE",
     "HUMAN_FACTORS_GATE",
