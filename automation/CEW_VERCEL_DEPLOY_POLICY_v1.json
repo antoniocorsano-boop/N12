@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "policy_id": "CEW_VERCEL_DEPLOY_POLICY",
+  "status": "REQUIRED",
+  "provider": "VERCEL",
+  "project_slug": "cew-pilot",
+  "team_slug": "antonios-projects-051b8d71",
+  "git_auto_deploy": false,
+  "preview_mode": "GATED_CANDIDATE_ONLY",
+  "production_mode": "MANUAL_AFTER_CEW_PROMOTION_ONLY",
+  "preview_required_workflows": [
+    "Validate CEW B1 Human Acceptance v2",
+    "Validate Product Governance",
+    "Validate CEW Product Transformation",
+    "Validate CEW Document Drawing Foundation",
+    "Validate CEW Drawing Viewer",
+    "Validate CEW Document Map",
+    "Validate CEW Document Intake",
+    "Validate CEW Source Evidence Journey",
+    "Validate CEW Evidence Region Pack",
+    "Validate CEW Existing Assessment Engine",
+    "Validate CEW Neon User Runtime",
+    "Validate CEW B1 Production Runtime",
+    "Validate CEW User Web Pilot",
+    "Validate CEW Control Room",
+    "Validate CEW Evidence Map",
+    "Validate CEW Netlify Audit",
+    "Validate N12 Knowledge System"
+  ],
+  "candidate_rules": {
+    "immutable_sha_required": true,
+    "open_pull_request_head_required": true,
+    "all_required_workflows_success": true,
+    "duplicate_preview_for_same_sha_forbidden": true,
+    "deployment_does_not_imply_hva": true,
+    "deployment_does_not_imply_promotion": true
+  },
+  "production_rules": {
+    "automatic_git_production_deploy": false,
+    "cew_promoted_baseline_required": true,
+    "same_sha_as_promoted_baseline_required": true,
+    "manual_dispatch_required": true
+  },
+  "authentication": {
+    "github_secret_required": "VERCEL_TOKEN",
+    "repository_must_not_store_token": true
+  },
+  "notes": [
+    "Vercel Git Integration is intentionally disabled through vercel.json so intermediate pushes do not consume Hobby deployment quota.",
+    "Preview deployment is performed by GitHub Actions only after the candidate gate proves all required workflows green on one SHA.",
+    "Production remains separate from Preview and cannot be inferred from a successful Preview."
+  ]
+}
