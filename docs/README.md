@@ -22,11 +22,20 @@ This index makes the repository readable without reconstructing product policy f
 5. **Current CEW human-centred / GOV.UK model**  
    `docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v2.md`
 
-6. **eTwin platform programme**  
-   `docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md`
+6. **Current eTwin platform promotion programme**  
+   `docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v2.md`
 
-7. **eTwin agentic orchestration**  
-   `docs/PROGRAM/ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v1.md`
+7. **Current eTwin agentic promotion orchestration**  
+   `docs/PROGRAM/ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v2.md`
+
+## Historical preparation contracts
+
+The following remain authoritative **for understanding how the already-prepared ETW-A0 evidence was produced**, but not for future promotion policy:
+
+- `docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md`
+- `docs/PROGRAM/ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v1.md`
+
+The prepared ETW-A0 head is preserved as historical preparation evidence and must be revalidated under current promotion/human governance before A0 promotion.
 
 ## Authority boundaries
 
@@ -46,9 +55,13 @@ This reports current CEW product/runtime maturity and points to governing contra
 
 `automation/ETW_PROGRAM_STATUS_v1.json` and the eTwin queue/gate state referenced by `automation/ETW_PROGRAM_MANIFEST_v1.json`.
 
+These execution-state files may retain references to the v1 preparation contract while the already-prepared A0 branch remains unpromoted. Future promotion is governed by the cross-product manifest and v2 programme.
+
 ### Cross-product governance
 
 `automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json`
+
+This is the first machine-readable file agents should consult for current product/documentation authority.
 
 ## Directory map
 
@@ -71,7 +84,17 @@ This reports current CEW product/runtime maturity and points to governing contra
 
 `docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md`
 
-The first CEW B1.7 Acceptance Lab demonstrated that participant work, telemetry, reviewer decision and receipt export must be separated. Future CEW/eTwin HVA instruments must follow the v2 human-centred model.
+The first CEW B1.7 Acceptance Lab demonstrated that participant work, telemetry, reviewer decision and receipt export must be separated. Future CEW/eTwin HVA instruments follow the v2 human-centred model.
+
+Current B1 machine contract:
+
+`automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json`
+
+Historical B1.7 instrument contract:
+
+`automation/CEW_B1_USABILITY_ACCEPTANCE_CONTRACT_v1.json`
+
+The v1 instrument remains evidence of what was implemented and observed; it is not silently rewritten.
 
 ## Historical documents
 
@@ -79,12 +102,15 @@ Historical documents remain deliberately available. A file with an older version
 
 ## Agent reading order
 
-For cross-cutting product work agents should read, in order:
+For cross-cutting product work agents read, in order:
 
 1. `automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json`;
 2. L0 governance docs referenced there;
-3. the relevant product/programme plan;
+3. the relevant current product/programme plan;
 4. current state;
 5. selected queue/work item;
 6. capability contract(s);
-7. decision records and receipts relevant to the change.
+7. applicable decision records;
+8. relevant receipts/evidence.
+
+Agents do not infer current policy from chat history or modification timestamps.
