@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "slice_id": "B1.7",
+  "work_item_id": "CEW-B1-SOURCE-EVIDENCE-JOURNEY",
+  "evidence_type": "HUMAN_OBSERVED_PREVIEW_ENV_SCOPE",
+  "observed_at_local": "2026-08-28T06:32:00+02:00",
+  "branch": "work/cew-b17-usability-acceptance-prep",
+  "preview_environment": {
+    "CEW_ACCESS_PASSWORD": "CONFIGURED_FOR_PREVIEW_BRANCH_SCOPE",
+    "CEW_SESSION_SECRET": "CONFIGURED_FOR_PREVIEW_BRANCH_SCOPE",
+    "secret_values_recorded": false
+  },
+  "production_values_modified": false,
+  "engineering_authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "purpose": "Trigger a new Vercel Preview deployment so the B1 Acceptance Lab can run with authentication enabled after environment-scope configuration.",
+  "hva_gate": "REQUIRED_NOT_SATISFIED",
+  "production_smoke": "NOT_APPLICABLE_TO_PREVIEW_AUTH_SCOPE",
+  "next_action": "Verify the new Preview deployment reaches authenticated CEW login and /acceptance/b1, then execute UX-DOC-01..04."
+}
