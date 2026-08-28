@@ -1,12 +1,21 @@
 {
-  "schema_version": "2.0",
+  "schema_version": "2.1",
   "contract_id": "CEW_B1_HUMAN_ACCEPTANCE",
-  "status": "DESIGN_REQUIRED_NOT_IMPLEMENTED",
+  "status": "IMPLEMENTED_CANDIDATE_HVA_PENDING",
   "program_goal": "CEW-GOAL-01",
   "capability": "FIND_INSPECT_AND_VERIFY_GOVERNED_PROJECT_DRAWINGS",
   "governing_human_model": "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v2.md",
   "decision_basis": "docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md",
   "historical_contract": "automation/CEW_B1_USABILITY_ACCEPTANCE_CONTRACT_v1.json",
+  "implementation": {
+    "route": "/acceptance/b1",
+    "participant_mode": "DEFAULT",
+    "reviewer_mode": "#review",
+    "session_storage": "BROWSER_LOCALSTORAGE_TEST_EVIDENCE_ONLY",
+    "server_persistence": false,
+    "receipt_export": "LOCAL_JSON_AFTER_REVIEWER_DECISION",
+    "canonical_write_authorized": false
+  },
   "layers": {
     "participant_surface": {
       "purpose": "Let the participant perform realistic professional work without operating release governance.",
@@ -16,7 +25,8 @@
       "show_live_test_counters": false,
       "show_release_decision": false,
       "show_receipt_export": false,
-      "one_dominant_task_at_a_time": true
+      "one_dominant_task_at_a_time": true,
+      "professional_language_first": true
     },
     "observation_layer": {
       "visible_to_participant_by_default": false,
@@ -26,7 +36,14 @@
         "help_requests",
         "backtracks_or_recovery_actions",
         "navigation_path",
+        "viewer_states",
         "task_outcome"
+      ],
+      "automatic_observations": [
+        "correct_drawing_reached",
+        "viewer_rotation_observed_and_reset",
+        "evidence_to_drawing_round_trip",
+        "revisited_navigation_path"
       ]
     },
     "reviewer_surface": {
@@ -43,15 +60,19 @@
     "receipt_layer": {
       "generated_after_reviewer_decision": true,
       "revision_bound": true,
+      "production_smoke_required": true,
       "engineering_authority_effect": "NONE",
-      "canonical_write_authorized": false
+      "canonical_write_authorized": false,
+      "promotion_authorized": false
     }
   },
   "tasks": [
     {
       "task_id": "UX-DOC-01",
       "participant_prompt_it": "Devi controllare la carpenteria del IV impalcato. Trova la tavola corretta e aprila.",
+      "start_path": "/",
       "internal_success_condition": "Correct governed drawing/source is opened without repository-path knowledge and the participant can identify the original source status.",
+      "automatic_success_signal": "NAVIGATION_CONTAINS_/drawings/TAV-05A",
       "critical_checks": [
         "wrong_source_or_wrong_version_selection",
         "primary_source_correctly_identified"
@@ -60,7 +81,9 @@
     {
       "task_id": "UX-DOC-02",
       "participant_prompt_it": "La tavola non è comoda da leggere. Sistemala per leggerla e poi riporta la vista come prima.",
+      "start_path": "/drawings/TAV-05A",
       "internal_success_condition": "Participant can use display orientation controls and return to the initial view.",
+      "automatic_success_signal": "VIEWER_ROTATED_AND_FINAL_STATE_0_DEGREES",
       "post_task_mental_model_question_it": "Secondo te, durante questa operazione hai modificato il documento originale?",
       "accepted_mental_model": "DISPLAY_VIEW_ONLY",
       "critical_checks": [
@@ -71,7 +94,11 @@
     {
       "task_id": "UX-DOC-03",
       "participant_prompt_it": "Vuoi verificare da quale parte della tavola deriva questa evidenza. Apri il contesto della fonte e poi torna all’evidenza.",
-      "internal_success_condition": "Document/evidence round trip succeeds without requiring internal identifiers.",
+      "start_path": "/evidence/review?task=ERW-N12-001",
+      "internal_success_condition": "Evidence/drawing round trip succeeds without requiring internal identifiers.",
+      "automatic_success_signal": "EVIDENCE_VISITED_THEN_TAV05A_DRAWING_CONTEXT_REACHED",
+      "post_task_mental_model_question_it": "Sei riuscito a vedere il contesto completo della tavola e poi a tornare all’evidenza?",
+      "accepted_mental_model": "ROUND_TRIP_UNDERSTOOD",
       "critical_checks": [
         "document_to_evidence_navigation_success",
         "provenance_lookup_success"
@@ -80,7 +107,10 @@
     {
       "task_id": "UX-DOC-04",
       "participant_prompt_it": "Hai il documento originale e una copia preparata per facilitarne la lettura. Quale useresti come fonte da verificare o citare?",
+      "start_path": "/drawings/TAV-05A",
       "internal_success_condition": "Participant distinguishes the authoritative primary document from a derived reading aid.",
+      "post_task_mental_model_question_it": "Quale useresti come fonte da verificare o citare?",
+      "accepted_mental_model": "PRIMARY_PDF",
       "critical_checks": [
         "primary_source_correctly_identified",
         "derived_reading_aid_correctly_identified"
@@ -104,8 +134,12 @@
     "PASS_WITH_NONCRITICAL_USABILITY_RESIDUAL",
     "FAIL_REWORK_REQUIRED"
   ],
-  "promotion_rule": "B1 remains IN_PROGRESS until the v2 participant/reviewer acceptance design is implemented, a real reviewer evaluates representative tasks on one immutable candidate, no non-compensable blocker remains, and the same accepted revision passes the required Production smoke.",
+  "reviewer_rule": "A reviewer may export a PASS decision only when the collected session is complete and no non-compensable blocker is present. Critical blockers force FAIL_REWORK_REQUIRED.",
+  "promotion_rule": "B1 remains IN_PROGRESS until a real reviewer evaluates representative tasks on one immutable candidate, no non-compensable blocker remains, accessibility acceptance is complete, and the same accepted revision passes the required Production smoke.",
   "current_b17_v1_evidence_effect": "INSTRUMENT_IMPLEMENTATION_VALIDATED_BUT_PARTICIPANT_INTERACTION_REQUIRES_REWORK",
+  "human_hva_state": "REQUIRED_NOT_SATISFIED",
+  "accessibility_gate_state": "REQUIRED_NOT_SATISFIED",
+  "production_smoke_state": "REQUIRED_AFTER_HVA_ON_ACCEPTED_REVISION",
   "production_promotion_authorized": false,
   "canonical_write_authorized": false,
   "engineering_authority_effect": "NONE"
