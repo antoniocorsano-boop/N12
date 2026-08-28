@@ -3,12 +3,14 @@ from __future__ import annotations
 
 import json
 import math
+import os
 
 import cew_drawing_viewer as drawing_viewer
 import cew_source_evidence_workspace as source_workspace
 
-# Runtime-only raster budget. This does not alter SourceVersion, Page,
-# PageTransform, EvidenceRegion, or any engineering/canonical authority.
+# Raster budget used while generating deterministic reading aids. This does
+# not alter SourceVersion, Page, PageTransform, EvidenceRegion, or any
+# engineering/canonical authority.
 MAX_RUNTIME_RENDER_PIXELS = 6_000_000
 MIN_RUNTIME_DPI = 36
 
@@ -25,7 +27,6 @@ def bounded_dpi(width_pt: float, height_pt: float, requested_dpi: int) -> tuple[
     height_px = max(1, int(math.ceil(height_pt * effective_dpi / 72.0)))
     pixels = width_px * height_px
 
-    # Rounding must never allow the configured budget to be exceeded.
     while pixels > MAX_RUNTIME_RENDER_PIXELS and effective_dpi > MIN_RUNTIME_DPI:
         effective_dpi -= 1
         width_px = max(1, int(math.ceil(width_pt * effective_dpi / 72.0)))
@@ -73,7 +74,9 @@ def render_task_source_bounded(task_id: str, scale: str) -> tuple[bytes, dict]:
         effective_dpi, pixels = bounded_dpi(clip.width, clip.height, requested_dpi)
         _emit_budget_receipt("EVIDENCE_SOURCE", source_id, requested_dpi, effective_dpi, pixels)
         pix = page.get_pixmap(dpi=effective_dpi, clip=clip, alpha=False)
+        print(f"CEW_RUNTIME_RENDER_STAGE PIXMAP_READY task={task_id} scale={scale.upper()}", flush=True)
         png = pix.tobytes("png")
+        print(f"CEW_RUNTIME_RENDER_STAGE PNG_READY task={task_id} scale={scale.upper()} bytes={len(png)}", flush=True)
 
     return png, {
         **ctx,
@@ -115,7 +118,9 @@ def render_full_page_bounded(source_id: str, dpi: int = drawing_viewer.DEFAULT_D
         effective_dpi, pixels = bounded_dpi(page.rect.width, page.rect.height, dpi)
         _emit_budget_receipt("DRAWING_FULL_PAGE", source_id, dpi, effective_dpi, pixels)
         pix = page.get_pixmap(dpi=effective_dpi, alpha=False)
+        print(f"CEW_RUNTIME_RENDER_STAGE PIXMAP_READY source={source_id} dpi={effective_dpi}", flush=True)
         png = pix.tobytes("png")
+        print(f"CEW_RUNTIME_RENDER_STAGE PNG_READY source={source_id} bytes={len(png)}", flush=True)
 
     return png, {
         **ctx,
@@ -131,5 +136,14 @@ def render_full_page_bounded(source_id: str, dpi: int = drawing_viewer.DEFAULT_D
 
 
 def install() -> None:
+    # Managed web runtimes must never perform CPU-heavy PDF rasterization on
+    # request. Render/Vercel serve immutable reading aids generated during the
+    # build and verified against the exact runtime revision.
+    if os.getenv("RENDER") or os.getenv("VERCEL"):
+        import cew_runtime_render_cache as runtime_cache
+
+        runtime_cache.install()
+        return
+
     source_workspace.render_task_source = render_task_source_bounded
     drawing_viewer.render_full_page = render_full_page_bounded
