@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "status": "CANONICAL",
+  "execution_state": "AUTHORIZED_FOR_PREPARATION",
+  "current_slice": "ETW-A0",
+  "current_execution_mode": "PREP_ONLY",
+  "promotion_authorized": false,
+  "promotion_blocker": "CEW_PROMOTED_BASELINE",
+  "plan": "docs/PROGRAM/ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md",
+  "orchestration_model": "docs/PROGRAM/ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v1.md",
+  "agent_contract": "automation/ETW_SPECIALIST_AGENT_CONTRACT_v1.json",
+  "result_contract": "automation/ETW_AGENT_RESULT_CONTRACT_v1.json",
+  "queue": "automation/ETW_DEVELOPMENT_QUEUE_v1.json",
+  "gate_state": "automation/ETW_HUMAN_GATE_STATE_v1.json",
+  "orchestrator": "scripts/etw_orchestrator.py",
+  "initial_task": "automation/outbox/ETW_A0_PLATFORM_IDENTITY_PREP_TASK_v1.json",
+  "cew_contract_baseline_sha": "cab1c53b62b2b70294b6b7e8d7dddd14ccdcb832",
+  "cew_promoted_baseline_sha": null,
+  "engineering_authority_unchanged": true,
+  "n12_engineering_authority": "knowledge/CURRENT_STATE.json and governed canonical artifacts"
+}
