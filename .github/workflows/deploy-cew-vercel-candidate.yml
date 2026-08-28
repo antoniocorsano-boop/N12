@@ -1,0 +1,203 @@
+name: Deploy CEW Vercel Candidate
+
+on:
+  workflow_run:
+    workflows:
+      - Validate CEW B1 Human Acceptance v2
+      - Validate CEW Evidence Region Pack
+      - Validate Product Governance
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Immutable candidate SHA to deploy
+        required: true
+        type: string
+      target:
+        description: Deployment target
+        required: true
+        default: preview
+        type: choice
+        options:
+          - preview
+          - production
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+  statuses: write
+
+concurrency:
+  group: cew-vercel-candidate-${{ github.event_name == 'workflow_dispatch' && inputs.candidate_sha || github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  candidate-deploy:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_SCOPE: antonios-projects-051b8d71
+      VERCEL_PROJECT: cew-pilot
+    steps:
+      - name: Resolve immutable candidate
+        id: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            SHA='${{ inputs.candidate_sha }}'
+            TARGET='${{ inputs.target }}'
+          else
+            SHA='${{ github.event.workflow_run.head_sha }}'
+            TARGET='preview'
+          fi
+          if [[ ! "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Invalid candidate SHA: $SHA" >&2
+            exit 2
+          fi
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "target=$TARGET" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout exact candidate SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.candidate.outputs.sha }}
+          fetch-depth: 1
+
+      - name: Require adopted deployment policy
+        id: policy
+        shell: bash
+        run: |
+          if [[ -f automation/CEW_VERCEL_DEPLOY_POLICY_v1.json && -f scripts/check_cew_vercel_candidate_runs.py ]]; then
+            echo "adopted=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "adopted=false" >> "$GITHUB_OUTPUT"
+            echo "Candidate predates CEW gated Vercel deployment policy; no deployment attempted."
+          fi
+
+      - name: Require candidate to be an open PR head for Preview
+        if: steps.policy.outputs.adopted == 'true' && steps.candidate.outputs.target == 'preview'
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA='${{ steps.candidate.outputs.sha }}'
+          gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/commits/${SHA}/pulls" > /tmp/pulls.json
+          COUNT=$(jq --arg sha "$SHA" '[.[] | select(.state == "open" and .head.sha == $sha)] | length' /tmp/pulls.json)
+          if [[ "$COUNT" -lt 1 ]]; then
+            echo "Preview refused: SHA is not the head of an open pull request." >&2
+            exit 1
+          fi
+          PR_NUMBER=$(jq -r --arg sha "$SHA" '[.[] | select(.state == "open" and .head.sha == $sha)][0].number' /tmp/pulls.json)
+          echo "PR_NUMBER=$PR_NUMBER" >> "$GITHUB_ENV"
+
+      - name: Require all declared GitHub gates green on same SHA
+        if: steps.policy.outputs.adopted == 'true' && steps.candidate.outputs.target == 'preview'
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA='${{ steps.candidate.outputs.sha }}'
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${SHA}&per_page=100" > /tmp/runs.json
+          python scripts/check_cew_vercel_candidate_runs.py /tmp/runs.json
+
+      - name: Refuse duplicate Preview deployment for same SHA
+        if: steps.policy.outputs.adopted == 'true' && steps.candidate.outputs.target == 'preview'
+        id: duplicate
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA='${{ steps.candidate.outputs.sha }}'
+          gh api "/repos/${GITHUB_REPOSITORY}/commits/${SHA}/status" > /tmp/status.json
+          EXISTING=$(jq -r '[.statuses[] | select(.context == "CEW/Vercel Candidate Preview" and .state == "success")][0].target_url // empty' /tmp/status.json)
+          if [[ -n "$EXISTING" ]]; then
+            echo "already_deployed=true" >> "$GITHUB_OUTPUT"
+            echo "url=$EXISTING" >> "$GITHUB_OUTPUT"
+            echo "Candidate already has a successful Vercel Preview: $EXISTING"
+          else
+            echo "already_deployed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Mark Preview deployment pending
+        if: steps.policy.outputs.adopted == 'true' && steps.candidate.outputs.target == 'preview' && steps.duplicate.outputs.already_deployed != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA='${{ steps.candidate.outputs.sha }}'
+          gh api -X POST "/repos/${GITHUB_REPOSITORY}/statuses/${SHA}" \
+            -f state=pending \
+            -f context='CEW/Vercel Candidate Preview' \
+            -f description='All candidate gates green; controlled Vercel Preview starting'
+
+      - name: Require promoted baseline for Production
+        if: steps.policy.outputs.adopted == 'true' && steps.candidate.outputs.target == 'production'
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA='${{ steps.candidate.outputs.sha }}'
+          BASELINE='automation/CEW_PROMOTED_BASELINE_v1.json'
+          if [[ ! -f "$BASELINE" ]]; then
+            echo "Production refused: $BASELINE does not exist." >&2
+            exit 1
+          fi
+          if ! grep -q "$SHA" "$BASELINE"; then
+            echo "Production refused: candidate SHA is not the promoted CEW baseline." >&2
+            exit 1
+          fi
+
+      - name: Require Vercel CI credential
+        if: steps.policy.outputs.adopted == 'true' && steps.duplicate.outputs.already_deployed != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${VERCEL_TOKEN:-}" ]]; then
+            echo "Missing GitHub Actions secret VERCEL_TOKEN." >&2
+            echo "Configure it once; never store the token in the repository." >&2
+            exit 1
+          fi
+
+      - name: Link checkout to CEW Vercel project
+        if: steps.policy.outputs.adopted == 'true' && steps.duplicate.outputs.already_deployed != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes vercel@latest link --yes --project "$VERCEL_PROJECT" --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN"
+
+      - name: Deploy immutable candidate
+        if: steps.policy.outputs.adopted == 'true' && steps.duplicate.outputs.already_deployed != 'true'
+        id: deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET='${{ steps.candidate.outputs.target }}'
+          PROD_FLAG=''
+          if [[ "$TARGET" == 'production' ]]; then
+            PROD_FLAG='--prod'
+          fi
+          URL=$(npx --yes vercel@latest deploy --yes $PROD_FLAG --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" | tail -n 1)
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Vercel deployment: $URL"
+
+      - name: Publish Preview status
+        if: steps.policy.outputs.adopted == 'true' && steps.candidate.outputs.target == 'preview' && steps.duplicate.outputs.already_deployed != 'true' && success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA='${{ steps.candidate.outputs.sha }}'
+          URL='${{ steps.deploy.outputs.url }}'
+          gh api -X POST "/repos/${GITHUB_REPOSITORY}/statuses/${SHA}" \
+            -f state=success \
+            -f context='CEW/Vercel Candidate Preview' \
+            -f description='Controlled Preview deployed after all candidate gates' \
+            -f target_url="$URL"
+          gh issue comment "$PR_NUMBER" --body "Controlled Vercel Preview created after all declared candidate gates passed on immutable SHA \`$SHA\`: $URL"
+
+      - name: Preserve failure as deployment evidence
+        if: failure() && steps.policy.outputs.adopted == 'true' && steps.candidate.outputs.target == 'preview'
+        shell: bash
+        run: |
+          SHA='${{ steps.candidate.outputs.sha }}'
+          gh api -X POST "/repos/${GITHUB_REPOSITORY}/statuses/${SHA}" \
+            -f state=failure \
+            -f context='CEW/Vercel Candidate Preview' \
+            -f description='Controlled candidate Preview deployment failed' || true
