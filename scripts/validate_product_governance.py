@@ -15,6 +15,14 @@ B1_HUMAN = ROOT / "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json"
 ETW_STATUS = ROOT / "automation/ETW_PROGRAM_STATUS_v1.json"
 ETW_MANIFEST = ROOT / "automation/ETW_PROGRAM_MANIFEST_v1.json"
 
+REQUIREMENT_CLASSES = {
+    "INVARIANT",
+    "SPECIFIED",
+    "OPEN",
+    "EXPERIMENTAL",
+    "DOMAIN_OWNED",
+}
+
 
 def load(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -91,13 +99,19 @@ def main() -> None:
     assert principles["support_agent_can_promote"] is False
     assert principles["human_professional_gate_may_be_bypassed"] is False
 
-    # Material Human Factors decision must be persisted, not conversation-only.
+    # Material product decisions must be persisted, not conversation-only.
     by_id = {row["decision_id"]: row for row in decisions.get("decisions", [])}
     assert "PRODUCT-HF-001" in by_id
     hf_decision = by_id["PRODUCT-HF-001"]
     assert hf_decision["state"] == "ACCEPTED"
     assert hf_decision["record"] == "docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md"
     assert_path(hf_decision["record"])
+
+    assert "ETWIN-SPEC-001" in by_id
+    spec_decision = by_id["ETWIN-SPEC-001"]
+    assert spec_decision["state"] == "ACCEPTED"
+    assert spec_decision["record"] == "docs/DECISIONI/ETWIN_SPEC_001_FLEXIBLE_REQUIREMENT_GOVERNANCE_v1.md"
+    assert_path(spec_decision["record"])
 
     # CEW current state must consume current governance rather than reconstruct it.
     program = cew["program"]
@@ -154,16 +168,42 @@ def main() -> None:
     assert "A0_HUMAN_FACTORS_V2_REVALIDATION" in etw_status["promotion_blockers"]
     assert etw_status["production_promotion_authorized"] is False
 
-    # v1 compatibility keys are retained for the already-prepared orchestration.
-    assert etw_manifest["schema_version"] == "1.0"
+    # v1 compatibility keys remain for the already-prepared orchestration.
+    # Schema 1.1 only extends governance metadata; it does not alter A0 execution state.
+    assert etw_manifest["schema_version"] == "1.1"
     assert etw_manifest["status"] == "CANONICAL"
     assert etw_manifest["plan"].endswith("ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md")
     assert etw_manifest["orchestration_model"].endswith("ETW_AGENTIC_DEVELOPMENT_ORCHESTRATION_v1.md")
     assert etw_manifest["current_promotion_plan"] == models["etwin_platform_promotion_program"]
     assert etw_manifest["current_promotion_orchestration_model"] == models["etwin_agentic_promotion_orchestration"]
+    assert etw_manifest["current_slice"] == "ETW-A0"
+    assert etw_manifest["current_execution_mode"] == "PREP_ONLY"
+    assert etw_manifest["promotion_authorized"] is False
+    assert etw_manifest["promotion_blocker"] == "CEW_PROMOTED_BASELINE"
     assert etw_manifest["a0_revalidation_required_before_promotion"] is True
     assert etw_manifest["cew_promoted_baseline_sha"] is None
     assert etw_manifest["engineering_authority_unchanged"] is True
+
+    # SP-2 admission must add flexibility/acceptance metadata without creating a second L1 or lifecycle.
+    req = etw_manifest["requirement_governance"]
+    assert req["decision_id"] == "ETWIN-SPEC-001"
+    assert req["decision"] == spec_decision["record"]
+    assert set(req["classes"]) == REQUIREMENT_CLASSES
+
+    reconciliation = etw_manifest["spec_reconciliation"]
+    assert reconciliation["state"] == "SP2_PARTIAL_ADMISSION_NONPROMOTIVE"
+    assert reconciliation["discovery_branch_is_current_l1"] is False
+    assert reconciliation["parallel_platform_lifecycle_created"] is False
+    assert reconciliation["a0_z0_sequence_unchanged"] is True
+    assert_path(reconciliation["sp0_genealogy"])
+    assert_path(reconciliation["sp1_conformance"])
+    assert_path(reconciliation["plan"])
+
+    hardening = etw_manifest["platform_acceptance_hardening"]
+    assert hardening["technical_pass_implies_hva"] is False
+    assert hardening["technical_pass_implies_promotion"] is False
+    assert hardening["knowledge_reuse_implies_same_revision_acceptance"] is False
+    assert_path(hardening["red_team_matrix"])
 
     print("PRODUCT_GOVERNANCE_CONSISTENCY_PASS")
 
