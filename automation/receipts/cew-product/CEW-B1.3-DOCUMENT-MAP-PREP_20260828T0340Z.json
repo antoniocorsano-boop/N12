@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "program_goal": "CEW-GOAL-01",
+  "slice_id": "B1.3",
+  "task_id": "CEW-B1.3-DOCUMENT-MAP",
+  "decision": "AUTOMATED_GATES_PASS_DEPENDENCY_AND_HUMAN_ACCEPTANCE_REQUIRED",
+  "validated_head_sha": "fa497780f82fc32a64056841bf931799e0ca3b0d",
+  "base_branch": "work/cew-b12-drawing-viewer-prep",
+  "base_sha": "09164ccea0f240ba4c5baeeb487c4980258a6ff8",
+  "pull_request": 98,
+  "verified_runs": {
+    "document_map": 33139306497,
+    "document_drawing_foundation": 33139306534,
+    "drawing_viewer": 33139306427,
+    "source_evidence_journey": 33139306456,
+    "product_transformation": 33139306498,
+    "user_web_pilot": 33139306492,
+    "neon_user_runtime": 33139306535,
+    "existing_assessment": 33139306441,
+    "knowledge_system": 33139306447,
+    "netlify_audit_regression": 33139306496,
+    "production_baseline_runtime": 33139306500
+  },
+  "preview_deployment": {
+    "status": "SUCCESS",
+    "url": "https://cew-pilot-git-work-cew-b13-do-1542a1-antonios-projects-051b8d71.vercel.app",
+    "production_promotion_authorized": false
+  },
+  "adoption": {
+    "source_branch": "exp/cew-document-intelligence-foundation-v0",
+    "source_head": "79d64098eeab3c43be10f49500ba4d059798a91c",
+    "experimental_sqlite_promoted_to_authority": false,
+    "reused_semantics": ["SourceVersion identity", "localized observation", "candidate states", "graphic conventions", "human-reviewed proposals", "no automatic canonical promotion"]
+  },
+  "initial_document_maps": ["TAV-05A", "TAV-06A"],
+  "initial_machine_candidates": 0,
+  "authority_invariants": {
+    "validated_requires_human_reviewer": true,
+    "validated_means_document_understanding_only": true,
+    "candidate_is_evidence_region": false,
+    "validated_feature_is_evidence_region": false,
+    "structural_binding_created": false,
+    "canonical_engineering_promotion": false
+  },
+  "blocking_gates": ["B1.1_HVA", "B1.2_HVA", "B1.3_HUMAN_REVIEW_JOURNEY_ACCEPTANCE"],
+  "slice_complete": false,
+  "promotion_authorized": false,
+  "canonical_write_authorized": false
+}
