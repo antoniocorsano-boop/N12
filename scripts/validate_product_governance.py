@@ -50,7 +50,6 @@ def main() -> None:
 
     assert manifest["status"] == "CANONICAL"
 
-    # Every concrete governed path in the cross-product manifest must exist.
     for path_str in sorted(set(iter_repo_paths(manifest))):
         assert_path(path_str)
 
@@ -79,7 +78,6 @@ def main() -> None:
     assert boundaries["human_observation_may_be_lossily_normalized"] is False
     assert boundaries["participant_may_self_approve_release"] is False
 
-    # Cross-product agent authority must remain least-authority and non-professional.
     assert agents["status"] == "REQUIRED_CROSS_PRODUCT_CONTRACT"
     principles = agents["principles"]
     assert principles["least_authority"] is True
@@ -91,7 +89,6 @@ def main() -> None:
     assert principles["support_agent_can_promote"] is False
     assert principles["human_professional_gate_may_be_bypassed"] is False
 
-    # Material Human Factors decision must be persisted, not conversation-only.
     by_id = {row["decision_id"]: row for row in decisions.get("decisions", [])}
     assert "PRODUCT-HF-001" in by_id
     hf_decision = by_id["PRODUCT-HF-001"]
@@ -99,7 +96,6 @@ def main() -> None:
     assert hf_decision["record"] == "docs/DECISIONI/PRODUCT_HF_001_PARTICIPANT_REVIEWER_SEPARATION_v1.md"
     assert_path(hf_decision["record"])
 
-    # CEW current state must consume current governance rather than reconstruct it.
     program = cew["program"]
     assert program["governance_manifest"] == "automation/PRODUCT_GOVERNANCE_MANIFEST_v1.json"
     assert program["code_development_model"] == models["cew_development_model"]
@@ -108,19 +104,22 @@ def main() -> None:
 
     current = cew["current_product_work_item"]
     assert current["current_slice"] == "B1.8"
-    assert current["state"] == "IN_PROGRESS_BLOCKED_HUMAN_ACCEPTANCE_V2_AND_PROMOTION"
-    assert "HUMAN_ACCEPTANCE_V2_NOT_IMPLEMENTED_OR_EXECUTED" in current["promotion_blockers"]
+    assert current["state"] == "IN_PROGRESS_IMPLEMENTED_CANDIDATE_HVA_PENDING"
+    assert "HUMAN_ACCEPTANCE_V2_NOT_EXECUTED" in current["promotion_blockers"]
+    assert "B1_8_ACCESSIBILITY_GATE_NOT_SATISFIED" in current["promotion_blockers"]
+    assert "EXTENDED_B1_SAME_REVISION_PRODUCTION_SMOKE_NOT_SATISFIED" in current["promotion_blockers"]
     assert cew["governance"]["participant_and_reviewer_separated"] is True
     assert cew["governance"]["telemetry_hidden_from_participant_by_default"] is True
     assert cew["governance"]["ci_implies_human_acceptance"] is False
     assert cew["governance"]["deployment_implies_promotion"] is False
 
-    # CEW queue, current state and B1 subplan must identify the same active slice.
     queue_b1 = next(row for row in cew_queue["items"] if row["id"] == "CEW-B1-SOURCE-EVIDENCE-JOURNEY")
     assert queue_b1["state"] == "IN_PROGRESS"
     assert queue_b1["current_slice"] == "B1.8"
+    assert queue_b1["current_slice_state"] == "IMPLEMENTED_CANDIDATE_HVA_PENDING"
     assert queue_b1["human_acceptance_contract"] == "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json"
-    assert "B1_8_HUMAN_ACCEPTANCE_V2_NOT_IMPLEMENTED_OR_EXECUTED" in queue_b1["promotion_blockers"]
+    assert queue_b1["current_validation"]["HUMAN_ACCEPTANCE_V2"] == "REQUIRED_NOT_EXECUTED"
+    assert "B1_8_HUMAN_ACCEPTANCE_V2_NOT_EXECUTED" in queue_b1["promotion_blockers"]
     assert current["id"] == queue_b1["id"]
     assert current["current_slice"] == queue_b1["current_slice"]
 
@@ -130,23 +129,28 @@ def main() -> None:
     assert b1_plan["human_acceptance_contract"] == "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json"
     assert plan_by_id["B1.7"]["state"] == "HISTORICAL_INSTRUMENT_VALIDATED_INTERACTION_REWORK_REQUIRED"
     assert plan_by_id["B1.7"]["promotion_effect"] == "NONE"
-    assert plan_by_id["B1.8"]["state"] == "IN_PROGRESS_DESIGN_REQUIRED"
+    assert plan_by_id["B1.8"]["state"] == "IMPLEMENTED_CANDIDATE_HVA_PENDING"
     assert plan_by_id["B1.8"]["contract"] == "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json"
+    assert plan_by_id["B1.8"]["gate_state"]["HVA_GATE"] == "REQUIRED_NOT_SATISFIED"
+    assert plan_by_id["B1.8"]["gate_state"]["ACCESSIBILITY_GATE"] == "REQUIRED_NOT_SATISFIED"
 
-    # B1 v2 must encode the human separation discovered through real use.
-    assert b1["status"] == "DESIGN_REQUIRED_NOT_IMPLEMENTED"
+    assert b1["status"] == "IMPLEMENTED_CANDIDATE_HVA_PENDING"
+    assert b1["human_hva_state"] == "REQUIRED_NOT_SATISFIED"
+    assert b1["accessibility_gate_state"] == "REQUIRED_NOT_SATISFIED"
+    assert b1["production_smoke_state"] == "REQUIRED_AFTER_HVA_ON_ACCEPTED_REVISION"
     layers = b1["layers"]
     assert layers["participant_surface"]["show_internal_task_ids"] is False
     assert layers["participant_surface"]["show_runtime_sha"] is False
     assert layers["participant_surface"]["show_live_test_counters"] is False
     assert layers["participant_surface"]["show_release_decision"] is False
     assert layers["participant_surface"]["show_receipt_export"] is False
+    assert layers["participant_surface"]["professional_language_first"] is True
     assert layers["reviewer_surface"]["separate_from_participant_surface"] is True
     assert layers["reviewer_surface"]["owns_hva_decision"] is True
     assert layers["receipt_layer"]["canonical_write_authorized"] is False
+    assert layers["receipt_layer"]["promotion_authorized"] is False
     assert b1["production_promotion_authorized"] is False
 
-    # eTwin preparation evidence is preserved, but current promotion follows v2.
     observed = etw_status["observed_external_preparation"]
     assert observed["state"] == "PREPARED_BLOCKED_PROMOTION"
     assert observed["prepared_head_sha"] == "36b101ed32cb61263609c84f17b740c2446be9c1"
@@ -154,7 +158,6 @@ def main() -> None:
     assert "A0_HUMAN_FACTORS_V2_REVALIDATION" in etw_status["promotion_blockers"]
     assert etw_status["production_promotion_authorized"] is False
 
-    # v1 compatibility keys are retained for the already-prepared orchestration.
     assert etw_manifest["schema_version"] == "1.0"
     assert etw_manifest["status"] == "CANONICAL"
     assert etw_manifest["plan"].endswith("ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1.md")
@@ -166,6 +169,8 @@ def main() -> None:
     assert etw_manifest["engineering_authority_unchanged"] is True
 
     print("PRODUCT_GOVERNANCE_CONSISTENCY_PASS")
+    print("CEW_B18_IMPLEMENTATION = CANDIDATE_HVA_PENDING")
+    print("ETW_A0 = PREPARED_BLOCKED_PROMOTION")
 
 
 if __name__ == "__main__":
