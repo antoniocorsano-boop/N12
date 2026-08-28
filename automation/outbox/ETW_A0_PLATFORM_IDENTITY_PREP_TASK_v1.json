@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "program_id": "ETWIN_PLATFORM_EXTENSION_OVER_CEW_v1",
+  "work_item_id": "ETW-A0",
+  "agent_role": "ETW_PLATFORM_IDENTITY_AGENT",
+  "execution_mode": "PREP_ONLY",
+  "objective": "Establish Project, Discipline, ProjectDisciplineScope, ScopeContext and a read-only CEW source inventory projection with fail-closed project/scope isolation.",
+  "cew_contract_baseline_sha": "cab1c53b62b2b70294b6b7e8d7dddd14ccdcb832",
+  "cew_promoted_baseline_sha": null,
+  "promotion_blockers": ["CEW_PROMOTED_BASELINE"],
+  "required_prep_gates": ["DATA_GATE", "INTEGRATION_GATE", "SECURITY_GATE", "QA_GATE"],
+  "required_promotion_gates": ["DATA_GATE", "INTEGRATION_GATE", "SECURITY_GATE", "HUMAN_FACTORS_GATE", "HVA_GATE", "PRODUCTION_SMOKE", "QA_GATE"],
+  "parallel_support_agents": [
+    "ETW_SECURITY_ISOLATION_AGENT",
+    "ETW_HUMAN_FACTORS_AGENT",
+    "ETW_AUTHORITY_AUDIT_AGENT",
+    "ETW_CONTRACT_COMPATIBILITY_AGENT"
+  ],
+  "target_outputs": [
+    "docs/ARCHITECTURE/ETW_PLATFORM_IDENTITY_BOUNDARY_v1.md",
+    "automation/ETW_PLATFORM_SCOPE_MODEL_v1.json",
+    "scripts/etw_scope_context.py",
+    "scripts/etw_cew_source_inventory_adapter.py",
+    "scripts/validate_etw_platform_identity_boundary.py",
+    ".github/workflows/validate-etw-platform-identity-boundary.yml"
+  ],
+  "stop_rules": [
+    "Do not create ProjectSourceBinding in A0.",
+    "Do not create ArchitecturalEntity or architectural properties in A0.",
+    "Do not hard-code the count of architectural sources.",
+    "Do not fallback to N12 for missing/invalid scope.",
+    "Do not mark A0 COMPLETE before CEW_PROMOTED_BASELINE.",
+    "Any cross-project or cross-discipline leakage is a critical FAIL."
+  ],
+  "expected_owner_result_before_cew_promotion": "PREP_PASS"
+}
