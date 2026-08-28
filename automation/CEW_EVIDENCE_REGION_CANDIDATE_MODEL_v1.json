@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "model_id": "CEW_EVIDENCE_REGION_CANDIDATE_MODEL",
+  "program_goal": "CEW-GOAL-01",
+  "status": "B16_PREPARATION",
+  "contract": "docs/PRODUCT/CEW_EVIDENCE_REGION_CANDIDATE_V1_CONTRACT.md",
+  "states": ["DRAFT", "PROPOSED", "REVIEW_REQUIRED", "REJECTED", "READY_FOR_F2_PROMOTION_REVIEW", "SUPERSEDED"],
+  "geometry_types": ["BBOX"],
+  "coordinate_spaces": ["NORMALIZED_0_1"],
+  "author_types": ["HUMAN", "MACHINE_PROPOSAL"],
+  "required_fields": ["source_version_id", "page_id", "geometry_type", "coordinate_space", "x", "y", "width", "height", "author_type", "purpose"],
+  "geometry_policy": {
+    "page_ready_required": true,
+    "sourceversion_page_match_required": true,
+    "bbox_inside_page_required": true,
+    "server_silent_bbox_adjustment": false,
+    "viewer_transform_is_authority": false,
+    "minimum_normalized_area": 0.000001
+  },
+  "promotion_policy": {
+    "candidate_is_evidence_region": false,
+    "candidate_is_observation": false,
+    "candidate_creates_structural_binding": false,
+    "candidate_changes_epistemic_state": false,
+    "candidate_writes_f2_registry": false,
+    "f2_promotion_review_required": true,
+    "canonical_write_authorized": false
+  },
+  "storage_policy": {
+    "mode": "APPEND_ONLY_PRODUCT_AUDIT_PROPOSED_NOT_APPLIED",
+    "production_table_applied": false,
+    "f2_registry_is_storage_target": false
+  }
+}
