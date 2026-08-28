@@ -18,6 +18,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import cew_document_drawing_workspace as document_workspace
+import cew_document_map_page as document_map_page
 import cew_drawing_viewer as drawing_viewer
 import cew_f7_native_review_service as review_service
 import cew_project_control_room as control_room
@@ -85,6 +86,7 @@ def healthz():
         "document_workspace": "B11_AVAILABLE",
         "drawing_register": "B11_AVAILABLE",
         "drawing_viewer": "B12_PREP_AVAILABLE_NOT_PROMOTED",
+        "document_map": "B13_PREP_AVAILABLE_NOT_PROMOTED",
         "source_workspace": "B1_AVAILABLE",
         "source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED",
         "canonical_write_authorized": False,
@@ -157,6 +159,13 @@ def drawing_card(source_id: str):
     if source_id not in source_workspace.maps()["sources"]:
         return HTMLResponse("<h1>Tavola non trovata</h1><a href='/drawings'>Torna alle tavole</a>", status_code=404)
     return HTMLResponse(drawing_viewer.build_viewer(source_id))
+
+
+@app.get("/drawings/{source_id}/map", response_class=HTMLResponse)
+def drawing_document_map(source_id: str):
+    if source_id not in source_workspace.maps()["sources"]:
+        return HTMLResponse("<h1>Tavola non trovata</h1><a href='/drawings'>Torna alle tavole</a>", status_code=404)
+    return HTMLResponse(document_map_page.build_page(source_id))
 
 
 @app.get("/sources", response_class=HTMLResponse)

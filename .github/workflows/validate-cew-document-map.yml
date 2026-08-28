@@ -1,0 +1,56 @@
+name: Validate CEW Document Map
+
+on:
+  pull_request:
+    paths:
+      - 'app.py'
+      - 'scripts/cew_document_map.py'
+      - 'scripts/cew_document_map_page.py'
+      - 'scripts/validate_cew_document_map.py'
+      - 'automation/CEW_DOCUMENT_MAP_MODEL_v1.json'
+      - 'automation/CEW_DOCUMENT_FEATURE_CANDIDATES_v1.json'
+      - 'automation/outbox/CEW_B13_DOCUMENT_MAP_TASK_v1.json'
+      - 'data/canonical/CEW_DOCUMENT_MAP_REGISTRY_v1.json'
+      - 'docs/MIGRATION/CEW_DOCINTEL_V0_ADOPTION_v1.md'
+      - '.github/workflows/validate-cew-document-map.yml'
+
+jobs:
+  validate-document-map:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax
+        run: |
+          python -m py_compile scripts/cew_document_map.py
+          python -m py_compile scripts/cew_document_map_page.py
+          python -m py_compile scripts/validate_cew_document_map.py
+          python -m py_compile app.py
+      - name: Install runtime dependencies
+        run: pip install -r requirements.txt
+      - name: Validate DocumentMap authority and initial state
+        run: python scripts/validate_cew_document_map.py
+      - name: Route smoke
+        env:
+          CEW_AUTH_DISABLED_FOR_TEST: '1'
+          CEW_AUDIT_BACKEND_MODE: 'LOCAL_TEST_ONLY'
+        run: |
+          python - <<'PY'
+          import app
+          registered={r.path for r in app.app.routes}
+          assert '/drawings/{source_id}/map' in registered
+          r=app.drawing_document_map('TAV-05A')
+          assert r.status_code==200
+          t=r.body.decode('utf-8')
+          for marker in ['Document Map','PARTIAL','Nessun candidato OCR/vector/AI registrato','non equivale a DOC']:
+              assert marker.lower() in t.lower(), marker
+          h=app.healthz()
+          assert h['document_map']=='B13_PREP_AVAILABLE_NOT_PROMOTED'
+          assert h['canonical_write_authorized'] is False
+          print('CEW B1.3 DOCUMENT MAP ROUTE: PASS')
+          PY
+      - name: Declare promotion boundary
+        run: |
+          echo 'DocumentMap machine candidates: non-authoritative'
+          echo 'VALIDATED requires human review and remains document-use only'
+          echo 'Candidate -> EvidenceRegion automatic promotion: forbidden'
+          echo 'Production promotion: forbidden until upstream HVA dependencies pass'

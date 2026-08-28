@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "registry_id": "CEW_DOCUMENT_MAP_REGISTRY",
+  "status": "B13_INITIAL_PARTIAL_MAPS",
+  "authority": "DOCUMENT_UNDERSTANDING_ONLY",
+  "maps": [
+    {
+      "document_map_id": "CEW-N12-DOCMAP-TAV05A-P001",
+      "source_id": "TAV-05A",
+      "source_version_id": "CEW-N12-SRC-TAV05A-V17DEC414",
+      "page_id": "CEW-N12-PAGE-TAV05A-P001",
+      "state": "PARTIAL",
+      "registered_metadata": {
+        "source_class": "armature_travi",
+        "project_level": "G4",
+        "source_role": "armature",
+        "source_status": "DOC_PRIMARY_IMMUTABLE",
+        "page_readiness": "READY",
+        "metadata_basis": "tavole_originali_remote_index_v1.csv + CEW_PAGE_REGISTRY_v1.csv",
+        "metadata_is_drawing_internal_reading": false
+      },
+      "validated_feature_ids": [],
+      "candidate_feature_ids": [],
+      "evidence_region_ids": [
+        "CEW-N12-REG-G01-R06",
+        "CEW-N12-REG-G07-R07",
+        "CEW-N12-REG-G05-R04"
+      ],
+      "unknown_fields": [
+        "DRAWING_TITLE",
+        "DRAWING_NUMBER",
+        "DRAWING_SCALE",
+        "READING_ORIENTATION",
+        "FRAME_OR_GRID_REFERENCE",
+        "SECTION_OR_ELEVATION_REFERENCE",
+        "DETAIL",
+        "SCHEDULE_OR_TABLE",
+        "EXPLODED_REINFORCEMENT_VIEW",
+        "LEGEND",
+        "DIMENSION_CHAIN",
+        "CALLOUT",
+        "NOTE",
+        "UNRESOLVED_REGION"
+      ],
+      "canonical_engineering_promotion": false
+    },
+    {
+      "document_map_id": "CEW-N12-DOCMAP-TAV06A-P001",
+      "source_id": "TAV-06A",
+      "source_version_id": "CEW-N12-SRC-TAV06A-V3F2D557F",
+      "page_id": "CEW-N12-PAGE-TAV06A-P001",
+      "state": "PARTIAL",
+      "registered_metadata": {
+        "source_class": "armature_copertura",
+        "project_level": "G5_copertura",
+        "source_role": "armature_copertura",
+        "source_status": "DOC_PRIMARY_IMMUTABLE",
+        "page_readiness": "READY",
+        "metadata_basis": "tavole_originali_remote_index_v1.csv + CEW_PAGE_REGISTRY_v1.csv",
+        "metadata_is_drawing_internal_reading": false
+      },
+      "validated_feature_ids": [],
+      "candidate_feature_ids": [],
+      "evidence_region_ids": [
+        "CEW-N12-REG-T6A-G03"
+      ],
+      "unknown_fields": [
+        "DRAWING_TITLE",
+        "DRAWING_NUMBER",
+        "DRAWING_SCALE",
+        "READING_ORIENTATION",
+        "FRAME_OR_GRID_REFERENCE",
+        "SECTION_OR_ELEVATION_REFERENCE",
+        "DETAIL",
+        "SCHEDULE_OR_TABLE",
+        "EXPLODED_REINFORCEMENT_VIEW",
+        "LEGEND",
+        "DIMENSION_CHAIN",
+        "CALLOUT",
+        "NOTE",
+        "UNRESOLVED_REGION"
+      ],
+      "canonical_engineering_promotion": false
+    }
+  ]
+}
