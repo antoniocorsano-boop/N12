@@ -1,0 +1,12 @@
+audit_id,metric,value,status,note
+G6-RQA-001,effective_physical_members,49,PASS,"Effective topology after B-029/B-044 revocation, B-037 duplicate suppression and B-052 addition."
+G6-RQA-002,topology_face_pass_count,49,PASS,"All 49 effective members have source-consistent direction and support-face attachment; no topology REJECT remains."
+G6-RQA-003,topology_reject_count,0,PASS,"No beam vector is rejected by raster/source QA."
+G6-RQA-004,metric_overlay_plain_pass_count,34,PASS,"34 vectors overlay without metric provenance warnings."
+G6-RQA-005,metric_overlay_watch_count,15,WATCH,"15 vectors inherit MIS or G3 support-residual warnings; the beam topology itself remains PASS."
+G6-RQA-006,extended_support_face_qa,"P18:P23:P30",PASS,"P18/P23/P30 have distinct beam-face attachments; no centroid snapping is used."
+G6-RQA-007,central_bent_chain,"B-048:B-049:B-050",PASS_WITH_WATCH,"120x20 bent chain follows source; P12 endpoint coordinates retain MIS provenance."
+G6-RQA-008,p19_p20_p21_chain,"B-052:B-051:B-040",PASS_WITH_WATCH,"Correct P19-P20 plus P20-P21 topology is source-confirmed; P19/P20 metric provenance remains visible."
+G6-RQA-009,terrace_runs,"B-001:B-002:B-005:B-006",PASS,"Terrace beams are directly visible and remain distinct from the 30x30 added supports."
+G6-RQA-010,analytical_node_gate,ALLOW_WITH_PROVENANCE_WATCHES,PASS,"Analytical beam-face nodes may now be generated because no topology conflict remains; every node must inherit beam/support evidence and WATCH state where applicable."
+G6-RQA-011,master_promotion,FORBIDDEN,PASS,"PT_MASTER_CURRENT remains suspended until analytical nodes and final overlay QA are complete."

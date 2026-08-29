@@ -1,0 +1,57 @@
+incidence_id,endpoint_a,endpoint_b,evidence_anchor,geometry_form,source_local_state,p06_status,blocking,note
+P06-INC-001,1,2,P001-TILE-R02-C03,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Continuous foundation contour directly connects the two labelled supports.
+P06-INC-002,2,3,P001-TILE-R02-C03,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Continuous foundation contour directly connects the two labelled supports.
+P06-INC-003,3,4,P001-TILE-R03-C03|P001-REGION-R02-C02,STRAIGHT,TRACEABLE_ACROSS_OVERLAP,CONFIRMED,false,Contour is continuous across overlapping P02 evidence.
+P06-INC-004,1,9,P001-REGION-R01-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-005,2,10,P001-REGION-R01-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-006,3,11,P001-REGION-R01-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-007,9,10,P001-REGION-R01-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly connects labelled supports.
+P06-INC-008,10,11,P001-REGION-R01-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly connects labelled supports.
+P06-INC-009,4,5,P001-REGION-R02-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Local vertical contour directly connects 4 to 5.
+P06-INC-010,5,6,P001-TILE-R03-C02|P001-REGION-R02-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal foundation contour directly connects supports.
+P06-INC-011,6,7,P001-TILE-R03-C02|P001-REGION-R02-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal foundation contour directly connects supports.
+P06-INC-012,7,8,P001-REGION-R02-C02|P001-TILE-R04-C02,STRAIGHT,TRACEABLE_ACROSS_OVERLAP,CONFIRMED,false,Direct contour continuity confirmed across overlapping evidence.
+P06-INC-013,5,12,P001-TILE-R03-C02,ANGLED,DIRECTLY_VISIBLE,CONFIRMED,false,Angled multi-line foundation contour directly joins the labelled supports.
+P06-INC-014,11,12,P001-TILE-R03-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Short horizontal contour is directly visible between labelled supports.
+P06-INC-015,12,13,P001-TILE-R03-C02,ANGLED,DIRECTLY_VISIBLE,CONFIRMED,false,Angled contour directly joins labelled supports.
+P06-INC-016,6,14,P001-TILE-R03-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-017,7,15,P001-TILE-R03-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-018,8,16,P001-TILE-R04-C02|P001-REGION-R02-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-019,13,14,P001-TILE-R03-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly connects labelled supports.
+P06-INC-020,14,15,P001-TILE-R03-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly connects labelled supports.
+P06-INC-021,15,16,P001-TILE-R03-C02|P001-TILE-R04-C02,STRAIGHT,TRACEABLE_ACROSS_OVERLAP,CONFIRMED,false,Contour is directly traceable across overlapping evidence.
+P06-INC-022,17,18,P001-REGION-R01-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly connects labelled supports.
+P06-INC-023,18,19,P001-REGION-R01-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly connects labelled supports.
+P06-INC-024,19,20,P001-REGION-R01-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly connects labelled supports.
+P06-INC-025,17,a,P001-REGION-R01-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-026,a,c,P001-REGION-R01-C01|P001-TILE-R02-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-027,18,b,P001-REGION-R01-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-028,b,d,P001-REGION-R01-C01|P001-TILE-R02-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-029,a,b,P001-REGION-R01-C01|P001-TILE-R02-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly connects labelled supports.
+P06-INC-030,c,d,P001-REGION-R01-C01|P001-TILE-R02-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly connects labelled supports.
+P06-INC-031,b,25,P001-TILE-R02-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly continues from b to labelled support 25.
+P06-INC-032,d,28,P001-TILE-R02-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly continues from d to labelled support 28.
+P06-INC-033,25,28,P001-TILE-R02-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-034,28,31,P001-TILE-R02-C01|P001-REGION-R01-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-035,13,21,P001-TILE-R03-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-036,14,22,P001-TILE-R03-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-037,15,23,P001-TILE-R03-C02,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-038,16,24,P001-TILE-R04-C02|P001-REGION-R02-C01,STRAIGHT,TRACEABLE_ACROSS_OVERLAP,CONFIRMED,false,Right perimeter contour directly traces from 16 to 24 across overlap.
+P06-INC-039,21,22,P001-TILE-R03-C02|P001-REGION-R02-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly connects labelled supports.
+P06-INC-040,22,22bis,P001-TILE-R03-C02|P001-REGION-R02-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Short horizontal contour directly connects distinct labelled supports.
+P06-INC-041,22bis,23,P001-TILE-R03-C02|P001-REGION-R02-C01,STRAIGHT_WITH_LOCAL_OFFSETS,DIRECTLY_VISIBLE,CONFIRMED,false,Contour remains continuous through local offsets to support 23.
+P06-INC-042,23,24,P001-REGION-R02-C01,STRAIGHT_WITH_JOG,DIRECTLY_VISIBLE,CONFIRMED,false,Source-local contour directly traces between labelled supports through a local jog.
+P06-INC-043,21,26,P001-REGION-R02-C01,ANGLED,DIRECTLY_VISIBLE,CONFIRMED,false,Angled lower-left contour directly joins labelled supports.
+P06-INC-044,22bis,27,P001-TILE-R03-C02|P001-REGION-R02-C01,STRAIGHT_WITH_JOG,TRACEABLE_ACROSS_OVERLAP,CONFIRMED,false,Downward contour from 22bis is traceable to 27 across overlapping evidence.
+P06-INC-045,26,27,P001-REGION-R02-C01|P001-TILE-R03-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly connects labelled supports.
+P06-INC-046,26,29,P001-REGION-R02-C01|P001-TILE-R03-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-047,27,30,P001-REGION-R02-C01|P001-TILE-R03-C01,STRAIGHT_WITH_LOCAL_OFFSET,TRACEABLE_ACROSS_OVERLAP,CONFIRMED,false,Right contour is traceable from 27 to elongated support 30.
+P06-INC-048,29,30,P001-TILE-R03-C01|P001-REGION-R02-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly connects labelled supports.
+P06-INC-049,29,32,P001-TILE-R03-C01|P001-REGION-R02-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-050,30,33,P001-TILE-R03-C01|P001-REGION-R02-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Vertical contour directly connects labelled supports.
+P06-INC-051,32,33,P001-TILE-R03-C01|P001-REGION-R02-C01,STRAIGHT,DIRECTLY_VISIBLE,CONFIRMED,false,Horizontal contour directly connects labelled supports.
+P06-INC-OPEN-001,9,17,P001-REGION-R01-C02|P001-REGION-R01-C01,UNRESOLVED,OVERLAP_WITNESS_NOT_YET_BOUND,OPEN,true,The two labels are vertically ordered in overlapping regions but this sweep does not promote the bridge until one continuous source-local trace is recorded.
+P06-INC-OPEN-002,10,18,P001-REGION-R01-C02|P001-REGION-R01-C01,UNRESOLVED,OVERLAP_WITNESS_NOT_YET_BOUND,OPEN,true,Continuous bridge requires explicit overlap tracing before promotion.
+P06-INC-OPEN-003,11,19,P001-REGION-R01-C02|P001-REGION-R01-C01,UNRESOLVED,OVERLAP_WITNESS_NOT_YET_BOUND,OPEN,true,Continuous bridge requires explicit overlap tracing before promotion.
+P06-INC-OPEN-004,19,25,P001-REGION-R01-C01|P001-TILE-R02-C01,UNRESOLVED,OVERLAP_WITNESS_NOT_YET_BOUND,OPEN,true,Same apparent column is not sufficient; explicit source-local trace still required.
+P06-INC-OPEN-005,20,24,P001-REGION-R01-C01|P001-REGION-R02-C01,UNRESOLVED,LONG_BRIDGE_NOT_EXHAUSTIVELY_TRACED,OPEN,true,Long perimeter bridge remains unpromoted until the complete contour is traced across the fold/overlap.

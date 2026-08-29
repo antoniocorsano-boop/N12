@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "N12_AGENT_RESULT_HANDSHAKE",
+  "purpose": "Define the only machine-ingestible handoff from a specialist semantic executor back to the deterministic N12 structural-analysis cycle.",
+  "inbox": "automation/inbox/N12_AGENT_RESULT.json",
+  "receipt_dir": "automation/receipts",
+  "ingestor": "scripts/n12_ingest_agent_result.py",
+  "max_work_items_per_result": 1,
+  "allowed_decisions": [
+    "PASS",
+    "PASS_WITH_WATCH",
+    "RESIDUAL",
+    "BLOCKED",
+    "CONFLICT"
+  ],
+  "allowed_semantic_gate_states": ["PASS", "WATCH", "FAIL"],
+  "allowed_provenance": ["DOC", "MIS", "RIF", "INF", "INC", "ND"],
+  "required_fields": [
+    "schema_version",
+    "work_item_id",
+    "source_sheet",
+    "decision",
+    "semantic_gate",
+    "target_outputs",
+    "provenance_summary",
+    "residuals",
+    "audit_paths"
+  ],
+  "pass_rules": {
+    "target_outputs_must_exactly_match_queue_item": true,
+    "all_target_outputs_must_exist": true,
+    "all_target_outputs_must_be_registered": true,
+    "registered_authority_allowed": ["CANONICAL", "DERIVED"],
+    "registered_status_forbidden": ["CONFLICT", "REOPENED", "SUPERSEDED", "TOMBSTONE", "HISTORICAL_ONLY", "SUSPENDED"],
+    "may_feed_canonical_allowed": ["YES", "CONDITIONAL"],
+    "semantic_gate_for_PASS": ["PASS"],
+    "semantic_gate_for_PASS_WITH_WATCH": ["PASS", "WATCH"],
+    "audit_paths_required": true,
+    "deterministic_validators_required": [
+      "python scripts/validate_knowledge_system.py",
+      "python scripts/n12_orchestrator.py validate",
+      "python skills/pt-carpentry-reader/runner.py validate"
+    ]
+  },
+  "non_pass_rules": {
+    "RESIDUAL": "Do not promote the work item. Persist the smallest unresolved claim and keep the item in RESIDUAL.",
+    "BLOCKED": "Do not promote. Mark the item BLOCKED and identify the missing input/dependency in residuals.",
+    "CONFLICT": "Do not promote. Mark the item BLOCKED, record CONFLICT_STOP in state and reopen only the smallest conflicting claim."
+  },
+  "forbidden": [
+    "multiple work items in one result",
+    "changing the selected queue item by agent preference",
+    "copying sections or beams from another storey",
+    "promoting MIS/RIF/INF to DOC",
+    "canonical promotion without registry authority",
+    "canonical promotion with missing audit evidence",
+    "silently dropping INC/ND/WATCH provenance",
+    "editing main"
+  ]
+}

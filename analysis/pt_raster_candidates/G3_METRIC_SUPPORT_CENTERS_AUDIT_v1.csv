@@ -1,0 +1,11 @@
+audit_id,metric,value,status,note
+G3-MSC-001,total_support_centers,38,PASS,"All expected P1-P33 + P22-prime + a-b-c-d have numeric metric centers."
+G3-MSC-002,fully_documentary_or_axis_supported_centers,28,PASS,"Both coordinates derive from written dimensions, anchors or directly observed structural-axis equalities."
+G3-MSC-003,reference_supported_non_MIS_centers,2,SUPPORTED,"P21 and P22 use the directly observed 3.45+2.10 reference-line rebound for X; not ordinary support-pair dimensions."
+G3-MSC-004,centers_with_MIS_component,8,SUPPORTED,"P12 P18 P19 P20 P22-prime P23 P27 P30 contain at least one measured coordinate. Provenance remains explicit."
+G3-MSC-005,affine_raster_residual_rms_px,9.792,PASS_DIAGNOSTIC,"Computed over all 38 centers using the affine diagnostic frozen from the documentary network."
+G3-MSC-006,affine_raster_residual_median_px,6.621,PASS_DIAGNOSTIC,"Raster residuals are not used to move documented metric coordinates."
+G3-MSC-007,max_residual_px,24.014,WATCH,"P19; common-column MIS fit retained. Local scan distortion is also visible on documentary P25 and d."
+G3-MSC-008,residual_watch_supports,"P19;P25;d",WATCH,"P25 and d are documentary controls, demonstrating that local scan distortion can exceed the ordinary residual band. P19 therefore remains MIS_WATCH rather than being manually shifted."
+G3-MSC-009,extended_support_centers,"P18;P23;P30",PASS_WITH_LATER_GATE,"Physical centers are available. Their analytical beam-face nodes are not yet authorized and must be generated from footprint/beam intersections."
+G3-MSC-010,geometry_master,PT_MASTER_CURRENT.csv,SUSPENDED,"Do not promote until physical support vectors, documentary beam vectors, beam-face analytical nodes and overlay QA are complete."

@@ -1,0 +1,39 @@
+entity_id,entity_type,x_global_m,y_global_m,coordinate_status,coordinate_record_status,section_cm,orientation_class,tav07_section_id,assignment_status,master_status,evidence_xy,section_evidence,coordinate_note,section_note
+1,NUMBERED_PILLAR,18.00,0.00,DOC_GLOBAL,DOC,40x50,40x50,,DOC_DIRECT,CURRENT,TAV-02S top/right quoted chains,TAV-02S HiRes Q00,right main chain,written section direct
+2,NUMBERED_PILLAR,18.00,4.70,DOC_GLOBAL,DOC,50x40,50x40,,DOC_DIRECT,CURRENT,TAV-02S right quoted chain,TAV-02S HiRes Q01,right main chain,written section direct
+3,NUMBERED_PILLAR,18.00,9.80,DOC_GLOBAL,DOC,60x40,60x40,,DOC_DIRECT,CURRENT,TAV-02S right quoted chain,TAV-02S HiRes Q01,right main chain,"reread confirms 60x40; supersedes 50x40"
+4,NUMBERED_PILLAR,18.00,13.95,DOC_GLOBAL,DOC,40x50,40x50,,DOC_CROSS_TILE,CURRENT,TAV-02S right quoted chain,TAV-02S HiRes Q01 + overlap,right main chain,cross-validated
+5,NUMBERED_PILLAR,16.10,13.95,DOC_GLOBAL_OFFSET,DOC,40x50,40x50,,DOC_CROSS_TILE,CURRENT,TAV-02S quota interna 1.90 m,TAV-02S HiRes Q01 + overlap,offset interno,cross-validated
+6,NUMBERED_PILLAR,18.00,18.10,DOC_GLOBAL,DOC,50x40,50x40,,DOC_CROSS_TILE,CURRENT,TAV-02S right quoted chain,TAV-02S HiRes Q01 + overlap,right main chain,cross-validated
+7,NUMBERED_PILLAR,18.00,23.43,DOC_GLOBAL,DOC,,,,OPEN_DIRECT_READ,RESIDUAL,TAV-02S right quoted chain,TAV-02S HiRes,right main chain,section not yet promoted
+8,NUMBERED_PILLAR,18.00,28.13,DOC_GLOBAL,DOC,,,,OPEN_DIRECT_READ,RESIDUAL,TAV-02S right quoted chain,TAV-02S HiRes,right main chain,section not yet promoted
+9,NUMBERED_PILLAR,12.40,0.00,DOC_GLOBAL,DOC,40x50,40x50,,DOC_DIRECT,CURRENT,TAV-02S top quoted chain,TAV-02S HiRes Q00,upper central line,written section direct
+10,NUMBERED_PILLAR,12.40,4.70,DOC_GLOBAL_ALIGN,DOC,50x40,50x40,,DOC_DIRECT,CURRENT,TAV-02S top chain + alignment,TAV-02S HiRes Q01,upper central line,written section direct
+11,NUMBERED_PILLAR,12.40,9.80,DOC_GLOBAL_ALIGN,DOC,50x40,50x40,,DOC_DIRECT,CURRENT,TAV-02S documented alignment,TAV-02S HiRes Q01,central chain,face binding closed in PT_SUPPORT_FACE_BINDINGS_v1
+12,NUMBERED_PILLAR,12.40,13.95,DOC_GLOBAL_ALIGN,DOC,40x50,40x50,,DOC_CROSS_TILE,CURRENT,TAV-02S documented alignment,TAV-02S HiRes Q01 + overlap,central chain,face binding closed in PT_SUPPORT_FACE_BINDINGS_v1
+13,NUMBERED_PILLAR,13.35,15.20,DOC_GLOBAL,DOC,50x40,50x40,,DOC_CROSS_TILE,CURRENT,TAV-02S native HiRes direct 2.90 m spacing to P14,TAV-02S HiRes Q01 + overlap,central broken chain,coordinate closure supersedes earlier ND
+14,NUMBERED_PILLAR,13.35,18.10,DOC_GLOBAL,DOC,50x40,50x40,,DOC_CROSS_TILE,CURRENT,TAV-02S lower-right chain,TAV-02S HiRes Q01 + overlap,central/lower-right chain,face binding closed in PT_SUPPORT_FACE_BINDINGS_v1
+15,NUMBERED_PILLAR,13.35,23.43,DOC_GLOBAL_ALIGN,DOC,50x40,50x40,,CROSS_VALIDATED,CURRENT,TAV-02S alignment + cross-tie to 23,TAV-02S_L1_R03C02 + R03C03,lower-right inner line,cross-validated
+16,NUMBERED_PILLAR,13.35,28.13,DOC_GLOBAL_ALIGN,DOC,50x40,50x40,,DOC_DIRECT,CURRENT,TAV-02S alignment + bottom chain,TAV-02S_L1_R04C02,lower-right inner line,direct persistent-tile reading
+17,NUMBERED_PILLAR,6.90,0.00,DOC_GLOBAL,DOC,50x40,50x40,,DOC_DIRECT,CURRENT,TAV-02S top quoted chain,TAV-02S_L1_R03C01,upper central line,direct persistent-tile reading
+18,NUMBERED_PILLAR,6.90,4.70,DOC_GLOBAL_ALIGN,DOC,110xND,,,DOC_PARTIAL,RESIDUAL,TAV-02S top chain + alignment,TAV-02S HiRes,upper central line,long side 110 cm readable; second side remains ND
+19,NUMBERED_PILLAR,6.90,8.75,DOC_GLOBAL,DOC,40x50,40x50,,DOC_DIRECT,CURRENT,TAV-02S native HiRes + documented 4.05 m chain from P18,TAV-02S HiRes,left/central sector,coordinate closure supersedes reopened conflict
+20,NUMBERED_PILLAR,6.90,9.80,DOC_GLOBAL_ALIGN,DOC,50x40,50x40,,DOC_DIRECT,CURRENT,TAV-02S native HiRes direct alignment/row reading,TAV-02S HiRes,left/central sector,coordinate closure supersedes reopened conflict
+21,NUMBERED_PILLAR,6.90,12.23,DOC_GLOBAL,DOC,40x50,40x50,,DOC_HIRES,RESIDUAL,TAV-02S left-sector row alignment,TAV-02S HiRes R03 sector,left sector F3/R1,section supported; persistent pixel binding remains residual
+22,NUMBERED_PILLAR,6.90,18.48,DOC_GLOBAL,DOC,50x40,50x40,,DOC_DIRECT,CURRENT,TAV-02S left-sector row alignment,TAV-02S_L1_R03C01,left sector F3/R2,direct persistent-tile reading
+22',NUMBERED_PILLAR,,,MIS_COORD_LOCAL,ND,50x40,50x40,,DOC_DIRECT,RESIDUAL,"TAV-02S_L1_R03C01 distinct support; local measured spacing 1.18 m to P22",TAV-02S_L1_R03C01,"do not promote 1.20 m to DOC without written/topological binding",distinct pillar; section direct
+23,NUMBERED_PILLAR,6.90,23.43,DOC_GLOBAL,DOC,30x110,110x30,I-03,DOC_DIRECT,CURRENT,TAV-02S direct horizontal reference to 15,TAV-02S_L1_R04C01 + TAV.7 I-03,left sector F3/R3,"extended 110x30 plan support; face bindings SFB-001..004"
+24,NUMBERED_PILLAR,6.90,28.13,DOC_GLOBAL,DOC,40x50,40x50,,DOC_DIRECT,CURRENT,TAV-02S bottom chain,TAV-02S_L1_R03C01,left sector F3/R4,direct persistent-tile reading
+25,NUMBERED_PILLAR,4.80,12.23,DOC_GLOBAL,DOC,50x40,50x40,,DOC_DIRECT,CURRENT,TAV-02S transverse chain,TAV-02S_L1_R02C01,left sector F2/R1,direct persistent-tile reading
+26,NUMBERED_PILLAR,4.80,18.48,DOC_GLOBAL,DOC,50x40,50x40,,DOC_DIRECT,CURRENT,TAV-02S transverse chain,TAV-02S_L1_R03C01,left sector F2/R2,direct persistent-tile reading
+27,NUMBERED_PILLAR,4.80,23.43,DOC_GLOBAL,DOC,50x40,50x40,,DOC_DIRECT,CURRENT,TAV-02S transverse chain,TAV-02S_L1_R03C01,left sector F2/R3,direct persistent-tile reading
+28,NUMBERED_PILLAR,1.35,12.23,DOC_GLOBAL,DOC,50x40,50x40,I-02,DOC_DIRECT,CURRENT,TAV-02S transverse chain,TAV-02S HiRes + TAV.7 I-02,left sector F1/R1,family 40x50 rotated
+29,NUMBERED_PILLAR,1.35,18.48,DOC_GLOBAL,DOC,50x40,50x40,I-02,DOC_DIRECT,CURRENT,TAV-02S transverse chain,TAV-02S HiRes + TAV.7 I-02,left sector F1/R2,family 40x50 rotated
+30,NUMBERED_PILLAR,1.35,23.43,DOC_GLOBAL,DOC,30x110,30x110,I-03,DOC_DIRECT,CURRENT,TAV-02S transverse chain,TAV-02S_L1_R03C01 + TAV.7 I-03,left sector F1/R3,"extended 30x110 plan support; face bindings SFB-005..007"
+31,NUMBERED_PILLAR,-3.35,12.23,DOC_GLOBAL,DOC,50x40,50x40,I-02,DOC_DIRECT,CURRENT,TAV-02S row tie,TAV-02S HiRes + TAV.7 I-02,left sector F0/R1,family 40x50 rotated
+32,NUMBERED_PILLAR,-3.35,18.48,DOC_GLOBAL,DOC,40x50,40x50,I-01,DOC_DIRECT,CURRENT,TAV-02S row tie,TAV-02S HiRes + TAV.7 I-01,left sector F0/R2,family 40x50
+33,NUMBERED_PILLAR,-3.35,23.43,DOC_GLOBAL,DOC,40x50,40x50,I-01,DOC_DIRECT,CURRENT,TAV-02S row tie,TAV-02S HiRes + TAV.7 I-01,left sector F0/R3,family 40x50
+a,TERRACE_ADDED_PILLAR,3.45,0.00,DOC_GLOBAL_DERIVED,DOC,,,,DOC_ID_GEOMETRY,RESIDUAL,"TAV-02S row c-a-17; c-a=3.45; a-17=3.45; P17=(6.90,0.00)","not documented in original I-order armature set",terrace added support,section/armature remain ND
+b,TERRACE_ADDED_PILLAR,3.45,4.70,DOC_GLOBAL_DERIVED,DOC,,,,DOC_ID_GEOMETRY,RESIDUAL,"TAV-02S row d-b-18 + terrace row spacing 4.70","not documented in original I-order armature set",terrace added support,section/armature remain ND
+c,TERRACE_ADDED_PILLAR,0.00,0.00,DOC_GLOBAL_DERIVED,DOC,,,,DOC_ID_GEOMETRY,RESIDUAL,"TAV-02S row c-a-17; c-a=3.45; a-17=3.45","not documented in original I-order armature set",terrace added support,section/armature remain ND
+d,TERRACE_ADDED_PILLAR,0.00,4.70,DOC_GLOBAL_DERIVED,DOC,,,,DOC_ID_GEOMETRY,RESIDUAL,"TAV-02S row d-b-18; c-d=4.70","not documented in original I-order armature set",terrace added support,section/armature remain ND

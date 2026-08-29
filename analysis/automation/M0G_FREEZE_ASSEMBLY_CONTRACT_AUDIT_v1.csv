@@ -1,0 +1,26 @@
+check_id,scope,expected,observed,status,evidence,note
+M0G-A01,G1 physical supports,38,38,PASS,data/canonical/PT_GEOMETRY_HANDOFF_v1.json,Physical supports remain geometry not point substitutes
+M0G-A02,G1 analytical face nodes,98,98,PASS,data/canonical/PT_GEOMETRY_HANDOFF_v1.json,Existing PT face nodes preserved
+M0G-A03,G1 effective beams,49,49,PASS,data/canonical/PT_GEOMETRY_HANDOFF_v1.json,Revoked and duplicate provenance records remain excluded
+M0G-A04,vertical columns G1-G2,34,34,PASS,data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv,
+M0G-A05,vertical columns G2-G3,34,34,PASS,data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv,
+M0G-A06,vertical columns G3-G4,34,34,PASS,data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv,
+M0G-A07,vertical columns G4-G5,25,25,PASS,data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv,
+M0G-A08,vertical column total,127,127,PASS,data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv,
+M0G-A09,G2 ordinary beams,48,48,PASS,data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv,
+M0G-A10,G3 ordinary beams,48,48,PASS,data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv,
+M0G-A11,G4 ordinary beams,48,48,PASS,data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv,
+M0G-A12,G5 ordinary beams,36,36,PASS,data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv,G5-B036 includes confirmed oblique 19-26 member
+M0G-A13,upper ordinary beam total,180,180,PASS,data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv,
+M0G-A14,ordinary structural member segments,356,356,PASS,derived count 49+127+180,No ridge/gronda insertion
+M0G-A15,roof ridge axes,3,3,PASS,data/canonical/ROOF_G5_SPECIAL_FEATURES_CURRENT_v1.csv,Kept outside ordinary-member topology
+M0G-A16,roof eaves edge sets,3,3,PASS,data/canonical/ROOF_G5_SPECIAL_FEATURES_CURRENT_v1.csv,Kept outside ordinary-member topology
+M0G-A17,roof special linked oblique feature,1,1,PASS,data/canonical/ROOF_G5_SPECIAL_FEATURES_CURRENT_v1.csv,G5-OBL-19-26 links to G5-B036 and is not duplicated
+M0G-A18,terrace supports terminating at G1,"a;b;c;d","a;b;c;d",PASS,data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv,No upward extrusion
+M0G-A19,original supports terminating at G4,"1;8;9;16;17;24;31;32;33","1;8;9;16;17;24;31;32;33",PASS,data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv,No G4-G5 segment
+M0G-A20,relative Z levels,"0.00;3.20;6.40;9.60;11.80","0.00;3.20;6.40;9.60;11.80",PASS,data/canonical/STOREY_LEVELS_CURRENT_v1.csv,Absolute project Z remains ND
+M0G-A21,G3 section watch supports,"18;21","18;21",PASS,data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv,MIS retained
+M0G-A22,column section-watch segments,4,4,PASS,data/canonical/VERTICAL_COLUMN_SEGMENTS_CURRENT_v1.csv,No MIS-to-DOC promotion
+M0G-A23,G5 beam section status,"DOC=19;ND=17","DOC=19;ND=17",PASS,data/canonical/STOREY_BEAMS_G5_v1.csv,Topology remains DOC while missing sections remain ND
+M0G-A24,centroid substitution for PT beam ends,0,0,PASS,data/canonical/PT_GEOMETRY_HANDOFF_v1.json,Face-node semantics frozen
+M0G-A25,roof rectangularization,0,0,PASS,data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json,Special roof geometry remains separate

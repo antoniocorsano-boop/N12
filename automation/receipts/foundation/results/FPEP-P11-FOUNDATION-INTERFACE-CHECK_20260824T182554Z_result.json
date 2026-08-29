@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P11-20260824T182300Z",
+  "work_item_id": "FPEP-P11-FOUNDATION-INTERFACE-CHECK",
+  "stage_id": "FPEP-P11-FOUNDATION-INTERFACE-CHECK",
+  "agent_role": "FOUNDATION_INTERFACE_AUDITOR",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "PASS",
+  "input_artifacts": [
+    {"path":"data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"CANONICAL_PRIMARY_GEOMETRY_GATE","status":"CURRENT"},
+    {"path":"data/canonical/M1F_FOUNDATION_ELEVATION_GATE_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"CANONICAL_ELEVATION_GATE","status":"CURRENT_WITH_WATCH"},
+    {"path":"data/canonical/M1F_GROUND_FLOOR_INTERFACE_GATE_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"CANONICAL_GROUND_FLOOR_INTERFACE_GATE","status":"CURRENT_WITH_WATCH"},
+    {"path":"data/canonical/M1F_CURRENT_GEOTECHNICAL_GATE_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"CANONICAL_CURRENT_GEOTECHNICAL_GATE","status":"CURRENT_WITH_WATCH"}
+  ],
+  "primary_sources": [
+    {"source_id":"TAV-01S-P07","path":"data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv","git_blob_sha":"64b842fa03b3aa7437e80d2bce90406a66f73827","sha256":"abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8","evidence_anchor":"P07 primary geometry gate; P11 consumes domain gates without creating new geometry"}
+  ],
+  "target_outputs": ["analysis/fpep/FPEP_FOUNDATION_INTERFACE_CROSSCHECK_v1.csv"],
+  "provenance_summary": {"primary_topology_modified":0,"supports_on_symbolic_plane":38,"numeric_foundation_z_promoted":0,"pt_numeric_layers_promoted":0,"current_geotechnical_parameters_promoted":0,"superseded_symbolic_member_count_flagged":58},
+  "residuals": [
+    {"residual_id":"P11-W001","claim_id":"ZF_COMMON-NUMERIC-Z","blocking":false,"reason":"The common foundation plane is documented symbolically but no numeric model/project/geodetic Z is registered.","required_evidence":"Keep ZF_COMMON numeric value ND until direct datum evidence binds local ground/G1/foundation levels."},
+    {"residual_id":"P11-W002","claim_id":"GROUND-FLOOR-LOAD-PATH","blocking":false,"reason":"Ground-supported versus structural/foundation-beam load transfer remains unclassified; numeric build-up properties are not registered.","required_evidence":"Require new primary/survey evidence before load assignment."},
+    {"residual_id":"P11-W003","claim_id":"CURRENT-GEOTECHNICS","blocking":false,"reason":"Current site-specific stratigraphy, groundwater, strength and stiffness/settlement parameters remain unavailable in the registered repository evidence.","required_evidence":"Register site-specific geotechnical documentation or investigation results before current foundation verification."},
+    {"residual_id":"P11-W004","claim_id":"SYMBOLIC-3D-58-MEMBER-TOPOLOGY","blocking":false,"reason":"The elevation gate's pre-P07 symbolic 58-member connectivity is superseded as a topology reference by P07/P10, although the common-plane evidence remains valid.","required_evidence":"Any successor symbolic 3D foundation connectivity must use P07 primary topology rather than the pre-P07 58-member set."}
+  ],
+  "audit_paths": ["analysis/fpep/FPEP_FOUNDATION_INTERFACE_CROSSCHECK_v1.csv"],
+  "information_barrier_attestation": {"forbidden_context_not_used":true,"legacy_target_counts_not_used_before_primary_gate":true,"downstream_model_not_used_as_primary_evidence":true,"majority_vote_not_used_for_authority":true}
+}

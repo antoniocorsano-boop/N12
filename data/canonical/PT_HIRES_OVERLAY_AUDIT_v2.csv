@@ -1,0 +1,13 @@
+audit_id,scope,status,note
+OVR-001,TAV02S_NATIVE_SOURCE,PASS_SOURCE_ONLY,"raster nativo 4680x8609 presente; manifest 4x3 con overlap 0.06"
+OVR-002,TERRACE_GRID,SUSPENDED_PENDING_PIXEL,"precedente coerenza c-a-17 e d-b-18 non basta senza registro (u,v) riproducibile"
+OVR-003,LEFT_STEPPED_GRID,SUSPENDED_PENDING_PIXEL,"31-28-25-19; 32-29-26-21; 33-30-27-22 da confermare mediante coordinate pixel dei sostegni"
+OVR-004,RIGHT_MAIN,SUSPENDED_PENDING_PIXEL,"1-2-3-4-6-7-8 da confermare mediante registrazione pixel"
+OVR-005,LOWER_GRID,SUSPENDED_PENDING_PIXEL,"23-15-7 e 24-16-8 da confermare mediante registrazione pixel"
+OVR-006,P22_PRIME,PASS_MIS_LOCAL,"22' distinto da 22; misura locale 1.18 m resta MIS; non equivale a coordinate globali verificate"
+OVR-007,CENTRAL_CHAIN,REOPENED_PIXEL_FACE,"11-12-13-14 richiede verifica diretta delle intersezioni asse-trave/faccia sul raster"
+OVR-008,CENTRAL_DIAGONAL,REOPENED_PIXEL_FACE,"20-21 e richiamo 65x30 richiedono attestazione diretta sul raster"
+OVR-009,ANTI_FALSE_NODE,PASS_RULE,"rettangoli di sezione senza identificativo non generano pilastri"
+OVR-010,P23_P30_FACE_BINDING,REOPENED_PIXEL_FACE,"P23 e P30 restano supporti estesi; i nodi analitici devono essere ricavati dalle reali intersezioni delle travi con le facce"
+OVR-011,MASTER_PROMOTION,SUSPENDED,"PT_MASTER_CURRENT non è autorità geometrica finché PT_PIXEL_REGISTRATION_GATE_v1 non è chiuso"
+OVR-012,PIXEL_REGISTRATION_GATE,ACTIVE,"PT_PIXEL_REGISTRATION_GATE_v1.csv è il gate geometrico corrente"

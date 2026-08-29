@@ -1,0 +1,4 @@
+constraint_id,reference_i,reference_j,constraint_type,value_m,metric_role,evidence_status,source,hard_for_support_centers,note
+G2-REF-Q325,G2REF-QCHAIN-A,G2REF-QCHAIN-B,DISTANCE_REFERENCE,3.25,REFERENCE_METRIC,DOC_DIRECT_RASTER,data/canonical/PT_G2_DIMENSION_TEXT_OBSERVATIONS_v1.csv,NO,"Quota vera con estremi grafici osservati. Conservata nella rete di riferimenti; non assegnata a pilastri per prossimita."
+G2-REF-Q240,G2REF-QCHAIN-B,G2REF-P13,DISTANCE_REFERENCE,2.40,REFERENCE_METRIC,DOC_DIRECT_RASTER,data/canonical/PT_G2_DIMENSION_TEXT_OBSERVATIONS_v1.csv,NO,"Quota vera tra una linea di riferimento ancora non legata a sostegno e l'asse osservato di P13."
+G2-REF-Q290,G2REF-P13,G2REF-P14,DISTANCE_REFERENCE,2.90,REFERENCE_METRIC,DOC_DIRECT_RASTER,data/canonical/PT_G2_DIMENSION_TEXT_OBSERVATIONS_v1.csv,YES,"Quota con estremi coincidenti con gli assi osservati di P13 e P14; conferma il vincolo supporto-supporto gia presente."

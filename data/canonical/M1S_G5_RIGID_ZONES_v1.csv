@@ -1,0 +1,2 @@
+zone_id,storey_id,zone_type,anchor_support_ids,associated_beam_ids,geometry_definition_status,evidence_class,validation_state,note
+G5-RZ-001,G5,TRIANGULAR_RIGID_ZONE,19|20,G5-B019,PENDING_EXACT_POLYGON,DOC+MIS,CURRENT_WITH_WATCH,"Human review: triangular area at 19-20 beam intersection is a rigid zone. Keep M0-G geometry unchanged. Exact polygon remains to be defined during solver handoff."

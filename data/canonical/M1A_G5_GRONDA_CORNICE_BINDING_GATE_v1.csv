@@ -1,0 +1,11 @@
+check_id,metric,expected,actual,status,severity,note
+M1A-GRD-G01,ridge_fold_lines_separate_from_frame_members,3,3,PASS,HARD,"The three LINEA DI COLMO annotations remain roof-surface fold geometry only; no duplicate ridge beams are created."
+M1A-GRD-G02,direct_gronda_cornice_edge_details,1,1,PASS,HARD,"One TAV-06S edge/cantilever detail is directly identified as a distinct structural gronda/cornice object."
+M1A-GRD-G03,direct_projection_cm,120,120,PASS,HARD,"The direct edge detail carries a 120 cm projection."
+M1A-GRD-G04,direct_thickness_cm,15,15,PASS,HARD,"The direct edge detail carries a 15 cm thickness."
+M1A-GRD-G05,direct_longitudinal_reinforcement,6phi10,6phi10,PASS,HARD,"Six phi10 longitudinal bars are directly transcribed from the gronda/cornice detail."
+M1A-GRD-G06,direct_stirrup_reinforcement,long_phi6,long_phi6,PASS,HARD,"Long phi6 stirrups are directly transcribed from the edge detail note."
+M1A-GRD-G07,eave_rafter_ends_kept_separate,YES,YES,PASS,HARD,"The eight inclined roof-beam overhang ends remain separate structural objects and do not define generic gronda/cornice reinforcement."
+M1A-GRD-G08,detail_extent_bound_across_three_gronda_sets,YES,NO,PASS_WITH_WATCH,WATCH,"The exact perimeter occurrences/extent of the 120x15 detail across all three gronda edge sets remain to map."
+M1A-GRD-G09,generic_perimeter_reinforcement_inferred,NO,NO,PASS,HARD,"No unsupported extension of the one direct detail to every perimeter edge is allowed."
+M1A-GRD-GATE,gate_state,PASS_DIRECT_GRONDA_DETAIL_WITH_EXTENT_BINDING_WATCH,PASS_DIRECT_GRONDA_DETAIL_WITH_EXTENT_BINDING_WATCH,PASS_WITH_WATCH,GATE,"The direct G5 gronda/cornice detail is locally closed as an evidence object; only its occurrence/extent binding along the roof perimeter remains open."

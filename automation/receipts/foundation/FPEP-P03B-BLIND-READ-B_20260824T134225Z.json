@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P03B-BLIND-READ-B",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "run_id": "FPEP-P03B-20260824T133755Z",
+  "result_sha256": "5de019d87de5afdc1012f583913e27be7c6bba63ff450464075c8159a2dbb5d1",
+  "target_outputs": [
+    "analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv"
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_READER_B_METHOD_v1.json",
+    "analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv"
+  ],
+  "residuals": [
+    {
+      "residual_id": "P03B-R001",
+      "claim_id": "P03B-SYMBOL-CONTINUITY-COVERAGE",
+      "blocking": false,
+      "reason": "Deterministic OCR does not classify all structural symbols or semantic graphical continuity with sufficient reliability.",
+      "required_evidence": "Use Reader A/B claim comparison in P04 and order source-local reread/adjudication in P06 only where the missing B semantic observation affects a claim."
+    },
+    {
+      "residual_id": "P03B-R002",
+      "claim_id": "P03B-LOW-CONFIDENCE-TEXT-CANDIDATES",
+      "blocking": false,
+      "reason": "4 retained text candidates remain INC and are not corrected against Reader A.",
+      "required_evidence": "Cross-read only after both blind reads are closed; preserve CONFLICT/NOT_VISIBLE where source-local evidence cannot resolve the value."
+    }
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T13:42:25.845168+00:00"
+}

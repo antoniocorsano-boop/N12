@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P08-TAV01A-BINDING-REVIEW",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "PASS",
+  "run_id": "FPEP-P08-20260824T181000Z",
+  "result_sha256": "56e030ec1a7a25404bc1fdedf0d100e91c6f13be012f4c18267b49eaf5b71164",
+  "target_outputs": [
+    "analysis/fpep/FPEP_TAV01A_BINDING_REVIEW_v1.csv"
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_TAV01A_BINDING_REVIEW_v1.csv"
+  ],
+  "residuals": [
+    {
+      "residual_id": "P08-W001",
+      "claim_id": "F1A-G06",
+      "blocking": false,
+      "reason": "TAV-01A literal sequence steps 25-26, 28-29 and 31-32 are absent from P07 primary topology and therefore cannot create physical members.",
+      "required_evidence": "Retain their reinforcement information as documentary notation only unless a future primary-geometry reopen establishes a physical incidence."
+    },
+    {
+      "residual_id": "P08-W002",
+      "claim_id": "TAV01A-DOCUMENTARY-COVERAGE",
+      "blocking": false,
+      "reason": "Fifteen P07 primary incidences have no direct autonomous TAV-01A group binding.",
+      "required_evidence": "Keep exact section/longitudinal reinforcement ND for these incidences; do not fill by analogy."
+    },
+    {
+      "residual_id": "P08-W003",
+      "claim_id": "F1A-G03-22bis-27",
+      "blocking": false,
+      "reason": "The 22bis-27 property binding remains supported rather than direct because TAV-01A uses schematic 22-27 notation while TAV-01S controls corrected physical geometry.",
+      "required_evidence": "Preserve SUPPORTED status and do not upgrade by count or analogy."
+    }
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T18:14:03.541014+00:00"
+}

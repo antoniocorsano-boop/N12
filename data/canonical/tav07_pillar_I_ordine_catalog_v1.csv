@@ -1,0 +1,5 @@
+order,detail_id,section_cm,b_cm,h_cm,longitudinal_reinforcement,stirrups,source,status,node_assignment,note
+I,I-A,40x50,40,50,"4Φ18 lunghi + 2Φ16 lunghi + 8Φ18 monconi","Φ6/20","TAV-07 originale, gruppo Pilastri I ordine",DOC_DIRECT,ND,"sezione letta direttamente; orientamento 40 orizzontale x 50 verticale nel dettaglio"
+I,I-B,50x40,50,40,"4Φ18 lunghi + 2Φ16 lunghi + 8Φ18 monconi","Φ6/20","TAV-07 originale, gruppo Pilastri I ordine",DOC_DIRECT,ND,"stessa famiglia geometrica 40x50 ruotata di 90°; trattare orientamento separatamente"
+I,I-C,30x110,30,110,"12Φ14 lunghi","Φ8/15","TAV-07 originale, gruppo Pilastri I ordine",DOC_DIRECT,ND,"elemento rettangolare molto allungato documentato al I ordine; non riclassificare senza evidenza"
+I,I-D,30x30,30,30,"4Φ14 lunghi + 8Φ18 monconi","Φ6/15","TAV-07 originale, gruppo Pilastri I ordine",DOC_DIRECT,ND,"sezione quadrata documentata al I ordine"

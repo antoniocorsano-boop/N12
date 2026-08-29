@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.1",
+  "contract_id": "CEW_CANONICAL_STRUCTURAL_MODEL_CONTRACT",
+  "purpose": "Solver-independent contract for the CEW 3D Structural Model Builder and all downstream scenario/solver adapters.",
+  "model_layers": [
+    "IDENTITY_GRAPH",
+    "GEOMETRIC_KERNEL",
+    "STRUCTURAL_TOPOLOGY_GRAPH",
+    "PROPERTY_GRAPH",
+    "EVIDENCE_LINEAGE",
+    "SCENARIO_OVERLAYS"
+  ],
+  "entity_types": [
+    "PROJECT",
+    "BUILDING",
+    "STOREY",
+    "DATUM",
+    "NODE",
+    "SUPPORT_CORE",
+    "FACE_NODE",
+    "RIGID_OFFSET",
+    "BEAM",
+    "COLUMN",
+    "WALL",
+    "SLAB",
+    "FOUNDATION_MEMBER",
+    "FOUNDATION_SUPPORT",
+    "ROOF_SPECIAL_MEMBER",
+    "SECTION",
+    "MATERIAL",
+    "REINFORCEMENT",
+    "LOAD_CASE",
+    "BOUNDARY_CONDITION",
+    "SOIL_INTERFACE",
+    "EXPOSURE_ZONE",
+    "DAMAGE_STATE"
+  ],
+  "minimum_entity_fields": [
+    "entity_id",
+    "entity_type",
+    "generation_id",
+    "status",
+    "evidence_state",
+    "source_claim_refs"
+  ],
+  "geometry_contract": {
+    "point3d": ["x", "y", "z", "coordinate_system", "state", "source_claim_refs"],
+    "member_axis": ["start_node_id", "end_node_id", "local_axis_definition", "topology_claim_ref"],
+    "rigid_offset": ["core_node_id", "face_node_id", "offset_vector", "rule_or_claim_ref"],
+    "symbolic_coordinates_allowed": true,
+    "missing_coordinates_allowed": true,
+    "proximity_may_create_connectivity": false
+  },
+  "property_binding_contract": {
+    "required_fields": ["property_type", "target_entity_id", "value_or_ref", "state", "source_claim_refs", "model_rule_id"],
+    "model_rule_id_required_for_states": ["MOD", "POST"],
+    "unresolved_binding_state": "ND"
+  },
+  "scenario_overlay_contract": {
+    "base_model_immutable": true,
+    "allowed_overlay_states": ["MOD", "POST"],
+    "overlay_targets": [
+      "MATERIAL_PROPERTY",
+      "REINFORCEMENT_EFFECTIVE_PROPERTY",
+      "SECTION_EFFECTIVE_PROPERTY",
+      "BOND_PROPERTY",
+      "BOUNDARY_PROPERTY",
+      "SOIL_PROPERTY",
+      "LOAD_PROPERTY",
+      "DAMAGE_STATE"
+    ],
+    "topology_changes_require_new_generation": true,
+    "intervention_changes_require_new_generation": true
+  },
+  "3d_builder_acceptance_gate": {
+    "required": [
+      "stable_entity_ids",
+      "all_structural_connectivity_claim_scoped",
+      "no_geometry_created_by_proximity",
+      "every_numeric_coordinate_has_evidence_or_modeling_rule",
+      "rigid_offsets_preserved",
+      "source_lineage_queryable_per_entity",
+      "ND_INC_visible_and_exportable",
+      "solver_independent_serialization",
+      "round_trip_identity_mapping"
+    ]
+  },
+  "n12_reference_requirements": {
+    "superstructure_source": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
+    "foundation_source": "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv",
+    "foundation_xy_rule": "data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json",
+    "required_reference_counts": {
+      "m0g_analytical_nodes": 629,
+      "m0g_rigid_offsets": 464,
+      "m0g_ordinary_members": 359,
+      "foundation_supports": 38,
+      "foundation_primary_members": 55
+    },
+    "count_authority": "Read and verify against the current M0G_GEOMETRY_HANDOFF_v1.json / M1F foundation gate at build time. These values describe the current N12 reference revision only.",
+    "note": "Counts are reference acceptance checks for the N12 implementation only; they are never extraction targets for future projects."
+  }
+}

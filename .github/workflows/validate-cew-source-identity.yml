@@ -1,0 +1,39 @@
+name: Validate CEW Source Identity
+
+on:
+  pull_request:
+    paths:
+      - 'docs/ARCHITECTURE/CEW_SOURCE_EVIDENCE_REPOSITORY_v1.md'
+      - 'automation/CEW_SOURCE_IDENTITY_CONTRACT_v1.json'
+      - 'data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SYSTEM_MILESTONES_v1.csv'
+      - 'scripts/validate_cew_source_identity.py'
+      - 'scripts/validate_cew_system_foundation.py'
+      - '.github/workflows/validate-cew-source-identity.yml'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_SOURCE_FOUNDATION_PATCH_v1.csv'
+  push:
+    branches:
+      - 'work/m0-global-model'
+    paths:
+      - 'docs/ARCHITECTURE/CEW_SOURCE_EVIDENCE_REPOSITORY_v1.md'
+      - 'automation/CEW_SOURCE_IDENTITY_CONTRACT_v1.json'
+      - 'data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SYSTEM_MILESTONES_v1.csv'
+      - 'scripts/validate_cew_source_identity.py'
+      - 'scripts/validate_cew_system_foundation.py'
+      - '.github/workflows/validate-cew-source-identity.yml'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_SOURCE_FOUNDATION_PATCH_v1.csv'
+  workflow_dispatch:
+
+jobs:
+  source-identity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate system milestone state
+        run: python scripts/validate_cew_system_foundation.py
+      - name: Validate source identity contract and migration registry
+        run: python scripts/validate_cew_source_identity.py

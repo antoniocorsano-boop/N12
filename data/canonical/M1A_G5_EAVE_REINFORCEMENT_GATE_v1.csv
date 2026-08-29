@@ -1,0 +1,11 @@
+check_id,metric,expected,actual,status,severity,note
+M1A-EAV-G01,eave_overhang_ends_registered,8,8,PASS,HARD,"Eight TAV-06A inclined roof-beam overhang ends are registered."
+M1A-EAV-G02,eave_overhang_presence_doc,8,8,PASS,HARD,"Overhang presence beyond the outer eave supports is direct documentary geometry."
+M1A-EAV-G03,host_member_bindings,8,8,PASS,HARD,"Each overhang end is bound to one canonical G5 host beam member."
+M1A-EAV-G04,section_30x50_bound,8,8,PASS,HARD,"All eight ends inherit the directly registered TAV-06A roof-sequence section 30x50 cm."
+M1A-EAV-G05,stirrups_phi6_20_bound,8,8,PASS,HARD,"All eight ends are tied to the TAV-06A group schedule with phi6/20 stirrups."
+M1A-EAV-G06,reinforcement_group_binding,8,8,PASS,HARD,"All eight ends carry TAV06A_GROUP_SCHEDULE reinforcement binding; no balcony/terrace slab reinforcement is inferred."
+M1A-EAV-G07,overhang_length_doc,0,0,PASS_WITH_WATCH,WATCH,"The reported 1.50 m remains RIF_USER_QUALIFIED and is not promoted to DOC."
+M1A-EAV-G08,terrace_load_binding_closed,YES,NO,PASS_WITH_WATCH,WATCH,"Terrace/interior tributary binding remains an M1-L geometry/load residual, not an M1-A reinforcement transcription residual."
+M1A-EAV-G09,generic_gronda_or_cornice_reinforcement_inferred_from_rafter_ends,NO,NO,PASS,HARD,"Rafter/eave end reinforcement is kept separate from gronda edge, terrace slab and cornice objects."
+M1A-EAV-GATE,gate_state,PASS_REINFORCEMENT_HOST_BINDING_WITH_GEOMETRY_LOAD_WATCH,PASS_REINFORCEMENT_HOST_BINDING_WITH_GEOMETRY_LOAD_WATCH,PASS_WITH_WATCH,GATE,"G5 eave-beam overhang reinforcement/host binding is locally closed; exact length and terrace/load binding continue in M1-L."

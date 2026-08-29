@@ -1,0 +1,144 @@
+{
+  "schema_version":"0.4",
+  "project_id":"N12",
+  "status":"CURRENT_WITH_MIXED_B06_ROUTING",
+  "contract":"automation/CEW_EVIDENCE_VIEWPOINT_CONTRACT_v1.json",
+  "source_to_entity_links":[
+    {
+      "link_id":"N12-LINK-B02-RCP13-CONTEXT",
+      "issue_id":"N12-ISS-M1E-B02",
+      "authority_state":"CONTEXT_ONLY",
+      "source_refs":["docs/REGISTRO_MASTER.md","data/canonical/telaio_5.csv"],
+      "source_ids":["RC-P13","LOAD-001"],
+      "entity_scope":["historical Telaio 5 G1-G3 load domains"],
+      "claim":"Historical line-load information is registered as available, but the primary page/image and numerical transcription are not yet canonically bound.",
+      "evidence_state":"DOC_HISTORICAL_CONTEXT",
+      "page_or_region":null,
+      "review_state":"MACHINE_PROPOSED",
+      "next_resolution":"recover primary RC-P13 source/page before creating EvidenceSnippet or current load values"
+    },
+    {
+      "link_id":"N12-LINK-B05-TAV01A-CONTEXT",
+      "issue_id":"N12-ISS-M1E-B05",
+      "authority_state":"CONTEXT_ONLY",
+      "source_refs":["data/canonical/M1F_FOUNDATION_GATE_v1.csv","analysis/fpep/FPEP_TAV01A_BINDING_REVIEW_v1.csv","data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv"],
+      "source_ids":["TAV-01A","P08"],
+      "entity_scope":["3-11","5-6","6-7","7-8","17-18","18-19","19-20","11-19","19-25","21-22","22-22bis","22bis-23","23-24","25-28","28-31"],
+      "claim":"P08 systematically reprojected all seven TAV-01A groups onto P07: 39 direct, 1 supported and 15 primary incidences remain ND_DOCUMENTARY_COVERAGE.",
+      "evidence_state":"ND_DOCUMENTARY_COVERAGE",
+      "page_or_region":{"pdf_page":1,"semantic_scope":"P08 complete seven-group TAV-01A binding review; absence is set-difference evidence, not a localized positive detail"},
+      "review_state":"CURRENT",
+      "routing_class":"CONFIRMED_DOCUMENTARY_GAP",
+      "next_resolution":"seek additional primary evidence or targeted local verification where decision-relevant; do not repeat blind whole-sheet TAV-01A rereading"
+    },
+    {
+      "link_id":"N12-LINK-B06-M1A-CONTEXT",
+      "issue_id":"N12-ISS-M1E-B06",
+      "authority_state":"CONTEXT_ONLY",
+      "source_refs":["data/canonical/M1A_REINFORCEMENT_GATE_v1.csv","data/canonical/M1A_TAV06A_ROOF_GROUP_INDEX_v1.csv","data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv","data/canonical/M1A_TAV05A_GROUP_REINFORCEMENT_v1.csv","data/canonical/M1A_COLUMN_REINFORCEMENT_RESIDUALS_CURRENT_v1.csv","data/canonical/N12_B06_RESIDUAL_ROUTING_CURRENT_v1.json"],
+      "source_ids":["TAV-02A","TAV-034A","TAV-05A","TAV-06A","TAV-07A"],
+      "entity_scope":["G5-B017 impluvio","three G4 group-scope reinforcement residuals","seven column residuals with primary search closed","special-feature binding/extent residuals"],
+      "claim":"B06 is a mixed residual container: source localization remains productive for three G4 watches and G5-B017 context, while seven column residuals have current primary-source search explicitly closed pending new evidence.",
+      "evidence_state":"INC",
+      "page_or_region":null,
+      "review_state":"CURRENT",
+      "routing_class":"MIXED_RESIDUAL_ROUTING",
+      "next_resolution":"review only TAV05A P02, P07-P08 and P10 for the G4 residuals; preserve group scope; keep the seven column routes closed unless new evidence appears; retain TAV06A P07 as a machine-proposed G5 context candidate"
+    }
+  ],
+  "review_targets":[
+    {
+      "target_id":"N12-REVIEW-B06-G4-L1040",
+      "issue_id":"N12-ISS-M1E-B06",
+      "source_id":"TAV-05A",
+      "source_locator":"P02",
+      "source_row":"T5A-G01-R06",
+      "entity_scope":["G4-B003","G4-B002","G4-B001","G4-B005","G4-B006","G4-B007"],
+      "authority_state":"CONTEXT_ONLY_REVIEW_TARGET",
+      "binding_precision":"GROUP_SCOPE_NOT_SINGLE_MEMBER",
+      "known":"STRAIGHT_BAR L=1040",
+      "unknown":["bar_quantity","bar_diameter_mm"],
+      "promotion_rule":"Review may localize evidence; it may not create a single-member binding unless member/station identity is explicit."
+    },
+    {
+      "target_id":"N12-REVIEW-B06-G4-PARTIAL-SAGOMATO",
+      "issue_id":"N12-ISS-M1E-B06",
+      "source_id":"TAV-05A",
+      "source_locator":"P07-P08",
+      "source_row":"T5A-G05-R04",
+      "entity_scope":["G4-B022","G4-B008"],
+      "authority_state":"CONTEXT_ONLY_REVIEW_TARGET",
+      "binding_precision":"GROUP_SCOPE_NOT_SINGLE_MEMBER",
+      "known":"BENT_BAR 2phi12 with explicit partial dimensions",
+      "unknown":["intermediate_fall_or_continuation_dimension"],
+      "promotion_rule":"If the missing dimension is not explicitly readable, preserve DOC_DIRECT_PARTIAL; do not complete from graphical appearance."
+    },
+    {
+      "target_id":"N12-REVIEW-B06-G4-L865",
+      "issue_id":"N12-ISS-M1E-B06",
+      "source_id":"TAV-05A",
+      "source_locator":"P10",
+      "source_row":"T5A-G07-R07",
+      "entity_scope":["G4-B030","G4-B039","G4-B044"],
+      "authority_state":"CONTEXT_ONLY_REVIEW_TARGET",
+      "binding_precision":"GROUP_SCOPE_NOT_SINGLE_MEMBER",
+      "known":"STRAIGHT_BAR L=865",
+      "unknown":["bar_quantity","bar_diameter_mm"],
+      "promotion_rule":"Current crop omission does not authorize transfer from adjacent labels."
+    }
+  ],
+  "evidence_snippet_candidates":[
+    {
+      "snippet_id":"N12-SNIP-CAND-B06-G5-B017-TAV06A-P07",
+      "issue_id":"N12-ISS-M1E-B06",
+      "source_id":"TAV-06A",
+      "source_ref":"archive/documentazione_originaria/tavola 6.pdf",
+      "archive_branch":"archive/originali-alta-risoluzione",
+      "archive_commit":"78c20a52db4f391ce0d13b9705b9f04737e218c9",
+      "archive_blob_sha":"c3048472adfdaa5b1e902f84c20ccfb20d679b1f",
+      "page_or_frame":1,
+      "bbox_or_region":{"kind":"SEMANTIC_SOURCE_LOCATOR","locator":"TAV06A P07","pixel_bbox":null},
+      "resolution_context":{"render_dpi":300,"review_pack_run_id":32808748683,"review_pack_artifact_id":9549061362,"review_pack_digest":"sha256:a1dc8cd3b940e452886910a40d29a5eb7c9d368b9efc630a525625d5c388ab5d"},
+      "claim_ids":["N12-SUPER-REINF-RESIDUAL"],
+      "entity_ids":["G5-B017"],
+      "evidence_state":"DOC_SOURCE_UNBOUND",
+      "review_state":"MACHINE_PROPOSED",
+      "authority_state":"EVIDENCE_LINK_CANDIDATE",
+      "lineage":["data/canonical/M1A_TAV06A_ROOF_GROUP_INDEX_v1.csv:T6A-G03","data/canonical/M1A_REINFORCEMENT_GATE_v1.csv:M1A-G06"],
+      "interpretation":"TAV-06A P07 directly documents an unlabelled inclined cantilevered scheme, but its topology is not a direct match to canonical G5-B017=12-19. The candidate supports localization of the residual; it does not assign reinforcement to G5-B017.",
+      "promotion_requirement":"Explicit review of the source region and confirmation that this locator is the correct documentary context for the G5-B017 residual."
+    }
+  ],
+  "evidence_snippets":[],
+  "viewpoints":[],
+  "coverage":{
+    "current_issue_count":6,
+    "issues_with_explicit_source_refs":6,
+    "issues_with_structured_source_context":3,
+    "issues_routed_as_confirmed_documentary_gap":1,
+    "issues_with_evidence_snippet_candidate":1,
+    "b06_group_scope_review_targets":3,
+    "b06_primary_source_search_closed_residuals":7,
+    "issues_with_canonical_evidence_snippet":0,
+    "issues_with_3d_viewpoint":0
+  },
+  "binding_backlog":[
+    {"issue_id":"N12-ISS-M1E-B01","needed":"bind material/test source evidence and representative structural entities before creating reviewed snippets"},
+    {"issue_id":"N12-ISS-M1E-B02","needed":"primary RC-P13 source/page still required; source context bound through REGISTRO_MASTER and telaio_5"},
+    {"issue_id":"N12-ISS-M1E-B04","needed":"bind vertical-datum source evidence or future survey record to foundation-system viewpoint"},
+    {"issue_id":"N12-ISS-M1E-B05","needed":"confirmed documentary gap after complete P08 seven-group review; seek additional source or targeted local verification rather than blind TAV-01A reread"},
+    {"issue_id":"N12-ISS-M1E-B06","needed":"review exact G4 locators P02, P07-P08 and P10 at group scope; review existing G5 candidate; obtain new discriminating/as-built evidence for seven closed column routes rather than repeating blind TAV-07 searches"},
+    {"issue_id":"N12-ISS-M1E-B07","needed":"bind any recovered current geotechnical source or future investigation records to site/foundation context"}
+  ],
+  "guards":[
+    "Do not derive crop coordinates from conversation memory.",
+    "Do not create entity bindings from visual proximity alone.",
+    "Do not create 3D viewpoints as substitutes for missing evidence.",
+    "A source_ref without page/region binding is source context, not an EvidenceSnippet.",
+    "CONTEXT_ONLY links cannot close an engineering issue or promote evidence state.",
+    "EVIDENCE_LINK_CANDIDATE is not an approved EvidenceSnippet.",
+    "A confirmed documentary gap must not trigger cyclic blind rereading without a new evidence hypothesis.",
+    "GROUP_SCOPE_REVIEW_TARGET cannot create a single-member binding without explicit member/station identity.",
+    "CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED cannot trigger blind rereading without a new evidence hypothesis."
+  ]
+}

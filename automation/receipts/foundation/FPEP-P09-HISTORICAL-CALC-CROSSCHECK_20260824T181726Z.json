@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P09-HISTORICAL-CALC-CROSSCHECK",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "PASS",
+  "run_id": "FPEP-P09-20260824T181500Z",
+  "result_sha256": "707ed498d7ba79a35f950b1eec895b6609dfb40ab6d364d71fbaebd9d7aca7ca",
+  "target_outputs": [
+    "analysis/fpep/FPEP_HISTORICAL_MODEL_CROSSCHECK_v1.csv"
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_HISTORICAL_MODEL_CROSSCHECK_v1.csv"
+  ],
+  "residuals": [
+    {
+      "residual_id": "P09-W001",
+      "claim_id": "HISTORICAL-MEMBER-TOPOLOGY",
+      "blocking": false,
+      "reason": "No complete indexed historical calculation-frame/load dossier is registered, so member-level comparison is unavailable.",
+      "required_evidence": "Register historical frame/load calculation sheets before any member-level omission/participation claim is promoted."
+    },
+    {
+      "residual_id": "P09-W002",
+      "claim_id": "A-D-HISTORICAL-PARTICIPATION",
+      "blocking": false,
+      "reason": "Historical omission or participation of supports a-d is not directly proven by the registered calculation source.",
+      "required_evidence": "Keep historical participation ND/RIF until a direct historical calculation source is registered."
+    }
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T18:17:26.255983+00:00"
+}

@@ -1,0 +1,147 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW_PRODUCT_MODULE_CONTRACT",
+  "product": "CEW",
+  "vertical": "Civil Existing Workflow",
+  "status": "CANONICAL_PRODUCT_CONTRACT",
+  "core_primitives": [
+    "Project",
+    "Asset",
+    "Source",
+    "InformationContainer",
+    "Claim",
+    "EvidenceSnippet",
+    "Conflict",
+    "Entity",
+    "PropertyBinding",
+    "IssueResidual",
+    "WorkItem",
+    "Gate",
+    "Receipt",
+    "Investigation",
+    "Observation",
+    "Measurement",
+    "ExposureZone",
+    "DamageState",
+    "Scenario",
+    "ModelRule",
+    "SolverProjection",
+    "SolverResult",
+    "Intervention",
+    "Generation",
+    "Approval"
+  ],
+  "bounded_contexts": {
+    "PROJECT_CONTROL": {
+      "owns": ["Project", "Asset", "Generation", "Approval"],
+      "reads": ["Gate", "Receipt", "IssueResidual", "Scenario", "Investigation"],
+      "authority": "PROJECT_STATE_AND_HUMAN_AUTHORIZATION"
+    },
+    "SOURCE_CDE": {
+      "owns": ["Source", "InformationContainer"],
+      "authority": "SOURCE_IDENTITY_VERSION_HASH_AND_USE_STATUS"
+    },
+    "EVIDENCE": {
+      "owns": ["Claim", "EvidenceSnippet", "Conflict"],
+      "authority": "EPISTEMIC_STATE_AND_SOURCE_LINEAGE"
+    },
+    "CANONICAL_MODEL": {
+      "owns": ["Entity", "PropertyBinding"],
+      "authority": "IDENTITY_GEOMETRY_TOPOLOGY_AND_CANONICAL_PROPERTY_BINDING",
+      "forbidden": ["SILENT_INFERENCE", "PROXIMITY_CONNECTIVITY", "SOURCE_EVIDENCE_REWRITE"]
+    },
+    "ISSUE_RESIDUAL": {
+      "owns": ["IssueResidual", "WorkItem"],
+      "authority": "BLOCKER_IMPACT_RESOLUTION_AND_CLOSURE_STATE"
+    },
+    "CONDITION": {
+      "owns": ["ExposureZone", "Observation", "Measurement", "DamageState"],
+      "authority": "OBSERVED_OR_MEASURED_CURRENT_CONDITION"
+    },
+    "ASSESSMENT": {
+      "owns": ["Scenario", "ModelRule"],
+      "authority": "DERIVED_ASSESSMENT_STATE",
+      "forbidden": ["PROMOTE_MOD_TO_MIS", "PROMOTE_POST_TO_MIS"]
+    },
+    "INVESTIGATION": {
+      "owns": ["Investigation"],
+      "authority": "ACQUISITION_PLAN_AND_RESULT_BINDING",
+      "future": ["SENSITIVITY", "VALUE_OF_INFORMATION"]
+    },
+    "SOLVER": {
+      "owns": ["SolverProjection", "SolverResult"],
+      "authority": "DERIVED_COMPUTATIONAL_PROJECTION_AND_RESULTS",
+      "forbidden": ["SOLVER_OUTPUT_REWRITES_EVIDENCE"]
+    },
+    "INTERVENTION": {
+      "owns": ["Intervention"],
+      "authority": "PROPOSED_EXECUTED_AND_MONITORED_CHANGE_GENERATIONS"
+    },
+    "ORCHESTRATION": {
+      "owns": ["Gate", "Receipt"],
+      "authority": "WORK_SELECTION_VALIDATION_AND_MACHINE_AUDIT"
+    }
+  },
+  "information_use_states": [
+    "WORKING",
+    "SHARED_FOR_COORDINATION",
+    "REVIEW_REQUIRED",
+    "APPROVED_FOR_USE",
+    "SUPERSEDED",
+    "ARCHIVED"
+  ],
+  "epistemic_states": ["DOC", "MIS", "RIF", "INF", "INC", "ND", "MOD", "POST"],
+  "issue_impact_states": ["BLOCKING", "LOCAL_BLOCKING", "NON_BLOCKING", "INFORMATIONAL"],
+  "gate_states": ["PASS", "PASS_WITH_WATCH", "RESIDUAL", "BLOCKED", "FAIL"],
+  "human_authority_levels": {
+    "A_MACHINE_DETERMINISTIC": [
+      "hash_validation",
+      "schema_validation",
+      "count_invariants",
+      "identity_reference_integrity",
+      "deterministic_topology_checks"
+    ],
+    "B_MACHINE_PROPOSES_HUMAN_REVIEWS": [
+      "ambiguous_drawing_reading",
+      "claim_promotion",
+      "source_conflict_adjudication",
+      "modeling_rule_adoption"
+    ],
+    "C_HUMAN_ENGINEERING_AUTHORITY": [
+      "LC_FC_DECISION",
+      "investigation_approval",
+      "material_characterization_acceptance",
+      "geotechnical_characterization_acceptance",
+      "solver_execution_authorization",
+      "verification_conclusion",
+      "intervention_approval"
+    ]
+  },
+  "module_acceptance_gate": [
+    "DATA_GATE",
+    "ENGINEERING_GATE",
+    "HUMAN_GATE_WHEN_REQUIRED",
+    "PRODUCT_HUMAN_FACTORS_GATE"
+  ],
+  "maturity_levels": {
+    "L0": "DOCUMENT_REPOSITORY",
+    "L1": "TRACEABLE_EVIDENCE",
+    "L2": "CANONICAL_RECONSTRUCTION",
+    "L3": "INTERACTIVE_ENGINEERING_TWIN",
+    "L4": "ASSESSMENT_READY",
+    "L5": "DECISION_READY",
+    "L6": "LIFECYCLE_TWIN"
+  },
+  "current_reference_project": {
+    "project_id": "N12",
+    "current_range": "L1-L3_WITH_EARLY_L4_COMPONENTS",
+    "calculation_ready": false
+  },
+  "next_product_slices": [
+    "PROJECT_CONTROL_ROOM_v0",
+    "UNIVERSAL_ISSUE_RESIDUAL_WORKSPACE_v0",
+    "SYNCHRONIZED_2D_3D_EVIDENCE_MAP_v0",
+    "FIELD_INVESTIGATION_PACK_v0",
+    "SOLVER_ROUND_TRIP_v0"
+  ]
+}

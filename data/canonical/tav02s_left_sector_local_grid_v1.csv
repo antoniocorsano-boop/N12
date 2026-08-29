@@ -1,0 +1,2 @@
+record_type,status,reason,source,note
+SUPERSEDED,SUPERSEDED_AXIS_SWAP,"Il file v1 invertiva i due assi locali a causa della lettura su ritaglio ruotato di 90 gradi. Nella pianta originale la catena 4.70-3.45-2.10 m è trasversale tra colonne; la quota 4.95 m è longitudinale tra i nodi 32 e 33 sul medesimo filo.",TAV-02S_tavola2-2.pdf,"Non usare le coordinate u/v di v1; sostituito da tav02s_left_sector_local_grid_v2.csv"

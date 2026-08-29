@@ -1,0 +1,40 @@
+name: Validate CEW Investigation Planner
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_INVESTIGATION_PLANNER_CONTRACT_v1.json'
+      - 'scripts/cew_investigation_planner.py'
+      - 'data/canonical/N12_EXISTING_ASSESSMENT_PROFILE_v1.json'
+      - '.github/workflows/validate-cew-investigation-planner.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-planner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: python -m py_compile scripts/cew_investigation_planner.py
+      - name: Build N12 investigation plan
+        run: python scripts/cew_investigation_planner.py --profile data/canonical/N12_EXISTING_ASSESSMENT_PROFILE_v1.json --output /tmp/N12_INVESTIGATION_PLAN_v0.json
+      - name: Assert planner safety contract
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('/tmp/N12_INVESTIGATION_PLAN_v0.json'))
+          assert p['status']=='ADVISORY_PLAN_NOT_EVIDENCE'
+          assert p['value_of_information_ready'] is False
+          assert p['blocker_count']==6
+          assert p['covered_blocker_count']==6
+          assert not p['uncovered_blockers']
+          assert all(c['ranking_status']=='ADVISORY_NOT_VALUE_OF_INFORMATION' for c in p['candidates'])
+          domains={c['target_domain'] for c in p['candidates']}
+          for d in ['CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL','NUMERIC_LOADS_MASSES_AND_COMBINATIONS','FOUNDATION_NUMERIC_Z','FOUNDATION_SECTION_AND_REINFORCEMENT_COVERAGE','SUPERSTRUCTURE_REINFORCEMENT_RESIDUALS','CURRENT_GEOTECHNICAL_MODEL']:
+              assert d in domains
+          print('CEW investigation planner safety: PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: n12-investigation-plan-v0
+          path: /tmp/N12_INVESTIGATION_PLAN_v0.json

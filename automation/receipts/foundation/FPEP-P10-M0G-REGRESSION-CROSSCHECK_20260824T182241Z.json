@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P10-M0G-REGRESSION-CROSSCHECK",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "PASS",
+  "run_id": "FPEP-P10-20260824T181800Z",
+  "result_sha256": "5883f827991caa9d6a1cede2d34fb3748476c09c3be43ed01a1ec17b55532812",
+  "target_outputs": [
+    "analysis/fpep/FPEP_M0G_REGRESSION_CROSSCHECK_v1.csv"
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_M0G_REGRESSION_CROSSCHECK_v1.csv"
+  ],
+  "residuals": [
+    {
+      "residual_id": "P10-W001",
+      "claim_id": "FOUNDATION-TOPOLOGY-SUCCESSOR",
+      "blocking": false,
+      "reason": "The pre-P07 foundation topology differs from P07 on five incidence claims: legacy-only 25-26, 28-29, 31-32, 11-20; primary-only 11-19.",
+      "required_evidence": "Build a successor foundation topology by superseding only those four legacy edges and adding 11-19. Do not modify unrelated M0-G superstructure geometry."
+    },
+    {
+      "residual_id": "P10-W002",
+      "claim_id": "P07-CARTESIAN-BINDING",
+      "blocking": false,
+      "reason": "PT Master/M0-G provide XY context but P07 deliberately left foundation Cartesian coordinates ND where primary metric binding was incomplete.",
+      "required_evidence": "Do not retro-promote P07 foundation coordinates from PT/M0-G. Preserve coordinate-domain separation until primary metric claims are independently closed."
+    }
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T18:22:41.771691+00:00"
+}

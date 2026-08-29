@@ -1,0 +1,138 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P00-20260824T121524Z",
+  "work_item_id": "FPEP-P00-STATE-CONSISTENCY",
+  "stage_id": "FPEP-P00-STATE-CONSISTENCY",
+  "agent_role": "STATE_REGISTRY_AUDITOR",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "input_artifacts": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "20267aa761d8366631e414f7fb2f1a4da1824d246909e1573fff4b598f8d5bd1",
+      "authority": "PROCEDURE",
+      "status": "CURRENT"
+    },
+    {
+      "path": "knowledge/KNOWLEDGE_MANIFEST.json",
+      "sha256": "c401d0018d765e8c8da58028330669aad251153c9ed65058e111a4b781929ad9",
+      "authority": "CANONICAL",
+      "status": "CURRENT"
+    },
+    {
+      "path": "knowledge/CURRENT_STATE.json",
+      "sha256": "39d981d8fdc1a00596662618dcc09a48b227844f97a3f67dc7502b3d8ba46db2",
+      "authority": "CANONICAL",
+      "status": "CURRENT"
+    },
+    {
+      "path": "knowledge/ARTIFACT_REGISTRY.csv",
+      "sha256": "7d894ab3939de013d2b93a03076c6e4437c04a0e4044d37c081e8dde7af4db62",
+      "authority": "REGISTRY_COMPONENT_MANIFEST_DECLARED",
+      "status": "CURRENT"
+    },
+    {
+      "path": "automation/N12_AUTOMATION_CONTRACT_v1.json",
+      "sha256": "1273f16c2750b7c3d5cedaff7a56c663072b650455c2b27cd2bccc0a3acfd85a",
+      "authority": "PROCEDURE",
+      "status": "CURRENT"
+    },
+    {
+      "path": "automation/N12_WORK_QUEUE_v1.json",
+      "sha256": "bf61fbdfe021aa2ba7def1c64f41c449daa7e6e73e087fdc77500d829f418013",
+      "authority": "CANONICAL",
+      "status": "CURRENT"
+    },
+    {
+      "path": "docs/REGISTRO_MASTER.md",
+      "sha256": "7639004c83530826f7b6c277165d0d24b49a739347ca95fb7d3383e6d552057c",
+      "authority": "DERIVED",
+      "status": "CURRENT"
+    },
+    {
+      "path": "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv",
+      "sha256": "751c63eeb4c1cdffc8a3938fa02f716b5b808c4275ac2875dfc814241abc47eb",
+      "authority": "REGISTRY_COMPONENT_MANIFEST_DECLARED",
+      "status": "CURRENT"
+    },
+    {
+      "path": "knowledge/ARTIFACT_REGISTRY_AUTOMATION_PATCH_v1.csv",
+      "sha256": "70b9f0e26ba79d2ec3fe17a363afe36c48ac4c202d3aa0ee87a1b5f86d10972d",
+      "authority": "REGISTRY_COMPONENT_MANIFEST_DECLARED",
+      "status": "CURRENT"
+    },
+    {
+      "path": "knowledge/ARTIFACT_REGISTRY_M0G_GATE_PATCH_v1.csv",
+      "sha256": "918f255f860f7587b8a50ec64d44efafed8d3fcfa959a4ab08379ef3e79a56aa",
+      "authority": "REGISTRY_COMPONENT_MANIFEST_DECLARED",
+      "status": "CURRENT"
+    },
+    {
+      "path": "knowledge/ARTIFACT_REGISTRY_M1_PATCH_v1.csv",
+      "sha256": "16db1c2e900b75e7f316cc159cf710f580006276bacbc62c02140487a8284871",
+      "authority": "REGISTRY_COMPONENT_MANIFEST_DECLARED",
+      "status": "CURRENT"
+    },
+    {
+      "path": "knowledge/ARTIFACT_REGISTRY_M1F_ELEVATION_PATCH_v1.csv",
+      "sha256": "550da8a1cc75dd3315384e775f0a4c00dd6e0ffa5916bd53fb7c263746004516",
+      "authority": "REGISTRY_COMPONENT_MANIFEST_DECLARED",
+      "status": "CURRENT"
+    },
+    {
+      "path": "knowledge/ARTIFACT_REGISTRY_M1F_INTERFACE_PATCH_v1.csv",
+      "sha256": "5689504afa6e786f8c34a021f4302d30dbe17bbc3d7ec2c3e880ae46c413a9cd",
+      "authority": "REGISTRY_COMPONENT_MANIFEST_DECLARED",
+      "status": "CURRENT"
+    },
+    {
+      "path": "knowledge/ARTIFACT_REGISTRY_M1L_LOADS_PATCH_v1.csv",
+      "sha256": "42360d62001ef7b5dc82efde23e7c39bb27a53a6e2816b4b0d8d4381e37a319c",
+      "authority": "REGISTRY_COMPONENT_MANIFEST_DECLARED",
+      "status": "CURRENT"
+    },
+    {
+      "path": "knowledge/ARTIFACT_REGISTRY_M1A_SPECIAL_PATCH_v1.csv",
+      "sha256": "a5ba27c5857c8a63f745d4dc6953ae44780bd0569608f7a847c3e8d776bcfa14",
+      "authority": "REGISTRY_COMPONENT_MANIFEST_DECLARED",
+      "status": "CURRENT"
+    },
+    {
+      "path": "knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv",
+      "sha256": "0095803b7eb75838f75b6f022d99366480f882f1034de7d8e4a1148966123337",
+      "authority": "REGISTRY_COMPONENT_MANIFEST_DECLARED",
+      "status": "CURRENT"
+    }
+  ],
+  "primary_sources": [],
+  "target_outputs": [
+    "analysis/fpep/FPEP_STATE_COHERENCE_AUDIT_v1.json"
+  ],
+  "provenance_summary": {
+    "DOC": 0,
+    "MIS": 0,
+    "RIF": 0,
+    "INF": 0,
+    "INC": 1,
+    "ND": 0
+  },
+  "residuals": [
+    {
+      "residual_id": "P00-W001",
+      "claim_id": "P00-C011",
+      "blocking": false,
+      "reason": "human Master backtick references resolve to existing repository artifacts: ['data/canonical/m0s1a_level_sheet_crosswalk.csv', 'docs/FOGLIO_LAVORO/M0S_DXF_TEXT_MEANINGFUL_TAV5.csv']",
+      "required_evidence": "Update or supersede the human Master reference only if it is still intended as a current operational pointer; do not substitute a guessed file."
+    }
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_STATE_COHERENCE_AUDIT_v1.json"
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  }
+}

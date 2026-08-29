@@ -1,0 +1,11 @@
+audit_id,check,value,status,note
+G4-SUP-001,expected_supports,38,PASS,"P1-P33 + P22-prime + a-b-c-d."
+G4-SUP-002,metric_footprints_created,38,PASS,"Every metric center has a physical rectangular footprint."
+G4-SUP-003,section_dimensions_available,38,PASS,"All footprints use documented section dimensions/orientation from PT_PILLAR_SECTIONS_HIRES_CURRENT_v2.csv."
+G4-SUP-004,extended_supports,"P18=1.10x0.30;P23=1.10x0.30;P30=0.30x1.10",PASS,"Extended supports preserve physical faces and are not reduced to point nodes."
+G4-SUP-005,terrace_supports,"a;b;c;d=0.30x0.30",PASS,"Carpentry geometry preserved; historical calculation absence remains a separate model-history attribute."
+G4-SUP-006,analytical_nodes_authorized,0,PASS_GATE,"No support footprint may yet create analytical nodes; beam vectors and face intersections are still required."
+G4-SUP-007,centers_with_MIS_component,8,SUPPORTED,"Footprints inherit center provenance; MIS is not promoted to DOC."
+G4-SUP-008,residual_watch_centers,"P19;P25;d",WATCH,"Retain overlay watch; do not shift metric footprints merely to match local scan distortion."
+G4-SUP-009,old_master_geometry_used,0,PASS,"PT_MASTER_CURRENT metric X/Y not used."
+G4-SUP-010,next_gate,G6_DOCUMENTARY_BEAM_VECTORIZATION,READY,"Vectorize actual beam centerlines/edges from TAV-02S before generating beam-face analytical nodes."

@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW_DUAL_VECTOR_AGREEMENT_v1",
+  "purpose": "Independent claim-scoped geometric revalidation by comparing PyMuPDF and Docling Parse extraction from the same immutable PDF page.",
+  "authority": {
+    "mode": "VALIDATION_ONLY",
+    "may_mutate_canonical_geometry": false,
+    "may_promote_DOC_or_MIS": false,
+    "may_reopen_frozen_M0G": false,
+    "required_reopen_mechanism": "formal claim-scoped M0G-REOPEN when frozen superstructure geometry is affected",
+    "output_authority_state": "DERIVED_REVIEW_EVIDENCE"
+  },
+  "extractors": {
+    "primary": "PyMuPDF",
+    "independent": "Docling Parse >=7.8,<8",
+    "comparison_entities": ["line_segments", "rectangle_edges", "polyline_edges", "intersections"]
+  },
+  "coordinate_policy": {
+    "working_unit": "PDF_POINT",
+    "page_boundary": "CROP_BOX",
+    "origin_reconciliation": "evaluate direct and vertical-flip mappings; record selected mapping and score; never hide the transform",
+    "scale_change_allowed": false,
+    "rotation_change_allowed": false
+  },
+  "tolerance_profile": {
+    "status": "PRELIMINARY_CALIBRATION_REQUIRED",
+    "endpoint_distance_pt": 0.75,
+    "angle_difference_deg": 0.5,
+    "relative_length_difference": 0.005,
+    "intersection_distance_pt": 1.0,
+    "minimum_line_length_pt": 2.0,
+    "minimum_match_ratio_for_agree": 0.95,
+    "minimum_match_ratio_for_partial": 0.80,
+    "note": "Thresholds are explicit starting values only. They do not authorize DOC/MIS promotion and must be calibrated against known-good N12 source regions before any governance change."
+  },
+  "outcomes": {
+    "AGREE": "Both extractors independently reproduce at least the declared agreement ratio within every active tolerance.",
+    "PARTIAL": "Substantial but incomplete concordance; human/source review required.",
+    "DISAGREE": "Concordance below the partial threshold or geometric residual exceeds tolerance.",
+    "MISSING_PYMUPDF": "PyMuPDF produced no comparable geometry.",
+    "MISSING_DOCLING": "Docling Parse produced no comparable geometry.",
+    "UNCOMPARABLE": "Extraction or coordinate reconciliation could not produce a defensible common comparison frame."
+  },
+  "initial_revalidation_scope": [
+    "TAV-03S",
+    "TAV-04S",
+    "TAV-05S",
+    "TAV-06S"
+  ],
+  "priority_claims": [
+    "TAV-03S:P13-P20",
+    "TAV-03S:P20-P22",
+    "TAV-03S:P22-P26"
+  ],
+  "epistemic_guard": "Agreement between two software extractors is corroboration of a source reading, not documentary authority by itself. The original PDF remains the source and human/source binding remains mandatory."
+}

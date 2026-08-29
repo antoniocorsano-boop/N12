@@ -1,0 +1,12 @@
+check_id,metric,expected,actual,status,severity,note
+M1A-G5C-G01,current_g5_supports,25,25,PASS,HARD,"TAV-06S frozen roof carpenteria contains exactly 25 current G5 supports."
+M1A-G5C-G02,tav07a_v_order_direct_numbered_ids,26,26,PASS,HARD,"The two V-order TAV-07A reinforcement families directly number 26 source identities before geometry reconciliation."
+M1A-G5C-G03,current_g5_supports_with_direct_reinforcement_binding,25,25,PASS,HARD,"Every current G5 support is directly covered by one V-order numbered reinforcement family."
+M1A-G5C-G04,current_g5_supports_missing_reinforcement_binding,0,0,PASS,HARD,"No current G5 support remains without a direct V-order reinforcement binding."
+M1A-G5C-G05,t7_v01_current_bindings_40x40,13,13,PASS,HARD,"Thirteen current G5 supports bind to T7-V-01: 40x40, 4x14 longitudinal, 4x16 monconi, phi6/15."
+M1A-G5C-G06,t7_v02_current_bindings_30x40,12,12,PASS,HARD,"Twelve current G5 supports bind to T7-V-02: 30x40, 4x14 longitudinal, 4x16 monconi, phi6/15."
+M1A-G5C-G07,binding_section_matches_independent_g5_section_register,25,25,PASS,HARD,"All 25 reinforcement bindings match the independently registered TAV-07A G5 section family."
+M1A-G5C-G08,tav07a_source_only_ids_not_in_g5_carpentry,1,1,PASS_WITH_WATCH,WATCH,"Support 24 is directly listed by TAV-07A V order but is DOC absent from TAV-06S roof carpenteria."
+M1A-G5C-G09,source_support_24_created_in_current_g5_model,NO,NO,PASS,HARD,"The source-only 24 conflict does not create or extrude a current G5 column."
+M1A-G5C-G10,g5_geometry_reopen_authorized_by_source24_conflict,NO,NO,PASS,HARD,"The conflict is preserved without weakening the frozen TAV-06S geometry gate."
+M1A-G5C-GATE,gate_state,PASS_G5_COLUMN_REINFORCEMENT_25_OF_25_WITH_SOURCE24_CONFLICT_WATCH,PASS_G5_COLUMN_REINFORCEMENT_25_OF_25_WITH_SOURCE24_CONFLICT_WATCH,PASS_WITH_WATCH,GATE,"Current G5 column reinforcement is fully bound 25/25 from direct TAV-07A numbering; source-only support 24 remains an explicit documentary conflict and does not reopen geometry."

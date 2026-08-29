@@ -1,0 +1,11 @@
+audit_id,metric,value,status,note
+G7-NODE-001,physical_support_count,38,PASS,All 38 physical supports represented as rectangles; support centers remain non-analytical.
+G7-NODE-002,effective_beam_count,52,PASS,52 raster-QA-passed physical beams after B055 reopen
+G7-NODE-003,endpoint_records,104,PASS,Two face endpoints per effective physical beam
+G7-NODE-004,unique_analytical_nodes,104,PASS,B055 adds two distinct incidences without merge
+G7-NODE-005,watch_nodes,37,WATCH,AN-104 retains P18 provenance watch; AN-103 is direct-metric PASS
+G7-NODE-006,extended_P18_nodes,4,PASS,P18 now has west/east/south/north distinct incidences
+G7-NODE-007,extended_P23_nodes,3,PASS,P23 now has three distinct face incidences
+G7-NODE-008,extended_P30_nodes,3,PASS,P30 has three distinct face attachment nodes: two row elevations plus longitudinal face.
+G7-NODE-009,center_node_substitution,0,PASS,No support centroid is used as a beam node.
+G7-NODE-010,master_promotion,FORBIDDEN,PASS,Final overlay QA is still required before regenerating PT_MASTER_CURRENT.

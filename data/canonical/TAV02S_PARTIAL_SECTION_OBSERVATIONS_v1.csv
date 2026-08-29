@@ -1,0 +1,2 @@
+obs_id,entity_id,claim_type,written_value,other_dimension,state,source_scope,source_kind,note
+OBS-P18-001,18,SECTION_DIMENSION_PARTIAL,110,ND,SUPPORTED,"UNBOUND_Q01;CANDIDATE:TAV-02S_L1_R03C01",SESSION_DERIVATIVE,"lato lungo 110 leggibile accanto al simbolo 18; altra dimensione non sufficientemente leggibile; nessuna sezione completa inferita; R03C01 candidato prioritario per binding per continuita topologica sul filo x=6.90 tra 17 e 22"

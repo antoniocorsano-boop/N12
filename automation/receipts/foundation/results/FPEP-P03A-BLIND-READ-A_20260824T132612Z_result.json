@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P03A-20260824T132131Z",
+  "work_item_id": "FPEP-P03A-BLIND-READ-A",
+  "stage_id": "P03A",
+  "agent_role": "FOUNDATION_CARPENTRY_READER_A",
+  "decision": "PASS",
+  "semantic_gate": "PASS",
+  "input_artifacts": [
+    {
+      "path": "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json",
+      "sha256": "73576a4f2d0e3a9cf21eba5bd5182698d3039c9d05affc985bad722dfcb2d2d5",
+      "authority": "AUDIT_DERIVED_FROM_PRIMARY_IDENTITY",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json",
+      "sha256": "6d3c2d791bb0b61833d30d772771927181373acd634f6275b32bf7d4ca1fed55",
+      "authority": "DERIVED_EVIDENCE_MANIFEST",
+      "status": "CURRENT"
+    }
+  ],
+  "primary_sources": [
+    {
+      "source_id": "TAV-01S",
+      "path": "archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf",
+      "git_blob_sha": "64b842fa03b3aa7437e80d2bce90406a66f73827",
+      "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "evidence_anchor": "P02 parent-hash-verified overview/regions/tiles under analysis/fpep/hires/TAV01S/page-001"
+    }
+  ],
+  "target_outputs": [
+    "analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv"
+  ],
+  "provenance_summary": {
+    "DOC": 94,
+    "INC": 0,
+    "ND": 0,
+    "reader": "A",
+    "output_sha256": "dae9bcd5d842c3a386e2e0cd3fb2cb33b443ff65247d795481e839e4656cb8e5",
+    "scope": "observation-only; no metric closure, coordinate solution, member creation or topology target"
+  },
+  "residuals": [],
+  "audit_paths": [
+    "analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv"
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "reader_scope_attestation": {
+    "reader_b_output_seen": false,
+    "existing_foundation_topology_seen": false,
+    "legacy_support_member_counts_seen_as_extraction_target": false,
+    "M0G_geometry_seen": false,
+    "PT_master_coordinates_seen": false,
+    "TAV01A_reinforcement_groups_seen": false,
+    "historical_calculation_topology_seen": false
+  },
+  "notes": [
+    "All written dimensions are transcribed as raw drawing values; unit is left UNSPECIFIED_ON_DRAWING at P03A.",
+    "Graphical continuity observations do not create members or endpoint pairs.",
+    "22 and 22bis are recorded as simultaneously visible distinct identifiers, without using a target support count.",
+    "Physical-sheet fold interference is recorded where present; closure and witness-span resolution are deferred to P04."
+  ]
+}
