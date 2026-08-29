@@ -18,6 +18,10 @@ DUAL_VECTOR_CONTRACT = ROOT / "automation/CEW_DUAL_VECTOR_AGREEMENT_CONTRACT_v1.
 ERW = ROOT / "scripts/build_cew_erw_synced_workspace.py"
 ERW_CONTRACT = ROOT / "automation/CEW_ERW_CONTRACT_v1.json"
 ERW_VALIDATOR = ROOT / "scripts/validate_cew_erw_synced_workspace.py"
+WORKBENCH_CONTRACT = ROOT / "automation/CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRACT_v1.json"
+WORKBENCH_CORE = ROOT / "scripts/cew_professional_workbench_core.py"
+WORKBENCH_PROJECTION = ROOT / "scripts/cew_professional_workbench_projection.py"
+WORKBENCH_VALIDATOR = ROOT / "scripts/validate_cew_professional_workbench_core.py"
 
 
 def require(condition: bool, message: str) -> None:
@@ -37,8 +41,12 @@ def main() -> None:
     dual = text(DUAL)
     viewer = text(VIEWER)
     hva = json.loads(text(HVA))
+    workbench_contract = json.loads(text(WORKBENCH_CONTRACT))
+    workbench_core = text(WORKBENCH_CORE)
+    workbench_projection = text(WORKBENCH_PROJECTION)
+    workbench_validator = text(WORKBENCH_VALIDATOR)
 
-    require(matrix["schema_version"] == "1.1", "unexpected matrix schema")
+    require(matrix["schema_version"] == "1.2", "unexpected matrix schema")
     require(matrix["professional_workbench_readiness"] == "REWORK_REQUIRED", "workbench must remain REWORK_REQUIRED")
     require(matrix["hva_execution_authorized"] is False, "HVA must remain paused")
     require(matrix["b1_promotion_authorized"] is False, "B1 promotion must remain unauthorized")
@@ -62,17 +70,19 @@ def main() -> None:
     ):
         require(marker in audit, f"audit marker missing: {marker}")
 
+    # The audited B1.8 surface remains the historical POC and must not be silently
+    # reclassified as the final client merely because a new kernel exists.
     require("canonical_write_authorized" in dual and "False" in dual, "dual workspace canonical-write boundary missing")
     require("sessionStorage" in dual, "session-only proposal boundary missing")
     require("geometry != identity" in dual, "geometry/identity warning missing")
     require("evidenceViewport" in viewer, "interactive evidence viewport missing")
     require("zoomBy" in viewer and "pointermove" in viewer and "keydown" in viewer, "zoom/pan/keyboard interaction markers missing")
+    require("<iframe" in dual, "audited B1.8 iframe composition unexpectedly changed; update audit if client changed")
+    require("region-map" in dual and "region-box" in dual, "audited documentary region placeholder unexpectedly changed")
+    require("<textarea id=\"proposalText\"" in dual, "audited detached proposal textarea unexpectedly changed")
+    require("html_text.replace" in viewer, "audited string-replacement viewer enhancement unexpectedly changed")
 
-    require("<iframe" in dual, "matrix expects iframe-composed source panel; update matrix/audit if architecture changed")
-    require("region-map" in dual and "region-box" in dual, "matrix expects documentary region placeholder; update matrix/audit if technical scene changed")
-    require("<textarea id=\"proposalText\"" in dual, "matrix expects detached proposal textarea; update matrix/audit if object editing changed")
-    require("html_text.replace" in viewer, "matrix expects string-replacement viewer enhancement; update matrix/audit if client architecture changed")
-
+    # Reusable upstream CEW foundations.
     source_viewer = text(SOURCE_VIEWER)
     source_contract = text(SOURCE_VIEWER_CONTRACT)
     dual_vector = text(DUAL_VECTOR)
@@ -105,12 +115,48 @@ def main() -> None:
     ):
         require(marker in erw_validator, f"F6 frozen-ledger/authority validator marker missing: {marker}")
 
+    # New deterministic workbench foundation: model/guards exist, but this is not
+    # permission to claim the visual client or real spatial registration complete.
+    require(workbench_contract["canonical_write_authorized"] is False, "workbench scene contract canonical-write drift")
+    require("document geometry != technical candidate != structural identity" in workbench_contract["invariants"], "workbench geometry/identity invariant missing")
+    require("VIEWPORT_PX" in workbench_contract["coordinate_spaces"], "viewport coordinate space must be explicit")
+    require("SPATIAL_LOCKED" in workbench_contract["sync_modes"] and "OVERLAY" in workbench_contract["display_modes"], "workbench mode contract incomplete")
+    for marker in (
+        "validate_registration",
+        "registration_allows_spatial",
+        "resolve_view_state",
+        "create_working_edit",
+        "create_reading_issue",
+        "VIEWPORT_COORDINATES_CANNOT_BE_SCENE_GEOMETRY",
+        "WORKING_EDIT_TARGET_READ_ONLY",
+        "READING_ISSUE_GRAPHICAL_OR_EVIDENCE_ANCHOR_REQUIRED",
+    ):
+        require(marker in workbench_core, f"workbench fail-closed kernel marker missing: {marker}")
+    for marker in (
+        "F3_DZI_MANIFEST_REUSED",
+        "F6_ERW_M0G_FROZEN_LEDGER_ADAPTER",
+        "UNBOUND_CANDIDATE_COMPARISON_CONTEXT_ONLY",
+        "NO_VERIFIED_SOURCE_TO_TECHNICAL_REGISTRATION_IN_CURRENT_CEW_RECORDS",
+        "canonical_write_authorized",
+    ):
+        require(marker in workbench_projection, f"workbench reuse projection marker missing: {marker}")
+    for marker in (
+        "OVERLAY_WITHOUT_VERIFIED_REGISTRATION = FAIL_CLOSED",
+        "SPATIAL_LOCK_WITHOUT_VERIFIED_REGISTRATION = FAIL_CLOSED",
+        "GOVERNED_STRUCTURAL_EDIT = FORBIDDEN",
+        "READING_ISSUE_ANCHOR = REQUIRED",
+        "VIEWPORT_GEOMETRY_PERSISTENCE = FORBIDDEN",
+    ):
+        require(marker in workbench_validator, f"workbench negative-test marker missing: {marker}")
+
     require(reqs["PWB-005"]["status"] == "AVAILABLE_NOT_INTEGRATED", "PWB-005 reuse classification mismatch")
     require(reqs["PWB-006"]["status"] == "AVAILABLE_NOT_INTEGRATED", "PWB-006 reuse classification mismatch")
     require(reqs["PWB-014"]["status"] == "AVAILABLE_NOT_INTEGRATED", "PWB-014 reuse classification mismatch")
-    require(reqs["PWB-008"]["status"] == "NOT_IMPLEMENTED", "spatial registration must not be inferred from semantic sync")
-    require(reqs["PWB-009"]["status"] == "PARTIAL", "semantic sync must remain partial until spatial registration exists")
-    require(reqs["PWB-010"]["status"] == "NOT_IMPLEMENTED", "overlay must remain unimplemented until a verified registered overlay exists")
+    for requirement_id in ("PWB-007", "PWB-008", "PWB-009", "PWB-012", "PWB-015", "PWB-018"):
+        require(reqs[requirement_id]["status"] == "PARTIAL", f"{requirement_id} kernel/design classification mismatch")
+    require(reqs["PWB-010"]["status"] == "NOT_IMPLEMENTED", "overlay must remain unimplemented until a verified registered renderer exists")
+    require(reqs["PWB-004"]["status"] == "NOT_IMPLEMENTED", "drawing-first client must not be claimed before UI integration")
+    require(reqs["PWB-013"]["status"] == "NOT_IMPLEMENTED", "progressive disclosure must not be claimed before UI integration")
 
     for marker in (
         "F3 Source Viewer",
@@ -123,7 +169,6 @@ def main() -> None:
 
     require(hva["human_hva_state"] == "REQUIRED_NOT_SATISFIED", "human HVA must remain unsatisfied")
     require(hva["canonical_write_authorized"] is False, "HVA contract cannot authorize canonical writes")
-    require(reqs["PWB-018"]["status"] == "PARTIAL", "professional HVA protocol must remain PARTIAL until redesigned")
 
     implemented = sorted(rid for rid, row in reqs.items() if row["status"] == "IMPLEMENTED")
     partial = sorted(rid for rid, row in reqs.items() if row["status"] == "PARTIAL")
@@ -132,6 +177,7 @@ def main() -> None:
 
     print("CEW_PROFESSIONAL_WORKBENCH_AUDIT_CONSISTENCY = PASS")
     print("CEW_PROFESSIONAL_WORKBENCH_REUSE_VERIFICATION = PASS")
+    print("CEW_PROFESSIONAL_WORKBENCH_KERNEL_FOUNDATION = VERIFIED_PRESENT")
     print("PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED")
     print(f"IMPLEMENTED = {','.join(implemented)}")
     print(f"PARTIAL = {','.join(partial)}")
