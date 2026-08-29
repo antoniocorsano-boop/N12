@@ -20,10 +20,12 @@ on:
       - 'scripts/build_cew_document_geometry_artifacts.py'
       - 'scripts/cew_professional_workbench_document_geometry.py'
       - 'scripts/validate_cew_document_geometry_artifacts.py'
+      - 'scripts/validate_cew_document_geometry_scene_adapter.py'
       - 'scripts/cew_professional_workbench_core.py'
       - 'scripts/cew_professional_workbench_projection.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/validate_cew_professional_workbench_core.py'
+      - 'scripts/validate_cew_professional_workbench_runtime_smoke.py'
       - 'scripts/validate_cew_runtime_render_budget.py'
       - 'scripts/validate_cew_runtime_render_cache.py'
       - 'scripts/validate_cew_evidence_viewer_interaction.py'
@@ -72,220 +74,93 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
       - name: Syntax
         run: |
-          python -m py_compile scripts/cew_b1_human_acceptance_v2.py
-          python -m py_compile scripts/cew_b1_human_acceptance_v2_hardening.py
-          python -m py_compile scripts/cew_b1_dual_workspace.py
-          python -m py_compile scripts/cew_evidence_viewer_interaction.py
-          python -m py_compile scripts/cew_runtime_render_budget.py
-          python -m py_compile scripts/cew_runtime_render_cache.py
-          python -m py_compile scripts/build_cew_runtime_render_cache.py
-          python -m py_compile scripts/build_cew_managed_f3_assets.py
-          python -m py_compile scripts/cew_managed_f3_assets.py
-          python -m py_compile scripts/validate_cew_managed_f3_assets.py
-          python -m py_compile scripts/build_cew_document_geometry_artifacts.py
-          python -m py_compile scripts/cew_professional_workbench_document_geometry.py
-          python -m py_compile scripts/validate_cew_document_geometry_artifacts.py
-          python -m py_compile scripts/cew_professional_workbench_core.py
-          python -m py_compile scripts/cew_professional_workbench_projection.py
-          python -m py_compile scripts/cew_professional_workbench_api.py
-          python -m py_compile scripts/validate_cew_professional_workbench_core.py
-          python -m py_compile scripts/validate_cew_runtime_render_budget.py
-          python -m py_compile scripts/validate_cew_runtime_render_cache.py
-          python -m py_compile scripts/validate_cew_evidence_viewer_interaction.py
-          python -m py_compile scripts/cew_b1_acceptance_lab.py
-          python -m py_compile scripts/validate_cew_b18_hva_hardening.py
-          python -m py_compile scripts/validate_cew_b18_dual_workspace.py
-          python -m py_compile scripts/validate_cew_professional_workbench_audit.py
-          python -m py_compile scripts/validate_cew_professional_workbench_design.py
-          python -m py_compile scripts/validate_cew_b1_usability_acceptance.py
-          python -m py_compile app.py
+          python -m py_compile \
+            scripts/cew_b1_human_acceptance_v2.py \
+            scripts/cew_b1_human_acceptance_v2_hardening.py \
+            scripts/cew_b1_dual_workspace.py \
+            scripts/cew_evidence_viewer_interaction.py \
+            scripts/cew_runtime_render_budget.py \
+            scripts/cew_runtime_render_cache.py \
+            scripts/build_cew_runtime_render_cache.py \
+            scripts/build_cew_managed_f3_assets.py \
+            scripts/cew_managed_f3_assets.py \
+            scripts/validate_cew_managed_f3_assets.py \
+            scripts/build_cew_document_geometry_artifacts.py \
+            scripts/cew_professional_workbench_document_geometry.py \
+            scripts/validate_cew_document_geometry_artifacts.py \
+            scripts/validate_cew_document_geometry_scene_adapter.py \
+            scripts/cew_professional_workbench_core.py \
+            scripts/cew_professional_workbench_projection.py \
+            scripts/cew_professional_workbench_api.py \
+            scripts/validate_cew_professional_workbench_core.py \
+            scripts/validate_cew_professional_workbench_runtime_smoke.py \
+            scripts/validate_cew_runtime_render_budget.py \
+            scripts/validate_cew_runtime_render_cache.py \
+            scripts/validate_cew_evidence_viewer_interaction.py \
+            scripts/cew_b1_acceptance_lab.py \
+            scripts/validate_cew_b18_hva_hardening.py \
+            scripts/validate_cew_b18_dual_workspace.py \
+            scripts/validate_cew_professional_workbench_audit.py \
+            scripts/validate_cew_professional_workbench_design.py \
+            scripts/validate_cew_b1_usability_acceptance.py \
+            app.py
+
       - name: Install runtime dependencies
         run: pip install -r requirements.txt
+
       - name: Validate B1.8 participant, observation, reviewer and receipt boundaries
         run: python scripts/validate_cew_b1_usability_acceptance.py
+
       - name: Validate provenance-backed dual workspace boundaries
         run: python scripts/validate_cew_b18_dual_workspace.py
+
       - name: Validate professional workbench audit consistency
         run: python scripts/validate_cew_professional_workbench_audit.py
+
       - name: Validate professional workbench design package
         run: python scripts/validate_cew_professional_workbench_design.py
+
       - name: Validate professional workbench kernel foundation
         run: python scripts/validate_cew_professional_workbench_core.py
+
       - name: Validate managed F3 build plan and runtime guards
         run: |
           python scripts/build_cew_managed_f3_assets.py --validate-plan-only
           python scripts/validate_cew_managed_f3_assets.py
+
       - name: Build and validate governed document geometry artifacts
         run: |
           python scripts/build_cew_document_geometry_artifacts.py --validate-plan-only
           python scripts/build_cew_document_geometry_artifacts.py
           python scripts/validate_cew_document_geometry_artifacts.py
-          python - <<'PY'
-          import json
-          import os
-          import sys
-          from pathlib import Path
-          sys.path.insert(0, 'scripts')
-          os.environ['RENDER_GIT_COMMIT'] = os.environ['GITHUB_SHA']
-          import cew_professional_workbench_document_geometry as geometry
-          import cew_professional_workbench_projection as projection
+          python scripts/validate_cew_document_geometry_scene_adapter.py
 
-          manifest = geometry.validate_manifest()
-          geometry_state = geometry.status()
-          assert geometry_state['state'] == 'READY', geometry_state
-          assert geometry_state['source_coverage'] == '4/4', geometry_state
-          assert geometry_state['governed_region_count'] == 4, geometry_state
-          assert geometry_state['comparison_scope'] == 'GOVERNED_EVIDENCE_REGION_WHERE_AVAILABLE', geometry_state
-          assert geometry_state['page_level_role'] == 'DIAGNOSTIC_ONLY', geometry_state
-          assert geometry_state['runtime_docling_required'] is False, geometry_state
-          for entry in manifest['entries']:
-              artifact=json.loads((geometry.ASSET_ROOT/entry['filename']).read_text(encoding='utf-8'))
-              for region in artifact['regions']:
-                  seg=region['segment_metrics']
-                  ints=region['intersection_metrics']
-                  print(
-                      'DOCUMENT_GEOMETRY_REGION_DIAGNOSTIC',
-                      region['evidence_region_id'],
-                      'outcome='+region['agreement_outcome'],
-                      'mapping='+str(region['coordinate_mapping']),
-                      'reference='+str(seg.get('reference_count')),
-                      'candidate='+str(seg.get('candidate_count')),
-                      'matches='+str(len(seg.get('matches') or [])),
-                      'segment_ratio='+str(seg.get('match_ratio')),
-                      'intersection_reference='+str(ints.get('reference_count')),
-                      'intersection_candidate='+str(ints.get('candidate_count')),
-                      'intersection_matches='+str(ints.get('matches')),
-                      'intersection_ratio='+str(ints.get('match_ratio')),
-                  )
-          for task in ('ERW-N12-001','ERW-N12-002','ERW-N12-003','ERW-N12-004'):
-              scene = projection.build_scene(task)
-              assert scene['authority']['canonical_write_authorized'] is False
-              assert scene['source']['pdf_page_no'] == scene['source']['page_index'] + 1
-              document_objects = [o for o in scene['objects'] if o['object_family']=='DocumentGraphicPrimitive']
-              for obj in document_objects:
-                  assert obj['coordinate_space'] == 'SOURCE_PAGE_PT'
-                  assert obj['technical_identity_authorized'] is False
-                  assert obj['canonical_write_authorized'] is False
-                  assert obj['provenance']['evidence_region_id'] == scene['source']['evidence_region_id']
-              state = scene['capabilities']['document_geometry']['state']
-              assert state in {'READY_AGREED_DOCUMENT_GEOMETRY','NOT_MATERIALIZED_FAIL_CLOSED'}, state
-          print('CEW_DOCUMENT_GEOMETRY_SCENE_ADAPTER = PASS')
-          PY
       - name: Validate same-revision HVA hardening
         run: python scripts/validate_cew_b18_hva_hardening.py
+
       - name: Validate bounded raster generation policy
         run: python scripts/validate_cew_runtime_render_budget.py
+
       - name: Build deterministic managed-runtime render cache
         run: python scripts/build_cew_runtime_render_cache.py
+
       - name: Validate managed-runtime render cache and exact route wiring
         run: python scripts/validate_cew_runtime_render_cache.py
+
       - name: Validate evidence zoom pan and inspection controls
         run: python scripts/validate_cew_evidence_viewer_interaction.py
+
       - name: Route, API, managed-F3 and document-geometry health smoke
         env:
           CEW_AUTH_DISABLED_FOR_TEST: '1'
           CEW_AUDIT_BACKEND_MODE: 'LOCAL_TEST_ONLY'
           RENDER_GIT_COMMIT: '0123456789abcdef0123456789abcdef01234567'
           RENDER_EXTERNAL_URL: 'https://cew-hva.example.invalid'
-        run: |
-          python - <<'PY'
-          import json
-          import app
+        run: python scripts/validate_cew_professional_workbench_runtime_smoke.py
 
-          def walk_routes(routes):
-              for route in routes:
-                  yield route
-                  nested=getattr(route, 'routes', None)
-                  if nested:
-                      yield from walk_routes(nested)
-
-          all_routes=list(walk_routes(app.app.routes))
-          routes={getattr(r,'path',None) for r in all_routes}
-          required={
-              '/acceptance/b1',
-              '/evidence/dual-workspace',
-              '/api/workbench/assets/status',
-              '/api/workbench/document-geometry/status',
-              '/workbench/assets/{asset_path:path}',
-              '/api/workbench/scene',
-              '/api/workbench/view/resolve',
-              '/api/workbench/view/snapshot',
-              '/api/workbench/working-edit/preview',
-              '/api/workbench/reading-issue/preview',
-          }
-          assert required.issubset(routes), sorted(required-routes)
-
-          response=app.b1_acceptance_lab()
-          assert response.status_code == 200
-          text=response.body.decode('utf-8')
-          assert 'Verifica del percorso documentale' in text
-          assert 'Svolgi il lavoro come faresti normalmente' in text
-          assert 'Ingrandisci il dettaglio e spostati' in text
-          assert 'AREA REVISIONE HVA' in text
-          assert '0123456789abcdef0123456789abcdef01234567' in text
-          assert 'stored.runtime_revision!==RUNTIME_REVISION' in text
-          assert 'WRONG_SOURCE_OR_VERSION' in text
-          assert "zoomed&&panned&&macro&&finalMicro" in text
-
-          evidence=app.evidence_workspace('ERW-N12-001')
-          evidence_text=evidence.body.decode('utf-8')
-          assert 'id="evidenceViewport"' in evidence_text
-          assert '＋ Ingrandisci' in evidence_text
-          assert 'Reset vista' in evidence_text
-
-          dual=app.evidence_dual_workspace('ERW-N12-001')
-          dual_text=dual.body.decode('utf-8')
-          assert dual.status_code == 200
-          assert 'SOURCE PANEL' in dual_text
-          assert 'TECHNICAL REPRESENTATION PANEL' in dual_text
-          assert 'length=1040; quantity=UNREADABLE; diameter=UNREADABLE' in dual_text
-          assert 'Geometria strutturale: <span class="open-state">OPEN/ND</span>' in dual_text
-          assert 'canonical_write:false' in dual_text
-
-          scene_route=next(r for r in all_routes if getattr(r,'path',None)=='/api/workbench/scene')
-          scene_response=scene_route.endpoint(task='ERW-N12-004')
-          assert scene_response.status_code == 200
-          scene=json.loads(scene_response.body)
-          assert scene['authority']['canonical_write_authorized'] is False
-          assert scene['authority']['engineering_authority_effect']=='NONE'
-          assert scene['registrations'][0]['state']=='UNAVAILABLE'
-          assert scene['capabilities']['overlay_available'] is False
-          assert scene['capabilities']['managed_runtime_dynamic_pdf_rasterization'] is False
-          assert scene['capabilities']['runtime_docling_required'] is False
-          assert scene['capabilities']['managed_f3_assets']=='UNAVAILABLE'
-          assert scene['capabilities']['source_multiresolution_assets']=='UNAVAILABLE_FAIL_CLOSED'
-          assert scene['capabilities']['managed_document_geometry']=='UNAVAILABLE'
-          assert scene['source']['managed_f3_dzi_url'] is None
-          structural=[o for o in scene['objects'] if o['object_family']=='GovernedStructuralObjectProjection']
-          assert structural[0]['governed_source_member_id']=='G5-B017'
-          assert structural[0]['binding_state']=='UNBOUND'
-          assert structural[0]['selection_authorized'] is False
-
-          assets_route=next(r for r in all_routes if getattr(r,'path',None)=='/api/workbench/assets/status')
-          assets_response=assets_route.endpoint()
-          assets=json.loads(assets_response.body)
-          assert assets['state']=='UNAVAILABLE'
-          assert assets['canonical_write_authorized'] is False
-          assert assets['dynamic_pdf_rasterization'] is False
-
-          geometry_route=next(r for r in all_routes if getattr(r,'path',None)=='/api/workbench/document-geometry/status')
-          geometry_response=geometry_route.endpoint()
-          geometry=json.loads(geometry_response.body)
-          assert geometry['state']=='UNAVAILABLE'
-          assert geometry['runtime_docling_required'] is False
-          assert geometry['canonical_write_authorized'] is False
-
-          h=app.healthz()
-          assert h['b1_acceptance_lab']=='B18_IMPLEMENTED_CANDIDATE_HVA_PENDING'
-          assert h['b18_dual_workspace']=='IMPLEMENTED_CANDIDATE_HVA_PENDING'
-          assert h['professional_workbench_kernel']=='FOUNDATION_IMPLEMENTED_INTEGRATION_PENDING'
-          assert h['professional_workbench_readiness']=='REWORK_REQUIRED'
-          assert h['professional_workbench_hva_authorized'] is False
-          assert h['canonical_write_authorized'] is False
-          print('CEW B1.8 HUMAN ACCEPTANCE + PROFESSIONAL WORKBENCH + MANAGED F3 + DOCUMENT GEOMETRY ROUTES: PASS')
-          PY
       - name: Preserve human professional-workbench and promotion gates
         run: |
           echo 'Automated gate validates B1.8 runtime safety, audit consistency, design-package coherence, fail-closed workbench kernel, non-canonical API wiring, managed-F3 and build-time dual-vector document-geometry contracts.'
