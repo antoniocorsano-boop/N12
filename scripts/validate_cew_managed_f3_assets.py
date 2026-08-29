@@ -28,6 +28,7 @@ def main() -> None:
     assert plan["tile_overlap"] == 1
     assert plan["tile_format"] == "jpg"
     assert plan["jpeg_quality"] == 90
+    assert plan["dzi_engine"] == "PYVIPS_BINARY"
     assert plan["openseadragon_version"] == "5.0.1"
     assert plan["canonical_write_authorized"] is False
     assert {source["source_code"] for source in plan["sources"]} == {
@@ -42,11 +43,30 @@ def main() -> None:
     assert all(source["dzi"].endswith(f"/{source['source_code']}.dzi") for source in plan["sources"])
 
     builder_text = (builder.ROOT / "scripts/build_cew_managed_f3_assets.py").read_text(encoding="utf-8")
+    requirements_text = (builder.ROOT / "requirements.txt").read_text(encoding="utf-8")
     assert "render_cew_viewer_sources.py" in builder_text
-    assert '"vips"' in builder_text and '"dzsave"' in builder_text
+    assert "import pyvips" in builder_text and ".dzsave(" in builder_text
+    assert '_require_tool("vips")' not in builder_text
+    assert '"vips",\n            "dzsave"' not in builder_text
+    assert "pyvips==3.1.1" in requirements_text
+    assert "pyvips-binary==8.18.6" in requirements_text
     assert "build_cew_source_viewer.py" in builder_text
     assert "npm" in builder_text and "openseadragon@" in builder_text
     assert "shutil.rmtree(render_root / source[\"source_code\"]" in builder_text
+
+    # Prove that the pinned Python binary distribution itself exposes dzsave.
+    import pyvips
+
+    with tempfile.TemporaryDirectory(prefix="cew-pyvips-dzsave-") as dz_temp:
+        dz_base = Path(dz_temp) / "probe"
+        pyvips.Image.black(8, 8).dzsave(
+            str(dz_base),
+            tile_size=builder.TILE_SIZE,
+            overlap=builder.OVERLAP,
+            suffix=f".jpg[Q={builder.JPEG_QUALITY}]",
+        )
+        assert dz_base.with_suffix(".dzi").is_file()
+        assert (Path(dz_temp) / "probe_files").is_dir()
 
     with tempfile.TemporaryDirectory(prefix="cew-f3-guard-test-") as temp_name:
         root = Path(temp_name) / ".cew_professional_workbench_assets"
@@ -109,6 +129,8 @@ def main() -> None:
     print("DZI_TILE_SIZE = 256")
     print("DZI_OVERLAP = 1")
     print("DZI_JPEG_QUALITY = 90")
+    print("DZI_ENGINE = PYVIPS_BINARY")
+    print("PYVIPS_DZSAVE_CAPABILITY = PASS")
     print("OPENSEADRAGON = 5.0.1")
     print("STALE_ASSET_REVISION = REJECTED")
     print("DYNAMIC_RUNTIME_RASTERIZATION = false")
