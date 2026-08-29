@@ -4,8 +4,8 @@ services:
     runtime: python
     plan: free
     region: frankfurt
-    branch: work/etw-platform-extension-program-v1
-    autoDeployTrigger: off
+    branch: work/cew-b18-human-centred-acceptance-v2-render
+    autoDeployTrigger: checksPass
     buildCommand: >-
       pip install -r requirements.txt &&
       python scripts/build_cew_runtime_render_cache.py &&
@@ -22,12 +22,13 @@ services:
       python scripts/build_cew_raster_bridge_review_layer.py &&
       python scripts/build_cew_raster_gap_review_view.py &&
       CEW_REVIEW_HEAD_SHA=$RENDER_GIT_COMMIT python scripts/build_cew_human_gap_review_receipts.py &&
-      CEW_REVIEW_HEAD_SHA=$RENDER_GIT_COMMIT python scripts/validate_cew_human_gap_review_receipts.py
+      CEW_REVIEW_HEAD_SHA=$RENDER_GIT_COMMIT python scripts/validate_cew_human_gap_review_receipts.py &&
+      CEW_RUNTIME_REVISION=$RENDER_GIT_COMMIT python scripts/validate_cew_b18_hva_hardening.py
     startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /readyz
     envVars:
       - key: CEW_RUNTIME_ROLE
-        value: CANDIDATE_HVA
+        value: PROFESSIONAL_WORKBENCH_REVIEW_CANDIDATE
       - key: CEW_AUTH_DISABLED_FOR_TEST
         value: "0"
       - key: CEW_ACCESS_PASSWORD
