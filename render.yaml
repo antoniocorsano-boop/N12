@@ -29,6 +29,8 @@ services:
     envVars:
       - key: CEW_RUNTIME_ROLE
         value: CANDIDATE_HVA
+      - key: CEW_R2HR_STRICT_RUNTIME
+        value: "1"
       - key: CEW_AUTH_DISABLED_FOR_TEST
         value: "0"
       - key: CEW_ACCESS_PASSWORD
