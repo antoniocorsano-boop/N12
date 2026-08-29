@@ -40,6 +40,8 @@ on:
       - 'scripts/validate_cew_raster_support_negative_controls.py'
       - 'scripts/build_cew_raster_bridge_review_layer.py'
       - 'scripts/validate_cew_raster_bridge_review_layer.py'
+      - 'scripts/build_cew_raster_gap_review_view.py'
+      - 'scripts/validate_cew_raster_gap_review_view.py'
       - 'scripts/cew_professional_workbench_core.py'
       - 'scripts/cew_professional_workbench_projection.py'
       - 'scripts/cew_professional_workbench_api.py'
@@ -88,6 +90,7 @@ on:
       - 'docs/PLAN/CEW_PWB005_R2S_RASTER_SUPPORT_CONTINUITY_PLAN_v1.md'
       - 'docs/PLAN/CEW_PWB005_R2SN_NEGATIVE_CONTROL_PLAN_v1.md'
       - 'docs/PLAN/CEW_PWB005_R2BR_BRIDGE_REVIEW_LAYER_PLAN_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R2RV_RASTER_GAP_REVIEW_VIEW_PLAN_v1.md'
       - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_PRODUCT_CONTRACT_v1.md'
       - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_INTERACTION_ARCHITECTURE_v1.md'
       - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_TECHNICAL_PROJECTION_MODEL_v1.md'
@@ -142,6 +145,8 @@ jobs:
             scripts/validate_cew_raster_support_negative_controls.py \
             scripts/build_cew_raster_bridge_review_layer.py \
             scripts/validate_cew_raster_bridge_review_layer.py \
+            scripts/build_cew_raster_gap_review_view.py \
+            scripts/validate_cew_raster_gap_review_view.py \
             scripts/cew_professional_workbench_core.py \
             scripts/cew_professional_workbench_projection.py \
             scripts/cew_professional_workbench_api.py \
@@ -234,6 +239,19 @@ jobs:
           python scripts/build_cew_raster_bridge_review_layer.py
           python scripts/validate_cew_raster_bridge_review_layer.py
 
+      - name: Build and validate PWB-005-R2RV raster gap review view
+        run: |
+          python scripts/build_cew_raster_gap_review_view.py
+          python scripts/validate_cew_raster_gap_review_view.py
+
+      - name: Upload PWB-005-R2RV human inspection package
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-r2rv-human-inspection-${{ github.run_id }}
+          path: artifacts/cew_r2rv_review/
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Validate same-revision HVA hardening
         run: python scripts/validate_cew_b18_hva_hardening.py
 
@@ -259,7 +277,7 @@ jobs:
 
       - name: Preserve human professional-workbench and promotion gates
         run: |
-          echo 'Automated gate validates B1.8 runtime safety, Workbench audit/design/kernel, managed-F3, claim-scoped document diagnostics, R2 candidates, R2Q quality, R2M consolidation, R2T topology, R2S raster support, R2SN negative controls and R2BR review triage.'
+          echo 'Automated gate validates B1.8 runtime safety, Workbench audit/design/kernel, managed-F3, claim-scoped document diagnostics, R2 candidates, R2Q quality, R2M consolidation, R2T topology, R2S raster support, R2SN negative controls, R2BR review triage and R2RV human review package.'
           echo 'PWB005_R1_CONTENT_DIAGNOSTIC = RASTER_4_OF_4'
           echo 'PWB005_R1A_MAPPING_DIAGNOSTIC = FLOATING_POINT_DEFECT_ISOLATED'
           echo 'PWB005_R2A_R2B = CANDIDATE_REVIEW_REQUIRED'
@@ -269,7 +287,9 @@ jobs:
           echo 'PWB005_R2S = RASTER_SUPPORT_DIAGNOSTIC_COMPLETE_REVIEW_REQUIRED'
           echo 'PWB005_R2SN = NEGATIVE_CONTROL_DIAGNOSTIC_COMPLETE_REVIEW_REQUIRED'
           echo 'PWB005_R2BR = BRIDGE_REVIEW_LAYER_READY_HUMAN_INSPECTION_REQUIRED'
+          echo 'PWB005_R2RV = REVIEW_PACKAGE_READY_HUMAN_INSPECTION_REQUIRED'
           echo 'REVIEW_PRIORITY_IS_CORRECTNESS_THRESHOLD = false'
+          echo 'GAP_OVERLAY_IS_GEOMETRY = false'
           echo 'GEOMETRIC_INTERSECTION_IS_STRUCTURAL_NODE = false'
           echo 'RASTER_SUPPORT_IS_TECHNICAL_IDENTITY = false'
           echo 'GAP_HYPOTHESIS_IS_GEOMETRY = false'
