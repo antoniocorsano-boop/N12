@@ -9,8 +9,9 @@ from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
-if str(SCRIPTS) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS))
+for search_root in (ROOT, SCRIPTS):
+    if str(search_root) not in sys.path:
+        sys.path.insert(0, str(search_root))
 
 # The smoke is local-only. A managed runtime must never use the test auth bypass.
 os.environ.setdefault("CEW_AUTH_DISABLED_FOR_TEST", "1")
