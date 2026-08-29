@@ -32,6 +32,7 @@ F3_BUILDER = ROOT / "scripts/build_cew_managed_f3_assets.py"
 F3_RUNTIME = ROOT / "scripts/cew_managed_f3_assets.py"
 RUNTIME_SMOKE = ROOT / "scripts/validate_cew_professional_workbench_runtime_smoke.py"
 RENDER = ROOT / "render.yaml"
+RENDER_BUILD = ROOT / "scripts/render_build_candidate.sh"
 REQUIREMENTS = ROOT / "requirements.txt"
 
 
@@ -165,7 +166,22 @@ def main() -> int:
     require("MANAGED_F3_RUNTIME_REVISION_MISMATCH" in text(F3_RUNTIME), "F3 revision guard missing")
     require("/workbench/assets/{asset_path:path}" in text(API), "authenticated asset route missing")
     require("FASTAPI_INCLUDED_ROUTER_TREE = PASS" in text(RUNTIME_SMOKE), "runtime route-tree smoke missing")
-    require("build_cew_managed_f3_assets.py" in text(RENDER), "Render F3 build missing")
+
+    render = text(RENDER)
+    render_build = text(RENDER_BUILD)
+    require("buildCommand: bash scripts/render_build_candidate.sh" in render, "Render candidate build delegation missing")
+    require('key: CEW_R2HR_STRICT_RUNTIME' in render and 'value: "1"' in render, "Render strict R2HR runtime guard missing")
+    for marker in (
+        "build_cew_managed_f3_assets.py",
+        "build_cew_human_gap_review_receipts.py",
+        "validate_cew_human_gap_review_receipts.py",
+        "validate_cew_b18_hva_hardening.py",
+        "CEW_RENDER_R2HR_RUNTIME_ARTIFACT = READY",
+        "CEW_RENDER_R2HR_REGION_COVERAGE = 4/4",
+        "CEW_RENDER_R2HR_GAP_TOTAL = 10",
+    ):
+        require(marker in render_build, f"Render delegated build missing marker: {marker}")
+
     require("PyMuPDF==1.26.4" in text(REQUIREMENTS), "runtime PyMuPDF pin drift")
 
     hva = load(HVA)
