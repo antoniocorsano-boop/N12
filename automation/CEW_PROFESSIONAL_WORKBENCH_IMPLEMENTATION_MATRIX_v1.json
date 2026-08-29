@@ -1,0 +1,202 @@
+{
+  "schema_version": "1.0",
+  "matrix_id": "CEW_PROFESSIONAL_WORKBENCH_IMPLEMENTATION_MATRIX_v1",
+  "audit_document": "docs/AUDIT/CEW_PROFESSIONAL_EVIDENCE_WORKBENCH_AUDIT_v1.md",
+  "audited_candidate": "d510da26eef8293ed169c5d173962536a2a03b53",
+  "status": "VERIFIED_GAP_MATRIX",
+  "professional_workbench_readiness": "REWORK_REQUIRED",
+  "hva_execution_authorized": false,
+  "b1_promotion_authorized": false,
+  "canonical_write_authorized": false,
+  "requirements": [
+    {
+      "id": "PWB-001",
+      "name": "Verified source authority preserved",
+      "priority": "INVARIANT",
+      "status": "IMPLEMENTED",
+      "evidence": [
+        "docs/ACCEPTANCE/CEW_B18_DUAL_WORKSPACE_CONTRACT_v1.md",
+        "scripts/cew_b1_dual_workspace.py"
+      ]
+    },
+    {
+      "id": "PWB-002",
+      "name": "Non-canonical working edits",
+      "priority": "INVARIANT",
+      "status": "IMPLEMENTED",
+      "evidence": [
+        "scripts/cew_b1_dual_workspace.py"
+      ]
+    },
+    {
+      "id": "PWB-003",
+      "name": "Continuous zoom pan rotate with keyboard alternatives",
+      "priority": "P0",
+      "status": "PARTIAL",
+      "evidence": [
+        "scripts/cew_evidence_viewer_interaction.py"
+      ],
+      "gap": "Implemented as an enhanced raster image viewport; not yet the final large-drawing professional viewport architecture."
+    },
+    {
+      "id": "PWB-004",
+      "name": "Drawing-first visual hierarchy",
+      "priority": "P0",
+      "status": "NOT_IMPLEMENTED",
+      "evidence": [
+        "scripts/cew_b1_dual_workspace.py"
+      ],
+      "gap": "Governance/provenance content and forms occupy primary screen area before engineering drawing work."
+    },
+    {
+      "id": "PWB-005",
+      "name": "True technical vector representation from governed document geometry",
+      "priority": "P0_BLOCKER",
+      "status": "NOT_IMPLEMENTED",
+      "evidence": [
+        "scripts/cew_b1_dual_workspace.py"
+      ],
+      "gap": "Current technical panel renders documentary EvidenceRegion position and registry metadata only; it is not a technical drawing."
+    },
+    {
+      "id": "PWB-006",
+      "name": "Selectable technical objects and hit testing",
+      "priority": "P0_BLOCKER",
+      "status": "NOT_IMPLEMENTED",
+      "evidence": [],
+      "gap": "No technical scene/object model exists in the current workbench."
+    },
+    {
+      "id": "PWB-007",
+      "name": "Object-anchored editable recognized text and values",
+      "priority": "P0_BLOCKER",
+      "status": "NOT_IMPLEMENTED",
+      "evidence": [
+        "scripts/cew_b1_dual_workspace.py"
+      ],
+      "gap": "Proposal is a detached textarea stored in sessionStorage, not an edit bound to a graphical technical object."
+    },
+    {
+      "id": "PWB-008",
+      "name": "Provenance-backed source-to-technical registration transform",
+      "priority": "P0_BLOCKER",
+      "status": "NOT_IMPLEMENTED",
+      "evidence": [],
+      "gap": "No explicit SourceCoordinates to TechnicalCoordinates transform exists."
+    },
+    {
+      "id": "PWB-009",
+      "name": "Synchronized split navigation guarded by valid registration",
+      "priority": "P0_BLOCKER",
+      "status": "NOT_IMPLEMENTED",
+      "evidence": [],
+      "gap": "Current source iframe and technical panel are not spatially synchronized."
+    },
+    {
+      "id": "PWB-010",
+      "name": "Overlay comparison mode with opacity/alignment controls",
+      "priority": "P0_BLOCKER",
+      "status": "NOT_IMPLEMENTED",
+      "evidence": [],
+      "gap": "No overlay viewport exists."
+    },
+    {
+      "id": "PWB-011",
+      "name": "Layer-capable technical scene",
+      "priority": "P1",
+      "status": "NOT_IMPLEMENTED",
+      "evidence": [],
+      "gap": "No source/linework/text/dimensions/candidates/issues/validated layer model exists."
+    },
+    {
+      "id": "PWB-012",
+      "name": "Graphically anchored ReadingIssue workflow",
+      "priority": "P0_BLOCKER",
+      "status": "NOT_IMPLEMENTED",
+      "evidence": [
+        "automation/CEW_B18_DUAL_WORKSPACE_HVA_CONTRACT_v1.json"
+      ],
+      "gap": "Uncertainty states exist, but they are not anchored to selectable technical geometry."
+    },
+    {
+      "id": "PWB-013",
+      "name": "Progressive disclosure Work -> Evidence -> Provenance",
+      "priority": "P0",
+      "status": "NOT_IMPLEMENTED",
+      "evidence": [
+        "scripts/cew_b1_dual_workspace.py"
+      ],
+      "gap": "Internal provenance and governance details are displayed directly in the primary workspace."
+    },
+    {
+      "id": "PWB-014",
+      "name": "Multiresolution or tiled large-drawing rendering architecture",
+      "priority": "P1",
+      "status": "NOT_IMPLEMENTED",
+      "evidence": [
+        "scripts/cew_runtime_render_cache.py",
+        "scripts/cew_evidence_viewer_interaction.py"
+      ],
+      "gap": "Build-time PNG cache prevents runtime raster crashes but the client still zooms a single raster image."
+    },
+    {
+      "id": "PWB-015",
+      "name": "Dedicated maintainable workbench client/state architecture",
+      "priority": "P0_ARCH",
+      "status": "NOT_IMPLEMENTED",
+      "evidence": [
+        "scripts/cew_b1_dual_workspace.py",
+        "scripts/cew_evidence_viewer_interaction.py"
+      ],
+      "gap": "Current surface uses monolithic Python HTML, iframe composition and string-replacement enhancement."
+    },
+    {
+      "id": "PWB-016",
+      "name": "Desktop-first engineering layout with tablet/narrow review modes",
+      "priority": "P1",
+      "status": "PARTIAL",
+      "evidence": [
+        "scripts/cew_b1_dual_workspace.py"
+      ],
+      "gap": "Responsive collapse exists, but there is no explicit device-mode interaction design."
+    },
+    {
+      "id": "PWB-017",
+      "name": "Saved/reusable professional view state",
+      "priority": "P2",
+      "status": "NOT_IMPLEMENTED",
+      "evidence": [],
+      "gap": "No reusable view object stores position, zoom, layer visibility, annotations or selected evidence."
+    },
+    {
+      "id": "PWB-018",
+      "name": "Professional engineering-task HVA protocol",
+      "priority": "P0_BLOCKER",
+      "status": "PARTIAL",
+      "evidence": [
+        "automation/CEW_B18_DUAL_WORKSPACE_HVA_CONTRACT_v1.json",
+        "docs/ACCEPTANCE/CEW_B1_HUMAN_ACCEPTANCE_V2_PLAN.md"
+      ],
+      "gap": "Current HVA protects authority boundaries but does not yet test the full find-orient-compare-identify-edit-verify-resolve engineering workflow."
+    }
+  ],
+  "blocking_requirement_ids": [
+    "PWB-005",
+    "PWB-006",
+    "PWB-007",
+    "PWB-008",
+    "PWB-009",
+    "PWB-010",
+    "PWB-012",
+    "PWB-015",
+    "PWB-018"
+  ],
+  "required_design_deliverables": [
+    "PROFESSIONAL_WORKBENCH_PRODUCT_CONTRACT",
+    "INTERACTION_ARCHITECTURE",
+    "TECHNICAL_PROJECTION_MODEL",
+    "RENDERING_ARCHITECTURE",
+    "UX_WIREFRAMES_AND_STATE_MAPS",
+    "PROFESSIONAL_HVA_PROTOCOL"
+  ]
+}
