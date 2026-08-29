@@ -36,7 +36,7 @@ jobs:
           import json
           import app
 
-          registered={r.path for r in app.app.routes}
+          registered={getattr(r,'path',None) for r in app.app.routes}
           assert '/documents/intake' in registered
           assert '/api/intake/analyze' in registered
           page=app.document_intake_page()
