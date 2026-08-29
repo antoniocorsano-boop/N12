@@ -288,7 +288,7 @@ def validate() -> None:
         )
         for marker in required_markers:
             assert marker in html_text, f"R2HR_HTML_MARKER_MISSING:{region_id}:{marker}"
-        assert html_text.count('data-gap-id="') == len(br_rows), f"R2HR_OVERLAY_COUNT_MISMATCH:{region_id}"
+        assert html_text.count('<g class="gap ') == len(br_rows), f"R2HR_OVERLAY_COUNT_MISMATCH:{region_id}"
         assert html_text.count('class="decision-card" data-gap-id="') == len(br_rows), f"R2HR_DECISION_COUNT_MISMATCH:{region_id}"
         _validate_synthetic_receipt(template)
 
