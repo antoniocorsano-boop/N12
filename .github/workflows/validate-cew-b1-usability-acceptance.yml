@@ -15,6 +15,7 @@ on:
       - 'scripts/build_cew_runtime_render_cache.py'
       - 'scripts/cew_professional_workbench_core.py'
       - 'scripts/cew_professional_workbench_projection.py'
+      - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/validate_cew_professional_workbench_core.py'
       - 'scripts/validate_cew_runtime_render_budget.py'
       - 'scripts/validate_cew_runtime_render_cache.py'
@@ -69,6 +70,7 @@ jobs:
           python -m py_compile scripts/build_cew_runtime_render_cache.py
           python -m py_compile scripts/cew_professional_workbench_core.py
           python -m py_compile scripts/cew_professional_workbench_projection.py
+          python -m py_compile scripts/cew_professional_workbench_api.py
           python -m py_compile scripts/validate_cew_professional_workbench_core.py
           python -m py_compile scripts/validate_cew_runtime_render_budget.py
           python -m py_compile scripts/validate_cew_runtime_render_cache.py
@@ -102,7 +104,7 @@ jobs:
         run: python scripts/validate_cew_runtime_render_cache.py
       - name: Validate evidence zoom pan and inspection controls
         run: python scripts/validate_cew_evidence_viewer_interaction.py
-      - name: Route and health smoke
+      - name: Route, API and health smoke
         env:
           CEW_AUTH_DISABLED_FOR_TEST: '1'
           CEW_AUDIT_BACKEND_MODE: 'LOCAL_TEST_ONLY'
@@ -110,10 +112,21 @@ jobs:
           RENDER_EXTERNAL_URL: 'https://cew-hva.example.invalid'
         run: |
           python - <<'PY'
+          import asyncio
+          import json
           import app
           routes={r.path for r in app.app.routes}
-          assert '/acceptance/b1' in routes
-          assert '/evidence/dual-workspace' in routes
+          required={
+              '/acceptance/b1',
+              '/evidence/dual-workspace',
+              '/api/workbench/scene',
+              '/api/workbench/view/resolve',
+              '/api/workbench/view/snapshot',
+              '/api/workbench/working-edit/preview',
+              '/api/workbench/reading-issue/preview',
+          }
+          assert required.issubset(routes), sorted(required-routes)
+
           response=app.b1_acceptance_lab()
           assert response.status_code == 200
           text=response.body.decode('utf-8')
@@ -125,11 +138,13 @@ jobs:
           assert 'stored.runtime_revision!==RUNTIME_REVISION' in text
           assert 'WRONG_SOURCE_OR_VERSION' in text
           assert "zoomed&&panned&&macro&&finalMicro" in text
+
           evidence=app.evidence_workspace('ERW-N12-001')
           evidence_text=evidence.body.decode('utf-8')
           assert 'id="evidenceViewport"' in evidence_text
           assert '＋ Ingrandisci' in evidence_text
           assert 'Reset vista' in evidence_text
+
           dual=app.evidence_dual_workspace('ERW-N12-001')
           dual_text=dual.body.decode('utf-8')
           assert dual.status_code == 200
@@ -138,17 +153,34 @@ jobs:
           assert 'length=1040; quantity=UNREADABLE; diameter=UNREADABLE' in dual_text
           assert 'Geometria strutturale: <span class="open-state">OPEN/ND</span>' in dual_text
           assert 'canonical_write:false' in dual_text
+
+          scene_route=next(r for r in app.app.routes if r.path=='/api/workbench/scene')
+          scene_response=scene_route.endpoint(task='ERW-N12-004')
+          assert scene_response.status_code == 200
+          scene=json.loads(scene_response.body)
+          assert scene['authority']['canonical_write_authorized'] is False
+          assert scene['authority']['engineering_authority_effect']=='NONE'
+          assert scene['registrations'][0]['state']=='UNAVAILABLE'
+          assert scene['capabilities']['overlay_available'] is False
+          assert scene['objects'][0]['governed_source_member_id']=='G5-B017'
+          assert scene['objects'][0]['binding_state']=='UNBOUND'
+          assert scene['objects'][0]['selection_authorized'] is False
+
           h=app.healthz()
           assert h['b1_acceptance_lab']=='B18_IMPLEMENTED_CANDIDATE_HVA_PENDING'
           assert h['b18_dual_workspace']=='IMPLEMENTED_CANDIDATE_HVA_PENDING'
+          assert h['professional_workbench_kernel']=='FOUNDATION_IMPLEMENTED_INTEGRATION_PENDING'
+          assert h['professional_workbench_readiness']=='REWORK_REQUIRED'
+          assert h['professional_workbench_hva_authorized'] is False
           assert h['canonical_write_authorized'] is False
-          print('CEW B1.8 HUMAN ACCEPTANCE + DUAL WORKSPACE ROUTES: PASS')
+          print('CEW B1.8 HUMAN ACCEPTANCE + PROFESSIONAL WORKBENCH API ROUTES: PASS')
           PY
       - name: Preserve human professional-workbench and promotion gates
         run: |
-          echo 'Automated gate validates B1.8 runtime safety, audit consistency, design-package coherence and the fail-closed workbench kernel.'
+          echo 'Automated gate validates B1.8 runtime safety, audit consistency, design-package coherence, fail-closed workbench kernel and non-canonical API wiring.'
           echo 'PROFESSIONAL_WORKBENCH_DESIGN_PACKAGE = VERSIONED'
           echo 'PROFESSIONAL_WORKBENCH_KERNEL = FOUNDATION_IMPLEMENTED'
+          echo 'PROFESSIONAL_WORKBENCH_API = NON_CANONICAL_FOUNDATION_WIRED'
           echo 'PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED'
           echo 'HVA_EXECUTION_AUTHORIZED = false'
           echo 'DUAL_WORKSPACE_HVA = REQUIRED_NOT_SATISFIED'
