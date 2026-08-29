@@ -25,6 +25,9 @@ on:
       - 'scripts/validate_cew_evidence_region_content_diagnostic.py'
       - 'scripts/build_cew_evidence_region_mapping_root_cause.py'
       - 'scripts/validate_cew_evidence_region_mapping_root_cause.py'
+      - 'scripts/cew_raster_geometry_candidate_worker.py'
+      - 'scripts/build_cew_raster_geometry_candidates.py'
+      - 'scripts/validate_cew_raster_geometry_candidates.py'
       - 'scripts/cew_professional_workbench_core.py'
       - 'scripts/cew_professional_workbench_projection.py'
       - 'scripts/cew_professional_workbench_api.py'
@@ -63,8 +66,10 @@ on:
       - 'docs/AUDIT/CEW_PROFESSIONAL_EVIDENCE_WORKBENCH_AUDIT_v1.md'
       - 'docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_REUSE_MAP_v1.md'
       - 'docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_PWB005_R1_FINDINGS_v1.md'
+      - 'docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_PWB005_R1A_FINDINGS_v1.md'
       - 'docs/PLAN/CEW_PWB005_R1_EVIDENCE_REGION_CONTENT_DIAGNOSTIC_PLAN_v1.md'
       - 'docs/PLAN/CEW_PWB005_R1A_REGION_MAPPING_ROOT_CAUSE_PLAN_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R2_RASTER_GEOMETRY_CANDIDATE_PLAN_v1.md'
       - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_PRODUCT_CONTRACT_v1.md'
       - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_INTERACTION_ARCHITECTURE_v1.md'
       - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_TECHNICAL_PROJECTION_MODEL_v1.md'
@@ -104,6 +109,9 @@ jobs:
             scripts/validate_cew_evidence_region_content_diagnostic.py \
             scripts/build_cew_evidence_region_mapping_root_cause.py \
             scripts/validate_cew_evidence_region_mapping_root_cause.py \
+            scripts/cew_raster_geometry_candidate_worker.py \
+            scripts/build_cew_raster_geometry_candidates.py \
+            scripts/validate_cew_raster_geometry_candidates.py \
             scripts/cew_professional_workbench_core.py \
             scripts/cew_professional_workbench_projection.py \
             scripts/cew_professional_workbench_api.py \
@@ -161,6 +169,11 @@ jobs:
           python scripts/build_cew_evidence_region_mapping_root_cause.py
           python scripts/validate_cew_evidence_region_mapping_root_cause.py
 
+      - name: Build and validate PWB-005-R2A/R2B raster geometry candidates
+        run: |
+          python scripts/build_cew_raster_geometry_candidates.py
+          python scripts/validate_cew_raster_geometry_candidates.py
+
       - name: Validate same-revision HVA hardening
         run: python scripts/validate_cew_b18_hva_hardening.py
 
@@ -186,9 +199,12 @@ jobs:
 
       - name: Preserve human professional-workbench and promotion gates
         run: |
-          echo 'Automated gate validates B1.8 runtime safety, Workbench audit/design/kernel, managed-F3, claim-scoped dual-vector document geometry, R1 content classification and R1A mapping root-cause diagnostics.'
-          echo 'PWB005_R1_CONTENT_DIAGNOSTIC = COMPLETE_WITH_FINDINGS'
-          echo 'PWB005_R1A_MAPPING_DIAGNOSTIC = DERIVED_NON_AUTHORITATIVE'
+          echo 'Automated gate validates B1.8 runtime safety, Workbench audit/design/kernel, managed-F3, claim-scoped document diagnostics and R2A/R2B raster geometry candidate extraction.'
+          echo 'PWB005_R1_CONTENT_DIAGNOSTIC = RASTER_4_OF_4'
+          echo 'PWB005_R1A_MAPPING_DIAGNOSTIC = FLOATING_POINT_DEFECT_ISOLATED'
+          echo 'PWB005_R2A_R2B = CANDIDATE_REVIEW_REQUIRED'
+          echo 'PWB005_R2C_SCENE_ADAPTER_AUTHORIZED = false'
+          echo 'RUNTIME_OPENCV_REQUIRED = false'
           echo 'PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED'
           echo 'HVA_EXECUTION_AUTHORIZED = false'
           echo 'HVA_GATE = REQUIRED_NOT_SATISFIED'
