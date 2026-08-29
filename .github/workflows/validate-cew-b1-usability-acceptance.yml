@@ -26,7 +26,6 @@ on:
       - 'scripts/validate_cew_evidence_viewer_interaction.py'
       - 'scripts/render_cew_viewer_sources.py'
       - 'scripts/build_cew_source_viewer.py'
-      - 'scripts/cew_b1_acceptance_lab.py'
       - 'scripts/validate_cew_b18_hva_hardening.py'
       - 'scripts/validate_cew_b18_dual_workspace.py'
       - 'scripts/validate_cew_professional_workbench_audit.py'
@@ -130,7 +129,7 @@ jobs:
           python - <<'PY'
           import json
           import app
-          routes={r.path for r in app.app.routes}
+          routes={getattr(r,'path',None) for r in app.app.routes}
           required={
               '/acceptance/b1',
               '/evidence/dual-workspace',
@@ -171,7 +170,7 @@ jobs:
           assert 'Geometria strutturale: <span class="open-state">OPEN/ND</span>' in dual_text
           assert 'canonical_write:false' in dual_text
 
-          scene_route=next(r for r in app.app.routes if r.path=='/api/workbench/scene')
+          scene_route=next(r for r in app.app.routes if getattr(r,'path',None)=='/api/workbench/scene')
           scene_response=scene_route.endpoint(task='ERW-N12-004')
           assert scene_response.status_code == 200
           scene=json.loads(scene_response.body)
@@ -187,7 +186,7 @@ jobs:
           assert scene['objects'][0]['binding_state']=='UNBOUND'
           assert scene['objects'][0]['selection_authorized'] is False
 
-          assets_route=next(r for r in app.app.routes if r.path=='/api/workbench/assets/status')
+          assets_route=next(r for r in app.app.routes if getattr(r,'path',None)=='/api/workbench/assets/status')
           assets_response=assets_route.endpoint()
           assets=json.loads(assets_response.body)
           assert assets['state']=='UNAVAILABLE'
