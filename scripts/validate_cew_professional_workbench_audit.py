@@ -22,6 +22,12 @@ WORKBENCH_CONTRACT = ROOT / "automation/CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRAC
 WORKBENCH_CORE = ROOT / "scripts/cew_professional_workbench_core.py"
 WORKBENCH_PROJECTION = ROOT / "scripts/cew_professional_workbench_projection.py"
 WORKBENCH_VALIDATOR = ROOT / "scripts/validate_cew_professional_workbench_core.py"
+WORKBENCH_API = ROOT / "scripts/cew_professional_workbench_api.py"
+BUILD_MANAGED_F3 = ROOT / "scripts/build_cew_managed_f3_assets.py"
+MANAGED_F3 = ROOT / "scripts/cew_managed_f3_assets.py"
+MANAGED_F3_VALIDATOR = ROOT / "scripts/validate_cew_managed_f3_assets.py"
+RENDER = ROOT / "render.yaml"
+REQUIREMENTS = ROOT / "requirements.txt"
 
 
 def require(condition: bool, message: str) -> None:
@@ -45,8 +51,15 @@ def main() -> None:
     workbench_core = text(WORKBENCH_CORE)
     workbench_projection = text(WORKBENCH_PROJECTION)
     workbench_validator = text(WORKBENCH_VALIDATOR)
+    workbench_api = text(WORKBENCH_API)
+    build_managed_f3 = text(BUILD_MANAGED_F3)
+    managed_f3 = text(MANAGED_F3)
+    managed_f3_validator = text(MANAGED_F3_VALIDATOR)
+    render = text(RENDER)
+    requirements = text(REQUIREMENTS)
 
-    require(matrix["schema_version"] == "1.2", "unexpected matrix schema")
+    require(matrix["schema_version"] == "1.3", "unexpected matrix schema")
+    require(matrix["status"] == "VERIFIED_GAP_MATRIX_WITH_KERNEL_AND_MANAGED_F3_FOUNDATIONS", "matrix state drift")
     require(matrix["professional_workbench_readiness"] == "REWORK_REQUIRED", "workbench must remain REWORK_REQUIRED")
     require(matrix["hva_execution_authorized"] is False, "HVA must remain paused")
     require(matrix["b1_promotion_authorized"] is False, "B1 promotion must remain unauthorized")
@@ -70,8 +83,8 @@ def main() -> None:
     ):
         require(marker in audit, f"audit marker missing: {marker}")
 
-    # The audited B1.8 surface remains the historical POC and must not be silently
-    # reclassified as the final client merely because a new kernel exists.
+    # Historical B1.8 remains the audited POC. New foundations must not silently
+    # reclassify its monolithic UI as the final professional client.
     require("canonical_write_authorized" in dual and "False" in dual, "dual workspace canonical-write boundary missing")
     require("sessionStorage" in dual, "session-only proposal boundary missing")
     require("geometry != identity" in dual, "geometry/identity warning missing")
@@ -115,23 +128,34 @@ def main() -> None:
     ):
         require(marker in erw_validator, f"F6 frozen-ledger/authority validator marker missing: {marker}")
 
-    # New deterministic workbench foundation: model/guards exist, but this is not
-    # permission to claim the visual client or real spatial registration complete.
+    # Deterministic Workbench kernel and non-authoritative working state.
+    require(workbench_contract["schema_version"] == "1.1", "workbench contract schema drift")
+    require(workbench_contract["scene_schema_version"] == "1.0", "scene payload schema drift")
+    require(workbench_contract["view_schema_version"] == "1.0", "view payload schema drift")
     require(workbench_contract["canonical_write_authorized"] is False, "workbench scene contract canonical-write drift")
     require("document geometry != technical candidate != structural identity" in workbench_contract["invariants"], "workbench geometry/identity invariant missing")
     require("VIEWPORT_PX" in workbench_contract["coordinate_spaces"], "viewport coordinate space must be explicit")
     require("SPATIAL_LOCKED" in workbench_contract["sync_modes"] and "OVERLAY" in workbench_contract["display_modes"], "workbench mode contract incomplete")
+    require("WORKING_EDITS" in workbench_contract["layer_ids"] and "ISSUES" in workbench_contract["layer_ids"], "workbench layer vocabulary incomplete")
+
     for marker in (
         "validate_registration",
         "registration_allows_spatial",
         "resolve_view_state",
         "create_working_edit",
+        "validate_working_edit",
         "create_reading_issue",
+        "validate_reading_issue",
+        "create_view_snapshot",
+        "validate_view_snapshot",
+        "build_working_session_patch",
         "VIEWPORT_COORDINATES_CANNOT_BE_SCENE_GEOMETRY",
         "WORKING_EDIT_TARGET_READ_ONLY",
         "READING_ISSUE_GRAPHICAL_OR_EVIDENCE_ANCHOR_REQUIRED",
+        "VIEW_SCENE_REVISION_MISMATCH",
     ):
         require(marker in workbench_core, f"workbench fail-closed kernel marker missing: {marker}")
+
     for marker in (
         "F3_DZI_MANIFEST_REUSED",
         "F6_ERW_M0G_FROZEN_LEDGER_ADAPTER",
@@ -140,23 +164,60 @@ def main() -> None:
         "canonical_write_authorized",
     ):
         require(marker in workbench_projection, f"workbench reuse projection marker missing: {marker}")
+
     for marker in (
         "OVERLAY_WITHOUT_VERIFIED_REGISTRATION = FAIL_CLOSED",
         "SPATIAL_LOCK_WITHOUT_VERIFIED_REGISTRATION = FAIL_CLOSED",
+        "REVISION_BOUND_VIEW_SNAPSHOT = PASS",
+        "STALE_VIEW_REATTACHMENT = FORBIDDEN",
         "GOVERNED_STRUCTURAL_EDIT = FORBIDDEN",
         "READING_ISSUE_ANCHOR = REQUIRED",
+        "WORKING_SESSION_PATCH_AUTHORITY = NONE",
         "VIEWPORT_GEOMETRY_PERSISTENCE = FORBIDDEN",
     ):
         require(marker in workbench_validator, f"workbench negative-test marker missing: {marker}")
 
+    # Managed F3 must be a build-time, exact-revision, complete 4-source asset set.
+    for code in ("TAV-05A", "TAV-06A", "TAV-05S", "TAV-06S"):
+        require(code in build_managed_f3, f"managed F3 required source missing from builder: {code}")
+    for marker in (
+        "DPI = 300",
+        "TILE_SIZE = 256",
+        "OVERLAP = 1",
+        "JPEG_QUALITY = 90",
+        'OSD_VERSION = "5.0.1"',
+        "render_cew_viewer_sources.py",
+        "build_cew_source_viewer.py",
+        '"vips"',
+        '"dzsave"',
+        "managed_runtime_dynamic_pdf_rasterization",
+        "CEW_MANAGED_F3_ASSET_BUILD = PASS",
+    ):
+        require(marker in build_managed_f3, f"managed F3 builder marker missing: {marker}")
+    require("MANAGED_F3_RUNTIME_REVISION_MISMATCH" in managed_f3, "managed F3 exact-revision guard missing")
+    require("MANAGED_F3_REQUIRED_ASSET_MISSING" in managed_f3, "managed F3 completeness guard missing")
+    require("managed_runtime_dynamic_pdf_rasterization" in managed_f3, "managed F3 dynamic-raster prohibition missing")
+    for marker in (
+        "SOURCE_COVERAGE = 4/4",
+        "STALE_ASSET_REVISION = REJECTED",
+        "DYNAMIC_RUNTIME_RASTERIZATION = false",
+        "CANONICAL_WRITE_AUTHORIZED = false",
+    ):
+        require(marker in managed_f3_validator, f"managed F3 validator marker missing: {marker}")
+    require("/workbench/assets/{asset_path:path}" in workbench_api, "managed F3 authenticated asset route missing")
+    require("_safe_asset_path" in workbench_api and "relative_to(root)" in workbench_api, "managed F3 path traversal guard missing")
+    require("validate_manifest()" in workbench_api, "managed F3 exact-revision serving guard missing")
+    require("build_cew_managed_f3_assets.py" in render, "Render build does not produce managed F3 assets")
+    require("PyMuPDF==1.26.4" in requirements, "runtime renderer version is not aligned to governed F3 pipeline")
+
+    # Status truth: foundations may advance to PARTIAL, but no blocker is cleared by
+    # model/API/build scaffolding alone.
     require(reqs["PWB-005"]["status"] == "AVAILABLE_NOT_INTEGRATED", "PWB-005 reuse classification mismatch")
     require(reqs["PWB-006"]["status"] == "AVAILABLE_NOT_INTEGRATED", "PWB-006 reuse classification mismatch")
-    require(reqs["PWB-014"]["status"] == "AVAILABLE_NOT_INTEGRATED", "PWB-014 reuse classification mismatch")
-    for requirement_id in ("PWB-007", "PWB-008", "PWB-009", "PWB-012", "PWB-015", "PWB-018"):
-        require(reqs[requirement_id]["status"] == "PARTIAL", f"{requirement_id} kernel/design classification mismatch")
-    require(reqs["PWB-010"]["status"] == "NOT_IMPLEMENTED", "overlay must remain unimplemented until a verified registered renderer exists")
-    require(reqs["PWB-004"]["status"] == "NOT_IMPLEMENTED", "drawing-first client must not be claimed before UI integration")
-    require(reqs["PWB-013"]["status"] == "NOT_IMPLEMENTED", "progressive disclosure must not be claimed before UI integration")
+    for requirement_id in ("PWB-003", "PWB-007", "PWB-008", "PWB-009", "PWB-011", "PWB-012", "PWB-014", "PWB-015", "PWB-016", "PWB-017", "PWB-018"):
+        require(reqs[requirement_id]["status"] == "PARTIAL", f"{requirement_id} foundation classification mismatch")
+    for requirement_id in ("PWB-004", "PWB-010", "PWB-013"):
+        require(reqs[requirement_id]["status"] == "NOT_IMPLEMENTED", f"{requirement_id} must remain NOT_IMPLEMENTED")
 
     for marker in (
         "F3 Source Viewer",
@@ -178,6 +239,7 @@ def main() -> None:
     print("CEW_PROFESSIONAL_WORKBENCH_AUDIT_CONSISTENCY = PASS")
     print("CEW_PROFESSIONAL_WORKBENCH_REUSE_VERIFICATION = PASS")
     print("CEW_PROFESSIONAL_WORKBENCH_KERNEL_FOUNDATION = VERIFIED_PRESENT")
+    print("CEW_MANAGED_F3_FOUNDATION = VERIFIED_PRESENT")
     print("PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED")
     print(f"IMPLEMENTED = {','.join(implemented)}")
     print(f"PARTIAL = {','.join(partial)}")
