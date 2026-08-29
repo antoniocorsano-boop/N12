@@ -124,22 +124,29 @@ jobs:
           python scripts/validate_cew_document_geometry_artifacts.py
           python - <<'PY'
           import os
+          import sys
+          sys.path.insert(0, 'scripts')
           os.environ['RENDER_GIT_COMMIT'] = os.environ['GITHUB_SHA']
           import cew_professional_workbench_document_geometry as geometry
           import cew_professional_workbench_projection as projection
 
-          state = geometry.status()
-          assert state['state'] == 'READY', state
-          assert state['source_coverage'] == '4/4', state
-          assert state['runtime_docling_required'] is False, state
+          geometry_state = geometry.status()
+          assert geometry_state['state'] == 'READY', geometry_state
+          assert geometry_state['source_coverage'] == '4/4', geometry_state
+          assert geometry_state['governed_region_count'] == 4, geometry_state
+          assert geometry_state['comparison_scope'] == 'GOVERNED_EVIDENCE_REGION_WHERE_AVAILABLE', geometry_state
+          assert geometry_state['page_level_role'] == 'DIAGNOSTIC_ONLY', geometry_state
+          assert geometry_state['runtime_docling_required'] is False, geometry_state
           for task in ('ERW-N12-001','ERW-N12-002','ERW-N12-003','ERW-N12-004'):
               scene = projection.build_scene(task)
               assert scene['authority']['canonical_write_authorized'] is False
+              assert scene['source']['pdf_page_no'] == scene['source']['page_index'] + 1
               document_objects = [o for o in scene['objects'] if o['object_family']=='DocumentGraphicPrimitive']
               for obj in document_objects:
                   assert obj['coordinate_space'] == 'SOURCE_PAGE_PT'
                   assert obj['technical_identity_authorized'] is False
                   assert obj['canonical_write_authorized'] is False
+                  assert obj['provenance']['evidence_region_id'] == scene['source']['evidence_region_id']
               state = scene['capabilities']['document_geometry']['state']
               assert state in {'READY_AGREED_DOCUMENT_GEOMETRY','NOT_MATERIALIZED_FAIL_CLOSED'}, state
           print('CEW_DOCUMENT_GEOMETRY_SCENE_ADAPTER = PASS')
@@ -255,7 +262,8 @@ jobs:
           echo 'PROFESSIONAL_WORKBENCH_KERNEL = FOUNDATION_IMPLEMENTED'
           echo 'PROFESSIONAL_WORKBENCH_API = NON_CANONICAL_FOUNDATION_WIRED'
           echo 'MANAGED_F3_ASSET_PIPELINE = CONTRACT_VALIDATED_BUILD_ON_DEPLOY'
-          echo 'DOCUMENT_GEOMETRY_PIPELINE = BUILD_TIME_DUAL_VECTOR_FAIL_CLOSED'
+          echo 'DOCUMENT_GEOMETRY_PIPELINE = BUILD_TIME_CLAIM_SCOPED_DUAL_VECTOR_FAIL_CLOSED'
+          echo 'PAGE_LEVEL_DUAL_VECTOR_ROLE = DIAGNOSTIC_ONLY'
           echo 'RUNTIME_DOCLING_REQUIRED = false'
           echo 'PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED'
           echo 'HVA_EXECUTION_AUTHORIZED = false'
