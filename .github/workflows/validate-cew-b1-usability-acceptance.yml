@@ -123,13 +123,16 @@ jobs:
           python scripts/build_cew_document_geometry_artifacts.py
           python scripts/validate_cew_document_geometry_artifacts.py
           python - <<'PY'
+          import json
           import os
           import sys
+          from pathlib import Path
           sys.path.insert(0, 'scripts')
           os.environ['RENDER_GIT_COMMIT'] = os.environ['GITHUB_SHA']
           import cew_professional_workbench_document_geometry as geometry
           import cew_professional_workbench_projection as projection
 
+          manifest = geometry.validate_manifest()
           geometry_state = geometry.status()
           assert geometry_state['state'] == 'READY', geometry_state
           assert geometry_state['source_coverage'] == '4/4', geometry_state
@@ -137,6 +140,25 @@ jobs:
           assert geometry_state['comparison_scope'] == 'GOVERNED_EVIDENCE_REGION_WHERE_AVAILABLE', geometry_state
           assert geometry_state['page_level_role'] == 'DIAGNOSTIC_ONLY', geometry_state
           assert geometry_state['runtime_docling_required'] is False, geometry_state
+          for entry in manifest['entries']:
+              artifact=json.loads((geometry.ASSET_ROOT/entry['filename']).read_text(encoding='utf-8'))
+              for region in artifact['regions']:
+                  seg=region['segment_metrics']
+                  ints=region['intersection_metrics']
+                  print(
+                      'DOCUMENT_GEOMETRY_REGION_DIAGNOSTIC',
+                      region['evidence_region_id'],
+                      'outcome='+region['agreement_outcome'],
+                      'mapping='+str(region['coordinate_mapping']),
+                      'reference='+str(seg.get('reference_count')),
+                      'candidate='+str(seg.get('candidate_count')),
+                      'matches='+str(len(seg.get('matches') or [])),
+                      'segment_ratio='+str(seg.get('match_ratio')),
+                      'intersection_reference='+str(ints.get('reference_count')),
+                      'intersection_candidate='+str(ints.get('candidate_count')),
+                      'intersection_matches='+str(ints.get('matches')),
+                      'intersection_ratio='+str(ints.get('match_ratio')),
+                  )
           for task in ('ERW-N12-001','ERW-N12-002','ERW-N12-003','ERW-N12-004'):
               scene = projection.build_scene(task)
               assert scene['authority']['canonical_write_authorized'] is False
@@ -171,7 +193,16 @@ jobs:
           python - <<'PY'
           import json
           import app
-          routes={getattr(r,'path',None) for r in app.app.routes}
+
+          def walk_routes(routes):
+              for route in routes:
+                  yield route
+                  nested=getattr(route, 'routes', None)
+                  if nested:
+                      yield from walk_routes(nested)
+
+          all_routes=list(walk_routes(app.app.routes))
+          routes={getattr(r,'path',None) for r in all_routes}
           required={
               '/acceptance/b1',
               '/evidence/dual-workspace',
@@ -213,7 +244,7 @@ jobs:
           assert 'Geometria strutturale: <span class="open-state">OPEN/ND</span>' in dual_text
           assert 'canonical_write:false' in dual_text
 
-          scene_route=next(r for r in app.app.routes if getattr(r,'path',None)=='/api/workbench/scene')
+          scene_route=next(r for r in all_routes if getattr(r,'path',None)=='/api/workbench/scene')
           scene_response=scene_route.endpoint(task='ERW-N12-004')
           assert scene_response.status_code == 200
           scene=json.loads(scene_response.body)
@@ -232,14 +263,14 @@ jobs:
           assert structural[0]['binding_state']=='UNBOUND'
           assert structural[0]['selection_authorized'] is False
 
-          assets_route=next(r for r in app.app.routes if getattr(r,'path',None)=='/api/workbench/assets/status')
+          assets_route=next(r for r in all_routes if getattr(r,'path',None)=='/api/workbench/assets/status')
           assets_response=assets_route.endpoint()
           assets=json.loads(assets_response.body)
           assert assets['state']=='UNAVAILABLE'
           assert assets['canonical_write_authorized'] is False
           assert assets['dynamic_pdf_rasterization'] is False
 
-          geometry_route=next(r for r in app.app.routes if getattr(r,'path',None)=='/api/workbench/document-geometry/status')
+          geometry_route=next(r for r in all_routes if getattr(r,'path',None)=='/api/workbench/document-geometry/status')
           geometry_response=geometry_route.endpoint()
           geometry=json.loads(geometry_response.body)
           assert geometry['state']=='UNAVAILABLE'
