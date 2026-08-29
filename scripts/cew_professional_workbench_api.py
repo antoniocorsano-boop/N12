@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 import cew_managed_f3_assets as managed_f3_assets
 import cew_professional_workbench_core as core
@@ -54,14 +55,49 @@ def _runtime_scene(task: str, source_workspace) -> dict[str, Any]:
     else:
         scene["capabilities"]["source_multiresolution_assets"] = "UNAVAILABLE_FAIL_CLOSED"
         scene["source"]["managed_f3_asset_reason"] = assets.get("reason", "UNAVAILABLE")
-    # Runtime delivery metadata is not part of the scene-revision engineering/derived
-    # projection digest. It expresses deployment capability only.
+    # Runtime delivery metadata is not part of the scene-revision projection digest.
     core.validate_scene(scene)
     return scene
 
 
+def _safe_asset_path(asset_path: str) -> Path:
+    posix = PurePosixPath(asset_path)
+    if not asset_path or posix.is_absolute() or any(part in {"", ".", ".."} for part in posix.parts):
+        raise ValueError("MANAGED_F3_ASSET_PATH_REJECTED")
+    root = managed_f3_assets.ASSET_ROOT.resolve()
+    target = (root / Path(*posix.parts)).resolve()
+    try:
+        target.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("MANAGED_F3_ASSET_PATH_REJECTED") from exc
+    return target
+
+
 def build_router(source_workspace) -> APIRouter:
     router = APIRouter()
+
+    @router.get("/api/workbench/assets/status")
+    def workbench_asset_status():
+        return _json(managed_f3_assets.status())
+
+    @router.get("/workbench/assets/{asset_path:path}")
+    def workbench_asset(asset_path: str):
+        try:
+            managed_f3_assets.validate_manifest()
+            target = _safe_asset_path(asset_path)
+        except ValueError as exc:
+            return _error("MANAGED_F3_ASSET_REJECTED", str(exc), 422)
+        if not target.is_file():
+            return _error("MANAGED_F3_ASSET_NOT_FOUND", "ASSET_NOT_FOUND", 404)
+        return FileResponse(
+            target,
+            headers={
+                "Cache-Control": "private, max-age=31536000, immutable",
+                "X-CEW-Derived-Authority": "READING_AID_ONLY",
+                "X-CEW-Canonical-Write": "false",
+                "X-CEW-Runtime-Revision": managed_f3_assets.runtime_revision(),
+            },
+        )
 
     @router.get("/api/workbench/scene")
     def workbench_scene(task: str = ""):
