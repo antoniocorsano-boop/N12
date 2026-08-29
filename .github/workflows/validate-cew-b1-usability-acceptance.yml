@@ -36,6 +36,8 @@ on:
       - 'scripts/validate_cew_raster_geometry_topology.py'
       - 'scripts/build_cew_raster_support_continuity.py'
       - 'scripts/validate_cew_raster_support_continuity.py'
+      - 'scripts/build_cew_raster_support_negative_controls.py'
+      - 'scripts/validate_cew_raster_support_negative_controls.py'
       - 'scripts/cew_professional_workbench_core.py'
       - 'scripts/cew_professional_workbench_projection.py'
       - 'scripts/cew_professional_workbench_api.py'
@@ -82,6 +84,7 @@ on:
       - 'docs/PLAN/CEW_PWB005_R2M_RASTER_GEOMETRY_CONSOLIDATION_PLAN_v1.md'
       - 'docs/PLAN/CEW_PWB005_R2T_TOPOLOGY_COHERENCE_PLAN_v1.md'
       - 'docs/PLAN/CEW_PWB005_R2S_RASTER_SUPPORT_CONTINUITY_PLAN_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R2SN_NEGATIVE_CONTROL_PLAN_v1.md'
       - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_PRODUCT_CONTRACT_v1.md'
       - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_INTERACTION_ARCHITECTURE_v1.md'
       - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_TECHNICAL_PROJECTION_MODEL_v1.md'
@@ -132,6 +135,8 @@ jobs:
             scripts/validate_cew_raster_geometry_topology.py \
             scripts/build_cew_raster_support_continuity.py \
             scripts/validate_cew_raster_support_continuity.py \
+            scripts/build_cew_raster_support_negative_controls.py \
+            scripts/validate_cew_raster_support_negative_controls.py \
             scripts/cew_professional_workbench_core.py \
             scripts/cew_professional_workbench_projection.py \
             scripts/cew_professional_workbench_api.py \
@@ -214,6 +219,11 @@ jobs:
           python scripts/build_cew_raster_support_continuity.py
           python scripts/validate_cew_raster_support_continuity.py
 
+      - name: Build and validate PWB-005-R2SN gap negative controls
+        run: |
+          python scripts/build_cew_raster_support_negative_controls.py
+          python scripts/validate_cew_raster_support_negative_controls.py
+
       - name: Validate same-revision HVA hardening
         run: python scripts/validate_cew_b18_hva_hardening.py
 
@@ -239,7 +249,7 @@ jobs:
 
       - name: Preserve human professional-workbench and promotion gates
         run: |
-          echo 'Automated gate validates B1.8 runtime safety, Workbench audit/design/kernel, managed-F3, claim-scoped document diagnostics, R2 candidates, R2Q quality, R2M consolidation, R2T topology and R2S raster support.'
+          echo 'Automated gate validates B1.8 runtime safety, Workbench audit/design/kernel, managed-F3, claim-scoped document diagnostics, R2 candidates, R2Q quality, R2M consolidation, R2T topology, R2S raster support and R2SN local negative controls.'
           echo 'PWB005_R1_CONTENT_DIAGNOSTIC = RASTER_4_OF_4'
           echo 'PWB005_R1A_MAPPING_DIAGNOSTIC = FLOATING_POINT_DEFECT_ISOLATED'
           echo 'PWB005_R2A_R2B = CANDIDATE_REVIEW_REQUIRED'
@@ -247,9 +257,13 @@ jobs:
           echo 'PWB005_R2M = CONSOLIDATION_COMPLETE_REVIEW_REQUIRED'
           echo 'PWB005_R2T = TOPOLOGY_DIAGNOSTIC_COMPLETE_REVIEW_REQUIRED'
           echo 'PWB005_R2S = RASTER_SUPPORT_DIAGNOSTIC_COMPLETE_REVIEW_REQUIRED'
+          echo 'PWB005_R2SN = NEGATIVE_CONTROL_DIAGNOSTIC_COMPLETE_REVIEW_REQUIRED'
+          echo 'THRESHOLD_POLICY = NOT_DEFINED_MEASURE_FIRST'
           echo 'GEOMETRIC_INTERSECTION_IS_STRUCTURAL_NODE = false'
           echo 'RASTER_SUPPORT_IS_TECHNICAL_IDENTITY = false'
           echo 'GAP_HYPOTHESIS_IS_GEOMETRY = false'
+          echo 'GAP_SUPPORT_CONTRAST_IS_GEOMETRY = false'
+          echo 'R2_BRIDGE_CANDIDATE_AUTHORIZED = false'
           echo 'PWB005_R2C_SCENE_ADAPTER_AUTHORIZED = false'
           echo 'RUNTIME_OPENCV_REQUIRED = false'
           echo 'PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED'
