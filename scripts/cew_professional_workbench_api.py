@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+from typing import Any
+
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
+
+import cew_professional_workbench_core as core
+import cew_professional_workbench_projection as projection
+
+
+def _error(state: str, reason: str, status_code: int) -> JSONResponse:
+    return JSONResponse(
+        {
+            "state": state,
+            "reason": reason,
+            "canonical_write_authorized": False,
+            "engineering_authority_effect": "NONE",
+        },
+        status_code=status_code,
+        headers={"Cache-Control": "no-store"},
+    )
+
+
+def _json(payload: dict[str, Any], status_code: int = 200) -> JSONResponse:
+    body = dict(payload)
+    body.setdefault("canonical_write_authorized", False)
+    body.setdefault("engineering_authority_effect", "NONE")
+    return JSONResponse(body, status_code=status_code, headers={"Cache-Control": "no-store"})
+
+
+def _task(payload: dict[str, Any]) -> str:
+    task = payload.get("task")
+    if not isinstance(task, str) or not task.strip():
+        raise ValueError("WORKBENCH_TASK_REQUIRED")
+    return task.strip()
+
+
+def build_router(source_workspace) -> APIRouter:
+    router = APIRouter()
+
+    @router.get("/api/workbench/scene")
+    def workbench_scene(task: str = ""):
+        if not task.strip():
+            return _error("WORKBENCH_SCENE_REJECTED", "WORKBENCH_TASK_REQUIRED", 400)
+        try:
+            scene = projection.build_scene(task.strip(), source_workspace)
+        except KeyError:
+            return _error("WORKBENCH_SCENE_NOT_FOUND", "TASK_OR_SOURCE_NOT_FOUND", 404)
+        except ValueError as exc:
+            return _error("WORKBENCH_SCENE_REJECTED", str(exc), 422)
+        except Exception:
+            return _error("WORKBENCH_SCENE_UNAVAILABLE", "SCENE_PROJECTION_FAILED", 503)
+        return _json(scene)
+
+    @router.post("/api/workbench/view/resolve")
+    async def workbench_view_resolve(request: Request):
+        try:
+            payload = await request.json()
+        except Exception:
+            return _error("WORKBENCH_VIEW_REJECTED", "INVALID_JSON", 400)
+        if not isinstance(payload, dict):
+            return _error("WORKBENCH_VIEW_REJECTED", "JSON_OBJECT_REQUIRED", 400)
+        try:
+            scene = projection.build_scene(_task(payload), source_workspace)
+            result = core.resolve_view_state(
+                scene,
+                requested_mode=str(payload.get("requested_mode", "SOURCE")),
+                requested_sync_mode=str(payload.get("requested_sync_mode", "OFF")),
+                registration_id=payload.get("registration_id"),
+            )
+        except KeyError:
+            return _error("WORKBENCH_VIEW_NOT_FOUND", "TASK_OR_SOURCE_NOT_FOUND", 404)
+        except ValueError as exc:
+            return _error("WORKBENCH_VIEW_REJECTED", str(exc), 422)
+        except Exception:
+            return _error("WORKBENCH_VIEW_UNAVAILABLE", "VIEW_RESOLUTION_FAILED", 503)
+        return _json(result)
+
+    @router.post("/api/workbench/view/snapshot")
+    async def workbench_view_snapshot(request: Request):
+        try:
+            payload = await request.json()
+        except Exception:
+            return _error("WORKBENCH_VIEW_REJECTED", "INVALID_JSON", 400)
+        if not isinstance(payload, dict):
+            return _error("WORKBENCH_VIEW_REJECTED", "JSON_OBJECT_REQUIRED", 400)
+        try:
+            scene = projection.build_scene(_task(payload), source_workspace)
+            view = core.create_view_snapshot(
+                scene,
+                requested_mode=str(payload.get("requested_mode", "SOURCE")),
+                requested_sync_mode=str(payload.get("requested_sync_mode", "OFF")),
+                registration_id=payload.get("registration_id"),
+                active_layers=list(payload.get("active_layers") or ["ORIGINAL_SOURCE"]),
+                source_viewport=dict(payload.get("source_viewport") or {}),
+                technical_viewport=dict(payload.get("technical_viewport") or {}),
+                selected_object_id=payload.get("selected_object_id"),
+                selected_evidence_region_id=payload.get("selected_evidence_region_id"),
+            )
+        except KeyError:
+            return _error("WORKBENCH_VIEW_NOT_FOUND", "TASK_OR_SOURCE_NOT_FOUND", 404)
+        except (TypeError, ValueError) as exc:
+            return _error("WORKBENCH_VIEW_REJECTED", str(exc), 422)
+        except Exception:
+            return _error("WORKBENCH_VIEW_UNAVAILABLE", "VIEW_SNAPSHOT_FAILED", 503)
+        return _json(view)
+
+    @router.post("/api/workbench/working-edit/preview")
+    async def workbench_working_edit_preview(request: Request):
+        try:
+            payload = await request.json()
+        except Exception:
+            return _error("WORKING_EDIT_REJECTED", "INVALID_JSON", 400)
+        if not isinstance(payload, dict):
+            return _error("WORKING_EDIT_REJECTED", "JSON_OBJECT_REQUIRED", 400)
+        try:
+            scene = projection.build_scene(_task(payload), source_workspace)
+            edit = core.create_working_edit(
+                scene,
+                target_object_id=str(payload.get("target_object_id", "")),
+                property_name=str(payload.get("property_name", "")),
+                proposed_value=payload.get("proposed_value"),
+                author_session=str(payload.get("author_session", "")),
+                state=str(payload.get("state", "DRAFT")),
+            )
+        except KeyError:
+            return _error("WORKING_EDIT_NOT_FOUND", "TASK_OR_SOURCE_NOT_FOUND", 404)
+        except ValueError as exc:
+            return _error("WORKING_EDIT_REJECTED", str(exc), 422)
+        except Exception:
+            return _error("WORKING_EDIT_UNAVAILABLE", "WORKING_EDIT_PREVIEW_FAILED", 503)
+        return _json(edit)
+
+    @router.post("/api/workbench/reading-issue/preview")
+    async def workbench_reading_issue_preview(request: Request):
+        try:
+            payload = await request.json()
+        except Exception:
+            return _error("READING_ISSUE_REJECTED", "INVALID_JSON", 400)
+        if not isinstance(payload, dict):
+            return _error("READING_ISSUE_REJECTED", "JSON_OBJECT_REQUIRED", 400)
+        try:
+            scene = projection.build_scene(_task(payload), source_workspace)
+            issue = core.create_reading_issue(
+                scene,
+                question=str(payload.get("question", "")),
+                state=str(payload.get("state", "OPEN")),
+                anchor_object_id=payload.get("anchor_object_id"),
+                anchor_geometry=payload.get("anchor_geometry"),
+                evidence_link_ids=list(payload.get("evidence_link_ids") or []),
+            )
+        except KeyError:
+            return _error("READING_ISSUE_NOT_FOUND", "TASK_OR_SOURCE_NOT_FOUND", 404)
+        except (TypeError, ValueError) as exc:
+            return _error("READING_ISSUE_REJECTED", str(exc), 422)
+        except Exception:
+            return _error("READING_ISSUE_UNAVAILABLE", "READING_ISSUE_PREVIEW_FAILED", 503)
+        return _json(issue)
+
+    return router
