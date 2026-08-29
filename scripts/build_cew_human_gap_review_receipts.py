@@ -77,7 +77,7 @@ def _proposal_svg(row: dict[str, Any]) -> str:
 def _decision_card(row: dict[str, Any], index: int) -> str:
     gap = html.escape(row["gap_hypothesis_id"])
     tier = html.escape(row["review_tier"])
-    metrics = _metric_snapshot(row)
+    metrics = row["metric_snapshot"]
     return f"""
 <section class="decision-card" data-gap-id="{gap}">
   <h3>{index}. <code>{gap}</code></h3>
