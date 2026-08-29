@@ -36,10 +36,11 @@ def main() -> None:
     require("HVA_EXECUTION_AUTHORIZED = false" in docs["hva"], "HVA protocol must keep execution closed")
     require("document geometry != technical candidate != structural identity" in docs["projection"], "three-layer geometry/identity invariant missing")
 
-    # Reuse obligations.
+    # Reuse obligations. Validate semantics rather than one presentation label.
     for marker in ("F3", "OpenSeadragon", "DZI"):
         require(marker in docs["rendering"], f"source-viewer reuse marker missing: {marker}")
-    require("Dual Vector Agreement" in docs["projection"], "dual-vector reuse missing from projection model")
+    projection_lower = docs["projection"].lower()
+    require("dual-vector" in projection_lower and "pymupdf" in projection_lower and "docling" in projection_lower, "dual-vector reuse missing from projection model")
     require("F6" in docs["projection"], "F6 structural-scene reuse missing from projection model")
     require("Reuse" in docs["product"] or "reuse" in docs["product"].lower(), "reuse-first product boundary missing")
 
