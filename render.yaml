@@ -6,7 +6,23 @@ services:
     region: frankfurt
     branch: work/etw-platform-extension-program-v1
     autoDeployTrigger: off
-    buildCommand: pip install -r requirements.txt && python scripts/build_cew_runtime_render_cache.py && python scripts/build_cew_managed_f3_assets.py && python scripts/build_cew_document_geometry_artifacts.py
+    buildCommand: >-
+      pip install -r requirements.txt &&
+      python scripts/build_cew_runtime_render_cache.py &&
+      python scripts/build_cew_managed_f3_assets.py &&
+      python scripts/build_cew_document_geometry_artifacts.py &&
+      python scripts/build_cew_evidence_region_content_diagnostic.py &&
+      python scripts/build_cew_evidence_region_mapping_root_cause.py &&
+      python scripts/build_cew_raster_geometry_candidates.py &&
+      python scripts/build_cew_raster_geometry_quality.py &&
+      python scripts/build_cew_raster_geometry_consolidation.py &&
+      python scripts/build_cew_raster_geometry_topology.py &&
+      python scripts/build_cew_raster_support_continuity.py &&
+      python scripts/build_cew_raster_support_negative_controls.py &&
+      python scripts/build_cew_raster_bridge_review_layer.py &&
+      python scripts/build_cew_raster_gap_review_view.py &&
+      CEW_REVIEW_HEAD_SHA=$RENDER_GIT_COMMIT python scripts/build_cew_human_gap_review_receipts.py &&
+      CEW_REVIEW_HEAD_SHA=$RENDER_GIT_COMMIT python scripts/validate_cew_human_gap_review_receipts.py
     startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /readyz
     envVars:
