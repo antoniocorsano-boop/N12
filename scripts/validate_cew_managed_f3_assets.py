@@ -5,6 +5,8 @@ import json
 import tempfile
 from pathlib import Path
 
+import fitz
+
 import build_cew_managed_f3_assets as builder
 import cew_managed_f3_assets as runtime_assets
 
@@ -28,7 +30,7 @@ def main() -> None:
     assert plan["tile_overlap"] == 1
     assert plan["tile_format"] == "jpg"
     assert plan["jpeg_quality"] == 90
-    assert plan["dzi_engine"] == "PYVIPS_BINARY"
+    assert plan["dzi_engine"] == "PYMUPDF_BOUNDED_DZI"
     assert plan["openseadragon_version"] == "5.0.1"
     assert plan["canonical_write_authorized"] is False
     assert {source["source_code"] for source in plan["sources"]} == {
@@ -45,28 +47,57 @@ def main() -> None:
     builder_text = (builder.ROOT / "scripts/build_cew_managed_f3_assets.py").read_text(encoding="utf-8")
     requirements_text = (builder.ROOT / "requirements.txt").read_text(encoding="utf-8")
     assert "render_cew_viewer_sources.py" in builder_text
-    assert "import pyvips" in builder_text and ".dzsave(" in builder_text
+    assert "import fitz" in builder_text
+    assert "display_list.get_pixmap" in builder_text
+    assert "fitz.Pixmap(" in builder_text
+    assert "jpg_quality=JPEG_QUALITY" in builder_text
+    assert "pyvips" not in builder_text.lower()
+    assert "dzsave" not in builder_text.lower()
     assert '_require_tool("vips")' not in builder_text
-    assert '"vips",\n            "dzsave"' not in builder_text
-    assert "pyvips==3.1.1" in requirements_text
-    assert "pyvips-binary==8.18.6" in requirements_text
+    assert "pyvips" not in requirements_text.lower()
+    assert "PyMuPDF==1.26.4" in requirements_text
     assert "build_cew_source_viewer.py" in builder_text
     assert "npm" in builder_text and "openseadragon@" in builder_text
     assert "shutil.rmtree(render_root / source[\"source_code\"]" in builder_text
 
-    # Prove that the pinned Python binary distribution itself exposes dzsave.
-    import pyvips
+    # Prove the bounded PyMuPDF DZI engine itself with a real multi-level pyramid.
+    with tempfile.TemporaryDirectory(prefix="cew-pymupdf-dzi-") as probe_temp:
+        probe_root = Path(probe_temp)
+        probe_pdf = probe_root / "probe.pdf"
+        probe_png = probe_root / "probe.png"
+        viewer = probe_root / "viewer"
+        (viewer / "tiles").mkdir(parents=True)
 
-    with tempfile.TemporaryDirectory(prefix="cew-pyvips-dzsave-") as dz_temp:
-        dz_base = Path(dz_temp) / "probe"
-        pyvips.Image.black(8, 8).dzsave(
-            str(dz_base),
-            tile_size=builder.TILE_SIZE,
-            overlap=builder.OVERLAP,
-            suffix=f".jpg[Q={builder.JPEG_QUALITY}]",
+        document = fitz.open()
+        page = document.new_page(width=144, height=288)
+        page.draw_rect(fitz.Rect(10, 10, 134, 278), color=(0, 0, 0), width=1)
+        page.insert_text((20, 40), "CEW DZI PROBE", fontsize=12)
+        document.save(probe_pdf)
+        document.close()
+
+        document = fitz.open(probe_pdf)
+        pix = document[0].get_pixmap(
+            matrix=fitz.Matrix(2, 2),
+            colorspace=fitz.csRGB,
+            alpha=False,
         )
-        assert dz_base.with_suffix(".dzi").is_file()
-        assert (Path(dz_temp) / "probe_files").is_dir()
+        pix.save(probe_png)
+        document.close()
+
+        builder._tile_one({"source_code": "PROBE"}, probe_pdf, probe_png, viewer)
+        descriptor = viewer / "tiles/PROBE.dzi"
+        tile_root = viewer / "tiles/PROBE_files"
+        assert descriptor.is_file()
+        descriptor_text = descriptor.read_text(encoding="utf-8")
+        assert 'TileSize="256"' in descriptor_text
+        assert 'Overlap="1"' in descriptor_text
+        assert 'Format="jpg"' in descriptor_text
+        assert 'Width="288"' in descriptor_text
+        assert 'Height="576"' in descriptor_text
+        assert tile_root.is_dir()
+        levels = sorted(path for path in tile_root.iterdir() if path.is_dir())
+        assert len(levels) >= 2
+        assert any(path.suffix == ".jpg" for path in tile_root.rglob("*.jpg"))
 
     with tempfile.TemporaryDirectory(prefix="cew-f3-guard-test-") as temp_name:
         root = Path(temp_name) / ".cew_professional_workbench_assets"
@@ -129,8 +160,8 @@ def main() -> None:
     print("DZI_TILE_SIZE = 256")
     print("DZI_OVERLAP = 1")
     print("DZI_JPEG_QUALITY = 90")
-    print("DZI_ENGINE = PYVIPS_BINARY")
-    print("PYVIPS_DZSAVE_CAPABILITY = PASS")
+    print("DZI_ENGINE = PYMUPDF_BOUNDED_DZI")
+    print("PYMUPDF_BOUNDED_DZI_CAPABILITY = PASS")
     print("OPENSEADRAGON = 5.0.1")
     print("STALE_ASSET_REVISION = REJECTED")
     print("DYNAMIC_RUNTIME_RASTERIZATION = false")
