@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "CEW_PWB005_R2HR_HUMAN_GAP_REVIEW_RECEIPT_SCHEMA_v1",
+  "title": "CEW PWB-005 R2HR Human Gap Review Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_type",
+    "candidate_head_sha",
+    "build_revision",
+    "evidence_region_id",
+    "source_code",
+    "source_version_id",
+    "source_sha256",
+    "page_id",
+    "transform_id",
+    "reviewer_label",
+    "reviewer_attestation",
+    "reviewed_at",
+    "decisions",
+    "receipt_authority",
+    "supported_continuity_hypothesis_is_geometry",
+    "human_review_is_bridge_acceptance",
+    "bridge_candidate_authorized",
+    "geometry_materialization_authorized",
+    "r2c_scene_adapter_authorized",
+    "technical_identity_authorized",
+    "structural_identity_authorized",
+    "canonical_write_authorized",
+    "engineering_authority_effect"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "receipt_type": {"const": "CEW_PWB005_R2HR_HUMAN_GAP_REVIEW_v1"},
+    "candidate_head_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "build_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "evidence_region_id": {"type": "string", "minLength": 1},
+    "source_code": {"type": "string", "minLength": 1},
+    "source_version_id": {"type": "string", "minLength": 1},
+    "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "page_id": {"type": "string", "minLength": 1},
+    "transform_id": {"type": "string", "minLength": 1},
+    "reviewer_label": {"type": "string", "minLength": 1, "maxLength": 200},
+    "reviewer_attestation": {"const": true},
+    "reviewed_at": {"type": "string", "format": "date-time"},
+    "decisions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "gap_hypothesis_id",
+          "review_tier",
+          "decision",
+          "rationale",
+          "candidate_ids",
+          "bridge_endpoints_normalized",
+          "metric_snapshot",
+          "decision_authority",
+          "decision_is_geometry_acceptance"
+        ],
+        "properties": {
+          "gap_hypothesis_id": {"type": "string", "pattern": "^RGH-[0-9a-f]{20}$"},
+          "review_tier": {
+            "enum": ["HIGH_CONTRAST_REVIEW", "STANDARD_REVIEW", "CONTROL_INCOMPLETE_REVIEW"]
+          },
+          "decision": {
+            "enum": [
+              "SUPPORTED_CONTINUITY_HYPOTHESIS",
+              "REJECTED_CONTINUITY_HYPOTHESIS",
+              "UNRESOLVED_FROM_CURRENT_VIEW"
+            ]
+          },
+          "rationale": {"type": "string", "minLength": 1, "maxLength": 4000},
+          "candidate_ids": {
+            "type": "array",
+            "minItems": 2,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "bridge_endpoints_normalized": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["a", "b"],
+            "properties": {
+              "a": {"$ref": "#/$defs/point"},
+              "b": {"$ref": "#/$defs/point"}
+            }
+          },
+          "metric_snapshot": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "projected_gap_norm",
+              "nearest_endpoint_distance_norm",
+              "r2s_cross_scale_min_support_fraction",
+              "r2s_cross_scale_min_longest_run_fraction",
+              "cross_scale_min_support_contrast",
+              "cross_scale_min_run_contrast"
+            ],
+            "properties": {
+              "projected_gap_norm": {"type": "number", "minimum": 0},
+              "nearest_endpoint_distance_norm": {"type": "number", "minimum": 0},
+              "r2s_cross_scale_min_support_fraction": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+              "r2s_cross_scale_min_longest_run_fraction": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+              "cross_scale_min_support_contrast": {"type": ["number", "null"], "minimum": -1, "maximum": 1},
+              "cross_scale_min_run_contrast": {"type": ["number", "null"], "minimum": -1, "maximum": 1}
+            }
+          },
+          "decision_authority": {"const": "HUMAN_REVIEW_EVIDENCE_ONLY"},
+          "decision_is_geometry_acceptance": {"const": false}
+        }
+      }
+    },
+    "receipt_authority": {"const": "HUMAN_REVIEW_EVIDENCE_ONLY"},
+    "supported_continuity_hypothesis_is_geometry": {"const": false},
+    "human_review_is_bridge_acceptance": {"const": false},
+    "bridge_candidate_authorized": {"const": false},
+    "geometry_materialization_authorized": {"const": false},
+    "r2c_scene_adapter_authorized": {"const": false},
+    "technical_identity_authorized": {"const": false},
+    "structural_identity_authorized": {"const": false},
+    "canonical_write_authorized": {"const": false},
+    "engineering_authority_effect": {"const": "NONE"}
+  },
+  "$defs": {
+    "point": {
+      "type": "array",
+      "prefixItems": [
+        {"type": "number", "minimum": 0, "maximum": 1},
+        {"type": "number", "minimum": 0, "maximum": 1}
+      ],
+      "minItems": 2,
+      "maxItems": 2
+    }
+  }
+}
