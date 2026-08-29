@@ -24,6 +24,7 @@ import cew_document_intake as document_intake
 import cew_document_map_page as document_map_page
 import cew_drawing_viewer as drawing_viewer
 import cew_f7_native_review_service as review_service
+import cew_professional_workbench_api as professional_workbench_api
 import cew_project_control_room as control_room
 import cew_project_home as project_home
 import cew_runtime_audit_store as audit_store
@@ -98,6 +99,11 @@ async def access_guard(request: Request, call_next):
     return await call_next(request)
 
 
+# Workbench APIs inherit the same runtime authentication middleware and expose
+# only derived/non-canonical scene, view and working-state operations.
+app.include_router(professional_workbench_api.build_router(source_workspace))
+
+
 @app.get("/healthz")
 def healthz():
     backend = audit_store.backend_status()
@@ -118,6 +124,9 @@ def healthz():
         "document_byte_storage": "NOT_CONFIGURED",
         "b1_acceptance_lab": "B18_IMPLEMENTED_CANDIDATE_HVA_PENDING",
         "b18_dual_workspace": "IMPLEMENTED_CANDIDATE_HVA_PENDING",
+        "professional_workbench_kernel": "FOUNDATION_IMPLEMENTED_INTEGRATION_PENDING",
+        "professional_workbench_readiness": "REWORK_REQUIRED",
+        "professional_workbench_hva_authorized": False,
         "source_workspace": "B1_AVAILABLE",
         "source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED",
         "canonical_write_authorized": False,
@@ -137,6 +146,9 @@ def readyz():
         "auth_configured": _auth_configured(),
         "audit_backend": backend,
         "persistent_audit_ready": backend in PRODUCTION_AUDIT_BACKENDS,
+        "professional_workbench_kernel": "FOUNDATION_IMPLEMENTED_INTEGRATION_PENDING",
+        "professional_workbench_readiness": "REWORK_REQUIRED",
+        "professional_workbench_hva_authorized": False,
         "canonical_write_authorized": False,
     }
     return JSONResponse(payload, status_code=200 if ready else 503, headers={"Cache-Control": "no-store"})
