@@ -1,0 +1,10 @@
+frame_id,level,node_id,node_label,station_m,segment_from_prev_m,total_chain_m,evidence_status,source_basis,status,notes
+T5,G4,8,S,0.00,,28.60,DOC,"telaio_5.csv + catena campate storica",LOCKED_1D,"stazione storica; non coincide automaticamente con filo fisso o baricentro"
+T5,G4,9,S',4.70,4.70,28.60,DOC,"telaio_5.csv + catena campate storica",LOCKED_1D,"stazione storica"
+T5,G4,10,T,8.75,4.05,28.60,DOC,"telaio_5.csv + catena campate storica",LOCKED_1D,"stazione storica"
+T5,G4,11,U,9.95,1.20,28.60,DOC,"telaio_5.csv + catena campate storica",LOCKED_1D,"stazione storica"
+T5,G4,12,V,15.75,5.80,28.60,DOC,"telaio_5.csv + catena campate storica",LOCKED_1D,"stazione storica"
+T5,G4,13,Z,18.65,2.90,28.60,DOC,"telaio_5.csv + catena campate storica",LOCKED_1D,"stazione storica"
+T5,G4,14,A',19.85,1.20,28.60,DOC,"telaio_5.csv + catena campate storica",LOCKED_1D,"stazione storica"
+T5,G4,15,B',23.90,4.05,28.60,DOC,"telaio_5.csv + catena campate storica",LOCKED_1D,"stazione storica"
+T5,G4,16,C',28.60,4.70,28.60,DOC,"telaio_5.csv + catena campate storica",LOCKED_1D,"stazione storica finale; hard gate"

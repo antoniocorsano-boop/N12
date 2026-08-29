@@ -1,0 +1,13 @@
+gate_id,check,status,evidence_status,notes
+RG-01,"TAV-04ARCH↔TAV-05S co-registration quality sufficient for local support/perimeter inspection",PASS,MIS,"46/66 inliers; RMSE 3.76 px; p95 6.37 px."
+RG-02,"Seven G3→G4 section-change supports identified and classified",PASS,DOC,"Six reductions: P10 P13 P15 P22 P26 P29; one reshape: P20 30x50→40x40."
+RG-03,"Architectural role classified for all seven section-change supports",PASS,MIS,"P10/P15/P29 facade; P13/P20/P22/P26 internal."
+RG-04,"Facade-rule fixed-line consequence applicable",PASS,RIF+MIS,"Applied to P10/P15/P29 under G-16."
+RG-05,"Facade footprint offsets",PASS,DOC+MIS+RIF,"P10/P15/P29 exterior face retained; 5 cm unilateral reduction toward interior; see g3_g4_facade_risega_offsets_v1.csv."
+RG-06,"Internal-support retained face inferred by analogy",FORBIDDEN,RIF,"P13/P20/P22/P26 require documentary/metric fixed-line evidence."
+RG-07,"Internal fixed-line qualification",PARTIAL,DOC+MIS,"P20 and P22 have qualified U components from continuous structural alignments; P13/P26 remain local-cross only; V for P20/P22 remains unqualified."
+RG-08,"P20 U-direction reshape geometry",PASS,DOC+MIS,"Relative to qualified U line: G3 dU_neg/dU_pos=30/0 cm; G4=20/20 cm. No single U face retained."
+RG-09,"P22 U-direction reduction geometry",PASS,DOC+MIS,"Relative to qualified U line: G3 dU_neg/dU_pos=30/20 cm; G4=30/15 cm. U_NEG retained; U_POS retreats 5 cm."
+RG-10,"P20 change type",PASS,DOC,"P20 G3=30x50 and G4=40x40: SECTION_RESHAPE, not reduction."
+RG-11,"Full 2D internal fixed-line coordinates",HOLD,DOC+MIS,"Still open: P13 U/V, P26 U/V, P20 V, P22 V. Component-wise U results may be used only where explicitly supported."
+RG-12,"ETABS/EdiLus offset propagation",HOLD,DOC+MIS,"Release global 2D offsets only after unresolved internal coordinates/physical attachments are closed or explicitly modeled as residual overrides."

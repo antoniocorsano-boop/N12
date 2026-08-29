@@ -1,0 +1,7 @@
+baseline_id,component,canonical_file,component_version,records,status,role,notes
+ETABS-T05-PLANAR-V1,JOINTS,data/canonical/tav05_etabs_joints_m0g_v1.csv,v1,34,READY,"support joints M0-G","un joint per support fixed line"
+ETABS-T05-PLANAR-V1,AUX_JOINTS,data/canonical/tav05_etabs_aux_joints_v1.csv,v1,1,READY,"beam-beam auxiliary joints","J05E only; not a support"
+ETABS-T05-PLANAR-V1,FRAMES,data/canonical/tav05_etabs_frames_m0g_v6.csv,v6,52,READY,"beam connectivity and section assignments","52/52 READY; no section residuals"
+ETABS-T05-PLANAR-V1,WIDE_SUPPORT_OFFSETS,data/canonical/tav05_etabs_wide_support_joint_offsets_v2.csv,v2,9,READY,"terminal joint offsets on P18/P23/P30","attachments on actual physical faces; supersedes v1 offsets"
+ETABS-T05-PLANAR-V1,P22P_ATTACHMENT,data/canonical/tav05_attachment_geometry_v2.csv,v2,1,READY,"P27-P22P physical attachment","preserve horizontal beam axis; fixed-line joint retained"
+ETABS-T05-PLANAR-V1,SECTION_OVERRIDES,data/canonical/tav05_etabs_section_overrides_v1.csv,v1,3,READY,"closed former section residuals","P04-P05 P22-P22P P19-P20 = 25x70 RIF"

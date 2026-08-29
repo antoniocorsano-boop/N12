@@ -1,0 +1,10 @@
+telaio_node,g4_support_id,g4_level,g3_level,vertical_alignment_status,evidence_status,confidence,source_basis,section_g4,section_g3,section_change_status,footprint_delta_status,notes
+S,P17,G4,G3,BOUND_BY_HISTORIC_FRAME,RIF+DOC,HIGH,"Telaio 5 storico multipiano + mapping G4 verificato",40x40,ND,PENDING_DOC,PENDING_DOC,"Stesso allineamento S fra G3 e G4; non implica stessa sezione o stesso baricentro."
+S',P18,G4,G3,BOUND_BY_HISTORIC_FRAME,RIF+DOC,HIGH,"Telaio 5 storico multipiano + mapping G4 verificato",30x110,ND,PENDING_DOC,PENDING_DOC,"Supporto largo; continuita' di filo distinta dal baricentro."
+T,P19,G4,G3,BOUND_BY_HISTORIC_FRAME,RIF+DOC,HIGH,"Telaio 5 storico multipiano + mapping G4 verificato",40x40,ND,PENDING_DOC,PENDING_DOC,"Identita' verticale del nodo storico chiusa; footprint G3 da TAV-04S."
+U,P20,G4,G3,BOUND_BY_HISTORIC_FRAME,RIF+DOC,HIGH,"Telaio 5 storico multipiano + mapping G4 verificato",40x40,ND,PENDING_DOC,PENDING_DOC,""
+V,P21,G4,G3,BOUND_BY_HISTORIC_FRAME,RIF+DOC,HIGH,"Telaio 5 storico multipiano + mapping G4 verificato",30x45,ND,PENDING_DOC,PENDING_DOC,""
+Z,P22,G4,G3,BOUND_BY_HISTORIC_FRAME,RIF+DOC,HIGH,"Telaio 5 storico multipiano + mapping G4 verificato",30x45,ND,PENDING_DOC,PENDING_DOC,""
+A',P22P,G4,G3,BOUND_BY_HISTORIC_FRAME,RIF+DOC,HIGH,"Telaio 5 storico multipiano + mapping G4 verificato",40x40,ND,PENDING_DOC,PENDING_DOC,"P22P resta distinto da P22 anche nel binding verticale; identificazione fisica G3 da verificare su TAV-04S."
+B',P23,G4,G3,BOUND_BY_HISTORIC_FRAME,RIF+DOC,HIGH,"Telaio 5 storico multipiano + mapping G4 verificato",30x110,ND,PENDING_DOC,PENDING_DOC,"Supporto largo; match verticale sul filo, non sul centro."
+C',P24,G4,G3,BOUND_BY_HISTORIC_FRAME,RIF+DOC,HIGH,"Telaio 5 storico multipiano + mapping G4 verificato",40x40,ND,PENDING_DOC,PENDING_DOC,""

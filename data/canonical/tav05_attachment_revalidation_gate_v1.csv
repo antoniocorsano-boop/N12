@@ -1,0 +1,4 @@
+attachment_group,reason,status,required_before_reactivation
+P19-P22,"attachment ricavati prima della classificazione della sezione della singola trave; possibile trave a spessore a larghezza variabile",REVALIDATE,"identificare sezione DOC della trave; individuare entrambi i bordi longitudinali; ricavare asse della banda; ricalcolare Patt"
+P18-P23-P30,"alcuni attacchi possono appartenere a travi a spessore o emergenti non ancora classificate individualmente",REVALIDATE_SELECTIVE,"associare a ciascuna trave la sezione documentata prima della conversione metrica/ETABS finale"
+P25-P27,"allineamento geometrico del filo verificato ma sezione trave non ancora associata individualmente",GEOMETRY_OK_SECTION_PENDING,"associare sezione della trave; conservare filo se confermato dai bordi"

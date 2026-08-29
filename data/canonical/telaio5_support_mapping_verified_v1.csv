@@ -1,0 +1,10 @@
+frame_id,frame_node,support_id,mapping_status,evidence_status,confidence,source_basis,notes
+T5,S,P17,VERIFIED,DOC+MIS,HIGH,"user-provided plan image with explicit S-S'-T-U-V-Z-A'-B'-C' path; TAV-05S topology/geometry","Letter S on documented Telaio 5 path corresponds by ordered shape to P17"
+T5,S',P18,VERIFIED,DOC+MIS,HIGH,"same","Wide support 30x110; mapping identity verified independently of local metric residual"
+T5,T,P19,VERIFIED,DOC+MIS,HIGH,"same","First short-segment end"
+T5,U,P20,VERIFIED,DOC+MIS,HIGH,"same","Second node of documented T-U short segment"
+T5,V,P21,VERIFIED,DOC+MIS,HIGH,"same","Documented change of direction U-V matches TAV-05S path"
+T5,Z,P22,VERIFIED,DOC+MIS,HIGH,"same","Start of second short segment"
+T5,A',P22P,VERIFIED,DOC+MIS,HIGH,"same","Distinct support 22 primo; identity confirmed by path position"
+T5,B',P23,VERIFIED,DOC+MIS,HIGH,"same","Wide support 30x110; mapping identity verified independently of local metric residual"
+T5,C',P24,VERIFIED,DOC+MIS,HIGH,"same","Terminal node of full 9-node G1-G4 path"

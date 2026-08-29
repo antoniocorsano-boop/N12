@@ -1,0 +1,6 @@
+region_id,tavola_id,u0,v0,u1,v1,purpose,status,notes
+L2-01,TAV-01S,4000,2400,4700,5300,right_upper_alignment,ACTIVE,"Allineamento verticale con nodi 1-2-3 e nodo inferiore di diramazione; lettura puntuale in corso"
+L2-02,TAV-01S,2250,4100,3350,5350,central_inclined_branch,ACTIVE,"Settore centrale con 19-20 e raccordo verso ramo inclinato; ritaglio da estendere verso destra per includere 12-13"
+L2-03,TAV-01S,650,4100,2500,6400,left_lower_nodes,ACTIVE,"Settore nodi 25-33; disambiguazione etichette marginali"
+L2-04,TAV-01S,2100,6200,4500,7800,bottom_chain,ACTIVE,"Catena inferiore e quote 6.45-4.65-2.00 / totale 13.60"
+L2-05,TAV-01S,400,2400,4700,3600,top_dimension_chain,ACTIVE,"Catena quote superiore e controllo totale 23.20"
