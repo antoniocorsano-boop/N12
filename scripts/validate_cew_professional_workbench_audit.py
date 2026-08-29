@@ -8,7 +8,9 @@ ROOT = Path(__file__).resolve().parents[1]
 MATRIX = ROOT / "automation/CEW_PROFESSIONAL_WORKBENCH_IMPLEMENTATION_MATRIX_v1.json"
 AUDIT = ROOT / "docs/AUDIT/CEW_PROFESSIONAL_EVIDENCE_WORKBENCH_AUDIT_v1.md"
 R1_FINDINGS = ROOT / "docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_PWB005_R1_FINDINGS_v1.md"
+R1A_FINDINGS = ROOT / "docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_PWB005_R1A_FINDINGS_v1.md"
 R1_PLAN = ROOT / "docs/PLAN/CEW_PWB005_R1_EVIDENCE_REGION_CONTENT_DIAGNOSTIC_PLAN_v1.md"
+R1A_PLAN = ROOT / "docs/PLAN/CEW_PWB005_R1A_REGION_MAPPING_ROOT_CAUSE_PLAN_v1.md"
 REUSE = ROOT / "docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_REUSE_MAP_v1.md"
 SCENE = ROOT / "automation/CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRACT_v1.json"
 HVA = ROOT / "automation/CEW_B18_DUAL_WORKSPACE_HVA_CONTRACT_v1.json"
@@ -24,6 +26,8 @@ GEOMETRY_VALIDATOR = ROOT / "scripts/validate_cew_document_geometry_artifacts.py
 GEOMETRY_ADAPTER = ROOT / "scripts/validate_cew_document_geometry_scene_adapter.py"
 R1_BUILDER = ROOT / "scripts/build_cew_evidence_region_content_diagnostic.py"
 R1_VALIDATOR = ROOT / "scripts/validate_cew_evidence_region_content_diagnostic.py"
+R1A_BUILDER = ROOT / "scripts/build_cew_evidence_region_mapping_root_cause.py"
+R1A_VALIDATOR = ROOT / "scripts/validate_cew_evidence_region_mapping_root_cause.py"
 F3_BUILDER = ROOT / "scripts/build_cew_managed_f3_assets.py"
 F3_RUNTIME = ROOT / "scripts/cew_managed_f3_assets.py"
 RUNTIME_SMOKE = ROOT / "scripts/validate_cew_professional_workbench_runtime_smoke.py"
@@ -50,8 +54,8 @@ def main() -> int:
     reqs = {row["id"]: row for row in matrix["requirements"]}
     blockers = matrix["blocking_requirement_ids"]
 
-    require(matrix["schema_version"] == "1.4", "matrix must be schema 1.4")
-    require(matrix["status"] == "VERIFIED_GAP_MATRIX_WITH_PWB005_R1_REAL_SOURCE_DIAGNOSTIC", "matrix status drift")
+    require(matrix["schema_version"] == "1.5", "matrix must be schema 1.5")
+    require(matrix["status"] == "VERIFIED_GAP_MATRIX_WITH_PWB005_R1A_RASTER_4_OF_4", "matrix status drift")
     require(matrix["professional_workbench_readiness"] == "REWORK_REQUIRED", "workbench must remain REWORK_REQUIRED")
     require(matrix["hva_execution_authorized"] is False, "HVA must remain blocked")
     require(matrix["b1_promotion_authorized"] is False, "B1 promotion must remain blocked")
@@ -64,18 +68,28 @@ def main() -> int:
 
     require(reqs["PWB-001"]["status"] == "IMPLEMENTED", "PWB-001 regression")
     require(reqs["PWB-002"]["status"] == "IMPLEMENTED", "PWB-002 regression")
-    require(reqs["PWB-005"]["status"] == "PARTIAL", "PWB-005 must be PARTIAL after R1")
+    require(reqs["PWB-005"]["status"] == "PARTIAL", "PWB-005 must remain PARTIAL")
     require("PWB-005" in blockers, "PWB-005 must remain a blocker")
     require(reqs["PWB-006"]["status"] == "AVAILABLE_NOT_INTEGRATED", "PWB-006 status drift")
     for rid in ("PWB-004", "PWB-010", "PWB-013"):
         require(reqs[rid]["status"] == "NOT_IMPLEMENTED", f"{rid} must remain NOT_IMPLEMENTED")
 
     finding = reqs["PWB-005"]["finding"]
-    require(finding["governed_regions"] == 4, "R1 region count drift")
+    expected_regions = {
+        "CEW-N12-REG-G01-R06",
+        "CEW-N12-REG-G05-R04",
+        "CEW-N12-REG-G07-R07",
+        "CEW-N12-REG-T6A-G03",
+    }
+    require(finding["governed_regions"] == 4, "R1 governed-region count drift")
     require(finding["dual_vector_comparable_regions"] == 0, "R1 vector-comparable count drift")
-    require(finding["published_document_primitives"] == 0, "R1 cannot claim published primitives")
-    require(set(finding["raster_regions"]) == {"CEW-N12-REG-G05-R04", "CEW-N12-REG-T6A-G03"}, "R1 raster set drift")
-    require(set(finding["region_mapping_error_regions"]) == {"CEW-N12-REG-G01-R06", "CEW-N12-REG-G07-R07"}, "R1 mapping-error set drift")
+    require(finding["published_document_primitives"] == 0, "R1 cannot claim document primitives")
+    require(set(finding["raster_regions"]) == expected_regions, "R1.1 raster set must be 4/4")
+    require(finding["region_mapping_error_regions"] == [], "R1A must clear false diagnostic mapping errors")
+    require(finding["r1a_root_cause"] == "FLOATING_POINT_CONTAINMENT_TOLERANCE", "R1A root cause drift")
+    require(finding["canonical_provenance_repair_required"] is False, "R1A must not require canonical repair")
+    require(finding["containment_method"] == "SOURCE_PAGE_EDGE_TOLERANCE", "R1.1 containment method drift")
+    require(finding["containment_tolerance_pt"] == 0.01, "R1.1 containment tolerance drift")
 
     audit = text(AUDIT)
     for marker in (
@@ -89,19 +103,32 @@ def main() -> int:
 
     r1 = text(R1_FINDINGS)
     for marker in (
-        "R1_COMPLETE_WITH_FINDINGS",
-        "RASTER = 2",
-        "REGION_MAPPING_ERROR = 2",
+        "R1_COMPLETE_VERIFIED_RASTER_4_OF_4",
+        "RASTER = 4",
+        "REGION_MAPPING_ERROR = 0",
         "VECTOR = 0",
+        "R1_RASTER_REGION_COVERAGE = 4/4",
         "PWB-005 = PARTIAL_BLOCKED",
         "HVA_EXECUTION_AUTHORIZED = false",
         "CANONICAL_WRITE_AUTHORIZED = false",
     ):
-        require(marker in r1, f"R1 finding marker missing: {marker}")
+        require(marker in r1, f"R1 final finding marker missing: {marker}")
 
-    r1_plan = text(R1_PLAN)
+    r1a = text(R1A_FINDINGS)
+    for marker in (
+        "R1A_COMPLETE_DIAGNOSTIC_DEFECT_ISOLATED",
+        "FLOATING_POINT_CONTAINMENT_TOLERANCE",
+        "0.0155378622",
+        "0.398352060467",
+        "PROVENANCE_REPAIR_AUTHORIZED = false",
+        "CANONICAL_WRITE_AUTHORIZED = false",
+    ):
+        require(marker in r1a, f"R1A finding marker missing: {marker}")
+
     for marker in ("VECTOR", "RASTER", "TEXT", "MIXED", "REGION_MAPPING_ERROR", "EMPTY", "No OCR is used in R1"):
-        require(marker in r1_plan, f"R1 plan marker missing: {marker}")
+        require(marker in text(R1_PLAN), f"R1 plan marker missing: {marker}")
+    for marker in ("FLOATING_POINT_CONTAINMENT_TOLERANCE", "0.01 pt", "DIAGNOSTIC != PROVENANCE_REPAIR"):
+        require(marker in text(R1A_PLAN), f"R1A plan marker missing: {marker}")
 
     scene = load(SCENE)
     require(scene["canonical_write_authorized"] is False, "scene authority drift")
@@ -126,8 +153,11 @@ def main() -> int:
     require("GOVERNED_EVIDENCE_REGION_WHERE_AVAILABLE" in text(GEOMETRY_BUILDER), "claim-scoped geometry build missing")
     require("UNMATCHED_GEOMETRY_PUBLICATION = FORBIDDEN" in text(GEOMETRY_VALIDATOR), "unmatched geometry guard missing")
     require("COMPARABLE_VECTOR_REGION_COUNT" in text(GEOMETRY_ADAPTER), "real-source vector diagnostic missing")
-    require("REGION_MAPPING_ERROR" in text(R1_BUILDER) and "DIAGNOSTIC_DPI = 150" in text(R1_BUILDER), "R1 implementation incomplete")
-    require("OCR_USED = false" in text(R1_VALIDATOR), "R1 OCR boundary missing")
+    require("REGION_EDGE_TOLERANCE_PT = 0.01" in text(R1_BUILDER), "R1.1 containment remediation missing")
+    require("SOURCE_PAGE_EDGE_TOLERANCE" in text(R1_BUILDER), "R1.1 containment method missing")
+    require("R1A_REMEDIATION = PASS" in text(R1_VALIDATOR), "R1.1 remediation validator missing")
+    require("FLOATING_POINT_CONTAINMENT_TOLERANCE" in text(R1A_BUILDER), "R1A diagnostic root-cause vocabulary missing")
+    require("PROVENANCE_REPAIR_AUTHORIZED = false" in text(R1A_VALIDATOR), "R1A provenance-repair guard missing")
 
     f3 = text(F3_BUILDER)
     for marker in ("DPI = 300", "TILE_SIZE = 256", "OVERLAP = 1", "JPEG_QUALITY = 90", 'OSD_VERSION = "5.0.1"'):
@@ -152,12 +182,13 @@ def main() -> int:
     missing = sorted(rid for rid, row in reqs.items() if row["status"] == "NOT_IMPLEMENTED")
 
     print("CEW_PROFESSIONAL_WORKBENCH_AUDIT_CONSISTENCY = PASS")
-    print("CEW_PROFESSIONAL_WORKBENCH_R1_RECONCILIATION = PASS")
+    print("CEW_PROFESSIONAL_WORKBENCH_R1A_RECONCILIATION = PASS")
     print("PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED")
     print("PWB005 = PARTIAL_BLOCKED")
     print("PWB005_VECTOR_COMPARABLE_REGIONS = 0/4")
-    print("PWB005_RASTER_REGIONS = 2")
-    print("PWB005_REGION_MAPPING_ERRORS = 2")
+    print("PWB005_RASTER_REGIONS = 4/4")
+    print("PWB005_REGION_MAPPING_ERRORS = 0")
+    print("R1A_PROVENANCE_REPAIR_REQUIRED = false")
     print("IMPLEMENTED = " + ",".join(implemented))
     print("PARTIAL = " + ",".join(partial))
     print("AVAILABLE_NOT_INTEGRATED = " + ",".join(available))
