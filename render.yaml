@@ -6,7 +6,7 @@ services:
     region: frankfurt
     branch: work/etw-platform-extension-program-v1
     autoDeployTrigger: off
-    buildCommand: pip install -r requirements.txt && python scripts/build_cew_runtime_render_cache.py
+    buildCommand: pip install -r requirements.txt && python scripts/build_cew_runtime_render_cache.py && python scripts/build_cew_managed_f3_assets.py
     startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /readyz
     envVars:
