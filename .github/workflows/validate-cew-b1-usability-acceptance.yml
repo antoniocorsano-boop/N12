@@ -18,9 +18,11 @@ on:
       - 'scripts/validate_cew_evidence_viewer_interaction.py'
       - 'scripts/validate_cew_b18_hva_hardening.py'
       - 'scripts/validate_cew_b18_dual_workspace.py'
+      - 'scripts/validate_cew_professional_workbench_audit.py'
       - 'scripts/validate_cew_b1_usability_acceptance.py'
       - 'automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json'
       - 'automation/CEW_B18_DUAL_WORKSPACE_HVA_CONTRACT_v1.json'
+      - 'automation/CEW_PROFESSIONAL_WORKBENCH_IMPLEMENTATION_MATRIX_v1.json'
       - 'automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json'
       - 'automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json'
       - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
@@ -30,6 +32,7 @@ on:
       - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
       - 'docs/ACCEPTANCE/CEW_B1_HUMAN_ACCEPTANCE_V2_PLAN.md'
       - 'docs/ACCEPTANCE/CEW_B18_DUAL_WORKSPACE_CONTRACT_v1.md'
+      - 'docs/AUDIT/CEW_PROFESSIONAL_EVIDENCE_WORKBENCH_AUDIT_v1.md'
       - '.github/workflows/validate-cew-b1-usability-acceptance.yml'
   workflow_dispatch:
 
@@ -56,6 +59,7 @@ jobs:
           python -m py_compile scripts/cew_b1_acceptance_lab.py
           python -m py_compile scripts/validate_cew_b18_hva_hardening.py
           python -m py_compile scripts/validate_cew_b18_dual_workspace.py
+          python -m py_compile scripts/validate_cew_professional_workbench_audit.py
           python -m py_compile scripts/validate_cew_b1_usability_acceptance.py
           python -m py_compile app.py
       - name: Install runtime dependencies
@@ -64,6 +68,8 @@ jobs:
         run: python scripts/validate_cew_b1_usability_acceptance.py
       - name: Validate provenance-backed dual workspace boundaries
         run: python scripts/validate_cew_b18_dual_workspace.py
+      - name: Validate professional workbench audit consistency
+        run: python scripts/validate_cew_professional_workbench_audit.py
       - name: Validate same-revision HVA hardening
         run: python scripts/validate_cew_b18_hva_hardening.py
       - name: Validate bounded raster generation policy
@@ -116,13 +122,15 @@ jobs:
           assert h['canonical_write_authorized'] is False
           print('CEW B1.8 HUMAN ACCEPTANCE + DUAL WORKSPACE ROUTES: PASS')
           PY
-      - name: Preserve human and promotion gates
+      - name: Preserve human professional-workbench and promotion gates
         run: |
-          echo 'Automated gate validates the B1.8 acceptance implementation only.'
+          echo 'Automated gate validates B1.8 runtime safety and audit consistency only.'
+          echo 'PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED'
+          echo 'HVA_EXECUTION_AUTHORIZED = false'
           echo 'DUAL_WORKSPACE_HVA = REQUIRED_NOT_SATISFIED'
           echo 'HVA_GATE = REQUIRED_NOT_SATISFIED'
           echo 'ACCESSIBILITY_GATE = REQUIRED_NOT_SATISFIED'
-          echo 'PRODUCTION_SMOKE = REQUIRED_AFTER_HVA_ON_ACCEPTED_REVISION'
+          echo 'PRODUCTION_SMOKE = BLOCKED_UNTIL_PROFESSIONAL_HVA_ACCEPTANCE'
           echo 'SLICE_COMPLETE = false'
           echo 'PRODUCTION_PROMOTION_AUTHORIZED = false'
           echo 'CANONICAL_WRITE_AUTHORIZED = false'
