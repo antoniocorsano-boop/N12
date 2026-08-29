@@ -113,7 +113,11 @@ def _structural_projection(
 
 
 def _document_geometry_projection(
-    *, source_version_id: str, source_sha256: str, page_index: int
+    *,
+    source_version_id: str,
+    source_sha256: str,
+    page_index: int,
+    evidence_region_id: str,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     state = document_geometry.status()
     if state["state"] != "READY":
@@ -123,11 +127,13 @@ def _document_geometry_projection(
             "agreement_outcome": None,
             "canonical_write_authorized": False,
         }
+    pdf_page_no = page_index + 1
     try:
         result = document_geometry.scene_objects(
             source_version_id=source_version_id,
             source_sha256=source_sha256,
-            page=page_index,
+            page=pdf_page_no,
+            evidence_region_id=evidence_region_id,
         )
     except ValueError as exc:
         return [], {
@@ -139,7 +145,10 @@ def _document_geometry_projection(
     return list(result.get("objects") or []), {
         "state": result["state"],
         "agreement_outcome": result.get("agreement_outcome"),
+        "evidence_region_id": evidence_region_id,
+        "pdf_page_no": pdf_page_no,
         "object_count": len(result.get("objects") or []),
+        "effective_match_ratio": result.get("effective_match_ratio"),
         "artifact_content_sha256": result.get("artifact_content_sha256"),
         "canonical_write_authorized": False,
     }
@@ -174,6 +183,7 @@ def build_scene(task_id: str, source_workspace=None) -> dict[str, Any]:
         source_version_id=source_version_id,
         source_sha256=source_sha256,
         page_index=page_index,
+        evidence_region_id=evidence_region_id,
     )
     objects: list[dict[str, Any]] = list(document_objects)
     evidence_links: list[dict[str, Any]] = []
@@ -197,8 +207,6 @@ def build_scene(task_id: str, source_workspace=None) -> dict[str, Any]:
         evidence_links.append(link)
         structural_state = "GOVERNED_BINDING_PROJECTED_READ_ONLY"
     elif task_id == "ERW-N12-004":
-        # Existing F6 contract: G5-B017 is candidate-comparison context only.
-        # T6A-G03 remains UNBOUND and selection must remain unauthorized.
         context = f6_erw.member_context(member_rows, node_rows, "G5-B017")
         obj, link = _structural_projection(
             context=context,
@@ -224,6 +232,7 @@ def build_scene(task_id: str, source_workspace=None) -> dict[str, Any]:
             "source_revision": source_revision,
             "page_id": page_id,
             "page_index": page_index,
+            "pdf_page_no": page_index + 1,
             "page_width_pt": float(page["source_width"]),
             "page_height_pt": float(page["source_height"]),
             "evidence_region_id": evidence_region_id,
