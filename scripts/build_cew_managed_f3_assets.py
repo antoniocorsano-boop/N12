@@ -26,6 +26,7 @@ DPI = 300
 TILE_SIZE = 256
 OVERLAP = 1
 JPEG_QUALITY = 90
+DZI_ENGINE = "PYVIPS_BINARY"
 
 
 def rows(path: Path) -> list[dict[str, str]]:
@@ -89,6 +90,7 @@ def build_plan() -> dict[str, Any]:
         "tile_overlap": OVERLAP,
         "tile_format": "jpg",
         "jpeg_quality": JPEG_QUALITY,
+        "dzi_engine": DZI_ENGINE,
         "openseadragon_version": OSD_VERSION,
         "sources": plan_sources,
         "authority": "READING_AID_ONLY",
@@ -160,23 +162,26 @@ def _render_one(source: dict[str, str], pdf: Path, render_root: Path) -> Path:
 
 
 def _tile_one(source: dict[str, str], png: Path, viewer_root: Path) -> None:
+    try:
+        import pyvips
+    except Exception as exc:
+        raise AssertionError(f"managed F3 pyvips binary runtime unavailable: {exc}") from exc
+
     base = viewer_root / "tiles" / source["source_code"]
-    _run(
-        [
-            "vips",
-            "dzsave",
-            str(png),
+    try:
+        image = pyvips.Image.new_from_file(str(png), access="sequential")
+        image.dzsave(
             str(base),
-            "--tile-size",
-            str(TILE_SIZE),
-            "--overlap",
-            str(OVERLAP),
-            "--suffix",
-            f".jpg[Q={JPEG_QUALITY}]",
-        ]
-    )
+            tile_size=TILE_SIZE,
+            overlap=OVERLAP,
+            suffix=f".jpg[Q={JPEG_QUALITY}]",
+        )
+    except Exception as exc:
+        raise AssertionError(f"managed F3 pyvips dzsave failed for {source['source_code']}: {exc}") from exc
+
     if not base.with_suffix(".dzi").exists():
         raise AssertionError(f"managed F3 DZI missing for {source['source_code']}")
+    print(f"CEW_MANAGED_F3_DZI_READY source={source['source_code']} engine={DZI_ENGINE}")
 
 
 def _install_osd(viewer_root: Path, temp_root: Path) -> dict[str, str]:
@@ -251,7 +256,6 @@ def _validate_built_viewer(plan: dict[str, Any], viewer_root: Path) -> None:
 
 def build_assets() -> dict[str, Any]:
     _require_tool("git")
-    _require_tool("vips")
     _require_tool("npm")
     plan = build_plan()
     _ensure_archive_commit(plan["archive_commit"])
@@ -305,6 +309,7 @@ def build_assets() -> dict[str, Any]:
     print("CEW_MANAGED_F3_ASSET_BUILD = PASS")
     print(f"BUILD_REVISION = {manifest['build_revision']}")
     print(f"SOURCES = {','.join(source['source_code'] for source in manifest['sources'])}")
+    print(f"DZI_ENGINE = {manifest['dzi_engine']}")
     print(f"FILE_COUNT = {count}")
     print(f"TOTAL_BYTES = {total_bytes}")
     print(f"ASSET_TREE_SHA256 = {tree_sha}")
@@ -323,6 +328,7 @@ def main() -> int:
         print(f"BUILD_REVISION = {plan['build_revision']}")
         print(f"ARCHIVE_COMMIT = {plan['archive_commit']}")
         print(f"SOURCES = {','.join(source['source_code'] for source in plan['sources'])}")
+        print(f"DZI_ENGINE = {plan['dzi_engine']}")
         print("CANONICAL_WRITE_AUTHORIZED = false")
         return 0
     build_assets()
