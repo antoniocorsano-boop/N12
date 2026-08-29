@@ -5,7 +5,7 @@ services:
     plan: free
     region: frankfurt
     branch: work/cew-b18-human-centred-acceptance-v2-render
-    autoDeployTrigger: checksPass
+    autoDeployTrigger: off
     buildCommand: >-
       pip install -r requirements.txt &&
       python scripts/build_cew_runtime_render_cache.py &&
@@ -28,7 +28,7 @@ services:
     healthCheckPath: /readyz
     envVars:
       - key: CEW_RUNTIME_ROLE
-        value: PROFESSIONAL_WORKBENCH_REVIEW_CANDIDATE
+        value: CANDIDATE_HVA
       - key: CEW_AUTH_DISABLED_FOR_TEST
         value: "0"
       - key: CEW_ACCESS_PASSWORD
