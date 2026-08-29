@@ -22,11 +22,10 @@ cew_runtime_render_budget.install()
 cew_evidence_viewer_interaction.install()
 cew_r2hr_system_review.install()
 
-# A managed candidate runtime must never start successfully without the R2HR
-# assets that are part of the same immutable deployed revision. This prevents a
-# misleading READY service that exposes the B1.8 shell while the professional
-# review surface is unavailable. Local/CI execution remains unaffected.
-if os.getenv("RENDER") or os.getenv("VERCEL"):
+# The real managed candidate runtime opts into a strict startup contract through
+# CEW_R2HR_STRICT_RUNTIME=1. Policy tests and local execution can still exercise
+# the generic Render fail-closed paths without first materializing R2HR assets.
+if (os.getenv("RENDER") or os.getenv("VERCEL")) and os.getenv("CEW_R2HR_STRICT_RUNTIME") == "1":
     _r2hr_status = cew_r2hr_system_review.status()
     if _r2hr_status.get("state") != "READY_IN_SYSTEM":
         raise RuntimeError(
