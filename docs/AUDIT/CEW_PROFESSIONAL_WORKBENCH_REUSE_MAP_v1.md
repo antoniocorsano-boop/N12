@@ -64,10 +64,12 @@ The repository already has a governed two-extractor geometry comparison pipeline
 - PyMuPDF;
 - Docling Parse;
 - page-dimension comparison;
-- vector/line/drawing counts;
-- text spans and coordinates;
-- agreement / disagreement / blocked states;
-- explicit audit-only/non-authority semantics.
+- segment geometry comparison;
+- intersection comparison;
+- coordinate-mapping checks;
+- `AGREE / PARTIAL / DISAGREE` outcomes;
+- explicit derived-review/non-authority semantics;
+- `canonical_mutation=false`.
 
 Neither extractor writes canonical engineering truth.
 
@@ -103,8 +105,8 @@ The previous ERW implementation already contains:
 - selectable/clickable member semantics;
 - source-evidence ↔ structural-member synchronization through a semantic event bus;
 - member highlighting and source evidence navigation;
-- read-only/frozen-input validation;
-- no canonical mutation.
+- explicit frozen-ledger topology/coordinate/section checks;
+- no canonical write, M0G reopen or epistemic promotion.
 
 ### Important boundary
 
@@ -154,9 +156,9 @@ These runtime, authority and HVA hardening mechanisms remain foundations. The vi
 | Selectable technical/structural objects | F6 clickable members | AVAILABLE_NOT_INTEGRATED | Generalize hit-testing/object model beyond governed members |
 | Semantic evidence↔member linking | F6 sync event bus | AVAILABLE_NOT_INTEGRATED | Preserve and generalize under explicit EvidenceLink |
 | Continuous source↔technical spatial registration | none verified | NOT_IMPLEMENTED | Define `RegistrationTransform` and validity state |
-| Synchronized pan/zoom | semantic sync only | NOT_IMPLEMENTED | Implement only when registration is valid |
+| Synchronized pan/zoom | semantic sync only | PARTIAL | Implement only when registration is valid |
 | Overlay comparison | F6 contract anticipates overlay; no current B1.8 implementation verified | NOT_IMPLEMENTED | Design registered overlay mode |
-| Layer manager | source/vector/structural capabilities exist separately | PARTIAL_FOUNDATIONS | Unify into typed layer model |
+| Layer manager | source/vector/structural capabilities exist separately | PARTIAL | Unify into typed layer model |
 | Object-anchored recognized-text editing | no verified reusable implementation | NOT_IMPLEMENTED | Define WorkingEdit bound to technical object |
 | Graphical ReadingIssue | states exist, graphical anchoring absent | NOT_IMPLEMENTED | Add ReadingIssue object + inspector |
 | Dedicated workbench client/state engine | no verified reusable implementation | NOT_IMPLEMENTED | Design typed client architecture |
@@ -187,7 +189,20 @@ all feeding:
 
 while promotion remains outside the client under existing CEW governance.
 
-## 8. Non-reuse / non-goals
+## 8. Verification boundary
+
+This reuse map attests **repository capability presence and contract/code consistency** on the current redesign line. It does not claim that every historical F3/F6 workflow has been freshly re-executed on the current B1.8 head.
+
+Therefore:
+
+- reusable code/contract present + not wired into B1.8 → `AVAILABLE_NOT_INTEGRATED`;
+- semantic precursor present but target spatial behavior absent → `PARTIAL`;
+- no verified implementation → `NOT_IMPLEMENTED`;
+- only current B1.8/runtime foundations proven by same-head CI may be called `IMPLEMENTED` for the active surface.
+
+A future integration tranche must add direct same-SHA tests for every reused component before promoting any `AVAILABLE_NOT_INTEGRATED` requirement to `IMPLEMENTED`.
+
+## 9. Non-reuse / non-goals
 
 Do not:
 
@@ -199,7 +214,7 @@ Do not:
 - treat an SVG projection as canonical engineering state;
 - let client edits write canonical registers directly.
 
-## 9. Result
+## 10. Result
 
 Repository verification materially reduces the redesign scope, but **does not clear professional readiness**.
 
