@@ -17,6 +17,7 @@ ALLOWED = {
     "REGION_MAPPING_ERROR",
     "EMPTY",
 }
+EXPECTED_EDGE_TOLERANCE_PT = 0.01
 
 
 def _sha256(path: Path) -> str:
@@ -41,11 +42,14 @@ def main() -> int:
         raise AssertionError("PWB005_R1_DIAGNOSTIC_MANIFEST_MISSING")
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
 
-    assert manifest["schema_version"] == "1.0"
+    assert manifest["schema_version"] == "1.1"
     assert manifest["diagnostic_contract"] == "CEW_PWB005_R1_EVIDENCE_REGION_CONTENT_DIAGNOSTIC_v1"
     assert manifest["source_coverage"] == "4/4"
     assert manifest["governed_region_count"] == 4
     assert set(manifest["classification_vocabulary"]) == ALLOWED
+    assert manifest["region_edge_tolerance_pt"] == EXPECTED_EDGE_TOLERANCE_PT
+    assert manifest["containment_method"] == "SOURCE_PAGE_EDGE_TOLERANCE"
+    assert manifest["r1a_remediation_basis"] == "FLOATING_POINT_CONTAINMENT_TOLERANCE"
     assert manifest["canonical_write_authorized"] is False
     assert manifest["engineering_authority_effect"] == "NONE"
     assert manifest["hva_execution_authorized"] is False
@@ -89,6 +93,8 @@ def main() -> int:
             assert row["page_registry"]["dimension_match"] is True
             assert row["region"]["normalized_valid"] is True
             assert row["region"]["clip_inside_page"] is True
+            assert row["region"]["containment_method"] == "SOURCE_PAGE_EDGE_TOLERANCE"
+            assert row["region"]["containment_tolerance_pt"] == EXPECTED_EDGE_TOLERANCE_PT
 
     counts = manifest["classification_counts"]
     assert set(counts) == ALLOWED
@@ -97,6 +103,8 @@ def main() -> int:
     print("CEW_PWB005_R1_CONTENT_DIAGNOSTIC = PASS")
     print("SOURCE_COVERAGE = 4/4")
     print("GOVERNED_REGION_COVERAGE = 4/4")
+    print("CONTAINMENT_METHOD = SOURCE_PAGE_EDGE_TOLERANCE")
+    print(f"REGION_EDGE_TOLERANCE_PT = {EXPECTED_EDGE_TOLERANCE_PT}")
     print("CLASSIFICATION_COUNTS = " + json.dumps(counts, sort_keys=True))
     for row in sorted(results, key=lambda item: item["evidence_region_id"]):
         print(
@@ -108,6 +116,7 @@ def main() -> int:
             "images=" + str(row["embedded_images"]["embedded_image_count"]),
             "ink_ratio=" + str(row["crop"]["ink_ratio"]),
         )
+    print("R1A_REMEDIATION = PASS")
     print("DIAGNOSTIC_AUTHORITY = NONE")
     print("OCR_USED = false")
     print("CANONICAL_WRITE_AUTHORIZED = false")
