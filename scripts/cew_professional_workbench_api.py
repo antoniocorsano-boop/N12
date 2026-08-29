@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import Any
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
+import cew_managed_f3_assets as managed_f3_assets
 import cew_professional_workbench_core as core
 import cew_professional_workbench_projection as projection
 
@@ -37,6 +39,27 @@ def _task(payload: dict[str, Any]) -> str:
     return task.strip()
 
 
+def _runtime_scene(task: str, source_workspace) -> dict[str, Any]:
+    scene = deepcopy(projection.build_scene(task, source_workspace))
+    assets = managed_f3_assets.status()
+    scene["capabilities"]["managed_f3_assets"] = assets["state"]
+    scene["capabilities"]["managed_runtime_dynamic_pdf_rasterization"] = False
+    scene["source"]["managed_f3_asset_state"] = assets["state"]
+    scene["source"]["managed_f3_dzi_url"] = None
+    if assets["state"] == "READY":
+        scene["source"]["managed_f3_dzi_url"] = (
+            "/workbench/assets/" + scene["source"]["f3_dzi_reference"]
+        )
+        scene["capabilities"]["source_multiresolution_assets"] = "READY_EXACT_REVISION"
+    else:
+        scene["capabilities"]["source_multiresolution_assets"] = "UNAVAILABLE_FAIL_CLOSED"
+        scene["source"]["managed_f3_asset_reason"] = assets.get("reason", "UNAVAILABLE")
+    # Runtime delivery metadata is not part of the scene-revision engineering/derived
+    # projection digest. It expresses deployment capability only.
+    core.validate_scene(scene)
+    return scene
+
+
 def build_router(source_workspace) -> APIRouter:
     router = APIRouter()
 
@@ -45,7 +68,7 @@ def build_router(source_workspace) -> APIRouter:
         if not task.strip():
             return _error("WORKBENCH_SCENE_REJECTED", "WORKBENCH_TASK_REQUIRED", 400)
         try:
-            scene = projection.build_scene(task.strip(), source_workspace)
+            scene = _runtime_scene(task.strip(), source_workspace)
         except KeyError:
             return _error("WORKBENCH_SCENE_NOT_FOUND", "TASK_OR_SOURCE_NOT_FOUND", 404)
         except ValueError as exc:
@@ -63,7 +86,7 @@ def build_router(source_workspace) -> APIRouter:
         if not isinstance(payload, dict):
             return _error("WORKBENCH_VIEW_REJECTED", "JSON_OBJECT_REQUIRED", 400)
         try:
-            scene = projection.build_scene(_task(payload), source_workspace)
+            scene = _runtime_scene(_task(payload), source_workspace)
             result = core.resolve_view_state(
                 scene,
                 requested_mode=str(payload.get("requested_mode", "SOURCE")),
@@ -87,7 +110,7 @@ def build_router(source_workspace) -> APIRouter:
         if not isinstance(payload, dict):
             return _error("WORKBENCH_VIEW_REJECTED", "JSON_OBJECT_REQUIRED", 400)
         try:
-            scene = projection.build_scene(_task(payload), source_workspace)
+            scene = _runtime_scene(_task(payload), source_workspace)
             view = core.create_view_snapshot(
                 scene,
                 requested_mode=str(payload.get("requested_mode", "SOURCE")),
@@ -116,7 +139,7 @@ def build_router(source_workspace) -> APIRouter:
         if not isinstance(payload, dict):
             return _error("WORKING_EDIT_REJECTED", "JSON_OBJECT_REQUIRED", 400)
         try:
-            scene = projection.build_scene(_task(payload), source_workspace)
+            scene = _runtime_scene(_task(payload), source_workspace)
             edit = core.create_working_edit(
                 scene,
                 target_object_id=str(payload.get("target_object_id", "")),
@@ -142,7 +165,7 @@ def build_router(source_workspace) -> APIRouter:
         if not isinstance(payload, dict):
             return _error("READING_ISSUE_REJECTED", "JSON_OBJECT_REQUIRED", 400)
         try:
-            scene = projection.build_scene(_task(payload), source_workspace)
+            scene = _runtime_scene(_task(payload), source_workspace)
             issue = core.create_reading_issue(
                 scene,
                 question=str(payload.get("question", "")),
