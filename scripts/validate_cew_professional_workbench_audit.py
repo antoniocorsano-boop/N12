@@ -52,7 +52,6 @@ def main() -> None:
         require(requirement_id in reqs, f"missing blocking requirement {requirement_id}")
         require(reqs[requirement_id]["status"] != "IMPLEMENTED", f"blocker {requirement_id} cannot be marked implemented without audit update")
 
-    # Audit decision must be explicit and fail closed.
     for marker in (
         "AUDIT_COMPLETE — REWORK_REQUIRED_BEFORE_HVA",
         "PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED",
@@ -63,20 +62,17 @@ def main() -> None:
     ):
         require(marker in audit, f"audit marker missing: {marker}")
 
-    # Verify strengths of the current B1.8 proof-of-concept.
     require("canonical_write_authorized" in dual and "False" in dual, "dual workspace canonical-write boundary missing")
     require("sessionStorage" in dual, "session-only proposal boundary missing")
     require("geometry != identity" in dual, "geometry/identity warning missing")
     require("evidenceViewport" in viewer, "interactive evidence viewport missing")
     require("zoomBy" in viewer and "pointermove" in viewer and "keydown" in viewer, "zoom/pan/keyboard interaction markers missing")
 
-    # Verify the current blocking architecture truthfully remains the POC audited above.
     require("<iframe" in dual, "matrix expects iframe-composed source panel; update matrix/audit if architecture changed")
     require("region-map" in dual and "region-box" in dual, "matrix expects documentary region placeholder; update matrix/audit if technical scene changed")
     require("<textarea id=\"proposalText\"" in dual, "matrix expects detached proposal textarea; update matrix/audit if object editing changed")
     require("html_text.replace" in viewer, "matrix expects string-replacement viewer enhancement; update matrix/audit if client architecture changed")
 
-    # Verify repository-wide reusable capabilities discovered after the initial audit.
     source_viewer = text(SOURCE_VIEWER)
     source_contract = text(SOURCE_VIEWER_CONTRACT)
     dual_vector = text(DUAL_VECTOR)
@@ -90,8 +86,9 @@ def main() -> None:
     require("300" in source_contract, "F3 300 dpi source-viewer contract marker missing")
     require("canonical" in source_contract.lower() and "false" in source_contract.lower(), "F3 read-only/canonical-write boundary missing")
 
-    require("AGREEMENT" in dual_vector and "DISAGREEMENT" in dual_vector, "dual-vector agreement states missing")
+    require(all(state in dual_vector for state in ("AGREE", "PARTIAL", "DISAGREE")), "dual-vector AGREE/PARTIAL/DISAGREE states missing")
     require("pymupdf" in dual_vector_contract.lower() and "docling" in dual_vector_contract.lower(), "dual-vector two-extractor contract missing")
+    require("canonical_mutation" in dual_vector and "False" in dual_vector, "dual-vector non-canonical evidence boundary missing")
 
     require("svg" in erw.lower(), "F6 ERW SVG structural scene missing")
     require("member" in erw.lower() and "node" in erw.lower(), "F6 ERW member/node scene markers missing")
@@ -116,7 +113,6 @@ def main() -> None:
     ):
         require(marker in reuse, f"reuse-map marker missing: {marker}")
 
-    # The current HVA still cannot claim the redesigned professional workflow is satisfied.
     require(hva["human_hva_state"] == "REQUIRED_NOT_SATISFIED", "human HVA must remain unsatisfied")
     require(hva["canonical_write_authorized"] is False, "HVA contract cannot authorize canonical writes")
     require(reqs["PWB-018"]["status"] == "PARTIAL", "professional HVA protocol must remain PARTIAL until redesigned")
