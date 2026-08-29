@@ -1,13 +1,21 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "matrix_id": "CEW_PROFESSIONAL_WORKBENCH_IMPLEMENTATION_MATRIX_v1",
   "audit_document": "docs/AUDIT/CEW_PROFESSIONAL_EVIDENCE_WORKBENCH_AUDIT_v1.md",
+  "reuse_map": "docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_REUSE_MAP_v1.md",
   "audited_candidate": "d510da26eef8293ed169c5d173962536a2a03b53",
-  "status": "VERIFIED_GAP_MATRIX",
+  "verification_basis_head": "14a23bce9bef6ce0ac7cc70dd72f248e49f16618",
+  "status": "VERIFIED_GAP_MATRIX_RECONCILED_WITH_REUSE",
   "professional_workbench_readiness": "REWORK_REQUIRED",
   "hva_execution_authorized": false,
   "b1_promotion_authorized": false,
   "canonical_write_authorized": false,
+  "status_vocabulary": [
+    "IMPLEMENTED",
+    "PARTIAL",
+    "AVAILABLE_NOT_INTEGRATED",
+    "NOT_IMPLEMENTED"
+  ],
   "requirements": [
     {
       "id": "PWB-001",
@@ -34,9 +42,11 @@
       "priority": "P0",
       "status": "PARTIAL",
       "evidence": [
-        "scripts/cew_evidence_viewer_interaction.py"
+        "scripts/cew_evidence_viewer_interaction.py",
+        "scripts/build_cew_source_viewer.py",
+        "automation/CEW_SOURCE_VIEWER_CONTRACT_v1.json"
       ],
-      "gap": "Implemented as an enhanced raster image viewport; not yet the final large-drawing professional viewport architecture."
+      "gap": "B1.8 provides keyboard/pointer interaction on a raster image. F3 already provides a stronger OpenSeadragon deep-zoom source viewer, but it is not integrated into the current workbench route."
     },
     {
       "id": "PWB-004",
@@ -52,19 +62,27 @@
       "id": "PWB-005",
       "name": "True technical vector representation from governed document geometry",
       "priority": "P0_BLOCKER",
-      "status": "NOT_IMPLEMENTED",
+      "status": "AVAILABLE_NOT_INTEGRATED",
       "evidence": [
-        "scripts/cew_b1_dual_workspace.py"
+        ".github/workflows/dual-vector-agreement.yml",
+        "scripts/extract_vector_geometry.py",
+        "scripts/cew_docling_parse_vector_adapter.py",
+        "scripts/cew_dual_vector_agreement.py",
+        "automation/CEW_DUAL_VECTOR_AGREEMENT_CONTRACT_v1.json",
+        "scripts/build_cew_erw_synced_workspace.py"
       ],
-      "gap": "Current technical panel renders documentary EvidenceRegion position and registry metadata only; it is not a technical drawing."
+      "gap": "Governed vector extraction and an SVG structural scene exist as separate CEW capabilities, but B1.8 does not yet normalize them into one provenance-backed technical projection scene."
     },
     {
       "id": "PWB-006",
       "name": "Selectable technical objects and hit testing",
       "priority": "P0_BLOCKER",
-      "status": "NOT_IMPLEMENTED",
-      "evidence": [],
-      "gap": "No technical scene/object model exists in the current workbench."
+      "status": "AVAILABLE_NOT_INTEGRATED",
+      "evidence": [
+        "scripts/build_cew_erw_synced_workspace.py",
+        "scripts/validate_cew_erw_synced_workspace.py"
+      ],
+      "gap": "F6 ERW contains clickable/selectable SVG structural members and semantic highlighting, but the current B1.8 workbench does not integrate or generalize this scene/object model."
     },
     {
       "id": "PWB-007",
@@ -81,32 +99,43 @@
       "name": "Provenance-backed source-to-technical registration transform",
       "priority": "P0_BLOCKER",
       "status": "NOT_IMPLEMENTED",
-      "evidence": [],
-      "gap": "No explicit SourceCoordinates to TechnicalCoordinates transform exists."
+      "evidence": [
+        "automation/CEW_ERW_CONTRACT_v1.json",
+        "scripts/build_cew_erw_synced_workspace.py"
+      ],
+      "gap": "F6 provides semantic evidence↔member synchronization, not a verified continuous SourceCoordinates↔TechnicalCoordinates registration transform."
     },
     {
       "id": "PWB-009",
       "name": "Synchronized split navigation guarded by valid registration",
       "priority": "P0_BLOCKER",
-      "status": "NOT_IMPLEMENTED",
-      "evidence": [],
-      "gap": "Current source iframe and technical panel are not spatially synchronized."
+      "status": "PARTIAL",
+      "evidence": [
+        "scripts/build_cew_erw_synced_workspace.py",
+        "automation/CEW_ERW_CONTRACT_v1.json"
+      ],
+      "gap": "F6 already synchronizes source evidence and structural members semantically by governed identity. Spatial pan/zoom synchronization remains blocked until an explicit registration transform exists."
     },
     {
       "id": "PWB-010",
       "name": "Overlay comparison mode with opacity/alignment controls",
       "priority": "P0_BLOCKER",
       "status": "NOT_IMPLEMENTED",
-      "evidence": [],
-      "gap": "No overlay viewport exists."
+      "evidence": [
+        "automation/CEW_ERW_CONTRACT_v1.json"
+      ],
+      "gap": "Overlay is anticipated by the ERW contract, but no current B1.8 registered overlay implementation with alignment/opacity controls is verified."
     },
     {
       "id": "PWB-011",
       "name": "Layer-capable technical scene",
       "priority": "P1",
-      "status": "NOT_IMPLEMENTED",
-      "evidence": [],
-      "gap": "No source/linework/text/dimensions/candidates/issues/validated layer model exists."
+      "status": "PARTIAL",
+      "evidence": [
+        "scripts/cew_dual_vector_agreement.py",
+        "scripts/build_cew_erw_synced_workspace.py"
+      ],
+      "gap": "Document/vector and structural SVG capabilities exist separately; a unified typed layer model for source/linework/text/dimensions/candidates/issues/validated objects is not implemented."
     },
     {
       "id": "PWB-012",
@@ -132,12 +161,13 @@
       "id": "PWB-014",
       "name": "Multiresolution or tiled large-drawing rendering architecture",
       "priority": "P1",
-      "status": "NOT_IMPLEMENTED",
+      "status": "AVAILABLE_NOT_INTEGRATED",
       "evidence": [
-        "scripts/cew_runtime_render_cache.py",
-        "scripts/cew_evidence_viewer_interaction.py"
+        "scripts/build_cew_source_viewer.py",
+        "automation/CEW_SOURCE_VIEWER_CONTRACT_v1.json",
+        ".github/workflows/validate-cew-erw-synced-workspace.yml"
       ],
-      "gap": "Build-time PNG cache prevents runtime raster crashes but the client still zooms a single raster image."
+      "gap": "F3 already implements OpenSeadragon + DZI/libvips deep zoom at 300 dpi. The live B1.8 workbench still embeds a single-raster Evidence Workspace rather than reusing F3."
     },
     {
       "id": "PWB-015",
@@ -146,9 +176,10 @@
       "status": "NOT_IMPLEMENTED",
       "evidence": [
         "scripts/cew_b1_dual_workspace.py",
-        "scripts/cew_evidence_viewer_interaction.py"
+        "scripts/cew_evidence_viewer_interaction.py",
+        "scripts/build_cew_erw_synced_workspace.py"
       ],
-      "gap": "Current surface uses monolithic Python HTML, iframe composition and string-replacement enhancement."
+      "gap": "Reusable components exist, but the current user-facing surfaces remain generated HTML/iframes/scripts rather than one typed stateful client suitable for registered multi-viewport interaction."
     },
     {
       "id": "PWB-016",
@@ -156,9 +187,10 @@
       "priority": "P1",
       "status": "PARTIAL",
       "evidence": [
-        "scripts/cew_b1_dual_workspace.py"
+        "scripts/cew_b1_dual_workspace.py",
+        "scripts/build_cew_erw_synced_workspace.py"
       ],
-      "gap": "Responsive collapse exists, but there is no explicit device-mode interaction design."
+      "gap": "Responsive/collapsible layouts exist, but there is no explicit device-mode interaction architecture for professional editing versus review."
     },
     {
       "id": "PWB-017",
@@ -166,7 +198,7 @@
       "priority": "P2",
       "status": "NOT_IMPLEMENTED",
       "evidence": [],
-      "gap": "No reusable view object stores position, zoom, layer visibility, annotations or selected evidence."
+      "gap": "No reusable workbench View object stores position, zoom, layer visibility, annotations or selected evidence."
     },
     {
       "id": "PWB-018",
