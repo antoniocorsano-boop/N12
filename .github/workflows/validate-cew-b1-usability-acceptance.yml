@@ -5,6 +5,7 @@ on:
     paths:
       - 'app.py'
       - 'render.yaml'
+      - 'requirements.txt'
       - 'scripts/cew_b1_acceptance_lab.py'
       - 'scripts/cew_b1_human_acceptance_v2.py'
       - 'scripts/cew_b1_human_acceptance_v2_hardening.py'
@@ -13,6 +14,9 @@ on:
       - 'scripts/cew_runtime_render_budget.py'
       - 'scripts/cew_runtime_render_cache.py'
       - 'scripts/build_cew_runtime_render_cache.py'
+      - 'scripts/build_cew_managed_f3_assets.py'
+      - 'scripts/cew_managed_f3_assets.py'
+      - 'scripts/validate_cew_managed_f3_assets.py'
       - 'scripts/cew_professional_workbench_core.py'
       - 'scripts/cew_professional_workbench_projection.py'
       - 'scripts/cew_professional_workbench_api.py'
@@ -20,6 +24,9 @@ on:
       - 'scripts/validate_cew_runtime_render_budget.py'
       - 'scripts/validate_cew_runtime_render_cache.py'
       - 'scripts/validate_cew_evidence_viewer_interaction.py'
+      - 'scripts/render_cew_viewer_sources.py'
+      - 'scripts/build_cew_source_viewer.py'
+      - 'scripts/cew_b1_acceptance_lab.py'
       - 'scripts/validate_cew_b18_hva_hardening.py'
       - 'scripts/validate_cew_b18_dual_workspace.py'
       - 'scripts/validate_cew_professional_workbench_audit.py'
@@ -29,6 +36,7 @@ on:
       - 'automation/CEW_B18_DUAL_WORKSPACE_HVA_CONTRACT_v1.json'
       - 'automation/CEW_PROFESSIONAL_WORKBENCH_IMPLEMENTATION_MATRIX_v1.json'
       - 'automation/CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRACT_v1.json'
+      - 'automation/CEW_SOURCE_VIEWER_CONTRACT_v1.json'
       - 'automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json'
       - 'automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json'
       - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
@@ -36,6 +44,7 @@ on:
       - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
       - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
       - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv'
       - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
       - 'data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv'
       - 'docs/ACCEPTANCE/CEW_B1_HUMAN_ACCEPTANCE_V2_PLAN.md'
@@ -68,6 +77,9 @@ jobs:
           python -m py_compile scripts/cew_runtime_render_budget.py
           python -m py_compile scripts/cew_runtime_render_cache.py
           python -m py_compile scripts/build_cew_runtime_render_cache.py
+          python -m py_compile scripts/build_cew_managed_f3_assets.py
+          python -m py_compile scripts/cew_managed_f3_assets.py
+          python -m py_compile scripts/validate_cew_managed_f3_assets.py
           python -m py_compile scripts/cew_professional_workbench_core.py
           python -m py_compile scripts/cew_professional_workbench_projection.py
           python -m py_compile scripts/cew_professional_workbench_api.py
@@ -94,6 +106,10 @@ jobs:
         run: python scripts/validate_cew_professional_workbench_design.py
       - name: Validate professional workbench kernel foundation
         run: python scripts/validate_cew_professional_workbench_core.py
+      - name: Validate managed F3 build plan and runtime guards
+        run: |
+          python scripts/build_cew_managed_f3_assets.py --validate-plan-only
+          python scripts/validate_cew_managed_f3_assets.py
       - name: Validate same-revision HVA hardening
         run: python scripts/validate_cew_b18_hva_hardening.py
       - name: Validate bounded raster generation policy
@@ -104,7 +120,7 @@ jobs:
         run: python scripts/validate_cew_runtime_render_cache.py
       - name: Validate evidence zoom pan and inspection controls
         run: python scripts/validate_cew_evidence_viewer_interaction.py
-      - name: Route, API and health smoke
+      - name: Route, API, managed-F3 and health smoke
         env:
           CEW_AUTH_DISABLED_FOR_TEST: '1'
           CEW_AUDIT_BACKEND_MODE: 'LOCAL_TEST_ONLY'
@@ -112,13 +128,14 @@ jobs:
           RENDER_EXTERNAL_URL: 'https://cew-hva.example.invalid'
         run: |
           python - <<'PY'
-          import asyncio
           import json
           import app
           routes={r.path for r in app.app.routes}
           required={
               '/acceptance/b1',
               '/evidence/dual-workspace',
+              '/api/workbench/assets/status',
+              '/workbench/assets/{asset_path:path}',
               '/api/workbench/scene',
               '/api/workbench/view/resolve',
               '/api/workbench/view/snapshot',
@@ -162,9 +179,20 @@ jobs:
           assert scene['authority']['engineering_authority_effect']=='NONE'
           assert scene['registrations'][0]['state']=='UNAVAILABLE'
           assert scene['capabilities']['overlay_available'] is False
+          assert scene['capabilities']['managed_runtime_dynamic_pdf_rasterization'] is False
+          assert scene['capabilities']['managed_f3_assets']=='UNAVAILABLE'
+          assert scene['capabilities']['source_multiresolution_assets']=='UNAVAILABLE_FAIL_CLOSED'
+          assert scene['source']['managed_f3_dzi_url'] is None
           assert scene['objects'][0]['governed_source_member_id']=='G5-B017'
           assert scene['objects'][0]['binding_state']=='UNBOUND'
           assert scene['objects'][0]['selection_authorized'] is False
+
+          assets_route=next(r for r in app.app.routes if r.path=='/api/workbench/assets/status')
+          assets_response=assets_route.endpoint()
+          assets=json.loads(assets_response.body)
+          assert assets['state']=='UNAVAILABLE'
+          assert assets['canonical_write_authorized'] is False
+          assert assets['dynamic_pdf_rasterization'] is False
 
           h=app.healthz()
           assert h['b1_acceptance_lab']=='B18_IMPLEMENTED_CANDIDATE_HVA_PENDING'
@@ -173,14 +201,15 @@ jobs:
           assert h['professional_workbench_readiness']=='REWORK_REQUIRED'
           assert h['professional_workbench_hva_authorized'] is False
           assert h['canonical_write_authorized'] is False
-          print('CEW B1.8 HUMAN ACCEPTANCE + PROFESSIONAL WORKBENCH API ROUTES: PASS')
+          print('CEW B1.8 HUMAN ACCEPTANCE + PROFESSIONAL WORKBENCH + MANAGED F3 ROUTES: PASS')
           PY
       - name: Preserve human professional-workbench and promotion gates
         run: |
-          echo 'Automated gate validates B1.8 runtime safety, audit consistency, design-package coherence, fail-closed workbench kernel and non-canonical API wiring.'
+          echo 'Automated gate validates B1.8 runtime safety, audit consistency, design-package coherence, fail-closed workbench kernel, non-canonical API wiring and the managed-F3 build/runtime contract.'
           echo 'PROFESSIONAL_WORKBENCH_DESIGN_PACKAGE = VERSIONED'
           echo 'PROFESSIONAL_WORKBENCH_KERNEL = FOUNDATION_IMPLEMENTED'
           echo 'PROFESSIONAL_WORKBENCH_API = NON_CANONICAL_FOUNDATION_WIRED'
+          echo 'MANAGED_F3_ASSET_PIPELINE = CONTRACT_VALIDATED_BUILD_ON_DEPLOY'
           echo 'PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED'
           echo 'HVA_EXECUTION_AUTHORIZED = false'
           echo 'DUAL_WORKSPACE_HVA = REQUIRED_NOT_SATISFIED'
