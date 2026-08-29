@@ -10,6 +10,7 @@ from fastapi.responses import FileResponse, JSONResponse
 
 import cew_managed_f3_assets as managed_f3_assets
 import cew_professional_workbench_core as core
+import cew_professional_workbench_document_geometry as document_geometry
 import cew_professional_workbench_projection as projection
 
 
@@ -43,9 +44,13 @@ def _task(payload: dict[str, Any]) -> str:
 def _runtime_scene(task: str, source_workspace) -> dict[str, Any]:
     scene = deepcopy(projection.build_scene(task, source_workspace))
     assets = managed_f3_assets.status()
+    geometry = document_geometry.status()
     scene["capabilities"]["managed_f3_assets"] = assets["state"]
+    scene["capabilities"]["managed_document_geometry"] = geometry["state"]
     scene["capabilities"]["managed_runtime_dynamic_pdf_rasterization"] = False
+    scene["capabilities"]["runtime_docling_required"] = False
     scene["source"]["managed_f3_asset_state"] = assets["state"]
+    scene["source"]["managed_document_geometry_state"] = geometry["state"]
     scene["source"]["managed_f3_dzi_url"] = None
     if assets["state"] == "READY":
         scene["source"]["managed_f3_dzi_url"] = (
@@ -55,6 +60,8 @@ def _runtime_scene(task: str, source_workspace) -> dict[str, Any]:
     else:
         scene["capabilities"]["source_multiresolution_assets"] = "UNAVAILABLE_FAIL_CLOSED"
         scene["source"]["managed_f3_asset_reason"] = assets.get("reason", "UNAVAILABLE")
+    if geometry["state"] != "READY":
+        scene["source"]["managed_document_geometry_reason"] = geometry.get("reason", "UNAVAILABLE")
     # Runtime delivery metadata is not part of the scene-revision projection digest.
     core.validate_scene(scene)
     return scene
@@ -79,6 +86,10 @@ def build_router(source_workspace) -> APIRouter:
     @router.get("/api/workbench/assets/status")
     def workbench_asset_status():
         return _json(managed_f3_assets.status())
+
+    @router.get("/api/workbench/document-geometry/status")
+    def workbench_document_geometry_status():
+        return _json(document_geometry.status())
 
     @router.get("/workbench/assets/{asset_path:path}")
     def workbench_asset(asset_path: str):
