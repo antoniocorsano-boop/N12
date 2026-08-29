@@ -106,13 +106,13 @@ A professional technical drawing can therefore be rich and useful before structu
 | Source Panel | PARTIAL | Source is visible, but viewer is not yet a full professional drawing viewport |
 | Technical Panel | BLOCKING | Current page-region map is not a technical drawing |
 | Spatial comparison | BLOCKING | No governed source↔technical registration/synchronization |
-| Technical object selection | BLOCKING | No selectable vector technical objects |
+| Technical object selection | BLOCKING | No selectable vector technical objects in the B1.8 surface |
 | In-place technical editing | BLOCKING | Proposal text is detached from drawing objects |
 | Reading-issue resolution | BLOCKING | Uncertainty is not anchored to graphical technical objects |
-| Overlay / comparison modes | MISSING | No professional overlay workflow |
-| Layer control | MISSING | No layer manager for source/recognition/candidates/issues/validated data |
+| Overlay / comparison modes | MISSING | No professional registered overlay workflow in B1.8 |
+| Layer control | MISSING | No unified layer manager for source/recognition/candidates/issues/validated data |
 | Saved views | MISSING | View state is not a reusable engineering work object |
-| Performance architecture | PARTIAL | Build-time raster cache solves runtime crashes but not final large-drawing navigation |
+| Performance architecture | PARTIAL | B1.8 build-time raster cache solves runtime crashes but does not use the existing F3 deep-zoom stack |
 | Front-end architecture | CRITICAL | Python HTML templates + iframe + string-replacement enhancement are unsuitable for the target interaction complexity |
 | Keyboard accessibility | PARTIAL | Existing zoom/pan keyboard support is useful and should be retained |
 | Mobile strategy | MISALIGNED | Full dual-pane engineering editing should be desktop-first, not forced into narrow mobile parity |
@@ -148,9 +148,11 @@ The source viewport should support:
 
 ### Rendering architecture finding
 
-The current CSS-transform raster viewer is adequate for a governed prototype but not the final architecture for very large drawings. The target should use multiresolution/tiled delivery or an equivalent progressive source renderer so that zoom does not depend on one complete large raster.
+The current B1.8 CSS-transform raster viewer is adequate for a governed prototype but is not the final architecture for very large drawings.
 
-The deterministic build-time render cache remains valuable as fallback/test infrastructure.
+Repository-wide verification performed after the first audit pass found that **CEW F3 already contains the stronger source-viewer foundation**: OpenSeadragon 5.0.1, DZI multiresolution pyramids, libvips tile generation, 300 dpi source rendering, navigator/deep links and read-only source authority. Therefore this requirement is now classified as **`AVAILABLE_NOT_INTEGRATED`**, not as a green-field missing capability.
+
+The deterministic B1.8 build-time render cache remains valuable as fallback/test infrastructure.
 
 ## 7. Technical viewport requirements
 
@@ -183,6 +185,17 @@ A visible `2 Φ12` should be an object with, conceptually:
 
 Editing changes the working representation, not the source or canonical engineering state.
 
+### Repository reuse correction
+
+The repository already contains two relevant foundations that were not integrated into the B1.8 surface:
+
+1. **Dual Vector Agreement** — PyMuPDF + Docling Parse extraction/comparison with explicit derived-review/non-canonical semantics;
+2. **F6 ERW synchronized workspace** — SVG structural scene built from frozen M0G member/node ledgers, selectable members and semantic source-evidence↔member synchronization.
+
+Accordingly, vector extraction and selectable scene primitives are **`AVAILABLE_NOT_INTEGRATED`**. The missing work is their normalization and integration into one provenance-backed Workbench scene, not their reinvention.
+
+Detailed reuse mapping is governed by `docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_REUSE_MAP_v1.md`.
+
 ## 8. Source ↔ technical spatial registration
 
 The workbench requires an explicit governed transformation:
@@ -197,6 +210,10 @@ When a verified registration exists, the user may enable synchronized views:
 - switch between split and overlay without losing location.
 
 When registration is absent or uncertain, synchronization must be unavailable or explicitly degraded. Visual coincidence is never sufficient.
+
+### Repository reuse correction
+
+F6 already provides **semantic synchronization** by governed member/evidence identity. This is reusable and valuable, but it is not the same as a continuous spatial registration transform. The audit therefore classifies synchronized navigation as `PARTIAL` and keeps `RegistrationTransform` itself `NOT_IMPLEMENTED`.
 
 ## 9. Layer model
 
@@ -216,6 +233,8 @@ Target conceptual layers:
 - Validated/promoted objects.
 
 Layer visibility is a view preference, not an authority mutation.
+
+Existing vector extraction and F6 structural SVG provide partial layer foundations, but no unified typed layer model exists yet.
 
 ## 10. Reading-issue workflow
 
@@ -259,23 +278,25 @@ Level 3 must be reachable quickly but must not occupy the normal drawing work su
 
 ## 12. Front-end architecture finding
 
-The existing implementation uses:
+The existing B1.8 implementation uses:
 
 - Python-generated monolithic HTML;
 - iframe composition for the source surface;
 - post-generation HTML enhancement through string replacement for viewer interaction.
 
+The older F3/F6 components add reusable technical capability but remain generated viewer/workspace surfaces rather than a single maintainable typed client state model.
+
 This is acceptable as proof-of-concept infrastructure but is not an appropriate final base for:
 
-- two synchronized viewports;
-- vector object selection and hit-testing;
-- layer management;
+- two spatially registered synchronized viewports;
+- generalized vector object selection and hit-testing;
+- unified layer management;
 - overlay/registration;
 - object inspectors;
 - undo/redo;
 - complex keyboard interaction;
 - persistent views;
-- large technical scenes.
+- large combined technical scenes.
 
 ### Target boundary
 
@@ -283,6 +304,9 @@ Preserve:
 
 - FastAPI/runtime services;
 - CEW data contracts and registries;
+- F3 deep-zoom assets/viewer capability;
+- dual-vector extraction/agreement;
+- F6 frozen structural scene and semantic sync;
 - source authority and provenance rules;
 - managed-runtime hardening.
 
@@ -361,6 +385,8 @@ The redesign is not considered implementation-ready until the following are vers
 5. **UX Wireframes / state maps** for desktop, tablet and narrow views;
 6. **Professional HVA Protocol**.
 
+These deliverables must be **reuse-first** and explicitly reconcile F3, Dual Vector Agreement, F6 ERW and current B1.8 runtime/HVA hardening.
+
 ## 18. Audit acceptance criteria
 
 The audit is satisfied only when implementation evidence proves, at minimum:
@@ -375,14 +401,50 @@ The audit is satisfied only when implementation evidence proves, at minimum:
 - graphical ReadingIssue workflow;
 - progressive disclosure of provenance;
 - layer-capable architecture;
-- suitable large-drawing rendering architecture;
+- F3-class large-drawing deep-zoom integrated into the Workbench;
 - dedicated workbench client architecture or an equivalently maintainable interaction layer;
 - accessibility alternatives to drag-dependent operations;
 - professional HVA protocol implemented but not automatically passed.
 
-## 19. Current decision
+## 19. Reuse verification addendum — 2026-08-29
 
-For candidate `d510da26eef8293ed169c5d173962536a2a03b53`:
+Repository-wide verification after the first audit pass found reusable CEW capabilities that the initial B1.8-surface-only inspection did not include.
+
+Verified in the repository:
+
+- F3 OpenSeadragon/DZI 300 dpi deep-zoom source-viewer foundation;
+- PyMuPDF + Docling Parse Dual Vector Agreement with non-canonical review semantics;
+- F6 ERW SVG structural scene from frozen M0G member/node ledgers;
+- F6 semantic source-evidence↔member synchronization;
+- current B1.8 Render/auth/audit/revision-bound HVA foundations.
+
+This does **not** make the visible B1.8 dual workspace ready. It reduces green-field implementation and changes several gap states to `AVAILABLE_NOT_INTEGRATED` or `PARTIAL`.
+
+The authoritative implementation classification is maintained in:
+
+`automation/CEW_PROFESSIONAL_WORKBENCH_IMPLEMENTATION_MATRIX_v1.json`
+
+The explicit reuse topology is maintained in:
+
+`docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_REUSE_MAP_v1.md`
+
+Critical boundaries remain:
+
+- F6 semantic sync is not a spatial registration transform;
+- F3 deep zoom is not yet integrated into the B1.8 Workbench;
+- dual-vector extraction is not yet a unified technical scene;
+- no verified registered overlay exists in B1.8;
+- no object-anchored editing/ReadingIssue workflow exists;
+- no dedicated typed Workbench client/state architecture exists;
+- professional HVA remains unsatisfied.
+
+## 20. Current decision
+
+For the audited B1.8 surface and the current redesign line:
+
+`FOUNDATIONS_REUSABLE = true`
+
+`PROFESSIONAL_WORKBENCH_INTEGRATION = REQUIRED`
 
 `PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED`
 
@@ -392,4 +454,4 @@ For candidate `d510da26eef8293ed169c5d173962536a2a03b53`:
 
 `CANONICAL_WRITE_AUTHORIZED = false`
 
-The current PR remains useful evidence of runtime/provenance/safety foundations, but the visible dual-workspace surface is not accepted as the final professional workbench.
+The current PR remains useful evidence of runtime/provenance/safety foundations and now also carries the redesign audit/reuse map, but the visible dual-workspace surface is not accepted as the final professional workbench.
