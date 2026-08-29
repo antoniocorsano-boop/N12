@@ -5,15 +5,19 @@ import argparse
 import csv
 import hashlib
 import json
+import math
 import os
 import re
 import shutil
+import struct
 import subprocess
 import sys
 import tarfile
 import tempfile
 from pathlib import Path
 from typing import Any
+
+import fitz
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv"
@@ -26,7 +30,7 @@ DPI = 300
 TILE_SIZE = 256
 OVERLAP = 1
 JPEG_QUALITY = 90
-DZI_ENGINE = "PYVIPS_BINARY"
+DZI_ENGINE = "PYMUPDF_BOUNDED_DZI"
 
 
 def rows(path: Path) -> list[dict[str, str]]:
@@ -124,9 +128,7 @@ def _materialize_source(source: dict[str, str], target: Path) -> None:
         raise AssertionError(
             f"immutable source digest mismatch for {source['source_code']}: expected={source['sha256']} actual={actual}"
         )
-    blob = subprocess.check_output(
-        ["git", "rev-parse", spec], cwd=ROOT, text=True
-    ).strip()
+    blob = subprocess.check_output(["git", "rev-parse", spec], cwd=ROOT, text=True).strip()
     if source["git_blob_sha"] and blob != source["git_blob_sha"]:
         raise AssertionError(
             f"immutable Git blob mismatch for {source['source_code']}: expected={source['git_blob_sha']} actual={blob}"
@@ -161,27 +163,117 @@ def _render_one(source: dict[str, str], pdf: Path, render_root: Path) -> Path:
     return png
 
 
-def _tile_one(source: dict[str, str], png: Path, viewer_root: Path) -> None:
-    try:
-        import pyvips
-    except Exception as exc:
-        raise AssertionError(f"managed F3 pyvips binary runtime unavailable: {exc}") from exc
+def _png_dimensions(path: Path) -> tuple[int, int]:
+    with path.open("rb") as handle:
+        header = handle.read(24)
+    if len(header) != 24 or header[:8] != b"\x89PNG\r\n\x1a\n" or header[12:16] != b"IHDR":
+        raise AssertionError(f"managed F3 PNG header invalid: {path}")
+    width, height = struct.unpack(">II", header[16:24])
+    if width <= 0 or height <= 0:
+        raise AssertionError(f"managed F3 PNG dimensions invalid: {width}x{height}")
+    return width, height
 
+
+def _write_dzi_descriptor(path: Path, width: int, height: int) -> None:
+    path.write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        f'<Image TileSize="{TILE_SIZE}" Overlap="{OVERLAP}" Format="jpg" '
+        'xmlns="http://schemas.microsoft.com/deepzoom/2008">\n'
+        f'  <Size Width="{width}" Height="{height}"/>\n'
+        '</Image>\n',
+        encoding="utf-8",
+    )
+
+
+def _tile_one(source: dict[str, str], pdf: Path, png: Path, viewer_root: Path) -> None:
+    full_width, full_height = _png_dimensions(png)
+    max_level = int(math.ceil(math.log2(max(full_width, full_height)))) if max(full_width, full_height) > 1 else 0
     base = viewer_root / "tiles" / source["source_code"]
-    try:
-        image = pyvips.Image.new_from_file(str(png), access="sequential")
-        image.dzsave(
-            str(base),
-            tile_size=TILE_SIZE,
-            overlap=OVERLAP,
-            suffix=f".jpg[Q={JPEG_QUALITY}]",
-        )
-    except Exception as exc:
-        raise AssertionError(f"managed F3 pyvips dzsave failed for {source['source_code']}: {exc}") from exc
+    files_root = base.parent / f"{base.name}_files"
+    files_root.mkdir(parents=True, exist_ok=True)
 
-    if not base.with_suffix(".dzi").exists():
+    document = fitz.open(pdf)
+    try:
+        if document.page_count < 1:
+            raise AssertionError(f"managed F3 source has no page: {source['source_code']}")
+        page = document[0]
+        page_rect = page.rect
+        display_list = page.get_displaylist()
+
+        for level in range(max_level + 1):
+            divisor = 2 ** (max_level - level)
+            level_width = max(1, int(math.ceil(full_width / divisor)))
+            level_height = max(1, int(math.ceil(full_height / divisor)))
+            sx = level_width / page_rect.width
+            sy = level_height / page_rect.height
+            columns = int(math.ceil(level_width / TILE_SIZE))
+            rows_count = int(math.ceil(level_height / TILE_SIZE))
+            level_dir = files_root / str(level)
+            level_dir.mkdir(parents=True, exist_ok=True)
+
+            for row_index in range(rows_count):
+                y0 = row_index * TILE_SIZE
+                y1 = min(level_height, (row_index + 1) * TILE_SIZE)
+                stripe_y0 = max(0, y0 - (OVERLAP if row_index > 0 else 0))
+                stripe_y1 = min(
+                    level_height,
+                    y1 + (OVERLAP if row_index < rows_count - 1 else 0),
+                )
+                clip = fitz.Rect(
+                    page_rect.x0,
+                    page_rect.y0 + stripe_y0 / sy,
+                    page_rect.x1,
+                    page_rect.y0 + stripe_y1 / sy,
+                )
+                stripe = display_list.get_pixmap(
+                    matrix=fitz.Matrix(sx, sy),
+                    colorspace=fitz.csRGB,
+                    alpha=False,
+                    clip=clip,
+                )
+                expected_height = stripe_y1 - stripe_y0
+                if stripe.width != level_width or stripe.height != expected_height:
+                    raise AssertionError(
+                        "managed F3 bounded stripe mismatch "
+                        f"source={source['source_code']} level={level} "
+                        f"expected={level_width}x{expected_height} actual={stripe.width}x{stripe.height}"
+                    )
+                stripe.set_origin(0, 0)
+
+                for column_index in range(columns):
+                    x0 = column_index * TILE_SIZE
+                    x1 = min(level_width, (column_index + 1) * TILE_SIZE)
+                    tile_x0 = max(0, x0 - (OVERLAP if column_index > 0 else 0))
+                    tile_x1 = min(
+                        level_width,
+                        x1 + (OVERLAP if column_index < columns - 1 else 0),
+                    )
+                    tile = fitz.Pixmap(
+                        stripe,
+                        stripe.width,
+                        stripe.height,
+                        fitz.IRect(tile_x0, 0, tile_x1, stripe.height),
+                    )
+                    expected_width = tile_x1 - tile_x0
+                    if tile.width != expected_width or tile.height != expected_height:
+                        raise AssertionError(
+                            "managed F3 tile mismatch "
+                            f"source={source['source_code']} level={level} x={column_index} y={row_index} "
+                            f"expected={expected_width}x{expected_height} actual={tile.width}x{tile.height}"
+                        )
+                    tile_path = level_dir / f"{column_index}_{row_index}.jpg"
+                    tile.save(tile_path, jpg_quality=JPEG_QUALITY)
+
+        _write_dzi_descriptor(base.with_suffix(".dzi"), full_width, full_height)
+    finally:
+        document.close()
+
+    if not base.with_suffix(".dzi").exists() or not files_root.is_dir():
         raise AssertionError(f"managed F3 DZI missing for {source['source_code']}")
-    print(f"CEW_MANAGED_F3_DZI_READY source={source['source_code']} engine={DZI_ENGINE}")
+    print(
+        f"CEW_MANAGED_F3_DZI_READY source={source['source_code']} "
+        f"engine={DZI_ENGINE} size={full_width}x{full_height} levels={max_level + 1}"
+    )
 
 
 def _install_osd(viewer_root: Path, temp_root: Path) -> dict[str, str]:
@@ -276,9 +368,7 @@ def build_assets() -> dict[str, Any]:
             pdf = pdf_root / f"{source['source_code']}.pdf"
             _materialize_source(source, pdf)
             png = _render_one(source, pdf, render_root)
-            _tile_one(source, png, viewer_root)
-            # Keep peak disk/memory bounded: each 300 dpi intermediate is removed
-            # immediately after its immutable DZI pyramid is generated.
+            _tile_one(source, pdf, png, viewer_root)
             shutil.rmtree(render_root / source["source_code"], ignore_errors=True)
             pdf.unlink(missing_ok=True)
 
