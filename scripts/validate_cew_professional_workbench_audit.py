@@ -95,7 +95,15 @@ def main() -> None:
     require("sync" in erw.lower(), "F6 ERW synchronization markers missing")
     require("M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv" in text(ROOT / ".github/workflows/validate-cew-erw-synced-workspace.yml"), "F6 frozen member-ledger workflow binding missing")
     require("canonical" in erw_contract.lower() or "read" in erw_contract.lower(), "F6 ERW read-only contract marker missing")
-    require("hash" in erw_validator.lower(), "F6 ERW input-integrity validation missing")
+    for marker in (
+        "forbidden authority action enabled",
+        "support topology drift",
+        "candidate coordinates differ from canonical analytical nodes",
+        "section state differs from frozen connectivity ledger",
+        "CANONICAL_WRITE=FORBIDDEN",
+        "M0G_REOPEN=FORBIDDEN",
+    ):
+        require(marker in erw_validator, f"F6 frozen-ledger/authority validator marker missing: {marker}")
 
     require(reqs["PWB-005"]["status"] == "AVAILABLE_NOT_INTEGRATED", "PWB-005 reuse classification mismatch")
     require(reqs["PWB-006"]["status"] == "AVAILABLE_NOT_INTEGRATED", "PWB-006 reuse classification mismatch")
