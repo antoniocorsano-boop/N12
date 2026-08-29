@@ -13,6 +13,9 @@ on:
       - 'scripts/cew_runtime_render_budget.py'
       - 'scripts/cew_runtime_render_cache.py'
       - 'scripts/build_cew_runtime_render_cache.py'
+      - 'scripts/cew_professional_workbench_core.py'
+      - 'scripts/cew_professional_workbench_projection.py'
+      - 'scripts/validate_cew_professional_workbench_core.py'
       - 'scripts/validate_cew_runtime_render_budget.py'
       - 'scripts/validate_cew_runtime_render_cache.py'
       - 'scripts/validate_cew_evidence_viewer_interaction.py'
@@ -24,6 +27,7 @@ on:
       - 'automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json'
       - 'automation/CEW_B18_DUAL_WORKSPACE_HVA_CONTRACT_v1.json'
       - 'automation/CEW_PROFESSIONAL_WORKBENCH_IMPLEMENTATION_MATRIX_v1.json'
+      - 'automation/CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRACT_v1.json'
       - 'automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json'
       - 'automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json'
       - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
@@ -31,6 +35,8 @@ on:
       - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
       - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
       - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv'
       - 'docs/ACCEPTANCE/CEW_B1_HUMAN_ACCEPTANCE_V2_PLAN.md'
       - 'docs/ACCEPTANCE/CEW_B18_DUAL_WORKSPACE_CONTRACT_v1.md'
       - 'docs/AUDIT/CEW_PROFESSIONAL_EVIDENCE_WORKBENCH_AUDIT_v1.md'
@@ -61,6 +67,9 @@ jobs:
           python -m py_compile scripts/cew_runtime_render_budget.py
           python -m py_compile scripts/cew_runtime_render_cache.py
           python -m py_compile scripts/build_cew_runtime_render_cache.py
+          python -m py_compile scripts/cew_professional_workbench_core.py
+          python -m py_compile scripts/cew_professional_workbench_projection.py
+          python -m py_compile scripts/validate_cew_professional_workbench_core.py
           python -m py_compile scripts/validate_cew_runtime_render_budget.py
           python -m py_compile scripts/validate_cew_runtime_render_cache.py
           python -m py_compile scripts/validate_cew_evidence_viewer_interaction.py
@@ -81,6 +90,8 @@ jobs:
         run: python scripts/validate_cew_professional_workbench_audit.py
       - name: Validate professional workbench design package
         run: python scripts/validate_cew_professional_workbench_design.py
+      - name: Validate professional workbench kernel foundation
+        run: python scripts/validate_cew_professional_workbench_core.py
       - name: Validate same-revision HVA hardening
         run: python scripts/validate_cew_b18_hva_hardening.py
       - name: Validate bounded raster generation policy
@@ -135,8 +146,9 @@ jobs:
           PY
       - name: Preserve human professional-workbench and promotion gates
         run: |
-          echo 'Automated gate validates B1.8 runtime safety, audit consistency and design-package coherence only.'
+          echo 'Automated gate validates B1.8 runtime safety, audit consistency, design-package coherence and the fail-closed workbench kernel.'
           echo 'PROFESSIONAL_WORKBENCH_DESIGN_PACKAGE = VERSIONED'
+          echo 'PROFESSIONAL_WORKBENCH_KERNEL = FOUNDATION_IMPLEMENTED'
           echo 'PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED'
           echo 'HVA_EXECUTION_AUTHORIZED = false'
           echo 'DUAL_WORKSPACE_HVA = REQUIRED_NOT_SATISFIED'
