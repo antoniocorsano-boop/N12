@@ -19,6 +19,7 @@ on:
       - 'scripts/validate_cew_b18_hva_hardening.py'
       - 'scripts/validate_cew_b18_dual_workspace.py'
       - 'scripts/validate_cew_professional_workbench_audit.py'
+      - 'scripts/validate_cew_professional_workbench_design.py'
       - 'scripts/validate_cew_b1_usability_acceptance.py'
       - 'automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json'
       - 'automation/CEW_B18_DUAL_WORKSPACE_HVA_CONTRACT_v1.json'
@@ -33,6 +34,13 @@ on:
       - 'docs/ACCEPTANCE/CEW_B1_HUMAN_ACCEPTANCE_V2_PLAN.md'
       - 'docs/ACCEPTANCE/CEW_B18_DUAL_WORKSPACE_CONTRACT_v1.md'
       - 'docs/AUDIT/CEW_PROFESSIONAL_EVIDENCE_WORKBENCH_AUDIT_v1.md'
+      - 'docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_REUSE_MAP_v1.md'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_PRODUCT_CONTRACT_v1.md'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_INTERACTION_ARCHITECTURE_v1.md'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_TECHNICAL_PROJECTION_MODEL_v1.md'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_RENDERING_ARCHITECTURE_v1.md'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_UX_WIREFRAMES_STATE_MAPS_v1.md'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_HVA_PROTOCOL_v1.md'
       - '.github/workflows/validate-cew-b1-usability-acceptance.yml'
   workflow_dispatch:
 
@@ -60,6 +68,7 @@ jobs:
           python -m py_compile scripts/validate_cew_b18_hva_hardening.py
           python -m py_compile scripts/validate_cew_b18_dual_workspace.py
           python -m py_compile scripts/validate_cew_professional_workbench_audit.py
+          python -m py_compile scripts/validate_cew_professional_workbench_design.py
           python -m py_compile scripts/validate_cew_b1_usability_acceptance.py
           python -m py_compile app.py
       - name: Install runtime dependencies
@@ -70,6 +79,8 @@ jobs:
         run: python scripts/validate_cew_b18_dual_workspace.py
       - name: Validate professional workbench audit consistency
         run: python scripts/validate_cew_professional_workbench_audit.py
+      - name: Validate professional workbench design package
+        run: python scripts/validate_cew_professional_workbench_design.py
       - name: Validate same-revision HVA hardening
         run: python scripts/validate_cew_b18_hva_hardening.py
       - name: Validate bounded raster generation policy
@@ -124,7 +135,8 @@ jobs:
           PY
       - name: Preserve human professional-workbench and promotion gates
         run: |
-          echo 'Automated gate validates B1.8 runtime safety and audit consistency only.'
+          echo 'Automated gate validates B1.8 runtime safety, audit consistency and design-package coherence only.'
+          echo 'PROFESSIONAL_WORKBENCH_DESIGN_PACKAGE = VERSIONED'
           echo 'PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED'
           echo 'HVA_EXECUTION_AUTHORIZED = false'
           echo 'DUAL_WORKSPACE_HVA = REQUIRED_NOT_SATISFIED'
