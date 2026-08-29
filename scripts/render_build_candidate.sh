@@ -8,6 +8,28 @@ fi
 
 printf 'CEW_RENDER_BUILD_CANDIDATE_SHA = %s\n' "$RENDER_GIT_COMMIT"
 
+# Render can provide a valid Git checkout without preserving a named `origin`
+# remote. Managed F3 must still materialize immutable source files from their
+# frozen historical commit. Recreate only the canonical public N12 origin when
+# it is absent; reject any unexpected origin rather than fetching evidence from
+# an ungoverned repository.
+CANONICAL_REPO_URL="https://github.com/antoniocorsano-boop/N12.git"
+ORIGIN_URL="$(git remote get-url origin 2>/dev/null || true)"
+if [[ -z "$ORIGIN_URL" ]]; then
+  git remote add origin "$CANONICAL_REPO_URL"
+  echo "CEW_RENDER_GIT_ORIGIN = ADDED_CANONICAL_PUBLIC_N12"
+else
+  case "$ORIGIN_URL" in
+    https://github.com/antoniocorsano-boop/N12|https://github.com/antoniocorsano-boop/N12.git|git@github.com:antoniocorsano-boop/N12.git)
+      echo "CEW_RENDER_GIT_ORIGIN = VERIFIED_CANONICAL_N12"
+      ;;
+    *)
+      echo "CEW_RENDER_BUILD_FAIL: unexpected git origin $ORIGIN_URL" >&2
+      exit 1
+      ;;
+  esac
+fi
+
 pip install -r requirements.txt
 python scripts/build_cew_runtime_render_cache.py
 python scripts/build_cew_managed_f3_assets.py
