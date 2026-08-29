@@ -31,6 +31,7 @@ CLASSIFICATIONS = (
 )
 DIAGNOSTIC_DPI = 150
 PAGE_DIMENSION_TOLERANCE_PT = 0.5
+REGION_EDGE_TOLERANCE_PT = 0.01
 INK_LUMA_THRESHOLD = 245
 MIN_MEANINGFUL_INK_RATIO = 0.001
 MIN_EMBEDDED_IMAGE_COVERAGE = 0.001
@@ -76,8 +77,26 @@ def _rect_area(rect: pymupdf.Rect) -> float:
 
 
 def _intersection_area(a: pymupdf.Rect, b: pymupdf.Rect) -> float:
-    inter = a & b
-    return _rect_area(inter)
+    return _rect_area(a & b)
+
+
+def _clip_inside_page(clip: pymupdf.Rect, page_rect: pymupdf.Rect, normalized_valid: bool) -> bool:
+    """Point-based containment proven by PWB-005-R1A.
+
+    R1A showed zero geometric edge overhang for the two former mapping-error
+    regions while area intersection arithmetic lost 0.0155 and 0.3984 pt² due
+    to floating-point rectangle calculations. Containment is therefore tested
+    against page edges with an explicit 0.01 pt tolerance. This changes only
+    the derived diagnostic and never mutates Page/EvidenceRegion authority.
+    """
+    return bool(
+        normalized_valid
+        and _rect_area(clip) > 0.0
+        and clip.x0 >= page_rect.x0 - REGION_EDGE_TOLERANCE_PT
+        and clip.y0 >= page_rect.y0 - REGION_EDGE_TOLERANCE_PT
+        and clip.x1 <= page_rect.x1 + REGION_EDGE_TOLERANCE_PT
+        and clip.y1 <= page_rect.y1 + REGION_EDGE_TOLERANCE_PT
+    )
 
 
 def _drawing_metrics(page: pymupdf.Page, clip: pymupdf.Rect) -> dict[str, int]:
@@ -107,11 +126,10 @@ def _text_metrics(page: pymupdf.Page, clip: pymupdf.Rect) -> dict[str, Any]:
                 if value:
                     spans.append(value)
     joined = " ".join(spans)
-    preview = joined[:MAX_TEXT_PREVIEW_CHARS]
     return {
         "span_count": len(spans),
         "character_count": len(joined),
-        "preview": preview,
+        "preview": joined[:MAX_TEXT_PREVIEW_CHARS],
         "preview_truncated": len(joined) > MAX_TEXT_PREVIEW_CHARS,
     }
 
@@ -129,12 +147,10 @@ def _image_metrics(page: pymupdf.Page, clip: pymupdf.Rect) -> dict[str, Any]:
         if area <= 0:
             continue
         covered_area += area
-        intersecting.append(
-            {
-                "xref": int(info.get("xref") or 0),
-                "intersection_area_pt2": round(area, 6),
-            }
-        )
+        intersecting.append({
+            "xref": int(info.get("xref") or 0),
+            "intersection_area_pt2": round(area, 6),
+        })
     coverage = min(1.0, covered_area / region_area) if region_area > 0 else 0.0
     return {
         "embedded_image_count": len(intersecting),
@@ -191,9 +207,8 @@ def _classification(*, mapping_error: bool, drawing: dict[str, int], text: dict[
     elif text_signal:
         classification = "TEXT"
     elif rendered_ink_signal:
-        # Non-empty pixels without PDF vector/text objects are conservatively
-        # treated as raster/form-like document content. This does not OCR or
-        # authorize technical interpretation.
+        # Non-empty rendered pixels without PDF vector/text objects are kept as
+        # raster/form-like document content. R1 does not OCR or interpret them.
         classification = "RASTER"
     else:
         classification = "EMPTY"
@@ -216,7 +231,7 @@ def build_plan() -> dict[str, Any]:
     if len(region_ids) != 4 or len(set(region_ids)) != 4:
         raise AssertionError(f"PWB-005-R1 expects exactly four governed regions, got {region_ids}")
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "diagnostic_contract": "CEW_PWB005_R1_EVIDENCE_REGION_CONTENT_DIAGNOSTIC_v1",
         "build_revision": _build_revision(),
         "archive_commit": geometry_plan["archive_commit"],
@@ -225,6 +240,9 @@ def build_plan() -> dict[str, Any]:
         "classification_vocabulary": list(CLASSIFICATIONS),
         "diagnostic_dpi": DIAGNOSTIC_DPI,
         "page_dimension_tolerance_pt": PAGE_DIMENSION_TOLERANCE_PT,
+        "region_edge_tolerance_pt": REGION_EDGE_TOLERANCE_PT,
+        "containment_method": "SOURCE_PAGE_EDGE_TOLERANCE",
+        "r1a_remediation_basis": "FLOATING_POINT_CONTAINMENT_TOLERANCE",
         "minimum_meaningful_ink_ratio": MIN_MEANINGFUL_INK_RATIO,
         "sources": geometry_plan["sources"],
         "canonical_write_authorized": False,
@@ -251,8 +269,9 @@ def _diagnose_region(source: dict[str, Any], region: dict[str, Any], pdf: Path, 
             }
 
         page = doc[page_index]
-        actual_width = float(page.rect.width)
-        actual_height = float(page.rect.height)
+        page_rect = pymupdf.Rect(page.rect)
+        actual_width = float(page_rect.width)
+        actual_height = float(page_rect.height)
         expected_width = float(page_row["source_width"]) if page_row else None
         expected_height = float(page_row["source_height"]) if page_row else None
         delta_width = abs(actual_width - expected_width) if expected_width is not None else None
@@ -272,12 +291,12 @@ def _diagnose_region(source: dict[str, Any], region: dict[str, Any], pdf: Path, 
             and y + height <= 1.000001
         )
         clip = pymupdf.Rect(
-            x * actual_width,
-            y * actual_height,
-            (x + width) * actual_width,
-            (y + height) * actual_height,
+            page_rect.x0 + x * actual_width,
+            page_rect.y0 + y * actual_height,
+            page_rect.x0 + (x + width) * actual_width,
+            page_rect.y0 + (y + height) * actual_height,
         )
-        clip_inside_page = normalized_valid and _rect_area(clip) > 0 and _intersection_area(clip, page.rect) >= _rect_area(clip) - 1e-6
+        clip_inside_page = _clip_inside_page(clip, page_rect, normalized_valid)
         dimension_match = (
             page_row is not None
             and delta_width is not None
@@ -287,15 +306,29 @@ def _diagnose_region(source: dict[str, Any], region: dict[str, Any], pdf: Path, 
         )
         mapping_error = not (page_row is not None and dimension_match and clip_inside_page)
 
-        # Even on a mapping error, render only a safe clipped intersection when possible
-        # so the diagnostic can explain the failure without interpreting it.
-        safe_clip = clip & page.rect
+        # Crop rendering remains bounded to the actual source page. The mapping
+        # decision above is independent and provenance-aware.
+        safe_clip = clip & page_rect
         if safe_clip.is_empty:
-            safe_clip = pymupdf.Rect(0, 0, min(1.0, actual_width), min(1.0, actual_height))
+            safe_clip = pymupdf.Rect(
+                page_rect.x0,
+                page_rect.y0,
+                min(page_rect.x0 + 1.0, page_rect.x1),
+                min(page_rect.y0 + 1.0, page_rect.y1),
+            )
 
         drawing = _drawing_metrics(page, safe_clip) if not mapping_error else {"path_count": 0, "item_count": 0}
-        text = _text_metrics(page, safe_clip) if not mapping_error else {"span_count": 0, "character_count": 0, "preview": "", "preview_truncated": False}
-        images = _image_metrics(page, safe_clip) if not mapping_error else {"embedded_image_count": 0, "approx_region_coverage": 0.0, "images": []}
+        text = _text_metrics(page, safe_clip) if not mapping_error else {
+            "span_count": 0,
+            "character_count": 0,
+            "preview": "",
+            "preview_truncated": False,
+        }
+        images = _image_metrics(page, safe_clip) if not mapping_error else {
+            "embedded_image_count": 0,
+            "approx_region_coverage": 0.0,
+            "images": [],
+        }
         crop_path = region_dir / f"{region['evidence_region_id']}.png"
         crop = _render_crop(page, safe_clip, crop_path)
         classification, signals = _classification(
@@ -318,7 +351,7 @@ def _diagnose_region(source: dict[str, Any], region: dict[str, Any], pdf: Path, 
                 mapping_reason = "SOURCE_PAGE_CLIP_INVALID"
 
         return {
-            "schema_version": "1.0",
+            "schema_version": "1.1",
             "evidence_region_id": region["evidence_region_id"],
             "reference_item": region["reference_item"],
             "source_code": source["source_code"],
@@ -349,6 +382,8 @@ def _diagnose_region(source: dict[str, Any], region: dict[str, Any], pdf: Path, 
                 },
                 "normalized_valid": normalized_valid,
                 "clip_inside_page": clip_inside_page,
+                "containment_method": "SOURCE_PAGE_EDGE_TOLERANCE",
+                "containment_tolerance_pt": REGION_EDGE_TOLERANCE_PT,
             },
             "drawing": drawing,
             "text": text,
@@ -423,6 +458,7 @@ def build_diagnostic() -> dict[str, Any]:
     print(f"BUILD_REVISION = {manifest['build_revision']}")
     print("SOURCE_COVERAGE = 4/4")
     print("GOVERNED_REGION_COVERAGE = 4/4")
+    print(f"REGION_EDGE_TOLERANCE_PT = {REGION_EDGE_TOLERANCE_PT}")
     for result in sorted(results, key=lambda item: item["evidence_region_id"]):
         print(
             "REGION_CONTENT",
@@ -434,6 +470,7 @@ def build_diagnostic() -> dict[str, Any]:
             "image_coverage=" + str(result["embedded_images"]["approx_region_coverage"]),
             "ink_ratio=" + str(result["crop"]["ink_ratio"]),
         )
+    print("R1A_REMEDIATION = SOURCE_PAGE_EDGE_TOLERANCE")
     print("OCR_USED = false")
     print("CANONICAL_WRITE_AUTHORIZED = false")
     print("HVA_EXECUTION_AUTHORIZED = false")
@@ -451,6 +488,7 @@ def main() -> int:
         print("SOURCE_COVERAGE = 4/4")
         print("GOVERNED_REGION_COVERAGE = 4/4")
         print("CLASSIFICATIONS = " + ",".join(CLASSIFICATIONS))
+        print(f"REGION_EDGE_TOLERANCE_PT = {REGION_EDGE_TOLERANCE_PT}")
         print("CANONICAL_WRITE_AUTHORIZED = false")
         return 0
     build_diagnostic()
