@@ -21,6 +21,8 @@ on:
       - 'scripts/cew_professional_workbench_document_geometry.py'
       - 'scripts/validate_cew_document_geometry_artifacts.py'
       - 'scripts/validate_cew_document_geometry_scene_adapter.py'
+      - 'scripts/build_cew_evidence_region_content_diagnostic.py'
+      - 'scripts/validate_cew_evidence_region_content_diagnostic.py'
       - 'scripts/cew_professional_workbench_core.py'
       - 'scripts/cew_professional_workbench_projection.py'
       - 'scripts/cew_professional_workbench_api.py'
@@ -48,6 +50,7 @@ on:
       - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
       - 'data/canonical/CEW_DOCUMENT_MAP_REGISTRY_v1.json'
       - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
       - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
       - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
       - 'data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv'
@@ -57,6 +60,7 @@ on:
       - 'docs/ACCEPTANCE/CEW_B18_DUAL_WORKSPACE_CONTRACT_v1.md'
       - 'docs/AUDIT/CEW_PROFESSIONAL_EVIDENCE_WORKBENCH_AUDIT_v1.md'
       - 'docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_REUSE_MAP_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R1_EVIDENCE_REGION_CONTENT_DIAGNOSTIC_PLAN_v1.md'
       - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_PRODUCT_CONTRACT_v1.md'
       - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_INTERACTION_ARCHITECTURE_v1.md'
       - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_TECHNICAL_PROJECTION_MODEL_v1.md'
@@ -92,6 +96,8 @@ jobs:
             scripts/cew_professional_workbench_document_geometry.py \
             scripts/validate_cew_document_geometry_artifacts.py \
             scripts/validate_cew_document_geometry_scene_adapter.py \
+            scripts/build_cew_evidence_region_content_diagnostic.py \
+            scripts/validate_cew_evidence_region_content_diagnostic.py \
             scripts/cew_professional_workbench_core.py \
             scripts/cew_professional_workbench_projection.py \
             scripts/cew_professional_workbench_api.py \
@@ -138,6 +144,12 @@ jobs:
           python scripts/validate_cew_document_geometry_artifacts.py
           python scripts/validate_cew_document_geometry_scene_adapter.py
 
+      - name: Build and validate PWB-005-R1 EvidenceRegion content diagnostic
+        run: |
+          python scripts/build_cew_evidence_region_content_diagnostic.py --validate-plan-only
+          python scripts/build_cew_evidence_region_content_diagnostic.py
+          python scripts/validate_cew_evidence_region_content_diagnostic.py
+
       - name: Validate same-revision HVA hardening
         run: python scripts/validate_cew_b18_hva_hardening.py
 
@@ -163,12 +175,13 @@ jobs:
 
       - name: Preserve human professional-workbench and promotion gates
         run: |
-          echo 'Automated gate validates B1.8 runtime safety, audit consistency, design-package coherence, fail-closed workbench kernel, non-canonical API wiring, managed-F3 and build-time dual-vector document-geometry contracts.'
+          echo 'Automated gate validates B1.8 runtime safety, audit consistency, design-package coherence, fail-closed workbench kernel, non-canonical API wiring, managed-F3, build-time dual-vector document geometry and PWB-005-R1 EvidenceRegion content diagnostics.'
           echo 'PROFESSIONAL_WORKBENCH_DESIGN_PACKAGE = VERSIONED'
           echo 'PROFESSIONAL_WORKBENCH_KERNEL = FOUNDATION_IMPLEMENTED'
           echo 'PROFESSIONAL_WORKBENCH_API = NON_CANONICAL_FOUNDATION_WIRED'
           echo 'MANAGED_F3_ASSET_PIPELINE = CONTRACT_VALIDATED_BUILD_ON_DEPLOY'
           echo 'DOCUMENT_GEOMETRY_PIPELINE = BUILD_TIME_CLAIM_SCOPED_DUAL_VECTOR_FAIL_CLOSED'
+          echo 'PWB005_R1_CONTENT_DIAGNOSTIC = BUILD_TIME_DERIVED_NON_AUTHORITATIVE'
           echo 'PAGE_LEVEL_DUAL_VECTOR_ROLE = DIAGNOSTIC_ONLY'
           echo 'RUNTIME_DOCLING_REQUIRED = false'
           echo 'PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED'
