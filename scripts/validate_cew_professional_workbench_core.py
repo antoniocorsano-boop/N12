@@ -7,6 +7,8 @@ import cew_professional_workbench_core as core
 import cew_professional_workbench_projection as projection
 
 TASKS = [f"ERW-N12-00{i}" for i in range(1, 5)]
+DEFAULT_SOURCE_VIEW = {"centre": [0.5, 0.5], "zoom": 1.0, "rotation_deg": 0.0}
+DEFAULT_TECH_VIEW = {"centre": [0.0, 0.0], "zoom": 1.0, "rotation_deg": 0.0}
 
 
 def expect_value_error(fn, code: str) -> None:
@@ -59,6 +61,28 @@ def main() -> None:
     assert "SPATIAL_LOCK_REQUIRES_VERIFIED_REVISION_MATCHED_REGISTRATION" in state["blocked_actions"]
     assert state["canonical_write_authorized"] is False
 
+    # A saved professional View persists only view state and stores the effective,
+    # fail-closed mode. It is strictly bound to scene/source revisions.
+    view = core.create_view_snapshot(
+        t4,
+        requested_mode="OVERLAY",
+        requested_sync_mode="SPATIAL_LOCKED",
+        registration_id=t4["registrations"][0]["registration_id"],
+        active_layers=["ORIGINAL_SOURCE", "STRUCTURAL_GOVERNED", "ISSUES"],
+        source_viewport=DEFAULT_SOURCE_VIEW,
+        technical_viewport=DEFAULT_TECH_VIEW,
+        selected_object_id=obj["object_id"],
+        selected_evidence_region_id=t4["source"]["evidence_region_id"],
+    )
+    assert view["display_mode"] == "SPLIT"
+    assert view["sync_mode"] == "SEMANTIC"
+    assert view["registration_id"] is None
+    assert view["canonical_write"] is False
+    core.validate_view_snapshot(t4, view)
+    stale_view = deepcopy(view)
+    stale_view["scene_revision"] = "STALE_SCENE"
+    expect_value_error(lambda: core.validate_view_snapshot(t4, stale_view), "VIEW_SCENE_REVISION_MISMATCH")
+
     # Source-only tasks remain usable even when the technical scene is unavailable.
     t1 = scenes["ERW-N12-001"]
     source_only = core.resolve_view_state(
@@ -101,6 +125,19 @@ def main() -> None:
     assert spatial["effective_mode"] == "OVERLAY"
     assert spatial["effective_sync_mode"] == "SPATIAL_LOCKED"
     assert spatial["spatial_registration_usable"] is True
+    overlay_view = core.create_view_snapshot(
+        synthetic,
+        requested_mode="OVERLAY",
+        requested_sync_mode="SPATIAL_LOCKED",
+        registration_id=reg["registration_id"],
+        active_layers=["ORIGINAL_SOURCE", "STRUCTURAL_GOVERNED"],
+        source_viewport=DEFAULT_SOURCE_VIEW,
+        technical_viewport=DEFAULT_TECH_VIEW,
+        selected_object_id=obj["object_id"],
+    )
+    assert overlay_view["display_mode"] == "OVERLAY"
+    assert overlay_view["sync_mode"] == "SPATIAL_LOCKED"
+    assert overlay_view["registration_id"] == reg["registration_id"]
 
     stale = deepcopy(reg)
     stale["source_revision"] = "WRONG_SOURCE_REVISION"
@@ -144,6 +181,7 @@ def main() -> None:
     assert text_obj["properties"]["literal_text"] == "2 Φ12"
     assert edit["canonical_write"] is False
     assert edit["promotion_authorized"] is False
+    core.validate_working_edit(editable_scene, edit)
 
     expect_value_error(
         lambda: core.create_working_edit(
@@ -165,10 +203,38 @@ def main() -> None:
     )
     assert issue["anchor_object_id"] == obj["object_id"]
     assert issue["canonical_write"] is False
+    core.validate_reading_issue(t4, issue)
     expect_value_error(
         lambda: core.create_reading_issue(t1, question="Issue senza ancora"),
         "READING_ISSUE_GRAPHICAL_OR_EVIDENCE_ANCHOR_REQUIRED",
     )
+
+    # A WorkingSessionPatch can package workbench deltas and a view but remains a
+    # non-authoritative handoff envelope.
+    editable_view = core.create_view_snapshot(
+        editable_scene,
+        requested_mode="SOURCE",
+        requested_sync_mode="OFF",
+        active_layers=["ORIGINAL_SOURCE", "RECOGNIZED_TEXT", "WORKING_EDITS"],
+        source_viewport=DEFAULT_SOURCE_VIEW,
+        technical_viewport=DEFAULT_TECH_VIEW,
+        selected_object_id=text_obj["object_id"],
+    )
+    editable_issue = core.create_reading_issue(
+        editable_scene,
+        question="Confermare il testo riconosciuto.",
+        anchor_object_id=text_obj["object_id"],
+    )
+    patch = core.build_working_session_patch(
+        editable_scene,
+        edits=[edit],
+        issues=[editable_issue],
+        view=editable_view,
+    )
+    assert patch["canonical_write"] is False
+    assert patch["promotion_authorized"] is False
+    assert patch["authority_effect"] == "NONE"
+    assert patch["working_edits"][0]["base_value"] == "2 Φ12"
 
     # Viewport pixels can never become persisted technical geometry.
     bad_scene = deepcopy(t1)
@@ -192,9 +258,12 @@ def main() -> None:
     print("DUAL_VECTOR_AUTHORITY_BOUNDARY = PRESERVED_UPSTREAM")
     print("OVERLAY_WITHOUT_VERIFIED_REGISTRATION = FAIL_CLOSED")
     print("SPATIAL_LOCK_WITHOUT_VERIFIED_REGISTRATION = FAIL_CLOSED")
+    print("REVISION_BOUND_VIEW_SNAPSHOT = PASS")
+    print("STALE_VIEW_REATTACHMENT = FORBIDDEN")
     print("WORKING_EDIT_BASE_VALUE_IMMUTABLE = PASS")
     print("GOVERNED_STRUCTURAL_EDIT = FORBIDDEN")
     print("READING_ISSUE_ANCHOR = REQUIRED")
+    print("WORKING_SESSION_PATCH_AUTHORITY = NONE")
     print("VIEWPORT_GEOMETRY_PERSISTENCE = FORBIDDEN")
     print("CANONICAL_WRITE_AUTHORIZED = false")
     print("HVA_EXECUTION_AUTHORIZED = false")
