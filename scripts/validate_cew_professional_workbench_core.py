@@ -31,7 +31,9 @@ def main() -> None:
         assert scene["authority"]["promotion_authorized"] is False
         assert scene["source"]["authority"] == "VERIFIED_IMMUTABLE_PRIMARY_SOURCE"
         assert scene["capabilities"]["source_viewer"] == "F3_DZI_MANIFEST_REUSED"
-        assert scene["capabilities"]["dual_vector_agreement"].startswith("UPSTREAM_AVAILABLE")
+        assert scene["capabilities"]["dual_vector_agreement"] == "UNAVAILABLE_FAIL_CLOSED"
+        assert scene["capabilities"]["document_geometry"]["state"] == "UNAVAILABLE_FAIL_CLOSED"
+        assert scene["capabilities"]["document_linework_object_count"] == 0
         assert scene["registrations"][0]["state"] == "UNAVAILABLE"
         assert scene["capabilities"]["overlay_available"] is False
         assert scene["capabilities"]["spatial_sync_available"] is False
@@ -255,7 +257,7 @@ def main() -> None:
     print("SCENES = 4/4")
     print("F3_MANIFEST_REUSE = PASS")
     print("F6_UNBOUND_CANDIDATE_CONTEXT = PRESERVED")
-    print("DUAL_VECTOR_AUTHORITY_BOUNDARY = PRESERVED_UPSTREAM")
+    print("DUAL_VECTOR_DOCUMENT_GEOMETRY_WITHOUT_ARTIFACT = FAIL_CLOSED")
     print("OVERLAY_WITHOUT_VERIFIED_REGISTRATION = FAIL_CLOSED")
     print("SPATIAL_LOCK_WITHOUT_VERIFIED_REGISTRATION = FAIL_CLOSED")
     print("REVISION_BOUND_VIEW_SNAPSHOT = PASS")
