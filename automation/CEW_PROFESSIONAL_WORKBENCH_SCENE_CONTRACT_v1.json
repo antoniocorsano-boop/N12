@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "contract_id": "CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRACT_v1",
   "status": "IMPLEMENTATION_FOUNDATION",
   "authority_effect": "NONE",
@@ -11,6 +11,7 @@
     "semantic synchronization does not imply spatial registration",
     "only VERIFIED revision-matched RegistrationTransform enables SPATIAL_LOCKED or OVERLAY",
     "working edits and reading issues are non-canonical workbench state",
+    "saved workbench views are revision-bound view state and never engineering geometry",
     "governed structural objects are projected by existing id and are never cloned into new authority"
   ],
   "coordinate_spaces": [
@@ -26,6 +27,17 @@
     "RecognizedDimension",
     "TechnicalObjectCandidate",
     "GovernedStructuralObjectProjection"
+  ],
+  "layer_ids": [
+    "ORIGINAL_SOURCE",
+    "DOCUMENT_LINEWORK",
+    "RECOGNIZED_TEXT",
+    "DIMENSIONS",
+    "TECHNICAL_CANDIDATES",
+    "STRUCTURAL_GOVERNED",
+    "ISSUES",
+    "WORKING_EDITS",
+    "VALIDATION_STATE"
   ],
   "evidence_link_types": [
     "SUPPORTS",
@@ -85,6 +97,18 @@
     "registrations",
     "capabilities",
     "authority"
+  ],
+  "required_view_snapshot_fields": [
+    "schema_version",
+    "view_id",
+    "scene_revision",
+    "source_revision",
+    "display_mode",
+    "sync_mode",
+    "active_layers",
+    "source_viewport",
+    "technical_viewport",
+    "canonical_write"
   ],
   "required_authority_flags": {
     "canonical_write_authorized": false,
