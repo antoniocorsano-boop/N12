@@ -123,7 +123,7 @@ def validate_scene(scene: dict[str, Any]) -> dict[str, Any]:
     c = _contract()
     for field in c["required_scene_envelope_fields"]:
         require(field in scene, f"SCENE_FIELD_REQUIRED:{field}")
-    require(scene.get("schema_version") == c["schema_version"], "SCENE_SCHEMA_UNSUPPORTED")
+    require(scene.get("schema_version") == c["scene_schema_version"], "SCENE_SCHEMA_UNSUPPORTED")
     require(bool(scene.get("scene_id")) and bool(scene.get("scene_revision")), "SCENE_IDENTITY_REQUIRED")
     require(bool(scene.get("task_id")), "SCENE_TASK_REQUIRED")
 
@@ -221,6 +221,26 @@ def resolve_view_state(
     }
 
 
+def validate_working_edit(scene: dict[str, Any], edit: dict[str, Any]) -> None:
+    c = _contract()
+    validate_scene(scene)
+    require(edit.get("schema_version") == c["working_edit_schema_version"], "WORKING_EDIT_SCHEMA_UNSUPPORTED")
+    require(edit.get("scene_revision") == scene["scene_revision"], "WORKING_EDIT_SCENE_REVISION_MISMATCH")
+    require(edit.get("source_revision") == scene["source"]["source_revision"], "WORKING_EDIT_SOURCE_REVISION_MISMATCH")
+    require(edit.get("state") in c["working_edit_states"], "WORKING_EDIT_STATE_UNSUPPORTED")
+    require(edit.get("canonical_write") is False, "WORKING_EDIT_CANONICAL_WRITE_FORBIDDEN")
+    require(edit.get("promotion_authorized") is False, "WORKING_EDIT_PROMOTION_FORBIDDEN")
+
+    objects = {obj["object_id"]: obj for obj in scene["objects"]}
+    target_id = edit.get("target_object_id")
+    require(target_id in objects, "WORKING_EDIT_TARGET_UNKNOWN")
+    target = objects[target_id]
+    require(target["object_family"] in c["editable_object_families"], "WORKING_EDIT_TARGET_READ_ONLY")
+    prop = edit.get("target_property")
+    require(prop in target.get("properties", {}), "WORKING_EDIT_PROPERTY_UNKNOWN")
+    require(edit.get("base_value") == target["properties"][prop], "WORKING_EDIT_BASE_VALUE_DRIFT")
+
+
 def create_working_edit(
     scene: dict[str, Any],
     *,
@@ -245,8 +265,8 @@ def create_working_edit(
     require(property_name in properties, "WORKING_EDIT_PROPERTY_UNKNOWN")
     base_value = deepcopy(properties[property_name])
 
-    return {
-        "schema_version": "1.0",
+    edit = {
+        "schema_version": c["working_edit_schema_version"],
         "working_edit_id": stable_id(
             "WE",
             scene["scene_revision"],
@@ -267,6 +287,33 @@ def create_working_edit(
         "canonical_write": False,
         "promotion_authorized": False,
     }
+    validate_working_edit(scene, edit)
+    return edit
+
+
+def validate_reading_issue(scene: dict[str, Any], issue: dict[str, Any]) -> None:
+    c = _contract()
+    validate_scene(scene)
+    require(issue.get("schema_version") == c["reading_issue_schema_version"], "READING_ISSUE_SCHEMA_UNSUPPORTED")
+    require(issue.get("scene_revision") == scene["scene_revision"], "READING_ISSUE_SCENE_REVISION_MISMATCH")
+    require(issue.get("source_revision") == scene["source"]["source_revision"], "READING_ISSUE_SOURCE_REVISION_MISMATCH")
+    require(issue.get("state") in c["reading_issue_states"], "READING_ISSUE_STATE_UNSUPPORTED")
+    require(bool(str(issue.get("question", "")).strip()), "READING_ISSUE_QUESTION_REQUIRED")
+    require(issue.get("canonical_write") is False, "READING_ISSUE_CANONICAL_WRITE_FORBIDDEN")
+    require(issue.get("promotion_authorized") is False, "READING_ISSUE_PROMOTION_FORBIDDEN")
+
+    object_ids = {obj["object_id"] for obj in scene["objects"]}
+    link_ids = {link["evidence_link_id"] for link in scene["evidence_links"]}
+    anchor_object_id = issue.get("anchor_object_id")
+    anchor_geometry = issue.get("anchor_geometry")
+    evidence_link_ids = list(issue.get("evidence_link_ids") or [])
+    if anchor_object_id is not None:
+        require(anchor_object_id in object_ids, "READING_ISSUE_ANCHOR_OBJECT_UNKNOWN")
+    require(anchor_object_id is not None or anchor_geometry is not None or evidence_link_ids, "READING_ISSUE_GRAPHICAL_OR_EVIDENCE_ANCHOR_REQUIRED")
+    require(all(link_id in link_ids for link_id in evidence_link_ids), "READING_ISSUE_EVIDENCE_LINK_UNKNOWN")
+    if anchor_geometry is not None:
+        require(anchor_geometry.get("coordinate_space") in c["coordinate_spaces"], "READING_ISSUE_COORDINATE_SPACE_UNSUPPORTED")
+        require(anchor_geometry.get("coordinate_space") != "VIEWPORT_PX", "READING_ISSUE_VIEWPORT_ANCHOR_FORBIDDEN")
 
 
 def create_reading_issue(
@@ -280,23 +327,9 @@ def create_reading_issue(
 ) -> dict[str, Any]:
     validate_scene(scene)
     c = _contract()
-    require(state in c["reading_issue_states"], "READING_ISSUE_STATE_UNSUPPORTED")
-    require(bool(question.strip()), "READING_ISSUE_QUESTION_REQUIRED")
     evidence_link_ids = list(evidence_link_ids or [])
-
-    object_ids = {obj["object_id"] for obj in scene["objects"]}
-    link_ids = {link["evidence_link_id"] for link in scene["evidence_links"]}
-    if anchor_object_id is not None:
-        require(anchor_object_id in object_ids, "READING_ISSUE_ANCHOR_OBJECT_UNKNOWN")
-    require(anchor_object_id is not None or anchor_geometry is not None or evidence_link_ids, "READING_ISSUE_GRAPHICAL_OR_EVIDENCE_ANCHOR_REQUIRED")
-    require(all(link_id in link_ids for link_id in evidence_link_ids), "READING_ISSUE_EVIDENCE_LINK_UNKNOWN")
-
-    if anchor_geometry is not None:
-        require(anchor_geometry.get("coordinate_space") in c["coordinate_spaces"], "READING_ISSUE_COORDINATE_SPACE_UNSUPPORTED")
-        require(anchor_geometry.get("coordinate_space") != "VIEWPORT_PX", "READING_ISSUE_VIEWPORT_ANCHOR_FORBIDDEN")
-
-    return {
-        "schema_version": "1.0",
+    issue = {
+        "schema_version": c["reading_issue_schema_version"],
         "reading_issue_id": stable_id(
             "RI",
             scene["scene_revision"],
@@ -315,6 +348,142 @@ def create_reading_issue(
         "canonical_write": False,
         "promotion_authorized": False,
     }
+    validate_reading_issue(scene, issue)
+    return issue
+
+
+def _validate_viewport_state(viewport: dict[str, Any], label: str) -> None:
+    require(isinstance(viewport, dict), f"{label}_VIEWPORT_REQUIRED")
+    centre = viewport.get("centre")
+    require(isinstance(centre, list) and len(centre) == 2 and all(_is_number(v) for v in centre), f"{label}_VIEWPORT_CENTRE_REQUIRED")
+    require(_is_number(viewport.get("zoom")) and float(viewport["zoom"]) > 0, f"{label}_VIEWPORT_ZOOM_INVALID")
+    require(_is_number(viewport.get("rotation_deg")), f"{label}_VIEWPORT_ROTATION_INVALID")
+
+
+def validate_view_snapshot(scene: dict[str, Any], view: dict[str, Any]) -> None:
+    c = _contract()
+    validate_scene(scene)
+    for field in c["required_view_snapshot_fields"]:
+        require(field in view, f"VIEW_FIELD_REQUIRED:{field}")
+    require(view.get("schema_version") == c["view_schema_version"], "VIEW_SCHEMA_UNSUPPORTED")
+    require(view.get("scene_revision") == scene["scene_revision"], "VIEW_SCENE_REVISION_MISMATCH")
+    require(view.get("source_revision") == scene["source"]["source_revision"], "VIEW_SOURCE_REVISION_MISMATCH")
+    require(view.get("display_mode") in c["display_modes"], "VIEW_DISPLAY_MODE_UNSUPPORTED")
+    require(view.get("sync_mode") in c["sync_modes"], "VIEW_SYNC_MODE_UNSUPPORTED")
+    require(view.get("canonical_write") is False, "VIEW_CANONICAL_WRITE_FORBIDDEN")
+    layers = view.get("active_layers")
+    require(isinstance(layers, list) and len(layers) == len(set(layers)), "VIEW_LAYERS_INVALID")
+    require(all(layer in c["layer_ids"] for layer in layers), "VIEW_LAYER_UNSUPPORTED")
+    _validate_viewport_state(view["source_viewport"], "SOURCE")
+    _validate_viewport_state(view["technical_viewport"], "TECHNICAL")
+
+    selected_object_id = view.get("selected_object_id")
+    if selected_object_id is not None:
+        require(selected_object_id in {obj["object_id"] for obj in scene["objects"]}, "VIEW_SELECTED_OBJECT_UNKNOWN")
+
+    registration_id = view.get("registration_id")
+    if view["display_mode"] == "OVERLAY" or view["sync_mode"] == "SPATIAL_LOCKED":
+        registrations = {r["registration_id"]: r for r in scene["registrations"]}
+        registration = registrations.get(registration_id)
+        require(
+            registration_allows_spatial(
+                registration,
+                source_revision=scene["source"]["source_revision"],
+                scene_revision=scene["scene_revision"],
+            ),
+            "VIEW_SPATIAL_STATE_REQUIRES_VERIFIED_REGISTRATION",
+        )
+
+
+def create_view_snapshot(
+    scene: dict[str, Any],
+    *,
+    requested_mode: str,
+    requested_sync_mode: str,
+    active_layers: list[str],
+    source_viewport: dict[str, Any],
+    technical_viewport: dict[str, Any],
+    registration_id: str | None = None,
+    selected_object_id: str | None = None,
+    selected_evidence_region_id: str | None = None,
+) -> dict[str, Any]:
+    c = _contract()
+    resolved = resolve_view_state(
+        scene,
+        requested_mode=requested_mode,
+        requested_sync_mode=requested_sync_mode,
+        registration_id=registration_id,
+    )
+    require(len(active_layers) == len(set(active_layers)), "VIEW_LAYERS_DUPLICATE")
+    require(all(layer in c["layer_ids"] for layer in active_layers), "VIEW_LAYER_UNSUPPORTED")
+    if selected_object_id is not None:
+        require(selected_object_id in {obj["object_id"] for obj in scene["objects"]}, "VIEW_SELECTED_OBJECT_UNKNOWN")
+
+    view = {
+        "schema_version": c["view_schema_version"],
+        "view_id": stable_id(
+            "VIEW",
+            scene["scene_revision"],
+            resolved["effective_mode"],
+            resolved["effective_sync_mode"],
+            canonical_json(active_layers),
+            canonical_json(source_viewport),
+            canonical_json(technical_viewport),
+            selected_object_id or "",
+            selected_evidence_region_id or "",
+        ),
+        "scene_revision": scene["scene_revision"],
+        "source_revision": scene["source"]["source_revision"],
+        "display_mode": resolved["effective_mode"],
+        "sync_mode": resolved["effective_sync_mode"],
+        "registration_id": registration_id if resolved["spatial_registration_usable"] else None,
+        "active_layers": list(active_layers),
+        "source_viewport": deepcopy(source_viewport),
+        "technical_viewport": deepcopy(technical_viewport),
+        "selected_object_id": selected_object_id,
+        "selected_evidence_region_id": selected_evidence_region_id,
+        "blocked_actions_at_save": list(resolved["blocked_actions"]),
+        "canonical_write": False,
+        "engineering_authority_effect": "NONE",
+    }
+    validate_view_snapshot(scene, view)
+    return view
+
+
+def build_working_session_patch(
+    scene: dict[str, Any],
+    *,
+    edits: list[dict[str, Any]],
+    issues: list[dict[str, Any]],
+    view: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    validate_scene(scene)
+    for edit in edits:
+        validate_working_edit(scene, edit)
+    for issue in issues:
+        validate_reading_issue(scene, issue)
+    if view is not None:
+        validate_view_snapshot(scene, view)
+
+    patch = {
+        "schema_version": "1.0",
+        "working_session_patch_id": stable_id(
+            "WSP",
+            scene["scene_revision"],
+            canonical_json([e["working_edit_id"] for e in edits]),
+            canonical_json([i["reading_issue_id"] for i in issues]),
+            view["view_id"] if view else "",
+        ),
+        "scene_revision": scene["scene_revision"],
+        "source_revision": scene["source"]["source_revision"],
+        "working_edits": deepcopy(edits),
+        "reading_issues": deepcopy(issues),
+        "view": deepcopy(view),
+        "canonical_write": False,
+        "promotion_authorized": False,
+        "authority_effect": "NONE",
+    }
+    return patch
 
 
 def scene_digest(scene_without_revision: dict[str, Any]) -> str:
