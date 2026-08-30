@@ -53,8 +53,12 @@ def _contract() -> dict[str, Any]:
     payload = _load(CONTRACT_PATH)
     if payload.get("contract_id") != "CEW_PWB005_R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE_CONTRACT_v1":
         raise ValueError("R2GM_CONTRACT_ID_MISMATCH")
+    if payload.get("provenance_identity_rule") != "CANDIDATE_HEAD_SHA_AND_BUILD_REVISION_ARE_DISTINCT_GOVERNED_FIELDS":
+        raise ValueError("R2GM_CONTRACT_PROVENANCE_IDENTITY_DRIFT")
     if payload.get("canonical_write_authorized") is not False:
         raise ValueError("R2GM_CONTRACT_CANONICAL_WRITE_DRIFT")
+    if payload.get("technical_identity_authorized") is not False or payload.get("structural_identity_authorized") is not False:
+        raise ValueError("R2GM_CONTRACT_IDENTITY_AUTHORITY_DRIFT")
     if payload.get("engineering_authority_effect") != "NONE":
         raise ValueError("R2GM_CONTRACT_ENGINEERING_AUTHORITY_DRIFT")
     return payload
@@ -71,6 +75,10 @@ def _validate_r2gi_ready(report: dict[str, Any]) -> None:
         raise ValueError("R2GM_R2GI_NEXT_GATE_MISMATCH")
     if report.get("region_coverage") != "4/4" or report.get("missing_regions") or report.get("unresolved_regions"):
         raise ValueError("R2GM_R2GI_COVERAGE_NOT_READY")
+    if not isinstance(report.get("candidate_head_sha"), str) or not report["candidate_head_sha"]:
+        raise ValueError("R2GM_R2GI_CANDIDATE_HEAD_REQUIRED")
+    if not isinstance(report.get("build_revision"), str) or not report["build_revision"]:
+        raise ValueError("R2GM_R2GI_BUILD_REVISION_REQUIRED")
     if report.get("review_findings_are_geometry") is not False:
         raise ValueError("R2GM_R2GI_FINDING_AUTHORITY_DRIFT")
     if report.get("geometry_materialization_authorized") is not False:
@@ -81,9 +89,11 @@ def _validate_r2gi_ready(report: dict[str, Any]) -> None:
 
 def _r2m_region(report: dict[str, Any], region_id: str) -> dict[str, Any]:
     manifest = _load(R2M_MANIFEST)
-    candidate = str(report.get("candidate_head_sha", ""))
-    if manifest.get("build_revision") != candidate:
-        raise ValueError("R2GM_R2M_CANDIDATE_REVISION_MISMATCH")
+    build_revision = str(report.get("build_revision", ""))
+    if not build_revision:
+        raise ValueError("R2GM_R2GI_BUILD_REVISION_REQUIRED")
+    if manifest.get("build_revision") != build_revision:
+        raise ValueError("R2GM_R2M_BUILD_REVISION_MISMATCH")
     if manifest.get("region_coverage") != "4/4":
         raise ValueError("R2GM_R2M_REGION_COVERAGE_MISMATCH")
     if manifest.get("r2c_scene_adapter_authorized") is not False:
@@ -116,6 +126,10 @@ def _region_r2gi_row(report: dict[str, Any], region_id: str) -> dict[str, Any]:
     row = rows[0]
     if row.get("state") != "INGESTED_REVIEW_FINDINGS_ONLY" or row.get("receipt_ingested") is not True:
         raise ValueError(f"R2GM_R2GI_REGION_NOT_INGESTED:{region_id}")
+    if row.get("candidate_head_sha") != report.get("candidate_head_sha"):
+        raise ValueError(f"R2GM_R2GI_REGION_CANDIDATE_MISMATCH:{region_id}")
+    if row.get("build_revision") != report.get("build_revision"):
+        raise ValueError(f"R2GM_R2GI_REGION_BUILD_MISMATCH:{region_id}")
     return row
 
 
@@ -133,50 +147,54 @@ def build_region_proposal(report: dict[str, Any], region_id: str) -> dict[str, A
 
     base_primitives: list[dict[str, Any]] = []
     for row in r2m.get("consolidated_candidates") or []:
-        primitive = {
-            "primitive_id": "R2GM-BASE-" + str(row["consolidated_candidate_id"]),
-            "origin": "R2M_CONSOLIDATED_RASTER_CANDIDATE",
-            "geometry_type": "LINE",
-            "coordinate_space": "EVIDENCE_REGION_NORMALIZED_0_1",
-            "geometry_normalized": row["geometry_normalized"],
-            "geometry_source_page_pt": row["geometry_source_page_pt"],
-            "support_candidate_ids": list(row["support_candidate_ids"]),
-            "source_finding_id": None,
-            "human_supported_continuity": False,
-        }
-        base_primitives.append(primitive)
+        base_primitives.append(
+            {
+                "primitive_id": "R2GM-BASE-" + str(row["consolidated_candidate_id"]),
+                "origin": "R2M_CONSOLIDATED_RASTER_CANDIDATE",
+                "geometry_type": "LINE",
+                "coordinate_space": "EVIDENCE_REGION_NORMALIZED_0_1",
+                "geometry_normalized": row["geometry_normalized"],
+                "geometry_source_page_pt": row["geometry_source_page_pt"],
+                "support_candidate_ids": list(row["support_candidate_ids"]),
+                "source_finding_id": None,
+                "human_supported_continuity": False,
+            }
+        )
 
     findings = [row for row in report.get("review_findings") or [] if row.get("evidence_region_id") == region_id]
     bridge_primitives: list[dict[str, Any]] = []
     for finding in sorted(findings, key=lambda row: row["finding_id"]):
+        if finding.get("candidate_head_sha") != report["candidate_head_sha"]:
+            raise ValueError(f"R2GM_R2GI_FINDING_CANDIDATE_MISMATCH:{finding.get('finding_id')}")
+        if finding.get("build_revision") != report["build_revision"]:
+            raise ValueError(f"R2GM_R2GI_FINDING_BUILD_MISMATCH:{finding.get('finding_id')}")
         if finding.get("finding_is_geometry") is not False or finding.get("geometry_materialization_authorized") is not False:
             raise ValueError(f"R2GM_R2GI_FINDING_AUTHORITY_DRIFT:{finding.get('finding_id')}")
         if finding.get("human_decision") != "SUPPORTED_CONTINUITY_HYPOTHESIS":
             continue
         endpoints = finding["bridge_endpoints_normalized"]
-        primitive = {
-            "primitive_id": "R2GM-BRIDGE-" + str(finding["finding_id"]),
-            "origin": "R2GI_HUMAN_SUPPORTED_CONTINUITY",
-            "geometry_type": "LINE",
-            "coordinate_space": "EVIDENCE_REGION_NORMALIZED_0_1",
-            "geometry_normalized": {
-                "a": endpoints["a"],
-                "b": endpoints["b"],
-            },
-            "geometry_source_page_pt": {
-                "a": _source_point(endpoints["a"], r2m["source_rect_pt"]),
-                "b": _source_point(endpoints["b"], r2m["source_rect_pt"]),
-            },
-            "support_candidate_ids": list(finding["candidate_ids"]),
-            "source_finding_id": finding["finding_id"],
-            "human_supported_continuity": True,
-        }
-        bridge_primitives.append(primitive)
+        bridge_primitives.append(
+            {
+                "primitive_id": "R2GM-BRIDGE-" + str(finding["finding_id"]),
+                "origin": "R2GI_HUMAN_SUPPORTED_CONTINUITY",
+                "geometry_type": "LINE",
+                "coordinate_space": "EVIDENCE_REGION_NORMALIZED_0_1",
+                "geometry_normalized": {"a": endpoints["a"], "b": endpoints["b"]},
+                "geometry_source_page_pt": {
+                    "a": _source_point(endpoints["a"], r2m["source_rect_pt"]),
+                    "b": _source_point(endpoints["b"], r2m["source_rect_pt"]),
+                },
+                "support_candidate_ids": list(finding["candidate_ids"]),
+                "source_finding_id": finding["finding_id"],
+                "human_supported_continuity": True,
+            }
+        )
 
     primitives = sorted(base_primitives + bridge_primitives, key=lambda row: row["primitive_id"])
     proposal_core = {
         "proposal_contract": "CEW_PWB005_R2GM_REGION_GEOMETRY_PROPOSAL_v1",
         "candidate_head_sha": report["candidate_head_sha"],
+        "build_revision": report["build_revision"],
         "r2gi_report_sha256": report["report_sha256"],
         "evidence_region_id": region_id,
         "source_code": r2m["source_code"],
@@ -198,11 +216,7 @@ def build_region_proposal(report: dict[str, Any], region_id: str) -> dict[str, A
         "engineering_authority_effect": "NONE",
     }
     proposal_sha = _hash_value(proposal_core)
-    return {
-        **proposal_core,
-        "proposal_id": "R2GM-PROP-" + proposal_sha[:20],
-        "proposal_sha256": proposal_sha,
-    }
+    return {**proposal_core, "proposal_id": "R2GM-PROP-" + proposal_sha[:20], "proposal_sha256": proposal_sha}
 
 
 def validate_receipt(receipt: dict[str, Any], proposal: dict[str, Any]) -> dict[str, Any]:
@@ -212,6 +226,7 @@ def validate_receipt(receipt: dict[str, Any], proposal: dict[str, Any]) -> dict[
         "schema_version",
         "receipt_type",
         "candidate_head_sha",
+        "build_revision",
         "r2gi_report_sha256",
         "proposal_id",
         "proposal_sha256",
@@ -237,10 +252,11 @@ def validate_receipt(receipt: dict[str, Any], proposal: dict[str, Any]) -> dict[
     }
     if set(receipt) != required:
         raise ValueError("R2GM_RECEIPT_FIELD_SET_MISMATCH")
-    if receipt.get("schema_version") != "1.0" or receipt.get("receipt_type") != RECEIPT_TYPE:
+    if receipt.get("schema_version") != "1.1" or receipt.get("receipt_type") != RECEIPT_TYPE:
         raise ValueError("R2GM_RECEIPT_TYPE_MISMATCH")
     for key in (
         "candidate_head_sha",
+        "build_revision",
         "r2gi_report_sha256",
         "proposal_id",
         "proposal_sha256",
@@ -294,6 +310,7 @@ def _accepted_geometry(proposal: dict[str, Any], receipt: dict[str, Any]) -> dic
     geometry = {
         "geometry_contract": "CEW_PWB005_R2GM_ACCEPTED_DOCUMENT_GEOMETRY_v1",
         "candidate_head_sha": proposal["candidate_head_sha"],
+        "build_revision": proposal["build_revision"],
         "r2gi_report_sha256": proposal["r2gi_report_sha256"],
         "proposal_id": proposal["proposal_id"],
         "proposal_sha256": proposal["proposal_sha256"],
@@ -327,10 +344,9 @@ def audit_envelope(task_id: str, receipt: dict[str, Any], proposal: dict[str, An
     digest = _hash_value(validated)
     region = validated["evidence_region_id"].replace("/", "-")
     decision_id = f"R2GM-{region}-{validated['candidate_head_sha'][:12]}-{digest[:16]}"
-    decision = validated["decision"]
-    if decision == "ACCEPT_EXACT_REGION_DOCUMENT_GEOMETRY":
+    if validated["decision"] == "ACCEPT_EXACT_REGION_DOCUMENT_GEOMETRY":
         next_gate = "R2GM_ALL_REGION_ACCEPTANCE_AGGREGATION_REQUIRED"
-    elif decision == "REJECT_REGION_DOCUMENT_GEOMETRY":
+    elif validated["decision"] == "REJECT_REGION_DOCUMENT_GEOMETRY":
         next_gate = "R2_RASTER_GEOMETRY_REWORK_REQUIRED"
     else:
         next_gate = "R2GM_ADDITIONAL_SOURCE_REQUIRED"
@@ -396,13 +412,15 @@ def aggregate(report: dict[str, Any], envelopes: Iterable[dict[str, Any]]) -> di
     except ValueError as exc:
         if str(exc) in {"R2GM_R2GI_NOT_READY", "R2GM_R2GI_COVERAGE_NOT_READY"}:
             return {
-                "schema_version": "1.0",
+                "schema_version": "1.1",
                 "report_type": "CEW_PWB005_R2GM_GEOMETRY_ACCEPTANCE_REPORT_v1",
                 "candidate_head_sha": report.get("candidate_head_sha"),
+                "build_revision": report.get("build_revision"),
                 "state": "BLOCKED_R2GI_NOT_READY",
                 "reason": str(exc),
                 "next_gate": "R2GI_GOVERNED_REVIEW_INGEST_REQUIRED",
                 "region_coverage": "0/4",
+                "regions": [],
                 "accepted_document_geometry": [],
                 "document_geometry_materialized_region_count": 0,
                 "r2c_scene_adapter_authorized": False,
@@ -429,15 +447,17 @@ def aggregate(report: dict[str, Any], envelopes: Iterable[dict[str, Any]]) -> di
         proposal = build_region_proposal(report, region_id)
         if region_id not in by_region:
             missing_regions.append(region_id)
-            region_rows.append({
-                "evidence_region_id": region_id,
-                "state": "GEOMETRY_ACCEPTANCE_REQUIRED",
-                "proposal_id": proposal["proposal_id"],
-                "proposal_sha256": proposal["proposal_sha256"],
-                "primitive_count": proposal["primitive_count"],
-                "receipt_ingested": False,
-                "document_geometry_materialized": False,
-            })
+            region_rows.append(
+                {
+                    "evidence_region_id": region_id,
+                    "state": "GEOMETRY_ACCEPTANCE_REQUIRED",
+                    "proposal_id": proposal["proposal_id"],
+                    "proposal_sha256": proposal["proposal_sha256"],
+                    "primitive_count": proposal["primitive_count"],
+                    "receipt_ingested": False,
+                    "document_geometry_materialized": False,
+                }
+            )
             continue
         envelope, receipt, accepted = by_region[region_id]
         decision = receipt["decision"]
@@ -447,35 +467,34 @@ def aggregate(report: dict[str, Any], envelopes: Iterable[dict[str, Any]]) -> di
             deferred_regions.append(region_id)
         if accepted is not None:
             accepted_geometry.append(accepted)
-        region_rows.append({
-            "evidence_region_id": region_id,
-            "state": decision,
-            "proposal_id": proposal["proposal_id"],
-            "proposal_sha256": proposal["proposal_sha256"],
-            "primitive_count": proposal["primitive_count"],
-            "receipt_ingested": True,
-            "runtime_audit_decision_id": envelope["decision_id"],
-            "document_geometry_materialized": accepted is not None,
-            "accepted_geometry_sha256": accepted.get("accepted_geometry_sha256") if accepted else None,
-        })
+        region_rows.append(
+            {
+                "evidence_region_id": region_id,
+                "state": decision,
+                "proposal_id": proposal["proposal_id"],
+                "proposal_sha256": proposal["proposal_sha256"],
+                "primitive_count": proposal["primitive_count"],
+                "receipt_ingested": True,
+                "runtime_audit_decision_id": envelope["decision_id"],
+                "document_geometry_materialized": accepted is not None,
+                "accepted_geometry_sha256": accepted.get("accepted_geometry_sha256") if accepted else None,
+            }
+        )
 
     if rejected_regions:
-        state = "BLOCKED_GEOMETRY_REJECTED"
-        next_gate = "R2_RASTER_GEOMETRY_REWORK_REQUIRED"
+        state, next_gate = "BLOCKED_GEOMETRY_REJECTED", "R2_RASTER_GEOMETRY_REWORK_REQUIRED"
     elif deferred_regions:
-        state = "BLOCKED_ADDITIONAL_SOURCE_REQUIRED"
-        next_gate = "R2GM_ADDITIONAL_SOURCE_REQUIRED"
+        state, next_gate = "BLOCKED_ADDITIONAL_SOURCE_REQUIRED", "R2GM_ADDITIONAL_SOURCE_REQUIRED"
     elif missing_regions:
-        state = "BLOCKED_GEOMETRY_ACCEPTANCE_REQUIRED"
-        next_gate = "R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE_REQUIRED"
+        state, next_gate = "BLOCKED_GEOMETRY_ACCEPTANCE_REQUIRED", "R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE_REQUIRED"
     else:
-        state = "READY_FOR_R2C_DOCUMENT_GEOMETRY_SCENE_ADAPTER"
-        next_gate = "R2C_DOCUMENT_GEOMETRY_SCENE_ADAPTER_REQUIRED"
+        state, next_gate = "READY_FOR_R2C_DOCUMENT_GEOMETRY_SCENE_ADAPTER", "R2C_DOCUMENT_GEOMETRY_SCENE_ADAPTER_REQUIRED"
 
     result = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "report_type": "CEW_PWB005_R2GM_GEOMETRY_ACCEPTANCE_REPORT_v1",
         "candidate_head_sha": report["candidate_head_sha"],
+        "build_revision": report["build_revision"],
         "r2gi_report_sha256": report["report_sha256"],
         "state": state,
         "next_gate": next_gate,
@@ -500,12 +519,12 @@ def aggregate(report: dict[str, Any], envelopes: Iterable[dict[str, Any]]) -> di
 
 def build_review_page(task_id: str, report: dict[str, Any], region_id: str) -> str:
     proposal = build_region_proposal(report, region_id)
-    lines = []
+    svg_lines = []
     for primitive in proposal["primitives"]:
         a = primitive["geometry_normalized"]["a"]
         b = primitive["geometry_normalized"]["b"]
         css = "bridge" if primitive["origin"] == "R2GI_HUMAN_SUPPORTED_CONTINUITY" else "base"
-        lines.append(
+        svg_lines.append(
             f'<line class="{css}" x1="{float(a[0]):.8f}" y1="{float(a[1]):.8f}" '
             f'x2="{float(b[0]):.8f}" y2="{float(b[1]):.8f}" />'
         )
@@ -513,9 +532,9 @@ def build_review_page(task_id: str, report: dict[str, Any], region_id: str) -> s
     task_json = json.dumps(task_id, ensure_ascii=False)
     region_attr = html.escape(region_id, quote=True)
     return f'''<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CEW — Accettazione geometria documentale</title><style>
-:root{{--ink:#17202a;--muted:#61707c;--line:#cfd6dc;--accent:#173f5f;--warn:#8a4b08;--ok:#286044}}*{{box-sizing:border-box}}body{{margin:0;font-family:system-ui;background:#eef2f5;color:var(--ink)}}header{{background:#fff;border-bottom:1px solid var(--line);padding:12px 18px;display:flex;gap:12px;align-items:center}}main{{max-width:1450px;margin:auto;padding:16px}}a{{color:var(--accent);font-weight:700}}.notice{{background:#fff7e8;border-left:5px solid var(--warn);padding:10px 12px;margin-bottom:12px}}.layout{{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(360px,.75fr);gap:14px}}.viewport{{position:sticky;top:12px;background:#111;border:1px solid #555;max-height:82vh;overflow:auto}}.viewport img{{display:block;width:100%;height:auto}}.viewport svg{{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}}.viewport line{{fill:none;vector-effect:non-scaling-stroke}}.viewport .base{{stroke:#00b7ff;stroke-width:1.4px;opacity:.82}}.viewport .bridge{{stroke:#ff2d55;stroke-width:3px;stroke-dasharray:9 6}}.card{{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:10px}}.metric{{display:grid;grid-template-columns:1fr auto;gap:8px;border-bottom:1px solid #e5eaee;padding:7px 0}}label{{display:block;font-weight:700;margin:10px 0}}select,textarea,input{{width:100%;font:inherit;padding:8px;border:1px solid #aeb9c2;border-radius:6px;margin-top:4px}}button{{font:inherit;background:var(--accent);color:#fff;border:0;border-radius:6px;padding:10px 14px;font-weight:800;cursor:pointer}}.receipt{{background:#edf8f1;border-left:4px solid var(--ok);padding:10px;margin-top:10px}}.error{{background:#fff0f0;border-left:4px solid #a12622;padding:10px;margin-top:10px}}@media(max-width:900px){{.layout{{grid-template-columns:1fr}}.viewport{{position:relative;top:auto}}}}
-</style></head><body><header><a href="/workbench?task={html.escape(task_id, quote=True)}">← Ambiente grafico</a><strong>Accettazione esplicita della geometria documentale</strong></header><main><div class="notice"><b>Decisione distinta:</b> qui non stai confermando una semplice ipotesi di continuità. Stai decidendo se l'intera geometria sovrapposta alla sorgente, identificata da un'impronta immutabile, può essere trattata come <b>geometria documentale accettata</b>. Anche se accettata, non diventa identità tecnica/strutturale, non modifica il canonico e non produce autorità ingegneristica.</div><div class="layout"><section><div class="viewport"><img src="/workbench/gap-review/assets/{region_attr}/source_crop_300.png" alt="Ritaglio della fonte verificata"><svg viewBox="0 0 1 1" preserveAspectRatio="none" aria-label="Geometria proposta"><g>{''.join(lines)}</g></svg></div></section><section><div class="card"><h1>Proposta geometrica della regione</h1><div class="metric"><span>Primitive consolidate</span><b>{proposal['base_primitive_count']}</b></div><div class="metric"><span>Continuità supportate incluse</span><b>{proposal['human_supported_bridge_count']}</b></div><div class="metric"><span>Primitive totali</span><b>{proposal['primitive_count']}</b></div><p style="color:var(--muted)">Azzurro: geometria raster consolidata. Magenta tratteggiato: sole continuità già supportate dalla precedente revisione umana. L'accettazione riguarda esattamente questa composizione.</p><label>Decisione<select id="decision"><option value="">— seleziona —</option><option value="ACCEPT_EXACT_REGION_DOCUMENT_GEOMETRY">Accetta questa geometria documentale esatta</option><option value="REJECT_REGION_DOCUMENT_GEOMETRY">Respingi questa geometria</option><option value="DEFER_NEEDS_ADDITIONAL_SOURCE">Rimanda: serve un'altra fonte o vista</option></select></label><label>Motivazione<textarea id="rationale" rows="5" maxlength="4000" placeholder="Motiva la decisione sulla geometria complessiva visibile."></textarea></label><label>Revisore<input id="reviewerLabel" maxlength="200" placeholder="Nome, sigla o identificativo professionale"></label><label><input id="attestation" type="checkbox" style="width:auto"> Attesto di aver confrontato la geometria proposta con la sorgente visualizzata e di comprendere che l'accettazione è limitata alla geometria documentale.</label><button id="submitBtn">Registra decisione geometrica in CEW</button><div id="result" aria-live="polite"></div></div></section></div></main><script id="proposal" type="application/json">{embedded}</script><script>
+*{{box-sizing:border-box}}body{{margin:0;font-family:system-ui;background:#eef2f5;color:#17202a}}header{{background:#fff;border-bottom:1px solid #cfd6dc;padding:12px 18px}}main{{max-width:1450px;margin:auto;padding:16px}}.notice,.card{{background:#fff;padding:12px;margin-bottom:12px}}.notice{{border-left:5px solid #8a4b08}}.layout{{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(360px,.75fr);gap:14px}}.viewport{{position:relative;background:#111;max-height:82vh;overflow:auto}}.viewport img{{display:block;width:100%}}.viewport svg{{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}}line{{fill:none;vector-effect:non-scaling-stroke}}.base{{stroke:#00b7ff;stroke-width:1.4px;opacity:.82}}.bridge{{stroke:#ff2d55;stroke-width:3px;stroke-dasharray:9 6}}label{{display:block;font-weight:700;margin:10px 0}}select,textarea,input{{width:100%;padding:8px;margin-top:4px}}button{{padding:10px 14px;font-weight:800}}@media(max-width:900px){{.layout{{grid-template-columns:1fr}}}}
+</style></head><body><header><a href="/workbench?task={html.escape(task_id, quote=True)}">← Ambiente grafico</a></header><main><div class="notice"><b>Decisione distinta:</b> l'accettazione riguarda esclusivamente la geometria documentale esatta mostrata. Non crea identità tecnica o strutturale, non modifica il canonico e non produce autorità ingegneristica.</div><div class="layout"><section><div class="viewport"><img src="/workbench/gap-review/assets/{region_attr}/source_crop_300.png" alt="Ritaglio della fonte verificata"><svg viewBox="0 0 1 1" preserveAspectRatio="none"><g>{''.join(svg_lines)}</g></svg></div></section><section><div class="card"><h1>Proposta geometrica della regione</h1><p>Primitive consolidate: <b>{proposal['base_primitive_count']}</b><br>Continuità supportate incluse: <b>{proposal['human_supported_bridge_count']}</b><br>Primitive totali: <b>{proposal['primitive_count']}</b></p><label>Decisione<select id="decision"><option value="">— seleziona —</option><option value="ACCEPT_EXACT_REGION_DOCUMENT_GEOMETRY">Accetta questa geometria documentale esatta</option><option value="REJECT_REGION_DOCUMENT_GEOMETRY">Respingi questa geometria</option><option value="DEFER_NEEDS_ADDITIONAL_SOURCE">Rimanda: serve un'altra fonte o vista</option></select></label><label>Motivazione<textarea id="rationale" rows="5" maxlength="4000"></textarea></label><label>Revisore<input id="reviewerLabel" maxlength="200"></label><label><input id="attestation" type="checkbox" style="width:auto"> Attesto di aver confrontato la proposta con la sorgente e che la decisione riguarda solo geometria documentale.</label><button id="submitBtn">Registra decisione geometrica in CEW</button><div id="result" aria-live="polite"></div></div></section></div></main><script id="proposal" type="application/json">{embedded}</script><script>
 const TASK={task_json};const P=JSON.parse(document.getElementById('proposal').textContent);const out=document.getElementById('result');
-function collect(){{const decision=document.getElementById('decision').value;const rationale=document.getElementById('rationale').value.trim();const label=document.getElementById('reviewerLabel').value.trim();if(!decision)throw new Error('Seleziona una decisione.');if(!rationale)throw new Error('Inserisci la motivazione.');if(!label)throw new Error('Inserisci il revisore.');if(!document.getElementById('attestation').checked)throw new Error('È richiesta l’attestazione del revisore.');return {{schema_version:'1.0',receipt_type:'{RECEIPT_TYPE}',candidate_head_sha:P.candidate_head_sha,r2gi_report_sha256:P.r2gi_report_sha256,proposal_id:P.proposal_id,proposal_sha256:P.proposal_sha256,evidence_region_id:P.evidence_region_id,source_code:P.source_code,source_version_id:P.source_version_id,source_sha256:P.source_sha256,page_id:P.page_id,transform_id:P.transform_id,proposal_primitive_count:P.primitive_count,reviewer_label:label,reviewer_attestation:true,reviewed_at:new Date().toISOString(),decision,rationale,receipt_authority:'HUMAN_DOCUMENT_GEOMETRY_ACCEPTANCE_ONLY',document_geometry_materialization_authorized:decision==='ACCEPT_EXACT_REGION_DOCUMENT_GEOMETRY',r2c_scene_adapter_authorized:false,technical_identity_authorized:false,structural_identity_authorized:false,canonical_write_authorized:false,engineering_authority_effect:'NONE'}}}}
-document.getElementById('submitBtn').onclick=async()=>{{try{{const receipt=collect();const r=await fetch('/api/workbench/geometry-acceptance/receipt',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{task:TASK,receipt}})}});const body=await r.json();if(!r.ok)throw new Error(body.reason||body.state||'Decisione respinta');out.className='receipt';out.textContent='Decisione registrata. Stato complessivo R2GM: '+body.geometry_acceptance_state+'. Prossimo gate: '+body.next_gate+'. Nessuna scrittura canonica è stata eseguita.';document.getElementById('submitBtn').disabled=true}}catch(e){{out.className='error';out.textContent=e.message}}}};
+function collect(){{const decision=document.getElementById('decision').value;const rationale=document.getElementById('rationale').value.trim();const label=document.getElementById('reviewerLabel').value.trim();if(!decision)throw new Error('Seleziona una decisione.');if(!rationale)throw new Error('Inserisci la motivazione.');if(!label)throw new Error('Inserisci il revisore.');if(!document.getElementById('attestation').checked)throw new Error('È richiesta l’attestazione del revisore.');return {{schema_version:'1.1',receipt_type:'{RECEIPT_TYPE}',candidate_head_sha:P.candidate_head_sha,build_revision:P.build_revision,r2gi_report_sha256:P.r2gi_report_sha256,proposal_id:P.proposal_id,proposal_sha256:P.proposal_sha256,evidence_region_id:P.evidence_region_id,source_code:P.source_code,source_version_id:P.source_version_id,source_sha256:P.source_sha256,page_id:P.page_id,transform_id:P.transform_id,proposal_primitive_count:P.primitive_count,reviewer_label:label,reviewer_attestation:true,reviewed_at:new Date().toISOString(),decision,rationale,receipt_authority:'HUMAN_DOCUMENT_GEOMETRY_ACCEPTANCE_ONLY',document_geometry_materialization_authorized:decision==='ACCEPT_EXACT_REGION_DOCUMENT_GEOMETRY',r2c_scene_adapter_authorized:false,technical_identity_authorized:false,structural_identity_authorized:false,canonical_write_authorized:false,engineering_authority_effect:'NONE'}}}}
+document.getElementById('submitBtn').onclick=async()=>{{try{{const receipt=collect();const r=await fetch('/api/workbench/geometry-acceptance/receipt',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{task:TASK,receipt}})}});const body=await r.json();if(!r.ok)throw new Error(body.reason||body.state||'Decisione respinta');out.textContent='Decisione registrata. Stato R2GM: '+body.geometry_acceptance_state+'. Prossimo gate: '+body.next_gate+'. Nessuna scrittura canonica è stata eseguita.';document.getElementById('submitBtn').disabled=true}}catch(e){{out.textContent=e.message}}}};
 </script></body></html>'''
