@@ -10,10 +10,12 @@ from fastapi import APIRouter, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 
 import cew_managed_f3_assets as managed_f3_assets
+import cew_professional_gap_review as gap_review
 import cew_professional_workbench_client as client
 import cew_professional_workbench_core as core
 import cew_professional_workbench_document_geometry as document_geometry
 import cew_professional_workbench_projection as projection
+import cew_runtime_audit_store as audit_store
 
 
 def _error(state: str, reason: str, status_code: int) -> JSONResponse:
@@ -81,12 +83,16 @@ def _safe_asset_path(asset_path: str) -> Path:
     return target
 
 
-def _public_workbench_html(task: str) -> str:
-    """Keep internal task ids out of the primary visible Workbench chrome.
+def _task_context(task: str, source_workspace) -> tuple[dict[str, Any], str]:
+    ctx = source_workspace.task_context(task)
+    region_id = str(ctx["region"]["evidence_region_id"]).strip()
+    if not region_id:
+        raise ValueError("WORKBENCH_EVIDENCE_REGION_REQUIRED")
+    return ctx, region_id
 
-    The exact task id remains in the non-visible client state and becomes visible
-    only through provenance/detail content, consistent with the UX contract.
-    """
+
+def _public_workbench_html(task: str) -> str:
+    """Keep internal task ids out of the primary visible Workbench chrome."""
     rendered = client.build_client(task)
     escaped = html.escape(task, quote=True)
     rendered = rendered.replace(
@@ -97,6 +103,13 @@ def _public_workbench_html(task: str) -> str:
         f'<div class="crumb">Progetto N12 › Evidenza › {escaped}</div>',
         '<div class="crumb">Progetto N12 › Evidenza › Revisione tecnica</div>',
     )
+    marker = '<a id="pdfLink" class="button desktop-only" href="#" target="_blank" rel="noopener">PDF verificato</a>'
+    review_link = (
+        f'<a id="gapReviewLink" class="button desktop-only" '
+        f'href="/workbench/gap-review?task={escaped}">Verifica continuità raster</a>'
+    )
+    if marker in rendered:
+        rendered = rendered.replace(marker, marker + review_link, 1)
     return rendered
 
 
@@ -133,6 +146,108 @@ def build_router(source_workspace) -> APIRouter:
     @router.get("/api/workbench/document-geometry/status")
     def workbench_document_geometry_status():
         return _json(document_geometry.status())
+
+    @router.get("/api/workbench/gap-review/status")
+    def workbench_gap_review_status(task: str = ""):
+        if not task.strip():
+            return _error("R2HR_STATUS_REJECTED", "WORKBENCH_TASK_REQUIRED", 400)
+        try:
+            _, region_id = _task_context(task.strip(), source_workspace)
+            state = gap_review.status()
+        except (KeyError, ValueError) as exc:
+            return _error("R2HR_STATUS_REJECTED", str(exc), 422)
+        if state["state"] != "READY":
+            return _json(state, 503)
+        row = next((row for row in state["regions"] if row["evidence_region_id"] == region_id), None)
+        if row is None:
+            return _error("R2HR_STATUS_REJECTED", "R2HR_REGION_NOT_FOUND", 404)
+        return _json(
+            {
+                "state": "READY",
+                "evidence_region_id": region_id,
+                "gap_count": row["gap_count"],
+                "candidate_head_sha": state["candidate_head_sha"],
+                "human_review_required": row["gap_count"] > 0,
+                "receipt_authority": "HUMAN_REVIEW_EVIDENCE_ONLY",
+                "geometry_materialization_authorized": False,
+            }
+        )
+
+    @router.get("/workbench/gap-review", response_class=HTMLResponse)
+    def workbench_gap_review(task: str = ""):
+        if not task.strip():
+            return HTMLResponse("<h1>Revisione non disponibile</h1><a href='/'>Torna al progetto</a>", status_code=400)
+        try:
+            _, region_id = _task_context(task.strip(), source_workspace)
+            page = gap_review.build_review_page(task.strip(), region_id)
+        except (KeyError, ValueError) as exc:
+            return HTMLResponse(
+                f"<h1>Revisione non disponibile</h1><p>{html.escape(str(exc))}</p><a href='/workbench?task={html.escape(task.strip(), quote=True)}'>Torna all'ambiente grafico</a>",
+                status_code=503,
+            )
+        return HTMLResponse(
+            page,
+            headers={
+                "Cache-Control": "no-store",
+                "X-CEW-Review-Authority": "HUMAN_REVIEW_EVIDENCE_ONLY",
+                "X-CEW-Geometry-Materialization": "false",
+                "X-CEW-Canonical-Write": "false",
+            },
+        )
+
+    @router.get("/workbench/gap-review/assets/{region_id}/source_crop_300.png")
+    def workbench_gap_review_source_crop(region_id: str):
+        try:
+            target = gap_review.source_crop_path(region_id)
+        except ValueError as exc:
+            return _error("R2HR_ASSET_REJECTED", str(exc), 422)
+        return FileResponse(
+            target,
+            media_type="image/png",
+            headers={
+                "Cache-Control": "private, max-age=31536000, immutable",
+                "X-CEW-Derived-Authority": "READING_AID_ONLY",
+                "X-CEW-Canonical-Write": "false",
+            },
+        )
+
+    @router.post("/api/workbench/gap-review/receipt")
+    async def workbench_gap_review_receipt(request: Request):
+        try:
+            payload = await request.json()
+        except Exception:
+            return _error("R2HR_RECEIPT_REJECTED", "INVALID_JSON", 400)
+        if not isinstance(payload, dict) or set(payload) != {"task", "receipt"}:
+            return _error("R2HR_RECEIPT_REJECTED", "R2HR_WRAPPER_FIELD_SET_MISMATCH", 400)
+        try:
+            task_id = _task(payload)
+            _, region_id = _task_context(task_id, source_workspace)
+            receipt = payload.get("receipt")
+            if not isinstance(receipt, dict):
+                raise ValueError("R2HR_RECEIPT_OBJECT_REQUIRED")
+            if receipt.get("evidence_region_id") != region_id:
+                raise ValueError("R2HR_TASK_REGION_MISMATCH")
+            expected = gap_review.template(region_id)
+            validated = gap_review.validate_receipt(receipt, expected)
+            envelope = gap_review.audit_envelope(task_id, validated)
+            persisted = audit_store.persist_runtime_receipt(
+                envelope,
+                Path("/tmp/cew-runtime/r2hr-receipts"),
+            )
+        except (KeyError, ValueError) as exc:
+            return _error("R2HR_RECEIPT_REJECTED", str(exc), 422)
+        return _json(
+            {
+                "state": "R2HR_RECEIPT_PERSISTED_AUDIT_ONLY",
+                "runtime_receipt_id": persisted["runtime_receipt_id"],
+                "sha256": persisted["sha256"],
+                "audit_backend": persisted["audit_backend"],
+                "receipt_authority": "HUMAN_REVIEW_EVIDENCE_ONLY",
+                "geometry_materialization_authorized": False,
+                "bridge_candidate_authorized": False,
+                "next_gate": "R2HR_GOVERNED_REVIEW_INGEST_REQUIRED",
+            }
+        )
 
     @router.get("/workbench/assets/{asset_path:path}")
     def workbench_asset(asset_path: str):
