@@ -4,11 +4,14 @@ on:
   pull_request:
     paths:
       - 'automation/CEW_PWB005_R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE_CONTRACT_v1.json'
+      - 'automation/CEW_PROFESSIONAL_WORKBENCH_IMPLEMENTATION_MATRIX_v1.json'
+      - 'scripts/validate_cew_professional_workbench_audit.py'
       - 'scripts/cew_r2gm_geometry_acceptance.py'
       - 'scripts/validate_cew_r2gm_geometry_acceptance.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/cew_runtime_audit_store.py'
       - 'scripts/cew_r2hr_governed_ingest.py'
+      - 'scripts/validate_cew_r2hr_governed_ingest.py'
       - 'scripts/cew_professional_gap_review.py'
       - 'scripts/build_cew_human_gap_review_receipts.py'
       - 'scripts/build_cew_raster_gap_review_view.py'
@@ -52,8 +55,10 @@ jobs:
             scripts/cew_r2gm_geometry_acceptance.py \
             scripts/validate_cew_r2gm_geometry_acceptance.py \
             scripts/cew_r2hr_governed_ingest.py \
+            scripts/validate_cew_r2hr_governed_ingest.py \
             scripts/cew_professional_gap_review.py \
-            scripts/cew_professional_workbench_api.py
+            scripts/cew_professional_workbench_api.py \
+            scripts/validate_cew_professional_workbench_audit.py
 
       - name: Rebuild exact-revision R2 through R2HR chain
         env:
@@ -93,6 +98,9 @@ jobs:
         env:
           CEW_REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: python scripts/validate_cew_r2gm_geometry_acceptance.py
+
+      - name: Validate workbench reconciliation
+        run: python scripts/validate_cew_professional_workbench_audit.py
 
       - name: Assert authority boundary
         run: |
