@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "program": "CEW_OBJECT_ACQUISITION_AND_RECOGNITION",
-  "current_item": "OA-1",
+  "current_item": "OA-2",
   "items": [
     {
       "id": "OA-0",
@@ -14,8 +14,10 @@
     {
       "id": "OA-1",
       "title": "Human Object Workbench",
-      "state": "IN_PROGRESS",
-      "requires": ["OA-0=COMPLETE_PASS"],
+      "state": "COMPLETE_PASS",
+      "validated_head": "1280c0f879bec50f4a4cfbec763b283f13ae4793",
+      "gate": "OA1_HUMAN_OBJECT_WORKBENCH_PASS",
+      "runtime_integration": "WORKBENCH_INTEGRATED",
       "scope": [
         "CAD-first technical scene",
         "type-specific pass control",
@@ -24,20 +26,21 @@
         "blocker panel",
         "on-demand source provenance"
       ],
-      "completion_gate": "OA1_HUMAN_OBJECT_WORKBENCH_PASS"
+      "promotion_effect": "NONE"
     },
     {
       "id": "OA-2",
       "title": "Human Teaching",
-      "state": "BLOCKED_BY_OA1",
+      "state": "IN_PROGRESS",
       "requires": ["OA-1=COMPLETE_PASS"],
-      "scope": ["THIS_IS_A", "prototype creation", "family assignment"]
+      "scope": ["THIS_IS_A", "prototype creation", "family assignment"],
+      "completion_gate": "OA2_HUMAN_TEACHING_PASS"
     },
     {
       "id": "OA-3",
       "title": "Deterministic Similarity",
-      "state": "WAITING",
-      "requires": ["OA-2=PASS"],
+      "state": "BLOCKED_BY_OA2",
+      "requires": ["OA-2=COMPLETE_PASS"],
       "scope": ["geometry", "dimension", "orientation", "topology", "spatial context", "associated text"]
     },
     {
@@ -66,7 +69,7 @@
   "pilot": {
     "object_type": "COLUMN",
     "scope": "ONE_GOVERNED_STRUCTURAL_DRAWING",
-    "state": "WAITING_FOR_OA1_PASS",
+    "state": "READY_FOR_HUMAN_TEACHING",
     "start_after": "OA-1=COMPLETE_PASS"
   },
   "global_blocks": {
