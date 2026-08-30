@@ -24,6 +24,14 @@ CLIENT_WORKFLOW = ROOT / ".github/workflows/validate-cew-professional-workbench-
 GAP_REVIEW = ROOT / "scripts/cew_professional_gap_review.py"
 GAP_REVIEW_VALIDATOR = ROOT / "scripts/validate_cew_professional_gap_review.py"
 GAP_REVIEW_WORKFLOW = ROOT / ".github/workflows/validate-cew-professional-gap-review.yml"
+R2GI = ROOT / "scripts/cew_r2hr_governed_ingest.py"
+R2GI_VALIDATOR = ROOT / "scripts/validate_cew_r2hr_governed_ingest.py"
+R2GI_RUNTIME_VALIDATOR = ROOT / "scripts/validate_cew_r2gi_runtime_ingest.py"
+R2GI_WORKFLOW = ROOT / ".github/workflows/validate-cew-r2gi-governed-ingest.yml"
+R2GM_CONTRACT = ROOT / "automation/CEW_PWB005_R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE_CONTRACT_v1.json"
+R2GM = ROOT / "scripts/cew_r2gm_geometry_acceptance.py"
+R2GM_VALIDATOR = ROOT / "scripts/validate_cew_r2gm_geometry_acceptance.py"
+R2GM_WORKFLOW = ROOT / ".github/workflows/validate-cew-r2gm-geometry-acceptance.yml"
 PROJECT_HOME = ROOT / "scripts/cew_project_home.py"
 SOURCE_VIEWER = ROOT / "scripts/build_cew_source_viewer.py"
 ERW = ROOT / "scripts/build_cew_erw_synced_workspace.py"
@@ -41,8 +49,11 @@ RUNTIME_SMOKE = ROOT / "scripts/validate_cew_professional_workbench_runtime_smok
 RENDER = ROOT / "render.yaml"
 RENDER_BUILD = ROOT / "scripts/render_build_candidate.sh"
 REQUIREMENTS = ROOT / "requirements.txt"
+
 CLIENT_VERIFIED_CANDIDATE = "9296d82a02ce1d4e2e171f64c937e828094cca2d"
 R2HR_RUNTIME_VERIFIED_CANDIDATE = "f3ac68223984f0bcfd7692e7fabedf789b889b94"
+R2GI_RUNTIME_VERIFIED_CANDIDATE = "a2fff01d5829c1bc76c4e5e60ed63793472427df"
+R2GM_CI_VERIFIED_CANDIDATE = "a2fff01d5829c1bc76c4e5e60ed63793472427df"
 
 
 def require(value: bool, message: str) -> None:
@@ -64,11 +75,15 @@ def main() -> int:
     reqs = {row["id"]: row for row in matrix["requirements"]}
     blockers = matrix["blocking_requirement_ids"]
 
-    require(matrix["schema_version"] == "1.7", "matrix must be schema 1.7")
-    require(matrix["status"] == "CLIENT_AND_R2HR_RUNTIME_INTEGRATED_PWB005_BLOCKED", "matrix status drift")
+    require(matrix["schema_version"] == "1.8", "matrix must be schema 1.8")
+    require(matrix["status"] == "CLIENT_R2HR_R2GI_R2GM_INTEGRATED_PWB005_BLOCKED", "matrix status drift")
     require(matrix["client_integration_verified_candidate"] == CLIENT_VERIFIED_CANDIDATE, "client integration verified candidate drift")
     require(matrix["r2hr_runtime_verified_candidate"] == R2HR_RUNTIME_VERIFIED_CANDIDATE, "R2HR runtime verified candidate drift")
+    require(matrix["r2gi_runtime_verified_candidate"] == R2GI_RUNTIME_VERIFIED_CANDIDATE, "R2GI runtime verified candidate drift")
+    require(matrix["r2gm_ci_verified_candidate"] == R2GM_CI_VERIFIED_CANDIDATE, "R2GM CI verified candidate drift")
     require(matrix["r2hr_in_system_review_state"] == "INTEGRATED_AUDIT_ONLY_HUMAN_RECEIPT_REQUIRED", "R2HR in-system review state drift")
+    require(matrix["r2gi_in_system_state"] == "INTEGRATED_GOVERNED_INGEST_REAL_HUMAN_RECEIPTS_REQUIRED", "R2GI in-system state drift")
+    require(matrix["r2gm_in_system_state"] == "INTEGRATED_EXPLICIT_DOCUMENT_GEOMETRY_ACCEPTANCE_HUMAN_RECEIPTS_REQUIRED", "R2GM in-system state drift")
     require(matrix["professional_workbench_readiness"] == "REWORK_REQUIRED", "workbench must remain REWORK_REQUIRED")
     require(matrix["hva_execution_authorized"] is False, "HVA must remain blocked")
     require(matrix["b1_promotion_authorized"] is False, "B1 promotion must remain blocked")
@@ -112,7 +127,16 @@ def main() -> int:
     require(finding["r2hr_json_download_required"] is False, "R2HR review must not require JSON export")
     require(finding["r2hr_receipt_persistence"] == "APPEND_ONLY_RUNTIME_AUDIT", "R2HR persistence boundary drift")
     require(finding["r2hr_receipt_is_geometry_acceptance"] is False, "R2HR receipt cannot be geometry acceptance")
-    require(finding["r2hr_governed_ingest_required"] is True, "R2HR governed ingest gate must remain required")
+    require(finding["r2gi_governed_ingest_integrated"] is True, "R2GI governed ingest must be integrated")
+    require(finding["r2gi_review_findings_are_geometry"] is False, "R2GI findings cannot become geometry")
+    require(finding["r2gi_candidate_build_revision_separated"] is True, "R2GI dual provenance must remain separated")
+    require(finding["r2gm_explicit_geometry_acceptance_integrated"] is True, "R2GM must be integrated")
+    require(finding["r2gm_candidate_build_revision_separated"] is True, "R2GM dual provenance must remain separated")
+    require(finding["r2gm_real_human_acceptance_receipt_asserted"] is False, "no real R2GM human receipt may be asserted")
+    require(finding["r2gm_acceptance_is_technical_identity"] is False, "R2GM acceptance cannot create technical identity")
+    require(finding["r2gm_acceptance_is_structural_identity"] is False, "R2GM acceptance cannot create structural identity")
+    require(finding["r2gm_next_gate_when_4_of_4_accepted"] == "R2C_DOCUMENT_GEOMETRY_SCENE_ADAPTER_REQUIRED", "R2GM downstream gate drift")
+    require(finding["r2c_scene_adapter_implemented"] is False, "R2C must remain explicitly unimplemented")
 
     audit = text(AUDIT)
     for marker in (
@@ -191,8 +215,9 @@ def main() -> int:
         require(marker in client_validator, f"client validator marker missing: {marker}")
     require("Validate CEW Professional Workbench Client" in text(CLIENT_WORKFLOW), "client CI gate missing")
     require('/workbench?task={quote(task.get(\'task_id\',\'\'))}' in text(PROJECT_HOME), "Project Home does not enter professional Workbench")
-    require('@router.get("/workbench", response_class=HTMLResponse)' in text(API), "professional Workbench route missing")
-    require("Progetto N12 › Evidenza › Revisione tecnica" in text(API), "primary Workbench chrome must hide internal task id")
+    api = text(API)
+    require('@router.get("/workbench", response_class=HTMLResponse)' in api, "professional Workbench route missing")
+    require("Progetto N12 › Evidenza › Revisione tecnica" in api, "primary Workbench chrome must hide internal task id")
 
     gap_review = text(GAP_REVIEW)
     for marker in (
@@ -217,9 +242,69 @@ def main() -> int:
     ):
         require(marker in gap_validator, f"R2HR validator marker missing: {marker}")
     require("Validate CEW Professional Gap Review" in text(GAP_REVIEW_WORKFLOW), "R2HR dedicated CI gate missing")
-    require('@router.get("/workbench/gap-review"' in text(API), "R2HR in-system review route missing")
-    require('@router.post("/api/workbench/gap-review/receipt")' in text(API), "R2HR receipt route missing")
-    require("R2HR_RECEIPT_PERSISTED_AUDIT_ONLY" in text(API), "R2HR audit-only persistence marker missing")
+    require('@router.get("/workbench/gap-review"' in api, "R2HR in-system review route missing")
+    require('@router.post("/api/workbench/gap-review/receipt")' in api, "R2HR receipt route missing")
+    require("R2HR_RECEIPT_PERSISTED_AUDIT_ONLY" in api, "R2HR audit-only persistence marker missing")
+
+    r2gi = text(R2GI)
+    require("READY_FOR_EXPLICIT_GEOMETRY_ACCEPTANCE_REVIEW" in r2gi, "R2GI ready state missing")
+    require("R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE_REQUIRED" in r2gi, "R2GI next gate missing")
+    require("build_revision" in r2gi and "candidate_head_sha" in r2gi, "R2GI dual provenance fields missing")
+    r2gi_validator = text(R2GI_VALIDATOR)
+    for marker in (
+        "CEW_PWB005_R2GI_GOVERNED_INGEST = PASS",
+        "R2GI_CANDIDATE_AND_BUILD_REVISION_SEPARATION = PASS",
+        "R2GI_REVIEW_FINDING_IS_NOT_GEOMETRY = PASS",
+        "R2GI_NEXT_GATE = R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE_REQUIRED",
+        "GEOMETRY_MATERIALIZATION_AUTHORIZED = false",
+        "CANONICAL_WRITE_AUTHORIZED = false",
+        "ENGINEERING_AUTHORITY_EFFECT = NONE",
+    ):
+        require(marker in r2gi_validator, f"R2GI validator marker missing: {marker}")
+    require("Validate CEW R2GI Governed Review Ingest" in text(R2GI_WORKFLOW), "R2GI dedicated CI gate missing")
+    require("runtime audit read-back and R2GI routing" in text(R2GI_WORKFLOW), "R2GI runtime read-back gate missing")
+    require("CEW_R2GI_RUNTIME_AUDIT_READ_BACK = PASS" in text(R2GI_RUNTIME_VALIDATOR), "R2GI runtime read-back validator missing")
+    require('@router.get("/api/workbench/gap-review/ingest-status")' in api, "R2GI runtime status route missing")
+
+    r2gm_contract = load(R2GM_CONTRACT)
+    require(r2gm_contract["schema_version"] == "1.1", "R2GM contract schema drift")
+    require(r2gm_contract["provenance_identity_rule"] == "CANDIDATE_HEAD_SHA_AND_BUILD_REVISION_ARE_DISTINCT_GOVERNED_FIELDS", "R2GM provenance identity rule drift")
+    require(r2gm_contract["canonical_write_authorized"] is False, "R2GM contract canonical-write drift")
+    require(r2gm_contract["technical_identity_authorized"] is False, "R2GM contract technical identity drift")
+    require(r2gm_contract["structural_identity_authorized"] is False, "R2GM contract structural identity drift")
+    require(r2gm_contract["engineering_authority_effect"] == "NONE", "R2GM contract engineering authority drift")
+    require(r2gm_contract["next_gate_when_complete"] == "R2C_DOCUMENT_GEOMETRY_SCENE_ADAPTER_REQUIRED", "R2GM downstream gate drift")
+    r2gm = text(R2GM)
+    for marker in (
+        "HUMAN_ACCEPTED_DOCUMENT_GEOMETRY",
+        "proposal_requires_explicit_human_acceptance",
+        "candidate_head_sha",
+        "build_revision",
+        "READY_FOR_R2C_DOCUMENT_GEOMETRY_SCENE_ADAPTER",
+    ):
+        require(marker in r2gm, f"R2GM implementation marker missing: {marker}")
+    r2gm_validator = text(R2GM_VALIDATOR)
+    for marker in (
+        "CEW_PWB005_R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE = PASS",
+        "R2GM_CANDIDATE_AND_BUILD_REVISION_SEPARATION = PASS",
+        "R2GM_R2M_BUILD_REVISION_MATCH = PASS",
+        "R2GM_DOCUMENT_GEOMETRY_MATERIALIZATION = HUMAN_ACCEPTANCE_ONLY",
+        "R2GM_4_OF_4_ACCEPTANCE_NEXT_GATE = R2C_DOCUMENT_GEOMETRY_SCENE_ADAPTER_REQUIRED",
+        "R2GM_TECHNICAL_IDENTITY_AUTHORIZED = false",
+        "R2GM_STRUCTURAL_IDENTITY_AUTHORIZED = false",
+        "R2GM_CANONICAL_WRITE_AUTHORIZED = false",
+        "R2GM_ENGINEERING_AUTHORITY_EFFECT = NONE",
+    ):
+        require(marker in r2gm_validator, f"R2GM validator marker missing: {marker}")
+    r2gm_workflow = text(R2GM_WORKFLOW)
+    require("Validate CEW R2GM Explicit Geometry Acceptance" in r2gm_workflow, "R2GM dedicated CI gate missing")
+    require("automation/CEW_PROFESSIONAL_WORKBENCH_IMPLEMENTATION_MATRIX_v1.json" in r2gm_workflow, "R2GM matrix trigger missing")
+    require("scripts/validate_cew_professional_workbench_audit.py" in r2gm_workflow, "R2GM audit reconciliation trigger missing")
+    require("Validate workbench reconciliation" in r2gm_workflow, "R2GM workbench reconciliation step missing")
+    require('@router.get("/workbench/geometry-acceptance"' in api, "R2GM review route missing")
+    require('@router.get("/api/workbench/geometry-acceptance/status")' in api, "R2GM status route missing")
+    require('@router.post("/api/workbench/geometry-acceptance/receipt")' in api, "R2GM receipt route missing")
+    require("R2GM_RECEIPT_PERSISTED_DOCUMENT_GEOMETRY_DECISION" in api, "R2GM persistence marker missing")
 
     require("openseadragon" in text(SOURCE_VIEWER).lower(), "OpenSeadragon foundation missing")
     require("svg" in text(ERW).lower(), "F6 SVG foundation missing")
@@ -238,7 +323,7 @@ def main() -> int:
     for marker in ("DPI = 300", "TILE_SIZE = 256", "OVERLAP = 1", "JPEG_QUALITY = 90", 'OSD_VERSION = "5.0.1"'):
         require(marker in f3, f"managed F3 marker missing: {marker}")
     require("MANAGED_F3_RUNTIME_REVISION_MISMATCH" in text(F3_RUNTIME), "F3 revision guard missing")
-    require("/workbench/assets/{asset_path:path}" in text(API), "authenticated asset route missing")
+    require("/workbench/assets/{asset_path:path}" in api, "authenticated asset route missing")
     require("FASTAPI_INCLUDED_ROUTER_TREE = PASS" in text(RUNTIME_SMOKE), "runtime route-tree smoke missing")
 
     render = text(RENDER)
@@ -274,12 +359,20 @@ def main() -> int:
     print("CEW_PROFESSIONAL_WORKBENCH_AUDIT_CONSISTENCY = PASS")
     print("CEW_PROFESSIONAL_WORKBENCH_CLIENT_RECONCILIATION = PASS")
     print("CEW_PROFESSIONAL_WORKBENCH_R2HR_RECONCILIATION = PASS")
+    print("CEW_PROFESSIONAL_WORKBENCH_R2GI_RECONCILIATION = PASS")
+    print("CEW_PROFESSIONAL_WORKBENCH_R2GM_RECONCILIATION = PASS")
     print("CLIENT_INTEGRATION_VERIFIED_CANDIDATE = " + CLIENT_VERIFIED_CANDIDATE)
     print("R2HR_RUNTIME_VERIFIED_CANDIDATE = " + R2HR_RUNTIME_VERIFIED_CANDIDATE)
+    print("R2GI_RUNTIME_VERIFIED_CANDIDATE = " + R2GI_RUNTIME_VERIFIED_CANDIDATE)
+    print("R2GM_CI_VERIFIED_CANDIDATE = " + R2GM_CI_VERIFIED_CANDIDATE)
     print("R2HR_REVIEW_IN_SYSTEM = PASS")
     print("R2HR_JSON_DOWNLOAD_REQUIRED = false")
     print("R2HR_RECEIPT_PERSISTENCE = APPEND_ONLY_RUNTIME_AUDIT")
-    print("R2HR_GOVERNED_REVIEW_INGEST = SEPARATE_REQUIRED_GATE")
+    print("R2GI_GOVERNED_REVIEW_INGEST = INTEGRATED")
+    print("R2GI_REVIEW_FINDINGS_ARE_GEOMETRY = false")
+    print("R2GM_EXPLICIT_DOCUMENT_GEOMETRY_ACCEPTANCE = INTEGRATED")
+    print("R2GM_REAL_HUMAN_ACCEPTANCE_RECEIPT_ASSERTED = false")
+    print("R2C_SCENE_ADAPTER_IMPLEMENTED = false")
     print("PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED")
     print("PWB005 = PARTIAL_BLOCKED")
     print("PWB005_VECTOR_COMPARABLE_REGIONS = 0/4")
