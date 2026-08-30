@@ -21,6 +21,9 @@ API = ROOT / "scripts/cew_professional_workbench_api.py"
 CLIENT = ROOT / "scripts/cew_professional_workbench_client.py"
 CLIENT_VALIDATOR = ROOT / "scripts/validate_cew_professional_workbench_client.py"
 CLIENT_WORKFLOW = ROOT / ".github/workflows/validate-cew-professional-workbench-client.yml"
+GAP_REVIEW = ROOT / "scripts/cew_professional_gap_review.py"
+GAP_REVIEW_VALIDATOR = ROOT / "scripts/validate_cew_professional_gap_review.py"
+GAP_REVIEW_WORKFLOW = ROOT / ".github/workflows/validate-cew-professional-gap-review.yml"
 PROJECT_HOME = ROOT / "scripts/cew_project_home.py"
 SOURCE_VIEWER = ROOT / "scripts/build_cew_source_viewer.py"
 ERW = ROOT / "scripts/build_cew_erw_synced_workspace.py"
@@ -39,6 +42,7 @@ RENDER = ROOT / "render.yaml"
 RENDER_BUILD = ROOT / "scripts/render_build_candidate.sh"
 REQUIREMENTS = ROOT / "requirements.txt"
 CLIENT_VERIFIED_CANDIDATE = "9296d82a02ce1d4e2e171f64c937e828094cca2d"
+R2HR_RUNTIME_VERIFIED_CANDIDATE = "f3ac68223984f0bcfd7692e7fabedf789b889b94"
 
 
 def require(value: bool, message: str) -> None:
@@ -60,9 +64,11 @@ def main() -> int:
     reqs = {row["id"]: row for row in matrix["requirements"]}
     blockers = matrix["blocking_requirement_ids"]
 
-    require(matrix["schema_version"] == "1.6", "matrix must be schema 1.6")
-    require(matrix["status"] == "CLIENT_INTEGRATION_VERIFIED_PWB005_BLOCKED", "matrix status drift")
+    require(matrix["schema_version"] == "1.7", "matrix must be schema 1.7")
+    require(matrix["status"] == "CLIENT_AND_R2HR_RUNTIME_INTEGRATED_PWB005_BLOCKED", "matrix status drift")
     require(matrix["client_integration_verified_candidate"] == CLIENT_VERIFIED_CANDIDATE, "client integration verified candidate drift")
+    require(matrix["r2hr_runtime_verified_candidate"] == R2HR_RUNTIME_VERIFIED_CANDIDATE, "R2HR runtime verified candidate drift")
+    require(matrix["r2hr_in_system_review_state"] == "INTEGRATED_AUDIT_ONLY_HUMAN_RECEIPT_REQUIRED", "R2HR in-system review state drift")
     require(matrix["professional_workbench_readiness"] == "REWORK_REQUIRED", "workbench must remain REWORK_REQUIRED")
     require(matrix["hva_execution_authorized"] is False, "HVA must remain blocked")
     require(matrix["b1_promotion_authorized"] is False, "B1 promotion must remain blocked")
@@ -100,6 +106,13 @@ def main() -> int:
     require(finding["canonical_provenance_repair_required"] is False, "R1A must not require canonical repair")
     require(finding["containment_method"] == "SOURCE_PAGE_EDGE_TOLERANCE", "R1.1 containment method drift")
     require(finding["containment_tolerance_pt"] == 0.01, "R1.1 containment tolerance drift")
+    require(finding["r2hr_region_coverage"] == "4/4", "R2HR region coverage drift")
+    require(finding["r2hr_gap_hypothesis_total"] == 10, "R2HR gap hypothesis count drift")
+    require(finding["r2hr_review_in_system"] is True, "R2HR review must be integrated in-system")
+    require(finding["r2hr_json_download_required"] is False, "R2HR review must not require JSON export")
+    require(finding["r2hr_receipt_persistence"] == "APPEND_ONLY_RUNTIME_AUDIT", "R2HR persistence boundary drift")
+    require(finding["r2hr_receipt_is_geometry_acceptance"] is False, "R2HR receipt cannot be geometry acceptance")
+    require(finding["r2hr_governed_ingest_required"] is True, "R2HR governed ingest gate must remain required")
 
     audit = text(AUDIT)
     for marker in (
@@ -181,6 +194,33 @@ def main() -> int:
     require('@router.get("/workbench", response_class=HTMLResponse)' in text(API), "professional Workbench route missing")
     require("Progetto N12 › Evidenza › Revisione tecnica" in text(API), "primary Workbench chrome must hide internal task id")
 
+    gap_review = text(GAP_REVIEW)
+    for marker in (
+        "HUMAN_REVIEW_EVIDENCE_ONLY",
+        "R2HR_GOVERNED_REVIEW_INGEST_REQUIRED",
+        "Registra revisione in CEW",
+        "geometry_materialization_authorized",
+        "canonical_write_authorized",
+    ):
+        require(marker in gap_review, f"R2HR in-system review marker missing: {marker}")
+    require("new Blob" not in gap_review and "download=" not in gap_review, "R2HR in-system review must not require JSON export")
+    gap_validator = text(GAP_REVIEW_VALIDATOR)
+    for marker in (
+        "CEW_PROFESSIONAL_GAP_REVIEW_RUNTIME = PASS",
+        "R2HR_REVIEW_IN_SYSTEM = PASS",
+        "R2HR_JSON_DOWNLOAD_REQUIRED = false",
+        "R2HR_RECEIPT_PERSISTENCE = APPEND_ONLY_RUNTIME_AUDIT",
+        "R2HR_RECEIPT_IS_GEOMETRY_ACCEPTANCE = false",
+        "R2HR_GOVERNED_REVIEW_INGEST = SEPARATE_REQUIRED_GATE",
+        "CANONICAL_WRITE_AUTHORIZED = false",
+        "ENGINEERING_AUTHORITY_EFFECT = NONE",
+    ):
+        require(marker in gap_validator, f"R2HR validator marker missing: {marker}")
+    require("Validate CEW Professional Gap Review" in text(GAP_REVIEW_WORKFLOW), "R2HR dedicated CI gate missing")
+    require('@router.get("/workbench/gap-review"' in text(API), "R2HR in-system review route missing")
+    require('@router.post("/api/workbench/gap-review/receipt")' in text(API), "R2HR receipt route missing")
+    require("R2HR_RECEIPT_PERSISTED_AUDIT_ONLY" in text(API), "R2HR audit-only persistence marker missing")
+
     require("openseadragon" in text(SOURCE_VIEWER).lower(), "OpenSeadragon foundation missing")
     require("svg" in text(ERW).lower(), "F6 SVG foundation missing")
     require(all(state in text(DUAL_VECTOR) for state in ("AGREE", "PARTIAL", "DISAGREE")), "dual-vector vocabulary missing")
@@ -233,7 +273,13 @@ def main() -> int:
 
     print("CEW_PROFESSIONAL_WORKBENCH_AUDIT_CONSISTENCY = PASS")
     print("CEW_PROFESSIONAL_WORKBENCH_CLIENT_RECONCILIATION = PASS")
+    print("CEW_PROFESSIONAL_WORKBENCH_R2HR_RECONCILIATION = PASS")
     print("CLIENT_INTEGRATION_VERIFIED_CANDIDATE = " + CLIENT_VERIFIED_CANDIDATE)
+    print("R2HR_RUNTIME_VERIFIED_CANDIDATE = " + R2HR_RUNTIME_VERIFIED_CANDIDATE)
+    print("R2HR_REVIEW_IN_SYSTEM = PASS")
+    print("R2HR_JSON_DOWNLOAD_REQUIRED = false")
+    print("R2HR_RECEIPT_PERSISTENCE = APPEND_ONLY_RUNTIME_AUDIT")
+    print("R2HR_GOVERNED_REVIEW_INGEST = SEPARATE_REQUIRED_GATE")
     print("PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED")
     print("PWB005 = PARTIAL_BLOCKED")
     print("PWB005_VECTOR_COMPARABLE_REGIONS = 0/4")
