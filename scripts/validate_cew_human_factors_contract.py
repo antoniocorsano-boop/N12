@@ -75,7 +75,9 @@ def main() -> int:
         if text not in page:
             errors.append(f"HF-HOME-01 missing visible orientation text: {text}")
 
-    evidence_route = "/evidence/review?task=" in page or "/review/f7?task=" in page
+    # The primary professional review action now enters the governed Workbench.
+    # Legacy direct evidence/review routes remain valid secondary/internal paths.
+    evidence_route = any(route in page for route in ("/workbench?task=", "/evidence/review?task=", "/review/f7?task="))
     if "Rivedi evidenza" not in page or not evidence_route:
         errors.append("HF-HOME-02 evidence-review action missing")
     if "/sources" not in page:
