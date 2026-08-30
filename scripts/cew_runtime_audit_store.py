@@ -9,6 +9,7 @@ from pathlib import Path
 from urllib import error, request
 
 SAFE_DECISION_ID = re.compile(r"^[A-Za-z0-9._-]+$")
+MAX_GOVERNED_READ_RECEIPTS = 500
 
 
 def _raw(receipt: dict) -> str:
@@ -199,3 +200,94 @@ def persist_runtime_receipt(receipt: dict, store: Path) -> dict:
     if backend == "UNCONFIGURED_PRODUCTION":
         raise ValueError("production audit backend is not configured")
     return _persist_file(receipt, store, digest)
+
+
+def _receipt_json_object(value) -> dict:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str):
+        try:
+            payload = json.loads(value)
+        except json.JSONDecodeError as exc:
+            raise ValueError("runtime audit receipt_json is invalid") from exc
+        if isinstance(payload, dict):
+            return payload
+    raise ValueError("runtime audit receipt_json must be an object")
+
+
+def _load_file_receipts(store: Path, receipt_type: str, max_receipts: int) -> list[dict]:
+    root = store.resolve()
+    if not root.exists():
+        return []
+    if not root.is_dir():
+        raise ValueError("runtime audit store is not a directory")
+    receipts: list[dict] = []
+    for path in sorted(root.glob("*.json")):
+        if len(receipts) >= max_receipts:
+            raise ValueError("runtime audit governed receipt read limit exceeded")
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ValueError("runtime audit receipt file is invalid") from exc
+        if not isinstance(payload, dict):
+            raise ValueError("runtime audit receipt file must contain an object")
+        if payload.get("receipt_type") == receipt_type:
+            receipts.append(payload)
+    return receipts
+
+
+def _load_neon_receipts(receipt_type: str, max_receipts: int) -> list[dict]:
+    try:
+        import psycopg
+    except Exception as exc:
+        raise ValueError("Neon audit driver unavailable") from exc
+    sql = """
+        SELECT receipt_json
+        FROM public.cew_human_receipt_audit
+        WHERE receipt_json->>'receipt_type' = %s
+        ORDER BY submitted_at ASC NULLS LAST, decision_id ASC
+        LIMIT %s
+    """
+    try:
+        with psycopg.connect(os.environ["CEW_AUDIT_NEON_DATABASE_URL"], connect_timeout=10) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, (receipt_type, max_receipts + 1))
+                rows = cur.fetchall()
+    except Exception as exc:
+        raise ValueError("Neon audit governed receipt read failed") from exc
+    if len(rows) > max_receipts:
+        raise ValueError("runtime audit governed receipt read limit exceeded")
+    return [_receipt_json_object(row[0]) for row in rows]
+
+
+def load_runtime_receipts(receipt_type: str, store: Path, *, max_receipts: int = MAX_GOVERNED_READ_RECEIPTS) -> dict:
+    """Read append-only runtime receipts for a governed downstream gate.
+
+    This is deliberately read-only. It does not grant canonical-write, geometry,
+    structural, promotion, or engineering authority. Production read-back is
+    supported only for the currently governed Neon audit backend; unsupported
+    backends fail closed instead of silently degrading to local state.
+    """
+    if not isinstance(receipt_type, str) or not receipt_type.strip() or len(receipt_type) > 200:
+        raise ValueError("runtime audit receipt_type is invalid")
+    if not isinstance(max_receipts, int) or max_receipts < 1 or max_receipts > MAX_GOVERNED_READ_RECEIPTS:
+        raise ValueError("runtime audit max_receipts is invalid")
+    receipt_type = receipt_type.strip()
+    backend = backend_status()
+    if backend == "FILESYSTEM_APPEND_ONLY":
+        receipts = _load_file_receipts(store, receipt_type, max_receipts)
+    elif backend == "NEON_APPEND_ONLY":
+        receipts = _load_neon_receipts(receipt_type, max_receipts)
+    elif backend == "UNCONFIGURED_PRODUCTION":
+        raise ValueError("production audit backend is not configured")
+    else:
+        raise ValueError(f"governed receipt read unsupported for audit backend: {backend}")
+    return {
+        "audit_backend": backend,
+        "receipt_type": receipt_type,
+        "receipt_count": len(receipts),
+        "receipts": receipts,
+        "authority": "RUNTIME_AUDIT_READ_ONLY",
+        "canonical_write": False,
+        "engineering_authority_effect": "NONE",
+    }
