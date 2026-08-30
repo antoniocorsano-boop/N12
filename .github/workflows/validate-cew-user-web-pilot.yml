@@ -70,7 +70,8 @@ jobs:
           grep -q 'Progetto N12' /tmp/project-home.html
           grep -q 'Modello di calcolo non ancora autorizzabile' /tmp/project-home.html
           grep -q 'href=.*/sources' /tmp/project-home.html
-          grep -q '/evidence/review?task=' /tmp/project-home.html
+          grep -q '/workbench?task=' /tmp/project-home.html
+          ! grep -q '/evidence/review?task=' /tmp/project-home.html
           grep -q '/technical/control-room' /tmp/project-home.html
           curl -fsS -b /tmp/cookies.txt http://127.0.0.1:8765/sources >/tmp/sources.html
           grep -q 'Fonti del progetto' /tmp/sources.html
