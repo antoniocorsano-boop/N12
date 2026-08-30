@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import html
 from pathlib import Path, PurePosixPath
 from typing import Any
 
@@ -63,7 +64,6 @@ def _runtime_scene(task: str, source_workspace) -> dict[str, Any]:
         scene["source"]["managed_f3_asset_reason"] = assets.get("reason", "UNAVAILABLE")
     if geometry["state"] != "READY":
         scene["source"]["managed_document_geometry_reason"] = geometry.get("reason", "UNAVAILABLE")
-    # Runtime delivery metadata is not part of the scene-revision projection digest.
     core.validate_scene(scene)
     return scene
 
@@ -79,6 +79,25 @@ def _safe_asset_path(asset_path: str) -> Path:
     except ValueError as exc:
         raise ValueError("MANAGED_F3_ASSET_PATH_REJECTED") from exc
     return target
+
+
+def _public_workbench_html(task: str) -> str:
+    """Keep internal task ids out of the primary visible Workbench chrome.
+
+    The exact task id remains in the non-visible client state and becomes visible
+    only through provenance/detail content, consistent with the UX contract.
+    """
+    rendered = client.build_client(task)
+    escaped = html.escape(task, quote=True)
+    rendered = rendered.replace(
+        f"<title>CEW — Ambiente grafico professionale · {escaped}</title>",
+        "<title>CEW — Ambiente grafico professionale</title>",
+    )
+    rendered = rendered.replace(
+        f'<div class="crumb">Progetto N12 › Evidenza › {escaped}</div>',
+        '<div class="crumb">Progetto N12 › Evidenza › Revisione tecnica</div>',
+    )
+    return rendered
 
 
 def build_router(source_workspace) -> APIRouter:
@@ -99,7 +118,7 @@ def build_router(source_workspace) -> APIRouter:
                 status_code=404,
             )
         return HTMLResponse(
-            client.build_client(task.strip()),
+            _public_workbench_html(task.strip()),
             headers={
                 "Cache-Control": "no-store",
                 "X-CEW-Canonical-Write": "false",
