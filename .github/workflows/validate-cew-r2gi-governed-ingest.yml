@@ -1,0 +1,101 @@
+name: Validate CEW R2GI Governed Review Ingest
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/cew_r2hr_governed_ingest.py'
+      - 'scripts/validate_cew_r2hr_governed_ingest.py'
+      - 'automation/CEW_PWB005_R2GI_GOVERNED_REVIEW_INGEST_CONTRACT_v1.json'
+      - 'automation/CEW_PWB005_R2HR_HUMAN_GAP_REVIEW_RECEIPT_SCHEMA_v1.json'
+      - 'scripts/cew_professional_gap_review.py'
+      - 'scripts/build_cew_human_gap_review_receipts.py'
+      - 'scripts/validate_cew_human_gap_review_receipts.py'
+      - 'scripts/build_cew_raster_gap_review_view.py'
+      - 'scripts/build_cew_raster_bridge_review_layer.py'
+      - 'scripts/build_cew_raster_support_negative_controls.py'
+      - 'scripts/build_cew_raster_support_continuity.py'
+      - 'scripts/build_cew_raster_geometry_topology.py'
+      - 'scripts/build_cew_raster_geometry_consolidation.py'
+      - 'scripts/build_cew_raster_geometry_quality.py'
+      - 'scripts/build_cew_raster_geometry_candidates.py'
+      - '.github/workflows/validate-cew-r2gi-governed-ingest.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-r2gi-governed-ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install runtime dependencies
+        run: pip install -r requirements.txt
+
+      - name: Syntax
+        run: |
+          python -m py_compile \
+            scripts/cew_r2hr_governed_ingest.py \
+            scripts/validate_cew_r2hr_governed_ingest.py
+
+      - name: Rebuild exact-revision R2 review chain
+        env:
+          CEW_REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python scripts/build_cew_document_geometry_artifacts.py
+          python scripts/validate_cew_document_geometry_artifacts.py
+          python scripts/build_cew_evidence_region_content_diagnostic.py
+          python scripts/validate_cew_evidence_region_content_diagnostic.py
+          python scripts/build_cew_evidence_region_mapping_root_cause.py
+          python scripts/validate_cew_evidence_region_mapping_root_cause.py
+          python scripts/build_cew_raster_geometry_candidates.py
+          python scripts/validate_cew_raster_geometry_candidates.py
+          python scripts/build_cew_raster_geometry_quality.py
+          python scripts/validate_cew_raster_geometry_quality.py
+          python scripts/build_cew_raster_geometry_consolidation.py
+          python scripts/validate_cew_raster_geometry_consolidation.py
+          python scripts/build_cew_raster_geometry_topology.py
+          python scripts/validate_cew_raster_geometry_topology.py
+          python scripts/build_cew_raster_support_continuity.py
+          python scripts/validate_cew_raster_support_continuity.py
+          python scripts/build_cew_raster_support_negative_controls.py
+          python scripts/validate_cew_raster_support_negative_controls.py
+          python scripts/build_cew_raster_bridge_review_layer.py
+          python scripts/validate_cew_raster_bridge_review_layer.py
+          python scripts/build_cew_raster_gap_review_view.py
+          python scripts/validate_cew_raster_gap_review_view.py
+          python scripts/build_cew_human_gap_review_receipts.py
+          python scripts/validate_cew_human_gap_review_receipts.py
+
+      - name: Validate governed ingest and negative controls
+        env:
+          CEW_REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python scripts/validate_cew_r2hr_governed_ingest.py
+
+      - name: Prove live repository input remains fail-closed without human receipts
+        env:
+          CEW_REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          rm -rf data/review/cew_r2hr_governed_ingest artifacts/cew_r2gi_ingest
+          python scripts/cew_r2hr_governed_ingest.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('artifacts/cew_r2gi_ingest/ingest_report.json')
+          r = json.loads(p.read_text(encoding='utf-8'))
+          assert r['state'] == 'BLOCKED_HUMAN_RECEIPT_REQUIRED'
+          assert r['region_coverage'] == '0/4'
+          assert r['geometry_materialization_authorized'] is False
+          assert r['canonical_write_authorized'] is False
+          assert r['engineering_authority_effect'] == 'NONE'
+          print('R2GI_LIVE_INPUT_FAIL_CLOSED = PASS')
+          PY
+
+      - name: Upload R2GI gate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-r2gi-governed-ingest-${{ github.run_id }}
+          path: artifacts/cew_r2gi_ingest/
+          if-no-files-found: error
+          retention-days: 14
