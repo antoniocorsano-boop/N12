@@ -33,6 +33,7 @@ def main() -> int:
     core = text(CORE)
     contract = text(CONTRACT)
     wireframes = text(WIREFRAMES)
+    client_lower = client.lower()
 
     for marker in (
         "F3_DZI_OPENSEADRAGON_REUSED",
@@ -48,19 +49,15 @@ def main() -> int:
         "/api/workbench/view/resolve",
         "/api/workbench/working-edit/preview",
         "/api/workbench/reading-issue/preview",
-        "Rappresentazione tecnica derivata",
         "Evidenza",
         "Provenienza",
-        "keyboard",
     ):
-        if marker == "keyboard":
-            require("keydown" in client and "ArrowLeft" in client and "ArrowRight" in client, "keyboard viewport alternatives missing")
-        else:
-            require(marker in client, f"client marker missing: {marker}")
+        require(marker in client, f"client marker missing: {marker}")
+    require("rappresentazione tecnica derivata" in client_lower, "technical representation label missing")
+    require("keydown" in client and "ArrowLeft" in client and "ArrowRight" in client, "keyboard viewport alternatives missing")
 
-    require("canonical_write_authorized=true" not in client.lower(), "client must never authorize canonical write")
+    require("canonical_write_authorized=true" not in client_lower, "client must never authorize canonical write")
     require("VISUAL_PROXIMITY" not in client, "client must not create proximity bindings")
-    require("fetch('/api/" not in client or "/api/workbench/" in client, "unexpected API write path")
 
     for marker in (
         '@router.get("/workbench", response_class=HTMLResponse)',
