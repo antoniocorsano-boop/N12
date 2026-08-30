@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW_PWB005_R2GI_GOVERNED_REVIEW_INGEST_CONTRACT_v1",
+  "stage": "PWB-005-R2GI",
+  "purpose": "Ingest validated R2HR human review receipts as governed non-geometric review findings without materializing geometry or changing engineering authority.",
+  "input_contract": "CEW_PWB005_R2HR_RUNTIME_AUDIT_ENVELOPE_v1",
+  "input_source": "APPEND_ONLY_RUNTIME_AUDIT_OR_EXPLICIT_GOVERNED_HANDOFF",
+  "required_region_coverage": "4/4",
+  "expected_evidence_regions": [
+    "CEW-N12-REG-G01-R06",
+    "CEW-N12-REG-G05-R04",
+    "CEW-N12-REG-G07-R07",
+    "CEW-N12-REG-T6A-G03"
+  ],
+  "allowed_human_decisions": [
+    "SUPPORTED_CONTINUITY_HYPOTHESIS",
+    "REJECTED_CONTINUITY_HYPOTHESIS",
+    "UNRESOLVED_FROM_CURRENT_VIEW"
+  ],
+  "decision_to_disposition": {
+    "SUPPORTED_CONTINUITY_HYPOTHESIS": "ELIGIBLE_FOR_EXPLICIT_GEOMETRY_ACCEPTANCE_REVIEW",
+    "REJECTED_CONTINUITY_HYPOTHESIS": "EXCLUDED_FROM_GEOMETRY_MATERIALIZATION",
+    "UNRESOLVED_FROM_CURRENT_VIEW": "BLOCKS_REGION_GEOMETRY_MATERIALIZATION"
+  },
+  "output_contract": "CEW_PWB005_R2GI_GOVERNED_REVIEW_INGEST_REPORT_v1",
+  "output_authority": "GOVERNED_HUMAN_REVIEW_FINDING_ONLY",
+  "output_is_document_geometry": false,
+  "supported_continuity_hypothesis_is_geometry": false,
+  "r2hr_receipt_is_geometry_acceptance": false,
+  "geometry_materialization_authorized": false,
+  "r2c_scene_adapter_authorized": false,
+  "technical_identity_authorized": false,
+  "structural_identity_authorized": false,
+  "canonical_write_authorized": false,
+  "engineering_authority_effect": "NONE",
+  "fail_closed_conditions": [
+    "missing human receipt for any governed EvidenceRegion",
+    "receipt provenance mismatch",
+    "candidate revision mismatch",
+    "tampered candidate ids, endpoints, metrics or authority flags",
+    "duplicate receipt for the same EvidenceRegion",
+    "UNRESOLVED_FROM_CURRENT_VIEW present in any ingested region"
+  ],
+  "states": [
+    "BLOCKED_HUMAN_RECEIPT_REQUIRED",
+    "BLOCKED_UNRESOLVED_HUMAN_REVIEW",
+    "READY_FOR_EXPLICIT_GEOMETRY_ACCEPTANCE_REVIEW"
+  ],
+  "next_gate_when_complete": "R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE_REQUIRED",
+  "invariants": [
+    "R2GI never creates linework, primitives or registration transforms",
+    "R2GI never upgrades a continuity hypothesis into document geometry",
+    "R2GI never creates technical or structural identity",
+    "R2GI never authorizes canonical writes",
+    "Only a later explicit geometry-acceptance gate may authorize materialization of reviewed document geometry"
+  ]
+}
