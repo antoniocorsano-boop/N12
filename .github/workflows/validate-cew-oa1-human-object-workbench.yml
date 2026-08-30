@@ -1,0 +1,24 @@
+name: Validate CEW OA1 Human Object Workbench
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_OBJECT_ACQUISITION_QUEUE_v1.json'
+      - 'automation/CEW_OA1_HUMAN_OBJECT_WORKBENCH_CONTRACT_v1.json'
+      - 'scripts/cew_oa1_human_object_workbench.py'
+      - 'scripts/validate_cew_oa1_human_object_workbench.py'
+      - '.github/workflows/validate-cew-oa1-human-object-workbench.yml'
+  push:
+    branches:
+      - 'work/cew-oa1-human-object-workbench-v1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate OA1 component and authority boundaries
+        run: python scripts/validate_cew_oa1_human_object_workbench.py
