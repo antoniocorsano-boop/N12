@@ -10,6 +10,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 
 import cew_managed_f3_assets as managed_f3_assets
+import cew_oa1_workbench_runtime as oa1_runtime
 import cew_professional_gap_review as gap_review
 import cew_professional_workbench_client as client
 import cew_professional_workbench_core as core
@@ -174,7 +175,7 @@ def _public_workbench_html(task: str) -> str:
     )
     if marker in rendered:
         rendered = rendered.replace(marker, marker + review_link + geometry_link, 1)
-    return rendered
+    return oa1_runtime.augment(rendered, task)
 
 
 def build_router(source_workspace) -> APIRouter:
@@ -200,6 +201,7 @@ def build_router(source_workspace) -> APIRouter:
                 "Cache-Control": "no-store",
                 "X-CEW-Canonical-Write": "false",
                 "X-CEW-Engineering-Authority-Effect": "NONE",
+                "X-CEW-OA1-Runtime": "CAD_FIRST_OBJECT_PASS_AVAILABLE_NON_PROMOTIVE",
             },
         )
 
