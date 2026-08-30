@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "slice": "OA-1",
+  "residual_id": "OA1-RUNTIME-INTEGRATION",
+  "state": "REQUIRED",
+  "target": "/workbench",
+  "existing_client": "scripts/cew_professional_workbench_client.py",
+  "existing_scene_api": "/api/workbench/scene?task=...",
+  "component_model": "scripts/cew_oa1_human_object_workbench.py",
+  "required_integration": [
+    "MAP_EXISTING_SCENE_OBJECTS_TO_OA_OBJECT_VIEW",
+    "ADD_OBJECT_TYPE_PASS_CONTROL_TO_EXISTING_WORKBENCH",
+    "ADD_FAMILY_PANEL_WITH_COUNTS_AND_FILTERING",
+    "ADD_EXPLICIT_VISIBLE_STATE_DECORATION",
+    "ADD_BLOCKER_PANEL_WITH_REASON_AND_REQUIRED_ACTION",
+    "REUSE_EXISTING_TECHNICAL_SVG_AS_CAD_HOST",
+    "REUSE_EXISTING_OBJECT_INSPECTOR_WITH_WORK_EVIDENCE_PROVENANCE",
+    "KEEP_SOURCE_VIEW_ON_DEMAND_AND_VERIFIABLE",
+    "KEEP_OVERLAY_FAIL_CLOSED_WITHOUT_VERIFIED_REGISTRATION",
+    "KEEP_CANONICAL_WRITE_FALSE"
+  ],
+  "scene_mapping_rules": {
+    "GovernedStructuralObjectProjection": "eligible OA object view; structural identity remains whatever governed binding already says",
+    "TechnicalObjectCandidate": "PROPOSED unless explicit human state says otherwise",
+    "DocumentGraphicPrimitive": "document geometry context, not automatically an engineering object",
+    "UNBOUND": "must not be represented as structurally identified",
+    "missing_object_type": "NOT_ANALYZED or AMBIGUOUS; never guessed for visual completeness"
+  },
+  "oa1_completion_gate": {
+    "id": "OA1_HUMAN_OBJECT_WORKBENCH_PASS",
+    "requires": [
+      "COMPONENT_GATE_PASS",
+      "RUNTIME_ROUTE_INTEGRATED",
+      "TYPE_PASS_VISIBLE_IN_BROWSER",
+      "FAMILY_FILTER_VISIBLE_IN_BROWSER",
+      "BLOCKERS_VISIBLE_IN_BROWSER",
+      "SOURCE_DISCLOSURE_WORKS",
+      "NO_OA2_ACTIONS_ENABLED",
+      "NO_CANONICAL_WRITE"
+    ]
+  },
+  "downstream": {
+    "OA-2": "BLOCKED",
+    "pilot_COLUMN": "BLOCKED_UNTIL_OA1_COMPLETE_PASS",
+    "M0": "BLOCKED_BY_ACQUISITION_PROCESS"
+  }
+}
