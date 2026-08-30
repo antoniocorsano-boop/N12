@@ -5,6 +5,9 @@ on:
     paths:
       - 'scripts/cew_r2hr_governed_ingest.py'
       - 'scripts/validate_cew_r2hr_governed_ingest.py'
+      - 'scripts/validate_cew_r2gi_runtime_ingest.py'
+      - 'scripts/cew_runtime_audit_store.py'
+      - 'scripts/cew_professional_workbench_api.py'
       - 'automation/CEW_PWB005_R2GI_GOVERNED_REVIEW_INGEST_CONTRACT_v1.json'
       - 'automation/CEW_PWB005_R2HR_HUMAN_GAP_REVIEW_RECEIPT_SCHEMA_v1.json'
       - 'scripts/cew_professional_gap_review.py'
@@ -37,7 +40,10 @@ jobs:
         run: |
           python -m py_compile \
             scripts/cew_r2hr_governed_ingest.py \
-            scripts/validate_cew_r2hr_governed_ingest.py
+            scripts/validate_cew_r2hr_governed_ingest.py \
+            scripts/validate_cew_r2gi_runtime_ingest.py \
+            scripts/cew_runtime_audit_store.py \
+            scripts/cew_professional_workbench_api.py
 
       - name: Rebuild exact-revision R2 review chain
         env:
@@ -72,6 +78,11 @@ jobs:
         env:
           CEW_REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: python scripts/validate_cew_r2hr_governed_ingest.py
+
+      - name: Validate in-system runtime audit read-back and R2GI routing
+        env:
+          CEW_REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python scripts/validate_cew_r2gi_runtime_ingest.py
 
       - name: Prove live repository input remains fail-closed without human receipts
         env:
