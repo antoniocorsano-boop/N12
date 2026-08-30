@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.6",
+  "schema_version": "1.7",
   "matrix_id": "CEW_PROFESSIONAL_WORKBENCH_IMPLEMENTATION_MATRIX_v1",
   "audit_document": "docs/AUDIT/CEW_PROFESSIONAL_EVIDENCE_WORKBENCH_AUDIT_v1.md",
   "r1_findings": "docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_PWB005_R1_FINDINGS_v1.md",
@@ -8,7 +8,9 @@
   "scene_contract": "automation/CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRACT_v1.json",
   "verified_candidate": "ddfd5826893702c3fc1299cde38c81bd7530b47a",
   "client_integration_verified_candidate": "9296d82a02ce1d4e2e171f64c937e828094cca2d",
-  "status": "CLIENT_INTEGRATION_VERIFIED_PWB005_BLOCKED",
+  "r2hr_runtime_verified_candidate": "f3ac68223984f0bcfd7692e7fabedf789b889b94",
+  "r2hr_in_system_review_state": "INTEGRATED_AUDIT_ONLY_HUMAN_RECEIPT_REQUIRED",
+  "status": "CLIENT_AND_R2HR_RUNTIME_INTEGRATED_PWB005_BLOCKED",
   "professional_workbench_readiness": "REWORK_REQUIRED",
   "hva_execution_authorized": false,
   "b1_promotion_authorized": false,
@@ -60,6 +62,10 @@
         "scripts/validate_cew_evidence_region_content_diagnostic.py",
         "scripts/build_cew_evidence_region_mapping_root_cause.py",
         "scripts/validate_cew_evidence_region_mapping_root_cause.py",
+        "scripts/build_cew_human_gap_review_receipts.py",
+        "scripts/cew_professional_gap_review.py",
+        "scripts/validate_cew_professional_gap_review.py",
+        ".github/workflows/validate-cew-professional-gap-review.yml",
         "docs/PLAN/CEW_PWB005_R1_EVIDENCE_REGION_CONTENT_DIAGNOSTIC_PLAN_v1.md",
         "docs/PLAN/CEW_PWB005_R1A_REGION_MAPPING_ROOT_CAUSE_PLAN_v1.md",
         "docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_PWB005_R1_FINDINGS_v1.md",
@@ -74,9 +80,16 @@
         "r1a_root_cause": "FLOATING_POINT_CONTAINMENT_TOLERANCE",
         "canonical_provenance_repair_required": false,
         "containment_method": "SOURCE_PAGE_EDGE_TOLERANCE",
-        "containment_tolerance_pt": 0.01
+        "containment_tolerance_pt": 0.01,
+        "r2hr_region_coverage": "4/4",
+        "r2hr_gap_hypothesis_total": 10,
+        "r2hr_review_in_system": true,
+        "r2hr_json_download_required": false,
+        "r2hr_receipt_persistence": "APPEND_ONLY_RUNTIME_AUDIT",
+        "r2hr_receipt_is_geometry_acceptance": false,
+        "r2hr_governed_ingest_required": true
       },
-      "gap": "The same-revision automated pipeline now also exercises R2 raster geometry candidate, quality, consolidation, topology, continuity, negative-control and human-review-package stages. The four governed regions remain raster-derived rather than native PDF vector/text geometry, so PWB-005 remains a professional HVA blocker until the governed human verification path establishes usable technical-document geometry."
+      "gap": "The same-revision R2 pipeline reaches governed human-gap review preparation, and the professional runtime now presents that review inside CEW and persists strict human receipts through append-only runtime audit without JSON download/export. No real human R2HR receipt has yet been produced, a receipt is explicitly not geometry acceptance, and a separate governed ingest/materialization gate remains required. The four EvidenceRegions remain raster-derived rather than native PDF vector/text geometry; therefore PWB-005 remains a professional HVA blocker."
     },
     {
       "id": "PWB-006",
