@@ -93,22 +93,33 @@ def main() -> int:
     require(package_state.get("gap_hypothesis_total") == 10, "R2HR gap count drift")
 
     empty = ingest.ingest_envelopes([])
+    require(empty["schema_version"] == "1.2", "R2GI report schema must preserve dual revision provenance")
     require(empty["state"] == "BLOCKED_HUMAN_RECEIPT_REQUIRED", "empty ingest must remain blocked")
     require(empty["region_coverage"] == "0/4", "empty ingest coverage mismatch")
+    require(empty["build_revision"] is None, "empty R2GI ingest must not invent a build revision")
     require(empty["geometry_materialization_authorized"] is False, "empty ingest must not authorize geometry")
 
     complete_envelopes = [envelope(region_id) for region_id in sorted(ingest.EXPECTED_REGIONS)]
+    expected_candidate = complete_envelopes[0]["r2hr_receipt"]["candidate_head_sha"]
+    expected_build = complete_envelopes[0]["r2hr_receipt"]["build_revision"]
     complete = ingest.ingest_envelopes(complete_envelopes)
     require(complete["state"] == "READY_FOR_EXPLICIT_GEOMETRY_ACCEPTANCE_REVIEW", "complete human findings should advance only to explicit geometry acceptance review")
     require(complete["next_gate"] == "R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE_REQUIRED", "wrong next gate")
     require(complete["region_coverage"] == "4/4", "complete ingest coverage mismatch")
+    require(complete["candidate_head_sha"] == expected_candidate, "R2GI candidate-head provenance drift")
+    require(complete["build_revision"] == expected_build, "R2GI build-revision provenance drift")
     require(len(complete["review_findings"]) == 10, "review finding count must match 10 R2HR gap hypotheses")
     require(complete["review_findings_are_geometry"] is False, "review findings must not become geometry")
     require(complete["geometry_materialization_authorized"] is False, "R2GI must never materialize geometry")
     require(complete["canonical_write_authorized"] is False, "R2GI must never authorize canonical writes")
     require(complete["engineering_authority_effect"] == "NONE", "R2GI must never create engineering authority")
     require("objects" not in complete and "geometry_primitives" not in complete, "R2GI output must not smuggle technical geometry")
+    for row in complete["regions"]:
+        require(row["candidate_head_sha"] == expected_candidate, "R2GI region candidate provenance drift")
+        require(row["build_revision"] == expected_build, "R2GI region build provenance drift")
     for finding in complete["review_findings"]:
+        require(finding["candidate_head_sha"] == expected_candidate, "finding candidate provenance drift")
+        require(finding["build_revision"] == expected_build, "finding build provenance drift")
         require(finding["finding_is_geometry"] is False, "finding must remain non-geometric")
         require(finding["geometry_materialization_authorized"] is False, "finding must not authorize geometry")
         require(finding["structural_identity_authorized"] is False, "finding must not create structural identity")
@@ -120,6 +131,7 @@ def main() -> int:
     unresolved = ingest.ingest_envelopes(unresolved_envelopes)
     require(unresolved["state"] == "BLOCKED_UNRESOLVED_HUMAN_REVIEW", "unresolved decision must block geometry acceptance")
     require(unresolved["next_gate"] == "R2HR_ADDITIONAL_SOURCE_OR_REVIEW_REQUIRED", "unresolved decision must route back to review")
+    require(unresolved["build_revision"] == expected_build, "unresolved R2GI report must preserve build revision")
     require(unresolved["geometry_materialization_authorized"] is False, "unresolved review must not authorize geometry")
 
     duplicate = complete_envelopes + [deepcopy(complete_envelopes[0])]
@@ -130,6 +142,10 @@ def main() -> int:
     first_decision["metric_snapshot"]["projected_gap_norm"] = float(first_decision["metric_snapshot"]["projected_gap_norm"]) + 0.001
     expect_error(lambda: ingest.ingest_envelopes([tampered]), "R2HR_DECISION_EVIDENCE_TAMPERED")
 
+    build_tamper = deepcopy(complete_envelopes[0])
+    build_tamper["r2hr_receipt"]["build_revision"] = "0" * 40
+    expect_error(lambda: ingest.ingest_envelopes([build_tamper]), "R2HR_RECEIPT_PROVENANCE_MISMATCH:build_revision")
+
     authority_tamper = deepcopy(complete_envelopes[0])
     authority_tamper["r2hr_receipt"]["geometry_materialization_authorized"] = True
     expect_error(lambda: ingest.ingest_envelopes([authority_tamper]), "R2HR_RECEIPT_AUTHORITY_DRIFT")
@@ -137,6 +153,7 @@ def main() -> int:
     print("CEW_PWB005_R2GI_GOVERNED_INGEST = PASS")
     print("R2GI_EMPTY_INPUT_FAIL_CLOSED = PASS")
     print("R2GI_EXACT_PROVENANCE_VALIDATION = PASS")
+    print("R2GI_CANDIDATE_AND_BUILD_REVISION_SEPARATION = PASS")
     print("R2GI_TAMPER_NEGATIVE_CONTROL = PASS")
     print("R2GI_UNRESOLVED_DECISION_BLOCKS = PASS")
     print("R2GI_REVIEW_FINDING_IS_NOT_GEOMETRY = PASS")
