@@ -15,7 +15,7 @@ DEFAULT_OUTPUT_DIR = ROOT / "artifacts" / "cew_r2gi_ingest"
 CONTRACT_PATH = ROOT / "automation" / "CEW_PWB005_R2GI_GOVERNED_REVIEW_INGEST_CONTRACT_v1.json"
 EXPECTED_REGIONS = set(gap_review.EXPECTED_REGIONS)
 ALLOWED_AUDIT_RECEIPT_TYPE = "CEW_PWB005_R2HR_RUNTIME_AUDIT_ENVELOPE_v1"
-OUTPUT_SCHEMA_VERSION = "1.1"
+OUTPUT_SCHEMA_VERSION = "1.2"
 
 
 def _canonical(value: Any) -> str:
@@ -102,6 +102,7 @@ def _decision_finding(region_id: str, receipt: dict[str, Any], decision: dict[st
             f"{receipt['candidate_head_sha']}|{region_id}|{decision['gap_hypothesis_id']}|{decision_value}".encode("utf-8")
         ).hexdigest()[:20],
         "candidate_head_sha": receipt["candidate_head_sha"],
+        "build_revision": receipt["build_revision"],
         "source_code": receipt["source_code"],
         "source_version_id": receipt["source_version_id"],
         "source_sha256": receipt["source_sha256"],
@@ -143,6 +144,10 @@ def ingest_envelopes(envelopes: Iterable[dict[str, Any]]) -> dict[str, Any]:
         by_region[region_id] = (envelope, receipt)
 
     candidate_head_sha = str(review_status["candidate_head_sha"])
+    build_revisions = {str(receipt["build_revision"]) for _, receipt in by_region.values()}
+    if len(build_revisions) > 1:
+        raise ValueError("R2GI_BUILD_REVISION_CONFLICT")
+    build_revision = next(iter(build_revisions), None)
     missing_regions = sorted(EXPECTED_REGIONS - set(by_region))
     findings: list[dict[str, Any]] = []
     region_rows: list[dict[str, Any]] = []
@@ -162,6 +167,8 @@ def ingest_envelopes(envelopes: Iterable[dict[str, Any]]) -> dict[str, Any]:
         envelope, receipt = by_region[region_id]
         if receipt["candidate_head_sha"] != candidate_head_sha:
             raise ValueError(f"R2GI_CANDIDATE_REVISION_MISMATCH:{region_id}")
+        if receipt["build_revision"] != build_revision:
+            raise ValueError(f"R2GI_BUILD_REVISION_MISMATCH:{region_id}")
         region_findings = [_decision_finding(region_id, receipt, decision) for decision in receipt["decisions"]]
         findings.extend(region_findings)
         has_unresolved = any(
@@ -172,6 +179,8 @@ def ingest_envelopes(envelopes: Iterable[dict[str, Any]]) -> dict[str, Any]:
         region_rows.append(
             {
                 "evidence_region_id": region_id,
+                "candidate_head_sha": receipt["candidate_head_sha"],
+                "build_revision": receipt["build_revision"],
                 "source_code": receipt["source_code"],
                 "source_version_id": receipt["source_version_id"],
                 "source_sha256": receipt["source_sha256"],
@@ -203,6 +212,7 @@ def ingest_envelopes(envelopes: Iterable[dict[str, Any]]) -> dict[str, Any]:
         "schema_version": OUTPUT_SCHEMA_VERSION,
         "report_type": "CEW_PWB005_R2GI_GOVERNED_REVIEW_INGEST_REPORT_v1",
         "candidate_head_sha": candidate_head_sha,
+        "build_revision": build_revision,
         "state": state,
         "next_gate": next_gate,
         "region_coverage": f"{len(by_region)}/{len(EXPECTED_REGIONS)}",
@@ -249,6 +259,7 @@ def main() -> int:
     target = write_report(report, args.output_dir)
     print(f"R2GI_STATE = {report['state']}")
     print(f"R2GI_REGION_COVERAGE = {report['region_coverage']}")
+    print(f"R2GI_BUILD_REVISION = {report['build_revision']}")
     print(f"R2GI_NEXT_GATE = {report['next_gate']}")
     print("R2GI_GEOMETRY_MATERIALIZATION_AUTHORIZED = false")
     print("R2GI_CANONICAL_WRITE_AUTHORIZED = false")
