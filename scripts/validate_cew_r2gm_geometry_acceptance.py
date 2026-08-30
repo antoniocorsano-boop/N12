@@ -142,12 +142,25 @@ def main() -> int:
         require(proposal["structural_identity_authorized"] is False, "proposal must not create structural identity")
         require(proposal["canonical_write_authorized"] is False, "proposal must not authorize canonical writes")
 
-    build_mismatch = deepcopy(report)
-    build_mismatch["build_revision"] = "0" * 40
+    report_row_build_mismatch = deepcopy(report)
+    report_row_build_mismatch["build_revision"] = "0" * 40
     expect_error(
-        lambda: r2gm.build_region_proposal(build_mismatch, sorted(proposals)[0]),
+        lambda: r2gm.build_region_proposal(report_row_build_mismatch, sorted(proposals)[0]),
+        "R2GM_R2GI_REGION_BUILD_MISMATCH",
+    )
+
+    r2m_build_mismatch = deepcopy(report)
+    r2m_build_mismatch["build_revision"] = "0" * 40
+    for row in r2m_build_mismatch["regions"]:
+        if row.get("receipt_ingested") is True:
+            row["build_revision"] = "0" * 40
+    for finding in r2m_build_mismatch["review_findings"]:
+        finding["build_revision"] = "0" * 40
+    expect_error(
+        lambda: r2gm.build_region_proposal(r2m_build_mismatch, sorted(proposals)[0]),
         "R2GM_R2M_BUILD_REVISION_MISMATCH",
     )
+
     candidate_mismatch = deepcopy(report)
     candidate_mismatch["candidate_head_sha"] = "1" * 40
     expect_error(
@@ -270,6 +283,7 @@ def main() -> int:
     print("CEW_PWB005_R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE = PASS")
     print("R2GM_R2GI_ENTRY_GATE = FAIL_CLOSED")
     print("R2GM_CANDIDATE_AND_BUILD_REVISION_SEPARATION = PASS")
+    print("R2GM_R2M_BUILD_REVISION_MATCH = PASS")
     print("R2GM_EXACT_PROPOSAL_FINGERPRINT = PASS")
     print("R2GM_DOCUMENT_GEOMETRY_MATERIALIZATION = HUMAN_ACCEPTANCE_ONLY")
     print("R2GM_PARTIAL_REGION_COVERAGE = BLOCKED")
