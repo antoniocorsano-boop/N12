@@ -25,10 +25,16 @@ def main():
     api = API.read_text(encoding="utf-8")
     client = CLIENT.read_text(encoding="utf-8")
 
-    require(queue["current_item"] == "OA-1", "OA-1 must be current")
     require(queue["items"][0]["state"] == "COMPLETE_PASS", "OA-0 must remain complete")
-    require(queue["items"][1]["state"] in {"IN_PROGRESS", "COMPLETE_PASS"}, "OA-1 state invalid")
-    require(queue["items"][2]["state"] == "BLOCKED_BY_OA1", "OA-2 must remain blocked until separate release")
+    oa1 = queue["items"][1]
+    require(oa1["state"] == "COMPLETE_PASS", "OA-1 must remain COMPLETE_PASS after release")
+    require(oa1.get("validated_head") == "1280c0f879bec50f4a4cfbec763b283f13ae4793", "OA-1 validated head drift")
+    require(oa1.get("gate") == "OA1_HUMAN_OBJECT_WORKBENCH_PASS", "OA-1 completion gate drift")
+    require(queue["current_item"] in {"OA-1", "OA-2", "OA-3", "OA-4", "OA-5", "OA-6"}, "invalid downstream current item")
+    if queue["current_item"] == "OA-1":
+        require(queue["items"][2]["state"] == "BLOCKED_BY_OA1", "OA-2 must remain blocked before release")
+    else:
+        require(queue["items"][2]["state"] in {"IN_PROGRESS", "COMPLETE_PASS"}, "OA-2 release state invalid")
 
     require(contract["extends_route"] == "/workbench", "OA-1 must extend existing Workbench")
     require(contract["parallel_product_forbidden"] is True, "parallel product forbidden")
@@ -67,8 +73,6 @@ def main():
     require("VIEW_SOURCE" in enabled and "FILTER_TYPE" in enabled, "OA-1 actions incomplete")
     require("THIS_IS_A" not in enabled and "FIND_SIMILAR" not in enabled, "future actions enabled prematurely")
 
-    # Real runtime integration: augment the existing client rather than creating
-    # another route/product. Object type is read only from explicit metadata.
     runtime_html = augment(client.replace("__TASK_LABEL__", "ERW-N12-001").replace("__TASK_JSON__", '"ERW-N12-001"'), "ERW-N12-001")
     require(OA1_RUNTIME_MARKER in runtime_html, "OA-1 runtime marker missing")
     require('id="oaPanel"' in runtime_html, "runtime acquisition panel missing")
