@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "slice": "OA-2",
+  "title": "Human Teaching",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "extends_route": "/workbench",
+  "requires": ["OA-1=COMPLETE_PASS"],
+  "primary_action": "THIS_IS_A",
+  "allowed_actions": ["THIS_IS_A", "CREATE_PROTOTYPE", "ASSIGN_FAMILY", "VIEW_SOURCE", "CANCEL"],
+  "forbidden_actions": ["FIND_SIMILAR", "CONFIRM_CLUSTER", "CREATE_STRUCTURAL_IDENTITY", "CANONICAL_WRITE"],
+  "teaching_input": {
+    "selected_object_required": true,
+    "explicit_object_type_required": true,
+    "source_evidence_required": true,
+    "human_family_label_required": true,
+    "geometry_inference_for_type_forbidden": true
+  },
+  "prototype_proposal": {
+    "state": "HUMAN_TAUGHT_NON_CANONICAL_PROTOTYPE",
+    "required_fields": ["prototype_id", "object_type", "family_id", "anchor_object_id", "source_evidence", "human_decision", "revision"],
+    "structural_identity_created": false,
+    "canonical": false
+  },
+  "family_proposal": {
+    "state": "HUMAN_TAUGHT_NON_CANONICAL_FAMILY",
+    "project_specific": true,
+    "universal_symbol_assumption": false
+  },
+  "human_interaction": {
+    "sequence": ["SELECT_OBJECT", "THIS_IS_A", "CHOOSE_OBJECT_TYPE", "NAME_OR_SELECT_FAMILY", "REVIEW_SOURCE_IF_NEEDED", "CREATE_PROTOTYPE_PROPOSAL"],
+    "must_explain_noncanonical": true,
+    "must_keep_source_available": true
+  },
+  "next_gate": "OA-3_DETERMINISTIC_SIMILARITY_BLOCKED_UNTIL_OA2_PASS"
+}
