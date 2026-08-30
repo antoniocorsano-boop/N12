@@ -53,10 +53,21 @@ def main():
     require(contract["integration"]["second_parallel_product_forbidden"] is True, "parallel OA product forbidden")
     require(contract["integration"]["current_hva_authorized"] is False, "OA-0 must preserve HVA hold")
 
-    require(queue["current_item"] == "OA-0", "OA-0 must remain current until validation")
     ids = [i["id"] for i in queue["items"]]
     require(ids == ["OA-0", "OA-1", "OA-2", "OA-3", "OA-4", "OA-5", "OA-6"], "OA development order drift")
-    require(queue["items"][1]["state"] == "BLOCKED_BY_OA0", "OA-1 must be blocked by OA-0")
+    items = {i["id"]: i for i in queue["items"]}
+    oa0 = items["OA-0"]
+
+    # OA-0 is allowed to stop being the current item only after its own exact
+    # foundation gate has been persisted as COMPLETE_PASS. This preserves the
+    # foundation invariant while allowing OA-1+ to progress without false negatives.
+    if queue["current_item"] == "OA-0":
+        require(oa0["state"] in {"IMPLEMENTED_PENDING_VALIDATION", "COMPLETE_PASS"}, "invalid OA-0 current state")
+    else:
+        require(oa0["state"] == "COMPLETE_PASS", "released downstream work requires OA-0 COMPLETE_PASS")
+        require(oa0.get("gate") == "CEW_OBJECT_ACQUISITION_FOUNDATION_PASS", "released OA-0 gate receipt missing")
+        require(bool(oa0.get("validated_head")), "released OA-0 validated head missing")
+
     require(queue["pilot"]["object_type"] == "COLUMN", "first pilot must remain COLUMN")
     require(queue["global_blocks"]["project_material_ready"] is False, "project material cannot start ready")
 

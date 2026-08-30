@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "slice": "OA-1",
+  "status": "IN_PROGRESS",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "extends_route": "/workbench",
+  "parallel_product_forbidden": true,
+  "primary_view": "CAD_FIRST_TECHNICAL_SCENE",
+  "source_view": "ON_DEMAND_PROVENANCE",
+  "type_pass": {
+    "required": true,
+    "initial_type": "COLUMN",
+    "allowed_types": ["COLUMN","BEAM","BEAM_SECTION_SYMBOL","SLAB","FOUNDATION_BEAM","LONGITUDINAL_REBAR","STIRRUP","GRID_AXIS","DIMENSION","CALLOUT","NODE","TECHNICAL_TEXT"]
+  },
+  "regions": [
+    "TYPE_PASS_CONTROL",
+    "TECHNICAL_CAD_VIEW",
+    "FAMILY_PANEL",
+    "OBJECT_INSPECTOR",
+    "BLOCKER_PANEL",
+    "SOURCE_PROVENANCE_DISCLOSURE"
+  ],
+  "visible_object_states": ["VERIFIED","PROPOSED","AMBIGUOUS","BLOCKING","NOT_ANALYZED"],
+  "state_semantics": {
+    "VERIFIED": "human-reviewed object state only",
+    "PROPOSED": "candidate for human review",
+    "AMBIGUOUS": "multiple plausible classifications or insufficient evidence",
+    "BLOCKING": "prevents closure of current object-type pass or gate",
+    "NOT_ANALYZED": "in current scope but not yet evaluated"
+  },
+  "mandatory_blocker_fields": ["blocker_id","target_id","reason_code","human_explanation","required_action","gate_effect"],
+  "object_inspector_sections": ["WORK","EVIDENCE","PROVENANCE"],
+  "family_panel": {
+    "shows_counts": true,
+    "supports_filtering": true,
+    "structural_identity_claims_forbidden": true
+  },
+  "actions_enabled_in_oa1": ["SELECT_OBJECT","FILTER_TYPE","FILTER_FAMILY","VIEW_BLOCKER","VIEW_SOURCE"],
+  "actions_reserved_for_oa2": ["THIS_IS_A","CREATE_PROTOTYPE","ASSIGN_FAMILY"],
+  "actions_reserved_for_oa3": ["FIND_SIMILAR"],
+  "completion_requirements": [
+    "CAD_FIRST_VIEW_PRESENT",
+    "TYPE_PASS_CONTROL_PRESENT",
+    "FAMILY_PANEL_PRESENT",
+    "OBJECT_INSPECTOR_PRESENT",
+    "BLOCKER_PANEL_PRESENT",
+    "SOURCE_ON_DEMAND_PRESENT",
+    "NO_CANONICAL_WRITE",
+    "NO_STRUCTURAL_IDENTITY_FROM_PROXIMITY",
+    "OA2_ACTIONS_NOT_PREMATURELY_ENABLED"
+  ]
+}

@@ -1,27 +1,23 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.2",
   "program": "CEW_OBJECT_ACQUISITION_AND_RECOGNITION",
-  "current_item": "OA-0",
+  "current_item": "OA-2",
   "items": [
     {
       "id": "OA-0",
       "title": "Object Acquisition Foundation",
-      "state": "IMPLEMENTED_PENDING_VALIDATION",
-      "owner": "CEW_OBJECT_ACQUISITION_FOUNDATION",
-      "deliverables": [
-        "object acquisition contract",
-        "development logic",
-        "governed queue",
-        "deterministic validator",
-        "CI gate"
-      ],
+      "state": "COMPLETE_PASS",
+      "validated_head": "3a9d38a6f7e13ed023f90083889e79025205644c",
+      "gate": "CEW_OBJECT_ACQUISITION_FOUNDATION_PASS",
       "promotion_effect": "NONE"
     },
     {
       "id": "OA-1",
       "title": "Human Object Workbench",
-      "state": "BLOCKED_BY_OA0",
-      "requires": ["OA-0=PASS"],
+      "state": "COMPLETE_PASS",
+      "validated_head": "1280c0f879bec50f4a4cfbec763b283f13ae4793",
+      "gate": "OA1_HUMAN_OBJECT_WORKBENCH_PASS",
+      "runtime_integration": "WORKBENCH_INTEGRATED",
       "scope": [
         "CAD-first technical scene",
         "type-specific pass control",
@@ -29,20 +25,22 @@
         "object inspector",
         "blocker panel",
         "on-demand source provenance"
-      ]
+      ],
+      "promotion_effect": "NONE"
     },
     {
       "id": "OA-2",
       "title": "Human Teaching",
-      "state": "WAITING",
-      "requires": ["OA-1=PASS"],
-      "scope": ["THIS_IS_A", "prototype creation", "family assignment"]
+      "state": "IN_PROGRESS",
+      "requires": ["OA-1=COMPLETE_PASS"],
+      "scope": ["THIS_IS_A", "prototype creation", "family assignment"],
+      "completion_gate": "OA2_HUMAN_TEACHING_PASS"
     },
     {
       "id": "OA-3",
       "title": "Deterministic Similarity",
-      "state": "WAITING",
-      "requires": ["OA-2=PASS"],
+      "state": "BLOCKED_BY_OA2",
+      "requires": ["OA-2=COMPLETE_PASS"],
       "scope": ["geometry", "dimension", "orientation", "topology", "spatial context", "associated text"]
     },
     {
@@ -71,8 +69,8 @@
   "pilot": {
     "object_type": "COLUMN",
     "scope": "ONE_GOVERNED_STRUCTURAL_DRAWING",
-    "state": "NOT_STARTED",
-    "start_after": "OA-1_MINIMUM_WORKBENCH_READY"
+    "state": "READY_FOR_HUMAN_TEACHING",
+    "start_after": "OA-1=COMPLETE_PASS"
   },
   "global_blocks": {
     "canonical_write_authorized": false,
