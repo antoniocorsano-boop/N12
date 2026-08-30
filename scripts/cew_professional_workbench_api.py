@@ -15,10 +15,12 @@ import cew_professional_workbench_client as client
 import cew_professional_workbench_core as core
 import cew_professional_workbench_document_geometry as document_geometry
 import cew_professional_workbench_projection as projection
+import cew_r2gm_geometry_acceptance as r2gm
 import cew_r2hr_governed_ingest as r2gi
 import cew_runtime_audit_store as audit_store
 
 R2HR_RUNTIME_STORE = Path("/tmp/cew-runtime/r2hr-receipts")
+R2GM_RUNTIME_STORE = Path("/tmp/cew-runtime/r2gm-receipts")
 
 
 def _error(state: str, reason: str, status_code: int) -> JSONResponse:
@@ -119,6 +121,36 @@ def _runtime_r2gi_report() -> dict[str, Any]:
     return report
 
 
+def _runtime_r2gm_report() -> dict[str, Any]:
+    r2gi_report = _runtime_r2gi_report()
+    if r2gi_report.get("state") != "READY_FOR_EXPLICIT_GEOMETRY_ACCEPTANCE_REVIEW":
+        report = r2gm.aggregate(r2gi_report, [])
+        report["runtime_aggregation"] = True
+        report["audit_backend"] = audit_store.backend_status()
+        report["audit_receipt_total"] = 0
+        report["candidate_receipt_count"] = 0
+        return report
+    loaded = audit_store.load_runtime_receipts(
+        r2gm.AUDIT_ENVELOPE_TYPE,
+        R2GM_RUNTIME_STORE,
+    )
+    candidate_head_sha = str(r2gi_report["candidate_head_sha"])
+    candidate_receipts = [
+        envelope
+        for envelope in loaded["receipts"]
+        if isinstance(envelope.get("r2gm_receipt"), dict)
+        and envelope["r2gm_receipt"].get("candidate_head_sha") == candidate_head_sha
+    ]
+    report = r2gm.aggregate(r2gi_report, candidate_receipts)
+    report["runtime_aggregation"] = True
+    report["audit_backend"] = loaded["audit_backend"]
+    report["audit_receipt_total"] = loaded["receipt_count"]
+    report["candidate_receipt_count"] = len(candidate_receipts)
+    report["canonical_write_authorized"] = False
+    report["engineering_authority_effect"] = "NONE"
+    return report
+
+
 def _public_workbench_html(task: str) -> str:
     """Keep internal task ids out of the primary visible Workbench chrome."""
     rendered = client.build_client(task)
@@ -136,8 +168,12 @@ def _public_workbench_html(task: str) -> str:
         f'<a id="gapReviewLink" class="button desktop-only" '
         f'href="/workbench/gap-review?task={escaped}">Verifica continuità raster</a>'
     )
+    geometry_link = (
+        f'<a id="geometryAcceptanceLink" class="button desktop-only" '
+        f'href="/workbench/geometry-acceptance?task={escaped}">Accetta geometria documentale</a>'
+    )
     if marker in rendered:
-        rendered = rendered.replace(marker, marker + review_link, 1)
+        rendered = rendered.replace(marker, marker + review_link + geometry_link, 1)
     return rendered
 
 
@@ -234,6 +270,38 @@ def build_router(source_workspace) -> APIRouter:
             }
         )
 
+    @router.get("/api/workbench/geometry-acceptance/status")
+    def workbench_geometry_acceptance_status(task: str = ""):
+        if not task.strip():
+            return _error("R2GM_RUNTIME_STATUS_REJECTED", "WORKBENCH_TASK_REQUIRED", 400)
+        try:
+            _, region_id = _task_context(task.strip(), source_workspace)
+            report = _runtime_r2gm_report()
+        except KeyError:
+            return _error("R2GM_RUNTIME_STATUS_NOT_FOUND", "TASK_OR_SOURCE_NOT_FOUND", 404)
+        except ValueError as exc:
+            marker = str(exc)
+            if "R2GM_DUPLICATE_REGION_RECEIPT" in marker:
+                return _error("R2GM_RUNTIME_RECEIPT_CONFLICT", marker, 409)
+            return _error("R2GM_RUNTIME_STATUS_UNAVAILABLE", marker, 503)
+        row = next((item for item in report.get("regions", []) if item["evidence_region_id"] == region_id), None)
+        return _json(
+            {
+                "state": report["state"],
+                "next_gate": report["next_gate"],
+                "candidate_head_sha": report.get("candidate_head_sha"),
+                "region_coverage": report["region_coverage"],
+                "evidence_region_id": region_id,
+                "region_state": row["state"] if row else report["state"],
+                "receipt_ingested": row["receipt_ingested"] if row else False,
+                "document_geometry_materialized": row["document_geometry_materialized"] if row else False,
+                "document_geometry_materialized_region_count": report["document_geometry_materialized_region_count"],
+                "r2c_scene_adapter_authorized": report["r2c_scene_adapter_authorized"],
+                "technical_identity_authorized": False,
+                "structural_identity_authorized": False,
+            }
+        )
+
     @router.get("/workbench/gap-review", response_class=HTMLResponse)
     def workbench_gap_review(task: str = ""):
         if not task.strip():
@@ -252,6 +320,42 @@ def build_router(source_workspace) -> APIRouter:
                 "Cache-Control": "no-store",
                 "X-CEW-Review-Authority": "HUMAN_REVIEW_EVIDENCE_ONLY",
                 "X-CEW-Geometry-Materialization": "false",
+                "X-CEW-Canonical-Write": "false",
+            },
+        )
+
+    @router.get("/workbench/geometry-acceptance", response_class=HTMLResponse)
+    def workbench_geometry_acceptance(task: str = ""):
+        if not task.strip():
+            return HTMLResponse("<h1>Accettazione geometrica non disponibile</h1><a href='/'>Torna al progetto</a>", status_code=400)
+        try:
+            _, region_id = _task_context(task.strip(), source_workspace)
+            r2gi_report = _runtime_r2gi_report()
+            if r2gi_report.get("state") != "READY_FOR_EXPLICIT_GEOMETRY_ACCEPTANCE_REVIEW":
+                return HTMLResponse(
+                    f"<h1>Accettazione geometrica non ancora disponibile</h1><p>Il gate precedente è: {html.escape(str(r2gi_report.get('state')))}</p><p>Nessuna geometria può essere accettata finché la revisione umana R2HR/R2GI non è completa e senza conflitti.</p><a href='/workbench?task={html.escape(task.strip(), quote=True)}'>Torna all'ambiente grafico</a>",
+                    status_code=409,
+                )
+            current = _runtime_r2gm_report()
+            row = next((item for item in current.get("regions", []) if item["evidence_region_id"] == region_id), None)
+            if row and row.get("receipt_ingested") is True:
+                return HTMLResponse(
+                    f"<h1>Decisione geometrica già registrata</h1><p>Per questa regione esiste già una decisione R2GM append-only sul candidato corrente. Non viene sovrascritta.</p><a href='/workbench?task={html.escape(task.strip(), quote=True)}'>Torna all'ambiente grafico</a>",
+                    status_code=409,
+                )
+            page = r2gm.build_review_page(task.strip(), r2gi_report, region_id)
+        except (KeyError, ValueError) as exc:
+            return HTMLResponse(
+                f"<h1>Accettazione geometrica non disponibile</h1><p>{html.escape(str(exc))}</p><a href='/workbench?task={html.escape(task.strip(), quote=True)}'>Torna all'ambiente grafico</a>",
+                status_code=503,
+            )
+        return HTMLResponse(
+            page,
+            headers={
+                "Cache-Control": "no-store",
+                "X-CEW-Review-Authority": "HUMAN_DOCUMENT_GEOMETRY_ACCEPTANCE_ONLY",
+                "X-CEW-Technical-Identity": "false",
+                "X-CEW-Structural-Identity": "false",
                 "X-CEW-Canonical-Write": "false",
             },
         )
@@ -323,6 +427,60 @@ def build_router(source_workspace) -> APIRouter:
                 "geometry_materialization_authorized": False,
                 "bridge_candidate_authorized": False,
                 "next_gate": ingest_next_gate,
+            }
+        )
+
+    @router.post("/api/workbench/geometry-acceptance/receipt")
+    async def workbench_geometry_acceptance_receipt(request: Request):
+        try:
+            payload = await request.json()
+        except Exception:
+            return _error("R2GM_RECEIPT_REJECTED", "INVALID_JSON", 400)
+        if not isinstance(payload, dict) or set(payload) != {"task", "receipt"}:
+            return _error("R2GM_RECEIPT_REJECTED", "R2GM_WRAPPER_FIELD_SET_MISMATCH", 400)
+        try:
+            task_id = _task(payload)
+            _, region_id = _task_context(task_id, source_workspace)
+            r2gi_report = _runtime_r2gi_report()
+            if r2gi_report.get("state") != "READY_FOR_EXPLICIT_GEOMETRY_ACCEPTANCE_REVIEW":
+                raise ValueError("R2GM_R2GI_NOT_READY")
+            current = _runtime_r2gm_report()
+            existing = next((item for item in current.get("regions", []) if item["evidence_region_id"] == region_id), None)
+            if existing and existing.get("receipt_ingested") is True:
+                return _error("R2GM_RECEIPT_CONFLICT", "R2GM_REGION_DECISION_ALREADY_RECORDED", 409)
+            receipt = payload.get("receipt")
+            if not isinstance(receipt, dict):
+                raise ValueError("R2GM_RECEIPT_OBJECT_REQUIRED")
+            if receipt.get("evidence_region_id") != region_id:
+                raise ValueError("R2GM_TASK_REGION_MISMATCH")
+            proposal = r2gm.build_region_proposal(r2gi_report, region_id)
+            validated = r2gm.validate_receipt(receipt, proposal)
+            envelope = r2gm.audit_envelope(task_id, validated, proposal)
+            persisted = audit_store.persist_runtime_receipt(envelope, R2GM_RUNTIME_STORE)
+            aggregate = _runtime_r2gm_report()
+        except KeyError:
+            return _error("R2GM_RECEIPT_NOT_FOUND", "TASK_OR_SOURCE_NOT_FOUND", 404)
+        except ValueError as exc:
+            marker = str(exc)
+            if "R2GM_DUPLICATE_REGION_RECEIPT" in marker:
+                return _error("R2GM_RECEIPT_CONFLICT", marker, 409)
+            return _error("R2GM_RECEIPT_REJECTED", marker, 422)
+        return _json(
+            {
+                "state": "R2GM_RECEIPT_PERSISTED_DOCUMENT_GEOMETRY_DECISION",
+                "runtime_receipt_id": persisted["runtime_receipt_id"],
+                "sha256": persisted["sha256"],
+                "audit_backend": persisted["audit_backend"],
+                "receipt_authority": "HUMAN_DOCUMENT_GEOMETRY_ACCEPTANCE_ONLY",
+                "decision": validated["decision"],
+                "document_geometry_materialized": validated["document_geometry_materialization_authorized"],
+                "geometry_acceptance_state": aggregate["state"],
+                "geometry_acceptance_region_coverage": aggregate["region_coverage"],
+                "document_geometry_materialized_region_count": aggregate["document_geometry_materialized_region_count"],
+                "r2c_scene_adapter_authorized": aggregate["r2c_scene_adapter_authorized"],
+                "technical_identity_authorized": False,
+                "structural_identity_authorized": False,
+                "next_gate": aggregate["next_gate"],
             }
         )
 
