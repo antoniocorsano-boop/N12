@@ -55,7 +55,6 @@ def main() -> int:
         require(marker in client, f"client marker missing: {marker}")
     require("rappresentazione tecnica derivata" in client_lower, "technical representation label missing")
     require("keydown" in client and "ArrowLeft" in client and "ArrowRight" in client, "keyboard viewport alternatives missing")
-
     require("canonical_write_authorized=true" not in client_lower, "client must never authorize canonical write")
     require("VISUAL_PROXIMITY" not in client, "client must not create proximity bindings")
 
@@ -63,9 +62,12 @@ def main() -> int:
         '@router.get("/workbench", response_class=HTMLResponse)',
         'X-CEW-Canonical-Write": "false"',
         'X-CEW-Engineering-Authority-Effect": "NONE"',
-        "client.build_client(task.strip())",
+        "_public_workbench_html(task.strip())",
+        "client.build_client(task)",
+        "Progetto N12 › Evidenza › Revisione tecnica",
     ):
         require(marker in api, f"workbench route marker missing: {marker}")
+    require("<title>CEW — Ambiente grafico professionale</title>" in api, "public Workbench title redaction missing")
 
     require('/workbench?task={quote(task.get(\'task_id\',\'\'))}' in home, "Project Home must route review actions to Workbench")
     require('/evidence/review?task={quote(task.get(\'task_id\',\'\'))}' not in home, "Project Home must not bypass the Workbench for primary review action")
@@ -89,8 +91,6 @@ def main() -> int:
     for marker in ("Desktop default — SPLIT", "Internal SourceVersion/EvidenceRegion ids are hidden", "OVERLAY is disabled"):
         require(marker in wireframes, f"wireframe marker missing: {marker}")
 
-    # The integration is intentionally a candidate. These client checks do not
-    # satisfy PWB-005 document geometry, verified registration, HVA or B1 promotion.
     print("CEW_PROFESSIONAL_WORKBENCH_CLIENT_INTEGRATION = PASS")
     print("PROJECT_HOME_TO_WORKBENCH = PASS")
     print("F3_DZI_CLIENT_CONSUMPTION = PASS")
@@ -100,6 +100,7 @@ def main() -> int:
     print("WORKING_EDIT_NON_CANONICAL = PASS")
     print("READING_ISSUE_NON_CANONICAL = PASS")
     print("PROGRESSIVE_DISCLOSURE = PASS")
+    print("PRIMARY_CHROME_INTERNAL_IDS_HIDDEN = PASS")
     print("HVA_EXECUTION_AUTHORIZED = false")
     print("B1_PROMOTION_AUTHORIZED = false")
     print("CANONICAL_WRITE_AUTHORIZED = false")
