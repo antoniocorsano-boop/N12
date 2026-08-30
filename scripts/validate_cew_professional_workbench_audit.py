@@ -18,6 +18,10 @@ CORE = ROOT / "scripts/cew_professional_workbench_core.py"
 CORE_VALIDATOR = ROOT / "scripts/validate_cew_professional_workbench_core.py"
 PROJECTION = ROOT / "scripts/cew_professional_workbench_projection.py"
 API = ROOT / "scripts/cew_professional_workbench_api.py"
+CLIENT = ROOT / "scripts/cew_professional_workbench_client.py"
+CLIENT_VALIDATOR = ROOT / "scripts/validate_cew_professional_workbench_client.py"
+CLIENT_WORKFLOW = ROOT / ".github/workflows/validate-cew-professional-workbench-client.yml"
+PROJECT_HOME = ROOT / "scripts/cew_project_home.py"
 SOURCE_VIEWER = ROOT / "scripts/build_cew_source_viewer.py"
 ERW = ROOT / "scripts/build_cew_erw_synced_workspace.py"
 DUAL_VECTOR = ROOT / "scripts/cew_dual_vector_agreement.py"
@@ -34,6 +38,7 @@ RUNTIME_SMOKE = ROOT / "scripts/validate_cew_professional_workbench_runtime_smok
 RENDER = ROOT / "render.yaml"
 RENDER_BUILD = ROOT / "scripts/render_build_candidate.sh"
 REQUIREMENTS = ROOT / "requirements.txt"
+CLIENT_VERIFIED_CANDIDATE = "9296d82a02ce1d4e2e171f64c937e828094cca2d"
 
 
 def require(value: bool, message: str) -> None:
@@ -55,8 +60,9 @@ def main() -> int:
     reqs = {row["id"]: row for row in matrix["requirements"]}
     blockers = matrix["blocking_requirement_ids"]
 
-    require(matrix["schema_version"] == "1.5", "matrix must be schema 1.5")
-    require(matrix["status"] == "VERIFIED_GAP_MATRIX_WITH_PWB005_R1A_RASTER_4_OF_4", "matrix status drift")
+    require(matrix["schema_version"] == "1.6", "matrix must be schema 1.6")
+    require(matrix["status"] == "CLIENT_INTEGRATION_VERIFIED_PWB005_BLOCKED", "matrix status drift")
+    require(matrix["client_integration_verified_candidate"] == CLIENT_VERIFIED_CANDIDATE, "client integration verified candidate drift")
     require(matrix["professional_workbench_readiness"] == "REWORK_REQUIRED", "workbench must remain REWORK_REQUIRED")
     require(matrix["hva_execution_authorized"] is False, "HVA must remain blocked")
     require(matrix["b1_promotion_authorized"] is False, "B1 promotion must remain blocked")
@@ -69,11 +75,14 @@ def main() -> int:
 
     require(reqs["PWB-001"]["status"] == "IMPLEMENTED", "PWB-001 regression")
     require(reqs["PWB-002"]["status"] == "IMPLEMENTED", "PWB-002 regression")
+    require(reqs["PWB-004"]["status"] == "IMPLEMENTED", "PWB-004 client integration regression")
+    require(reqs["PWB-006"]["status"] == "IMPLEMENTED", "PWB-006 client integration regression")
+    require("PWB-006" not in blockers, "PWB-006 must leave blocker list after selectable-object integration")
+    require(reqs["PWB-013"]["status"] == "IMPLEMENTED", "PWB-013 progressive-disclosure regression")
     require(reqs["PWB-005"]["status"] == "PARTIAL", "PWB-005 must remain PARTIAL")
     require("PWB-005" in blockers, "PWB-005 must remain a blocker")
-    require(reqs["PWB-006"]["status"] == "AVAILABLE_NOT_INTEGRATED", "PWB-006 status drift")
-    for rid in ("PWB-004", "PWB-010", "PWB-013"):
-        require(reqs[rid]["status"] == "NOT_IMPLEMENTED", f"{rid} must remain NOT_IMPLEMENTED")
+    for rid in ("PWB-003", "PWB-005", "PWB-007", "PWB-008", "PWB-009", "PWB-010", "PWB-011", "PWB-012", "PWB-014", "PWB-015", "PWB-016", "PWB-017", "PWB-018"):
+        require(reqs[rid]["status"] == "PARTIAL", f"{rid} must remain PARTIAL")
 
     finding = reqs["PWB-005"]["finding"]
     expected_regions = {
@@ -147,6 +156,31 @@ def main() -> int:
     require("F6_ERW_M0G_FROZEN_LEDGER_ADAPTER" in projection, "F6 projection reuse missing")
     require("NO_VERIFIED_SOURCE_TO_TECHNICAL_REGISTRATION_IN_CURRENT_CEW_RECORDS" in projection, "registration fail-closed marker missing")
 
+    client = text(CLIENT)
+    for marker in (
+        "F3_DZI_OPENSEADRAGON_REUSED",
+        "WORKBENCH_SCENE_OBJECTS_RENDERED_AS_SVG",
+        "EXPLICIT_EVIDENCE_LINK_ONLY",
+        "OVERLAY_DISABLED_WITHOUT_VERIFIED_REGISTRATION",
+        "OBJECT_ANCHORED_NON_CANONICAL_WORKING_EDIT",
+        "GRAPHICALLY_ANCHORED_NON_CANONICAL_READING_ISSUE",
+        "WORK_EVIDENCE_PROVENANCE",
+        "/api/workbench/scene?task=",
+    ):
+        require(marker in client, f"professional client integration marker missing: {marker}")
+    client_validator = text(CLIENT_VALIDATOR)
+    for marker in (
+        "CEW_PROFESSIONAL_WORKBENCH_CLIENT_INTEGRATION = PASS",
+        "PRIMARY_CHROME_INTERNAL_IDS_HIDDEN = PASS",
+        "HVA_EXECUTION_AUTHORIZED = false",
+        "CANONICAL_WRITE_AUTHORIZED = false",
+    ):
+        require(marker in client_validator, f"client validator marker missing: {marker}")
+    require("Validate CEW Professional Workbench Client" in text(CLIENT_WORKFLOW), "client CI gate missing")
+    require('/workbench?task={quote(task.get(\'task_id\',\'\'))}' in text(PROJECT_HOME), "Project Home does not enter professional Workbench")
+    require('@router.get("/workbench", response_class=HTMLResponse)' in text(API), "professional Workbench route missing")
+    require("Progetto N12 › Evidenza › Revisione tecnica" in text(API), "primary Workbench chrome must hide internal task id")
+
     require("openseadragon" in text(SOURCE_VIEWER).lower(), "OpenSeadragon foundation missing")
     require("svg" in text(ERW).lower(), "F6 SVG foundation missing")
     require(all(state in text(DUAL_VECTOR) for state in ("AGREE", "PARTIAL", "DISAGREE")), "dual-vector vocabulary missing")
@@ -198,7 +232,8 @@ def main() -> int:
     missing = sorted(rid for rid, row in reqs.items() if row["status"] == "NOT_IMPLEMENTED")
 
     print("CEW_PROFESSIONAL_WORKBENCH_AUDIT_CONSISTENCY = PASS")
-    print("CEW_PROFESSIONAL_WORKBENCH_R1A_RECONCILIATION = PASS")
+    print("CEW_PROFESSIONAL_WORKBENCH_CLIENT_RECONCILIATION = PASS")
+    print("CLIENT_INTEGRATION_VERIFIED_CANDIDATE = " + CLIENT_VERIFIED_CANDIDATE)
     print("PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED")
     print("PWB005 = PARTIAL_BLOCKED")
     print("PWB005_VECTOR_COMPARABLE_REGIONS = 0/4")
