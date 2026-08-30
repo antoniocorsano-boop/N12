@@ -1,0 +1,24 @@
+name: Validate CEW Object Acquisition Foundation
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_OBJECT_ACQUISITION_CONTRACT_v1.json'
+      - 'automation/CEW_OBJECT_ACQUISITION_QUEUE_v1.json'
+      - 'docs/PROGRAM/CEW_OBJECT_ACQUISITION_DEVELOPMENT_LOGIC_v1.md'
+      - 'scripts/validate_cew_object_acquisition_foundation.py'
+      - '.github/workflows/validate-cew-object-acquisition-foundation.yml'
+  push:
+    branches:
+      - 'work/cew-oa0-object-acquisition-foundation-v1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate acquisition-first contract and queue
+        run: python scripts/validate_cew_object_acquisition_foundation.py

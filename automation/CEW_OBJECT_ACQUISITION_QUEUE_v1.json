@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "program": "CEW_OBJECT_ACQUISITION_AND_RECOGNITION",
+  "current_item": "OA-0",
+  "items": [
+    {
+      "id": "OA-0",
+      "title": "Object Acquisition Foundation",
+      "state": "IMPLEMENTED_PENDING_VALIDATION",
+      "owner": "CEW_OBJECT_ACQUISITION_FOUNDATION",
+      "deliverables": [
+        "object acquisition contract",
+        "development logic",
+        "governed queue",
+        "deterministic validator",
+        "CI gate"
+      ],
+      "promotion_effect": "NONE"
+    },
+    {
+      "id": "OA-1",
+      "title": "Human Object Workbench",
+      "state": "BLOCKED_BY_OA0",
+      "requires": ["OA-0=PASS"],
+      "scope": [
+        "CAD-first technical scene",
+        "type-specific pass control",
+        "family panel",
+        "object inspector",
+        "blocker panel",
+        "on-demand source provenance"
+      ]
+    },
+    {
+      "id": "OA-2",
+      "title": "Human Teaching",
+      "state": "WAITING",
+      "requires": ["OA-1=PASS"],
+      "scope": ["THIS_IS_A", "prototype creation", "family assignment"]
+    },
+    {
+      "id": "OA-3",
+      "title": "Deterministic Similarity",
+      "state": "WAITING",
+      "requires": ["OA-2=PASS"],
+      "scope": ["geometry", "dimension", "orientation", "topology", "spatial context", "associated text"]
+    },
+    {
+      "id": "OA-4",
+      "title": "Cluster Review",
+      "state": "WAITING",
+      "requires": ["OA-3=PASS"],
+      "scope": ["confirm cluster", "reject", "move family", "ambiguous", "exception review"]
+    },
+    {
+      "id": "OA-5",
+      "title": "Structural Resolver",
+      "state": "WAITING",
+      "requires": ["OA-4=PASS"],
+      "scope": ["structural identity candidate", "relationship evidence", "no proximity-only identity"]
+    },
+    {
+      "id": "OA-6",
+      "title": "Project Material Gate",
+      "state": "WAITING",
+      "requires": ["OA-5=PASS", "OA-G1..OA-G5 satisfied for target scope"],
+      "outputs": ["PROJECT_GEOMETRY", "PROJECT_SECTIONS", "PROJECT_REINFORCEMENT", "PROJECT_FOUNDATIONS"],
+      "downstream_release": ["M0-G", "M0-S", "M0-A"]
+    }
+  ],
+  "pilot": {
+    "object_type": "COLUMN",
+    "scope": "ONE_GOVERNED_STRUCTURAL_DRAWING",
+    "state": "NOT_STARTED",
+    "start_after": "OA-1_MINIMUM_WORKBENCH_READY"
+  },
+  "global_blocks": {
+    "canonical_write_authorized": false,
+    "professional_hva_satisfied": false,
+    "project_material_ready": false
+  }
+}

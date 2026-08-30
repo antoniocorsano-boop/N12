@@ -1,0 +1,112 @@
+{
+  "schema_version": "1.0",
+  "program": "CEW_OBJECT_ACQUISITION_AND_RECOGNITION",
+  "slice": "OA-0",
+  "status": "FOUNDATION_IMPLEMENTED_INTEGRATION_PENDING",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "engineering_authority_effect": "NONE",
+  "priority_invariant": "ACQUISITION_BEFORE_MODELING",
+  "process_chain": [
+    "SOURCE_ACQUISITION",
+    "DOCUMENT_REGISTRATION",
+    "OBJECT_TYPE_PASS",
+    "OBJECT_PROTOTYPE",
+    "FIND_SIMILAR",
+    "HUMAN_CLUSTER_REVIEW",
+    "CANONICAL_CAD_OBJECT_PROPOSAL",
+    "STRUCTURAL_IDENTITY_REVIEW",
+    "PROJECT_MATERIAL_READY"
+  ],
+  "forbidden_shortcuts": [
+    "PIXEL_CROP_AS_PRIMARY_OPERATIONAL_OBJECT",
+    "VISUAL_SIMILARITY_CREATES_STRUCTURAL_IDENTITY",
+    "DETECTOR_CONFIDENCE_CREATES_ENGINEERING_FACT",
+    "MODEL_COMPLETION_FILLS_MISSING_ACQUISITION",
+    "M0_G_M0_S_M0_A_USED_TO_REPAIR_UPSTREAM_GAPS"
+  ],
+  "source_authority": {
+    "primary_authority": "IMMUTABLE_SOURCE_DOCUMENT",
+    "required_provenance": ["SourceVersion", "Page", "EvidenceRegion"],
+    "crop_role": "EVIDENCE_ONLY_NOT_PRIMARY_WORK_SURFACE"
+  },
+  "object_types_initial": [
+    "COLUMN",
+    "BEAM",
+    "BEAM_SECTION_SYMBOL",
+    "SLAB",
+    "FOUNDATION_BEAM",
+    "LONGITUDINAL_REBAR",
+    "STIRRUP",
+    "GRID_AXIS",
+    "DIMENSION",
+    "CALLOUT",
+    "NODE",
+    "TECHNICAL_TEXT"
+  ],
+  "entities": {
+    "ObjectPrototype": {
+      "required": ["prototype_id", "object_type", "source_evidence", "canonical_geometry", "human_teacher_decision"]
+    },
+    "ObjectFamily": {
+      "required": ["family_id", "object_type", "prototype_ids", "project_scope"]
+    },
+    "ObjectCandidate": {
+      "required": ["candidate_id", "object_type", "source_evidence", "signature", "candidate_state"]
+    },
+    "CanonicalCadObjectProposal": {
+      "required": ["cad_object_id", "object_type", "geometry", "source_evidence", "validation_state"],
+      "canonical": false
+    },
+    "ValidationDecision": {
+      "required": ["reviewer", "decision", "target_id", "revision", "timestamp"]
+    },
+    "StructuralIdentityCandidate": {
+      "required": ["identity_candidate_id", "cad_object_id", "relationship_evidence", "state"]
+    }
+  },
+  "candidate_states": ["DETECTED", "PROPOSED", "SIMILAR_CLUSTER", "AMBIGUOUS", "REJECTED", "HUMAN_VERIFIED"],
+  "promotion_gates": [
+    {"id": "OA-G1", "name": "SOURCE_READY"},
+    {"id": "OA-G2", "name": "OBJECT_ACQUIRED"},
+    {"id": "OA-G3", "name": "OBJECT_CLASSIFIED"},
+    {"id": "OA-G4", "name": "HUMAN_VERIFIED"},
+    {"id": "OA-G5", "name": "STRUCTURAL_IDENTITY"}
+  ],
+  "project_material_gate": {
+    "state": "BLOCKED",
+    "release_condition": "OA-G1_THROUGH_OA-G5_SATISFIED_FOR_TARGET_SCOPE",
+    "downstream_consumers": ["M0-G", "M0-S", "M0-A", "EDILUS", "FEM", "ASSESSMENT", "INTERVENTION_DESIGN"]
+  },
+  "human_workbench": {
+    "primary_surface": "CANONICAL_CAD_VIEW",
+    "source_surface": "ON_DEMAND_PROVENANCE_VIEW",
+    "required_actions": [
+      "THIS_IS_A",
+      "FIND_SIMILAR",
+      "CONFIRM",
+      "CONFIRM_CLUSTER",
+      "REJECT",
+      "MOVE_TO_FAMILY",
+      "CREATE_FAMILY",
+      "MARK_AMBIGUOUS",
+      "VIEW_SOURCE"
+    ],
+    "required_visible_states": ["VERIFIED", "PROPOSED", "AMBIGUOUS", "BLOCKING", "NOT_ANALYZED"],
+    "must_show_blockers": true
+  },
+  "similarity_model": {
+    "v1": "DETERMINISTIC_FIRST",
+    "signals": ["GEOMETRY", "DIMENSION", "ORIENTATION", "TOPOLOGY", "SPATIAL_CONTEXT", "ASSOCIATED_TEXT"],
+    "vision_embedding": "OPTIONAL_LATER_SIGNAL",
+    "confidence_is_authority": false
+  },
+  "integration": {
+    "workbench_route": "/workbench",
+    "extends_existing_professional_workbench": true,
+    "second_parallel_product_forbidden": true,
+    "r2c_relationship": "OA_CONSUMES_GOVERNED_DOCUMENT_GEOMETRY_WHEN_AVAILABLE_BUT_DOES_NOT_BYPASS_R2GM",
+    "current_hva_authorized": false,
+    "current_canonical_write_authorized": false
+  }
+}
