@@ -15,7 +15,10 @@ import cew_professional_workbench_client as client
 import cew_professional_workbench_core as core
 import cew_professional_workbench_document_geometry as document_geometry
 import cew_professional_workbench_projection as projection
+import cew_r2hr_governed_ingest as r2gi
 import cew_runtime_audit_store as audit_store
+
+R2HR_RUNTIME_STORE = Path("/tmp/cew-runtime/r2hr-receipts")
 
 
 def _error(state: str, reason: str, status_code: int) -> JSONResponse:
@@ -89,6 +92,31 @@ def _task_context(task: str, source_workspace) -> tuple[dict[str, Any], str]:
     if not region_id:
         raise ValueError("WORKBENCH_EVIDENCE_REGION_REQUIRED")
     return ctx, region_id
+
+
+def _runtime_r2gi_report() -> dict[str, Any]:
+    review_state = gap_review.status()
+    if review_state.get("state") != "READY":
+        raise ValueError(review_state.get("reason", "R2HR_PACKAGE_NOT_READY"))
+    loaded = audit_store.load_runtime_receipts(
+        r2gi.ALLOWED_AUDIT_RECEIPT_TYPE,
+        R2HR_RUNTIME_STORE,
+    )
+    candidate_head_sha = str(review_state["candidate_head_sha"])
+    candidate_receipts = [
+        envelope
+        for envelope in loaded["receipts"]
+        if isinstance(envelope.get("r2hr_receipt"), dict)
+        and envelope["r2hr_receipt"].get("candidate_head_sha") == candidate_head_sha
+    ]
+    report = r2gi.ingest_envelopes(candidate_receipts)
+    report["runtime_ingest"] = True
+    report["audit_backend"] = loaded["audit_backend"]
+    report["audit_receipt_total"] = loaded["receipt_count"]
+    report["candidate_receipt_count"] = len(candidate_receipts)
+    report["canonical_write_authorized"] = False
+    report["engineering_authority_effect"] = "NONE"
+    return report
 
 
 def _public_workbench_html(task: str) -> str:
@@ -173,6 +201,39 @@ def build_router(source_workspace) -> APIRouter:
             }
         )
 
+    @router.get("/api/workbench/gap-review/ingest-status")
+    def workbench_gap_review_ingest_status(task: str = ""):
+        if not task.strip():
+            return _error("R2GI_RUNTIME_STATUS_REJECTED", "WORKBENCH_TASK_REQUIRED", 400)
+        try:
+            _, region_id = _task_context(task.strip(), source_workspace)
+            report = _runtime_r2gi_report()
+        except KeyError:
+            return _error("R2GI_RUNTIME_STATUS_NOT_FOUND", "TASK_OR_SOURCE_NOT_FOUND", 404)
+        except ValueError as exc:
+            marker = str(exc)
+            if "R2GI_DUPLICATE_REGION_RECEIPT" in marker:
+                return _error("R2GI_RUNTIME_RECEIPT_CONFLICT", marker, 409)
+            return _error("R2GI_RUNTIME_STATUS_UNAVAILABLE", marker, 503)
+        row = next((item for item in report["regions"] if item["evidence_region_id"] == region_id), None)
+        if row is None:
+            return _error("R2GI_RUNTIME_STATUS_REJECTED", "R2GI_REGION_NOT_FOUND", 404)
+        return _json(
+            {
+                "state": report["state"],
+                "next_gate": report["next_gate"],
+                "candidate_head_sha": report["candidate_head_sha"],
+                "region_coverage": report["region_coverage"],
+                "evidence_region_id": region_id,
+                "region_state": row["state"],
+                "receipt_ingested": row["receipt_ingested"],
+                "candidate_receipt_count": report["candidate_receipt_count"],
+                "audit_backend": report["audit_backend"],
+                "review_findings_are_geometry": False,
+                "geometry_materialization_authorized": False,
+            }
+        )
+
     @router.get("/workbench/gap-review", response_class=HTMLResponse)
     def workbench_gap_review(task: str = ""):
         if not task.strip():
@@ -230,12 +291,25 @@ def build_router(source_workspace) -> APIRouter:
             expected = gap_review.template(region_id)
             validated = gap_review.validate_receipt(receipt, expected)
             envelope = gap_review.audit_envelope(task_id, validated)
-            persisted = audit_store.persist_runtime_receipt(
-                envelope,
-                Path("/tmp/cew-runtime/r2hr-receipts"),
-            )
+            persisted = audit_store.persist_runtime_receipt(envelope, R2HR_RUNTIME_STORE)
         except (KeyError, ValueError) as exc:
             return _error("R2HR_RECEIPT_REJECTED", str(exc), 422)
+
+        ingest_state = "UNAVAILABLE_FAIL_CLOSED"
+        ingest_coverage = None
+        ingest_next_gate = "R2HR_GOVERNED_REVIEW_INGEST_REQUIRED"
+        ingest_reason = None
+        try:
+            report = _runtime_r2gi_report()
+            ingest_state = report["state"]
+            ingest_coverage = report["region_coverage"]
+            ingest_next_gate = report["next_gate"]
+        except ValueError as exc:
+            ingest_reason = str(exc)
+            if "R2GI_DUPLICATE_REGION_RECEIPT" in ingest_reason:
+                ingest_state = "BLOCKED_RECEIPT_CONFLICT"
+                ingest_next_gate = "R2GI_RECEIPT_CONFLICT_RESOLUTION_REQUIRED"
+
         return _json(
             {
                 "state": "R2HR_RECEIPT_PERSISTED_AUDIT_ONLY",
@@ -243,9 +317,12 @@ def build_router(source_workspace) -> APIRouter:
                 "sha256": persisted["sha256"],
                 "audit_backend": persisted["audit_backend"],
                 "receipt_authority": "HUMAN_REVIEW_EVIDENCE_ONLY",
+                "governed_ingest_state": ingest_state,
+                "governed_ingest_region_coverage": ingest_coverage,
+                "governed_ingest_reason": ingest_reason,
                 "geometry_materialization_authorized": False,
                 "bridge_candidate_authorized": False,
-                "next_gate": "R2HR_GOVERNED_REVIEW_INGEST_REQUIRED",
+                "next_gate": ingest_next_gate,
             }
         )
 
