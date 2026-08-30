@@ -6,9 +6,10 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 from fastapi import APIRouter, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 
 import cew_managed_f3_assets as managed_f3_assets
+import cew_professional_workbench_client as client
 import cew_professional_workbench_core as core
 import cew_professional_workbench_document_geometry as document_geometry
 import cew_professional_workbench_projection as projection
@@ -82,6 +83,29 @@ def _safe_asset_path(asset_path: str) -> Path:
 
 def build_router(source_workspace) -> APIRouter:
     router = APIRouter()
+
+    @router.get("/workbench", response_class=HTMLResponse)
+    def professional_workbench(task: str = ""):
+        if not task.strip():
+            return HTMLResponse(
+                "<h1>Ambiente grafico non disponibile</h1><p>Seleziona una revisione dal progetto.</p><a href='/'>Torna al progetto</a>",
+                status_code=400,
+            )
+        try:
+            source_workspace.task_context(task.strip())
+        except (KeyError, ValueError):
+            return HTMLResponse(
+                "<h1>Ambiente grafico non disponibile</h1><p>Attività o provenienza non valida. Nessuna geometria è stata ricostruita.</p><a href='/'>Torna al progetto</a>",
+                status_code=404,
+            )
+        return HTMLResponse(
+            client.build_client(task.strip()),
+            headers={
+                "Cache-Control": "no-store",
+                "X-CEW-Canonical-Write": "false",
+                "X-CEW-Engineering-Authority-Effect": "NONE",
+            },
+        )
 
     @router.get("/api/workbench/assets/status")
     def workbench_asset_status():
