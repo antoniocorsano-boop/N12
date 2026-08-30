@@ -4,7 +4,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -16,7 +15,7 @@ DEFAULT_OUTPUT_DIR = ROOT / "artifacts" / "cew_r2gi_ingest"
 CONTRACT_PATH = ROOT / "automation" / "CEW_PWB005_R2GI_GOVERNED_REVIEW_INGEST_CONTRACT_v1.json"
 EXPECTED_REGIONS = set(gap_review.EXPECTED_REGIONS)
 ALLOWED_AUDIT_RECEIPT_TYPE = "CEW_PWB005_R2HR_RUNTIME_AUDIT_ENVELOPE_v1"
-OUTPUT_SCHEMA_VERSION = "1.0"
+OUTPUT_SCHEMA_VERSION = "1.1"
 
 
 def _canonical(value: Any) -> str:
@@ -102,6 +101,12 @@ def _decision_finding(region_id: str, receipt: dict[str, Any], decision: dict[st
         "finding_id": "R2GI-" + hashlib.sha256(
             f"{receipt['candidate_head_sha']}|{region_id}|{decision['gap_hypothesis_id']}|{decision_value}".encode("utf-8")
         ).hexdigest()[:20],
+        "candidate_head_sha": receipt["candidate_head_sha"],
+        "source_code": receipt["source_code"],
+        "source_version_id": receipt["source_version_id"],
+        "source_sha256": receipt["source_sha256"],
+        "page_id": receipt["page_id"],
+        "transform_id": receipt["transform_id"],
         "evidence_region_id": region_id,
         "gap_hypothesis_id": decision["gap_hypothesis_id"],
         "human_decision": decision_value,
@@ -167,6 +172,11 @@ def ingest_envelopes(envelopes: Iterable[dict[str, Any]]) -> dict[str, Any]:
         region_rows.append(
             {
                 "evidence_region_id": region_id,
+                "source_code": receipt["source_code"],
+                "source_version_id": receipt["source_version_id"],
+                "source_sha256": receipt["source_sha256"],
+                "page_id": receipt["page_id"],
+                "transform_id": receipt["transform_id"],
                 "state": "INGESTED_REVIEW_FINDINGS_ONLY",
                 "receipt_ingested": True,
                 "runtime_audit_decision_id": envelope["decision_id"],
