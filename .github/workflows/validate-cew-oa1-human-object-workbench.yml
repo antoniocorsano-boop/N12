@@ -5,6 +5,7 @@ on:
     paths:
       - 'automation/CEW_OBJECT_ACQUISITION_QUEUE_v1.json'
       - 'automation/CEW_OA1_HUMAN_OBJECT_WORKBENCH_CONTRACT_v1.json'
+      - 'automation/CEW_OA1_RUNTIME_INTEGRATION_PLAN_v1.json'
       - 'scripts/cew_oa1_human_object_workbench.py'
       - 'scripts/validate_cew_oa1_human_object_workbench.py'
       - '.github/workflows/validate-cew-oa1-human-object-workbench.yml'
