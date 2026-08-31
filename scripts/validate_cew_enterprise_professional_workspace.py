@@ -21,6 +21,9 @@ def main() -> int:
     research = RESEARCH.read_text(encoding="utf-8")
 
     require(contract["contract"] == "CEW_ENTERPRISE_PROFESSIONAL_WORKSPACE", "contract id drift")
+    require(contract["status"] == "EWS0_COMPLETE_PASS", "EWS-0 contract status is not frozen COMPLETE_PASS")
+    require("**Status:** `EWS0_COMPLETE_PASS`" in model, "enterprise model status is not synchronized with EWS-0 contract")
+    require("**Status:** `RESEARCH_BASELINE_COMPLETE`" in research, "research baseline status drift")
     require(contract["product_thesis"] == "PROFESSIONAL_WORK_OPERATING_SYSTEM_EVIDENCE_FIRST", "product thesis drift")
     require(contract["authority_effect"] == "NONE", "design baseline cannot create authority")
     require(contract["canonical_write_authorized"] is False, "canonical write authority drift")
@@ -92,6 +95,7 @@ def main() -> int:
     require("Summary before detail" in research, "research synthesis missing summary-before-detail")
 
     print("CEW_ENTERPRISE_PROFESSIONAL_WORKSPACE = PASS")
+    print("EWS0_STATUS_SYNC = PASS")
     print("APPLICATION_FRAME = VIEWPORT_BOUND")
     print("CONTEXT_RAIL_INDEPENDENT_SCROLL = true")
     print("UNIVERSAL_SPLIT_DEFAULT = forbidden")
