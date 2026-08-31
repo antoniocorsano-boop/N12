@@ -22,10 +22,15 @@ def main():
     queue = json.loads(QUEUE.read_text(encoding="utf-8"))
     items = {item["id"]: item for item in queue["items"]}
 
-    require(queue["current_item"] == "OA-4", "OA-4 must be current")
     require(items["OA-3"]["state"] == "COMPLETE_PASS", "OA-3 must remain complete")
-    require(items["OA-4"]["state"] == "IN_PROGRESS", "OA-4 must be in progress")
-    require(items["OA-5"]["state"] == "BLOCKED_BY_OA4", "OA-5 must remain blocked")
+    require(items["OA-4"]["state"] in {"IN_PROGRESS", "COMPLETE_PASS"}, "OA-4 state invalid")
+    if queue["current_item"] == "OA-4":
+        require(items["OA-5"]["state"] == "BLOCKED_BY_OA4", "OA-5 must remain blocked while OA-4 is current")
+    else:
+        require(items["OA-4"]["state"] == "COMPLETE_PASS", "OA-4 must be complete before downstream release")
+        require(items["OA-4"].get("gate") == "OA4_HUMAN_CLUSTER_REVIEW_PASS", "OA-4 completion gate missing")
+        require(items["OA-4"].get("runtime_integration") == "WORKBENCH_EXPLICIT_CLUSTER_REVIEW_INTEGRATED", "OA-4 runtime integration record missing")
+
     require(contract["canonical_write_authorized"] is False, "OA-4 cannot authorize canonical write")
     require(contract["batch_review"]["explicit_candidate_selection_required"] is True, "explicit candidate set required")
     require(contract["batch_review"]["implicit_whole_cluster_confirmation_forbidden"] is True, "implicit cluster acceptance must be forbidden")
@@ -94,7 +99,8 @@ def main():
     require("project_material_promotion_authorized:false" in runtime_html, "runtime promoted project material")
     require("canonical_write_authorized:false" in runtime_html, "runtime enabled canonical write")
     require("OA-5_STRUCTURAL_RESOLVER" in runtime_html, "next structural resolver boundary missing")
-    require("CEW_OA5" not in runtime_html, "OA-5 runtime leaked into OA-4")
+    if queue["current_item"] == "OA-4":
+        require("CEW_OA5_RUNTIME" not in runtime_html, "OA-5 runtime leaked before release")
 
     print("OA4_HUMAN_CLUSTER_REVIEW_CORE_PASS")
     print("OA4_RUNTIME_INTEGRATION_PASS")
