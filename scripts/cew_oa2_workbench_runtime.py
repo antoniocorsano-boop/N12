@@ -7,8 +7,8 @@ OA2_RUNTIME_MARKER = "CEW_OA2_RUNTIME_HUMAN_TEACHING"
 def augment(rendered: str, task: str) -> str:
     """Add OA-2 human teaching to the existing OA-1 Workbench panel.
 
-    This is session/work-state only. No canonical write, no structural identity,
-    and no Find Similar capability are introduced here.
+    Session/work-state only: no canonical write, no structural identity and no
+    Find Similar capability are introduced here.
     """
     if OA2_RUNTIME_MARKER in rendered:
         return rendered
@@ -19,7 +19,7 @@ def augment(rendered: str, task: str) -> str:
 </style>'''
     rendered = rendered.replace('</head>', style + '</head>', 1)
 
-    block = '''
+    section = '''
 <section id="oaTeach" data-oa2-runtime="CEW_OA2_RUNTIME_HUMAN_TEACHING">
   <h3>Insegna al sistema</h3>
   <div class="oa-muted">Seleziona un oggetto nella vista tecnica e dichiarane esplicitamente il significato. La geometria non determina il tipo.</div>
@@ -33,7 +33,9 @@ def augment(rendered: str, task: str) -> str:
   <button id="oaTeachCreate" class="primary" type="button">Questo è un…</button>
   <div id="oaTeachResult"></div>
   <div class="authority-note">Proposta non canonica. Non cerca simili, non crea identità strutturale e non modifica i dati canonici.</div>
-</section>
+</section>'''
+
+    script = '''
 <script id="cew-oa2-runtime-script">
 (() => {
 const OA2_MARKER='CEW_OA2_RUNTIME_HUMAN_TEACHING';
@@ -55,17 +57,13 @@ async function createProposal(){
   const revision=source.build_revision||scene?.build_revision||scene?.revision||'RUNTIME_SCENE';
   const seed=JSON.stringify({anchor:anchor.object_id,type:objectType,family:familyId,source:evidence,revision});
   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(seed));
-  const proposal={
-    state:'HUMAN_TAUGHT_NON_CANONICAL_PROTOTYPE',prototype_id:'OAP-'+hex(digest).slice(0,16),object_type:objectType,family_id:familyId,family_label:familyLabel,anchor_object_id:anchor.object_id,source_evidence:evidence,human_decision:{decision:'THIS_IS_A',reviewer,explicit_object_type:objectType,family_label:familyLabel},revision,geometry_used_to_infer_type:false,find_similar_authorized:false,structural_identity_created:false,canonical_write_authorized:false,engineering_authority_effect:'NONE',next_gate:'OA2_RUNTIME_REVIEW'
-  };
+  const proposal={state:'HUMAN_TAUGHT_NON_CANONICAL_PROTOTYPE',prototype_id:'OAP-'+hex(digest).slice(0,16),object_type:objectType,family_id:familyId,family_label:familyLabel,anchor_object_id:anchor.object_id,source_evidence:evidence,human_decision:{decision:'THIS_IS_A',reviewer,explicit_object_type:objectType,family_label:familyLabel},revision,geometry_used_to_infer_type:false,find_similar_authorized:false,structural_identity_created:false,canonical_write_authorized:false,engineering_authority_effect:'NONE',next_gate:'OA2_RUNTIME_REVIEW'};
   const key='cew-oa2:'+TASK+':'+proposal.prototype_id;sessionStorage.setItem(key,JSON.stringify(proposal));
   result.innerHTML='<div class="oa2-receipt"><b>Prototipo di lavoro creato</b><br>'+proposal.prototype_id+'<br>'+proposal.object_type+' · '+proposal.family_label+'<br>Scrittura canonica: false</div>';
 }
-function initOA2(){const panel=document.getElementById('oaPanel');if(!panel)return;const blockers=document.getElementById('oaBlockers');const host=document.createElement('div');host.innerHTML=`''' + block.split('<script id="cew-oa2-runtime-script">')[0].replace('''<section id="oaTeach" data-oa2-runtime="CEW_OA2_RUNTIME_HUMAN_TEACHING">''','''<section id="oaTeach" data-oa2-runtime="CEW_OA2_RUNTIME_HUMAN_TEACHING">''').replace('`','\`') + '''`;const section=host.firstElementChild;panel.appendChild(section);document.getElementById('oaTeachCreate').onclick=createProposal;}
+function initOA2(){const panel=document.getElementById('oaPanel');if(!panel||document.getElementById('oaTeach'))return;panel.insertAdjacentHTML('beforeend',OA2_SECTION);document.getElementById('oaTeachCreate').onclick=createProposal;}
+const OA2_SECTION=''' + repr(section) + ''';
 let tries=0;const timer=setInterval(()=>{tries++;if(document.getElementById('oaPanel')&&typeof scene!=='undefined'&&scene){clearInterval(timer);initOA2()}else if(tries>80)clearInterval(timer)},100);
 })();
 </script>'''
-    # block contains the section twice only as a source string for JS construction; keep
-    # the actual HTML injection to the script so OA-1 remains the sole panel owner.
-    script = block[block.index('<script id="cew-oa2-runtime-script">'):]
     return rendered.replace('</body>', script + '</body>', 1)
