@@ -7,6 +7,7 @@ from pathlib import Path
 
 import build_cew_source_viewer as source_viewer
 import cew_oa1_workbench_runtime as oa1_runtime
+import cew_oa_source_workspace_adapter as oa_source_workspace_adapter
 import cew_professional_workbench_client as workbench_client
 import cew_professional_workbench_projection as projection
 
@@ -42,10 +43,12 @@ def main() -> None:
     page = one("CEW_PAGE_REGISTRY_v1.csv", "page_id", PAGE_ID)
     transform = one("CEW_PAGE_TRANSFORM_REGISTRY_v1.csv", "transform_id", TRANSFORM_ID)
     region = one("CEW_EVIDENCE_REGION_REGISTRY_v1.csv", "evidence_region_id", REGION_ID)
-    task = one("CEW_ERW_RESOLUTION_TASKS_v1.csv", "task_id", TASK_ID)
-    binding = one("CEW_SOURCE_VIEWER_BINDINGS_v1.csv", "task_id", TASK_ID)
+    task = one("CEW_OA_TASK_REGISTRY_v1.csv", "task_id", TASK_ID)
+    binding = one("CEW_OA_SOURCE_VIEWER_BINDINGS_v1.csv", "task_id", TASK_ID)
     observation = one("CEW_OBSERVATION_REGISTRY_v1.csv", "reference_item", "TAV05S-G4-COLUMN-PILOT")
 
+    require(not any(r["task_id"] == TASK_ID for r in rows("CEW_ERW_RESOLUTION_TASKS_v1.csv")), "OA pilot leaked into ERW task registry")
+    require(not any(r["task_id"] == TASK_ID for r in rows("CEW_SOURCE_VIEWER_BINDINGS_v1.csv")), "OA pilot leaked into ERW viewer binding registry")
     require(source["sha256"].lower() == SHA256, "TAV-05S source hash drift")
     require(source["authority"] == "PRIMARY" and source["readiness_state"] == "READY", "TAV-05S source authority/readiness drift")
     require(page["source_version_id"] == SOURCE_VERSION_ID and page["readiness_state"] == "READY", "TAV-05S Page parent/readiness drift")
@@ -71,7 +74,11 @@ def main() -> None:
     require(len(entries) == 1, "pilot Source Viewer entry missing/non-unique")
     require(entries[0]["source_code"] == "TAV-05S" and entries[0]["region_id"] == REGION_ID, "pilot Source Viewer entry provenance drift")
 
-    scene = projection.build_scene(TASK_ID)
+    oa_workspace = oa_source_workspace_adapter.workspace
+    ctx = oa_workspace.task_context(TASK_ID)
+    require(ctx["task"]["domain"] == "OBJECT_ACQUISITION", "OA source workspace did not resolve dedicated task")
+    require(ctx["binding"]["evidence_region_id"] == REGION_ID, "OA source workspace binding drift")
+    scene = projection.build_scene(TASK_ID, oa_workspace)
     candidates = [o for o in scene["objects"] if o.get("object_family") == "TechnicalObjectCandidate"]
     require(len(candidates) == 34, f"pilot Workbench candidate count drift: {len(candidates)}")
     require(scene["capabilities"]["object_acquisition_candidate_count"] == 34, "pilot capability candidate count drift")
@@ -94,6 +101,10 @@ def main() -> None:
     require("o.object_family==='TechnicalObjectCandidate'" in html, "pilot similarity universe is not restricted to object candidates")
     require("ACCEPT_STRUCTURAL_IDENTITY" in html, "OA-G5 explicit human review surface missing")
 
+    app = (ROOT / "app.py").read_text(encoding="utf-8")
+    require("professional_workbench_api.build_router(oa_workspace)" in app, "Workbench not mounted on OA read-only adapter")
+    require("oa_governed_api.build_router(oa_workspace)" in app, "OA governed API not mounted on OA read-only adapter")
+
     queue = json.loads((ROOT / "automation/CEW_OBJECT_ACQUISITION_QUEUE_v1.json").read_text(encoding="utf-8"))
     items = {item["id"]: item for item in queue["items"]}
     require(items["OA-6"]["state"] == "BLOCKED_BY_OA5", "OA-6 released by pilot")
@@ -101,6 +112,7 @@ def main() -> None:
     require(queue["global_blocks"]["project_material_ready"] is False, "pilot released project material")
 
     print("TAV05S_G4_F2_PROVENANCE_PASS")
+    print("OA_G4_DOMAIN_ISOLATION_PASS")
     print("OA_G4_SUPPORT_REGISTER_34_PASS")
     print("OA_G4_OBJECT_TRAY_PASS")
     print("OA_G4_DIMENSION_AWARE_SIMILARITY_PASS")
