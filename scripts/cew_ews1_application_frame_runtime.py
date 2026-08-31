@@ -2,9 +2,14 @@
 from __future__ import annotations
 
 import cew_ews4_oa_result_review_runtime as ews4_runtime
+import cew_enterprise_governed_resume_runtime as resume_runtime
 
 EWS1_RUNTIME_MARKER = "CEW_EWS1_VIEWPORT_BOUND_APPLICATION_FRAME"
 OA_PILOT_TASK = "OA-N12-G4-COLUMN-PILOT"
+
+
+def _downstream(rendered: str, task: str) -> str:
+    return resume_runtime.augment(ews4_runtime.augment(rendered, task), task)
 
 
 def augment(rendered: str, task: str) -> str:
@@ -13,10 +18,12 @@ def augment(rendered: str, task: str) -> str:
     The frame is viewport-bound on professional desktop sizes. Canvas and contextual
     surfaces own independent overflow. The OA G4 pilot additionally keeps the source
     canvas primary because source position remains UNREGISTERED. EWS-4 is composed
-    after the frame as a presentation adapter over existing OA-3/OA-4 behavior.
+    after the frame as a presentation adapter over existing OA-3/OA-4 behavior; the
+    governed resume adapter is last so login/reload restores browser cache from the
+    append-only ledger without creating a second decision.
     """
     if EWS1_RUNTIME_MARKER in rendered:
-        return ews4_runtime.augment(rendered, task)
+        return _downstream(rendered, task)
 
     style = '''
 <style id="cew-ews1-application-frame-style">
@@ -132,4 +139,4 @@ def augment(rendered: str, task: str) -> str:
 }})();
 </script>'''
     rendered = rendered.replace("</body>", script + "</body>", 1)
-    return ews4_runtime.augment(rendered, task)
+    return _downstream(rendered, task)
