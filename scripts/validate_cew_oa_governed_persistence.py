@@ -64,9 +64,10 @@ def main():
 
     app = APP.read_text(encoding="utf-8"); api = API.read_text(encoding="utf-8")
     require("import cew_oa_governed_api as oa_governed_api" in app, "OA governed API not imported by app")
-    require("import cew_oa_extended_source_workspace as oa_source_workspace" in app, "OA source-workspace adapter not imported")
-    require("app.include_router(oa_governed_api.build_router(oa_source_workspace))" in app, "OA governed API not mounted on OA source-workspace adapter")
-    require("app.include_router(professional_workbench_api.build_router(oa_source_workspace))" in app, "professional Workbench not mounted on OA source-workspace adapter")
+    require("import cew_oa_source_workspace_adapter as oa_source_workspace_adapter" in app, "OA source-workspace adapter not imported")
+    require("oa_workspace = oa_source_workspace_adapter.workspace" in app, "OA workspace adapter instance not established")
+    require("app.include_router(oa_governed_api.build_router(oa_workspace))" in app, "OA governed API not mounted on OA workspace adapter")
+    require("app.include_router(professional_workbench_api.build_router(oa_workspace))" in app, "professional Workbench not mounted on OA workspace adapter")
     require("audit_store.persist_runtime_receipt" in api, "OA API does not persist to common audit store")
     require("audit_store.load_runtime_receipts" in api, "OA API cannot read governed append-only lineage")
     require('"session_storage_role": "UI_CACHE_ONLY"' in api, "session storage role not demoted to cache")
