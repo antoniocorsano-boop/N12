@@ -1,0 +1,27 @@
+name: Validate CEW EWS-4 OA Result Review
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_EWS4_OA_RESULT_REVIEW_CONTRACT_v1.json'
+      - 'automation/CEW_EWS1_APPLICATION_FRAME_CONTRACT_v1.json'
+      - 'scripts/cew_ews4_oa_result_review_runtime.py'
+      - 'scripts/cew_ews1_application_frame_runtime.py'
+      - 'scripts/cew_oa3_workbench_runtime.py'
+      - 'scripts/cew_oa4_workbench_runtime.py'
+      - 'scripts/validate_cew_ews4_oa_result_review.py'
+      - '.github/workflows/validate-cew-ews4-oa-result-review.yml'
+  push:
+    branches:
+      - 'work/cew-ews4-oa-result-review-controller-v1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate EWS-4 OA result review controller
+        run: python scripts/validate_cew_ews4_oa_result_review.py
