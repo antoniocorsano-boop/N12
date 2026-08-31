@@ -49,7 +49,7 @@ def main() -> int:
     runtime_retest = contract["runtime_retest"]
     require(runtime_retest["required"] is True, "runtime retest must remain required")
     require(runtime_retest["stage"] == "OA2_PROTOTYPE", "unexpected runtime retest stage")
-    require(runtime_retest["candidate_head_sha"] == "69b85e319a818be6a7413f2e2e3a5d0130794ec0", "validated runtime candidate drift")
+    require(runtime_retest["candidate_head_sha"] == "5d759a0363799bb1a238a5266d349e65a5f62cbb", "validated runtime candidate drift")
     require(runtime_retest["candidate_ci"] == "PASS", "runtime candidate CI not frozen PASS")
     require(runtime_retest["expected_audit_backend"] == "NEON_APPEND_ONLY", "runtime retest backend drift")
     require(runtime_retest["find_similar_unlock_requires_receipt"] is True, "Find Similar governance weakened")
