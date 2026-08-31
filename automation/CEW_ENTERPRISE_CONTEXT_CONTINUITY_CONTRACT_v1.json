@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "contract": "CEW_ENTERPRISE_CONTEXT_CONTINUITY",
+  "status": "IMPLEMENTED_PENDING_VALIDATION",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "project_material_ready": false,
+  "scope": [
+    "WORKITEM_CONTEXT",
+    "GOVERNED_OA_RECEIPT_RESUME",
+    "IDEMPOTENT_DECISION_REPLAY"
+  ],
+  "invariants": {
+    "ledger_is_source_of_truth": true,
+    "session_storage_role": "UI_CACHE_ONLY",
+    "resume_is_read_only": true,
+    "same_semantic_decision_replay": "RETURN_EXISTING_RECEIPT_NO_NEW_WRITE",
+    "decision_id_collision": "FAIL_CLOSED",
+    "stale_source_receipt": "FAIL_CLOSED",
+    "resume_source_match_required": true,
+    "canonical_write_from_resume": false
+  },
+  "runtime": {
+    "resume_endpoint": "/api/workbench/object-acquisition/resume",
+    "resume_module": "scripts/cew_enterprise_governed_resume_runtime.py",
+    "resume_marker": "CEW_ENTERPRISE_GOVERNED_CONTEXT_RESUME",
+    "composition_order": "AFTER_EWS4",
+    "oa2_cache_rehydrated_from_ledger": true,
+    "oa3_reenabled_by_governed_resume_event": true
+  },
+  "forbidden_shortcuts": [
+    "SESSION_STORAGE_AS_GOVERNED_AUTHORITY",
+    "DUPLICATE_APPEND_ONLY_WRITE_FOR_IDENTICAL_DECISION",
+    "IGNORE_SOURCE_REVISION_ON_RESUME",
+    "INVENT_RECEIPT_ON_CLIENT",
+    "MUTATE_EXISTING_RECEIPT",
+    "CANONICAL_WRITE_FROM_RESUME"
+  ],
+  "next_gate": "RUNTIME_HVA_CONTEXT_CONTINUITY"
+}
