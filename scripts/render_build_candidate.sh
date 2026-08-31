@@ -8,11 +8,6 @@ fi
 
 printf 'CEW_RENDER_BUILD_CANDIDATE_SHA = %s\n' "$RENDER_GIT_COMMIT"
 
-# Render can provide a valid Git checkout without preserving a named `origin`
-# remote. Managed F3 must still materialize immutable source files from their
-# frozen historical commit. Recreate only the canonical public N12 origin when
-# it is absent; reject any unexpected origin rather than fetching evidence from
-# an ungoverned repository.
 CANONICAL_REPO_URL="https://github.com/antoniocorsano-boop/N12.git"
 ORIGIN_URL="$(git remote get-url origin 2>/dev/null || true)"
 if [[ -z "$ORIGIN_URL" ]]; then
@@ -32,22 +27,16 @@ fi
 
 pip install -r requirements.txt
 
-# Human-first, enterprise frame/review, and governed context continuity are
-# managed-runtime requirements, not browser preferences. A deploy must fail
-# before artifact generation if the professional interaction contract regresses.
+# Professional interaction contracts are managed-runtime requirements.
 python scripts/validate_cew_oa_human_first_ux.py
 python scripts/validate_cew_ews1_application_frame.py
 python scripts/validate_cew_ews4_oa_result_review.py
 python scripts/validate_cew_enterprise_context_continuity.py
+python scripts/validate_cew_ews2_unified_context_rail.py
 
 python scripts/build_cew_runtime_render_cache.py
 python scripts/build_cew_managed_f3_assets.py
 
-# The F3 standalone viewer keeps DZI paths relative to its own source-viewer
-# root (tiles/<source>.dzi). The Professional Workbench serves assets from the
-# parent managed asset root. Provide a runtime-only compatibility alias so the
-# existing F3 relative reference resolves without duplicating or re-authoring
-# any evidence asset. The symlink target stays inside the governed asset root.
 MANAGED_F3_ROOT=".cew_professional_workbench_assets"
 if [[ ! -d "$MANAGED_F3_ROOT/source-viewer/tiles" ]]; then
   echo "CEW_RENDER_BUILD_FAIL: managed F3 source-viewer tiles missing" >&2
@@ -62,9 +51,6 @@ fi
 echo "CEW_RENDER_WORKBENCH_F3_ASSET_ALIAS = READY"
 
 python scripts/build_cew_document_geometry_artifacts.py
-# PWB-005 legacy diagnostics are explicitly frozen to the four historical
-# EvidenceRegion cases. OA extensions are governed separately and must not be
-# ingested as additional PWB-005 cases during managed-runtime builds.
 python scripts/run_cew_pwb005_r1_frozen_scope.py
 python scripts/run_cew_pwb005_r1a_frozen_scope.py
 python scripts/build_cew_raster_geometry_candidates.py
@@ -102,5 +88,6 @@ print('CEW_RENDER_OA_HUMAN_FIRST_UX = READY')
 print('CEW_RENDER_EWS1_APPLICATION_FRAME = READY')
 print('CEW_RENDER_EWS4_OA_RESULT_REVIEW = READY')
 print('CEW_RENDER_ENTERPRISE_CONTEXT_CONTINUITY = READY')
+print('CEW_RENDER_EWS2_UNIFIED_CONTEXT_RAIL = READY')
 print('CEW_RENDER_BUILD = PASS')
 PY

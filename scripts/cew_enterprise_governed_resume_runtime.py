@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import cew_ews2_unified_context_rail_runtime as ews2_runtime
+import cew_ews2_visibility_guard_runtime as ews2_guard_runtime
+
 RESUME_RUNTIME_MARKER = "CEW_ENTERPRISE_GOVERNED_CONTEXT_RESUME"
 OA_PILOT_TASK = "OA-N12-G4-COLUMN-PILOT"
+
+
+def _presentation(rendered: str, task: str) -> str:
+    return ews2_guard_runtime.augment(ews2_runtime.augment(rendered, task), task)
 
 
 def augment(rendered: str, task: str) -> str:
@@ -10,10 +17,11 @@ def augment(rendered: str, task: str) -> str:
 
     The append-only ledger remains authority for the receipt. sessionStorage is
     reconstructed only as a browser cache so existing OA-3/OA-4 presentation code
-    can resume without creating a duplicate decision.
+    can resume without creating a duplicate decision. EWS-2 and its visibility
+    guard are composed last and own presentation orchestration only.
     """
     if RESUME_RUNTIME_MARKER in rendered:
-        return rendered
+        return _presentation(rendered, task)
 
     script = f'''
 <script id="cew-enterprise-governed-resume-script" data-resume-runtime="{RESUME_RUNTIME_MARKER}">
@@ -49,4 +57,4 @@ async function resumeOA2(){{
 let tries=0;const timer=setInterval(()=>{{tries++;if(document.getElementById('oaTeachResult')&&typeof scene!=='undefined'&&scene){{clearInterval(timer);resumeOA2()}}else if(tries>100)clearInterval(timer)}},80);
 }})();
 </script>'''
-    return rendered.replace("</body>", script + "</body>", 1)
+    return _presentation(rendered.replace("</body>", script + "</body>", 1), task)
