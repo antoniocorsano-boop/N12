@@ -12,6 +12,8 @@ import cew_professional_workbench_document_geometry as document_geometry
 
 ROOT = Path(__file__).resolve().parents[1]
 OBSERVATIONS = ROOT / "data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv"
+SUPPORT_SECTIONS_G4 = ROOT / "data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv"
+OA_G4_COLUMN_PILOT_TASK = "OA-N12-G4-COLUMN-PILOT"
 
 
 def rows(path: Path) -> list[dict[str, str]]:
@@ -40,6 +42,83 @@ def _f3_entry(task_id: str) -> dict[str, Any]:
     if len(entries) != 1:
         raise ValueError(f"F3_VIEWER_ENTRY_NOT_UNIQUE:{task_id}")
     return entries[0]
+
+
+def _oa_g4_support_candidates(
+    *,
+    task_id: str,
+    source_version_id: str,
+    evidence_region_id: str,
+    source_sha256: str,
+) -> list[dict[str, Any]]:
+    """Project the governed G4 support schedule as non-spatial OA candidates.
+
+    The technical coordinates below are a catalog/tray layout only. They are never
+    source-page coordinates and cannot establish document or structural position.
+    Section dimensions remain governed register properties; object type still needs
+    explicit human teaching in OA-2.
+    """
+    if task_id != OA_G4_COLUMN_PILOT_TASK:
+        return []
+    candidates: list[dict[str, Any]] = []
+    for index, row in enumerate(rows(SUPPORT_SECTIONS_G4)):
+        if row.get("storey_id", "").strip() != "G4" or row.get("source_sheet", "").strip() != "TAV-05S":
+            continue
+        if row.get("primary_source_sha256", "").strip().lower() != source_sha256.lower():
+            raise ValueError("OA_G4_SUPPORT_REGISTER_SOURCE_SHA_MISMATCH")
+        sx = float(row["section_x_cm"])
+        sy = float(row["section_y_cm"])
+        col = index % 6
+        band = index // 6
+        base_x = 80.0 + col * 150.0
+        base_y = 80.0 + band * 150.0
+        support_id = row["support_id"].strip()
+        candidates.append(
+            {
+                "object_id": f"OA-G4-SUPPORT-{support_id.replace(chr(39), 'PRIME')}",
+                "object_family": "TechnicalObjectCandidate",
+                "coordinate_space": "TECHNICAL_2D",
+                "authority_state": "OBJECT_REGISTER_DERIVED_CANDIDATE_ONLY",
+                "binding_state": "UNBOUND",
+                "selection_authorized": True,
+                "geometry": {
+                    "type": "LINE",
+                    "a": [base_x, base_y],
+                    "b": [base_x + sx, base_y + sy],
+                    "semantic": "SECTION_SIGNATURE_VECTOR_NOT_SOURCE_POSITION",
+                },
+                "properties": {
+                    "support_id": support_id,
+                    "storey_id": "G4",
+                    "source_sheet": "TAV-05S",
+                    "section_x_cm": sx,
+                    "section_y_cm": sy,
+                    "section_cm": row["section_cm"].strip(),
+                    "orientation_class": row["orientation_class"].strip(),
+                    "associated_text": row["section_cm"].strip(),
+                    "topology_hint": "G4_SUPPORT_REGISTER_ENTRY",
+                    "spatial_context": "G4_OBJECT_TRAY_NON_SPATIAL",
+                    "source_position_state": "UNREGISTERED",
+                    "evidence_status": row["evidence_status"].strip(),
+                    "register_validation_state": row["validation_state"].strip(),
+                    "object_type": None,
+                    "family_membership": None,
+                    "structural_identity": None,
+                },
+                "provenance": {
+                    "source_version_id": source_version_id,
+                    "evidence_region_id": evidence_region_id,
+                    "task_id": task_id,
+                    "source_register": "data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv",
+                    "source_register_support_id": support_id,
+                    "source_position_registered": False,
+                },
+                "canonical_write_authorized": False,
+            }
+        )
+    if len(candidates) != 34:
+        raise ValueError(f"OA_G4_SUPPORT_CANDIDATE_COUNT_MISMATCH:{len(candidates)}")
+    return candidates
 
 
 def _structural_projection(
@@ -186,6 +265,13 @@ def build_scene(task_id: str, source_workspace=None) -> dict[str, Any]:
         evidence_region_id=evidence_region_id,
     )
     objects: list[dict[str, Any]] = list(document_objects)
+    oa_candidates = _oa_g4_support_candidates(
+        task_id=task_id,
+        source_version_id=source_version_id,
+        evidence_region_id=evidence_region_id,
+        source_sha256=source_sha256,
+    )
+    objects.extend(oa_candidates)
     evidence_links: list[dict[str, Any]] = []
     observations = _observations_for_region(evidence_region_id)
     structural_binding = _single_structural_binding(observations)
@@ -269,6 +355,8 @@ def build_scene(task_id: str, source_workspace=None) -> dict[str, Any]:
             "dual_vector_agreement": document_geometry_state["state"],
             "document_geometry": document_geometry_state,
             "document_linework_object_count": len(document_objects),
+            "object_acquisition_candidate_count": len(oa_candidates),
+            "object_acquisition_source_position_state": "UNREGISTERED" if oa_candidates else "NOT_APPLICABLE",
             "structural_projection": structural_state,
             "technical_scene_available": bool(objects),
             "semantic_sync_available": bool(evidence_links),
