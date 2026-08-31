@@ -1,0 +1,26 @@
+name: Validate CEW EWS-1 Application Frame
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_EWS1_APPLICATION_FRAME_CONTRACT_v1.json'
+      - 'automation/CEW_ENTERPRISE_PROFESSIONAL_WORKSPACE_CONTRACT_v1.json'
+      - 'scripts/cew_ews1_application_frame_runtime.py'
+      - 'scripts/cew_oa1_workbench_runtime.py'
+      - 'scripts/cew_professional_workbench_client.py'
+      - 'scripts/validate_cew_ews1_application_frame.py'
+      - '.github/workflows/validate-cew-ews1-application-frame.yml'
+  push:
+    branches:
+      - 'work/cew-ews1-application-frame-v1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate EWS-1 application frame
+        run: python scripts/validate_cew_ews1_application_frame.py
