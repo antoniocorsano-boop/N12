@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0",
+  "contract": "CEW_OA_HUMAN_FIRST_UX",
+  "scope": "OA-N12-G4-COLUMN-PILOT",
+  "status": "IMPLEMENTED_PENDING_VALIDATION",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "structural_identity_acceptance_authorized": false,
+  "project_material_ready": false,
+  "interaction_principle": "HUMAN_FIRST_STATE_DEPENDENT_VIEW",
+  "source_content_obstruction_forbidden": true,
+  "unregistered_source_position_policy": {
+    "trigger": "source_position_state=UNREGISTERED",
+    "layout": "SOURCE_PRIMARY_WITH_OPERATIONAL_SIDEBAR",
+    "default_mode": "SOURCE",
+    "split_mode_default_forbidden": true,
+    "technical_view": "SECONDARY_ON_DEMAND",
+    "source_status_badges": "OUTSIDE_SOURCE_VIEWPORT",
+    "object_catalog": "PRIMARY_OPERATIONAL_ENTRY",
+    "raw_status_codes_as_primary_copy_forbidden": true
+  },
+  "human_sequence": [
+    "READ_SOURCE",
+    "SELECT_OBJECT",
+    "THIS_IS_A",
+    "ASSIGN_PROJECT_FAMILY",
+    "FIND_SIMILAR",
+    "REVIEW_CANDIDATES"
+  ],
+  "required_status_copy": {
+    "source": "Fonte verificata",
+    "source_position": "Posizione sulla tavola non registrata",
+    "spatial_sync": "Sincronizzazione spaziale non disponibile"
+  },
+  "required_blocker_semantics": {
+    "human_readable": true,
+    "must_explain_available_work": true,
+    "must_explain_forbidden_work": true,
+    "unregistered_position_allows": ["THIS_IS_A", "ASSIGN_PROJECT_FAMILY", "FIND_SIMILAR_BY_NON_SPATIAL_SIGNALS"],
+    "unregistered_position_forbids": ["SPATIAL_SYNC", "SOURCE_POSITION_INFERENCE", "STRUCTURAL_IDENTITY_ACCEPTANCE"]
+  },
+  "primary_action_policy": {
+    "before_prototype": "THIS_IS_A",
+    "after_governed_prototype": "FIND_SIMILAR",
+    "find_similar_requires_governed_oa2_receipt": true,
+    "find_similar_requires_same_source_evidence": true,
+    "auto_confirm_cluster_authorized": false
+  },
+  "progressive_disclosure": {
+    "oa4_cluster_review_visible_before_similarity_run": false,
+    "oa4_cluster_review_visible_after_similarity_run": true,
+    "oa5_identity_review_is_not_primary_during_teaching": true
+  },
+  "completion_requirements": [
+    "SOURCE_VIEWPORT_UNOBSTRUCTED",
+    "SOURCE_DOMINANT_WHEN_POSITION_UNREGISTERED",
+    "OPERATIONAL_SIDEBAR_PERSISTENT",
+    "SIX_STEP_SEQUENCE_VISIBLE",
+    "OBJECT_SELECTION_VISIBLE",
+    "THIS_IS_A_PRIMARY_BEFORE_PROTOTYPE",
+    "FIND_SIMILAR_DISABLED_BEFORE_GOVERNED_PROTOTYPE",
+    "FIND_SIMILAR_ENABLED_AFTER_SAME_SOURCE_GOVERNED_PROTOTYPE",
+    "HUMAN_READABLE_BLOCKERS",
+    "NO_AUTO_CLUSTER_CONFIRMATION",
+    "NO_CANONICAL_WRITE",
+    "NO_OA6_RELEASE"
+  ]
+}
