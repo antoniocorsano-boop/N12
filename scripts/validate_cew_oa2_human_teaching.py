@@ -21,10 +21,15 @@ def main():
     contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
     queue = json.loads(QUEUE.read_text(encoding="utf-8"))
 
-    require(queue["current_item"] == "OA-2", "OA-2 must be current")
-    require(queue["items"][1]["state"] == "COMPLETE_PASS", "OA-1 must remain complete")
-    require(queue["items"][2]["state"] in {"IN_PROGRESS", "COMPLETE_PASS"}, "OA-2 state invalid")
-    require(queue["items"][3]["state"] == "BLOCKED_BY_OA2", "OA-3 must remain blocked")
+    items = {item["id"]: item for item in queue["items"]}
+    require(items["OA-1"]["state"] == "COMPLETE_PASS", "OA-1 must remain complete")
+    require(items["OA-2"]["state"] in {"IN_PROGRESS", "COMPLETE_PASS"}, "OA-2 state invalid")
+    if queue["current_item"] == "OA-2":
+        require(items["OA-3"]["state"] == "BLOCKED_BY_OA2", "OA-3 must remain blocked while OA-2 is current")
+    else:
+        require(items["OA-2"]["state"] == "COMPLETE_PASS", "OA-2 must be complete before downstream release")
+        require(items["OA-2"].get("gate") == "OA2_HUMAN_TEACHING_PASS", "OA-2 completion gate missing")
+        require(items["OA-2"].get("runtime_integration") == "WORKBENCH_INTEGRATED_SESSION_STATE", "OA-2 runtime integration record missing")
 
     require(contract["primary_action"] == "THIS_IS_A", "primary teaching action drift")
     require(contract["canonical_write_authorized"] is False, "OA-2 cannot authorize canonical write")
