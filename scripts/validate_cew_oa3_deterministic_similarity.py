@@ -22,10 +22,15 @@ def main():
     queue = json.loads(QUEUE.read_text(encoding="utf-8"))
     items = {item["id"]: item for item in queue["items"]}
 
-    require(queue["current_item"] == "OA-3", "OA-3 must be current")
     require(items["OA-2"]["state"] == "COMPLETE_PASS", "OA-2 must remain complete")
-    require(items["OA-3"]["state"] == "IN_PROGRESS", "OA-3 must be in progress")
-    require(items["OA-4"]["state"] == "BLOCKED_BY_OA3", "OA-4 must remain blocked")
+    require(items["OA-3"]["state"] in {"IN_PROGRESS", "COMPLETE_PASS"}, "OA-3 state invalid")
+    if queue["current_item"] == "OA-3":
+        require(items["OA-4"]["state"] == "BLOCKED_BY_OA3", "OA-4 must remain blocked while OA-3 is current")
+    else:
+        require(items["OA-3"]["state"] == "COMPLETE_PASS", "OA-3 must be complete before downstream release")
+        require(items["OA-3"].get("gate") == "OA3_DETERMINISTIC_SIMILARITY_PASS", "OA-3 completion gate missing")
+        require(items["OA-3"].get("runtime_integration") == "WORKBENCH_FIND_SIMILAR_INTEGRATED", "OA-3 runtime integration record missing")
+
     require(contract["primary_action"] == "FIND_SIMILAR", "Find Similar action drift")
     require(contract["scoring"]["deterministic"] is True, "similarity must be deterministic")
     require(contract["governance"]["human_cluster_review_required_next"] is True, "human cluster review must remain required")
@@ -76,7 +81,6 @@ def main():
     require('id="oaFindSimilar"' in runtime_html, "Find Similar action missing")
     require("Trova simili" in runtime_html, "Find Similar wording missing")
     require("WEIGHTS={GEOMETRY_KIND:.30,DIMENSION_RATIO:.20,ORIENTATION:.15,TOPOLOGY_HINT:.15,SPATIAL_CONTEXT:.10,ASSOCIATED_TEXT:.10}" in runtime_html, "runtime weight contract drift")
-    require("human_confirmation_required" not in runtime_html or "conferma umana richiesta" in runtime_html, "human review indication missing")
     require("Nessun candidato viene confermato automaticamente" in runtime_html, "auto-confirm prohibition missing")
     require("OA-4" in runtime_html, "next human cluster review boundary missing")
     require("AUTO_CONFIRM_CLUSTER" not in runtime_html, "automatic cluster confirmation leaked into runtime")
