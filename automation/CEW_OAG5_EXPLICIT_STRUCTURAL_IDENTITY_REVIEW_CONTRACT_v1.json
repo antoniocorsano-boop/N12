@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "gate": "OA-G5",
+  "title": "Explicit Structural Identity Review",
+  "status": "IMPLEMENTATION_PENDING",
+  "authority_effect": "HUMAN_STRUCTURAL_IDENTITY_DECISION_ONLY",
+  "canonical_write_authorized": false,
+  "requires_candidate_state": "READY_FOR_EXPLICIT_IDENTITY_REVIEW",
+  "decisions": [
+    "ACCEPT_STRUCTURAL_IDENTITY",
+    "REJECT_STRUCTURAL_IDENTITY",
+    "DEFER_NEEDS_RELATIONSHIP_EVIDENCE"
+  ],
+  "receipt_required_fields": [
+    "identity_candidate_id",
+    "candidate_fingerprint",
+    "decision",
+    "reviewer",
+    "revision",
+    "source_evidence",
+    "relationship_evidence_fingerprint",
+    "attestation"
+  ],
+  "acceptance_effect": {
+    "state": "HUMAN_ACCEPTED_STRUCTURAL_IDENTITY",
+    "structural_identity_accepted": true,
+    "canonical_write_authorized": false,
+    "project_material_ready": false,
+    "next_gate": "OA-6_PROJECT_MATERIAL_GATE"
+  },
+  "non_acceptance_effect": {
+    "structural_identity_accepted": false,
+    "canonical_write_authorized": false,
+    "project_material_ready": false
+  },
+  "fail_closed_on": [
+    "CANDIDATE_NOT_REVIEW_READY",
+    "CANDIDATE_FINGERPRINT_MISMATCH",
+    "REVISION_MISMATCH",
+    "SOURCE_EVIDENCE_MISMATCH",
+    "RELATIONSHIP_EVIDENCE_MISMATCH",
+    "MISSING_REVIEWER",
+    "MISSING_ATTESTATION"
+  ],
+  "automation_may_create_acceptance": false,
+  "synthetic_test_receipt_is_project_evidence": false
+}

@@ -9,9 +9,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "automation" / "CEW_SOURCE_VIEWER_CONTRACT_v1.json"
 BINDINGS = ROOT / "data" / "canonical" / "CEW_SOURCE_VIEWER_BINDINGS_v1.csv"
+OA_BINDINGS = ROOT / "data" / "canonical" / "CEW_OA_SOURCE_VIEWER_BINDINGS_v1.csv"
 REGIONS = ROOT / "data" / "canonical" / "CEW_EVIDENCE_REGION_REGISTRY_v1.csv"
 OBS = ROOT / "data" / "canonical" / "CEW_OBSERVATION_REGISTRY_v1.csv"
 TASKS = ROOT / "data" / "canonical" / "CEW_ERW_RESOLUTION_TASKS_v1.csv"
+OA_TASKS = ROOT / "data" / "canonical" / "CEW_OA_TASK_REGISTRY_v1.csv"
 SOURCES = ROOT / "data" / "canonical" / "CEW_SOURCE_IDENTITY_REGISTRY_v1.csv"
 PAGES = ROOT / "data" / "canonical" / "CEW_PAGE_REGISTRY_v1.csv"
 TRANSFORMS = ROOT / "data" / "canonical" / "CEW_PAGE_TRANSFORM_REGISTRY_v1.csv"
@@ -26,19 +28,29 @@ def idx(path: Path, key: str) -> dict[str, dict[str, str]]:
     return {r[key].strip(): r for r in rows(path)}
 
 
+def _union_by_id(primary: list[dict[str, str]], extension: list[dict[str, str]], key: str, label: str) -> dict[str, dict[str, str]]:
+    result: dict[str, dict[str, str]] = {}
+    for row in [*primary, *extension]:
+        value = row[key].strip()
+        if value in result:
+            raise AssertionError(f"duplicate {label}: {value}")
+        result[value] = row
+    return result
+
+
 def build_manifest() -> dict:
     contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
-    bindings = rows(BINDINGS)
+    binding_rows = [*rows(BINDINGS), *rows(OA_BINDINGS)]
     regions = idx(REGIONS, "evidence_region_id")
     observations = {r["reference_item"].strip(): r for r in rows(OBS)}
-    tasks = idx(TASKS, "task_id")
+    tasks = _union_by_id(rows(TASKS), rows(OA_TASKS), "task_id", "viewer task id")
     source_rows = rows(SOURCES)
     sources = {r["source_version_id"].strip(): r for r in source_rows}
     pages = idx(PAGES, "page_id")
     transforms = idx(TRANSFORMS, "transform_id")
 
     expected = set(contract["reference_tasks"])
-    actual = {r["task_id"].strip() for r in bindings}
+    actual = {r["task_id"].strip() for r in binding_rows}
     if actual != expected:
         raise AssertionError(f"viewer binding task set mismatch: expected={sorted(expected)} actual={sorted(actual)}")
 
@@ -49,7 +61,7 @@ def build_manifest() -> dict:
         "TAV-06S": "tiles/TAV-06S.dzi",
     }
     entries: list[dict] = []
-    for b in bindings:
+    for b in binding_rows:
         task_id = b["task_id"].strip()
         region_id = b["evidence_region_id"].strip()
         transform_id = b["transform_id"].strip()
@@ -126,14 +138,14 @@ def build_manifest() -> dict:
             "document_role": r["document_role"].strip(),
             "dzi": source_to_dzi[code],
             "context_only": True,
-            "authority_note": "Fonte primaria di carpenteria mostrata per localizzazione/verifica umana; nessuna EvidenceRegion o decisione viene creata automaticamente dal viewer.",
+            "authority_note": "Fonte primaria di carpenteria mostrata in modalità contesto; questa modalità non crea automaticamente EvidenceRegion, classificazioni di oggetto o decisioni.",
         })
 
     return {
         "contract_id": contract["contract_id"],
         "milestone": contract["milestone"],
         "authority_banner": "IL PDF PRIMARIO È LA FONTE AUTOREVOLE — RENDER E TILE DEL VIEWER SONO SOLO AUSILI DERIVATI PER LA REVISIONE",
-        "geometry_banner": "LE REGIONI F2 ESISTENTI SONO IN SOLA LETTURA — LE CARPENTERIE DI CONTESTO NON CREANO AUTOMATICAMENTE NUOVE REGIONI",
+        "geometry_banner": "LE REGIONI F2 ESISTENTI SONO IN SOLA LETTURA — LE VISTE DI CONTESTO NON CREANO AUTOMATICAMENTE NUOVE REGIONI",
         "view_modes": contract["view_modes"],
         "entries": entries,
         "context_sources": context_sources,
@@ -149,7 +161,7 @@ function pick(){const q=new URLSearchParams(location.search);const source=q.get(
 function detail(e){const a=e.context_only?[['Fonte',e.source_code],['Hash',e.source_sha256],['Ruolo',e.document_role],['Autorità',e.authority_note]]:[['Fonte',e.source_code],['Hash',e.source_sha256],['Regione',e.region_id],['Trasformazione',e.transform_id],['Stato lettura',e.reading_state],['Osservazione',e.observation],['Dato noto',e.known_claims],['Dato ignoto',e.unknown_claims],['Autorità',e.authority_note]];$('details').innerHTML=a.map(([k,v])=>`<dt>${k}</dt><dd>${v||'—'}</dd>`).join('')}
 function rect(e){const i=viewer.world.getItemAt(0),s=i.getContentSize(),b=e.bbox;return i.imageToViewportRectangle(b.x*s.x,b.y*s.y,b.width*s.x,b.height*s.y)}
 function fit(){if(!viewer||!viewer.world.getItemCount())return;if(current.context_only||!current.bbox){viewer.viewport.goHome(true);return}const r=rect(current);viewer.viewport.fitBounds(r,true);if(overlayEl)viewer.removeOverlay(overlayEl);overlayEl=document.createElement('div');overlayEl.className='evidence-box';overlayEl.innerHTML='<span class="evidence-label">ZONA DA CONTROLLARE</span>';viewer.addOverlay({element:overlayEl,location:r})}
-function openEntry(e){current=e;const u=new URL(location.href);u.search='';if(e.context_only)u.searchParams.set('source',e.source_code);else u.searchParams.set('task',e.task_id);history.replaceState(null,'',u);$('task-select').value=e.context_only?`source:${e.source_code}`:`task:${e.task_id}`;$('task-label').textContent=e.context_only?` · ${e.source_code} — carpenteria di contesto`:` · ${e.task_id} · ${e.reference_item}`;$('fit').disabled=!!e.context_only;$('mode-note').textContent=e.context_only?'Carpenteria primaria per ricerca e localizzazione. Non è ancora una EvidenceRegion F2: usa questa vista per trovare dove si trova il dato/elemento.':'La cornice rossa “ZONA DA CONTROLLARE” è la regione di evidenza F2 certificata per questo task.';detail(e);if(viewer)viewer.destroy();overlayEl=null;viewer=OpenSeadragon({id:'viewer',prefixUrl:'vendor/openseadragon/images/',tileSources:e.dzi,showNavigator:true,navigatorAutoFade:false,gestureSettingsMouse:{clickToZoom:false},maxZoomPixelRatio:4});viewer.addOnceHandler('open',fit)}
+function openEntry(e){current=e;const u=new URL(location.href);u.search='';if(e.context_only)u.searchParams.set('source',e.source_code);else u.searchParams.set('task',e.task_id);history.replaceState(null,'',u);$('task-select').value=e.context_only?`source:${e.source_code}`:`task:${e.task_id}`;$('task-label').textContent=e.context_only?` · ${e.source_code} — carpenteria di contesto`:` · ${e.task_id} · ${e.reference_item}`;$('fit').disabled=!!e.context_only;$('mode-note').textContent=e.context_only?'Carpenteria primaria per ricerca e localizzazione. La vista di contesto non crea automaticamente evidenza o oggetti.':'La cornice rossa “ZONA DA CONTROLLARE” è la regione di evidenza F2 certificata per questo task.';detail(e);if(viewer)viewer.destroy();overlayEl=null;viewer=OpenSeadragon({id:'viewer',prefixUrl:'vendor/openseadragon/images/',tileSources:e.dzi,showNavigator:true,navigatorAutoFade:false,gestureSettingsMouse:{clickToZoom:false},maxZoomPixelRatio:4});viewer.addOnceHandler('open',fit)}
 async function boot(){manifest=await(await fetch('viewer_manifest.json',{cache:'no-store'})).json();$('authority').textContent=manifest.authority_banner;$('geometry').textContent=manifest.geometry_banner;const sel=$('task-select');for(const e of manifest.entries){const o=document.createElement('option');o.value=`task:${e.task_id}`;o.textContent=`${e.task_id} — ${e.reference_item}`;sel.appendChild(o)}for(const e of manifest.context_sources){const o=document.createElement('option');o.value=`source:${e.source_code}`;o.textContent=`${e.source_code} — carpenteria primaria`;sel.appendChild(o)}sel.onchange=()=>{const [kind,id]=sel.value.split(':');openEntry(kind==='source'?manifest.context_sources.find(e=>e.source_code===id):manifest.entries.find(e=>e.task_id===id))};$('fit').onclick=fit;$('home').onclick=()=>viewer.viewport.goHome(true);openEntry(pick())}boot();"""
 
 

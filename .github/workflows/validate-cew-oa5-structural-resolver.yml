@@ -1,0 +1,30 @@
+name: Validate CEW OA5 Structural Resolver
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_OBJECT_ACQUISITION_QUEUE_v1.json'
+      - 'automation/CEW_OA5_STRUCTURAL_RESOLVER_CONTRACT_v1.json'
+      - 'scripts/cew_oa5_structural_resolver.py'
+      - 'scripts/cew_oa5_workbench_runtime.py'
+      - 'scripts/cew_oa4_workbench_runtime.py'
+      - 'scripts/cew_oa3_workbench_runtime.py'
+      - 'scripts/cew_oa2_workbench_runtime.py'
+      - 'scripts/cew_oa1_workbench_runtime.py'
+      - 'scripts/cew_professional_workbench_client.py'
+      - 'scripts/validate_cew_oa5_structural_resolver.py'
+      - '.github/workflows/validate-cew-oa5-structural-resolver.yml'
+  push:
+    branches:
+      - 'work/cew-oa5-structural-resolver-v1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate OA5 structural resolver and Workbench integration
+        run: python scripts/validate_cew_oa5_structural_resolver.py

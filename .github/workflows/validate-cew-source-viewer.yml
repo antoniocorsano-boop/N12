@@ -5,6 +5,8 @@ on:
     paths:
       - 'automation/CEW_SOURCE_VIEWER_CONTRACT_v1.json'
       - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_OA_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_OA_TASK_REGISTRY_v1.csv'
       - 'data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv'
       - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
       - 'data/canonical/CEW_DERIVED_ASSET_REGISTRY_v1.csv'
@@ -29,6 +31,8 @@ on:
     paths:
       - 'automation/CEW_SOURCE_VIEWER_CONTRACT_v1.json'
       - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_OA_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_OA_TASK_REGISTRY_v1.csv'
       - 'data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv'
       - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
       - 'data/canonical/CEW_DERIVED_ASSET_REGISTRY_v1.csv'
@@ -76,6 +80,7 @@ jobs:
           mkdir -p /tmp/cew-primary
           git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola 5-3.pdf" > /tmp/cew-primary/tavola5-3.pdf
           git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola 6.pdf" > /tmp/cew-primary/tavola6.pdf
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:"archive/documentazione_originaria/tavola 5.pdf" > /tmp/cew-primary/tavola5.pdf
 
       - name: Install pinned rendering and tiling dependencies
         run: |
@@ -89,13 +94,15 @@ jobs:
             --dpi 300 \
             --out-dir cew-f3-render \
             --source TAV-05A /tmp/cew-primary/tavola5-3.pdf 17dec414f0f0505e2cd2acb519029afba7672df1793a580badb8b59b6214f325 \
-            --source TAV-06A /tmp/cew-primary/tavola6.pdf 3f2d557fe6d3c65eb0891b1fd4f0f6f2a0a4b6cd0efe22a06604a5c341fc9c6d
+            --source TAV-06A /tmp/cew-primary/tavola6.pdf 3f2d557fe6d3c65eb0891b1fd4f0f6f2a0a4b6cd0efe22a06604a5c341fc9c6d \
+            --source TAV-05S /tmp/cew-primary/tavola5.pdf 2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580
 
       - name: Generate DZI tile pyramids
         run: |
           mkdir -p cew-f3-viewer/tiles
           vips dzsave cew-f3-render/TAV-05A/TAV-05A_p001_300dpi.png cew-f3-viewer/tiles/TAV-05A --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
           vips dzsave cew-f3-render/TAV-06A/TAV-06A_p001_300dpi.png cew-f3-viewer/tiles/TAV-06A --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
+          vips dzsave cew-f3-render/TAV-05S/TAV-05S_p001_300dpi.png cew-f3-viewer/tiles/TAV-05S --tile-size 256 --overlap 1 --suffix '.jpg[Q=90]'
 
       - name: Build viewer shell from F2 canonical geometry
         run: python scripts/build_cew_source_viewer.py --out-dir cew-f3-viewer

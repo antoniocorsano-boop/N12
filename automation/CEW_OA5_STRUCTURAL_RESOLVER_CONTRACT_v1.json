@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "slice": "OA-5",
+  "title": "Structural Resolver",
+  "status": "FOUNDATION_IMPLEMENTED_INTEGRATION_PENDING",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "requires": ["OA-4=COMPLETE_PASS", "HUMAN_REVIEWED_FAMILY_CANDIDATES"],
+  "input_rule": {
+    "family_candidate_must_be_human_confirmed": true,
+    "ambiguous_or_deferred_candidate_rejected": true,
+    "source_revision_match_required": true
+  },
+  "relationship_evidence_types": [
+    "SAME_LEVEL_ALIGNMENT",
+    "VERTICAL_CONTINUITY",
+    "FRAME_MEMBERSHIP",
+    "NODE_CONNECTIVITY",
+    "SECTION_CONTINUITY",
+    "EXPLICIT_DRAWING_CALLOUT",
+    "CROSS_DRAWING_REGISTRATION"
+  ],
+  "minimum_identity_rule": {
+    "explicit_relationship_evidence_required": true,
+    "proximity_only_forbidden": true,
+    "similarity_only_forbidden": true,
+    "family_membership_only_forbidden": true
+  },
+  "output": {
+    "state": "STRUCTURAL_IDENTITY_CANDIDATE",
+    "accepted_structural_identity": false,
+    "canonical_write_authorized": false,
+    "project_material_ready": false,
+    "explicit_identity_review_required": true
+  },
+  "candidate_states": [
+    "INSUFFICIENT_RELATIONSHIP_EVIDENCE",
+    "READY_FOR_EXPLICIT_IDENTITY_REVIEW",
+    "IDENTITY_CONFLICT"
+  ],
+  "forbidden_actions": [
+    "PROXIMITY_CREATES_IDENTITY",
+    "SIMILARITY_CREATES_IDENTITY",
+    "FAMILY_MEMBERSHIP_CREATES_IDENTITY",
+    "AUTO_ACCEPT_STRUCTURAL_IDENTITY",
+    "CANONICAL_WRITE",
+    "PROJECT_MATERIAL_PROMOTION"
+  ],
+  "next_gate": "OA-G5_EXPLICIT_STRUCTURAL_IDENTITY_REVIEW"
+}

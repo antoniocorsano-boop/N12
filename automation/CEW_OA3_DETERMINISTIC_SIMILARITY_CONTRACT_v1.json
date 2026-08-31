@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "slice": "OA-3",
   "title": "Deterministic Similarity",
   "status": "FOUNDATION_IMPLEMENTED_INTEGRATION_PENDING",
@@ -10,6 +10,7 @@
   "input_contract": {
     "prototype_required": true,
     "prototype_must_be_human_taught": true,
+    "governed_prototype_receipt_required_in_runtime": true,
     "candidate_scene_same_source_revision_required": true,
     "candidate_object_may_be_untyped": true
   },
@@ -21,17 +22,28 @@
     "SPATIAL_CONTEXT",
     "ASSOCIATED_TEXT"
   ],
+  "signal_resolution": {
+    "DIMENSION_RATIO": "Prefer explicit section_x_cm and section_y_cm when both prototype and candidate provide them; otherwise fall back to geometric length/aspect signals.",
+    "ORIENTATION": "Prefer explicit orientation_class when both prototype and candidate provide it; otherwise fall back to geometric orientation.",
+    "SPATIAL_CONTEXT": "Context is only a similarity signal and never proves source-page position or structural identity.",
+    "ASSOCIATED_TEXT": "Associated text contributes only as an explainable similarity signal."
+  },
   "scoring": {
     "deterministic": true,
     "explainable_reason_codes_required": true,
     "weights_versioned": true,
+    "weights_version": "OA3-DIMENSION-AWARE-v1.1",
     "default_weights": {
-      "GEOMETRY_KIND": 0.30,
-      "DIMENSION_RATIO": 0.20,
+      "GEOMETRY_KIND": 0.20,
+      "DIMENSION_RATIO": 0.30,
       "ORIENTATION": 0.15,
-      "TOPOLOGY_HINT": 0.15,
+      "TOPOLOGY_HINT": 0.10,
       "SPATIAL_CONTEXT": 0.10,
-      "ASSOCIATED_TEXT": 0.10
+      "ASSOCIATED_TEXT": 0.15
+    },
+    "thresholds": {
+      "STRONG_SIMILAR_MIN": 0.85,
+      "POSSIBLE_SIMILAR_MIN": 0.60
     }
   },
   "result_states": ["STRONG_SIMILAR", "POSSIBLE_SIMILAR", "WEAK", "EXCLUDED"],
@@ -40,12 +52,14 @@
     "similarity_creates_family_membership": false,
     "similarity_creates_structural_identity": false,
     "similarity_creates_canonical_write": false,
+    "source_position_may_be_inferred_from_similarity": false,
     "human_cluster_review_required_next": true
   },
   "forbidden_actions": [
     "AUTO_CONFIRM_CLUSTER",
     "AUTO_PROMOTE_FAMILY",
     "CREATE_STRUCTURAL_IDENTITY",
+    "INFER_SOURCE_POSITION",
     "CANONICAL_WRITE",
     "VISION_ONLY_AUTHORITY"
   ],

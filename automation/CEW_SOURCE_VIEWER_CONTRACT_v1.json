@@ -5,7 +5,10 @@
   "viewer_engine": {"name": "OpenSeadragon", "version": "5.0.1", "runtime_distribution": "VENDORED_SELF_CONTAINED"},
   "tile_generator": {"name": "libvips", "format": "DZI", "tile_size": 256, "overlap": 1},
   "pdf_renderer": {"name": "PyMuPDF", "version": "1.26.4", "minimum_dpi": 300},
-  "reference_tasks": ["ERW-N12-001", "ERW-N12-002", "ERW-N12-003", "ERW-N12-004"],
+  "frozen_reference_tasks": ["ERW-N12-001", "ERW-N12-002", "ERW-N12-003", "ERW-N12-004"],
+  "oa_extension_tasks": ["OA-N12-G4-COLUMN-PILOT"],
+  "reference_tasks": ["ERW-N12-001", "ERW-N12-002", "ERW-N12-003", "ERW-N12-004", "OA-N12-G4-COLUMN-PILOT"],
+  "task_scope_policy": "reference_tasks = frozen_reference_tasks UNION oa_extension_tasks; OA extensions may consume certified F2 geometry but do not become ERW/F6 residual tasks.",
   "required_behaviors": ["PAN","ZOOM","HOME","OVERVIEW_NAVIGATOR","REGION_DEEP_LINK","TASK_DEEP_LINK","FIT_EVIDENCE_REGION","SOURCE_IDENTITY_VISIBLE","OBSERVATION_STATE_VISIBLE","PRIMARY_VS_DERIVED_AUTHORITY_VISIBLE"],
   "coordinate_policy": {
     "viewer_input_space": "NORMALIZED_0_1",
@@ -17,7 +20,7 @@
     "ORIGINAL": {"state": "ENABLED", "asset": "300dpi technical render reproduced from digest-verified immutable primary PDF", "authority": "DERIVED_REVIEW_AID_ONLY"},
     "ENHANCED": {"state": "DISABLED_UNTIL_REGISTERED_DERIVATIVE_EXISTS", "authority": "DERIVED_ASSISTIVE_ONLY"}
   },
-  "route_contract": {"region": "?region=<evidence_region_id>", "task": "?task=<task_id>", "default": "first reference task"},
+  "route_contract": {"region": "?region=<evidence_region_id>", "task": "?task=<task_id>", "default": "first frozen reference task"},
   "authority_invariants": {
     "primary_pdf_remains_authority": true,
     "viewer_render_is_derived_review_aid_only": true,
@@ -33,9 +36,11 @@
     "no_external_runtime_dependency": true,
     "all_reference_regions_must_be_ready": true,
     "all_reference_observations_must_be_finalized": true,
+    "frozen_reference_task_set_is_immutable": true,
+    "oa_extensions_require_separate_task_and_binding_registries": true,
     "f2_gate_required": "EVIDENCE_PROVENANCE_PASS",
     "effective_artifact_registration_required": true
   },
   "acceptance_gate": "SOURCE_VIEWER_PASS",
-  "acceptance_rule": "All four reference tasks resolve through already-certified F2 EvidenceRegions; CI verifies immutable source hashes, regenerates >=300 dpi renders and DZI pyramids, vendors the viewer runtime locally, validates task/region deep links, and proves that F3 consumes but never changes F2 geometry."
+  "acceptance_rule": "The four frozen F3 reference tasks remain unchanged; every declared OA extension resolves through a separately governed task/binding registry and a certified F2 EvidenceRegion. CI verifies immutable source hashes, regenerates >=300 dpi renders and DZI pyramids for every effective task source, validates deep links, and proves that the viewer consumes but never changes F2 geometry."
 }

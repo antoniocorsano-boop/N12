@@ -5,13 +5,15 @@ from math import atan2, degrees, hypot
 from typing import Any
 
 WEIGHTS = {
-    "GEOMETRY_KIND": 0.30,
-    "DIMENSION_RATIO": 0.20,
+    "GEOMETRY_KIND": 0.20,
+    "DIMENSION_RATIO": 0.30,
     "ORIENTATION": 0.15,
-    "TOPOLOGY_HINT": 0.15,
+    "TOPOLOGY_HINT": 0.10,
     "SPATIAL_CONTEXT": 0.10,
-    "ASSOCIATED_TEXT": 0.10,
+    "ASSOCIATED_TEXT": 0.15,
 }
+STRONG_SIMILAR_MIN = 0.85
+POSSIBLE_SIMILAR_MIN = 0.60
 
 
 def _line_features(obj: dict[str, Any]) -> dict[str, float] | None:
@@ -25,6 +27,20 @@ def _line_features(obj: dict[str, Any]) -> dict[str, float] | None:
     length = hypot(dx, dy)
     angle = degrees(atan2(dy, dx)) % 180.0
     return {"length": length, "angle": angle}
+
+
+def _section_features(obj: dict[str, Any]) -> dict[str, float] | None:
+    sx = _value(obj, "section_x_cm")
+    sy = _value(obj, "section_y_cm")
+    if sx is None or sy is None:
+        return None
+    try:
+        x, y = float(sx), float(sy)
+    except (TypeError, ValueError):
+        return None
+    if x <= 0 or y <= 0:
+        return None
+    return {"x": x, "y": y}
 
 
 def _value(obj: dict[str, Any], *keys: str):
@@ -46,62 +62,72 @@ def _text_tokens(value: Any) -> set[str]:
     return {token for token in raw.split() if token}
 
 
-def _score_signal(name: str, prototype_anchor: dict[str, Any], candidate: dict[str, Any]) -> tuple[float, str]:
+def _score_signal(name: str, prototype_anchor: dict[str, Any], candidate: dict[str, Any]) -> tuple[float, list[str]]:
     pg, cg = prototype_anchor.get("geometry") or {}, candidate.get("geometry") or {}
     if name == "GEOMETRY_KIND":
         same = bool(pg.get("type")) and pg.get("type") == cg.get("type")
-        return (1.0 if same else 0.0, "GEOMETRY_KIND_MATCH" if same else "GEOMETRY_KIND_MISMATCH")
+        return (1.0 if same else 0.0, ["GEOMETRY_KIND_MATCH" if same else "GEOMETRY_KIND_MISMATCH"])
 
     if name == "DIMENSION_RATIO":
+        ps, cs = _section_features(prototype_anchor), _section_features(candidate)
+        if ps and cs:
+            rx = min(ps["x"], cs["x"]) / max(ps["x"], cs["x"])
+            ry = min(ps["y"], cs["y"]) / max(ps["y"], cs["y"])
+            return (rx + ry) / 2.0, [f"SECTION_X_RATIO_{rx:.3f}", f"SECTION_Y_RATIO_{ry:.3f}"]
         pl, cl = _line_features(prototype_anchor), _line_features(candidate)
         if pl and cl and pl["length"] > 0 and cl["length"] > 0:
             ratio = min(pl["length"], cl["length"]) / max(pl["length"], cl["length"])
-            return ratio, f"LENGTH_RATIO_{ratio:.3f}"
+            return ratio, [f"LENGTH_RATIO_{ratio:.3f}"]
         pd = _value(prototype_anchor, "dimension_ratio", "aspect_ratio")
         cd = _value(candidate, "dimension_ratio", "aspect_ratio")
         if pd is None or cd is None:
-            return 0.0, "DIMENSION_RATIO_UNAVAILABLE"
+            return 0.0, ["DIMENSION_RATIO_UNAVAILABLE"]
         delta = abs(float(pd) - float(cd))
         score = max(0.0, 1.0 - min(delta, 1.0))
-        return score, f"DIMENSION_RATIO_DELTA_{delta:.3f}"
+        return score, [f"DIMENSION_RATIO_DELTA_{delta:.3f}"]
 
     if name == "ORIENTATION":
+        po = _value(prototype_anchor, "orientation_class")
+        co = _value(candidate, "orientation_class")
+        if po is not None and co is not None:
+            same = str(po) == str(co)
+            return (1.0 if same else 0.0, ["ORIENTATION_CLASS_MATCH" if same else "ORIENTATION_CLASS_MISMATCH"])
         pl, cl = _line_features(prototype_anchor), _line_features(candidate)
         if pl and cl:
             delta = abs(pl["angle"] - cl["angle"])
             delta = min(delta, 180.0 - delta)
             score = max(0.0, 1.0 - delta / 90.0)
-            return score, f"ORIENTATION_DELTA_{delta:.1f}"
+            return score, [f"ORIENTATION_DELTA_{delta:.1f}"]
         po = _value(prototype_anchor, "orientation")
         co = _value(candidate, "orientation")
         if po is None or co is None:
-            return 0.0, "ORIENTATION_UNAVAILABLE"
+            return 0.0, ["ORIENTATION_UNAVAILABLE"]
         same = str(po).upper() == str(co).upper()
-        return (1.0 if same else 0.0, "ORIENTATION_MATCH" if same else "ORIENTATION_MISMATCH")
+        return (1.0 if same else 0.0, ["ORIENTATION_MATCH" if same else "ORIENTATION_MISMATCH"])
 
     if name == "TOPOLOGY_HINT":
         p = _value(prototype_anchor, "topology_hint", "connection_count")
         c = _value(candidate, "topology_hint", "connection_count")
         if p is None or c is None:
-            return 0.0, "TOPOLOGY_UNAVAILABLE"
+            return 0.0, ["TOPOLOGY_UNAVAILABLE"]
         same = str(p) == str(c)
-        return (1.0 if same else 0.25, "TOPOLOGY_MATCH" if same else "TOPOLOGY_DIFFERENT")
+        return (1.0 if same else 0.25, ["TOPOLOGY_MATCH" if same else "TOPOLOGY_DIFFERENT"])
 
     if name == "SPATIAL_CONTEXT":
         p = _value(prototype_anchor, "spatial_context", "context_role")
         c = _value(candidate, "spatial_context", "context_role")
         if p is None or c is None:
-            return 0.0, "SPATIAL_CONTEXT_UNAVAILABLE"
+            return 0.0, ["SPATIAL_CONTEXT_UNAVAILABLE"]
         same = str(p).upper() == str(c).upper()
-        return (1.0 if same else 0.0, "SPATIAL_CONTEXT_MATCH" if same else "SPATIAL_CONTEXT_MISMATCH")
+        return (1.0 if same else 0.0, ["SPATIAL_CONTEXT_MATCH" if same else "SPATIAL_CONTEXT_MISMATCH"])
 
     if name == "ASSOCIATED_TEXT":
         pt = _text_tokens(_value(prototype_anchor, "associated_text", "text", "label"))
         ct = _text_tokens(_value(candidate, "associated_text", "text", "label"))
         if not pt or not ct:
-            return 0.0, "ASSOCIATED_TEXT_UNAVAILABLE"
+            return 0.0, ["ASSOCIATED_TEXT_UNAVAILABLE"]
         overlap = len(pt & ct) / len(pt | ct)
-        return overlap, f"ASSOCIATED_TEXT_JACCARD_{overlap:.3f}"
+        return overlap, [f"ASSOCIATED_TEXT_JACCARD_{overlap:.3f}"]
 
     raise ValueError(f"OA3_UNKNOWN_SIGNAL:{name}")
 
@@ -133,15 +159,15 @@ def find_similar(scene: dict[str, Any], prototype: dict[str, Any], weights: dict
         if candidate.get("object_id") == anchor_id:
             continue
         signal_scores = {}
-        reasons = []
+        reasons: list[str] = []
         score = 0.0
         for signal, weight in active_weights.items():
-            value, reason = _score_signal(signal, anchor, candidate)
+            value, signal_reasons = _score_signal(signal, anchor, candidate)
             signal_scores[signal] = round(value, 6)
-            reasons.append(reason)
+            reasons.extend(signal_reasons)
             score += weight * value
         score = round(score, 6)
-        state = "STRONG_SIMILAR" if score >= 0.75 else "POSSIBLE_SIMILAR" if score >= 0.50 else "WEAK" if score > 0 else "EXCLUDED"
+        state = "STRONG_SIMILAR" if score >= STRONG_SIMILAR_MIN else "POSSIBLE_SIMILAR" if score >= POSSIBLE_SIMILAR_MIN else "WEAK" if score > 0 else "EXCLUDED"
         rows.append({
             "candidate_object_id": candidate.get("object_id"),
             "score": score,
@@ -164,6 +190,7 @@ def find_similar(scene: dict[str, Any], prototype: dict[str, Any], weights: dict
         "object_type": prototype.get("object_type"),
         "family_id": prototype.get("family_id"),
         "weights": active_weights,
+        "thresholds": {"STRONG_SIMILAR_MIN": STRONG_SIMILAR_MIN, "POSSIBLE_SIMILAR_MIN": POSSIBLE_SIMILAR_MIN},
         "candidate_count": len(rows),
         "candidates": rows,
         "auto_confirm_cluster_authorized": False,

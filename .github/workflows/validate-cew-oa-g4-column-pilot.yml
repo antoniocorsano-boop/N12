@@ -1,0 +1,34 @@
+name: Validate CEW OA G4 COLUMN Pilot
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_SOURCE_VIEWER_CONTRACT_v1.json'
+      - 'data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_DERIVED_ASSET_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_PAGE_TRANSFORM_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_ERW_RESOLUTION_TASKS_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/STOREY_SUPPORT_SECTIONS_G4_v1.csv'
+      - 'scripts/cew_professional_workbench_projection.py'
+      - 'scripts/cew_oa2_workbench_runtime.py'
+      - 'scripts/cew_oa3_workbench_runtime.py'
+      - 'scripts/validate_cew_oa_g4_column_pilot.py'
+      - '.github/workflows/validate-cew-oa-g4-column-pilot.yml'
+  push:
+    branches:
+      - 'work/cew-oa5-structural-resolver-v1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate governed G4 COLUMN pilot
+        run: python scripts/validate_cew_oa_g4_column_pilot.py

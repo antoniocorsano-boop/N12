@@ -31,11 +31,39 @@ else
 fi
 
 pip install -r requirements.txt
+
+# Human-first is a managed-runtime requirement for the OA pilot, not a browser
+# preference. A deploy must fail before artifact generation if the interaction
+# contract regresses.
+python scripts/validate_cew_oa_human_first_ux.py
+
 python scripts/build_cew_runtime_render_cache.py
 python scripts/build_cew_managed_f3_assets.py
+
+# The F3 standalone viewer keeps DZI paths relative to its own source-viewer
+# root (tiles/<source>.dzi). The Professional Workbench serves assets from the
+# parent managed asset root. Provide a runtime-only compatibility alias so the
+# existing F3 relative reference resolves without duplicating or re-authoring
+# any evidence asset. The symlink target stays inside the governed asset root.
+MANAGED_F3_ROOT=".cew_professional_workbench_assets"
+if [[ ! -d "$MANAGED_F3_ROOT/source-viewer/tiles" ]]; then
+  echo "CEW_RENDER_BUILD_FAIL: managed F3 source-viewer tiles missing" >&2
+  exit 1
+fi
+rm -f "$MANAGED_F3_ROOT/tiles"
+ln -s "source-viewer/tiles" "$MANAGED_F3_ROOT/tiles"
+if [[ ! -f "$MANAGED_F3_ROOT/tiles/TAV-05S.dzi" ]]; then
+  echo "CEW_RENDER_BUILD_FAIL: Workbench TAV-05S DZI alias unresolved" >&2
+  exit 1
+fi
+echo "CEW_RENDER_WORKBENCH_F3_ASSET_ALIAS = READY"
+
 python scripts/build_cew_document_geometry_artifacts.py
-python scripts/build_cew_evidence_region_content_diagnostic.py
-python scripts/build_cew_evidence_region_mapping_root_cause.py
+# PWB-005 legacy diagnostics are explicitly frozen to the four historical
+# EvidenceRegion cases. OA extensions are governed separately and must not be
+# ingested as additional PWB-005 cases during managed-runtime builds.
+python scripts/run_cew_pwb005_r1_frozen_scope.py
+python scripts/run_cew_pwb005_r1a_frozen_scope.py
 python scripts/build_cew_raster_geometry_candidates.py
 python scripts/build_cew_raster_geometry_quality.py
 python scripts/build_cew_raster_geometry_consolidation.py
@@ -67,5 +95,6 @@ if len(regions) != 4 or manifest.get('gap_hypothesis_total') != 10:
 print('CEW_RENDER_R2HR_RUNTIME_ARTIFACT = READY')
 print('CEW_RENDER_R2HR_REGION_COVERAGE = 4/4')
 print('CEW_RENDER_R2HR_GAP_TOTAL = 10')
+print('CEW_RENDER_OA_HUMAN_FIRST_UX = READY')
 print('CEW_RENDER_BUILD = PASS')
 PY
