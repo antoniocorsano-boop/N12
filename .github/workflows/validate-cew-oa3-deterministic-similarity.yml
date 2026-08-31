@@ -6,6 +6,10 @@ on:
       - 'automation/CEW_OBJECT_ACQUISITION_QUEUE_v1.json'
       - 'automation/CEW_OA3_DETERMINISTIC_SIMILARITY_CONTRACT_v1.json'
       - 'scripts/cew_oa3_deterministic_similarity.py'
+      - 'scripts/cew_oa3_workbench_runtime.py'
+      - 'scripts/cew_oa2_workbench_runtime.py'
+      - 'scripts/cew_oa1_workbench_runtime.py'
+      - 'scripts/cew_professional_workbench_client.py'
       - 'scripts/validate_cew_oa3_deterministic_similarity.py'
       - '.github/workflows/validate-cew-oa3-deterministic-similarity.yml'
   push:
@@ -20,5 +24,5 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Validate OA3 explainable deterministic similarity
+      - name: Validate OA3 deterministic similarity and Workbench integration
         run: python scripts/validate_cew_oa3_deterministic_similarity.py
