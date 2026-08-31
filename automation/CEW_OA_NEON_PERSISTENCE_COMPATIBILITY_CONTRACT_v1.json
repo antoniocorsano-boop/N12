@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "contract": "CEW_OA_NEON_PERSISTENCE_COMPATIBILITY",
   "scope": "OA-N12-G4-COLUMN-PILOT",
-  "status": "LIVE_SCHEMA_VERIFIED",
+  "status": "LIVE_SCHEMA_VERIFIED_READY_FOR_RUNTIME_RETEST",
   "authority_effect": "NONE",
   "canonical_write_authorized": false,
   "project_material_ready": false,
@@ -31,6 +31,13 @@
     "verified_postcondition": "residual_id IS NULLABLE",
     "readback_receipt": "automation/receipts/cew-oa/CEW_OA_NEON_SCHEMA_READBACK_2026-08-31.json"
   },
+  "runtime_retest": {
+    "required": true,
+    "stage": "OA2_PROTOTYPE",
+    "expected_audit_backend": "NEON_APPEND_ONLY",
+    "expected_result": "GOVERNED_RECEIPT_PERSISTED_WITH_NULL_RESIDUAL_ID",
+    "find_similar_unlock_requires_receipt": true
+  },
   "completion_requirements": [
     "NO_FAKE_RESIDUAL_ID",
     "ERW_APPLICATION_STILL_REQUIRES_REAL_RESIDUAL_ID",
@@ -38,6 +45,7 @@
     "NEON_SCHEMA_READBACK_RESIDUAL_NULLABLE_PASS",
     "NEON_READBACK_OF_OA_RECEIPT_PASS",
     "FIND_SIMILAR_UNLOCKS_ONLY_AFTER_GOVERNED_OA2_RECEIPT",
+    "SOURCE_PRIMARY_REMAINS_AFTER_OBJECT_SELECTION",
     "NO_CANONICAL_WRITE",
     "NO_OA6_RELEASE"
   ]
