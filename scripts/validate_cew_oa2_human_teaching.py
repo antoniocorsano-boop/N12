@@ -33,7 +33,7 @@ def main():
 
     require(contract["primary_action"] == "THIS_IS_A", "primary teaching action drift")
     require(contract["canonical_write_authorized"] is False, "OA-2 cannot authorize canonical write")
-    require("FIND_SIMILAR" in contract["forbidden_actions"], "Find Similar must remain forbidden in OA-2")
+    require("FIND_SIMILAR" in contract["forbidden_actions"], "Find Similar must remain forbidden inside OA-2")
     require(contract["teaching_input"]["geometry_inference_for_type_forbidden"] is True, "geometry inference must remain forbidden")
 
     scene = {
@@ -62,7 +62,7 @@ def main():
     require(proposal["object_type"] == "COLUMN", "explicit type not preserved")
     require(proposal["family_id"] == "COLUMN_40X40", "family proposal mismatch")
     require(proposal["geometry_used_to_infer_type"] is False, "type inferred from geometry")
-    require(proposal["find_similar_authorized"] is False, "Find Similar enabled prematurely")
+    require(proposal["find_similar_authorized"] is False, "OA-2 proposal cannot authorize Find Similar")
     require(proposal["structural_identity_created"] is False, "structural identity created prematurely")
     require(proposal["canonical_write_authorized"] is False, "canonical write created")
 
@@ -86,12 +86,16 @@ def main():
     require('id="oaTeachCreate"' in runtime_html, "This is a action missing")
     require("Questo è un…" in runtime_html, "human teaching wording missing")
     require("geometry_used_to_infer_type:false" in runtime_html, "runtime must record no geometry type inference")
-    require("find_similar_authorized:false" in runtime_html, "runtime must keep Find Similar unauthorized")
+    require("find_similar_authorized:false" in runtime_html, "OA-2 proposal must keep Find Similar unauthorized")
     require("structural_identity_created:false" in runtime_html, "runtime must keep structural identity false")
     require("canonical_write_authorized:false" in runtime_html, "runtime must keep canonical write false")
     require("source_version_id" in runtime_html and "evidence_region_id" in runtime_html and "source_sha256" in runtime_html, "runtime source provenance incomplete")
-    require("sessionStorage.setItem" in runtime_html, "OA-2 proposal must remain work/session state in this tranche")
-    require("FIND_SIMILAR" not in runtime_html, "OA-3 action leaked into OA-2 runtime")
+    require("sessionStorage.setItem" in runtime_html, "OA-2 proposal must remain work/session state")
+
+    if queue["current_item"] == "OA-2":
+        require("CEW_OA3_RUNTIME_FIND_SIMILAR" not in runtime_html, "OA-3 action leaked before OA-2 completion")
+    else:
+        require(items["OA-3"]["state"] in {"IN_PROGRESS", "COMPLETE_PASS"}, "downstream OA-3 state invalid")
 
     print("OA2_HUMAN_TEACHING_CORE_PASS")
     print("OA2_RUNTIME_INTEGRATION_PASS")
