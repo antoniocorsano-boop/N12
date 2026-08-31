@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "receipt_type": "CEW_OA_NEON_SCHEMA_MANUAL_READBACK",
+  "project": "CEW Audit",
+  "project_id": "morning-cell-78488188",
+  "branch": "main",
+  "branch_id": "br-rough-lab-avtg953x",
+  "database": "neondb",
+  "verified_at_local": "2026-08-31T15:47:00+02:00",
+  "verification_source": "HUMAN_OPERATOR_NEON_SQL_EDITOR_READBACK",
+  "table": "public.cew_human_receipt_audit",
+  "column": "residual_id",
+  "observed_is_nullable": "YES",
+  "migration_effect_verified": true,
+  "authority_effect": "DATABASE_SCHEMA_VERIFICATION_ONLY",
+  "canonical_write_authorized": false,
+  "project_material_ready": false,
+  "oa6_release_authorized": false,
+  "notes": "Human operator supplied SQL Editor read-back showing residual_id | YES after applying migration 005. This receipt does not assert any OA2/OA5/OA-G5 decision or engineering fact."
+}
