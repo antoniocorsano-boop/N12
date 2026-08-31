@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "contract": "CEW_EWS4_OA_RESULT_REVIEW_CONTROLLER",
+  "status": "IMPLEMENTED_PENDING_VALIDATION",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "project_material_ready": false,
+  "upstream": {
+    "ews1_contract": "CEW_EWS1_APPLICATION_FRAME",
+    "required_status": "EWS1_COMPLETE_PASS",
+    "base_sha": "082c86022e356b82b50cd4ec7bc90c31ac2099d5"
+  },
+  "scope": {
+    "task": "OA-N12-G4-COLUMN-PILOT",
+    "mode": "REVIEW_SET",
+    "runtime_subset_only": true
+  },
+  "hierarchy": [
+    "SUMMARY",
+    "REVIEW_SET",
+    "ACTIVE_CANDIDATE"
+  ],
+  "summary": {
+    "counts": ["STRONG_SIMILAR", "POSSIBLE_SIMILAR", "WEAK", "EXCLUDED"],
+    "review_progress_visible": true,
+    "filters_required": true
+  },
+  "review_set": {
+    "progressive_paging_required": true,
+    "page_size": 8,
+    "full_expanded_cluster_forbidden": true,
+    "stable_candidate_rows": true,
+    "single_active_candidate": true,
+    "previous_next_required": true
+  },
+  "active_candidate": {
+    "score_visible": true,
+    "reason_codes_visible": true,
+    "score_is_authority": false,
+    "source_spatial_focus_when_unregistered": "FORBIDDEN",
+    "human_decisions": [
+      "CONFIRM_AS_FAMILY_CANDIDATE",
+      "REJECT",
+      "MARK_AMBIGUOUS",
+      "DEFER_NEEDS_SOURCE"
+    ]
+  },
+  "decision_persistence": {
+    "owner": "OA4_HUMAN_CLUSTER_REVIEW",
+    "ews4_persists_directly": false,
+    "adapter_target": "EXISTING_OA4_GOVERNED_RUNTIME",
+    "explicit_single_candidate_selection": true,
+    "implicit_cluster_acceptance": false,
+    "append_only_receipt_required": true
+  },
+  "runtime": {
+    "module": "scripts/cew_ews4_oa_result_review_runtime.py",
+    "marker": "CEW_EWS4_OA_RESULT_REVIEW_CONTROLLER",
+    "similarity_algorithm_modified": false,
+    "oa4_receipt_schema_modified": false,
+    "structural_identity_modified": false
+  },
+  "forbidden_shortcuts": [
+    "FULL_EXPANDED_CLUSTER_AS_PRIMARY_UI",
+    "SCORE_CREATES_ACCEPTANCE",
+    "AUTO_CONFIRM_CLUSTER",
+    "INVENT_SOURCE_POSITION_FOR_ACTIVE_CANDIDATE",
+    "DUPLICATE_OA4_PERSISTENCE_LOGIC",
+    "OA_G5_RELEASE",
+    "OA_6_RELEASE",
+    "CANONICAL_WRITE_FROM_REVIEW_UI"
+  ],
+  "next_tranche": "EWS2_UNIFIED_CONTEXT_RAIL"
+}
