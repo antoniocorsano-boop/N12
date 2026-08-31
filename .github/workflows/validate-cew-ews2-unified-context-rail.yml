@@ -1,0 +1,29 @@
+name: Validate CEW EWS-2 Unified Context Rail
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_EWS2_UNIFIED_CONTEXT_RAIL_CONTRACT_v1.json'
+      - 'scripts/cew_ews2_unified_context_rail_runtime.py'
+      - 'scripts/cew_enterprise_governed_resume_runtime.py'
+      - 'scripts/cew_ews4_oa_result_review_runtime.py'
+      - 'scripts/cew_oa2_workbench_runtime.py'
+      - 'scripts/cew_oa4_workbench_runtime.py'
+      - 'scripts/cew_oa5_workbench_runtime.py'
+      - 'scripts/cew_oag5_workbench_runtime.py'
+      - 'scripts/validate_cew_ews2_unified_context_rail.py'
+      - '.github/workflows/validate-cew-ews2-unified-context-rail.yml'
+  push:
+    branches:
+      - 'work/cew-ews2-unified-focused-context-rail-v1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate EWS-2 focused context rail
+        run: python scripts/validate_cew_ews2_unified_context_rail.py
