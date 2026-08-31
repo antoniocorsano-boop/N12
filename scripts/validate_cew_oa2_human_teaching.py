@@ -3,6 +3,9 @@ import json
 from pathlib import Path
 
 from cew_oa2_human_teaching import create_teaching_proposal
+from cew_oa2_workbench_runtime import OA2_RUNTIME_MARKER
+import cew_oa1_workbench_runtime as oa1_runtime
+import cew_professional_workbench_client as client
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "automation" / "CEW_OA2_HUMAN_TEACHING_CONTRACT_v1.json"
@@ -20,7 +23,7 @@ def main():
 
     require(queue["current_item"] == "OA-2", "OA-2 must be current")
     require(queue["items"][1]["state"] == "COMPLETE_PASS", "OA-1 must remain complete")
-    require(queue["items"][2]["state"] == "IN_PROGRESS", "OA-2 must be in progress")
+    require(queue["items"][2]["state"] in {"IN_PROGRESS", "COMPLETE_PASS"}, "OA-2 state invalid")
     require(queue["items"][3]["state"] == "BLOCKED_BY_OA2", "OA-3 must remain blocked")
 
     require(contract["primary_action"] == "THIS_IS_A", "primary teaching action drift")
@@ -70,8 +73,24 @@ def main():
         else:
             raise SystemExit("FAIL: invalid teaching input accepted")
 
+    runtime_html = oa1_runtime.augment(client.build_client("ERW-N12-001"), "ERW-N12-001")
+    require(OA2_RUNTIME_MARKER in runtime_html, "OA-2 runtime marker missing")
+    require('id="oaTeach"' in runtime_html, "human teaching surface missing")
+    require('id="oaTeachType"' in runtime_html, "explicit type control missing")
+    require('id="oaTeachFamily"' in runtime_html, "project family control missing")
+    require('id="oaTeachCreate"' in runtime_html, "This is a action missing")
+    require("Questo è un…" in runtime_html, "human teaching wording missing")
+    require("geometry_used_to_infer_type:false" in runtime_html, "runtime must record no geometry type inference")
+    require("find_similar_authorized:false" in runtime_html, "runtime must keep Find Similar unauthorized")
+    require("structural_identity_created:false" in runtime_html, "runtime must keep structural identity false")
+    require("canonical_write_authorized:false" in runtime_html, "runtime must keep canonical write false")
+    require("source_version_id" in runtime_html and "evidence_region_id" in runtime_html and "source_sha256" in runtime_html, "runtime source provenance incomplete")
+    require("sessionStorage.setItem" in runtime_html, "OA-2 proposal must remain work/session state in this tranche")
+    require("FIND_SIMILAR" not in runtime_html, "OA-3 action leaked into OA-2 runtime")
+
     print("OA2_HUMAN_TEACHING_CORE_PASS")
-    print("OA2_RUNTIME_INTEGRATION_REQUIRED")
+    print("OA2_RUNTIME_INTEGRATION_PASS")
+    print("OA2_HUMAN_TEACHING_PASS")
 
 
 if __name__ == "__main__":
