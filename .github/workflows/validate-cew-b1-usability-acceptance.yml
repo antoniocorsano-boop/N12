@@ -22,6 +22,7 @@ on:
       - 'scripts/validate_cew_document_geometry_artifacts.py'
       - 'scripts/validate_cew_document_geometry_scene_adapter.py'
       - 'scripts/build_cew_evidence_region_content_diagnostic.py'
+      - 'scripts/run_cew_pwb005_r1_frozen_scope.py'
       - 'scripts/validate_cew_evidence_region_content_diagnostic.py'
       - 'scripts/build_cew_evidence_region_mapping_root_cause.py'
       - 'scripts/validate_cew_evidence_region_mapping_root_cause.py'
@@ -131,6 +132,7 @@ jobs:
             scripts/validate_cew_document_geometry_artifacts.py \
             scripts/validate_cew_document_geometry_scene_adapter.py \
             scripts/build_cew_evidence_region_content_diagnostic.py \
+            scripts/run_cew_pwb005_r1_frozen_scope.py \
             scripts/validate_cew_evidence_region_content_diagnostic.py \
             scripts/build_cew_evidence_region_mapping_root_cause.py \
             scripts/validate_cew_evidence_region_mapping_root_cause.py \
@@ -201,8 +203,8 @@ jobs:
 
       - name: Build and validate PWB-005-R1 EvidenceRegion content diagnostic
         run: |
-          python scripts/build_cew_evidence_region_content_diagnostic.py --validate-plan-only
-          python scripts/build_cew_evidence_region_content_diagnostic.py
+          python scripts/run_cew_pwb005_r1_frozen_scope.py --validate-plan-only
+          python scripts/run_cew_pwb005_r1_frozen_scope.py
           python scripts/validate_cew_evidence_region_content_diagnostic.py
 
       - name: Build and validate PWB-005-R1A mapping root cause
@@ -328,6 +330,3 @@ jobs:
           echo 'HVA_GATE = REQUIRED_NOT_SATISFIED'
           echo 'ACCESSIBILITY_GATE = REQUIRED_NOT_SATISFIED'
           echo 'PRODUCTION_SMOKE = BLOCKED_UNTIL_PROFESSIONAL_HVA_ACCEPTANCE'
-          echo 'SLICE_COMPLETE = false'
-          echo 'PRODUCTION_PROMOTION_AUTHORIZED = false'
-          echo 'CANONICAL_WRITE_AUTHORIZED = false'
