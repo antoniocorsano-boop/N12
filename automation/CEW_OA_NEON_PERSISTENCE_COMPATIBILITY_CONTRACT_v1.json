@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "contract": "CEW_OA_NEON_PERSISTENCE_COMPATIBILITY",
+  "scope": "OA-N12-G4-COLUMN-PILOT",
+  "status": "PREPARED_MIGRATION_NOT_APPLIED",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "project_material_ready": false,
+  "oa6_release_authorized": false,
+  "audit_backend": "NEON_APPEND_ONLY",
+  "shared_ledger_table": "public.cew_human_receipt_audit",
+  "domain_rule": {
+    "erw_receipt_residual_id_required_by_application": true,
+    "oa_receipt_residual_id_required": false,
+    "oa_fake_residual_id_forbidden": true,
+    "shared_table_residual_id_must_be_nullable": true
+  },
+  "observed_runtime_failure": {
+    "stage": "OA2_PROTOTYPE",
+    "public_message": "Neon audit persistence failed",
+    "effect": "FAIL_CLOSED_FIND_SIMILAR_BLOCKED",
+    "canonical_write_performed": false
+  },
+  "migration": {
+    "path": "migrations/cew/005_oa_receipt_residual_optional_PROPOSED_NOT_APPLIED.sql",
+    "state": "PROPOSED_NOT_APPLIED",
+    "requires_explicit_database_change_approval": true,
+    "expected_postcondition": "residual_id IS NULLABLE"
+  },
+  "completion_requirements": [
+    "NO_FAKE_RESIDUAL_ID",
+    "ERW_APPLICATION_STILL_REQUIRES_REAL_RESIDUAL_ID",
+    "OA_RECEIPT_CAN_PERSIST_WITH_NULL_RESIDUAL_ID",
+    "NEON_READBACK_OF_OA_RECEIPT_PASS",
+    "FIND_SIMILAR_UNLOCKS_ONLY_AFTER_GOVERNED_OA2_RECEIPT",
+    "NO_CANONICAL_WRITE",
+    "NO_OA6_RELEASE"
+  ]
+}
