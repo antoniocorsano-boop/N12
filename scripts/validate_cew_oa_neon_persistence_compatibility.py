@@ -27,7 +27,7 @@ def main() -> int:
     queue = json.loads(QUEUE.read_text(encoding="utf-8"))
 
     require(contract["contract"] == "CEW_OA_NEON_PERSISTENCE_COMPATIBILITY", "contract id drift")
-    require(contract["status"] == "LIVE_SCHEMA_VERIFIED", "live Neon schema verification missing")
+    require(contract["status"] == "LIVE_SCHEMA_VERIFIED_READY_FOR_RUNTIME_RETEST", "runtime retest-ready Neon state missing")
     require(contract["canonical_write_authorized"] is False, "canonical write authority drift")
     require(contract["project_material_ready"] is False, "project material must remain blocked")
     require(contract["oa6_release_authorized"] is False, "OA-6 release authority drift")
@@ -45,6 +45,12 @@ def main() -> int:
     require(mig["database"] == "neondb", "unexpected Neon database")
     require(mig["verified_postcondition"] == "residual_id IS NULLABLE", "verified postcondition drift")
     require(mig["readback_receipt"] == "automation/receipts/cew-oa/CEW_OA_NEON_SCHEMA_READBACK_2026-08-31.json", "readback receipt binding drift")
+
+    runtime_retest = contract["runtime_retest"]
+    require(runtime_retest["required"] is True, "runtime retest must remain required")
+    require(runtime_retest["stage"] == "OA2_PROTOTYPE", "unexpected runtime retest stage")
+    require(runtime_retest["expected_audit_backend"] == "NEON_APPEND_ONLY", "runtime retest backend drift")
+    require(runtime_retest["find_similar_unlock_requires_receipt"] is True, "Find Similar governance weakened")
 
     require(readback["receipt_type"] == "CEW_OA_NEON_SCHEMA_MANUAL_READBACK", "readback receipt type drift")
     require(readback["project_id"] == "morning-cell-78488188", "readback project mismatch")
@@ -74,6 +80,7 @@ def main() -> int:
     print("CEW_OA_NEON_PERSISTENCE_COMPATIBILITY = PASS")
     print("LIVE_SCHEMA_READBACK = PASS")
     print("RESIDUAL_ID_NULLABLE = YES")
+    print("RUNTIME_RETEST_REQUIRED = true")
     print("OA_FAKE_RESIDUAL_ID = FORBIDDEN")
     print("MIGRATION_STATE = APPLIED_VERIFIED_MANUAL_READBACK")
     print("CANONICAL_WRITE_AUTHORIZED = false")
