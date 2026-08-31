@@ -3,6 +3,9 @@ import json
 from pathlib import Path
 
 from cew_oa4_human_cluster_review import review_candidates
+from cew_oa4_workbench_runtime import OA4_RUNTIME_MARKER
+import cew_oa1_workbench_runtime as oa1_runtime
+import cew_professional_workbench_client as client
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "automation" / "CEW_OA4_HUMAN_CLUSTER_REVIEW_CONTRACT_v1.json"
@@ -41,45 +44,27 @@ def main():
         ]
     }
 
-    partial = review_candidates(
-        similarity,
-        [{"candidate_object_id":"C1","decision":"CONFIRM_AS_FAMILY_CANDIDATE"}],
-        "HUMAN-TEST",
-        "REV-1",
-        evidence,
-    )
+    partial = review_candidates(similarity,[{"candidate_object_id":"C1","decision":"CONFIRM_AS_FAMILY_CANDIDATE"}],"HUMAN-TEST","REV-1",evidence)
     require(partial["state"] == "REVIEW_PARTIAL", "partial review state wrong")
     require(partial["family_membership_proposals_created"] == 1, "family proposal missing")
     require(partial["structural_identity_created"] is False, "partial review created structural identity")
 
-    complete = review_candidates(
-        similarity,
-        [
-            {"candidate_object_id":"C1","decision":"CONFIRM_AS_FAMILY_CANDIDATE"},
-            {"candidate_object_id":"C2","decision":"REJECT"},
-            {"candidate_object_id":"C3","decision":"MARK_AMBIGUOUS"},
-        ],
-        "HUMAN-TEST",
-        "REV-1",
-        evidence,
-    )
+    complete = review_candidates(similarity,[
+        {"candidate_object_id":"C1","decision":"CONFIRM_AS_FAMILY_CANDIDATE"},
+        {"candidate_object_id":"C2","decision":"REJECT"},
+        {"candidate_object_id":"C3","decision":"MARK_AMBIGUOUS"},
+    ],"HUMAN-TEST","REV-1",evidence)
     require(complete["state"] == "REVIEW_COMPLETE_WITH_AMBIGUITIES", "ambiguity state wrong")
     require(complete["clean_completion"] is False, "ambiguity incorrectly clean")
     require(complete["ambiguous_count"] == 1, "ambiguity not counted")
     require(all(row["canonical_write_authorized"] is False for row in complete["candidate_decisions"]), "candidate decision authorized canonical write")
     require(all(row["structural_identity_created"] is False for row in complete["candidate_decisions"]), "candidate decision created structural identity")
 
-    clean = review_candidates(
-        similarity,
-        [
-            {"candidate_object_id":"C1","decision":"CONFIRM_AS_FAMILY_CANDIDATE"},
-            {"candidate_object_id":"C2","decision":"MOVE_TO_OTHER_FAMILY","target_family_id":"COLUMN_40X50"},
-            {"candidate_object_id":"C3","decision":"REJECT"},
-        ],
-        "HUMAN-TEST",
-        "REV-1",
-        evidence,
-    )
+    clean = review_candidates(similarity,[
+        {"candidate_object_id":"C1","decision":"CONFIRM_AS_FAMILY_CANDIDATE"},
+        {"candidate_object_id":"C2","decision":"MOVE_TO_OTHER_FAMILY","target_family_id":"COLUMN_40X50"},
+        {"candidate_object_id":"C3","decision":"REJECT"},
+    ],"HUMAN-TEST","REV-1",evidence)
     require(clean["state"] == "REVIEW_COMPLETE", "clean review state wrong")
     require(clean["clean_completion"] is True, "clean completion not recognized")
     require(clean["project_material_promotion_authorized"] is False, "OA-4 promoted project material")
@@ -96,8 +81,24 @@ def main():
         else:
             raise SystemExit("FAIL: invalid OA-4 review accepted")
 
+    runtime_html = oa1_runtime.augment(client.build_client("ERW-N12-001"), "ERW-N12-001")
+    require(OA4_RUNTIME_MARKER in runtime_html, "OA-4 runtime marker missing")
+    require('id="oaClusterReview"' in runtime_html, "cluster review surface missing")
+    require('id="oaLoadReview"' in runtime_html, "load similarity run action missing")
+    require('id="oaSaveReview"' in runtime_html, "save selected decisions action missing")
+    require("Seleziona esplicitamente i candidati" in runtime_html, "explicit selection wording missing")
+    require("Nessun candidato viene incluso automaticamente" in runtime_html, "implicit cluster acceptance prohibition missing")
+    require("explicit_candidate_selection:true" in runtime_html, "runtime explicit selection receipt missing")
+    require("implicit_cluster_acceptance:false" in runtime_html, "runtime implicit acceptance flag missing")
+    require("structural_identity_created:false" in runtime_html, "runtime created structural identity")
+    require("project_material_promotion_authorized:false" in runtime_html, "runtime promoted project material")
+    require("canonical_write_authorized:false" in runtime_html, "runtime enabled canonical write")
+    require("OA-5_STRUCTURAL_RESOLVER" in runtime_html, "next structural resolver boundary missing")
+    require("CEW_OA5" not in runtime_html, "OA-5 runtime leaked into OA-4")
+
     print("OA4_HUMAN_CLUSTER_REVIEW_CORE_PASS")
-    print("OA4_RUNTIME_INTEGRATION_REQUIRED")
+    print("OA4_RUNTIME_INTEGRATION_PASS")
+    print("OA4_HUMAN_CLUSTER_REVIEW_PASS")
 
 
 if __name__ == "__main__":
