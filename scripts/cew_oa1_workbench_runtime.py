@@ -3,9 +3,14 @@ from __future__ import annotations
 
 import html
 
+import cew_ews1_application_frame_runtime as ews1_runtime
 import cew_oa2_workbench_runtime as oa2_runtime
 
 OA1_RUNTIME_MARKER = "CEW_OA1_RUNTIME_OBJECT_WORKBENCH"
+
+
+def _downstream(rendered: str, task: str) -> str:
+    return ews1_runtime.augment(oa2_runtime.augment(rendered, task), task)
 
 
 def augment(rendered: str, task: str) -> str:
@@ -13,10 +18,11 @@ def augment(rendered: str, task: str) -> str:
 
     OA-1 consumes only explicit object type/state metadata already present in the
     governed technical scene. OA-2 is chained into this same panel; geometry shape
-    is never used to infer COLUMN/BEAM identity.
+    is never used to infer COLUMN/BEAM identity. EWS-1 is the final presentation
+    layer and may change layout only, never CEW authority or domain semantics.
     """
     if OA1_RUNTIME_MARKER in rendered:
-        return oa2_runtime.augment(rendered, task)
+        return _downstream(rendered, task)
 
     task_escaped = html.escape(task, quote=True)
     toolbar_marker = '<button id="layersButton" aria-expanded="false">Livelli</button>'
@@ -80,4 +86,4 @@ let tries=0;const timer=setInterval(()=>{{tries++;if(typeof scene!=='undefined'&
 }})();
 </script>'''
     rendered = rendered.replace('</body>', panel + '</body>', 1)
-    return oa2_runtime.augment(rendered, task)
+    return _downstream(rendered, task)
