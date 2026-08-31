@@ -15,6 +15,7 @@ import cew_professional_workbench_client as client
 
 CONTRACT = ROOT / "automation/CEW_EWS2_UNIFIED_CONTEXT_RAIL_CONTRACT_v1.json"
 RUNTIME = ROOT / "scripts/cew_ews2_unified_context_rail_runtime.py"
+GUARD = ROOT / "scripts/cew_ews2_visibility_guard_runtime.py"
 RESUME = ROOT / "scripts/cew_enterprise_governed_resume_runtime.py"
 PILOT = "OA-N12-G4-COLUMN-PILOT"
 
@@ -27,6 +28,7 @@ def require(condition: bool, message: str) -> None:
 def main() -> int:
     contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
     runtime = RUNTIME.read_text(encoding="utf-8")
+    guard = GUARD.read_text(encoding="utf-8")
     resume = RESUME.read_text(encoding="utf-8")
 
     require(contract["contract"] == "CEW_EWS2_UNIFIED_FOCUSED_CONTEXT_RAIL", "contract id drift")
@@ -50,7 +52,7 @@ def main() -> int:
 
     for marker in [
         "CEW_EWS2_UNIFIED_FOCUSED_CONTEXT_RAIL",
-        "ONE_PRIMARY_WORK_PANEL_AT_A_TIME" if False else "ews2-focused-rail",
+        "ews2-focused-rail",
         "ews2-mode-acquire",
         "ews2-mode-find",
         "ews2-mode-review",
@@ -62,24 +64,40 @@ def main() -> int:
         "max-height:190px",
         "Passa a identità strutturale",
         "Passa a revisione identità",
-        "GOVERNED" if False else "governed_receipt_id",
+        "governed_receipt_id",
         "canonical_write_authorized:false",
         "engineering_authority_effect:'NONE'",
     ]:
         require(marker in runtime, f"runtime invariant missing: {marker}")
 
+    for marker in [
+        "CEW_EWS2_POST_ORCHESTRATION_VISIBILITY_GUARD",
+        "#ews2RailBody>#oaTeach",
+        "#ews2RailBody>#oaSimilar",
+        "#ews2RailBody>#oaClusterReview",
+        "#ews2RailBody>#oaStructuralResolver",
+        "#ews2RailBody>#oaG5Review",
+        "ONE_PRIMARY_WORK_PANEL_AT_A_TIME",
+        "oa4_persistence_owner_visible:false",
+        "canonical_write_authorized:false",
+    ]:
+        require(marker in guard, f"post-orchestration guard missing: {marker}")
+    require(guard.count("#ews2RailBody>#oaClusterReview{display:none!important}") >= 1, "OA-4 legacy form must remain hidden after reparenting")
+
     require("import cew_ews2_unified_context_rail_runtime as ews2_runtime" in resume, "EWS-2 compositor import missing")
-    require("return ews2_runtime.augment" in resume, "EWS-2 must compose after governed resume")
+    require("import cew_ews2_visibility_guard_runtime as ews2_guard_runtime" in resume, "EWS-2 guard compositor import missing")
+    require("ews2_guard_runtime.augment(ews2_runtime.augment" in resume, "visibility guard must compose after EWS-2")
 
     html = oa1_runtime.augment(client.build_client(PILOT), PILOT)
     require("CEW_EWS2_UNIFIED_FOCUSED_CONTEXT_RAIL" in html, "rendered pilot missing EWS-2 marker")
+    require("CEW_EWS2_POST_ORCHESTRATION_VISIBILITY_GUARD" in html, "rendered pilot missing visibility guard")
     require('data-ews2-runtime="CEW_EWS2_UNIFIED_FOCUSED_CONTEXT_RAIL"' in html, "EWS-2 runtime marker not emitted")
-    require("ONE_PRIMARY_WORK_PANEL_AT_A_TIME" not in html or True, "noop")
+    require('data-ews2-visibility-guard="CEW_EWS2_POST_ORCHESTRATION_VISIBILITY_GUARD"' in html, "guard marker not emitted")
     require("#ews2RailBody>#oaTeach" in html, "ACQUIRE focused selector missing")
     require("#ews2RailBody>#oaSimilar" in html, "similar/review focused selector missing")
     require("#ews2RailBody>#oaStructuralResolver" in html, "identity focused selector missing")
     require("#ews2RailBody>#oaG5Review" in html, "validation focused selector missing")
-    require("#oaClusterReview" in html and "display:none!important" in html, "legacy OA-4 form must stay hidden")
+    require("#ews2RailBody>#oaClusterReview{display:none!important}" in html, "legacy OA-4 form must stay hidden post-orchestration")
     require("data-canonical-write-authorized=\"false\"" in html, "canonical write boundary lost")
 
     forbidden = set(contract["forbidden_shortcuts"])
@@ -97,6 +115,7 @@ def main() -> int:
         require(name in forbidden, f"forbidden shortcut missing: {name}")
 
     print("CEW_EWS2_UNIFIED_CONTEXT_RAIL = PASS")
+    print("POST_ORCHESTRATION_VISIBILITY_GUARD = PASS")
     print("PRIMARY_RULE = ONE_PRIMARY_WORK_PANEL_AT_A_TIME")
     print("PROGRESSIVE_DISCLOSURE = true")
     print("FULL_LIFECYCLE_FORM_VISIBLE = false")
