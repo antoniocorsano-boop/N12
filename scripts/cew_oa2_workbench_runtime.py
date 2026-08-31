@@ -9,8 +9,8 @@ OA2_RUNTIME_MARKER = "CEW_OA2_RUNTIME_HUMAN_TEACHING"
 def augment(rendered: str, task: str) -> str:
     """Add OA-2 human teaching, then chain OA-3 on the same Workbench panel.
 
-    OA-2 remains session/work-state only. OA-3 may rank similar candidates, but
-    neither tranche creates structural identity or canonical writes.
+    The browser object is only a UI cache. A taught prototype becomes usable by
+    downstream OA stages only after the governed append-only receipt is stored.
     """
     if OA2_RUNTIME_MARKER in rendered:
         return oa3_runtime.augment(rendered, task)
@@ -34,7 +34,7 @@ def augment(rendered: str, task: str) -> str:
   <label>Revisore<input id="oaTeachReviewer" type="text" value="HUMAN_OPERATOR"></label>
   <button id="oaTeachCreate" class="primary" type="button">Questo è un…</button>
   <div id="oaTeachResult"></div>
-  <div class="authority-note">Proposta non canonica. Non crea identità strutturale e non modifica i dati canonici.</div>
+  <div class="authority-note">Il prototipo entra nella catena OA solo dopo registrazione append-only. sessionStorage è soltanto cache UI.</div>
 </section>'''
 
     script = '''
@@ -44,6 +44,16 @@ const OA2_MARKER='CEW_OA2_RUNTIME_HUMAN_TEACHING';
 const allowed=new Set(['COLUMN','BEAM','BEAM_SECTION_SYMBOL','SLAB','FOUNDATION_BEAM','LONGITUDINAL_REBAR','STIRRUP','GRID_AXIS','DIMENSION','CALLOUT','NODE','TECHNICAL_TEXT']);
 const slug=v=>String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,64);
 const hex=buf=>Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+async function persistOA2(proposal,reviewer){
+  const response=await fetch('/api/workbench/object-acquisition/receipt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:TASK,stage:'OA2_PROTOTYPE',revision:proposal.revision,reviewer,payload:proposal,parent_decision_id:null})});
+  const body=await response.json();
+  if(!response.ok)throw new Error(body.reason||body.state||'OA2_GOVERNED_PERSISTENCE_FAILED');
+  proposal.governed_receipt_id=body.runtime_receipt_id;
+  proposal.governed_receipt_fingerprint=body.receipt_fingerprint;
+  proposal.governed_audit_backend=body.audit_backend;
+  proposal.governed_persistence_state=body.state;
+  return proposal;
+}
 async function createProposal(){
   const result=document.getElementById('oaTeachResult');
   const anchor=(typeof selected!=='undefined'&&selected)?selected:null;
@@ -59,9 +69,13 @@ async function createProposal(){
   const revision=source.build_revision||scene?.build_revision||scene?.revision||'RUNTIME_SCENE';
   const seed=JSON.stringify({anchor:anchor.object_id,type:objectType,family:familyId,source:evidence,revision});
   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(seed));
-  const proposal={state:'HUMAN_TAUGHT_NON_CANONICAL_PROTOTYPE',prototype_id:'OAP-'+hex(digest).slice(0,16),object_type:objectType,family_id:familyId,family_label:familyLabel,anchor_object_id:anchor.object_id,source_evidence:evidence,human_decision:{decision:'THIS_IS_A',reviewer,explicit_object_type:objectType,family_label:familyLabel},revision,geometry_used_to_infer_type:false,find_similar_authorized:false,structural_identity_created:false,canonical_write_authorized:false,engineering_authority_effect:'NONE',next_gate:'OA2_RUNTIME_REVIEW'};
+  const proposal={state:'HUMAN_TAUGHT_NON_CANONICAL_PROTOTYPE',prototype_id:'OAP-'+hex(digest).slice(0,16),object_type:objectType,family_id:familyId,family_label:familyLabel,anchor_object_id:anchor.object_id,source_evidence:evidence,human_decision:{decision:'THIS_IS_A',reviewer,explicit_object_type:objectType,family_label:familyLabel},revision,geometry_used_to_infer_type:false,find_similar_authorized:false,structural_identity_created:false,canonical_write_authorized:false,project_material_ready:false,engineering_authority_effect:'NONE',next_gate:'OA3_DETERMINISTIC_SIMILARITY'};
+  result.innerHTML='<div class="oa2-receipt">Registrazione append-only del prototipo…</div>';
+  try{
+    await persistOA2(proposal,reviewer);
+  }catch(error){result.innerHTML='<div class="oa2-error"><b>Prototipo non registrato.</b><br>'+String(error.message||error)+'<br>La catena downstream resta bloccata.</div>';return}
   const key='cew-oa2:'+TASK+':'+proposal.prototype_id;sessionStorage.setItem(key,JSON.stringify(proposal));
-  result.innerHTML='<div class="oa2-receipt"><b>Prototipo di lavoro creato</b><br>'+proposal.prototype_id+'<br>'+proposal.object_type+' · '+proposal.family_label+'<br>Scrittura canonica: false</div>';
+  result.innerHTML='<div class="oa2-receipt"><b>Prototipo registrato append-only</b><br>'+proposal.prototype_id+'<br>'+proposal.object_type+' · '+proposal.family_label+'<br>Receipt: '+proposal.governed_receipt_id+'<br>Scrittura canonica: false</div>';
 }
 function initOA2(){const panel=document.getElementById('oaPanel');if(!panel||document.getElementById('oaTeach'))return;panel.insertAdjacentHTML('beforeend',OA2_SECTION);document.getElementById('oaTeachCreate').onclick=createProposal;}
 const OA2_SECTION=''' + repr(section) + ''';
