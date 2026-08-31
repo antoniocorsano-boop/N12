@@ -25,6 +25,7 @@ import cew_document_map_page as document_map_page
 import cew_drawing_viewer as drawing_viewer
 import cew_f7_native_review_service as review_service
 import cew_oa_governed_api as oa_governed_api
+import cew_oa_source_workspace_adapter as oa_source_workspace_adapter
 import cew_professional_workbench_api as professional_workbench_api
 import cew_project_control_room as control_room
 import cew_project_home as project_home
@@ -32,6 +33,7 @@ import cew_runtime_audit_store as audit_store
 import cew_source_evidence_workspace as source_workspace
 
 review_service.persist_runtime_receipt = audit_store.persist_runtime_receipt
+oa_workspace = oa_source_workspace_adapter.workspace
 
 app = FastAPI(title="CEW — Structural Existing Workflow", docs_url=None, redoc_url=None)
 SESSION_COOKIE = "cew_session"
@@ -100,12 +102,10 @@ async def access_guard(request: Request, call_next):
     return await call_next(request)
 
 
-# Workbench APIs inherit the same runtime authentication middleware and expose
-# only derived/non-canonical scene, view and working-state operations.
-app.include_router(professional_workbench_api.build_router(source_workspace))
-# OA governed decisions reuse the same authenticated Workbench and append-only
-# audit backend. This router never performs canonical/project-material writes.
-app.include_router(oa_governed_api.build_router(source_workspace))
+# Workbench/OA consumers receive the dedicated read-only OA extension. The base
+# Source Hub and ERW surfaces continue to consume the frozen ERW-only registry.
+app.include_router(professional_workbench_api.build_router(oa_workspace))
+app.include_router(oa_governed_api.build_router(oa_workspace))
 
 
 @app.get("/healthz")
@@ -132,6 +132,7 @@ def healthz():
         "professional_workbench_readiness": "REWORK_REQUIRED",
         "professional_workbench_hva_authorized": False,
         "source_workspace": "B1_AVAILABLE",
+        "oa_source_workspace": "READ_ONLY_DOMAIN_EXTENSION_AVAILABLE",
         "source_integrity_policy": "IMMUTABLE_COMMIT_PLUS_SHA256_FAIL_CLOSED",
         "canonical_write_authorized": False,
     }
@@ -337,8 +338,9 @@ def drawing_render(source_id: str, dpi: int = drawing_viewer.DEFAULT_DPI):
 
 @app.get("/api/source/render")
 def source_render(task: str = "", scale: str = "MICRO"):
+    render_workspace = oa_workspace if task.strip().startswith("OA-") else source_workspace
     try:
-        png, ctx = source_workspace.render_task_source(task, scale)
+        png, ctx = render_workspace.render_task_source(task, scale)
     except KeyError as exc:
         return JSONResponse({"state": "EVIDENCE_SOURCE_NOT_FOUND", "reason": str(exc)}, status_code=404)
     except ValueError as exc:
