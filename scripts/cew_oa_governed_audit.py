@@ -23,7 +23,7 @@ SOURCE_FIELDS = ("source_version_id", "page_id", "evidence_region_id", "source_s
 OAG5_DECISIONS = {
     "ACCEPT_STRUCTURAL_IDENTITY",
     "REJECT_STRUCTURAL_IDENTITY",
-    "DEFER_NEEDS_MORE_EVIDENCE",
+    "DEFER_NEEDS_RELATIONSHIP_EVIDENCE",
 }
 
 
@@ -75,8 +75,14 @@ def _authority_guards(stage: str, payload: dict[str, Any]) -> None:
         decision = str(payload.get("decision", "")).strip()
         if decision not in OAG5_DECISIONS:
             raise ValueError("OA_GOVERNED_OAG5_EXPLICIT_DECISION_REQUIRED")
-        if decision == "ACCEPT_STRUCTURAL_IDENTITY" and payload.get("human_attestation") is not True:
-            raise ValueError("OA_GOVERNED_OAG5_HUMAN_ATTESTATION_REQUIRED")
+        accepted = payload.get("accepted_structural_identity") is True
+        if decision == "ACCEPT_STRUCTURAL_IDENTITY":
+            if payload.get("human_attestation") is not True:
+                raise ValueError("OA_GOVERNED_OAG5_HUMAN_ATTESTATION_REQUIRED")
+            if not accepted:
+                raise ValueError("OA_GOVERNED_OAG5_ACCEPTANCE_STATE_MISMATCH")
+        elif accepted:
+            raise ValueError("OA_GOVERNED_OAG5_NON_ACCEPT_DECISION_CANNOT_ACCEPT_IDENTITY")
 
 
 def validate_parent(stage: str, parent: dict[str, Any] | None, expected_source: dict[str, str]) -> None:
@@ -97,6 +103,12 @@ def validate_parent(stage: str, parent: dict[str, Any] | None, expected_source: 
     for field in SOURCE_FIELDS:
         if str(parent_source.get(field, "")).strip().lower() != str(expected_source[field]).strip().lower():
             raise ValueError("OA_GOVERNED_PARENT_SOURCE_MISMATCH")
+    if stage == "OA_G5_IDENTITY_DECISION":
+        parent_payload = parent.get("payload") or {}
+        if parent_payload.get("candidate_state") != "READY_FOR_EXPLICIT_IDENTITY_REVIEW":
+            raise ValueError("OA_GOVERNED_OAG5_CANDIDATE_NOT_REVIEW_READY")
+        if parent_payload.get("accepted_structural_identity") is not False:
+            raise ValueError("OA_GOVERNED_OAG5_PARENT_ALREADY_ACCEPTED_OR_INVALID")
 
 
 def build_receipt(
@@ -126,6 +138,9 @@ def build_receipt(
     validate_source_evidence(payload, expected_source)
     validate_parent(stage, parent, expected_source)
     _authority_guards(stage, payload)
+    if stage == "OA_G5_IDENTITY_DECISION":
+        if not parent or str(payload.get("identity_candidate_receipt_fingerprint", "")) != str(parent.get("receipt_fingerprint", "")):
+            raise ValueError("OA_GOVERNED_OAG5_CANDIDATE_FINGERPRINT_MISMATCH")
 
     parent_id = parent.get("decision_id") if parent else None
     parent_fp = parent.get("receipt_fingerprint") if parent else None
