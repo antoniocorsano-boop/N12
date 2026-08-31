@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -33,6 +34,8 @@ def main() -> int:
 
     require(ews0["status"] == "EWS0_COMPLETE_PASS", "EWS-0 is not frozen")
     require(ews1["contract"] == "CEW_EWS1_APPLICATION_FRAME", "EWS-1 contract id drift")
+    require(ews1["status"] == "EWS1_COMPLETE_PASS", "EWS-1 is not frozen COMPLETE_PASS")
+    require(bool(re.fullmatch(r"[0-9a-f]{40}", ews1["validated_runtime_sha"])), "validated runtime SHA invalid")
     require(ews1["authority_effect"] == "NONE", "layout cannot create authority")
     require(ews1["canonical_write_authorized"] is False, "canonical write drift")
     require(ews1["project_material_ready"] is False, "project material release drift")
@@ -86,6 +89,8 @@ def main() -> int:
         require(name in forbidden, f"forbidden shortcut missing: {name}")
 
     print("CEW_EWS1_APPLICATION_FRAME = PASS")
+    print("STATUS = EWS1_COMPLETE_PASS")
+    print("VALIDATED_RUNTIME_SHA = " + ews1["validated_runtime_sha"])
     print("APPLICATION_FRAME = VIEWPORT_BOUND")
     print("WORKSPACE_PAGE_GROWTH = forbidden")
     print("CONTEXT_RAIL_INDEPENDENT_SCROLL = true")
