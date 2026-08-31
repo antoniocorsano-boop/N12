@@ -1,6 +1,6 @@
 # CEW Enterprise Professional Workspace Model v1
 
-**Status:** `DESIGN_BASELINE_PROPOSED`  
+**Status:** `EWS0_COMPLETE_PASS`  
 **Authority effect:** `NONE`  
 **Canonical engineering write:** `false`  
 **Supersedes for layout decisions:** `desktop: split/overlay primary` assumption in `CEW_PROFESSIONAL_WORKBENCH_INTERACTION_ARCHITECTURE_v1.md`.
