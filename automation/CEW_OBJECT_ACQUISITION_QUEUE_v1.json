@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.3",
+  "schema_version": "1.4",
   "program": "CEW_OBJECT_ACQUISITION_AND_RECOGNITION",
-  "current_item": "OA-3",
+  "current_item": "OA-4",
   "items": [
     {
       "id": "OA-0",
@@ -27,29 +27,30 @@
       "validated_head": "e6040569eb86ab90e6b83d92e019cb676c663e7e",
       "gate": "OA2_HUMAN_TEACHING_PASS",
       "runtime_integration": "WORKBENCH_INTEGRATED_SESSION_STATE",
-      "scope": ["THIS_IS_A", "prototype creation", "family assignment"],
       "promotion_effect": "NONE"
     },
     {
       "id": "OA-3",
       "title": "Deterministic Similarity",
-      "state": "IN_PROGRESS",
-      "requires": ["OA-2=COMPLETE_PASS"],
-      "scope": ["geometry", "dimension", "orientation", "topology", "spatial context", "associated text"],
-      "completion_gate": "OA3_DETERMINISTIC_SIMILARITY_PASS"
+      "state": "COMPLETE_PASS",
+      "validated_head": "516ac074a2b71fc3b265160cf3f3418eb6d8e7dc",
+      "gate": "OA3_DETERMINISTIC_SIMILARITY_PASS",
+      "runtime_integration": "WORKBENCH_FIND_SIMILAR_INTEGRATED",
+      "promotion_effect": "NONE"
     },
     {
       "id": "OA-4",
       "title": "Cluster Review",
-      "state": "BLOCKED_BY_OA3",
+      "state": "IN_PROGRESS",
       "requires": ["OA-3=COMPLETE_PASS"],
-      "scope": ["confirm cluster", "reject", "move family", "ambiguous", "exception review"]
+      "scope": ["confirm candidate", "reject candidate", "move family", "mark ambiguous", "exception review"],
+      "completion_gate": "OA4_HUMAN_CLUSTER_REVIEW_PASS"
     },
     {
       "id": "OA-5",
       "title": "Structural Resolver",
-      "state": "WAITING",
-      "requires": ["OA-4=PASS"],
+      "state": "BLOCKED_BY_OA4",
+      "requires": ["OA-4=COMPLETE_PASS"],
       "scope": ["structural identity candidate", "relationship evidence", "no proximity-only identity"]
     },
     {
@@ -64,8 +65,8 @@
   "pilot": {
     "object_type": "COLUMN",
     "scope": "ONE_GOVERNED_STRUCTURAL_DRAWING",
-    "state": "READY_FOR_DETERMINISTIC_SIMILARITY",
-    "required_seed": "HUMAN_TAUGHT_NON_CANONICAL_PROTOTYPE"
+    "state": "READY_FOR_HUMAN_CLUSTER_REVIEW",
+    "required_input": "DETERMINISTIC_SIMILARITY_CANDIDATES"
   },
   "global_blocks": {
     "canonical_write_authorized": false,
