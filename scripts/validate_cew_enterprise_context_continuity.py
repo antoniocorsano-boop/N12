@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -32,9 +33,14 @@ def main() -> int:
     ews1 = EWS1.read_text(encoding="utf-8")
 
     require(contract["contract"] == "CEW_ENTERPRISE_CONTEXT_CONTINUITY", "contract id drift")
+    require(contract["status"] == "GOVERNED_OA_CONTEXT_CONTINUITY_COMPLETE_PASS", "context continuity is not frozen COMPLETE_PASS")
+    require(bool(re.fullmatch(r"[0-9a-f]{40}", contract["validated_runtime_sha"])), "validated runtime SHA invalid")
     require(contract["authority_effect"] == "NONE", "resume cannot create authority")
     require(contract["canonical_write_authorized"] is False, "canonical write drift")
     require(contract["project_material_ready"] is False, "project material release drift")
+    require(contract["scope"] == ["GOVERNED_OA_RECEIPT_RESUME", "IDEMPOTENT_DECISION_REPLAY"], "validated scope drift")
+    require(contract["known_remaining_context_gap"]["auth_deep_link_preservation"] == "EWS5_REQUIRED_NOT_IMPLEMENTED", "auth deep-link gap must remain explicit until EWS-5")
+
     inv = contract["invariants"]
     require(inv["ledger_is_source_of_truth"] is True, "ledger authority weakened")
     require(inv["session_storage_role"] == "UI_CACHE_ONLY", "sessionStorage role drift")
@@ -54,7 +60,6 @@ def main() -> int:
     ]:
         require(marker in api, f"API invariant missing: {marker}")
 
-    # The existing receipt must be returned before persistence is invoked.
     existing_pos = api.find("existing = governed.index_receipts")
     persist_pos = api.find("persisted = audit_store.persist_runtime_receipt")
     require(existing_pos >= 0 and persist_pos > existing_pos, "idempotent replay must precede append-only write")
@@ -91,11 +96,13 @@ def main() -> int:
         require(name in forbidden, f"forbidden shortcut missing: {name}")
 
     print("CEW_ENTERPRISE_CONTEXT_CONTINUITY = PASS")
+    print("STATUS = GOVERNED_OA_CONTEXT_CONTINUITY_COMPLETE_PASS")
+    print("VALIDATED_RUNTIME_SHA = " + contract["validated_runtime_sha"])
     print("LEDGER_SOURCE_OF_TRUTH = true")
     print("SESSION_STORAGE_ROLE = UI_CACHE_ONLY")
     print("IDENTICAL_DECISION_REPLAY = RETURN_EXISTING_NO_WRITE")
     print("GOVERNED_RESUME = READ_ONLY")
-    print("OA3_RESUME_EVENT = enabled")
+    print("AUTH_DEEP_LINK_PRESERVATION = EWS5_REQUIRED_NOT_IMPLEMENTED")
     print("CANONICAL_WRITE_AUTHORIZED = false")
     return 0
 
