@@ -1,0 +1,26 @@
+name: Validate CEW Enterprise Professional Workspace
+
+on:
+  pull_request:
+    paths:
+      - 'docs/RESEARCH/CEW_ENTERPRISE_AEC_SYSTEM_PATTERN_DECODING_v1.md'
+      - 'docs/DESIGN/CEW_ENTERPRISE_PROFESSIONAL_WORKSPACE_MODEL_v1.md'
+      - 'automation/CEW_ENTERPRISE_PROFESSIONAL_WORKSPACE_CONTRACT_v1.json'
+      - 'scripts/validate_cew_enterprise_professional_workspace.py'
+      - '.github/workflows/validate-cew-enterprise-professional-workspace.yml'
+  push:
+    branches:
+      - 'work/cew-enterprise-professional-workspace-model-v1'
+
+jobs:
+  validate-enterprise-professional-workspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate syntax
+        run: python -m py_compile scripts/validate_cew_enterprise_professional_workspace.py
+      - name: Validate enterprise workspace baseline
+        run: python scripts/validate_cew_enterprise_professional_workspace.py

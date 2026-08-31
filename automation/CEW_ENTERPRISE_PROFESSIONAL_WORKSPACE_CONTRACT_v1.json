@@ -1,0 +1,127 @@
+{
+  "schema_version": "1.0",
+  "contract": "CEW_ENTERPRISE_PROFESSIONAL_WORKSPACE",
+  "status": "EWS0_COMPLETE_PASS",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "project_material_ready": false,
+  "product_thesis": "PROFESSIONAL_WORK_OPERATING_SYSTEM_EVIDENCE_FIRST",
+  "primary_loop": [
+    "WORK_QUEUE",
+    "PROFESSIONAL_WORKSPACE",
+    "CONTEXT_BOUND_ACTION",
+    "GOVERNED_DECISION",
+    "DURABLE_RECEIPT",
+    "NEXT_ELIGIBLE_WORK"
+  ],
+  "interaction_objects": [
+    "WorkItem",
+    "WorkContext",
+    "ViewState",
+    "EvidenceObject",
+    "TechnicalObject",
+    "IssueTopic",
+    "DecisionReceipt"
+  ],
+  "information_architecture": [
+    "PROJECT_HOME",
+    "WORK_QUEUE",
+    "PROFESSIONAL_WORKSPACE",
+    "LIBRARIES",
+    "ISSUES_DECISIONS",
+    "SOURCES_RECORDS"
+  ],
+  "workspace": {
+    "application_frame": "VIEWPORT_BOUND",
+    "page_growth_from_context_rail_forbidden": true,
+    "primary_canvas": "DOMINANT_STABLE_WORK_SURFACE",
+    "context_rail_independent_scroll": true,
+    "work_rail_optional_collapsible": true,
+    "status_strip_persistent": true,
+    "source_content_obstruction_forbidden": true,
+    "context_rail_target_px": [320, 440],
+    "single_context_rail_canvas_target_min_percent": 65
+  },
+  "work_modes": [
+    "NAVIGATE",
+    "ACQUIRE",
+    "REVIEW_SET",
+    "COMPARE",
+    "RESOLVE_ISSUE",
+    "EDIT_WORKING",
+    "VALIDATE",
+    "PROVENANCE_AUDIT"
+  ],
+  "view_topology": {
+    "unregistered_source_position_default": "SOURCE_PRIMARY_WITH_CONTEXT_RAIL",
+    "semantic_binding_without_spatial_transform": "TASK_DEPENDENT_SOURCE_OR_TECHNICAL_PRIMARY",
+    "verified_spatial_registration": "SPLIT_OR_OVERLAY_ELIGIBLE_EXPLICIT_ONLY",
+    "compare_work_item": "COMPARE_SURFACE_PRIMARY",
+    "technical_work_item": "TECHNICAL_PRIMARY_SOURCE_EVIDENCE_ON_DEMAND",
+    "universal_split_default_forbidden": true
+  },
+  "review_set": {
+    "levels": ["SUMMARY", "REVIEW_SET", "ACTIVE_CANDIDATE"],
+    "full_expanded_result_stack_forbidden": true,
+    "virtualization_or_progressive_paging_required": true,
+    "single_primary_candidate": true,
+    "previous_next_navigation_required": true,
+    "batch_decision_requires_explicit_selection": true,
+    "implicit_whole_cluster_confirmation_forbidden": true,
+    "score_is_not_authority": true
+  },
+  "context_continuity": {
+    "restore_fields": [
+      "Project",
+      "WorkItem",
+      "SourceVersion",
+      "Page",
+      "EvidenceRegion",
+      "SelectedObjects",
+      "ViewState",
+      "Revision"
+    ],
+    "snapshot_is_convenience_not_authority": true,
+    "manual_internal_id_navigation_forbidden_as_normal_workflow": true
+  },
+  "progressive_disclosure": ["WORK", "EVIDENCE", "REASONING", "PROVENANCE_AUDIT"],
+  "authority_separation": {
+    "EvidenceObject_not_TechnicalObject": true,
+    "TechnicalObject_not_StructuralIdentity": true,
+    "ViewState_creates_no_identity": true,
+    "IssueResolution_creates_no_canonical_write_authority": true,
+    "DetectorResult_creates_no_type_or_identity_without_governed_rule": true
+  },
+  "performance": {
+    "canvas_render_isolated_from_rail": true,
+    "long_lists_virtualized": true,
+    "evidence_provenance_lazy": true,
+    "async_analysis_cancellable": true,
+    "partial_loading_error_states_required": true
+  },
+  "migration_program": [
+    "EWS-0_FREEZE_MODEL",
+    "EWS-1_APPLICATION_FRAME",
+    "EWS-2_UNIFIED_CONTEXT_RAIL",
+    "EWS-3_WORKMODE_CONTROLLER",
+    "EWS-4_RESULT_REVIEW_CONTROLLER",
+    "EWS-5_SAVEDVIEW_CONTEXT_RESTORATION",
+    "EWS-6_ISSUETOPIC_UNIFICATION",
+    "EWS-7_LIBRARIES",
+    "EWS-8_ENTERPRISE_HVA"
+  ],
+  "immediate_oa_pilot_required_tranche": [
+    "EWS-1_APPLICATION_FRAME",
+    "EWS-4_RESULT_REVIEW_CONTROLLER_OA_SUBSET"
+  ],
+  "forbidden_shortcuts": [
+    "PAGE_HEIGHT_DRIVEN_BY_RESULT_LIST",
+    "UNIVERSAL_SPLIT_DEFAULT",
+    "SOURCE_OVERLAID_BY_PERSISTENT_UI",
+    "FULL_EXPANDED_CLUSTER_AS_PRIMARY_REVIEW_UI",
+    "DETECTOR_SCORE_AS_ENGINEERING_AUTHORITY",
+    "VISUAL_PROXIMITY_CREATES_IDENTITY",
+    "SCREENSHOT_REPLACES_IMMUTABLE_SOURCE",
+    "OA6_RELEASE_BEFORE_ENTERPRISE_UX_GATE"
+  ]
+}
