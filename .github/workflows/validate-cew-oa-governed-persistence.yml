@@ -1,0 +1,26 @@
+name: Validate CEW OA Governed Persistence
+
+on:
+  pull_request:
+    paths:
+      - 'app.py'
+      - 'automation/CEW_OBJECT_ACQUISITION_QUEUE_v1.json'
+      - 'automation/CEW_OAG5_EXPLICIT_STRUCTURAL_IDENTITY_REVIEW_CONTRACT_v1.json'
+      - 'scripts/cew_oa_governed_audit.py'
+      - 'scripts/cew_oa_governed_api.py'
+      - 'scripts/validate_cew_oa_governed_persistence.py'
+      - '.github/workflows/validate-cew-oa-governed-persistence.yml'
+  push:
+    branches:
+      - 'work/cew-oa5-structural-resolver-v1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate governed OA append-only lineage and Workbench mount
+        run: python scripts/validate_cew_oa_governed_persistence.py
