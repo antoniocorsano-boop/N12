@@ -3,6 +3,9 @@ import json
 from pathlib import Path
 
 from cew_oa5_structural_resolver import resolve_identity_candidate
+from cew_oa5_workbench_runtime import OA5_RUNTIME_MARKER
+import cew_oa1_workbench_runtime as oa1_runtime
+import cew_professional_workbench_client as client
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "automation" / "CEW_OA5_STRUCTURAL_RESOLVER_CONTRACT_v1.json"
@@ -91,8 +94,26 @@ def main():
     else:
         raise SystemExit("FAIL: stale relationship evidence accepted")
 
+    runtime_html = oa1_runtime.augment(client.build_client("ERW-N12-001"), "ERW-N12-001")
+    require(OA5_RUNTIME_MARKER in runtime_html, "OA-5 runtime marker missing")
+    require('id="oaStructuralResolver"' in runtime_html, "structural resolver surface missing")
+    require('id="oa5Candidate"' in runtime_html, "family candidate selector missing")
+    require('id="oa5RelationType"' in runtime_html, "relationship type selector missing")
+    require('id="oa5EvidenceRef"' in runtime_html, "relationship evidence reference missing")
+    require('id="oa5Resolve"' in runtime_html, "identity candidate construction action missing")
+    require("Una famiglia confermata non è ancora identità strutturale" in runtime_html, "family/identity boundary unclear")
+    require("proximity_used_as_identity_evidence:false" in runtime_html, "runtime uses proximity as identity")
+    require("similarity_used_as_identity_authority:false" in runtime_html, "runtime uses similarity as identity authority")
+    require("family_membership_used_as_identity_authority:false" in runtime_html, "runtime uses family membership as identity authority")
+    require("accepted_structural_identity:false" in runtime_html, "runtime auto-accepts structural identity")
+    require("explicit_identity_review_required:true" in runtime_html, "explicit identity review requirement missing")
+    require("canonical_write_authorized:false" in runtime_html, "runtime enabled canonical write")
+    require("project_material_ready:false" in runtime_html, "runtime released project material")
+    require("OA-G5_EXPLICIT_STRUCTURAL_IDENTITY_REVIEW" in runtime_html, "OA-G5 boundary missing")
+
     print("OA5_STRUCTURAL_RESOLVER_CORE_PASS")
-    print("OA5_EXPLICIT_IDENTITY_REVIEW_RUNTIME_REQUIRED")
+    print("OA5_WORKBENCH_INTEGRATION_PASS")
+    print("OA5_STRUCTURAL_RESOLVER_PASS")
 
 
 if __name__ == "__main__":
