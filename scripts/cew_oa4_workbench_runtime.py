@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import cew_oa5_workbench_runtime as oa5_runtime
+
 OA4_RUNTIME_MARKER = "CEW_OA4_RUNTIME_HUMAN_CLUSTER_REVIEW"
 
 
 def augment(rendered: str, task: str) -> str:
     """Add explicit human review of OA-3 similarity candidates.
 
-    Decisions remain session/work-state proposals. No structural identity,
-    canonical write or project-material promotion is possible here.
+    Decisions remain session/work-state proposals. OA-5 is chained into the same
+    Workbench but still cannot accept structural identity or promote project material.
     """
     if OA4_RUNTIME_MARKER in rendered:
-        return rendered
+        return oa5_runtime.augment(rendered, task)
 
     style = '''
 <style id="cew-oa4-runtime-style">
@@ -46,4 +48,5 @@ const OA4_SECTION=''' + repr(section) + r''';
 let tries=0;const timer=setInterval(()=>{tries++;if(document.getElementById('oaPanel')&&typeof scene!=='undefined'&&scene){clearInterval(timer);initOA4()}else if(tries>80)clearInterval(timer)},100);
 })();
 </script>'''
-    return rendered.replace('</body>', script + '</body>', 1)
+    rendered = rendered.replace('</body>', script + '</body>', 1)
+    return oa5_runtime.augment(rendered, task)
