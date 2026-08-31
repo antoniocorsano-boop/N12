@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0",
+  "contract": "CEW_EWS2_UNIFIED_FOCUSED_CONTEXT_RAIL",
+  "status": "IMPLEMENTED_PENDING_VALIDATION",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "project_material_ready": false,
+  "upstream": {
+    "ews1": "EWS1_COMPLETE_PASS",
+    "ews4": "EWS4_OA_SUBSET_COMPLETE_PASS",
+    "context_continuity": "COMPLETE_PASS"
+  },
+  "scope": "PRESENTATION_ORCHESTRATION_ONLY",
+  "task": "OA-N12-G4-COLUMN-PILOT",
+  "interaction_model": {
+    "primary_rule": "ONE_PRIMARY_WORK_PANEL_AT_A_TIME",
+    "progressive_disclosure": true,
+    "full_lifecycle_form_visible": false,
+    "rail_header": "STICKY_COMPACT_WORKMODE_NAVIGATION",
+    "rail_body": "INDEPENDENT_SCROLL_ACTIVE_CONTEXT_ONLY",
+    "phases": [
+      "ACQUIRE",
+      "FIND_SIMILAR",
+      "REVIEW_SET",
+      "RESOLVE_IDENTITY",
+      "VALIDATE_IDENTITY"
+    ]
+  },
+  "eligibility": {
+    "FIND_SIMILAR": "GOVERNED_OA2_PROTOTYPE_REQUIRED",
+    "REVIEW_SET": "OA3_SIMILARITY_RUN_REQUIRED",
+    "RESOLVE_IDENTITY": "GOVERNED_OA4_CONFIRMED_FAMILY_CANDIDATE_REQUIRED",
+    "VALIDATE_IDENTITY": "GOVERNED_OA5_REVIEW_READY_IDENTITY_CANDIDATE_REQUIRED"
+  },
+  "review_set": {
+    "visible": ["SUMMARY", "FILTERS", "BOUNDED_CANDIDATE_SET", "ACTIVE_CANDIDATE", "REVIEW_ACTIONS"],
+    "hidden": ["OA2_TEACHING_FORM", "OA4_LEGACY_PERSISTENCE_FORM", "OA5_STRUCTURAL_RESOLVER", "OAG5_IDENTITY_REVIEW"],
+    "candidate_set_max_height_px": 190,
+    "identity_transition": "EXPLICIT_CTA_ONLY"
+  },
+  "domain_ownership": {
+    "OA2": "UNCHANGED",
+    "OA3": "UNCHANGED",
+    "OA4": "UNCHANGED_HIDDEN_PERSISTENCE_OWNER",
+    "OA5": "UNCHANGED",
+    "OA_G5": "UNCHANGED",
+    "ews2_persists_directly": false,
+    "ews2_computes_similarity": false,
+    "ews2_creates_identity": false
+  },
+  "ui_state": {
+    "workmode_authority": "NONE",
+    "user_can_navigate_only_to_eligible_phase": true,
+    "automatic_downstream_entry": false
+  },
+  "forbidden_shortcuts": [
+    "FULL_OA_LIFECYCLE_VISIBLE_SIMULTANEOUSLY",
+    "VERTICAL_MEGA_FORM_AS_PRIMARY_WORKFLOW",
+    "DOWNSTREAM_FORM_VISIBLE_BEFORE_ELIGIBILITY",
+    "AUTO_ADVANCE_TO_STRUCTURAL_IDENTITY",
+    "AUTO_ADVANCE_TO_IDENTITY_VALIDATION",
+    "OA4_PERSISTENCE_DUPLICATED_BY_EWS2",
+    "SIMILARITY_SCORE_CREATES_AUTHORITY",
+    "UI_WORKMODE_CREATES_AUTHORITY",
+    "OA6_RELEASE",
+    "CANONICAL_WRITE_FROM_CONTEXT_RAIL"
+  ],
+  "next_gate": "EWS2_HUMAN_USABILITY_VALIDATION"
+}
