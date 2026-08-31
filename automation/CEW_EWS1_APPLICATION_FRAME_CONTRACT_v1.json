@@ -1,7 +1,8 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "contract": "CEW_EWS1_APPLICATION_FRAME",
   "status": "EWS1_COMPLETE_PASS",
+  "interaction_revision": "EWS1.1_RESIZABLE_PROFESSIONAL_FRAME",
   "authority_effect": "NONE",
   "canonical_write_authorized": false,
   "project_material_ready": false,
@@ -19,20 +20,36 @@
     "workspace_overflow": "HIDDEN",
     "canvas_height": "STABLE_FULL_AVAILABLE_HEIGHT",
     "context_rail_overflow": "INDEPENDENT_VERTICAL_SCROLL",
+    "context_rail_resizable": true,
+    "context_rail_width_px": {
+      "default": 400,
+      "minimum": 280,
+      "maximum": 640
+    },
+    "minimum_canvas_ratio": 0.55,
+    "resize_input": [
+      "POINTER_DRAG",
+      "KEYBOARD_ARROWS",
+      "DOUBLE_CLICK_RESET"
+    ],
+    "resize_preference_storage": "LOCAL_UI_PREFERENCE_ONLY",
+    "resize_preference_authority": "NONE",
+    "utility_popover_layer": "FLOAT_ABOVE_CONTEXT_RAIL",
+    "layers_panel_reachability": "ALWAYS_AVAILABLE",
     "status_strip": "PERSISTENT",
     "toolbar": "BOUNDED_HORIZONTAL_OVERFLOW"
   },
   "oa_unregistered_source_position": {
     "topology": "SOURCE_PRIMARY_WITH_CONTEXT_RAIL",
-    "context_rail_width_px": [320, 440],
-    "context_rail_target_vw": 30,
-    "source_canvas_min_target_percent": 65,
+    "context_rail_initial_width_px": 400,
+    "source_canvas_min_target_percent": 55,
     "source_viewport_fill": "ABSOLUTE_INSET_0",
     "technical_primary_switch_on_catalog_selection": false
   },
   "runtime": {
     "module": "scripts/cew_ews1_application_frame_runtime.py",
     "marker": "CEW_EWS1_VIEWPORT_BOUND_APPLICATION_FRAME",
+    "resizable_marker": "CEW_EWS11_RESIZABLE_PROFESSIONAL_FRAME",
     "composition_order": "AFTER_OA_RUNTIME",
     "domain_logic_modified": false,
     "receipt_logic_modified": false,
@@ -43,9 +60,13 @@
     "SOURCE_CANVAS_HEIGHT_DRIVEN_BY_RESULT_COUNT",
     "BODY_SCROLL_AS_PRIMARY_WORKSPACE_NAVIGATION",
     "PERSISTENT_UI_OVER_SOURCE_CONTENT",
+    "FIXED_CONTEXT_RAIL_WITHOUT_USER_RESIZE",
+    "UTILITY_POPOVER_HIDDEN_BEHIND_CONTEXT_RAIL",
+    "UI_WIDTH_AS_GOVERNED_STATE",
+    "CANVAS_COLLAPSE_BELOW_MINIMUM_RATIO",
     "OA_G5_RELEASE",
     "OA_6_RELEASE",
     "CANONICAL_WRITE_FROM_LAYOUT"
   ],
-  "next_tranche": "EWS4_RESULT_REVIEW_CONTROLLER_OA_SUBSET"
+  "next_tranche": "EWS2_UNIFIED_CONTEXT_RAIL"
 }
