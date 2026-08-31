@@ -25,6 +25,7 @@ on:
       - 'scripts/run_cew_pwb005_r1_frozen_scope.py'
       - 'scripts/validate_cew_evidence_region_content_diagnostic.py'
       - 'scripts/build_cew_evidence_region_mapping_root_cause.py'
+      - 'scripts/run_cew_pwb005_r1a_frozen_scope.py'
       - 'scripts/validate_cew_evidence_region_mapping_root_cause.py'
       - 'scripts/cew_raster_geometry_candidate_worker.py'
       - 'scripts/build_cew_raster_geometry_candidates.py'
@@ -135,6 +136,7 @@ jobs:
             scripts/run_cew_pwb005_r1_frozen_scope.py \
             scripts/validate_cew_evidence_region_content_diagnostic.py \
             scripts/build_cew_evidence_region_mapping_root_cause.py \
+            scripts/run_cew_pwb005_r1a_frozen_scope.py \
             scripts/validate_cew_evidence_region_mapping_root_cause.py \
             scripts/cew_raster_geometry_candidate_worker.py \
             scripts/build_cew_raster_geometry_candidates.py \
@@ -209,7 +211,7 @@ jobs:
 
       - name: Build and validate PWB-005-R1A mapping root cause
         run: |
-          python scripts/build_cew_evidence_region_mapping_root_cause.py
+          python scripts/run_cew_pwb005_r1a_frozen_scope.py
           python scripts/validate_cew_evidence_region_mapping_root_cause.py
 
       - name: Build and validate PWB-005-R2A/R2B raster geometry candidates
