@@ -95,7 +95,8 @@ def main() -> None:
 
     html = oa1_runtime.augment(workbench_client.build_client(TASK_ID), TASK_ID)
     require('id="oaPilotTray"' in html, "human CAD object tray missing")
-    require("source_position_state=UNREGISTERED" in html, "source-position warning missing from human tray")
+    require("Posizione sulla tavola" in html and "non registrata" in html.lower(), "human-readable source-position warning missing from pilot")
+    require("Sincronizzazione spaziale non disponibile" in html, "human-readable spatial-sync warning missing from pilot")
     require("governed_receipt_id" in html, "governed OA-2/OA-3 chain marker missing")
     require("section_x_cm" in html and "section_y_cm" in html, "dimension-aware deterministic similarity missing")
     require("o.object_family==='TechnicalObjectCandidate'" in html, "pilot similarity universe is not restricted to object candidates")
@@ -115,6 +116,7 @@ def main() -> None:
     print("OA_G4_DOMAIN_ISOLATION_PASS")
     print("OA_G4_SUPPORT_REGISTER_34_PASS")
     print("OA_G4_OBJECT_TRAY_PASS")
+    print("OA_G4_HUMAN_READABLE_SOURCE_STATE_PASS")
     print("OA_G4_DIMENSION_AWARE_SIMILARITY_PASS")
     print("OA_G4_NO_FAKE_SOURCE_POSITION_PASS")
     print("OA_G4_NO_AUTO_CLASSIFICATION_PASS")
