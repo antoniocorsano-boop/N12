@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "contract": "CEW_OA_NEON_PERSISTENCE_COMPATIBILITY",
   "scope": "OA-N12-G4-COLUMN-PILOT",
-  "status": "PREPARED_MIGRATION_NOT_APPLIED",
+  "status": "LIVE_SCHEMA_VERIFIED",
   "authority_effect": "NONE",
   "canonical_write_authorized": false,
   "project_material_ready": false,
@@ -23,14 +23,19 @@
   },
   "migration": {
     "path": "migrations/cew/005_oa_receipt_residual_optional_PROPOSED_NOT_APPLIED.sql",
-    "state": "PROPOSED_NOT_APPLIED",
-    "requires_explicit_database_change_approval": true,
-    "expected_postcondition": "residual_id IS NULLABLE"
+    "state": "APPLIED_VERIFIED_MANUAL_READBACK",
+    "applied_to_project_id": "morning-cell-78488188",
+    "applied_to_branch": "main",
+    "applied_to_branch_id": "br-rough-lab-avtg953x",
+    "database": "neondb",
+    "verified_postcondition": "residual_id IS NULLABLE",
+    "readback_receipt": "automation/receipts/cew-oa/CEW_OA_NEON_SCHEMA_READBACK_2026-08-31.json"
   },
   "completion_requirements": [
     "NO_FAKE_RESIDUAL_ID",
     "ERW_APPLICATION_STILL_REQUIRES_REAL_RESIDUAL_ID",
     "OA_RECEIPT_CAN_PERSIST_WITH_NULL_RESIDUAL_ID",
+    "NEON_SCHEMA_READBACK_RESIDUAL_NULLABLE_PASS",
     "NEON_READBACK_OF_OA_RECEIPT_PASS",
     "FIND_SIMILAR_UNLOCKS_ONLY_AFTER_GOVERNED_OA2_RECEIPT",
     "NO_CANONICAL_WRITE",
