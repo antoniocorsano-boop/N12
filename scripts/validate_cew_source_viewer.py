@@ -39,13 +39,19 @@ def main() -> int:
     if contract["coordinate_policy"].get("viewer_may_modify_evidence_geometry") is not False: raise AssertionError("F3 may not modify F2 evidence geometry")
     if contract["coordinate_policy"].get("viewer_input_space") != "NORMALIZED_0_1": raise AssertionError("viewer input coordinate space drift")
 
+    frozen_tasks = set(contract.get("frozen_reference_tasks") or [])
+    oa_extension_tasks = set(contract.get("oa_extension_tasks") or [])
+    effective_declared_tasks = set(contract.get("reference_tasks") or [])
+    if len(frozen_tasks) != 4: raise AssertionError("frozen F3 reference task set must remain exactly four")
+    if frozen_tasks & oa_extension_tasks: raise AssertionError("F3 frozen tasks and OA extensions must be disjoint")
+    if effective_declared_tasks != frozen_tasks | oa_extension_tasks: raise AssertionError("source viewer declared task union drift")
+
     milestone = {r["milestone_id"].strip(): r["status"].strip() for r in rows(MILESTONES)}
     if milestone.get("CEW-F2") != "COMPLETE" or milestone.get("CEW-F3") != "COMPLETE": raise AssertionError("F3 post-closure validation requires F2/F3 COMPLETE")
     knowledge = json.loads(MANIFEST.read_text(encoding="utf-8"))
     missing_patches = DEPS - set(knowledge.get("artifact_registry_patches", []))
     if missing_patches: raise AssertionError("CEW artifact patches are not effective in KNOWLEDGE_MANIFEST: " + ", ".join(sorted(missing_patches)))
 
-    frozen_tasks = set(contract["reference_tasks"])
     legacy_bindings = rows(BINDINGS)
     oa_bindings = rows(OA_BINDINGS) if OA_BINDINGS.exists() else []
     bindings = legacy_bindings + oa_bindings
@@ -53,8 +59,9 @@ def main() -> int:
     transforms = {r["transform_id"].strip(): r for r in rows(TRANSFORMS)}
     observations = {r["reference_item"].strip(): r for r in rows(OBS)}
     legacy_task_set = {b["task_id"].strip() for b in legacy_bindings}
+    oa_binding_task_set = {b["task_id"].strip() for b in oa_bindings}
     if legacy_task_set != frozen_tasks: raise AssertionError("frozen F3 reference task set changed")
-    if frozen_tasks - {b["task_id"].strip() for b in bindings}: raise AssertionError("frozen F3 reference task missing from effective viewer bindings")
+    if oa_binding_task_set != oa_extension_tasks: raise AssertionError("OA viewer extension task/binding set mismatch")
     if len({b["task_id"].strip() for b in bindings}) != len(bindings): raise AssertionError("duplicate viewer task binding across domains")
 
     for b in bindings:
@@ -68,12 +75,9 @@ def main() -> int:
         obs = observations.get(region["reference_item"].strip())
         if not obs or obs["reading_state"].strip() == "MIGRATED_NEEDS_REGION": raise AssertionError(f"non-finalized F2 observation: {rid}")
 
-    required_files = ["index.html","app.js","styles.css","viewer_manifest.json","vendor/openseadragon/openseadragon.min.js","tiles/TAV-05A.dzi","tiles/TAV-06A.dzi"]
+    required_files = ["index.html","app.js","styles.css","viewer_manifest.json","vendor/openseadragon/openseadragon.min.js"]
     for rel in required_files:
         if not (built / rel).is_file(): raise AssertionError(f"missing built viewer file: {rel}")
-    for src in ("TAV-05A","TAV-06A"):
-        tile_dir = built / "tiles" / f"{src}_files"
-        if not tile_dir.is_dir() or not any(tile_dir.rglob("*.jpg")): raise AssertionError(f"missing DZI tiles: {src}")
 
     vm = json.loads((built / "viewer_manifest.json").read_text(encoding="utf-8"))
     entries = vm.get("entries", [])
@@ -81,6 +85,14 @@ def main() -> int:
     effective_tasks = {b["task_id"].strip() for b in bindings}
     if manifest_tasks != effective_tasks: raise AssertionError("viewer manifest effective task set mismatch")
     if not frozen_tasks <= manifest_tasks: raise AssertionError("viewer manifest lost frozen F3 reference task")
+    if not oa_extension_tasks <= manifest_tasks: raise AssertionError("viewer manifest lost declared OA extension task")
+
+    effective_source_codes = {e["source_code"] for e in entries}
+    for src in effective_source_codes:
+        if not (built / "tiles" / f"{src}.dzi").is_file(): raise AssertionError(f"missing effective-task DZI descriptor: {src}")
+        tile_dir = built / "tiles" / f"{src}_files"
+        if not tile_dir.is_dir() or not any(tile_dir.rglob("*.jpg")): raise AssertionError(f"missing effective-task DZI tiles: {src}")
+
     for e in entries:
         region = regions[e["region_id"]]
         canonical_bbox = {k: float(region[k]) for k in ("x","y","width","height")}
@@ -97,6 +109,7 @@ def main() -> int:
 
     print("SOURCE_VIEWER_PASS")
     print(f"FROZEN_REFERENCE_TASKS={len(frozen_tasks)}")
+    print(f"OA_EXTENSION_TASKS={len(oa_extension_tasks)}")
     print(f"EFFECTIVE_VIEWER_TASKS={len(effective_tasks)}")
     print("F2_GEOMETRY_CONSUMPTION=IDENTITY_ONLY")
     print("F3_GEOMETRY_MUTATION=FORBIDDEN")
