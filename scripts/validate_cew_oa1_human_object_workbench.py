@@ -20,21 +20,22 @@ def require(condition, message):
 def main():
     contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
     queue = json.loads(QUEUE.read_text(encoding="utf-8"))
+    items = {item["id"]: item for item in queue["items"]}
     state = pilot_fixture()
     html = render_panel(state)
     api = API.read_text(encoding="utf-8")
     client = CLIENT.read_text(encoding="utf-8")
 
-    require(queue["items"][0]["state"] == "COMPLETE_PASS", "OA-0 must remain complete")
-    oa1 = queue["items"][1]
+    require(items["OA-0"]["state"] == "COMPLETE_PASS", "OA-0 must remain complete")
+    oa1 = items["OA-1"]
     require(oa1["state"] == "COMPLETE_PASS", "OA-1 must remain COMPLETE_PASS after release")
     require(oa1.get("validated_head") == "1280c0f879bec50f4a4cfbec763b283f13ae4793", "OA-1 validated head drift")
     require(oa1.get("gate") == "OA1_HUMAN_OBJECT_WORKBENCH_PASS", "OA-1 completion gate drift")
     require(queue["current_item"] in {"OA-1", "OA-2", "OA-3", "OA-4", "OA-5", "OA-6"}, "invalid downstream current item")
     if queue["current_item"] == "OA-1":
-        require(queue["items"][2]["state"] == "BLOCKED_BY_OA1", "OA-2 must remain blocked before release")
+        require(items["OA-2"]["state"] == "BLOCKED_BY_OA1", "OA-2 must remain blocked before release")
     else:
-        require(queue["items"][2]["state"] in {"IN_PROGRESS", "COMPLETE_PASS"}, "OA-2 release state invalid")
+        require(items["OA-2"]["state"] in {"IN_PROGRESS", "COMPLETE_PASS"}, "OA-2 release state invalid")
 
     require(contract["extends_route"] == "/workbench", "OA-1 must extend existing Workbench")
     require(contract["parallel_product_forbidden"] is True, "parallel product forbidden")
@@ -71,7 +72,7 @@ def main():
 
     enabled = set(state["actions"]["enabled"])
     require("VIEW_SOURCE" in enabled and "FILTER_TYPE" in enabled, "OA-1 actions incomplete")
-    require("THIS_IS_A" not in enabled and "FIND_SIMILAR" not in enabled, "future actions enabled prematurely")
+    require("THIS_IS_A" not in enabled and "FIND_SIMILAR" not in enabled, "OA-1 component fixture enabled downstream actions")
 
     runtime_html = augment(client.replace("__TASK_LABEL__", "ERW-N12-001").replace("__TASK_JSON__", '"ERW-N12-001"'), "ERW-N12-001")
     require(OA1_RUNTIME_MARKER in runtime_html, "OA-1 runtime marker missing")
@@ -81,7 +82,18 @@ def main():
     require("function explicitType(o)" in runtime_html, "runtime explicit type resolver missing")
     require("geometry" not in runtime_html[runtime_html.index("function explicitType(o)"):runtime_html.index("function explicitState(o)")], "type resolver must not infer from geometry")
     require("Nessun oggetto" in runtime_html and "non lo deduce dalla forma delle linee" in runtime_html, "fail-closed no-type explanation missing")
-    require("THIS_IS_A" not in runtime_html and "FIND_SIMILAR" not in runtime_html, "OA-2/OA-3 actions leaked into OA-1 runtime")
+
+    # OA-1 owns the Workbench foundation. Downstream tranches may extend the same
+    # panel after their own gates pass; their presence must not invalidate OA-1.
+    if queue["current_item"] == "OA-1":
+        require("CEW_OA2_RUNTIME_HUMAN_TEACHING" not in runtime_html, "OA-2 leaked before OA-1 release")
+        require("CEW_OA3_RUNTIME_FIND_SIMILAR" not in runtime_html, "OA-3 leaked before OA-1 release")
+    else:
+        if items["OA-2"]["state"] == "COMPLETE_PASS":
+            require("CEW_OA2_RUNTIME_HUMAN_TEACHING" in runtime_html, "released OA-2 extension missing from shared Workbench")
+        if items["OA-3"]["state"] == "COMPLETE_PASS":
+            require("CEW_OA3_RUNTIME_FIND_SIMILAR" in runtime_html, "released OA-3 extension missing from shared Workbench")
+
     require("import cew_oa1_workbench_runtime as oa1_runtime" in api, "Professional Workbench API does not import OA-1 adapter")
     require("return oa1_runtime.augment(rendered, task)" in api, "Professional Workbench HTML is not augmented by OA-1")
     require('"X-CEW-OA1-Runtime": "CAD_FIRST_OBJECT_PASS_AVAILABLE_NON_PROMOTIVE"' in api, "OA-1 runtime authority header missing")

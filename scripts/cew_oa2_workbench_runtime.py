@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import cew_oa3_workbench_runtime as oa3_runtime
+
 OA2_RUNTIME_MARKER = "CEW_OA2_RUNTIME_HUMAN_TEACHING"
 
 
 def augment(rendered: str, task: str) -> str:
-    """Add OA-2 human teaching to the existing OA-1 Workbench panel.
+    """Add OA-2 human teaching, then chain OA-3 on the same Workbench panel.
 
-    Session/work-state only: no canonical write, no structural identity and no
-    Find Similar capability are introduced here.
+    OA-2 remains session/work-state only. OA-3 may rank similar candidates, but
+    neither tranche creates structural identity or canonical writes.
     """
     if OA2_RUNTIME_MARKER in rendered:
-        return rendered
+        return oa3_runtime.augment(rendered, task)
 
     style = '''
 <style id="cew-oa2-runtime-style">
@@ -32,7 +34,7 @@ def augment(rendered: str, task: str) -> str:
   <label>Revisore<input id="oaTeachReviewer" type="text" value="HUMAN_OPERATOR"></label>
   <button id="oaTeachCreate" class="primary" type="button">Questo è un…</button>
   <div id="oaTeachResult"></div>
-  <div class="authority-note">Proposta non canonica. Non cerca simili, non crea identità strutturale e non modifica i dati canonici.</div>
+  <div class="authority-note">Proposta non canonica. Non crea identità strutturale e non modifica i dati canonici.</div>
 </section>'''
 
     script = '''
@@ -66,4 +68,5 @@ const OA2_SECTION=''' + repr(section) + ''';
 let tries=0;const timer=setInterval(()=>{tries++;if(document.getElementById('oaPanel')&&typeof scene!=='undefined'&&scene){clearInterval(timer);initOA2()}else if(tries>80)clearInterval(timer)},100);
 })();
 </script>'''
-    return rendered.replace('</body>', script + '</body>', 1)
+    rendered = rendered.replace('</body>', script + '</body>', 1)
+    return oa3_runtime.augment(rendered, task)

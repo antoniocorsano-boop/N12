@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "slice": "OA-3",
+  "title": "Deterministic Similarity",
+  "status": "FOUNDATION_IMPLEMENTED_INTEGRATION_PENDING",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "requires": ["OA-2=COMPLETE_PASS", "HUMAN_TAUGHT_NON_CANONICAL_PROTOTYPE"],
+  "primary_action": "FIND_SIMILAR",
+  "input_contract": {
+    "prototype_required": true,
+    "prototype_must_be_human_taught": true,
+    "candidate_scene_same_source_revision_required": true,
+    "candidate_object_may_be_untyped": true
+  },
+  "signals_v1": [
+    "GEOMETRY_KIND",
+    "DIMENSION_RATIO",
+    "ORIENTATION",
+    "TOPOLOGY_HINT",
+    "SPATIAL_CONTEXT",
+    "ASSOCIATED_TEXT"
+  ],
+  "scoring": {
+    "deterministic": true,
+    "explainable_reason_codes_required": true,
+    "weights_versioned": true,
+    "default_weights": {
+      "GEOMETRY_KIND": 0.30,
+      "DIMENSION_RATIO": 0.20,
+      "ORIENTATION": 0.15,
+      "TOPOLOGY_HINT": 0.15,
+      "SPATIAL_CONTEXT": 0.10,
+      "ASSOCIATED_TEXT": 0.10
+    }
+  },
+  "result_states": ["STRONG_SIMILAR", "POSSIBLE_SIMILAR", "WEAK", "EXCLUDED"],
+  "governance": {
+    "similarity_creates_object_type": false,
+    "similarity_creates_family_membership": false,
+    "similarity_creates_structural_identity": false,
+    "similarity_creates_canonical_write": false,
+    "human_cluster_review_required_next": true
+  },
+  "forbidden_actions": [
+    "AUTO_CONFIRM_CLUSTER",
+    "AUTO_PROMOTE_FAMILY",
+    "CREATE_STRUCTURAL_IDENTITY",
+    "CANONICAL_WRITE",
+    "VISION_ONLY_AUTHORITY"
+  ],
+  "next_gate": "OA-4_CLUSTER_REVIEW"
+}
