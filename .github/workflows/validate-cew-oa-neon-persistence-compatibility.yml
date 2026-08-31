@@ -1,0 +1,29 @@
+name: Validate CEW OA Neon Persistence Compatibility
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_OA_NEON_PERSISTENCE_COMPATIBILITY_CONTRACT_v1.json'
+      - 'migrations/cew/005_oa_receipt_residual_optional_PROPOSED_NOT_APPLIED.sql'
+      - 'scripts/validate_cew_oa_neon_persistence_compatibility.py'
+      - 'scripts/cew_runtime_audit_store.py'
+      - 'scripts/cew_oa_governed_audit.py'
+      - 'automation/CEW_OBJECT_ACQUISITION_QUEUE_v1.json'
+      - '.github/workflows/validate-cew-oa-neon-persistence-compatibility.yml'
+  push:
+    branches:
+      - 'work/cew-oa5-neon-persistence-fix-v1'
+  workflow_dispatch:
+
+jobs:
+  validate-oa-neon-persistence-compatibility:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate syntax
+        run: python -m py_compile scripts/validate_cew_oa_neon_persistence_compatibility.py scripts/cew_runtime_audit_store.py scripts/cew_oa_governed_audit.py
+      - name: Validate OA / Neon domain compatibility prep
+        run: python scripts/validate_cew_oa_neon_persistence_compatibility.py
