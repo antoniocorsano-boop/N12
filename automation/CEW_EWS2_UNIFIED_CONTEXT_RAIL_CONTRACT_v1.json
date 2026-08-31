@@ -1,7 +1,8 @@
 {
   "schema_version": "1.0",
   "contract": "CEW_EWS2_UNIFIED_FOCUSED_CONTEXT_RAIL",
-  "status": "IMPLEMENTED_PENDING_VALIDATION",
+  "status": "EWS2_COMPLETE_PASS",
+  "validated_checkpoint_sha": "a03f63f9d8bf33b4949b2eaccebb921598c6d8e6",
   "authority_effect": "NONE",
   "canonical_write_authorized": false,
   "project_material_ready": false,
