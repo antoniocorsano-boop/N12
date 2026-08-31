@@ -5,7 +5,7 @@
   "viewer_engine": {"name": "OpenSeadragon", "version": "5.0.1", "runtime_distribution": "VENDORED_SELF_CONTAINED"},
   "tile_generator": {"name": "libvips", "format": "DZI", "tile_size": 256, "overlap": 1},
   "pdf_renderer": {"name": "PyMuPDF", "version": "1.26.4", "minimum_dpi": 300},
-  "reference_tasks": ["ERW-N12-001", "ERW-N12-002", "ERW-N12-003", "ERW-N12-004"],
+  "reference_tasks": ["ERW-N12-001", "ERW-N12-002", "ERW-N12-003", "ERW-N12-004", "OA-N12-G4-COLUMN-PILOT"],
   "required_behaviors": ["PAN","ZOOM","HOME","OVERVIEW_NAVIGATOR","REGION_DEEP_LINK","TASK_DEEP_LINK","FIT_EVIDENCE_REGION","SOURCE_IDENTITY_VISIBLE","OBSERVATION_STATE_VISIBLE","PRIMARY_VS_DERIVED_AUTHORITY_VISIBLE"],
   "coordinate_policy": {
     "viewer_input_space": "NORMALIZED_0_1",
@@ -37,5 +37,5 @@
     "effective_artifact_registration_required": true
   },
   "acceptance_gate": "SOURCE_VIEWER_PASS",
-  "acceptance_rule": "All four reference tasks resolve through already-certified F2 EvidenceRegions; CI verifies immutable source hashes, regenerates >=300 dpi renders and DZI pyramids, vendors the viewer runtime locally, validates task/region deep links, and proves that F3 consumes but never changes F2 geometry."
+  "acceptance_rule": "Every declared reference task resolves through a certified F2 EvidenceRegion; CI verifies immutable source hashes, regenerates >=300 dpi renders and DZI pyramids, vendors the viewer runtime locally, validates task/region deep links, and proves that F3 consumes but never changes F2 geometry."
 }
