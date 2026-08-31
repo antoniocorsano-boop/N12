@@ -34,8 +34,11 @@ pip install -r requirements.txt
 python scripts/build_cew_runtime_render_cache.py
 python scripts/build_cew_managed_f3_assets.py
 python scripts/build_cew_document_geometry_artifacts.py
-python scripts/build_cew_evidence_region_content_diagnostic.py
-python scripts/build_cew_evidence_region_mapping_root_cause.py
+# PWB-005 legacy diagnostics are explicitly frozen to the four historical
+# EvidenceRegion cases. OA extensions are governed separately and must not be
+# ingested as additional PWB-005 cases during managed-runtime builds.
+python scripts/run_cew_pwb005_r1_frozen_scope.py
+python scripts/run_cew_pwb005_r1a_frozen_scope.py
 python scripts/build_cew_raster_geometry_candidates.py
 python scripts/build_cew_raster_geometry_quality.py
 python scripts/build_cew_raster_geometry_consolidation.py
