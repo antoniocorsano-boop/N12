@@ -3,18 +3,20 @@ from __future__ import annotations
 
 import html
 
+import cew_oa2_workbench_runtime as oa2_runtime
+
 OA1_RUNTIME_MARKER = "CEW_OA1_RUNTIME_OBJECT_WORKBENCH"
 
 
 def augment(rendered: str, task: str) -> str:
     """Augment the existing Professional Workbench without creating a second product.
 
-    OA-1 is read/inspection-only. It consumes only explicit object type/state metadata
-    already present in the governed technical scene. Geometry shape is never used to
-    infer COLUMN/BEAM identity.
+    OA-1 consumes only explicit object type/state metadata already present in the
+    governed technical scene. OA-2 is chained into this same panel; geometry shape
+    is never used to infer COLUMN/BEAM identity.
     """
     if OA1_RUNTIME_MARKER in rendered:
-        return rendered
+        return oa2_runtime.augment(rendered, task)
 
     task_escaped = html.escape(task, quote=True)
     toolbar_marker = '<button id="layersButton" aria-expanded="false">Livelli</button>'
@@ -70,11 +72,12 @@ function typedObjects(type){{return (scene?.objects||[]).filter(o=>explicitType(
 function updateLineEmphasis(ids){{document.querySelectorAll('.technical-object').forEach(el=>{{const active=ids.has(el.dataset.objectId);el.classList.toggle('oa-active',active);el.classList.toggle('oa-dim',ids.size>0&&!active)}})}}
 function rowButton(o){{const b=document.createElement('button');b.className='oa-row';b.type='button';const state=explicitState(o),fam=explicitFamily(o)||'Famiglia non assegnata';b.innerHTML=`<span class="oa-state">${{state}}</span><br><b>${{fam}}</b><br><span>${{o.object_id}}</span>`;b.onclick=()=>{{if(typeof selectObject==='function')selectObject(o);if(typeof requestMode==='function')requestMode('TECHNICAL')}};return b}}
 function renderOA1(){{if(typeof scene==='undefined'||!scene)return;const type=document.getElementById('oaType').value;const objects=typedObjects(type);const states=Object.fromEntries(OA_STATES.map(s=>[s,0]));objects.forEach(o=>states[explicitState(o)]++);document.getElementById('oaPassTitle').textContent='Passata: '+(OA_LABELS[type]||type);document.getElementById('oaSummary').innerHTML=OA_STATES.map(s=>`<div class="oa-card"><span>${{s}}</span><b>${{states[s]}}</b></div>`).join('');
-const fams=new Map();objects.forEach(o=>{{const f=explicitFamily(o)||'NON_ASSEGNATA';fams.set(f,(fams.get(f)||0)+1)}});document.getElementById('oaFamilies').innerHTML=fams.size?[...fams].map(([f,n])=>`<div class="oa-card"><b>${{n}}</b>${{f}}</div>`).join(''):'<div class="oa-warn">Nessuna famiglia esplicita disponibile. OA-2 non è ancora autorizzata a crearne.</div>';
+const fams=new Map();objects.forEach(o=>{{const f=explicitFamily(o)||'NON_ASSEGNATA';fams.set(f,(fams.get(f)||0)+1)}});document.getElementById('oaFamilies').innerHTML=fams.size?[...fams].map(([f,n])=>`<div class="oa-card"><b>${{n}}</b>${{f}}</div>`).join(''):'<div class="oa-warn">Nessuna famiglia esplicita disponibile. Usa “Questo è un…” per insegnare un prototipo di lavoro.</div>';
 const blocking=objects.filter(o=>['BLOCKING','AMBIGUOUS','NOT_ANALYZED'].includes(explicitState(o)));let blockers='';if(!objects.length)blockers='<div class="oa-block">Nessun oggetto '+(OA_LABELS[type]||type)+' è tipizzato esplicitamente nella scena corrente. Il sistema non lo deduce dalla forma delle linee.</div>';else if(blocking.length)blockers=blocking.map(o=>`<div class="oa-block"><b>${{o.object_id}}</b> · ${{explicitState(o)}}${{explicitFamily(o)?' · '+explicitFamily(o):' · famiglia non assegnata'}}</div>`).join('');else blockers='<div class="oa-ok">Nessun blocco OA-1 visibile per gli oggetti esplicitamente tipizzati in questa scena.</div>';document.getElementById('oaBlockers').innerHTML=blockers;
 const list=document.getElementById('oaObjects');list.innerHTML='';objects.forEach(o=>list.appendChild(rowButton(o)));if(!objects.length)list.innerHTML='<div class="oa-muted">Nessun oggetto disponibile per questa passata.</div>';updateLineEmphasis(new Set(objects.map(o=>o.object_id)));}}
 function initOA1(){{const panel=document.getElementById('oaPanel'),btn=document.getElementById('oaPanelButton'),sel=document.getElementById('oaType');if(!panel||!btn||!sel)return;btn.onclick=()=>{{panel.classList.toggle('open');btn.setAttribute('aria-expanded',String(panel.classList.contains('open')));if(panel.classList.contains('open'))renderOA1()}};sel.onchange=renderOA1;document.getElementById('oaViewSource').onclick=()=>{{if(typeof requestMode==='function')requestMode('SOURCE')}};renderOA1();}}
 let tries=0;const timer=setInterval(()=>{{tries++;if(typeof scene!=='undefined'&&scene){{clearInterval(timer);initOA1()}}else if(tries>80)clearInterval(timer)}},100);
 }})();
 </script>'''
-    return rendered.replace('</body>', panel + '</body>', 1)
+    rendered = rendered.replace('</body>', panel + '</body>', 1)
+    return oa2_runtime.augment(rendered, task)

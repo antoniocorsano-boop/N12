@@ -1,0 +1,27 @@
+name: Validate CEW OA2 Human Teaching
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_OBJECT_ACQUISITION_QUEUE_v1.json'
+      - 'automation/CEW_OA2_HUMAN_TEACHING_CONTRACT_v1.json'
+      - 'scripts/cew_oa2_human_teaching.py'
+      - 'scripts/cew_oa2_workbench_runtime.py'
+      - 'scripts/cew_oa1_workbench_runtime.py'
+      - 'scripts/cew_professional_workbench_client.py'
+      - 'scripts/validate_cew_oa2_human_teaching.py'
+      - '.github/workflows/validate-cew-oa2-human-teaching.yml'
+  push:
+    branches:
+      - 'work/cew-oa2-human-teaching-v1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate OA2 human teaching core and Workbench integration
+        run: python scripts/validate_cew_oa2_human_teaching.py
