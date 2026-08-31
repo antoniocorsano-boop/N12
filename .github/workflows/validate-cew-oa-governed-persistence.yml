@@ -8,7 +8,12 @@ on:
       - 'automation/CEW_OAG5_EXPLICIT_STRUCTURAL_IDENTITY_REVIEW_CONTRACT_v1.json'
       - 'scripts/cew_oa_governed_audit.py'
       - 'scripts/cew_oa_governed_api.py'
+      - 'scripts/cew_oa2_workbench_runtime.py'
+      - 'scripts/cew_oa4_workbench_runtime.py'
+      - 'scripts/cew_oa5_workbench_runtime.py'
+      - 'scripts/cew_oag5_workbench_runtime.py'
       - 'scripts/validate_cew_oa_governed_persistence.py'
+      - 'scripts/validate_cew_oa_governed_runtime_chain.py'
       - '.github/workflows/validate-cew-oa-governed-persistence.yml'
   push:
     branches:
@@ -24,3 +29,5 @@ jobs:
           python-version: '3.12'
       - name: Validate governed OA append-only lineage and Workbench mount
         run: python scripts/validate_cew_oa_governed_persistence.py
+      - name: Validate governed OA runtime parent chain
+        run: python scripts/validate_cew_oa_governed_runtime_chain.py
