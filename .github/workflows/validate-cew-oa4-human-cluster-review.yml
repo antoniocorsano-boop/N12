@@ -1,0 +1,24 @@
+name: Validate CEW OA4 Human Cluster Review
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_OBJECT_ACQUISITION_QUEUE_v1.json'
+      - 'automation/CEW_OA4_HUMAN_CLUSTER_REVIEW_CONTRACT_v1.json'
+      - 'scripts/cew_oa4_human_cluster_review.py'
+      - 'scripts/validate_cew_oa4_human_cluster_review.py'
+      - '.github/workflows/validate-cew-oa4-human-cluster-review.yml'
+  push:
+    branches:
+      - 'work/cew-oa4-human-cluster-review-v1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate OA4 explicit human cluster review
+        run: python scripts/validate_cew_oa4_human_cluster_review.py
