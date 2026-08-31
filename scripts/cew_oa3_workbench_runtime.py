@@ -28,7 +28,7 @@ def augment(rendered: str, task: str) -> str:
   <div class="authority-note">Nessun candidato viene confermato automaticamente. La revisione del gruppo appartiene a OA-4.</div>
 </section>'''
 
-    script = '''
+    script = r'''
 <script id="cew-oa3-runtime-script">
 (() => {
 const OA3_MARKER='CEW_OA3_RUNTIME_FIND_SIMILAR';
@@ -52,7 +52,7 @@ function findSimilar(){const host=document.getElementById('oaSimilarResult'),pro
  host.innerHTML='<p class="oa-muted"><b>'+proto.family_label+'</b> · '+rows.length+' candidati · conferma umana richiesta</p>'+rows.map(r=>'<div class="oa3-row '+(r.state==='STRONG_SIMILAR'?'oa3-strong':r.state==='POSSIBLE_SIMILAR'?'oa3-possible':'oa3-weak')+'"><span class="oa3-score">'+Math.round(r.score*100)+'%</span> · <b>'+r.state+'</b><br>'+r.id+'<div class="oa3-reasons">'+r.reasons.join(' · ')+'</div></div>').join('');
 }
 function initOA3(){const teach=document.getElementById('oaTeach'),panel=document.getElementById('oaPanel');if(!panel||document.getElementById('oaSimilar'))return;(teach||panel).insertAdjacentHTML('afterend',OA3_SECTION);document.getElementById('oaFindSimilar').onclick=findSimilar;}
-const OA3_SECTION=''' + repr(section) + ''';
+const OA3_SECTION=''' + repr(section) + r''';
 let tries=0;const timer=setInterval(()=>{tries++;if(document.getElementById('oaPanel')&&typeof scene!=='undefined'&&scene){clearInterval(timer);initOA3()}else if(tries>80)clearInterval(timer)},100);
 })();
 </script>'''
