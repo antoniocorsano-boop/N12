@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.5",
+  "schema_version": "1.6",
   "program": "CEW_OBJECT_ACQUISITION_AND_RECOGNITION",
   "current_item": "OA-5",
   "items": [
@@ -26,7 +26,7 @@
       "state": "COMPLETE_PASS",
       "validated_head": "e6040569eb86ab90e6b83d92e019cb676c663e7e",
       "gate": "OA2_HUMAN_TEACHING_PASS",
-      "runtime_integration": "WORKBENCH_INTEGRATED_SESSION_STATE",
+      "runtime_integration": "WORKBENCH_INTEGRATED_GOVERNED_APPEND_ONLY",
       "promotion_effect": "NONE"
     },
     {
@@ -44,7 +44,7 @@
       "state": "COMPLETE_PASS",
       "validated_head": "6c0c4cb77ebabf75129a47893414bd77df44eb2e",
       "gate": "OA4_HUMAN_CLUSTER_REVIEW_PASS",
-      "runtime_integration": "WORKBENCH_EXPLICIT_CLUSTER_REVIEW_INTEGRATED",
+      "runtime_integration": "WORKBENCH_EXPLICIT_CLUSTER_REVIEW_GOVERNED_APPEND_ONLY",
       "promotion_effect": "NONE"
     },
     {
@@ -53,7 +53,16 @@
       "state": "IN_PROGRESS",
       "requires": ["OA-4=COMPLETE_PASS"],
       "scope": ["structural identity candidate", "relationship evidence", "no proximity-only identity"],
-      "completion_gate": "OA5_STRUCTURAL_RESOLVER_PASS"
+      "completion_gate": "OA5_STRUCTURAL_RESOLVER_PASS",
+      "implementation_state": "COMPLETE_PASS",
+      "validated_head": "4d84b07ac196ea070040203fa1ed937a10cd4b07",
+      "resolver_gate": "OA5_STRUCTURAL_RESOLVER_PASS",
+      "governed_persistence_gate": "OA_GOVERNED_APPEND_ONLY_LINEAGE_PASS",
+      "runtime_integration": "WORKBENCH_IDENTITY_CANDIDATE_GOVERNED_APPEND_ONLY",
+      "human_identity_gate": "OA-G5",
+      "human_identity_gate_state": "IMPLEMENTED_AWAITING_REAL_HUMAN_DECISION",
+      "automation_may_create_acceptance": false,
+      "promotion_effect": "NONE_UNTIL_OA_G5_REAL_ACCEPTANCE"
     },
     {
       "id": "OA-6",
@@ -67,8 +76,16 @@
   "pilot": {
     "object_type": "COLUMN",
     "scope": "ONE_GOVERNED_STRUCTURAL_DRAWING",
-    "state": "READY_FOR_STRUCTURAL_IDENTITY_CANDIDATE_REVIEW",
-    "required_input": "HUMAN_REVIEWED_FAMILY_CANDIDATES"
+    "state": "READY_FOR_REAL_OA_G5_HUMAN_IDENTITY_REVIEW",
+    "required_input": "GOVERNED_OA5_IDENTITY_CANDIDATE_READY_FOR_EXPLICIT_IDENTITY_REVIEW",
+    "decision_must_be_human": true
+  },
+  "governed_lineage": {
+    "state": "IMPLEMENTED_PASS",
+    "chain": ["OA2_PROTOTYPE", "OA4_CLUSTER_REVIEW", "OA5_IDENTITY_CANDIDATE", "OA_G5_IDENTITY_DECISION"],
+    "backend": "EXISTING_RUNTIME_AUDIT_BACKEND_NEON_IN_PRODUCTION",
+    "session_storage_role": "UI_CACHE_ONLY",
+    "parent_fingerprint_required": true
   },
   "global_blocks": {
     "canonical_write_authorized": false,
