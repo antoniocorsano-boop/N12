@@ -16,6 +16,8 @@ REGIONS = ROOT / "data" / "canonical" / "CEW_EVIDENCE_REGION_REGISTRY_v1.csv"
 OBS = ROOT / "data" / "canonical" / "CEW_OBSERVATION_REGISTRY_v1.csv"
 ARCH = ROOT / "docs" / "ARCHITECTURE" / "CEW_EVIDENCE_PROVENANCE_MODEL_v1.md"
 
+# Frozen F2 closure reference subset. Additional governed chains may be appended,
+# but these four historical chains must never disappear or regress.
 REFERENCE = {"T5A-G01/G01-R06", "T5A-G07/G07-R07", "T5A-G05/G05-R04", "T6A-G03"}
 FINAL_READING_STATES = {"READABLE", "PARTIAL", "UNREADABLE", "GRAPHICALLY_DIRECT_PARTIAL"}
 TOL = 1e-9
@@ -76,13 +78,16 @@ def main() -> int:
     regions = read_csv(REGIONS)
     observations = read_csv(OBS)
 
-    if set(r["reference_item"].strip() for r in regions) != REFERENCE:
-        raise AssertionError("reference region set changed")
-    if set(r["reference_item"].strip() for r in observations) != REFERENCE:
-        raise AssertionError("reference observation set changed")
+    region_reference_items = {r["reference_item"].strip() for r in regions}
+    observation_reference_items = {r["reference_item"].strip() for r in observations}
+    if not REFERENCE.issubset(region_reference_items):
+        raise AssertionError("frozen reference region subset changed")
+    if not REFERENCE.issubset(observation_reference_items):
+        raise AssertionError("frozen reference observation subset changed")
 
+    region_source_ids = {r["source_version_id"].strip() for r in regions}
     for src_id, src in sources.items():
-        if src_id in {r["source_version_id"].strip() for r in regions}:
+        if src_id in region_source_ids:
             if src["readiness_state"].strip() != "READY":
                 raise AssertionError(f"reference SourceVersion not READY: {src_id}")
             if len(src["sha256"].strip()) != 64:
@@ -138,10 +143,8 @@ def main() -> int:
             if value <= 0:
                 raise AssertionError(f"non-positive page/asset dimension: {region_id}")
 
-        # Reconstruct bbox from canonical normalized coordinates into source-native PDF coordinates.
         src_bbox = (x * sw, y * sh, w * sw, h * sh)
         src_roundtrip = (src_bbox[0] / sw, src_bbox[1] / sh, src_bbox[2] / sw, src_bbox[3] / sh)
-        # Reconstruct the same bbox independently into registered raster pixel-edge coordinates.
         px_bbox = (x * pw, y * ph, w * pw, h * ph)
         px_roundtrip = (px_bbox[0] / pw, px_bbox[1] / ph, px_bbox[2] / pw, px_bbox[3] / ph)
         canonical = (x, y, w, h)
@@ -151,8 +154,8 @@ def main() -> int:
             raise AssertionError(f"derived-pixel roundtrip failed: {region_id}")
 
         basis = row["localization_basis"].strip()
-        note = row["migration_note"].strip()
-        if "immutable PDF page" not in basis and "primary-source" not in basis:
+        note = row["migration_note"].strip().lower()
+        if "immutable pdf page" not in basis.lower() and "primary-source" not in basis.lower():
             raise AssertionError(f"region localization lacks primary-source provenance: {region_id}")
         if "crop is not authority" not in note:
             raise AssertionError(f"region must explicitly reject crop authority: {region_id}")
@@ -177,11 +180,13 @@ def main() -> int:
                 raise AssertionError("T6A-G03 must explicitly remain structurally UNBOUND")
         finalized_reference.add(row["reference_item"].strip())
 
-    if ready_reference != REFERENCE or finalized_reference != REFERENCE:
-        raise AssertionError("not all four reference chains satisfy reproducible closure")
+    if not REFERENCE.issubset(ready_reference) or not REFERENCE.issubset(finalized_reference):
+        raise AssertionError("not all four frozen reference chains satisfy reproducible closure")
 
     print("CEW EVIDENCE PROVENANCE CONTRACT = PASS")
-    print("Reproducible reference chains = 4/4")
+    print("Frozen reproducible reference chains = 4/4")
+    print(f"Total governed READY EvidenceRegions = {len(ready_regions)}")
+    print(f"Total finalized Observations = {len(finalized_reference)}")
     print("Coordinate roundtrip NORMALIZED_0_1 <-> SOURCE_NATIVE = PASS")
     print("Coordinate roundtrip NORMALIZED_0_1 <-> DERIVED_ASSET_PIXELS = PASS")
     print("T6A-G03 structural binding = UNBOUND")
