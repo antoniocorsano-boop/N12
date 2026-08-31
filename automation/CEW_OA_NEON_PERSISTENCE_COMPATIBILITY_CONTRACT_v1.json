@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.4",
+  "contract": "CEW_OA_NEON_PERSISTENCE_COMPATIBILITY",
+  "scope": "OA-N12-G4-COLUMN-PILOT",
+  "status": "LIVE_SCHEMA_VERIFIED_RUNTIME_RETEST_CANDIDATE_PASS",
+  "validated_candidate_sha": "5d759a0363799bb1a238a5266d349e65a5f62cbb",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "project_material_ready": false,
+  "oa6_release_authorized": false,
+  "audit_backend": "NEON_APPEND_ONLY",
+  "shared_ledger_table": "public.cew_human_receipt_audit",
+  "domain_rule": {
+    "erw_receipt_residual_id_required_by_application": true,
+    "oa_receipt_residual_id_required": false,
+    "oa_fake_residual_id_forbidden": true,
+    "shared_table_residual_id_must_be_nullable": true
+  },
+  "observed_runtime_failure": {
+    "stage": "OA2_PROTOTYPE",
+    "public_message": "Neon audit persistence failed",
+    "effect": "FAIL_CLOSED_FIND_SIMILAR_BLOCKED",
+    "canonical_write_performed": false
+  },
+  "migration": {
+    "path": "migrations/cew/005_oa_receipt_residual_optional_PROPOSED_NOT_APPLIED.sql",
+    "state": "APPLIED_VERIFIED_MANUAL_READBACK",
+    "applied_to_project_id": "morning-cell-78488188",
+    "applied_to_branch": "main",
+    "applied_to_branch_id": "br-rough-lab-avtg953x",
+    "database": "neondb",
+    "verified_postcondition": "residual_id IS NULLABLE",
+    "readback_receipt": "automation/receipts/cew-oa/CEW_OA_NEON_SCHEMA_READBACK_2026-08-31.json"
+  },
+  "runtime_retest": {
+    "required": true,
+    "stage": "OA2_PROTOTYPE",
+    "candidate_head_sha": "5d759a0363799bb1a238a5266d349e65a5f62cbb",
+    "candidate_ci": "PASS",
+    "expected_audit_backend": "NEON_APPEND_ONLY",
+    "expected_result": "GOVERNED_RECEIPT_PERSISTED_WITH_NULL_RESIDUAL_ID",
+    "find_similar_unlock_requires_receipt": true,
+    "source_primary_after_selection_required": true
+  },
+  "completion_requirements": [
+    "NO_FAKE_RESIDUAL_ID",
+    "ERW_APPLICATION_STILL_REQUIRES_REAL_RESIDUAL_ID",
+    "OA_RECEIPT_CAN_PERSIST_WITH_NULL_RESIDUAL_ID",
+    "NEON_SCHEMA_READBACK_RESIDUAL_NULLABLE_PASS",
+    "NEON_READBACK_OF_OA_RECEIPT_PASS",
+    "FIND_SIMILAR_UNLOCKS_ONLY_AFTER_GOVERNED_OA2_RECEIPT",
+    "SOURCE_PRIMARY_REMAINS_AFTER_OBJECT_SELECTION",
+    "NO_CANONICAL_WRITE",
+    "NO_OA6_RELEASE"
+  ]
+}

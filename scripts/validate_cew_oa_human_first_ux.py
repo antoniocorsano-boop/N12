@@ -62,6 +62,11 @@ def main() -> int:
     require("Sincronizzazione spaziale non disponibile" in runtime, "human-readable spatial sync state missing")
     require("posizione sulla tavola non registrata" in runtime.lower(), "human-readable registration state missing")
 
+    # Human-first must survive the first real interaction, not only initial boot.
+    selection_marker = "if(typeof selectObject==='function')selectObject(obj);else selected=obj;if(typeof requestMode==='function')requestMode('SOURCE')"
+    require(selection_marker in oa2, "pilot object selection can leave SOURCE-primary mode")
+    require(oa2.count("requestMode('SOURCE')") >= 2, "SOURCE must be asserted at boot and after pilot selection")
+
     require('id="oaTeachCreate" class="primary oa-primary-action"' in runtime, "THIS_IS_A is not visually primary")
     require('id="oaFindSimilar" class="primary" type="button" disabled' in runtime, "Find Similar must start disabled")
     require("governed_receipt_id" in oa3 and "prototypeReadiness" in oa3, "Find Similar governance readiness missing")
@@ -81,6 +86,7 @@ def main() -> int:
     print("CEW_OA_HUMAN_FIRST_UX = PASS")
     print("SOURCE_VIEWPORT_UNOBSTRUCTED = true")
     print("SOURCE_PRIMARY_WITH_OPERATIONAL_SIDEBAR = true")
+    print("SOURCE_PRIMARY_AFTER_OBJECT_SELECTION = true")
     print("FIND_SIMILAR_GOVERNED_PROTOTYPE_GATE = PASS")
     print("AUTO_CLUSTER_CONFIRMATION = false")
     print("CANONICAL_WRITE_AUTHORIZED = false")
