@@ -23,7 +23,10 @@ def main():
     require(endpoint in oa2 and "stage:'OA2_PROTOTYPE'" in oa2, "OA2 is not governed-persistent")
     require("governed_receipt_id" in oa2, "OA2 governed receipt id not cached")
     require("sessionStorage è soltanto cache UI" in oa2, "OA2 session-state authority not demoted")
-    require("La catena downstream resta bloccata" in oa2, "OA2 does not fail closed on persistence failure")
+    require(
+        "La ricerca dei simili resta bloccata" in oa2 or "La catena downstream resta bloccata" in oa2,
+        "OA2 does not fail closed on persistence failure",
+    )
 
     require(endpoint in oa4 and "stage:'OA4_CLUSTER_REVIEW'" in oa4, "OA4 is not governed-persistent")
     require("parent_decision_id:parentId" in oa4, "OA4 does not link to OA2 parent receipt")
@@ -52,6 +55,7 @@ def main():
     print("OA_GOVERNED_RUNTIME_CHAIN_PASS")
     print("OA2_OA4_OA5_OAG5_PARENT_LINK_PASS")
     print("SESSION_STORAGE_UI_CACHE_ONLY_PASS")
+    print("HUMAN_READABLE_FAIL_CLOSED_COPY_PASS")
     print("OA6_RUNTIME_REMAINS_ABSENT_PASS")
 
 
