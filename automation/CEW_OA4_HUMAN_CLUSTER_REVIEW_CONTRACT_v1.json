@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "slice": "OA-4",
+  "title": "Human Cluster Review",
+  "status": "FOUNDATION_IMPLEMENTED_INTEGRATION_PENDING",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "requires": ["OA-3=COMPLETE_PASS", "DETERMINISTIC_SIMILARITY_CANDIDATES"],
+  "primary_actions": [
+    "CONFIRM_AS_FAMILY_CANDIDATE",
+    "REJECT",
+    "MOVE_TO_OTHER_FAMILY",
+    "MARK_AMBIGUOUS",
+    "DEFER_NEEDS_SOURCE"
+  ],
+  "review_unit": "EXPLICIT_CANDIDATE_SET",
+  "batch_review": {
+    "allowed": true,
+    "explicit_candidate_selection_required": true,
+    "implicit_whole_cluster_confirmation_forbidden": true
+  },
+  "decision_required_fields": [
+    "candidate_object_id",
+    "decision",
+    "prototype_id",
+    "proposed_family_id",
+    "similarity_run_fingerprint",
+    "source_evidence",
+    "reviewer",
+    "revision"
+  ],
+  "review_states": [
+    "REVIEW_OPEN",
+    "REVIEW_PARTIAL",
+    "REVIEW_COMPLETE_WITH_AMBIGUITIES",
+    "REVIEW_COMPLETE"
+  ],
+  "output": {
+    "state": "HUMAN_REVIEWED_FAMILY_CANDIDATES",
+    "creates_object_type": false,
+    "creates_family_membership_proposal": true,
+    "creates_structural_identity": false,
+    "canonical_write_authorized": false
+  },
+  "governance": {
+    "human_decision_required": true,
+    "source_revision_match_required": true,
+    "similarity_score_is_not_authority": true,
+    "confirmed_candidate_is_not_structural_identity": true,
+    "ambiguous_candidates_block_clean_completion": true
+  },
+  "forbidden_actions": [
+    "AUTO_CONFIRM_UNREVIEWED_CANDIDATE",
+    "IMPLICIT_CLUSTER_ACCEPTANCE",
+    "CREATE_STRUCTURAL_IDENTITY",
+    "CANONICAL_WRITE",
+    "PROJECT_MATERIAL_PROMOTION"
+  ],
+  "next_gate": "OA-5_STRUCTURAL_RESOLVER"
+}

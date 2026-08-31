@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.4",
+  "schema_version": "1.5",
   "program": "CEW_OBJECT_ACQUISITION_AND_RECOGNITION",
-  "current_item": "OA-4",
+  "current_item": "OA-5",
   "items": [
     {
       "id": "OA-0",
@@ -41,23 +41,25 @@
     {
       "id": "OA-4",
       "title": "Cluster Review",
-      "state": "IN_PROGRESS",
-      "requires": ["OA-3=COMPLETE_PASS"],
-      "scope": ["confirm candidate", "reject candidate", "move family", "mark ambiguous", "exception review"],
-      "completion_gate": "OA4_HUMAN_CLUSTER_REVIEW_PASS"
+      "state": "COMPLETE_PASS",
+      "validated_head": "6c0c4cb77ebabf75129a47893414bd77df44eb2e",
+      "gate": "OA4_HUMAN_CLUSTER_REVIEW_PASS",
+      "runtime_integration": "WORKBENCH_EXPLICIT_CLUSTER_REVIEW_INTEGRATED",
+      "promotion_effect": "NONE"
     },
     {
       "id": "OA-5",
       "title": "Structural Resolver",
-      "state": "BLOCKED_BY_OA4",
+      "state": "IN_PROGRESS",
       "requires": ["OA-4=COMPLETE_PASS"],
-      "scope": ["structural identity candidate", "relationship evidence", "no proximity-only identity"]
+      "scope": ["structural identity candidate", "relationship evidence", "no proximity-only identity"],
+      "completion_gate": "OA5_STRUCTURAL_RESOLVER_PASS"
     },
     {
       "id": "OA-6",
       "title": "Project Material Gate",
-      "state": "WAITING",
-      "requires": ["OA-5=PASS", "OA-G1..OA-G5 satisfied for target scope"],
+      "state": "BLOCKED_BY_OA5",
+      "requires": ["OA-5=COMPLETE_PASS", "OA-G1..OA-G5 satisfied for target scope"],
       "outputs": ["PROJECT_GEOMETRY", "PROJECT_SECTIONS", "PROJECT_REINFORCEMENT", "PROJECT_FOUNDATIONS"],
       "downstream_release": ["M0-G", "M0-S", "M0-A"]
     }
@@ -65,8 +67,8 @@
   "pilot": {
     "object_type": "COLUMN",
     "scope": "ONE_GOVERNED_STRUCTURAL_DRAWING",
-    "state": "READY_FOR_HUMAN_CLUSTER_REVIEW",
-    "required_input": "DETERMINISTIC_SIMILARITY_CANDIDATES"
+    "state": "READY_FOR_STRUCTURAL_IDENTITY_CANDIDATE_REVIEW",
+    "required_input": "HUMAN_REVIEWED_FAMILY_CANDIDATES"
   },
   "global_blocks": {
     "canonical_write_authorized": false,
