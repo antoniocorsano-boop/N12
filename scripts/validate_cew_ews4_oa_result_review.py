@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -33,6 +34,8 @@ def main() -> int:
 
     require(ews1["status"] == "EWS1_COMPLETE_PASS", "EWS-1 is not complete")
     require(ews4["contract"] == "CEW_EWS4_OA_RESULT_REVIEW_CONTROLLER", "EWS-4 contract id drift")
+    require(ews4["status"] == "EWS4_OA_SUBSET_COMPLETE_PASS", "EWS-4 OA subset is not frozen COMPLETE_PASS")
+    require(bool(re.fullmatch(r"[0-9a-f]{40}", ews4["validated_runtime_sha"])), "validated runtime SHA invalid")
     require(ews4["authority_effect"] == "NONE", "review UI cannot create authority")
     require(ews4["canonical_write_authorized"] is False, "canonical write drift")
     require(ews4["project_material_ready"] is False, "project material release drift")
@@ -61,7 +64,6 @@ def main() -> int:
         "ews4-active",
         "ews4PrevCandidate",
         "ews4NextCandidate",
-        "FULL_EXPANDED",
         "oaLoadReview",
         "oaSaveReview",
         "CONFIRM_AS_FAMILY_CANDIDATE",
@@ -70,8 +72,6 @@ def main() -> int:
         "Posizione sulla tavola non registrata",
         "Il punteggio è supporto alla revisione, non autorità",
     ]:
-        if marker == "FULL_EXPANDED":
-            continue
         require(marker in runtime, f"runtime invariant missing: {marker}")
 
     require("import cew_ews4_oa_result_review_runtime as ews4_runtime" in ews1_runtime, "EWS-4 compositor import missing")
@@ -103,6 +103,8 @@ def main() -> int:
         require(name in forbidden, f"forbidden shortcut missing: {name}")
 
     print("CEW_EWS4_OA_RESULT_REVIEW = PASS")
+    print("STATUS = EWS4_OA_SUBSET_COMPLETE_PASS")
+    print("VALIDATED_RUNTIME_SHA = " + ews4["validated_runtime_sha"])
     print("HIERARCHY = SUMMARY -> REVIEW_SET -> ACTIVE_CANDIDATE")
     print("PAGE_SIZE = 8")
     print("SINGLE_ACTIVE_CANDIDATE = true")
