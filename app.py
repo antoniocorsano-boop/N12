@@ -24,6 +24,7 @@ import cew_document_intake as document_intake
 import cew_document_map_page as document_map_page
 import cew_drawing_viewer as drawing_viewer
 import cew_f7_native_review_service as review_service
+import cew_oa_governed_api as oa_governed_api
 import cew_professional_workbench_api as professional_workbench_api
 import cew_project_control_room as control_room
 import cew_project_home as project_home
@@ -102,6 +103,9 @@ async def access_guard(request: Request, call_next):
 # Workbench APIs inherit the same runtime authentication middleware and expose
 # only derived/non-canonical scene, view and working-state operations.
 app.include_router(professional_workbench_api.build_router(source_workspace))
+# OA governed decisions reuse the same authenticated Workbench and append-only
+# audit backend. This router never performs canonical/project-material writes.
+app.include_router(oa_governed_api.build_router(source_workspace))
 
 
 @app.get("/healthz")
