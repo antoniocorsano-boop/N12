@@ -32,12 +32,13 @@ fi
 
 pip install -r requirements.txt
 
-# Human-first and enterprise workspace invariants are managed-runtime
-# requirements, not browser preferences. A deploy must fail before artifact
-# generation if the professional interaction contract regresses.
+# Human-first, enterprise frame/review, and governed context continuity are
+# managed-runtime requirements, not browser preferences. A deploy must fail
+# before artifact generation if the professional interaction contract regresses.
 python scripts/validate_cew_oa_human_first_ux.py
 python scripts/validate_cew_ews1_application_frame.py
 python scripts/validate_cew_ews4_oa_result_review.py
+python scripts/validate_cew_enterprise_context_continuity.py
 
 python scripts/build_cew_runtime_render_cache.py
 python scripts/build_cew_managed_f3_assets.py
@@ -100,5 +101,6 @@ print('CEW_RENDER_R2HR_GAP_TOTAL = 10')
 print('CEW_RENDER_OA_HUMAN_FIRST_UX = READY')
 print('CEW_RENDER_EWS1_APPLICATION_FRAME = READY')
 print('CEW_RENDER_EWS4_OA_RESULT_REVIEW = READY')
+print('CEW_RENDER_ENTERPRISE_CONTEXT_CONTINUITY = READY')
 print('CEW_RENDER_BUILD = PASS')
 PY
