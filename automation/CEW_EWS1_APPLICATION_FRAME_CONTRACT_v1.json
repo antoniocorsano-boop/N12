@@ -6,7 +6,7 @@
   "authority_effect": "NONE",
   "canonical_write_authorized": false,
   "project_material_ready": false,
-  "validated_runtime_sha": "959441c7a381bdc9166fa18efc1a29400cf2619d",
+  "validated_runtime_sha": "f5321560e00acac9c9fffd8f8a7fca8355d57a9d",
   "upstream": {
     "enterprise_workspace_contract": "CEW_ENTERPRISE_PROFESSIONAL_WORKSPACE",
     "required_status": "EWS0_COMPLETE_PASS",
