@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import cew_ews4_oa_result_review_runtime as ews4_runtime
+
 EWS1_RUNTIME_MARKER = "CEW_EWS1_VIEWPORT_BOUND_APPLICATION_FRAME"
 OA_PILOT_TASK = "OA-N12-G4-COLUMN-PILOT"
 
@@ -10,10 +12,11 @@ def augment(rendered: str, task: str) -> str:
 
     The frame is viewport-bound on professional desktop sizes. Canvas and contextual
     surfaces own independent overflow. The OA G4 pilot additionally keeps the source
-    canvas primary because source position remains UNREGISTERED.
+    canvas primary because source position remains UNREGISTERED. EWS-4 is composed
+    after the frame as a presentation adapter over existing OA-3/OA-4 behavior.
     """
     if EWS1_RUNTIME_MARKER in rendered:
-        return rendered
+        return ews4_runtime.augment(rendered, task)
 
     style = '''
 <style id="cew-ews1-application-frame-style">
@@ -128,4 +131,5 @@ def augment(rendered: str, task: str) -> str:
   window.visualViewport?.addEventListener('resize',publishFrameState,{{passive:true}});
 }})();
 </script>'''
-    return rendered.replace("</body>", script + "</body>", 1)
+    rendered = rendered.replace("</body>", script + "</body>", 1)
+    return ews4_runtime.augment(rendered, task)
