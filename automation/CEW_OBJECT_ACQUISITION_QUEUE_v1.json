@@ -26,7 +26,9 @@
       "state": "COMPLETE_PASS",
       "validated_head": "e6040569eb86ab90e6b83d92e019cb676c663e7e",
       "gate": "OA2_HUMAN_TEACHING_PASS",
-      "runtime_integration": "WORKBENCH_INTEGRATED_GOVERNED_APPEND_ONLY",
+      "runtime_integration": "WORKBENCH_INTEGRATED_SESSION_STATE",
+      "governed_persistence": "APPEND_ONLY_REQUIRED_FOR_DOWNSTREAM_USE",
+      "session_storage_role": "UI_CACHE_ONLY",
       "promotion_effect": "NONE"
     },
     {
@@ -44,7 +46,9 @@
       "state": "COMPLETE_PASS",
       "validated_head": "6c0c4cb77ebabf75129a47893414bd77df44eb2e",
       "gate": "OA4_HUMAN_CLUSTER_REVIEW_PASS",
-      "runtime_integration": "WORKBENCH_EXPLICIT_CLUSTER_REVIEW_GOVERNED_APPEND_ONLY",
+      "runtime_integration": "WORKBENCH_EXPLICIT_CLUSTER_REVIEW_INTEGRATED",
+      "governed_persistence": "APPEND_ONLY_REQUIRED_FOR_OA5_USE",
+      "session_storage_role": "UI_CACHE_ONLY",
       "promotion_effect": "NONE"
     },
     {
