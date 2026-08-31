@@ -33,6 +33,25 @@ fi
 pip install -r requirements.txt
 python scripts/build_cew_runtime_render_cache.py
 python scripts/build_cew_managed_f3_assets.py
+
+# The F3 standalone viewer keeps DZI paths relative to its own source-viewer
+# root (tiles/<source>.dzi). The Professional Workbench serves assets from the
+# parent managed asset root. Provide a runtime-only compatibility alias so the
+# existing F3 relative reference resolves without duplicating or re-authoring
+# any evidence asset. The symlink target stays inside the governed asset root.
+MANAGED_F3_ROOT=".cew_professional_workbench_assets"
+if [[ ! -d "$MANAGED_F3_ROOT/source-viewer/tiles" ]]; then
+  echo "CEW_RENDER_BUILD_FAIL: managed F3 source-viewer tiles missing" >&2
+  exit 1
+fi
+rm -f "$MANAGED_F3_ROOT/tiles"
+ln -s "source-viewer/tiles" "$MANAGED_F3_ROOT/tiles"
+if [[ ! -f "$MANAGED_F3_ROOT/tiles/TAV-05S.dzi" ]]; then
+  echo "CEW_RENDER_BUILD_FAIL: Workbench TAV-05S DZI alias unresolved" >&2
+  exit 1
+fi
+echo "CEW_RENDER_WORKBENCH_F3_ASSET_ALIAS = READY"
+
 python scripts/build_cew_document_geometry_artifacts.py
 # PWB-005 legacy diagnostics are explicitly frozen to the four historical
 # EvidenceRegion cases. OA extensions are governed separately and must not be
