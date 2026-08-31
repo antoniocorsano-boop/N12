@@ -73,6 +73,7 @@ def main():
             decision="ACCEPT_STRUCTURAL_IDENTITY",
             human_attestation=True,
             accepted_structural_identity=True,
+            identity_candidate_receipt_fingerprint=oa5["receipt_fingerprint"],
         ),
         expected_source=source,
         revision="REV-1",
@@ -126,7 +127,13 @@ def main():
         governed.build_receipt(
             task_id="ERW-N12-001",
             stage="OA_G5_IDENTITY_DECISION",
-            payload=payload(source, decision="ACCEPT_STRUCTURAL_IDENTITY", human_attestation=False, accepted_structural_identity=True),
+            payload=payload(
+                source,
+                decision="ACCEPT_STRUCTURAL_IDENTITY",
+                human_attestation=False,
+                accepted_structural_identity=True,
+                identity_candidate_receipt_fingerprint=oa5["receipt_fingerprint"],
+            ),
             expected_source=source,
             revision="REV-1",
             reviewer="H",
@@ -136,6 +143,48 @@ def main():
         require("HUMAN_ATTESTATION_REQUIRED" in str(exc), "OAG5 acceptance without attestation not rejected")
     else:
         raise SystemExit("FAIL: synthetic/unattested identity acceptance accepted")
+
+    try:
+        governed.build_receipt(
+            task_id="ERW-N12-001",
+            stage="OA_G5_IDENTITY_DECISION",
+            payload=payload(
+                source,
+                decision="ACCEPT_STRUCTURAL_IDENTITY",
+                human_attestation=True,
+                accepted_structural_identity=True,
+                identity_candidate_receipt_fingerprint="deadbeef",
+            ),
+            expected_source=source,
+            revision="REV-1",
+            reviewer="H",
+            parent=oa5,
+        )
+    except ValueError as exc:
+        require("CANDIDATE_FINGERPRINT_MISMATCH" in str(exc), "wrong OA5 candidate fingerprint not rejected")
+    else:
+        raise SystemExit("FAIL: wrong OA5 candidate fingerprint accepted")
+
+    try:
+        governed.build_receipt(
+            task_id="ERW-N12-001",
+            stage="OA_G5_IDENTITY_DECISION",
+            payload=payload(
+                source,
+                decision="REJECT_STRUCTURAL_IDENTITY",
+                human_attestation=False,
+                accepted_structural_identity=True,
+                identity_candidate_receipt_fingerprint=oa5["receipt_fingerprint"],
+            ),
+            expected_source=source,
+            revision="REV-1",
+            reviewer="H",
+            parent=oa5,
+        )
+    except ValueError as exc:
+        require("NON_ACCEPT_DECISION_CANNOT_ACCEPT_IDENTITY" in str(exc), "reject/accepted inconsistency not rejected")
+    else:
+        raise SystemExit("FAIL: reject decision accepted structural identity")
 
     app = APP.read_text(encoding="utf-8")
     api = API.read_text(encoding="utf-8")
@@ -155,7 +204,13 @@ def main():
 
     contract = json.loads(OAG5.read_text(encoding="utf-8"))
     require(contract["canonical_write_authorized"] is False, "OAG5 contract canonical write drift")
-    require(contract["project_material_ready"] is False, "OAG5 contract project material drift")
+    require(set(contract["decisions"]) == governed.OAG5_DECISIONS, "OAG5 governed decisions drift from canonical contract")
+    require(contract["acceptance_effect"]["canonical_write_authorized"] is False, "OAG5 acceptance enabled canonical write")
+    require(contract["acceptance_effect"]["project_material_ready"] is False, "OAG5 acceptance released project material")
+    require(contract["non_acceptance_effect"]["canonical_write_authorized"] is False, "OAG5 non-acceptance canonical write drift")
+    require(contract["non_acceptance_effect"]["project_material_ready"] is False, "OAG5 non-acceptance project material drift")
+    require(contract["automation_may_create_acceptance"] is False, "automation may create OAG5 acceptance")
+    require(contract["synthetic_test_receipt_is_project_evidence"] is False, "synthetic receipt treated as project evidence")
 
     print("OA_GOVERNED_APPEND_ONLY_LINEAGE_PASS")
     print("OA_GOVERNED_WORKBENCH_API_MOUNT_PASS")
