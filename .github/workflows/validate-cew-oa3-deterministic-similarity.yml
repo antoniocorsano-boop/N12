@@ -1,0 +1,24 @@
+name: Validate CEW OA3 Deterministic Similarity
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_OBJECT_ACQUISITION_QUEUE_v1.json'
+      - 'automation/CEW_OA3_DETERMINISTIC_SIMILARITY_CONTRACT_v1.json'
+      - 'scripts/cew_oa3_deterministic_similarity.py'
+      - 'scripts/validate_cew_oa3_deterministic_similarity.py'
+      - '.github/workflows/validate-cew-oa3-deterministic-similarity.yml'
+  push:
+    branches:
+      - 'work/cew-oa3-deterministic-similarity-v1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate OA3 explainable deterministic similarity
+        run: python scripts/validate_cew_oa3_deterministic_similarity.py
