@@ -3,6 +3,9 @@ import json
 from pathlib import Path
 
 from cew_oa3_deterministic_similarity import find_similar
+from cew_oa3_workbench_runtime import OA3_RUNTIME_MARKER
+import cew_oa1_workbench_runtime as oa1_runtime
+import cew_professional_workbench_client as client
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "automation" / "CEW_OA3_DETERMINISTIC_SIMILARITY_CONTRACT_v1.json"
@@ -67,8 +70,22 @@ def main():
     else:
         raise SystemExit("FAIL: source revision mismatch accepted")
 
+    runtime_html = oa1_runtime.augment(client.build_client("ERW-N12-001"), "ERW-N12-001")
+    require(OA3_RUNTIME_MARKER in runtime_html, "OA-3 runtime marker missing")
+    require('id="oaSimilar"' in runtime_html, "Find Similar runtime surface missing")
+    require('id="oaFindSimilar"' in runtime_html, "Find Similar action missing")
+    require("Trova simili" in runtime_html, "Find Similar wording missing")
+    require("WEIGHTS={GEOMETRY_KIND:.30,DIMENSION_RATIO:.20,ORIENTATION:.15,TOPOLOGY_HINT:.15,SPATIAL_CONTEXT:.10,ASSOCIATED_TEXT:.10}" in runtime_html, "runtime weight contract drift")
+    require("human_confirmation_required" not in runtime_html or "conferma umana richiesta" in runtime_html, "human review indication missing")
+    require("Nessun candidato viene confermato automaticamente" in runtime_html, "auto-confirm prohibition missing")
+    require("OA-4" in runtime_html, "next human cluster review boundary missing")
+    require("AUTO_CONFIRM_CLUSTER" not in runtime_html, "automatic cluster confirmation leaked into runtime")
+    require("CREATE_STRUCTURAL_IDENTITY" not in runtime_html, "structural identity action leaked into runtime")
+    require("canonical_write_authorized:true" not in runtime_html, "canonical write leaked into runtime")
+
     print("OA3_DETERMINISTIC_SIMILARITY_CORE_PASS")
-    print("OA3_RUNTIME_INTEGRATION_REQUIRED")
+    print("OA3_RUNTIME_INTEGRATION_PASS")
+    print("OA3_DETERMINISTIC_SIMILARITY_PASS")
 
 
 if __name__ == "__main__":
