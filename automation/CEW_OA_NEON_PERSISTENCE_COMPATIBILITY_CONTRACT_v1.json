@@ -1,9 +1,9 @@
 {
-  "schema_version": "1.3",
+  "schema_version": "1.4",
   "contract": "CEW_OA_NEON_PERSISTENCE_COMPATIBILITY",
   "scope": "OA-N12-G4-COLUMN-PILOT",
   "status": "LIVE_SCHEMA_VERIFIED_RUNTIME_RETEST_CANDIDATE_PASS",
-  "candidate_head_sha": "69b85e319a818be6a7413f2e2e3a5d0130794ec0",
+  "validated_candidate_sha": "5d759a0363799bb1a238a5266d349e65a5f62cbb",
   "authority_effect": "NONE",
   "canonical_write_authorized": false,
   "project_material_ready": false,
@@ -35,7 +35,7 @@
   "runtime_retest": {
     "required": true,
     "stage": "OA2_PROTOTYPE",
-    "candidate_head_sha": "69b85e319a818be6a7413f2e2e3a5d0130794ec0",
+    "candidate_head_sha": "5d759a0363799bb1a238a5266d349e65a5f62cbb",
     "candidate_ci": "PASS",
     "expected_audit_backend": "NEON_APPEND_ONLY",
     "expected_result": "GOVERNED_RECEIPT_PERSISTED_WITH_NULL_RESIDUAL_ID",
