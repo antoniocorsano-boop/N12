@@ -31,6 +31,12 @@ else
 fi
 
 pip install -r requirements.txt
+
+# Human-first is a managed-runtime requirement for the OA pilot, not a browser
+# preference. A deploy must fail before artifact generation if the interaction
+# contract regresses.
+python scripts/validate_cew_oa_human_first_ux.py
+
 python scripts/build_cew_runtime_render_cache.py
 python scripts/build_cew_managed_f3_assets.py
 
@@ -89,5 +95,6 @@ if len(regions) != 4 or manifest.get('gap_hypothesis_total') != 10:
 print('CEW_RENDER_R2HR_RUNTIME_ARTIFACT = READY')
 print('CEW_RENDER_R2HR_REGION_COVERAGE = 4/4')
 print('CEW_RENDER_R2HR_GAP_TOTAL = 10')
+print('CEW_RENDER_OA_HUMAN_FIRST_UX = READY')
 print('CEW_RENDER_BUILD = PASS')
 PY
