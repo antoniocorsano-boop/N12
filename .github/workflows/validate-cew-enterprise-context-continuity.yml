@@ -1,0 +1,32 @@
+name: Validate CEW Enterprise Context Continuity
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_ENTERPRISE_CONTEXT_CONTINUITY_CONTRACT_v1.json'
+      - 'scripts/cew_oa_governed_api.py'
+      - 'scripts/cew_enterprise_governed_resume_runtime.py'
+      - 'scripts/cew_ews1_application_frame_runtime.py'
+      - 'scripts/validate_cew_enterprise_context_continuity.py'
+      - '.github/workflows/validate-cew-enterprise-context-continuity.yml'
+  push:
+    branches:
+      - 'work/cew-ews4-oa-result-review-controller-v1'
+    paths:
+      - 'automation/CEW_ENTERPRISE_CONTEXT_CONTINUITY_CONTRACT_v1.json'
+      - 'scripts/cew_oa_governed_api.py'
+      - 'scripts/cew_enterprise_governed_resume_runtime.py'
+      - 'scripts/cew_ews1_application_frame_runtime.py'
+      - 'scripts/validate_cew_enterprise_context_continuity.py'
+      - '.github/workflows/validate-cew-enterprise-context-continuity.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate governed context continuity
+        run: python scripts/validate_cew_enterprise_context_continuity.py
