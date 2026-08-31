@@ -1,10 +1,11 @@
 {
   "schema_version": "1.0",
   "contract": "CEW_EWS4_OA_RESULT_REVIEW_CONTROLLER",
-  "status": "IMPLEMENTED_PENDING_VALIDATION",
+  "status": "EWS4_OA_SUBSET_COMPLETE_PASS",
   "authority_effect": "NONE",
   "canonical_write_authorized": false,
   "project_material_ready": false,
+  "validated_runtime_sha": "1c12e0f84db92e77be0c2deb0e601a60786a3d27",
   "upstream": {
     "ews1_contract": "CEW_EWS1_APPLICATION_FRAME",
     "required_status": "EWS1_COMPLETE_PASS",
