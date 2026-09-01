@@ -13,6 +13,7 @@ const REQUIRED = new Set([
   "submitted_at",
 ]);
 const MAX_GOVERNED_READ_RECEIPTS = 500;
+const MAX_GOVERNED_READ_PROBE = MAX_GOVERNED_READ_RECEIPTS + 1;
 
 function stable(value) {
   if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`;
@@ -46,7 +47,7 @@ async function governedRead(req, db) {
   if (!receiptType || receiptType.length > 200) {
     return response(422, { state: "AUDIT_READ_REJECTED", reason: "RECEIPT_TYPE_INVALID" });
   }
-  if (!Number.isInteger(rawLimit) || rawLimit < 1 || rawLimit > MAX_GOVERNED_READ_RECEIPTS) {
+  if (!Number.isInteger(rawLimit) || rawLimit < 1 || rawLimit > MAX_GOVERNED_READ_PROBE) {
     return response(422, { state: "AUDIT_READ_REJECTED", reason: "READ_LIMIT_INVALID" });
   }
   if (!Number.isInteger(rawOffset) || rawOffset < 0) {
@@ -62,11 +63,23 @@ async function governedRead(req, db) {
       OFFSET ${rawOffset}
     `;
     const rows = rowsOf(result);
+    const overflowProbe = rawLimit === MAX_GOVERNED_READ_PROBE;
+    if (overflowProbe && rows.length > MAX_GOVERNED_READ_RECEIPTS) {
+      return response(409, {
+        state: "AUDIT_READ_REJECTED",
+        reason: "GOVERNED_READ_LIMIT_EXCEEDED",
+        limit: MAX_GOVERNED_READ_RECEIPTS,
+        authority: "RUNTIME_AUDIT_READ_ONLY",
+        canonical_write: false,
+        engineering_authority_effect: "NONE",
+      });
+    }
     return response(200, {
       state: "AUDIT_READ_OK",
       receipts: rows.map((row) => row.receipt_json),
       offset: rawOffset,
-      limit: rawLimit,
+      limit: Math.min(rawLimit, MAX_GOVERNED_READ_RECEIPTS),
+      overflow_probe: overflowProbe,
       authority: "RUNTIME_AUDIT_READ_ONLY",
       canonical_write: false,
       engineering_authority_effect: "NONE",
