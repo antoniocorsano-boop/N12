@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Deterministic validator for CEW OAR OA-0 foundation."""
+from dataclasses import replace
+
 from cew_object_acquisition import (
     CandidateState,
     EvidenceProvenance,
@@ -85,7 +87,21 @@ def main():
     assert not guarded.canonical_write_authorized
     assert "CANONICAL_WRITE_AUTHORITY_NOT_GRANTED" in guarded.reasons
 
-    # 4. Ambiguous/blocked/rejected states cannot promote.
+    # 4. Family assignment is part of classification identity. Reconstructing
+    # a previously reviewed candidate in another family must stale the review.
+    moved_family = replace(confirmed, family_id="COL-45X30")
+    assert moved_family.fingerprint() != confirmed.fingerprint()
+    stale_family_review = evaluate_cad_promotion(
+        moved_family,
+        runtime_canonical_write_authorized=True,
+        cad_object_id="CAD-G4-P25-MOVED",
+    )
+    assert not stale_family_review.eligible
+    assert not stale_family_review.canonical_write_authorized
+    assert stale_family_review.proposal is None
+    assert "STALE_REVIEW_CANDIDATE_FINGERPRINT" in stale_family_review.reasons
+
+    # 5. Ambiguous/blocked/rejected states cannot promote.
     for state in (CandidateState.AMBIGUOUS, CandidateState.BLOCKED, CandidateState.REJECTED):
         result = evaluate_cad_promotion(
             candidate(state),
@@ -95,7 +111,7 @@ def main():
         assert not result.eligible, state
         assert not result.canonical_write_authorized, state
 
-    # 5. Explainable deterministic similarity reports reasons, not authority.
+    # 6. Explainable deterministic similarity reports reasons, not authority.
     sig = base.signature
     sim = deterministic_similarity(sig, sig)
     assert sim["match_ratio"] == 1.0
@@ -103,6 +119,7 @@ def main():
     assert "DIMENSIONS" in sim["matching_reasons"]
 
     print("CEW_OBJECT_ACQUISITION_OA0_PASS")
+    print("family_assignment_bound_to_candidate_fingerprint=true")
     print("canonical_write_authorized=false")
     print("structural_identity_authorized=false")
 
