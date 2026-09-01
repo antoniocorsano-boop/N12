@@ -85,6 +85,33 @@ def support_row(contract: dict[str, Any], support_id: str) -> dict[str, Any]:
     return row
 
 
+def _receipt_timestamp(receipt: dict[str, Any]) -> datetime:
+    raw = receipt.get("timestamp")
+    if not isinstance(raw, str) or not raw.strip():
+        raise ValueError("OAR_REGION_TIMESTAMP_REQUIRED")
+    text = raw.strip()
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError as exc:
+        raise ValueError("OAR_REGION_TIMESTAMP_INVALID") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError("OAR_REGION_TIMESTAMP_TIMEZONE_REQUIRED")
+    return parsed.astimezone(timezone.utc)
+
+
+def _ordered_receipts(receipts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    governed = [receipt for receipt in receipts if receipt.get("receipt_type") == RECEIPT_TYPE]
+    return sorted(
+        governed,
+        key=lambda receipt: (
+            _receipt_timestamp(receipt),
+            str(receipt.get("decision_id", "")),
+        ),
+    )
+
+
 def build_receipt(
     *,
     decision_id: str,
@@ -104,6 +131,7 @@ def build_receipt(
     if not decision_id:
         raise ValueError("OAR_REGION_DECISION_ID_REQUIRED")
     timestamp = timestamp or datetime.now(timezone.utc).isoformat()
+    _receipt_timestamp({"timestamp": timestamp})
     document = contract["document"]
     return {
         "receipt_type": RECEIPT_TYPE,
@@ -142,9 +170,7 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
     confirmed: dict[str, dict[str, Any]] = {}
     seen_decisions: set[str] = set()
 
-    for receipt in receipts:
-        if receipt.get("receipt_type") != RECEIPT_TYPE:
-            continue
+    for receipt in _ordered_receipts(receipts):
         decision_id = str(receipt.get("decision_id", ""))
         if not decision_id or decision_id in seen_decisions:
             raise ValueError("OAR_REGION_DUPLICATE_DECISION_ID")
