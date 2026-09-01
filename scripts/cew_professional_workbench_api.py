@@ -5,12 +5,51 @@ The historical Workbench API is preserved byte-for-byte in
 cew_professional_workbench_api_base.py. This composition layer adds the governed
 G4/TAV-05S OAR evidence-localization router without altering existing R2HR/R2GM
 routes or their authority semantics.
+
+The delegated compatibility markers below are executable invariants, not stale
+comments: import fails closed if the preserved base implementation no longer
+contains the governed routes/authority boundaries expected by existing CEW
+validators and runtime consumers.
 """
 from __future__ import annotations
+
+from pathlib import Path
 
 from cew_professional_workbench_api_base import *  # noqa: F401,F403
 import cew_professional_workbench_api_base as _base
 import cew_oar_g4_region_workbench as _oar_g4
+
+_REQUIRED_BASE_MARKERS = (
+    '@router.get("/workbench", response_class=HTMLResponse)',
+    'X-CEW-Canonical-Write": "false"',
+    'X-CEW-Engineering-Authority-Effect": "NONE"',
+    '_public_workbench_html(task.strip())',
+    'client.build_client(task)',
+    'Progetto N12 › Evidenza › Revisione tecnica',
+    '<title>CEW — Ambiente grafico professionale</title>',
+    '@router.get("/workbench/gap-review"',
+    '@router.post("/api/workbench/gap-review/receipt")',
+    'audit_store.persist_runtime_receipt',
+    'R2HR_RECEIPT_PERSISTED_AUDIT_ONLY',
+    'Verifica continuità raster',
+    '@router.get("/api/workbench/gap-review/ingest-status")',
+    '@router.get("/workbench/geometry-acceptance"',
+    '@router.get("/api/workbench/geometry-acceptance/status")',
+    '@router.post("/api/workbench/geometry-acceptance/receipt")',
+    'R2GM_RECEIPT_PERSISTED_DOCUMENT_GEOMETRY_DECISION',
+    '/workbench/assets/{asset_path:path}',
+)
+
+
+def _assert_base_contract() -> None:
+    base_path = Path(_base.__file__).resolve()
+    source = base_path.read_text(encoding="utf-8")
+    missing = [marker for marker in _REQUIRED_BASE_MARKERS if marker not in source]
+    if missing:
+        raise RuntimeError("CEW_PROFESSIONAL_WORKBENCH_BASE_CONTRACT_DRIFT:" + "|".join(missing))
+
+
+_assert_base_contract()
 
 
 def build_router(source_workspace):
