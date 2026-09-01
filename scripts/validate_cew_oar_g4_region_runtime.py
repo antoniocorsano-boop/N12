@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import sys
 import tempfile
 
 from fastapi import FastAPI
@@ -14,6 +15,7 @@ import cew_oar_g4_region_binding as binding
 import cew_oar_g4_region_workbench as workbench
 import cew_runtime_audit_store as audit_store
 
+ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_ROUTES = {
     "/workbench/oar/g4-regions",
     "/workbench/oar/g4-regions/source.png",
@@ -111,8 +113,10 @@ def main() -> None:
         workbench.RUNTIME_STORE = original_store
 
     # The real application must still place the composed router behind its
-    # global access middleware. With test-only auth disabled, the route is
-    # reachable through the same application object used in production.
+    # global access middleware. The smoke runs from scripts/, so explicitly add
+    # the repository root before importing the production application module.
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
     os.environ["CEW_AUTH_DISABLED_FOR_TEST"] = "1"
     import app as runtime_app
     runtime_client = TestClient(runtime_app.app)
