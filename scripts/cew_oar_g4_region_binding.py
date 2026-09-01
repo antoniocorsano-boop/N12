@@ -129,6 +129,53 @@ def _ordered_receipts(receipts: list[dict[str, Any]]) -> list[dict[str, Any]]:
     )
 
 
+def _validate_receipt_governance(
+    receipt: dict[str, Any],
+    row: dict[str, Any],
+    contract: dict[str, Any],
+) -> str:
+    """Validate all transition-governing fields before state is mutated.
+
+    Audit storage is append-only and therefore potentially contains malformed or
+    tampered historical records. A receipt must match the bounded pilot contract
+    in full before it can propose or confirm geometry. This check intentionally
+    precedes bbox/state-transition logic so the *first* receipt cannot establish
+    state with authority-divergent fields.
+    """
+    action = receipt.get("action")
+    if action not in {PROPOSAL_ACTION, CONFIRM_ACTION}:
+        raise ValueError("OAR_REGION_ACTION_INVALID")
+
+    document = contract["document"]
+    expected = {
+        "task_id": contract["binding_id"],
+        "residual_id": row["evidence_object_id"],
+        "pilot_id": contract["pilot_id"],
+        "binding_id": contract["binding_id"],
+        "support_id": str(row["support_id"]),
+        "evidence_object_id": row["evidence_object_id"],
+        "family_id": row["family_id"],
+        "source_version_id": document["source_version_id"],
+        "page_id": document["page_id"],
+        "derived_asset_id": document["derived_asset_id"],
+        "page_transform_id": document["page_transform_id"],
+        "coordinate_system": document["coordinate_system"],
+        "authority": (
+            "WORKING_GEOMETRY_ONLY"
+            if action == PROPOSAL_ACTION
+            else "HUMAN_EVIDENCE_LOCALIZATION_ONLY"
+        ),
+        "oar_human_confirmation": False,
+        "structural_identity_authorized": False,
+        "canonical_write_authorized": False,
+        "engineering_authority_effect": "NONE",
+    }
+    for key, value in expected.items():
+        if receipt.get(key) != value:
+            raise ValueError(f"OAR_REGION_GOVERNED_FIELD_MISMATCH_{key.upper()}")
+    return action
+
+
 def _equivalent_confirmation(existing: dict[str, Any], receipt: dict[str, Any], bbox: dict[str, float]) -> bool:
     if receipt.get("action") != CONFIRM_ACTION:
         return False
@@ -202,14 +249,9 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
         seen_decisions.add(decision_id)
         support_id = str(receipt.get("support_id", ""))
         row = support_row(contract, support_id)
-        if receipt.get("evidence_object_id") != row["evidence_object_id"]:
-            raise ValueError("OAR_REGION_OBJECT_ID_MISMATCH")
-        document = contract["document"]
-        for key in ("source_version_id", "page_id", "derived_asset_id", "page_transform_id", "coordinate_system"):
-            if receipt.get(key) != document[key]:
-                raise ValueError("OAR_REGION_DOCUMENT_BINDING_MISMATCH")
+        action = _validate_receipt_governance(receipt, row, contract)
         bbox = normalize_bbox(receipt.get("bbox"))
-        action = receipt.get("action")
+
         if action == PROPOSAL_ACTION:
             if support_id in confirmed:
                 raise ValueError("OAR_REGION_GEOMETRY_ALREADY_CONFIRMED")
@@ -228,8 +270,6 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
             if bbox != proposal["bbox"]:
                 raise ValueError("OAR_REGION_CONFIRMATION_BBOX_MISMATCH")
             confirmed[support_id] = {**receipt, "bbox": bbox}
-        else:
-            raise ValueError("OAR_REGION_ACTION_INVALID")
 
     objects = []
     for row in contract["objects"]:
