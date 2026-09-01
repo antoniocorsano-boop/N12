@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "n12-technical-drawing-extractor-result-v1",
+  "title": "N12 Technical Drawing Extractor Result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "case_id",
+    "extractor",
+    "extractor_version",
+    "source",
+    "run_id",
+    "raw_output_ref",
+    "normalized_candidates",
+    "metrics",
+    "decision"
+  ],
+  "properties": {
+    "case_id": {"type": "string"},
+    "extractor": {"type": "string"},
+    "extractor_version": {"type": "string"},
+    "run_id": {"type": "string"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "sha256", "page", "region_locator"],
+      "properties": {
+        "source_id": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"},
+        "page": {"type": "integer", "minimum": 0},
+        "region_locator": {"type": "object"}
+      }
+    },
+    "raw_output_ref": {"type": "string"},
+    "normalized_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["candidate_id", "candidate_type", "page_geometry", "payload"],
+        "properties": {
+          "candidate_id": {"type": "string"},
+          "candidate_type": {
+            "enum": ["TEXT", "DIMENSION", "SYMBOL", "LINE", "ARC", "CIRCLE", "POLYLINE", "CANDIDATE_GEOMETRY", "OTHER"]
+          },
+          "page_geometry": {"type": "object"},
+          "payload": {"type": "object"},
+          "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "true_positive": {"type": "integer", "minimum": 0},
+        "false_positive": {"type": "integer", "minimum": 0},
+        "false_negative": {"type": "integer", "minimum": 0},
+        "position_error_page_units": {"type": ["number", "null"], "minimum": 0},
+        "geometry_error": {"type": ["number", "null"], "minimum": 0},
+        "runtime_seconds": {"type": ["number", "null"], "minimum": 0}
+      }
+    },
+    "decision": {"enum": ["PASS", "WATCH", "FAIL"]},
+    "human_review": {
+      "type": "object",
+      "properties": {
+        "reviewed": {"type": "boolean"},
+        "note": {"type": "string"}
+      }
+    }
+  }
+}
