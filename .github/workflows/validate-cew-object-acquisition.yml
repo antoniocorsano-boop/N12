@@ -9,6 +9,7 @@ on:
       - 'scripts/cew_object_acquisition.py'
       - 'scripts/cew_object_workbench.py'
       - 'scripts/cew_oar_g4_column_pilot.py'
+      - 'scripts/cew_oar_g4_audit_history.py'
       - 'scripts/cew_oar_g4_region_binding.py'
       - 'scripts/cew_oar_g4_region_workbench.py'
       - 'scripts/cew_oar_g4_region_workbench_base.py'
@@ -18,6 +19,7 @@ on:
       - 'scripts/cew_professional_workbench_api_base.py'
       - 'scripts/validate_cew_object_acquisition.py'
       - 'scripts/validate_cew_oar_g4_column_pilot.py'
+      - 'scripts/validate_cew_oar_g4_audit_history.py'
       - 'scripts/validate_cew_oar_g4_region_binding.py'
       - 'scripts/validate_cew_oar_g4_region_workbench.py'
       - 'scripts/validate_cew_oar_g4_region_runtime.py'
@@ -44,6 +46,7 @@ jobs:
           scripts/cew_object_acquisition.py
           scripts/cew_object_workbench.py
           scripts/cew_oar_g4_column_pilot.py
+          scripts/cew_oar_g4_audit_history.py
           scripts/cew_oar_g4_region_binding.py
           scripts/cew_oar_g4_region_workbench.py
           scripts/cew_oar_g4_region_workbench_base.py
@@ -52,6 +55,7 @@ jobs:
           scripts/cew_professional_workbench_api_base.py
           scripts/validate_cew_object_acquisition.py
           scripts/validate_cew_oar_g4_column_pilot.py
+          scripts/validate_cew_oar_g4_audit_history.py
           scripts/validate_cew_oar_g4_region_binding.py
           scripts/validate_cew_oar_g4_region_workbench.py
           scripts/validate_cew_oar_g4_region_runtime.py
@@ -61,6 +65,9 @@ jobs:
       - name: Validate real G4 column pilot
         working-directory: scripts
         run: python validate_cew_oar_g4_column_pilot.py
+      - name: Validate governed OAR audit-history pagination and reduction
+        working-directory: scripts
+        run: python validate_cew_oar_g4_audit_history.py
       - name: Validate governed G4 region localization
         working-directory: scripts
         run: python validate_cew_oar_g4_region_binding.py
