@@ -2,10 +2,9 @@
 """Paginated, governed audit-history reader for the G4/TAV-05S OAR pilot.
 
 The append-only backend remains the complete audit authority. This reader pages
-through that history and reduces it to the minimal receipt sequence required to
-reconstruct the current OAR localization state. Every receipt is still checked
-against the domain aggregate while streaming; invalid or authority-divergent
-history remains fail-closed instead of being hidden by compaction.
+through that history, validates the complete governed sequence once, and reduces
+it to the minimal anchor-closed receipt graph needed to reconstruct current OAR
+localization state. Invalid or authority-divergent history remains fail-closed.
 """
 from __future__ import annotations
 
@@ -179,18 +178,20 @@ def _pages(receipt_type: str, store: Path, page_size: int) -> tuple[str, Iterabl
     raise ValueError(f"unsupported OAR audit backend: {backend}")
 
 
-def _anchor_closed_compact(receipts: list[dict], contract: dict) -> list[dict]:
+def _anchor_closed_compact(
+    receipts: list[dict],
+    contract: dict,
+    *,
+    report: dict | None = None,
+) -> list[dict]:
     """Return the minimal self-contained active receipt graph.
 
-    Replacement proposals and confirmations may consume a prior proposal revision
-    through ``base_proposal_decision_id``. A compact history is valid only when
-    every retained anchor target is retained too. Start from the active proposal
-    and confirmation receipts reported by the governed aggregate, then walk the
-    predecessor links transitively. Stale/concurrent loser receipts that are not
-    required by an active chain remain audit-visible in the backend but need not
-    be present in the reconstruction view.
+    ``report`` may be supplied from the single full-history aggregate so this
+    closure does not re-run aggregate over the same growing sequence. Governed
+    UNBOUND anchors are virtual revision-zero identifiers, not receipt IDs, and
+    therefore terminate predecessor traversal without requiring a stored row.
     """
-    report = binding.aggregate(receipts, contract)
+    report = report or binding.aggregate(receipts, contract)
     by_decision = {str(row.get("decision_id", "")): row for row in receipts}
     keep: set[str] = set()
     pending: list[str] = []
@@ -212,42 +213,41 @@ def _anchor_closed_compact(receipts: list[dict], contract: dict) -> list[dict]:
         anchor = receipt.get("base_proposal_decision_id")
         if anchor is not None:
             anchor_id = str(anchor)
+            if anchor_id.startswith(binding.UNBOUND_REVISION_PREFIX):
+                expected = binding.unbound_revision_anchor(str(receipt.get("support_id", "")))
+                if anchor_id != expected:
+                    raise ValueError("OAR_REGION_UNBOUND_REVISION_ANCHOR_MISMATCH")
+                continue
             if anchor_id not in by_decision:
                 raise ValueError("OAR_REGION_BASE_PROPOSAL_NOT_FOUND")
             pending.append(anchor_id)
 
     compact = [row for row in receipts if str(row.get("decision_id", "")) in keep]
     compact = binding._ordered_receipts(compact)
-    # The reduced sequence must stand on its own; this is the critical invariant
-    # that prevents a compacted anchor from pointing at a discarded predecessor.
+    # A single final aggregate proves that the reduced sequence stands on its own.
     binding.aggregate(compact, contract)
     return compact
 
 
 def _reduce_history(pages: Iterable[list[dict]], contract: dict | None = None) -> tuple[list[dict], int]:
+    """Validate once, then reduce once; aggregate-call count is O(1), not O(n)."""
     contract = contract or binding.load_contract()
-    compact: list[dict] = []
+    receipts: list[dict] = []
     seen_decisions: set[str] = set()
-    total = 0
 
     for page in pages:
         for receipt in page:
-            total += 1
             decision_id = str(receipt.get("decision_id", ""))
             if not decision_id or decision_id in seen_decisions:
                 raise ValueError("OAR_REGION_DUPLICATE_DECISION_ID")
             seen_decisions.add(decision_id)
+            receipts.append(receipt)
 
-            # Validate every historical receipt before reducing it. The domain
-            # aggregate is the single authority for equivalence and fail-closed
-            # state transitions. The subsequent reduction keeps the full anchor
-            # closure required by every active proposal/confirmation.
-            candidate = [*compact, receipt]
-            binding.aggregate(candidate, contract)
-            compact = _anchor_closed_compact(candidate, contract)
-
-    binding.aggregate(compact, contract)
-    return compact, total
+    # The domain aggregate validates every historical receipt and all governed
+    # transitions in one ordered pass. Only after that succeeds do we compact.
+    report = binding.aggregate(receipts, contract)
+    compact = _anchor_closed_compact(receipts, contract, report=report)
+    return compact, len(receipts)
 
 
 def load_runtime_receipts(
@@ -269,7 +269,7 @@ def load_runtime_receipts(
         "receipt_count": total,
         "reduced_receipt_count": len(receipts),
         "receipts": receipts,
-        "history_policy": "PAGINATED_APPEND_ONLY_ANCHOR_CLOSED_REDUCED_FOR_STATE_RECONSTRUCTION",
+        "history_policy": "PAGINATED_APPEND_ONLY_ANCHOR_CLOSED_SINGLE_PASS_REDUCED_FOR_STATE_RECONSTRUCTION",
         "authority": "RUNTIME_AUDIT_READ_ONLY",
         "canonical_write": False,
         "engineering_authority_effect": "NONE",
