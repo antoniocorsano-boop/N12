@@ -30,6 +30,7 @@ def main() -> None:
     assert source["source_sha256"] == workbench.EXPECTED_SOURCE_SHA256
     assert source["page_width_pt"] == workbench.EXPECTED_PAGE_WIDTH_PT
     assert source["page_height_pt"] == workbench.EXPECTED_PAGE_HEIGHT_PT
+    assert source["source_resolution"] == "REMOTE_IMMUTABLE_ARCHIVE_SHA256_VERIFIED"
     assert source["canonical_write_authorized"] is False
 
     raster = workbench.ensure_runtime_raster()
@@ -58,10 +59,13 @@ def main() -> None:
 
     original_backend_status = audit_store.backend_status
     original_store = workbench.RUNTIME_STORE
+    original_base_store = workbench._base.RUNTIME_STORE
     try:
         audit_store.backend_status = lambda: "FILESYSTEM_APPEND_ONLY"
         with tempfile.TemporaryDirectory(prefix="cew-oar-g4-runtime-") as tmp:
-            workbench.RUNTIME_STORE = Path(tmp)
+            isolated_store = Path(tmp)
+            workbench.RUNTIME_STORE = isolated_store
+            workbench._base.RUNTIME_STORE = isolated_store
             status = client.get("/api/workbench/oar/g4-regions/status")
             assert status.status_code == 200
             state = status.json()
@@ -111,10 +115,8 @@ def main() -> None:
     finally:
         audit_store.backend_status = original_backend_status
         workbench.RUNTIME_STORE = original_store
+        workbench._base.RUNTIME_STORE = original_base_store
 
-    # The real application must still place the composed router behind its
-    # global access middleware. The smoke runs from scripts/, so explicitly add
-    # the repository root before importing the production application module.
     if str(ROOT) not in sys.path:
         sys.path.insert(0, str(ROOT))
     os.environ["CEW_AUTH_DISABLED_FOR_TEST"] = "1"
@@ -129,7 +131,7 @@ def main() -> None:
     assert unauthorized.headers["location"] == "/login"
 
     print("CEW_OAR_G4_REGION_RUNTIME_PASS")
-    print("source_sha_verified=true raster_150dpi=3508x6265 routes=4")
+    print("source_resolution=remote_immutable_archive_sha256_verified raster_150dpi=3508x6265 routes=4")
     print("proposal_persisted=true confirmation_persisted=true post_confirmation_mutation_rejected=true")
     print("global_auth_guard=true canonical_write_authorized=false oar_human_confirmation=false")
 
