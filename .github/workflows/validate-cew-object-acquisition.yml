@@ -1,0 +1,41 @@
+name: Validate CEW Object Acquisition
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_OBJECT_ACQUISITION_CONTRACT_v1.json'
+      - 'scripts/cew_object_acquisition.py'
+      - 'scripts/cew_object_workbench.py'
+      - 'scripts/validate_cew_object_acquisition.py'
+      - 'docs/architecture/CEW_OBJECT_ACQUISITION_AND_PROJECT_MATERIAL_PLAN_v1.md'
+      - '.github/workflows/validate-cew-object-acquisition.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-oar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile OAR modules
+        run: python -m py_compile scripts/cew_object_acquisition.py scripts/cew_object_workbench.py scripts/validate_cew_object_acquisition.py
+      - name: Validate fail-closed OAR semantics
+        working-directory: scripts
+        run: python validate_cew_object_acquisition.py
+      - name: Validate OAR contract is fail-closed
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          contract = json.loads(Path('automation/CEW_OBJECT_ACQUISITION_CONTRACT_v1.json').read_text())
+          assert contract['authority']['canonical_write_authorized'] is False
+          assert contract['authority']['structural_identity_authorized'] is False
+          assert contract['promotion_policy']['structural_identity_is_separate_gate'] is True
+          assert contract['pilot']['may_write_canonical_engineering_state'] is False
+          print('CEW_OBJECT_ACQUISITION_CONTRACT_PASS')
+          PY
