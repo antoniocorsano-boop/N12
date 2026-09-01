@@ -55,6 +55,25 @@ def main():
     assert "SERVER_MVCC_SINGLE_JSON_VALUE" in atomic_sql
     assert "canonical_write" in atomic_sql and "false" in atomic_sql
 
+    # Legacy OAR receipts must seed missing revision heads before the CAS RPC is
+    # enabled. The backfill is append-history-derived, authority-filtered,
+    # idempotent, and must never overwrite already managed heads.
+    backfill_marker = "with governed_oar as ("
+    append_rpc_marker = "create or replace function public.cew_oar_append_region_receipt_v1"
+    assert backfill_marker in atomic_lower
+    assert append_rpc_marker in atomic_lower
+    assert atomic_lower.index(backfill_marker) < atomic_lower.index(append_rpc_marker)
+    assert "governed_confirmations" in atomic_lower
+    assert "governed_proposals" in atomic_lower
+    assert "'geometry_confirmed'::text as state" in atomic_lower
+    assert "'proposed'::text as state" in atomic_lower
+    assert "base_proposal_decision_id as current_proposal_decision_id" in atomic_lower
+    assert "on conflict (binding_id, support_id) do nothing" in atomic_lower
+    assert "engineering_authority_effect' = 'none'" in atomic_lower
+    assert "canonical_write_authorized' = 'false'::jsonb" in atomic_lower
+    assert "structural_identity_authorized' = 'false'::jsonb" in atomic_lower
+    assert "oar_human_confirmation' = 'false'::jsonb" in atomic_lower
+
     drop_marker = "drop function if exists public.cew_oar_read_region_receipts_v1();"
     create_marker = "create function public.cew_oar_read_region_receipts_v1()"
     assert drop_marker in atomic_lower
@@ -73,6 +92,9 @@ def main():
     assert "non provisionato" in provisioning.lower()
     assert "DROP FUNCTION IF EXISTS" in provisioning
     assert "return type" in provisioning.lower()
+    assert "backfill" in provisioning.lower()
+    assert "ON CONFLICT DO NOTHING" in provisioning
+    assert "receipt legacy" in provisioning.lower()
 
     with REGISTRY.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
@@ -121,7 +143,7 @@ def main():
         os.environ.clear()
         os.environ.update(old)
 
-    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | oar_atomic_supabase_provisioning=PASS | oar_mvcc_single_json_snapshot_rpc=PASS | oar_rpc_return_type_upgrade_safe=PASS | production_fail_closed=PASS | canonical_write=0")
+    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | oar_atomic_supabase_provisioning=PASS | oar_legacy_revision_head_backfill=PASS | oar_mvcc_single_json_snapshot_rpc=PASS | oar_rpc_return_type_upgrade_safe=PASS | production_fail_closed=PASS | canonical_write=0")
 
 
 if __name__ == "__main__":
