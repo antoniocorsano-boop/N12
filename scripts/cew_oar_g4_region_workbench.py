@@ -35,10 +35,10 @@ def _governed_runtime_loader(receipt_type, store, *, max_receipts=_history.MAX_P
 
 _base.audit_store.load_runtime_receipts = _governed_runtime_loader
 
-# Server-side optimistic concurrency: every replacement proposal and every
-# confirmation is bound to the exact proposal revision observed before append.
-# Concurrent transitions may both remain in append-only audit, but only a
-# transition whose base proposal is still current may mutate reconstructed state.
+# Server-side optimistic concurrency: every proposal and confirmation is bound to
+# the exact revision observed before append. UNBOUND itself has a deterministic
+# governed revision anchor, so two first proposals from the same snapshot can be
+# resolved without poisoning append-only history.
 def persist_action(payload: dict) -> dict:
     if not isinstance(payload, dict):
         raise ValueError("OAR_REGION_REQUEST_OBJECT_REQUIRED")
@@ -57,7 +57,11 @@ def persist_action(payload: dict) -> dict:
         if row["state"] == "GEOMETRY_CONFIRMED":
             raise ValueError("OAR_REGION_GEOMETRY_ALREADY_CONFIRMED")
         bbox = payload.get("bbox")
-        base_proposal_decision_id = row.get("geometry_proposal_receipt_id") if row["state"] == "PROPOSED" else None
+        base_proposal_decision_id = (
+            row.get("geometry_proposal_receipt_id")
+            if row["state"] == "PROPOSED"
+            else _binding.unbound_revision_anchor(support_id)
+        )
     elif action == _binding.CONFIRM_ACTION:
         if row["state"] != "PROPOSED" or not isinstance(row.get("bbox"), dict):
             raise ValueError("OAR_REGION_CONFIRMATION_REQUIRES_CURRENT_PROPOSAL")
