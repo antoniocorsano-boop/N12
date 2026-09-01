@@ -7,6 +7,7 @@ import cew_ews3_spatial_candidate_review_runtime as ews3_runtime
 import cew_ews21_compact_context_rail_runtime as ews21_runtime
 import cew_ews32_persistent_source_locator_runtime as ews32_runtime
 import cew_pr1_one_scroll_owner_runtime as pr1_runtime
+import cew_pr2_structural_gcp_capture_runtime as pr2_runtime
 
 RESUME_RUNTIME_MARKER = "CEW_ENTERPRISE_GOVERNED_CONTEXT_RESUME"
 OA_PILOT_TASK = "OA-N12-G4-COLUMN-PILOT"
@@ -17,7 +18,8 @@ def _presentation(rendered: str, task: str) -> str:
     spatial = ews3_runtime.augment(focused, task)
     compact = ews21_runtime.augment(spatial, task)
     persistent = ews32_runtime.augment(compact, task)
-    return pr1_runtime.augment(persistent, task)
+    one_scroll = pr1_runtime.augment(persistent, task)
+    return pr2_runtime.augment(one_scroll, task)
 
 
 def augment(rendered: str, task: str) -> str:
@@ -27,8 +29,8 @@ def augment(rendered: str, task: str) -> str:
     reconstructed only as a browser cache so existing OA-3/OA-4 presentation code
     can resume without creating a duplicate decision. EWS-2 owns focused workflow
     orchestration; EWS-3 owns navigation locators; EWS-2.1 compacts presentation;
-    EWS-3.2 keeps the current source locator visible; PR-1 is final presentation
-    owner for vertical scrolling and removes nested scroll competition.
+    EWS-3.2 keeps the current source locator visible; PR-1 owns vertical scrolling;
+    PR-2 adds explicit human structural-GCP capture without promoting locators.
     """
     if RESUME_RUNTIME_MARKER in rendered:
         return _presentation(rendered, task)
