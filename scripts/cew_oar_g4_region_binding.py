@@ -160,8 +160,12 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
         bbox = normalize_bbox(receipt.get("bbox"))
         action = receipt.get("action")
         if action == PROPOSAL_ACTION:
+            if support_id in confirmed:
+                raise ValueError("OAR_REGION_GEOMETRY_ALREADY_CONFIRMED")
             latest_proposal[support_id] = {**receipt, "bbox": bbox}
         elif action == CONFIRM_ACTION:
+            if support_id in confirmed:
+                raise ValueError("OAR_REGION_GEOMETRY_ALREADY_CONFIRMED")
             proposal = latest_proposal.get(support_id)
             if proposal is None:
                 raise ValueError("OAR_REGION_CONFIRMATION_WITHOUT_PROPOSAL")
