@@ -71,12 +71,12 @@ def main() -> None:
     divergent["canonical_write_authorized"] = True
     _must_fail(
         lambda: history._reduce_history([[proposal, confirmation, divergent]], contract),
-        "GEOMETRY_ALREADY_CONFIRMED",
+        "GOVERNED_FIELD_MISMATCH_CANONICAL_WRITE_AUTHORIZED",
     )
 
     print("CEW_OAR_G4_AUDIT_HISTORY_PASS")
     print("append_only_receipts=501 reduced_state_receipts=1 pagination=true")
-    print("authority_divergent_confirmation=FAIL_CLOSED canonical_write_authorized=false")
+    print("authority_divergent_receipt=FAILS_BEFORE_TRANSITION canonical_write_authorized=false")
 
 
 if __name__ == "__main__":
