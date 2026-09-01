@@ -13,6 +13,91 @@ create table if not exists public.cew_oar_region_revision_heads (
   primary key (binding_id, support_id)
 );
 
+-- Upgrade/backfill boundary.
+-- Earlier OAR revisions persisted governed geometry receipts before the CAS head
+-- table existed.  Before enabling the CAS RPC, reconstruct ONLY missing heads
+-- from that append-only history. Existing heads are never overwritten.
+--
+-- Confirmed history is terminal for this localization gate: if a governed
+-- confirmation references a governed proposal for the same binding/support,
+-- that proposal becomes the current revision and the head is backfilled as
+-- GEOMETRY_CONFIRMED. Otherwise the latest governed proposal becomes PROPOSED.
+-- Malformed / authority-divergent receipts are deliberately excluded from the
+-- backfill and remain visible to the normal fail-closed history validator.
+with governed_oar as (
+  select
+    a.decision_id,
+    a.submitted_at,
+    a.receipt_json,
+    nullif(trim(a.receipt_json->>'binding_id'), '') as binding_id,
+    nullif(trim(a.receipt_json->>'support_id'), '') as support_id,
+    a.receipt_json->>'action' as action,
+    nullif(trim(a.receipt_json->>'base_proposal_decision_id'), '') as base_proposal_decision_id
+  from public.cew_human_receipt_audit a
+  where a.receipt_json->>'receipt_type' = 'CEW_OAR_REGION_GEOMETRY_RECEIPT_v1'
+    and nullif(trim(a.receipt_json->>'binding_id'), '') is not null
+    and nullif(trim(a.receipt_json->>'support_id'), '') is not null
+    and a.receipt_json->>'engineering_authority_effect' = 'NONE'
+    and a.receipt_json->'canonical_write_authorized' = 'false'::jsonb
+    and a.receipt_json->'structural_identity_authorized' = 'false'::jsonb
+    and a.receipt_json->'oar_human_confirmation' = 'false'::jsonb
+),
+governed_proposals as (
+  select *
+  from governed_oar
+  where action = 'PROPOSE_GEOMETRY'
+    and receipt_json->>'authority' = 'WORKING_GEOMETRY_ONLY'
+),
+governed_confirmations as (
+  select c.*
+  from governed_oar c
+  join governed_proposals p
+    on p.decision_id = c.base_proposal_decision_id
+   and p.binding_id = c.binding_id
+   and p.support_id = c.support_id
+  where c.action = 'CONFIRM_GEOMETRY'
+    and c.receipt_json->>'authority' = 'HUMAN_EVIDENCE_LOCALIZATION_ONLY'
+),
+confirmed_heads as (
+  select distinct on (binding_id, support_id)
+    binding_id,
+    support_id,
+    base_proposal_decision_id as current_proposal_decision_id,
+    'GEOMETRY_CONFIRMED'::text as state,
+    submitted_at as updated_at
+  from governed_confirmations
+  order by binding_id, support_id, submitted_at desc nulls last, decision_id desc
+),
+proposed_heads as (
+  select distinct on (p.binding_id, p.support_id)
+    p.binding_id,
+    p.support_id,
+    p.decision_id as current_proposal_decision_id,
+    'PROPOSED'::text as state,
+    p.submitted_at as updated_at
+  from governed_proposals p
+  where not exists (
+    select 1 from confirmed_heads c
+    where c.binding_id = p.binding_id and c.support_id = p.support_id
+  )
+  order by p.binding_id, p.support_id, p.submitted_at desc nulls last, p.decision_id desc
+),
+backfill_heads as (
+  select * from confirmed_heads
+  union all
+  select * from proposed_heads
+)
+insert into public.cew_oar_region_revision_heads
+  (binding_id, support_id, current_proposal_decision_id, state, updated_at)
+select
+  binding_id,
+  support_id,
+  current_proposal_decision_id,
+  state,
+  coalesce(updated_at, clock_timestamp())
+from backfill_heads
+on conflict (binding_id, support_id) do nothing;
+
 create or replace function public.cew_oar_append_region_receipt_v1(p_receipt jsonb)
 returns table(receipt_json jsonb, receipt_sha256 text)
 language plpgsql
