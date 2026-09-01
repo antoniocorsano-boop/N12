@@ -50,7 +50,12 @@ def main() -> int:
 
     compositor = (ROOT / "scripts/cew_enterprise_governed_resume_runtime.py").read_text(encoding="utf-8")
     require("import cew_pr1_one_scroll_owner_runtime as pr1_runtime" in compositor, "PR-1 compositor import missing")
-    require("return pr1_runtime.augment(persistent, task)" in compositor, "PR-1 must be final presentation layer")
+    require("one_scroll = pr1_runtime.augment(persistent, task)" in compositor or "return pr1_runtime.augment(persistent, task)" in compositor, "PR-1 must own scrolling after EWS-3.2")
+    if "import cew_pr2_structural_gcp_capture_runtime as pr2_runtime" in compositor:
+        require("return pr2_runtime.augment(one_scroll, task)" in compositor, "PR-2 must compose after PR-1 without replacing scroll ownership")
+        pr2 = (ROOT / "scripts/cew_pr2_structural_gcp_capture_runtime.py").read_text(encoding="utf-8")
+        for forbidden_css in ["overflow-y:auto", "overflow-y:scroll", "overflow:auto", "overflow:scroll"]:
+            require(forbidden_css not in pr2, f"later PR-2 layer reintroduced nested scroll: {forbidden_css}")
 
     html = oa1_runtime.augment(client.build_client(PILOT), PILOT)
     require('data-pr1-runtime="CEW_PR1_ONE_SCROLL_OWNER_WORKSPACE"' in html, "rendered pilot missing PR-1")
@@ -66,6 +71,7 @@ def main() -> int:
     print("VERTICAL_SCROLL_OWNER = #ews2RailBody")
     print("NESTED_VERTICAL_SCROLL = false")
     print("PRIMARY_ACTIONS = STICKY")
+    print("LATER_PRESENTATION_LAYERS_MAY_NOT_OWN_SCROLL = true")
     print("CANONICAL_WRITE_AUTHORIZED = false")
     return 0
 

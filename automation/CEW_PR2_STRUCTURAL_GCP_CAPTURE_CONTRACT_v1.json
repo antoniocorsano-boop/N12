@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "contract": "CEW_PR2_STRUCTURAL_GCP_CAPTURE",
+  "status": "PR2_COMPLETE_PASS",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "receipt_type": "CEW_PRECISION_GCP_RECEIPT_V1",
+  "api_namespace": "/api/workbench/precision/gcp",
+  "required_behavior": {
+    "receipt_type_separate_from_oa": true,
+    "source_evidence_required": true,
+    "human_attestation_required": true,
+    "predicted_native_xy_required": true,
+    "snapped_native_xy_required": true,
+    "server_computes_residual": true,
+    "preview_before_persist": true,
+    "explicit_confirm_before_persist": true,
+    "idempotent_replay": true,
+    "locator_promotion_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false
+  },
+  "capture_methods": [
+    "HUMAN_EXPLICIT_POINT",
+    "HUMAN_DOCUMENT_SNAP"
+  ],
+  "current_method": "HUMAN_EXPLICIT_POINT",
+  "validation_evidence": {
+    "pr2_ci": "PASS",
+    "pr1_ci": "PASS",
+    "oa_governed_persistence_ci": "PASS",
+    "ews2_ci": "PASS",
+    "ews21_ews32_ci": "PASS",
+    "ews3_ci": "PASS",
+    "ews31_ci": "PASS",
+    "context_continuity_ci": "PASS",
+    "human_first_ci": "PASS",
+    "knowledge_system_ci": "PASS",
+    "existing_assessment_ci": "PASS"
+  },
+  "next_precision_step": "COLLECT_DISTRIBUTED_GCP_THEN_PR3_RESIDUAL_FIELD_ANALYSIS",
+  "forbidden_shortcuts": [
+    "CLICK_AUTOMATICALLY_PROMOTES_LOCATOR",
+    "CLIENT_SUPPLIED_RESIDUAL_TRUSTED",
+    "PRECISION_GCP_ADVANCES_OA_STAGE",
+    "GCP_CREATES_STRUCTURAL_IDENTITY",
+    "GCP_CREATES_CANONICAL_GEOMETRY",
+    "GCP_CREATES_CANONICAL_WRITE",
+    "SINGLE_GCP_VERIFIES_ALL_LOCATORS",
+    "OA6_RELEASE"
+  ],
+  "next_gate": "PR2_STRUCTURAL_GCP_CAPTURE_HVA"
+}
