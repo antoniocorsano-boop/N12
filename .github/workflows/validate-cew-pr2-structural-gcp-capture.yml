@@ -1,0 +1,25 @@
+name: Validate CEW PR-2 Structural GCP Capture
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_PR2_STRUCTURAL_GCP_CAPTURE_CONTRACT_v1.json'
+      - 'scripts/cew_precision_gcp_audit.py'
+      - 'scripts/cew_precision_gcp_api.py'
+      - 'scripts/cew_pr2_structural_gcp_capture_runtime.py'
+      - 'scripts/cew_oa_governed_api.py'
+      - 'scripts/cew_enterprise_governed_resume_runtime.py'
+      - 'scripts/validate_cew_pr2_structural_gcp_capture.py'
+      - '.github/workflows/validate-cew-pr2-structural-gcp-capture.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate PR-2 structural GCP capture
+        run: python scripts/validate_cew_pr2_structural_gcp_capture.py
