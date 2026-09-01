@@ -73,7 +73,7 @@ jobs:
       - name: Validate real G4 column pilot
         working-directory: scripts
         run: python validate_cew_oar_g4_column_pilot.py
-      - name: Validate stable-snapshot OAR audit-history pagination and reduction
+      - name: Validate server-MVCC OAR audit-history snapshot and reduction
         working-directory: scripts
         run: python validate_cew_oar_g4_audit_history.py
       - name: Validate Arena-style atomic revision persistence
@@ -93,17 +93,19 @@ jobs:
       - name: Execute real G4 localization runtime smoke
         working-directory: scripts
         run: python validate_cew_oar_g4_region_runtime.py
-      - name: Validate atomic SQL authority boundary
+      - name: Validate atomic write and MVCC read SQL authority boundaries
         run: |
           python - <<'PY'
           from pathlib import Path
           sql = Path('sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql').read_text()
           assert 'pg_advisory_xact_lock' in sql
           assert 'OAR_REGION_REVISION_CONFLICT' in sql
+          assert 'cew_oar_read_region_receipts_v1' in sql
+          assert 'one MVCC' in sql or 'MVCC' in sql
           assert "'RUNTIME_AUDIT_ONLY'" in sql
           assert 'canonical_write' in sql and 'false' in sql
           assert 'GEOMETRY_CONFIRMED' in sql
-          print('CEW_OAR_ATOMIC_SQL_CONTRACT_PASS')
+          print('CEW_OAR_ATOMIC_WRITE_MVCC_READ_SQL_CONTRACT_PASS')
           PY
       - name: Validate OAR contract is fail-closed
         run: |
