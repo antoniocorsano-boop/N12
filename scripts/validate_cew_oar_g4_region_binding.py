@@ -105,8 +105,26 @@ def main() -> None:
     _must_fail(lambda: aggregate([proposal, changed], contract), "CONFIRMATION_BBOX_MISMATCH")
     _must_fail(lambda: aggregate([proposal, proposal], contract), "DUPLICATE_DECISION_ID")
 
+    reproposal = build_receipt(
+        decision_id="oar-g4-1-reproposal",
+        support_id="1",
+        bbox={"x": 0.12, "y": 0.20, "w": 0.015, "h": 0.020},
+        action=PROPOSAL_ACTION,
+        contract=contract,
+    )
+    reconfirm = build_receipt(
+        decision_id="oar-g4-1-reconfirm",
+        support_id="1",
+        bbox=bbox,
+        action=CONFIRM_ACTION,
+        contract=contract,
+    )
+    _must_fail(lambda: aggregate([proposal, confirmation, reproposal], contract), "GEOMETRY_ALREADY_CONFIRMED")
+    _must_fail(lambda: aggregate([proposal, confirmation, reconfirm], contract), "GEOMETRY_ALREADY_CONFIRMED")
+
     print("CEW_OAR_G4_REGION_BINDING_PASS")
     print("objects=34 unbound=34 initial_canonical_regions=0 oar_human_confirmed=0")
+    print("confirmed_geometry_immutable=true")
     print("geometry_confirmation_authority=HUMAN_EVIDENCE_LOCALIZATION_ONLY canonical_write_authorized=false")
 
 
