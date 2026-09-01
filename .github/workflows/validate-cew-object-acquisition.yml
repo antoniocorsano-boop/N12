@@ -79,9 +79,6 @@ jobs:
       - name: Validate Arena-style atomic revision persistence
         working-directory: scripts
         run: python validate_cew_oar_g4_atomic_store.py
-      - name: Validate committed-write acknowledgement boundary
-        working-directory: scripts
-        run: python validate_cew_oar_g4_commit_ack.py
       - name: Validate governed G4 region localization
         working-directory: scripts
         run: python validate_cew_oar_g4_region_binding.py
@@ -90,6 +87,9 @@ jobs:
         run: python validate_cew_oar_g4_region_workbench.py
       - name: Install runtime and smoke-test dependencies
         run: pip install -r requirements.txt httpx2
+      - name: Validate committed-write acknowledgement boundary
+        working-directory: scripts
+        run: python validate_cew_oar_g4_commit_ack.py
       - name: Execute real G4 localization runtime smoke
         working-directory: scripts
         run: python validate_cew_oar_g4_region_runtime.py
