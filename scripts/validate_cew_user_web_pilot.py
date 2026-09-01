@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import csv
 import json
 import os
 import sys
@@ -19,6 +20,9 @@ import cew_runtime_audit_store as audit_store
 
 CONTRACT = ROOT / "automation/CEW_USER_WEB_PILOT_CONTRACT_v1.json"
 SQL = ROOT / "automation/CEW_USER_WEB_PILOT_SUPABASE_v1.sql"
+OAR_ATOMIC_SQL = ROOT / "sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql"
+PROVISIONING = ROOT / "docs/ARCHITECTURE/CEW_USER_WEB_PILOT_v1.md"
+REGISTRY = ROOT / "knowledge/ARTIFACT_REGISTRY_CEW_PROMOTION_ENGINE_PATCH_v1.csv"
 APP = ROOT / "app.py"
 
 
@@ -35,6 +39,31 @@ def main():
     assert "before update or delete" in sql
     assert "append-only" in sql
     assert "revoke all" in sql
+
+    atomic_sql = OAR_ATOMIC_SQL.read_text(encoding="utf-8")
+    assert "cew_oar_append_region_receipt_v1" in atomic_sql
+    assert "cew_oar_region_revision_heads" in atomic_sql
+    assert "pg_advisory_xact_lock" in atomic_sql
+    assert "OAR_REGION_REVISION_CONFLICT" in atomic_sql
+    assert "canonical_write" in atomic_sql and "false" in atomic_sql
+
+    provisioning = PROVISIONING.read_text(encoding="utf-8")
+    audit_pos = provisioning.index("automation/CEW_USER_WEB_PILOT_SUPABASE_v1.sql")
+    atomic_pos = provisioning.index("sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql")
+    assert audit_pos < atomic_pos
+    assert "cew_oar_append_region_receipt_v1" in provisioning
+    assert "cew_oar_region_revision_heads" in provisioning
+    assert "non provisionato" in provisioning.lower()
+
+    with REGISTRY.open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    atomic_row = next((row for row in rows if row["artifact_id"] == "SCHEMA-CEW-OAR-ATOMIC-001"), None)
+    assert atomic_row is not None
+    assert atomic_row["path"] == "sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql"
+    assert atomic_row["authority"] == "PROCEDURE"
+    assert atomic_row["status"] == "CURRENT"
+    assert "SCHEMA-CEW-WEB-AUDIT-001" in atomic_row["replaces_or_relates"]
+    assert "CONTRACT-CEW-OAR-G4-REGION-001" in atomic_row["replaces_or_relates"]
 
     app_text = APP.read_text(encoding="utf-8")
     assert "review_service.process_receipt" in app_text
@@ -73,7 +102,7 @@ def main():
         os.environ.clear()
         os.environ.update(old)
 
-    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | production_fail_closed=PASS | canonical_write=0")
+    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | oar_atomic_supabase_provisioning=PASS | production_fail_closed=PASS | canonical_write=0")
 
 
 if __name__ == "__main__":
