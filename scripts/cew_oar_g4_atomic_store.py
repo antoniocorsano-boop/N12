@@ -3,11 +3,11 @@
 
 A receipt is admitted to the governed append-only log only if its
 ``base_proposal_decision_id`` still matches the current support revision inside
-the persistence critical section.  The commit timestamp is assigned inside that
+the persistence critical section. The commit timestamp is assigned inside that
 critical section; worker-created timestamps never define transition order.
 
 This module does not grant canonical, structural, classification or engineering
-authority.  It only serializes the runtime-audit revision transition.
+authority. It only serializes the runtime-audit revision transition.
 """
 from __future__ import annotations
 
@@ -21,6 +21,7 @@ from typing import Iterator
 from urllib import error, request
 
 import cew_oar_g4_region_binding as binding
+import cew_oar_g4_revision_head as revision_head
 import cew_runtime_audit_store as audit_store
 
 HEAD_TABLE = "cew_oar_region_revision_heads"
@@ -92,8 +93,6 @@ def _file_lock(store: Path) -> Iterator[None]:
             yield
             fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
         except ImportError:
-            # CEW managed runtimes are Linux. On a platform without fcntl we fail
-            # closed rather than pretending that process-local locking is atomic.
             raise ValueError("OAR_REGION_ATOMIC_FILE_LOCK_UNAVAILABLE")
     finally:
         handle.close()
@@ -115,7 +114,6 @@ def _persist_file_atomic(receipt: dict, store: Path) -> dict:
         existing = _file_receipts(store)
         _assert_current_revision(receipt, existing)
         committed = _committed(receipt)
-        # Final domain validation is under the same lock as the exclusive create.
         binding.aggregate([*existing, committed])
         persisted = audit_store.persist_runtime_receipt(committed, store)
     return {**persisted, "committed_receipt": committed, "atomic_revision": True}
@@ -149,11 +147,22 @@ def _persist_neon_atomic(receipt: dict) -> dict:
         with psycopg.connect(os.environ["CEW_AUDIT_NEON_DATABASE_URL"], connect_timeout=10) as conn:
             with conn.cursor() as cur:
                 cur.execute(_NEON_HEAD_DDL)
-                # Same transaction-scoped serialization primitive used by Arena.
                 cur.execute(
                     "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
                     (f"{binding_id}:{support_id}",),
                 )
+
+                # Read the governed history under the same transaction/lock used
+                # by the CAS. If this is an upgrade from pre-CAS OAR, the missing
+                # head is derived by the canonical anchored-transition aggregate,
+                # never by a second timestamp-based state machine.
+                cur.execute(
+                    "SELECT receipt_json FROM public.cew_human_receipt_audit "
+                    "WHERE receipt_json->>'receipt_type'=%s ORDER BY submitted_at ASC NULLS LAST, decision_id ASC",
+                    (binding.RECEIPT_TYPE,),
+                )
+                existing = [row[0] if isinstance(row[0], dict) else json.loads(row[0]) for row in cur.fetchall()]
+
                 cur.execute(
                     f"SELECT current_proposal_decision_id, state FROM public.{HEAD_TABLE} "
                     "WHERE binding_id=%s AND support_id=%s",
@@ -161,10 +170,31 @@ def _persist_neon_atomic(receipt: dict) -> dict:
                 )
                 head = cur.fetchone()
                 if head is None:
-                    current = binding.unbound_revision_anchor(support_id)
-                    state = "UNBOUND"
+                    derived = revision_head.derive_revision_head(existing, support_id)
+                    current = str(derived["current_proposal_decision_id"])
+                    state = str(derived["state"])
+                    if state != "UNBOUND":
+                        cur.execute(
+                            f"""
+                            INSERT INTO public.{HEAD_TABLE}
+                              (binding_id, support_id, current_proposal_decision_id, state, updated_at)
+                            VALUES (%s,%s,%s,%s,clock_timestamp())
+                            ON CONFLICT (binding_id, support_id) DO NOTHING
+                            """,
+                            (binding_id, support_id, current, state),
+                        )
+                        cur.execute(
+                            f"SELECT current_proposal_decision_id, state FROM public.{HEAD_TABLE} "
+                            "WHERE binding_id=%s AND support_id=%s",
+                            (binding_id, support_id),
+                        )
+                        seeded = cur.fetchone()
+                        if seeded is None:
+                            raise ValueError("OAR_REGION_LEGACY_HEAD_BACKFILL_FAILED")
+                        current, state = seeded
                 else:
                     current, state = head
+
                 if receipt.get("action") == binding.PROPOSAL_ACTION:
                     if state == "GEOMETRY_CONFIRMED":
                         raise ValueError("OAR_REGION_GEOMETRY_ALREADY_CONFIRMED")
@@ -177,15 +207,6 @@ def _persist_neon_atomic(receipt: dict) -> dict:
                     raise ValueError("OAR_REGION_REVISION_CONFLICT")
 
                 committed = _committed(receipt)
-                # Validate the complete persisted history while the revision lock
-                # is held. submitted_at is read only for transport ordering; the
-                # governed receipt timestamp is now assigned under this lock too.
-                cur.execute(
-                    "SELECT receipt_json FROM public.cew_human_receipt_audit "
-                    "WHERE receipt_json->>'receipt_type'=%s ORDER BY submitted_at ASC NULLS LAST, decision_id ASC",
-                    (binding.RECEIPT_TYPE,),
-                )
-                existing = [row[0] if isinstance(row[0], dict) else json.loads(row[0]) for row in cur.fetchall()]
                 binding.aggregate([*existing, committed])
                 digest = hashlib.sha256(_raw(committed).encode("utf-8")).hexdigest()
                 cur.execute(
