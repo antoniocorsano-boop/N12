@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "contract": "CEW_EWS21_EWS32_PROFESSIONAL_USABILITY",
-  "status": "IMPLEMENTED_PENDING_VALIDATION",
+  "status": "EWS21_EWS32_COMPLETE_PASS",
   "scope": "OA_G4_PROFESSIONAL_RAIL_AND_SOURCE_LOCATOR",
   "required_behavior": {
     "one_primary_work_panel": true,
@@ -23,6 +23,18 @@
     "canonical_geometry_authorized": false,
     "locator_navigation_only": true,
     "ui_compaction_authority": "NONE"
+  },
+  "validation_evidence": {
+    "ews21_ews32_professional_usability": "PASS",
+    "ews2_unified_context_rail": "PASS",
+    "ews3_spatial_candidate_review": "PASS",
+    "ews31_viewer_frame_alignment": "PASS",
+    "enterprise_context_continuity": "PASS",
+    "oa_human_first_ux": "PASS",
+    "professional_gap_review": "PASS",
+    "existing_assessment_engine": "PASS",
+    "knowledge_system": "PASS",
+    "same_sha_ci_required": true
   },
   "forbidden_shortcuts": [
     "FULL_VERTICAL_LIFECYCLE_FORM",
