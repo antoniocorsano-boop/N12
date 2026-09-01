@@ -37,15 +37,13 @@ def main() -> None:
         loaded = history.load_runtime_receipts(binding.RECEIPT_TYPE, store, max_receipts=73)
         assert loaded["receipt_count"] == 501
         assert loaded["reduced_receipt_count"] == 1
-        assert loaded["history_policy"] == "STABLE_SNAPSHOT_APPEND_ONLY_ANCHOR_CLOSED_SINGLE_PASS_REDUCED_FOR_STATE_RECONSTRUCTION"
+        assert loaded["history_policy"] == "SERVER_MVCC_SNAPSHOT_APPEND_ONLY_ANCHOR_CLOSED_SINGLE_PASS_REDUCED_FOR_STATE_RECONSTRUCTION"
         report = binding.aggregate(loaded["receipts"], contract)
         row = next(item for item in report["objects"] if item["support_id"] == "1")
         assert row["state"] == "PROPOSED"
         assert report["canonical_write_authorized"] is False
 
-    # Snapshot regression: freeze the filesystem page generator, consume page 1,
-    # append a receipt, then consume the rest. The in-flight read must remain at
-    # the original watermark/list and exclude the new append.
+    # Filesystem snapshot regression: the list is frozen before page 1 is yielded.
     with tempfile.TemporaryDirectory(prefix="cew-oar-snapshot-") as tmp:
         store = Path(tmp)
         for index in range(4):
@@ -65,6 +63,44 @@ def main() -> None:
         frozen = [*first_page, *(item for page in pages for item in page)]
         assert len(frozen) == 4
         assert "snapshot-late" not in {item["decision_id"] for item in frozen}
+
+    # Remote snapshot readers must fetch exactly once, then chunk locally. A late
+    # commit cannot be inserted between chunks because no second remote query exists.
+    remote_rows = [
+        binding.build_receipt(
+            decision_id=f"remote-snapshot-{index}", support_id="5", bbox=bbox,
+            action=binding.PROPOSAL_ACTION,
+            timestamp=f"2026-09-01T08:10:0{index}+00:00", contract=contract,
+        )
+        for index in range(5)
+    ]
+    supabase_calls = [0]
+    https_calls = [0]
+    original_supabase_snapshot = history._supabase_snapshot
+    original_https_snapshot = history._https_snapshot
+
+    def fake_supabase_snapshot(receipt_type: str):
+        assert receipt_type == binding.RECEIPT_TYPE
+        supabase_calls[0] += 1
+        return list(remote_rows)
+
+    def fake_https_snapshot(receipt_type: str):
+        assert receipt_type == binding.RECEIPT_TYPE
+        https_calls[0] += 1
+        return list(remote_rows)
+
+    history._supabase_snapshot = fake_supabase_snapshot
+    history._https_snapshot = fake_https_snapshot
+    try:
+        supabase_pages = list(history._supabase_pages(binding.RECEIPT_TYPE, 2))
+        https_pages = list(history._https_pages(binding.RECEIPT_TYPE, 2))
+    finally:
+        history._supabase_snapshot = original_supabase_snapshot
+        history._https_snapshot = original_https_snapshot
+    assert supabase_calls[0] == 1
+    assert https_calls[0] == 1
+    assert [len(page) for page in supabase_pages] == [2, 2, 1]
+    assert [len(page) for page in https_pages] == [2, 2, 1]
 
     unbound = binding.unbound_revision_anchor("1")
     p0 = binding.build_receipt(decision_id="anchor-p0", support_id="1", bbox=bbox, action=binding.PROPOSAL_ACTION, base_proposal_decision_id=unbound, timestamp="2026-09-01T09:00:00+00:00", contract=contract)
@@ -112,12 +148,14 @@ def main() -> None:
 
     source = Path(history.__file__).read_text(encoding="utf-8")
     assert "REPEATABLE READ READ ONLY" in source
-    assert "_supabase_watermark" in source
-    assert '"snapshot": "stable"' in source
+    assert 'SUPABASE_SNAPSHOT_RPC = "cew_oar_read_region_receipts_v1"' in source
+    assert 'snapshot=oar_mvcc' in source
+    assert "_supabase_watermark" not in source
+    assert "watermark_submitted_at" not in source
 
     print("CEW_OAR_G4_AUDIT_HISTORY_PASS")
-    print("stable_snapshot=true late_append_excluded=true append_only_receipts=501")
-    print("neon=REPEATABLE_READ supabase=FROZEN_WATERMARK netlify=FROZEN_WATERMARK")
+    print("server_mvcc_snapshot=true filesystem_frozen=true append_only_receipts=501")
+    print("neon=REPEATABLE_READ supabase=SINGLE_RPC netlify=SINGLE_QUERY remote_round_trips=1")
     print("long_chain_receipts=1000 aggregate_calls=2 authority_divergent=FAIL_CLOSED")
 
 
