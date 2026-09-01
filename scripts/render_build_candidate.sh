@@ -38,6 +38,7 @@ python scripts/validate_cew_ews31_viewer_frame_alignment.py
 python scripts/validate_cew_ews21_ews32_professional_usability.py
 python scripts/validate_cew_professional_review_precision.py
 python scripts/validate_cew_pr1_one_scroll_owner.py
+python scripts/validate_cew_pr2_structural_gcp_capture.py
 python scripts/validate_cew_ews5_auth_context_restoration.py
 
 python scripts/build_cew_runtime_render_cache.py
@@ -101,6 +102,7 @@ print('CEW_RENDER_EWS21_COMPACT_PROFESSIONAL_RAIL = READY')
 print('CEW_RENDER_EWS32_PERSISTENT_SOURCE_LOCATOR = READY')
 print('CEW_RENDER_PROFESSIONAL_REVIEW_PRECISION_BASELINE = READY')
 print('CEW_RENDER_PR1_ONE_SCROLL_OWNER = READY')
+print('CEW_RENDER_PR2_STRUCTURAL_GCP_CAPTURE = READY')
 print('CEW_RENDER_EWS5_AUTH_CONTEXT_RESTORATION = READY')
 print('CEW_RENDER_BUILD = PASS')
 PY
