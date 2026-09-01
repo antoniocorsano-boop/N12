@@ -8,6 +8,7 @@ import tempfile
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
@@ -23,16 +24,21 @@ MIGRATION = ROOT / "netlify/database/migrations/001_cew-audit/migration.sql"
 
 
 class AuditMock(BaseHTTPRequestHandler):
-    seen: set[str] = set()
+    stored: dict[str, dict] = {}
     secret = "ci-netlify-audit-secret"
 
     def log_message(self, fmt, *args):
         pass
 
-    def do_POST(self):
+    def _authorized(self) -> bool:
         if self.headers.get("Authorization") != f"Bearer {self.secret}":
             self.send_response(401)
             self.end_headers()
+            return False
+        return True
+
+    def do_POST(self):
+        if not self._authorized():
             return
         raw = self.rfile.read(int(self.headers.get("Content-Length", "0")))
         payload = json.loads(raw.decode("utf-8"))
@@ -41,16 +47,41 @@ class AuditMock(BaseHTTPRequestHandler):
             self.send_response(422)
             self.end_headers()
             return
-        if decision_id in self.seen:
+        if decision_id in self.stored:
             self.send_response(409)
             self.end_headers()
             self.wfile.write(b'{"reason":"DUPLICATE_DECISION_ID"}')
             return
-        self.seen.add(decision_id)
+        self.stored[decision_id] = payload
         self.send_response(201)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(b'{"state":"AUDIT_STORED"}')
+
+    def do_GET(self):
+        if not self._authorized():
+            return
+        query = parse_qs(urlsplit(self.path).query)
+        receipt_type = query.get("receipt_type", [""])[0]
+        limit = int(query.get("limit", ["501"])[0])
+        receipts = [
+            row["receipt_json"]
+            for row in self.stored.values()
+            if row.get("receipt_json", {}).get("receipt_type") == receipt_type
+        ][:limit]
+        body = json.dumps(
+            {
+                "state": "AUDIT_READ_OK",
+                "receipts": receipts,
+                "authority": "RUNTIME_AUDIT_READ_ONLY",
+                "canonical_write": False,
+                "engineering_authority_effect": "NONE",
+            }
+        ).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(body)
 
 
 def assert_static_contracts():
@@ -60,9 +91,13 @@ def assert_static_contracts():
         '@netlify/database',
         'CEW_AUDIT_SHARED_SECRET',
         'RUNTIME_AUDIT_ONLY',
+        'RUNTIME_AUDIT_READ_ONLY',
         'RECEIPT_DIGEST_MISMATCH',
         'DUPLICATE_DECISION_ID',
         'canonical_write',
+        'req.method === "GET"',
+        "SELECT receipt_json",
+        "receipt_json->>'receipt_type'",
     ]
     for marker in required_fn:
         if marker not in fn:
@@ -82,6 +117,7 @@ def assert_static_contracts():
 
 def main():
     assert_static_contracts()
+    AuditMock.stored = {}
     server = ThreadingHTTPServer(("127.0.0.1", 0), AuditMock)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -96,6 +132,7 @@ def main():
             raise SystemExit("FAIL: Netlify audit backend not selected")
         receipt = {
             "schema_version": "1.0",
+            "receipt_type": "CEW_HUMAN_DECISION_RECEIPT_v1",
             "decision_id": "HUMAN-ERW-N12-001-CI-NETLIFY",
             "task_id": "ERW-N12-001",
             "residual_id": "M1E-B06-R08",
@@ -113,13 +150,23 @@ def main():
             "authority_acknowledgement": "I reviewed the cited immutable primary-source evidence and understand this receipt is not itself a canonical write.",
         }
         with tempfile.TemporaryDirectory() as tmp:
-            stored = audit_store.persist_runtime_receipt(receipt, Path(tmp))
+            store = Path(tmp)
+            stored = audit_store.persist_runtime_receipt(receipt, store)
             if stored.get("audit_backend") != "NETLIFY_AUDIT_HTTPS":
                 raise SystemExit("FAIL: receipt did not use Netlify audit backend")
             if stored.get("canonical_write") is not False:
                 raise SystemExit("FAIL: audit bridge changed canonical write authority")
+            loaded = audit_store.load_runtime_receipts(receipt["receipt_type"], store)
+            if loaded.get("audit_backend") != "NETLIFY_AUDIT_HTTPS":
+                raise SystemExit("FAIL: governed read did not use Netlify backend")
+            if loaded.get("receipt_count") != 1 or loaded["receipts"][0] != receipt:
+                raise SystemExit("FAIL: governed Netlify read-back mismatch")
+            if loaded.get("authority") != "RUNTIME_AUDIT_READ_ONLY":
+                raise SystemExit("FAIL: governed read authority drift")
+            if loaded.get("canonical_write") is not False:
+                raise SystemExit("FAIL: governed read changed canonical authority")
             try:
-                audit_store.persist_runtime_receipt(receipt, Path(tmp))
+                audit_store.persist_runtime_receipt(receipt, store)
             except ValueError as exc:
                 if "duplicate decision_id" not in str(exc):
                     raise
@@ -145,6 +192,7 @@ def main():
     print("CEW_NETLIFY_AUDIT_BRIDGE_PASS")
     print("AUDIT_BACKEND=NETLIFY_AUDIT_HTTPS")
     print("APPEND_ONLY_DUPLICATE_REJECTION=PASS")
+    print("GOVERNED_RECEIPT_READ_BACK=PASS")
     print("PRODUCTION_RECEIPT_SUBMIT_READY=PASS")
     print("CANONICAL_WRITE=FORBIDDEN")
 
