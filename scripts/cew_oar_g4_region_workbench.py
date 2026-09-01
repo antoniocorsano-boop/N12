@@ -8,10 +8,6 @@ import cew_oar_g4_region_binding as _binding
 import cew_oar_g4_region_workbench_base as _base
 import cew_oar_g4_source_resolver as _resolver
 
-# L'interfaccia e le API restano quelle già validate; cambia soltanto il modo
-# in cui la SourceVersion viene materializzata. Il PDF è recuperato dal commit
-# archivio immutabile tramite Source Workspace e verificato SHA-256 prima del
-# rendering, invece di essere assunto presente nel checkout del runtime.
 verify_source = _resolver.verify_source
 ensure_runtime_raster = _resolver.ensure_runtime_raster
 EXPECTED_SOURCE_SHA256 = _resolver.EXPECTED_SOURCE_SHA256
@@ -28,9 +24,6 @@ _base.EXPECTED_PAGE_HEIGHT_PT = EXPECTED_PAGE_HEIGHT_PT
 _base.RUNTIME_DPI = RUNTIME_DPI
 _base.RUNTIME_RASTER = RUNTIME_RASTER
 
-# OAR uses the domain aggregate itself as the single authority for concurrent
-# confirmation equivalence. No wrapper-level duplicate predicate is allowed:
-# authority-divergent receipts must reach the domain and fail closed.
 _original_runtime_loader = _base.audit_store.load_runtime_receipts
 
 
@@ -40,17 +33,77 @@ def _governed_runtime_loader(receipt_type, store, *, max_receipts=_history.MAX_P
     return _original_runtime_loader(receipt_type, store, max_receipts=max_receipts)
 
 
-# The base Workbench calls audit_store.load_runtime_receipts from both status
-# reconstruction and pre-append validation. Route only the OAR receipt type to
-# the paginated/reduced reader; every other runtime receipt type keeps its
-# existing governed loader unchanged.
 _base.audit_store.load_runtime_receipts = _governed_runtime_loader
 
-# Harden the already validated base UI without duplicating its router/domain
-# implementation. A displayed bbox that has been edited is explicitly dirty:
-# confirmation is disabled until PROPOSE_GEOMETRY persists it. Confirmation
-# also sends the displayed bbox so the server-side mismatch guard remains a
-# second, independent fail-closed boundary.
+# Server-side optimistic concurrency: every replacement proposal and every
+# confirmation is bound to the exact proposal revision observed before append.
+# Concurrent transitions may both remain in append-only audit, but only a
+# transition whose base proposal is still current may mutate reconstructed state.
+def persist_action(payload: dict) -> dict:
+    if not isinstance(payload, dict):
+        raise ValueError("OAR_REGION_REQUEST_OBJECT_REQUIRED")
+    allowed = {"decision_id", "support_id", "action", "bbox"}
+    if not set(payload).issubset(allowed) or not {"decision_id", "support_id", "action"}.issubset(payload):
+        raise ValueError("OAR_REGION_REQUEST_FIELD_SET_INVALID")
+
+    action = str(payload["action"])
+    support_id = str(payload["support_id"])
+    current = _base.load_report()
+    row = next((item for item in current["objects"] if str(item["support_id"]) == support_id), None)
+    if row is None:
+        raise ValueError("OAR_REGION_SUPPORT_NOT_IN_PILOT")
+
+    if action == _binding.PROPOSAL_ACTION:
+        if row["state"] == "GEOMETRY_CONFIRMED":
+            raise ValueError("OAR_REGION_GEOMETRY_ALREADY_CONFIRMED")
+        bbox = payload.get("bbox")
+        base_proposal_decision_id = row.get("geometry_proposal_receipt_id") if row["state"] == "PROPOSED" else None
+    elif action == _binding.CONFIRM_ACTION:
+        if row["state"] != "PROPOSED" or not isinstance(row.get("bbox"), dict):
+            raise ValueError("OAR_REGION_CONFIRMATION_REQUIRES_CURRENT_PROPOSAL")
+        bbox = row["bbox"]
+        base_proposal_decision_id = row.get("geometry_proposal_receipt_id")
+        if not base_proposal_decision_id:
+            raise ValueError("OAR_REGION_CONFIRMATION_REQUIRES_PROPOSAL_REVISION")
+        if "bbox" in payload and payload["bbox"] is not None and _binding.normalize_bbox(payload["bbox"]) != bbox:
+            raise ValueError("OAR_REGION_CONFIRMATION_BBOX_MISMATCH")
+    else:
+        raise ValueError("OAR_REGION_ACTION_INVALID")
+
+    receipt = _binding.build_receipt(
+        decision_id=str(payload["decision_id"]),
+        support_id=support_id,
+        bbox=bbox,
+        action=action,
+        base_proposal_decision_id=base_proposal_decision_id,
+    )
+    loaded = _base.audit_store.load_runtime_receipts(_binding.RECEIPT_TYPE, _base.RUNTIME_STORE)
+    _binding.aggregate([*loaded["receipts"], receipt])
+    persisted = _base.audit_store.persist_runtime_receipt(receipt, _base.RUNTIME_STORE)
+    report = _base.load_report()
+    result_row = next(item for item in report["objects"] if str(item["support_id"]) == support_id)
+    return {
+        "state": "OAR_REGION_RECEIPT_PERSISTED_AUDIT_ONLY",
+        "runtime_receipt_id": persisted["runtime_receipt_id"],
+        "sha256": persisted["sha256"],
+        "audit_backend": persisted["audit_backend"],
+        "support_id": support_id,
+        "object_state": result_row["state"],
+        "bbox": result_row["bbox"],
+        "summary": report["summary"],
+        "next_gate": report["next_gate"],
+        "oar_human_confirmation": False,
+        "canonical_write_authorized": False,
+        "engineering_authority_effect": "NONE",
+    }
+
+
+_base.persist_action = persist_action
+
+# Harden the already validated base UI. A displayed bbox that has been edited is
+# explicitly dirty: confirmation is disabled until PROPOSE_GEOMETRY persists it.
+# Confirmation also sends the displayed bbox so the server mismatch guard remains
+# a second, independent fail-closed boundary.
 _base_build_page = _base.build_page
 
 
