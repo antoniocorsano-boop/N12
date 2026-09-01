@@ -1,4 +1,4 @@
--- CEW OAR G4 — Arena-style atomic revision append
+-- CEW OAR G4 — Arena-style atomic revision append + governed MVCC snapshot read
 -- Runtime audit only: this migration grants no canonical, structural,
 -- classification or engineering authority.
 
@@ -42,7 +42,6 @@ begin
     raise exception 'OAR_REGION_ATOMIC_CONTRACT_VIOLATION' using errcode='23514';
   end if;
 
-  -- Same transaction-scoped serialization primitive used by CurManLight Arena.
   perform pg_advisory_xact_lock(hashtextextended(v_binding_id || ':' || v_support_id, 0));
 
   select head.current_proposal_decision_id, head.state
@@ -97,5 +96,24 @@ begin
 end;
 $$;
 
+-- OAR snapshot reads must not depend on application timestamps or OFFSET windows.
+-- One RPC invocation is one PostgreSQL statement and therefore observes one MVCC
+-- snapshot. PostgREST materializes the result of this statement before replying;
+-- concurrent commits cannot appear part-way through the returned set.
+create or replace function public.cew_oar_read_region_receipts_v1()
+returns table(receipt_json jsonb)
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select a.receipt_json
+  from public.cew_human_receipt_audit a
+  where a.receipt_json->>'receipt_type' = 'CEW_OAR_REGION_GEOMETRY_RECEIPT_v1'
+  order by a.submitted_at asc nulls last, a.decision_id asc
+$$;
+
 revoke all on function public.cew_oar_append_region_receipt_v1(jsonb) from public;
+revoke all on function public.cew_oar_read_region_receipts_v1() from public;
 grant execute on function public.cew_oar_append_region_receipt_v1(jsonb) to service_role;
+grant execute on function public.cew_oar_read_region_receipts_v1() to service_role;
