@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import inspect
 import json
 import math
 import sys
@@ -59,6 +60,14 @@ def main() -> int:
         require(loc["structural_identity_authorized"] is False, f"support {sid} identity authority drift")
         require(loc["canonical_geometry_authorized"] is False, f"support {sid} canonical geometry drift")
 
+    # Validate the actual locator derivation rather than wording in comments/docstrings.
+    loader_source = inspect.getsource(ews3_runtime._load_locators)
+    require("REGISTRATION_CSV" in loader_source and "SUPPORTS_CSV" in loader_source, "locator derivation must read governed registration and support coordinates")
+    require("metric_x_from_u" in loader_source and "metric_y_from_v" in loader_source, "affine registration coefficients not used")
+    require("x_global_m" in loader_source and "y_global_m" in loader_source, "common metric support coordinates not used")
+    for forbidden_signal in ("score", "reason_codes", "cew-oa3", "latestSimilarity", "STRONG_SIMILAR", "POSSIBLE_SIMILAR"):
+        require(forbidden_signal not in loader_source, f"source locator derivation improperly depends on similarity signal: {forbidden_signal}")
+
     runtime = (ROOT / "scripts/cew_ews3_spatial_candidate_review_runtime.py").read_text(encoding="utf-8")
     for marker in [
         "CEW_EWS3_SPATIAL_CANDIDATE_REVIEW",
@@ -73,7 +82,6 @@ def main() -> int:
         "MutationObserver",
     ]:
         require(marker in runtime, f"runtime invariant missing: {marker}")
-    require("similarity" not in runtime.lower() or "similarity" in "", "EWS-3 runtime must not compute source position from similarity")
 
     resume = (ROOT / "scripts/cew_enterprise_governed_resume_runtime.py").read_text(encoding="utf-8")
     require("import cew_ews3_spatial_candidate_review_runtime as ews3_runtime" in resume, "EWS-3 compositor import missing")
@@ -105,6 +113,7 @@ def main() -> int:
     print(f"SOURCE_FRAME = {meta['frame_width_px']}x{meta['frame_height_px']}")
     print(f"REGISTRATION = {meta['registration_validation_state']} / inliers={meta['inlier_count']}")
     print(f"LOCATOR_COVERAGE = {len(locators)}/34")
+    print("LOCATOR_DERIVATION = REGISTERED_XY_ONLY_NO_SIMILARITY_SIGNAL")
     print("LOCATOR_ROLE = VIEWER_EVIDENCE_NAVIGATION_ONLY")
     print("STRUCTURAL_IDENTITY_AUTHORIZED = false")
     print("CANONICAL_GEOMETRY_AUTHORIZED = false")
