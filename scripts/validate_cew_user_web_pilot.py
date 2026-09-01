@@ -41,13 +41,18 @@ def main():
     assert "revoke all" in sql
 
     atomic_sql = OAR_ATOMIC_SQL.read_text(encoding="utf-8")
+    atomic_lower = atomic_sql.lower()
     assert "cew_oar_append_region_receipt_v1" in atomic_sql
     assert "cew_oar_read_region_receipts_v1" in atomic_sql
     assert "cew_oar_region_revision_heads" in atomic_sql
     assert "pg_advisory_xact_lock" in atomic_sql
     assert "OAR_REGION_REVISION_CONFLICT" in atomic_sql
-    assert "language sql" in atomic_sql.lower()
-    assert "stable" in atomic_sql.lower()
+    assert "language sql" in atomic_lower
+    assert "stable" in atomic_lower
+    assert "returns jsonb" in atomic_lower
+    assert "jsonb_agg" in atomic_sql
+    assert "'receipt_count', count(*)" in atomic_sql
+    assert "SERVER_MVCC_SINGLE_JSON_VALUE" in atomic_sql
     assert "canonical_write" in atomic_sql and "false" in atomic_sql
 
     provisioning = PROVISIONING.read_text(encoding="utf-8")
@@ -107,7 +112,7 @@ def main():
         os.environ.clear()
         os.environ.update(old)
 
-    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | oar_atomic_supabase_provisioning=PASS | oar_mvcc_snapshot_rpc=PASS | production_fail_closed=PASS | canonical_write=0")
+    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | oar_atomic_supabase_provisioning=PASS | oar_mvcc_single_json_snapshot_rpc=PASS | production_fail_closed=PASS | canonical_write=0")
 
 
 if __name__ == "__main__":
