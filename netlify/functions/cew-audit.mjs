@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { getDatabase } from "@netlify/database";
+import { replayOarHead } from "./cew-oar-replay.mjs";
 
 const SAFE_DECISION_ID = /^[A-Za-z0-9._-]+$/;
 const REQUIRED = new Set([
@@ -55,9 +56,6 @@ async function governedRead(req, db) {
       if (receiptType !== OAR_RECEIPT_TYPE) {
         return response(422, { state: "AUDIT_READ_REJECTED", reason: "OAR_MVCC_SNAPSHOT_RECEIPT_TYPE_INVALID" });
       }
-      // One SQL statement = one PostgreSQL MVCC snapshot. The complete OAR set
-      // is materialized before this request returns, so a transaction that commits
-      // later cannot appear between client-side chunks of this response.
       const result = await db.sql`
         SELECT receipt_json
         FROM cew_human_receipt_audit
@@ -152,9 +150,45 @@ async function atomicOarAppend(payload, db) {
       )
     `;
 
+    // Upgrade-safe legacy recovery. Replay the append-only receipts using the
+    // same anchored-transition semantics as the governed aggregate, then seed
+    // the derived head only if the database still has the exact same receipt
+    // count when the atomic transition statement starts.
+    const legacyResult = await db.sql`
+      SELECT receipt_json
+      FROM cew_human_receipt_audit
+      WHERE receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+        AND receipt_json->>'binding_id' = ${bindingId}
+        AND receipt_json->>'support_id' = ${supportId}
+      ORDER BY (receipt_json->>'timestamp')::timestamptz ASC, decision_id ASC
+    `;
+    const legacyReceipts = rowsOf(legacyResult).map((row) => row.receipt_json);
+    let legacyHead;
+    try {
+      legacyHead = replayOarHead(legacyReceipts, bindingId, supportId);
+    } catch (err) {
+      console.error("CEW_OAR_LEGACY_HEAD_REPLAY_ERROR", err);
+      return response(409, { state: "AUDIT_REJECTED", reason: "OAR_REGION_LEGACY_HEAD_REPLAY_FAILED" });
+    }
+
     const initialAnchor = `CEW_OAR_UNBOUND_REVISION:${supportId}`;
     const result = await db.sql`
-      WITH updated AS (
+      WITH seeded AS (
+        INSERT INTO cew_oar_region_revision_heads
+          (binding_id, support_id, current_proposal_decision_id, state, updated_at)
+        SELECT ${bindingId}, ${supportId}, ${legacyHead.current_proposal_decision_id}, ${legacyHead.state},
+               COALESCE(${legacyHead.updated_at}::timestamptz, clock_timestamp())
+        WHERE ${legacyHead.state} <> 'UNBOUND'
+          AND (
+            SELECT count(*) FROM cew_human_receipt_audit a
+            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+              AND a.receipt_json->>'binding_id' = ${bindingId}
+              AND a.receipt_json->>'support_id' = ${supportId}
+          ) = ${legacyHead.receipt_count}
+        ON CONFLICT (binding_id, support_id) DO NOTHING
+        RETURNING binding_id
+      ),
+      updated AS (
         UPDATE cew_oar_region_revision_heads h
         SET current_proposal_decision_id = CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN ${decisionId} ELSE h.current_proposal_decision_id END,
             state = CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN 'PROPOSED' ELSE 'GEOMETRY_CONFIRMED' END,
@@ -162,8 +196,8 @@ async function atomicOarAppend(payload, db) {
         WHERE h.binding_id = ${bindingId}
           AND h.support_id = ${supportId}
           AND h.current_proposal_decision_id = ${expected}
-          AND ((${action} = 'PROPOSE_GEOMETRY' AND h.state = 'PROPOSED')
-               OR (${action} = 'CONFIRM_GEOMETRY' AND h.state = 'PROPOSED'))
+          AND h.state = 'PROPOSED'
+          AND (SELECT count(*) FROM seeded) >= 0
         RETURNING h.binding_id
       ),
       inserted AS (
@@ -172,7 +206,19 @@ async function atomicOarAppend(payload, db) {
         SELECT ${bindingId}, ${supportId}, ${decisionId}, 'PROPOSED', clock_timestamp()
         WHERE ${action} = 'PROPOSE_GEOMETRY'
           AND ${expected} = ${initialAnchor}
-          AND NOT EXISTS (SELECT 1 FROM cew_oar_region_revision_heads h WHERE h.binding_id=${bindingId} AND h.support_id=${supportId})
+          AND ${legacyHead.state} = 'UNBOUND'
+          AND ${legacyHead.receipt_count} = 0
+          AND (SELECT count(*) FROM seeded) >= 0
+          AND NOT EXISTS (
+            SELECT 1 FROM cew_human_receipt_audit a
+            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+              AND a.receipt_json->>'binding_id' = ${bindingId}
+              AND a.receipt_json->>'support_id' = ${supportId}
+          )
+          AND NOT EXISTS (
+            SELECT 1 FROM cew_oar_region_revision_heads h
+            WHERE h.binding_id=${bindingId} AND h.support_id=${supportId}
+          )
         ON CONFLICT (binding_id, support_id) DO NOTHING
         RETURNING binding_id
       ),
