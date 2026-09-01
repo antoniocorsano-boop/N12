@@ -99,8 +99,6 @@ def main() -> None:
     assert [len(page) for page in supabase_pages] == [2, 2, 1]
     assert [len(page) for page in https_pages] == [2, 2, 1]
 
-    # PostgREST Max Rows must be irrelevant: the RPC crosses the API as ONE JSON
-    # value even when the embedded receipt array is much larger than normal row caps.
     many_rows = [
         binding.build_receipt(
             decision_id=f"supabase-json-{index:04d}", support_id="6", bbox=bbox,
@@ -178,15 +176,22 @@ def main() -> None:
     assert "watermark_submitted_at" not in source
 
     sql = (Path(__file__).resolve().parents[1] / "sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql").read_text(encoding="utf-8")
-    assert "returns jsonb" in sql.lower()
-    assert "jsonb_agg" in sql
-    assert "'receipt_count', count(*)" in sql
-    assert "SERVER_MVCC_SINGLE_JSON_VALUE" in sql
-    assert "returns table(receipt_json jsonb)" not in sql.lower()
+    lower_sql = sql.lower()
+    drop_marker = "drop function if exists public.cew_oar_read_region_receipts_v1();"
+    create_marker = "create function public.cew_oar_read_region_receipts_v1()"
+    assert drop_marker in lower_sql
+    assert create_marker in lower_sql
+    assert lower_sql.index(drop_marker) < lower_sql.index(create_marker)
+    active_definition = lower_sql[lower_sql.index(create_marker):]
+    assert "returns jsonb" in active_definition
+    assert "jsonb_agg" in active_definition
+    assert "'receipt_count', count(*)" in active_definition
+    assert "server_mvcc_single_json_value" in active_definition
+    assert "returns table(receipt_json jsonb)" not in active_definition
 
     print("CEW_OAR_G4_AUDIT_HISTORY_PASS")
     print("server_mvcc_snapshot=true filesystem_frozen=true append_only_receipts=501")
-    print("supabase_single_json_receipts=1200 truncation_detection=FAIL_CLOSED")
+    print("supabase_single_json_receipts=1200 truncation_detection=FAIL_CLOSED rpc_return_type_upgrade_safe=true")
     print("neon=REPEATABLE_READ supabase=SINGLE_JSON_RPC netlify=SINGLE_QUERY remote_round_trips=1")
     print("long_chain_receipts=1000 aggregate_calls=2 authority_divergent=FAIL_CLOSED")
 
