@@ -12,6 +12,7 @@ const REQUIRED = new Set([
   "canonical_write",
   "submitted_at",
 ]);
+const MAX_GOVERNED_READ_RECEIPTS = 500;
 
 function stable(value) {
   if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`;
@@ -31,13 +32,45 @@ function response(status, body) {
   });
 }
 
-export default async (req) => {
-  const secret = process.env.CEW_AUDIT_SHARED_SECRET || "";
-  const auth = req.headers.get("authorization") || "";
-  if (!secret || auth !== `Bearer ${secret}`) {
-    return response(401, { state: "AUDIT_REJECTED", reason: "UNAUTHORIZED" });
-  }
+function rowsOf(result) {
+  if (Array.isArray(result)) return result;
+  if (Array.isArray(result?.rows)) return result.rows;
+  return [];
+}
 
+async function governedRead(req, db) {
+  const url = new URL(req.url);
+  const receiptType = String(url.searchParams.get("receipt_type") || "").trim();
+  const rawLimit = Number.parseInt(url.searchParams.get("limit") || String(MAX_GOVERNED_READ_RECEIPTS + 1), 10);
+  if (!receiptType || receiptType.length > 200) {
+    return response(422, { state: "AUDIT_READ_REJECTED", reason: "RECEIPT_TYPE_INVALID" });
+  }
+  if (!Number.isInteger(rawLimit) || rawLimit < 1 || rawLimit > MAX_GOVERNED_READ_RECEIPTS + 1) {
+    return response(422, { state: "AUDIT_READ_REJECTED", reason: "READ_LIMIT_INVALID" });
+  }
+  try {
+    const result = await db.sql`
+      SELECT receipt_json
+      FROM cew_human_receipt_audit
+      WHERE receipt_json->>'receipt_type' = ${receiptType}
+      ORDER BY submitted_at ASC NULLS LAST, decision_id ASC
+      LIMIT ${rawLimit}
+    `;
+    const rows = rowsOf(result);
+    return response(200, {
+      state: "AUDIT_READ_OK",
+      receipts: rows.map((row) => row.receipt_json),
+      authority: "RUNTIME_AUDIT_READ_ONLY",
+      canonical_write: false,
+      engineering_authority_effect: "NONE",
+    });
+  } catch (err) {
+    console.error("CEW_AUDIT_DB_READ_ERROR", err);
+    return response(503, { state: "AUDIT_READ_REJECTED", reason: "AUDIT_DATABASE_UNAVAILABLE" });
+  }
+}
+
+async function appendReceipt(req, db) {
   let payload;
   try {
     payload = await req.json();
@@ -66,7 +99,6 @@ export default async (req) => {
     return response(422, { state: "AUDIT_REJECTED", reason: "DECISION_ID_MISMATCH" });
   }
 
-  const db = getDatabase();
   try {
     await db.sql`
       INSERT INTO cew_human_receipt_audit
@@ -89,9 +121,21 @@ export default async (req) => {
     authority: "RUNTIME_AUDIT_ONLY",
     canonical_write: false,
   });
+}
+
+export default async (req) => {
+  const secret = process.env.CEW_AUDIT_SHARED_SECRET || "";
+  const auth = req.headers.get("authorization") || "";
+  if (!secret || auth !== `Bearer ${secret}`) {
+    return response(401, { state: "AUDIT_REJECTED", reason: "UNAUTHORIZED" });
+  }
+
+  const db = getDatabase();
+  if (req.method === "GET") return governedRead(req, db);
+  if (req.method === "POST") return appendReceipt(req, db);
+  return response(405, { state: "AUDIT_REJECTED", reason: "METHOD_NOT_ALLOWED" });
 };
 
 export const config = {
   path: "/api/cew-audit",
-  method: "POST",
 };
