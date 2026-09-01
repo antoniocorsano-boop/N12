@@ -179,6 +179,51 @@ def _pages(receipt_type: str, store: Path, page_size: int) -> tuple[str, Iterabl
     raise ValueError(f"unsupported OAR audit backend: {backend}")
 
 
+def _anchor_closed_compact(receipts: list[dict], contract: dict) -> list[dict]:
+    """Return the minimal self-contained active receipt graph.
+
+    Replacement proposals and confirmations may consume a prior proposal revision
+    through ``base_proposal_decision_id``. A compact history is valid only when
+    every retained anchor target is retained too. Start from the active proposal
+    and confirmation receipts reported by the governed aggregate, then walk the
+    predecessor links transitively. Stale/concurrent loser receipts that are not
+    required by an active chain remain audit-visible in the backend but need not
+    be present in the reconstruction view.
+    """
+    report = binding.aggregate(receipts, contract)
+    by_decision = {str(row.get("decision_id", "")): row for row in receipts}
+    keep: set[str] = set()
+    pending: list[str] = []
+
+    for obj in report["objects"]:
+        for key in ("geometry_proposal_receipt_id", "geometry_confirmation_receipt_id"):
+            decision_id = obj.get(key)
+            if decision_id:
+                pending.append(str(decision_id))
+
+    while pending:
+        decision_id = pending.pop()
+        if decision_id in keep:
+            continue
+        receipt = by_decision.get(decision_id)
+        if receipt is None:
+            raise ValueError("OAR_REGION_COMPACT_ACTIVE_RECEIPT_NOT_FOUND")
+        keep.add(decision_id)
+        anchor = receipt.get("base_proposal_decision_id")
+        if anchor is not None:
+            anchor_id = str(anchor)
+            if anchor_id not in by_decision:
+                raise ValueError("OAR_REGION_BASE_PROPOSAL_NOT_FOUND")
+            pending.append(anchor_id)
+
+    compact = [row for row in receipts if str(row.get("decision_id", "")) in keep]
+    compact = binding._ordered_receipts(compact)
+    # The reduced sequence must stand on its own; this is the critical invariant
+    # that prevents a compacted anchor from pointing at a discarded predecessor.
+    binding.aggregate(compact, contract)
+    return compact
+
+
 def _reduce_history(pages: Iterable[list[dict]], contract: dict | None = None) -> tuple[list[dict], int]:
     contract = contract or binding.load_contract()
     compact: list[dict] = []
@@ -195,35 +240,11 @@ def _reduce_history(pages: Iterable[list[dict]], contract: dict | None = None) -
 
             # Validate every historical receipt before reducing it. The domain
             # aggregate is the single authority for equivalence and fail-closed
-            # state transitions.
-            binding.aggregate([*compact, receipt], contract)
-
-            support_id = str(receipt.get("support_id", ""))
-            action = receipt.get("action")
-            if action == binding.PROPOSAL_ACTION:
-                compact = [
-                    row
-                    for row in compact
-                    if not (str(row.get("support_id", "")) == support_id and row.get("action") == binding.PROPOSAL_ACTION)
-                ]
-                compact.append(receipt)
-            elif action == binding.CONFIRM_ACTION:
-                existing = next(
-                    (
-                        row
-                        for row in compact
-                        if str(row.get("support_id", "")) == support_id and row.get("action") == binding.CONFIRM_ACTION
-                    ),
-                    None,
-                )
-                if existing is None:
-                    compact.append(receipt)
-                else:
-                    # The aggregate call above already proved this replay is
-                    # equivalent under the full governed domain predicate.
-                    continue
-            else:
-                raise ValueError("OAR_REGION_ACTION_INVALID")
+            # state transitions. The subsequent reduction keeps the full anchor
+            # closure required by every active proposal/confirmation.
+            candidate = [*compact, receipt]
+            binding.aggregate(candidate, contract)
+            compact = _anchor_closed_compact(candidate, contract)
 
     binding.aggregate(compact, contract)
     return compact, total
@@ -248,7 +269,7 @@ def load_runtime_receipts(
         "receipt_count": total,
         "reduced_receipt_count": len(receipts),
         "receipts": receipts,
-        "history_policy": "PAGINATED_APPEND_ONLY_REDUCED_FOR_STATE_RECONSTRUCTION",
+        "history_policy": "PAGINATED_APPEND_ONLY_ANCHOR_CLOSED_REDUCED_FOR_STATE_RECONSTRUCTION",
         "authority": "RUNTIME_AUDIT_READ_ONLY",
         "canonical_write": False,
         "engineering_authority_effect": "NONE",
