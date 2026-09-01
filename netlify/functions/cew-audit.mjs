@@ -45,61 +45,51 @@ async function governedRead(req, db) {
   const receiptType = String(url.searchParams.get("receipt_type") || "").trim();
   const rawLimit = Number.parseInt(url.searchParams.get("limit") || String(MAX_GOVERNED_READ_RECEIPTS), 10);
   const rawOffset = Number.parseInt(url.searchParams.get("offset") || "0", 10);
-  const stableSnapshot = url.searchParams.get("snapshot") === "stable";
-  let watermarkSubmittedAt = String(url.searchParams.get("watermark_submitted_at") || "").trim();
-  let watermarkDecisionId = String(url.searchParams.get("watermark_decision_id") || "").trim();
+  const oarMvccSnapshot = url.searchParams.get("snapshot") === "oar_mvcc";
   if (!receiptType || receiptType.length > 200) {
     return response(422, { state: "AUDIT_READ_REJECTED", reason: "RECEIPT_TYPE_INVALID" });
   }
-  if (!Number.isInteger(rawLimit) || rawLimit < 1 || rawLimit > MAX_GOVERNED_READ_PROBE) {
-    return response(422, { state: "AUDIT_READ_REJECTED", reason: "READ_LIMIT_INVALID" });
-  }
-  if (!Number.isInteger(rawOffset) || rawOffset < 0) {
-    return response(422, { state: "AUDIT_READ_REJECTED", reason: "READ_OFFSET_INVALID" });
-  }
-  if ((watermarkSubmittedAt && !watermarkDecisionId) || (!watermarkSubmittedAt && watermarkDecisionId)) {
-    return response(422, { state: "AUDIT_READ_REJECTED", reason: "READ_WATERMARK_INCOMPLETE" });
-  }
-  try {
-    if (stableSnapshot && !watermarkSubmittedAt) {
-      const top = await db.sql`
-        SELECT submitted_at, decision_id
-        FROM cew_human_receipt_audit
-        WHERE receipt_json->>'receipt_type' = ${receiptType}
-          AND submitted_at IS NOT NULL
-        ORDER BY submitted_at DESC, decision_id DESC
-        LIMIT 1
-      `;
-      const topRows = rowsOf(top);
-      if (topRows.length) {
-        watermarkSubmittedAt = new Date(topRows[0].submitted_at).toISOString();
-        watermarkDecisionId = String(topRows[0].decision_id);
-      }
-    }
 
-    let result;
-    if (stableSnapshot && watermarkSubmittedAt) {
-      result = await db.sql`
-        SELECT receipt_json
-        FROM cew_human_receipt_audit
-        WHERE receipt_json->>'receipt_type' = ${receiptType}
-          AND submitted_at IS NOT NULL
-          AND (submitted_at < ${watermarkSubmittedAt}::timestamptz
-               OR (submitted_at = ${watermarkSubmittedAt}::timestamptz AND decision_id <= ${watermarkDecisionId}))
-        ORDER BY submitted_at ASC, decision_id ASC
-        LIMIT ${rawLimit}
-        OFFSET ${rawOffset}
-      `;
-    } else {
-      result = await db.sql`
+  try {
+    if (oarMvccSnapshot) {
+      if (receiptType !== OAR_RECEIPT_TYPE) {
+        return response(422, { state: "AUDIT_READ_REJECTED", reason: "OAR_MVCC_SNAPSHOT_RECEIPT_TYPE_INVALID" });
+      }
+      // One SQL statement = one PostgreSQL MVCC snapshot. The complete OAR set
+      // is materialized before this request returns, so a transaction that commits
+      // later cannot appear between client-side chunks of this response.
+      const result = await db.sql`
         SELECT receipt_json
         FROM cew_human_receipt_audit
         WHERE receipt_json->>'receipt_type' = ${receiptType}
         ORDER BY submitted_at ASC NULLS LAST, decision_id ASC
-        LIMIT ${rawLimit}
-        OFFSET ${rawOffset}
       `;
+      const rows = rowsOf(result);
+      return response(200, {
+        state: "AUDIT_READ_OK",
+        receipts: rows.map((row) => row.receipt_json),
+        snapshot: "SERVER_MVCC_SINGLE_QUERY",
+        receipt_count: rows.length,
+        authority: "RUNTIME_AUDIT_READ_ONLY",
+        canonical_write: false,
+        engineering_authority_effect: "NONE",
+      });
     }
+
+    if (!Number.isInteger(rawLimit) || rawLimit < 1 || rawLimit > MAX_GOVERNED_READ_PROBE) {
+      return response(422, { state: "AUDIT_READ_REJECTED", reason: "READ_LIMIT_INVALID" });
+    }
+    if (!Number.isInteger(rawOffset) || rawOffset < 0) {
+      return response(422, { state: "AUDIT_READ_REJECTED", reason: "READ_OFFSET_INVALID" });
+    }
+    const result = await db.sql`
+      SELECT receipt_json
+      FROM cew_human_receipt_audit
+      WHERE receipt_json->>'receipt_type' = ${receiptType}
+      ORDER BY submitted_at ASC NULLS LAST, decision_id ASC
+      LIMIT ${rawLimit}
+      OFFSET ${rawOffset}
+    `;
     const rows = rowsOf(result);
     const overflowProbe = rawLimit === MAX_GOVERNED_READ_PROBE;
     if (overflowProbe && rows.length > MAX_GOVERNED_READ_RECEIPTS) {
@@ -118,9 +108,7 @@ async function governedRead(req, db) {
       offset: rawOffset,
       limit: Math.min(rawLimit, MAX_GOVERNED_READ_RECEIPTS),
       overflow_probe: overflowProbe,
-      snapshot: stableSnapshot ? "STABLE_WATERMARK" : "LEGACY_OFFSET",
-      watermark_submitted_at: watermarkSubmittedAt || null,
-      watermark_decision_id: watermarkDecisionId || null,
+      snapshot: "LEGACY_OFFSET",
       authority: "RUNTIME_AUDIT_READ_ONLY",
       canonical_write: false,
       engineering_authority_effect: "NONE",
