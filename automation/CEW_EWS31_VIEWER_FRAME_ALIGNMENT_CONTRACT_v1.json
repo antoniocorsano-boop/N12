@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "contract": "CEW_EWS31_VIEWER_FRAME_ALIGNMENT",
+  "status": "IMPLEMENTED_PENDING_VALIDATION",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "project_material_ready": false,
+  "task": "OA-N12-G4-COLUMN-PILOT",
+  "scope": "VIEWER_NAVIGATION_FRAME_ADAPTER_ONLY",
+  "upstream": {
+    "ews3": "EWS3_COMPLETE_PASS",
+    "registration_frame": "ROT90_CCW_300DPI",
+    "registration_width_px": 12530,
+    "registration_height_px": 7016,
+    "native_dzi_width_px": 7016,
+    "native_dzi_height_px": 12530
+  },
+  "frame_mapping": {
+    "adapter": "ROT90_CCW_REGISTRATION_TO_NATIVE_DZI",
+    "viewer_x": "native_width_minus_v",
+    "viewer_y": "u",
+    "registration_geometry_modified": false,
+    "viewer_navigation_only": true
+  },
+  "ui_consistency": {
+    "registration_footer_id": "registrationState",
+    "located_label": "locator fonte registrato · navigazione",
+    "toolbar_spatial_sync_remains_unavailable": true,
+    "reason": "source locator navigation is not source-to-technical spatial synchronization"
+  },
+  "acceptance": {
+    "all_34_locators_inside_native_frame": true,
+    "active_candidate_marker_matches_registered_support": true,
+    "previous_next_moves_marker": true,
+    "manual_refocus_works": true,
+    "focus_never_confirms_candidate": true
+  },
+  "forbidden_shortcuts": [
+    "REGISTRATION_FRAME_USED_AS_NATIVE_DZI_FRAME",
+    "VIEWER_FRAME_ADAPTER_MODIFIES_REGISTERED_GEOMETRY",
+    "LOCATOR_CREATES_STRUCTURAL_IDENTITY",
+    "LOCATOR_CREATES_CANONICAL_GEOMETRY",
+    "FOCUS_AUTO_CONFIRMS_CANDIDATE",
+    "OA6_RELEASE"
+  ],
+  "next_gate": "EWS31_HUMAN_SPATIAL_ALIGNMENT_VALIDATION"
+}

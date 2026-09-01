@@ -1,0 +1,20 @@
+name: Validate CEW EWS-3.1 Viewer Frame Alignment
+on:
+  pull_request:
+    paths:
+      - 'scripts/cew_ews3_spatial_candidate_review_runtime.py'
+      - 'scripts/validate_cew_ews31_viewer_frame_alignment.py'
+      - 'automation/CEW_EWS31_VIEWER_FRAME_ALIGNMENT_CONTRACT_v1.json'
+      - '.github/workflows/validate-cew-ews31-viewer-frame-alignment.yml'
+      - 'scripts/render_build_candidate.sh'
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate EWS-3.1 viewer frame alignment
+        run: python scripts/validate_cew_ews31_viewer_frame_alignment.py
