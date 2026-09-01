@@ -22,6 +22,7 @@ CONTRACT = ROOT / "automation" / "CEW_OAR_G4_COLUMN_REGION_BINDING_v1.json"
 RECEIPT_TYPE = "CEW_OAR_REGION_GEOMETRY_RECEIPT_v1"
 PROPOSAL_ACTION = "PROPOSE_GEOMETRY"
 CONFIRM_ACTION = "CONFIRM_GEOMETRY"
+UNBOUND_REVISION_PREFIX = "CEW_OAR_UNBOUND_REVISION:"
 _CONFIRM_EQUIVALENCE_FIELDS = (
     "support_id",
     "evidence_object_id",
@@ -40,6 +41,14 @@ _CONFIRM_EQUIVALENCE_FIELDS = (
     "canonical_write_authorized",
     "engineering_authority_effect",
 )
+
+
+def unbound_revision_anchor(support_id: str) -> str:
+    """Deterministic optimistic-concurrency revision for an UNBOUND support."""
+    support_id = str(support_id).strip()
+    if not support_id:
+        raise ValueError("OAR_REGION_SUPPORT_ID_REQUIRED")
+    return f"{UNBOUND_REVISION_PREFIX}{support_id}"
 
 
 def load_contract(path: Path = CONTRACT) -> dict[str, Any]:
@@ -195,6 +204,8 @@ def build_receipt(
     decision_id = str(decision_id).strip()
     if not decision_id:
         raise ValueError("OAR_REGION_DECISION_ID_REQUIRED")
+    if decision_id.startswith(UNBOUND_REVISION_PREFIX):
+        raise ValueError("OAR_REGION_DECISION_ID_RESERVED")
     if base_proposal_decision_id is not None:
         base_proposal_decision_id = str(base_proposal_decision_id).strip()
         if not base_proposal_decision_id:
@@ -242,6 +253,8 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
         decision_id = str(receipt.get("decision_id", ""))
         if not decision_id or decision_id in seen_decisions:
             raise ValueError("OAR_REGION_DUPLICATE_DECISION_ID")
+        if decision_id.startswith(UNBOUND_REVISION_PREFIX):
+            raise ValueError("OAR_REGION_DECISION_ID_RESERVED")
         seen_decisions.add(decision_id)
         support_id = str(receipt.get("support_id", ""))
         row = support_row(contract, support_id)
@@ -249,29 +262,38 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
         bbox = normalize_bbox(receipt.get("bbox"))
         anchor = receipt.get("base_proposal_decision_id")
         history = proposal_history.setdefault(support_id, {})
+        initial_anchor = unbound_revision_anchor(support_id)
 
         if action == PROPOSAL_ACTION:
             existing_confirmation = confirmed.get(support_id)
             if existing_confirmation is not None:
                 # A proposal created from the same predecessor as an already-applied
-                # confirmation is a concurrent loser. Keep it in audit history but
-                # do not mutate state. Unanchored/other post-confirm proposals remain fatal.
-                if anchor is not None and anchor == existing_confirmation.get("base_proposal_decision_id"):
+                # confirmation is a concurrent loser. The initial UNBOUND revision
+                # is also a governed predecessor, so a delayed first proposal cannot
+                # poison append-only history after another first proposal is confirmed.
+                same_confirmed_base = anchor is not None and anchor == existing_confirmation.get("base_proposal_decision_id")
+                same_initial_base = anchor == initial_anchor and any(
+                    item.get("base_proposal_decision_id") == initial_anchor for item in history.values()
+                )
+                if same_confirmed_base or same_initial_base:
                     stale_transition_count += 1
                     continue
                 raise ValueError("OAR_REGION_GEOMETRY_ALREADY_CONFIRMED")
 
             current = latest_proposal.get(support_id)
             if current is not None and anchor is not None and anchor != current["decision_id"]:
-                # Another replacement already advanced the proposal revision.
+                # Another proposal already advanced the revision consumed by this
+                # request, including the governed UNBOUND revision zero.
                 stale_transition_count += 1
                 continue
             if current is None and anchor is not None:
-                # Anchored proposal references a revision that is not current/known.
-                if anchor in history:
+                if anchor == initial_anchor:
+                    pass
+                elif anchor in history:
                     stale_transition_count += 1
                     continue
-                raise ValueError("OAR_REGION_BASE_PROPOSAL_NOT_FOUND")
+                else:
+                    raise ValueError("OAR_REGION_BASE_PROPOSAL_NOT_FOUND")
 
             proposal = {**receipt, "bbox": bbox}
             latest_proposal[support_id] = proposal
@@ -282,8 +304,6 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
             if existing is not None:
                 if _equivalent_confirmation(existing, receipt, bbox):
                     continue
-                # A confirmation anchored to a revision already consumed by the
-                # winning confirmation is stale only if it confirms that exact prior bbox.
                 anchored = history.get(str(anchor)) if anchor is not None else None
                 if anchored is not None and anchored.get("bbox") == bbox:
                     stale_transition_count += 1
@@ -317,6 +337,7 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
             "bbox": confirmation["bbox"] if confirmation else (proposal["bbox"] if proposal else None),
             "geometry_proposal_receipt_id": proposal["decision_id"] if proposal else None,
             "geometry_confirmation_receipt_id": confirmation["decision_id"] if confirmation else None,
+            "unbound_revision_anchor": unbound_revision_anchor(sid) if state == "UNBOUND" else None,
             "oar_human_confirmation": False,
             "canonical_write_authorized": False,
         })
