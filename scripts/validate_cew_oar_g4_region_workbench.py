@@ -33,11 +33,15 @@ def main() -> None:
     assert app.index('@app.middleware("http")') < app.index("app.include_router(professional_workbench_api.build_router(source_workspace))")
 
     # OAR UI/API implementation is preserved in a base module; the public OAR
-    # module replaces only source resolution with the governed resolver.
+    # module replaces source resolution and adds explicit stale-display guards.
     assert "import cew_oar_g4_region_workbench_base as _base" in oar_wrapper
     assert "import cew_oar_g4_source_resolver as _resolver" in oar_wrapper
     assert "_base.verify_source = verify_source" in oar_wrapper
     assert "_base.ensure_runtime_raster = ensure_runtime_raster" in oar_wrapper
+    assert "draftDirty=true;confirmBtn.disabled=true" in oar_wrapper
+    assert "action==='PROPOSE_GEOMETRY'||action==='CONFIRM_GEOMETRY'" in oar_wrapper
+    assert "Registra prima la geometria modificata." in oar_wrapper
+    assert "_base.build_page = build_page" in oar_wrapper
     for route in (
         "/workbench/oar/g4-regions",
         "/workbench/oar/g4-regions/source.png",
@@ -60,8 +64,8 @@ def main() -> None:
     assert 'ARCHIVE_COMMIT = "78c20a52db4f391ce0d13b9705b9f04737e218c9"' in source_workspace
     assert "verify_source_bytes(source, payload)" in source_workspace
 
-    # Confirmation remains server-bound to the current proposal; no authority
-    # escalation or canonical EvidenceRegion write is introduced.
+    # Confirmation remains server-bound to the current proposal; the displayed
+    # bbox is also sent by the hardened UI so mismatch remains fail-closed.
     assert "_latest_proposal_bbox(current, support_id)" in oar_base
     assert "OAR_REGION_CONFIRMATION_BBOX_MISMATCH" in oar_base
     assert '"oar_human_confirmation": False' in oar_base
@@ -82,6 +86,7 @@ def main() -> None:
 
     print("CEW_OAR_G4_REGION_WORKBENCH_PASS")
     print("authenticated_composition=true governed_remote_source=true full_page_overlay=true")
+    print("edited_bbox_requires_reproposal=true confirmation_bbox_server_checked=true")
     print("runtime_audit_only=true oar_human_confirmation=false canonical_write_authorized=false")
 
 
