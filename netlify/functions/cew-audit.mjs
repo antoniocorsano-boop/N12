@@ -41,12 +41,16 @@ function rowsOf(result) {
 async function governedRead(req, db) {
   const url = new URL(req.url);
   const receiptType = String(url.searchParams.get("receipt_type") || "").trim();
-  const rawLimit = Number.parseInt(url.searchParams.get("limit") || String(MAX_GOVERNED_READ_RECEIPTS + 1), 10);
+  const rawLimit = Number.parseInt(url.searchParams.get("limit") || String(MAX_GOVERNED_READ_RECEIPTS), 10);
+  const rawOffset = Number.parseInt(url.searchParams.get("offset") || "0", 10);
   if (!receiptType || receiptType.length > 200) {
     return response(422, { state: "AUDIT_READ_REJECTED", reason: "RECEIPT_TYPE_INVALID" });
   }
-  if (!Number.isInteger(rawLimit) || rawLimit < 1 || rawLimit > MAX_GOVERNED_READ_RECEIPTS + 1) {
+  if (!Number.isInteger(rawLimit) || rawLimit < 1 || rawLimit > MAX_GOVERNED_READ_RECEIPTS) {
     return response(422, { state: "AUDIT_READ_REJECTED", reason: "READ_LIMIT_INVALID" });
+  }
+  if (!Number.isInteger(rawOffset) || rawOffset < 0) {
+    return response(422, { state: "AUDIT_READ_REJECTED", reason: "READ_OFFSET_INVALID" });
   }
   try {
     const result = await db.sql`
@@ -55,11 +59,14 @@ async function governedRead(req, db) {
       WHERE receipt_json->>'receipt_type' = ${receiptType}
       ORDER BY submitted_at ASC NULLS LAST, decision_id ASC
       LIMIT ${rawLimit}
+      OFFSET ${rawOffset}
     `;
     const rows = rowsOf(result);
     return response(200, {
       state: "AUDIT_READ_OK",
       receipts: rows.map((row) => row.receipt_json),
+      offset: rawOffset,
+      limit: rawLimit,
       authority: "RUNTIME_AUDIT_READ_ONLY",
       canonical_write: false,
       engineering_authority_effect: "NONE",
