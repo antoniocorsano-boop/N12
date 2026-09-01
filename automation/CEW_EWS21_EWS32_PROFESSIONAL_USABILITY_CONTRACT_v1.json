@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "contract": "CEW_EWS21_EWS32_PROFESSIONAL_USABILITY",
+  "status": "EWS21_EWS32_COMPLETE_PASS",
+  "scope": "OA_G4_PROFESSIONAL_RAIL_AND_SOURCE_LOCATOR",
+  "required_behavior": {
+    "one_primary_work_panel": true,
+    "compact_mode_summary": true,
+    "governed_prototype_default_collapsed": true,
+    "secondary_details_collapsed": true,
+    "review_set_internal_scrolling": true,
+    "active_candidate_bounded_surface": true,
+    "prototype_locator_visible_in_example_mode": true,
+    "review_locator_visible_in_review_mode": true,
+    "locator_tracks_work_mode": true,
+    "status_strip_locator_state_consistent": true,
+    "legacy_unregistered_copy_overridden_when_locator_exists": true
+  },
+  "authority": {
+    "authority_effect": "NONE",
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "locator_navigation_only": true,
+    "ui_compaction_authority": "NONE"
+  },
+  "validation_evidence": {
+    "ews21_ews32_professional_usability": "PASS",
+    "ews2_unified_context_rail": "PASS",
+    "ews3_spatial_candidate_review": "PASS",
+    "ews31_viewer_frame_alignment": "PASS",
+    "enterprise_context_continuity": "PASS",
+    "oa_human_first_ux": "PASS",
+    "professional_gap_review": "PASS",
+    "existing_assessment_engine": "PASS",
+    "knowledge_system": "PASS",
+    "same_sha_ci_required": true
+  },
+  "forbidden_shortcuts": [
+    "FULL_VERTICAL_LIFECYCLE_FORM",
+    "PROTOTYPE_LOCATOR_HIDDEN_IN_EXAMPLE_MODE",
+    "SIMILARITY_SCORE_CREATES_POSITION",
+    "LOCATOR_CREATES_IDENTITY",
+    "LOCATOR_CREATES_CANONICAL_GEOMETRY",
+    "UI_STATE_CREATES_AUTHORITY",
+    "OA6_RELEASE"
+  ],
+  "next_gate": "HUMAN_PROFESSIONAL_USABILITY_VALIDATION"
+}

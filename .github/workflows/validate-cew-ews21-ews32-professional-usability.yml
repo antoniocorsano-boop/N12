@@ -1,0 +1,24 @@
+name: Validate CEW EWS-2.1 EWS-3.2 Professional Usability
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/cew_ews21_compact_context_rail_runtime.py'
+      - 'scripts/cew_ews32_persistent_source_locator_runtime.py'
+      - 'scripts/cew_enterprise_governed_resume_runtime.py'
+      - 'scripts/validate_cew_ews21_ews32_professional_usability.py'
+      - 'automation/CEW_EWS21_EWS32_PROFESSIONAL_USABILITY_CONTRACT_v1.json'
+      - '.github/workflows/validate-cew-ews21-ews32-professional-usability.yml'
+      - 'scripts/render_build_candidate.sh'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate compact rail and persistent locator
+        run: python scripts/validate_cew_ews21_ews32_professional_usability.py

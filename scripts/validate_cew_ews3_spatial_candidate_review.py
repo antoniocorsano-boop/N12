@@ -60,7 +60,6 @@ def main() -> int:
         require(loc["structural_identity_authorized"] is False, f"support {sid} identity authority drift")
         require(loc["canonical_geometry_authorized"] is False, f"support {sid} canonical geometry drift")
 
-    # Validate the actual locator derivation rather than wording in comments/docstrings.
     loader_source = inspect.getsource(ews3_runtime._load_locators)
     require("REGISTRATION_CSV" in loader_source and "SUPPORTS_CSV" in loader_source, "locator derivation must read governed registration and support coordinates")
     require("metric_x_from_u" in loader_source and "metric_y_from_v" in loader_source, "affine registration coefficients not used")
@@ -85,7 +84,9 @@ def main() -> int:
 
     resume = (ROOT / "scripts/cew_enterprise_governed_resume_runtime.py").read_text(encoding="utf-8")
     require("import cew_ews3_spatial_candidate_review_runtime as ews3_runtime" in resume, "EWS-3 compositor import missing")
-    require("return ews3_runtime.augment(focused, task)" in resume, "EWS-3 must compose after EWS-2 visibility guard")
+    require("focused = ews2_guard_runtime.augment(ews2_runtime.augment(rendered, task), task)" in resume, "EWS-2 visibility guard composition missing")
+    require("spatial = ews3_runtime.augment(focused, task)" in resume, "EWS-3 must compose after EWS-2 visibility guard")
+    require(resume.find("focused = ews2_guard_runtime.augment") < resume.find("spatial = ews3_runtime.augment"), "EWS-3 presentation order drift")
 
     html = oa1_runtime.augment(client.build_client(PILOT), PILOT)
     require('data-ews3-runtime="CEW_EWS3_SPATIAL_CANDIDATE_REVIEW"' in html, "rendered pilot missing EWS-3")
