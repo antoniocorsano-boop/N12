@@ -96,11 +96,18 @@ begin
 end;
 $$;
 
+-- Upgrade-safe return-type transition. Earlier revisions of this governed
+-- migration created the zero-argument RPC as RETURNS TABLE(receipt_json jsonb).
+-- PostgreSQL cannot change a function return type with CREATE OR REPLACE, so the
+-- old signature must be removed before the scalar-jsonb contract is recreated.
+-- This RPC is runtime audit read-only and carries no engineering authority.
+drop function if exists public.cew_oar_read_region_receipts_v1();
+
 -- One RPC invocation is one PostgreSQL statement/MVCC snapshot. The complete
 -- receipt set is aggregated into ONE jsonb scalar before crossing PostgREST, so
 -- API Max Rows cannot truncate individual OAR receipts. receipt_count gives the
 -- client an independent fail-closed completeness check.
-create or replace function public.cew_oar_read_region_receipts_v1()
+create function public.cew_oar_read_region_receipts_v1()
 returns jsonb
 language sql
 stable
