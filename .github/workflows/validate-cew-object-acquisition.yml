@@ -17,6 +17,8 @@ on:
       - 'scripts/validate_cew_oar_g4_column_pilot.py'
       - 'scripts/validate_cew_oar_g4_region_binding.py'
       - 'scripts/validate_cew_oar_g4_region_workbench.py'
+      - 'scripts/validate_cew_oar_g4_region_runtime.py'
+      - 'requirements.txt'
       - 'docs/architecture/CEW_OBJECT_ACQUISITION_AND_PROJECT_MATERIAL_PLAN_v1.md'
       - '.github/workflows/validate-cew-object-acquisition.yml'
   workflow_dispatch:
@@ -46,6 +48,7 @@ jobs:
           scripts/validate_cew_oar_g4_column_pilot.py
           scripts/validate_cew_oar_g4_region_binding.py
           scripts/validate_cew_oar_g4_region_workbench.py
+          scripts/validate_cew_oar_g4_region_runtime.py
       - name: Validate fail-closed OAR semantics
         working-directory: scripts
         run: python validate_cew_object_acquisition.py
@@ -58,6 +61,11 @@ jobs:
       - name: Validate authenticated G4 region Workbench wiring
         working-directory: scripts
         run: python validate_cew_oar_g4_region_workbench.py
+      - name: Install runtime dependencies
+        run: pip install -r requirements.txt
+      - name: Execute real G4 localization runtime smoke
+        working-directory: scripts
+        run: python validate_cew_oar_g4_region_runtime.py
       - name: Validate OAR contract is fail-closed
         run: |
           python - <<'PY'
