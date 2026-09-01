@@ -55,6 +55,13 @@ def main():
     assert "SERVER_MVCC_SINGLE_JSON_VALUE" in atomic_sql
     assert "canonical_write" in atomic_sql and "false" in atomic_sql
 
+    drop_marker = "drop function if exists public.cew_oar_read_region_receipts_v1();"
+    create_marker = "create function public.cew_oar_read_region_receipts_v1()"
+    assert drop_marker in atomic_lower
+    assert create_marker in atomic_lower
+    assert atomic_lower.index(drop_marker) < atomic_lower.index(create_marker)
+    assert "returns table(receipt_json jsonb)" not in atomic_lower[atomic_lower.index(create_marker):]
+
     provisioning = PROVISIONING.read_text(encoding="utf-8")
     audit_pos = provisioning.index("automation/CEW_USER_WEB_PILOT_SUPABASE_v1.sql")
     atomic_pos = provisioning.index("sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql")
@@ -64,6 +71,8 @@ def main():
     assert "cew_oar_region_revision_heads" in provisioning
     assert "snapshot MVCC" in provisioning
     assert "non provisionato" in provisioning.lower()
+    assert "DROP FUNCTION IF EXISTS" in provisioning
+    assert "return type" in provisioning.lower()
 
     with REGISTRY.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
@@ -112,7 +121,7 @@ def main():
         os.environ.clear()
         os.environ.update(old)
 
-    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | oar_atomic_supabase_provisioning=PASS | oar_mvcc_single_json_snapshot_rpc=PASS | production_fail_closed=PASS | canonical_write=0")
+    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | oar_atomic_supabase_provisioning=PASS | oar_mvcc_single_json_snapshot_rpc=PASS | oar_rpc_return_type_upgrade_safe=PASS | production_fail_closed=PASS | canonical_write=0")
 
 
 if __name__ == "__main__":
