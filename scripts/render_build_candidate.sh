@@ -33,6 +33,7 @@ python scripts/validate_cew_ews1_application_frame.py
 python scripts/validate_cew_ews4_oa_result_review.py
 python scripts/validate_cew_enterprise_context_continuity.py
 python scripts/validate_cew_ews2_unified_context_rail.py
+python scripts/validate_cew_ews3_spatial_candidate_review.py
 
 python scripts/build_cew_runtime_render_cache.py
 python scripts/build_cew_managed_f3_assets.py
@@ -89,5 +90,6 @@ print('CEW_RENDER_EWS1_APPLICATION_FRAME = READY')
 print('CEW_RENDER_EWS4_OA_RESULT_REVIEW = READY')
 print('CEW_RENDER_ENTERPRISE_CONTEXT_CONTINUITY = READY')
 print('CEW_RENDER_EWS2_UNIFIED_CONTEXT_RAIL = READY')
+print('CEW_RENDER_EWS3_SPATIAL_CANDIDATE_REVIEW = READY')
 print('CEW_RENDER_BUILD = PASS')
 PY

@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "contract": "CEW_EWS3_SPATIAL_CANDIDATE_REVIEW",
+  "status": "EWS3_COMPLETE_PASS",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "project_material_ready": false,
+  "task": "OA-N12-G4-COLUMN-PILOT",
+  "scope": "EVIDENCE_NAVIGATION_ONLY",
+  "upstream": {
+    "ews2": "EWS2_COMPLETE_PASS",
+    "source_sheet": "TAV-05S",
+    "level_id": "G4",
+    "registration": "STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
+    "support_coordinates": "VERTICAL_SUPPORT_LINES_CURRENT_v1.csv"
+  },
+  "locator_model": {
+    "state": "REGISTERED_DERIVED",
+    "source_frame": "ROT90_CCW_300DPI",
+    "derivation": "INVERSE_CROSS_VALIDATED_AFFINE_FROM_COMMON_METRIC_XY",
+    "registration_validation_state_required": "CROSS_VALIDATED",
+    "support_presence_required": "G4_PRESENT",
+    "expected_locator_count": 34,
+    "coordinate_role": "VIEWER_EVIDENCE_NAVIGATION",
+    "canonical_document_geometry": false,
+    "structural_identity_evidence": false,
+    "similarity_used_for_position": false,
+    "visual_proximity_used_for_position": false
+  },
+  "review_behavior": {
+    "active_candidate_focus": "AUTOMATIC",
+    "manual_refocus_action": "MOSTRA_SULLA_TAVOLA",
+    "source_marker": "NAVIGATION_CROSSHAIR_NOT_OBJECT_OUTLINE",
+    "context_preserved": true,
+    "context_window": "BOUNDED_LOCAL_NEIGHBORHOOD",
+    "candidate_change_updates_focus": true,
+    "unlocated_behavior": "NO_SPATIAL_FOCUS_FAIL_CLOSED"
+  },
+  "provenance_disclosure": {
+    "required": true,
+    "shows_locator_state": true,
+    "shows_registration_state": true,
+    "shows_metric_xy": true,
+    "states_navigation_only": true
+  },
+  "validation_evidence": {
+    "locator_coverage": "34/34",
+    "frame": "12530x7016",
+    "registration_state": "CROSS_VALIDATED",
+    "registration_inliers": 160,
+    "same_sha_ci_required": true
+  },
+  "forbidden_shortcuts": [
+    "SIMILARITY_SCORE_CREATES_POSITION",
+    "VISUAL_PROXIMITY_CREATES_POSITION",
+    "SOURCE_LOCATOR_CREATES_STRUCTURAL_IDENTITY",
+    "SOURCE_LOCATOR_BECOMES_CANONICAL_GEOMETRY",
+    "UNREGISTERED_CANDIDATE_AUTO_FOCUS",
+    "AUTO_CONFIRM_ON_FOCUS",
+    "OA6_RELEASE",
+    "CANONICAL_WRITE_FROM_SPATIAL_REVIEW"
+  ],
+  "next_gate": "EWS3_HUMAN_SPATIAL_REVIEW_VALIDATION"
+}
