@@ -33,6 +33,10 @@ Per il percorso OAR G4, la sola presenza della tabella audit non è sufficiente:
 
 La RPC di lettura OAR deve attraversare PostgREST come **un solo valore JSON aggregato**, contenente almeno `receipt_count` e `receipts`; non deve restituire una riga API per receipt. In questo modo il limite `Max Rows` di PostgREST non può troncare silenziosamente lo storico OAR. Il client deve verificare `receipt_count == len(receipts)` e fallire chiuso in caso di incoerenza.
 
+### Upgrade della RPC di lettura
+
+Le revisioni precedenti della migration OAR hanno creato `cew_oar_read_region_receipts_v1()` con return type `TABLE(receipt_json jsonb)`. PostgreSQL non consente di cambiare quel return type a `jsonb` mediante `CREATE OR REPLACE FUNCTION` sulla stessa signature. La migration governata deve quindi eseguire **`DROP FUNCTION IF EXISTS public.cew_oar_read_region_receipts_v1();` prima della nuova `CREATE FUNCTION`**. L'assenza di questo passaggio rende l'upgrade non valido e il runtime OAR deve essere considerato non provisionato. Il drop riguarda esclusivamente una RPC runtime-audit read-only e non modifica receipt persistite, revision heads o authority ingegneristica.
+
 La seconda migration dipende dalla prima e non la sostituisce. Un deploy che abilita il backend Supabase per OAR senza entrambe le RPC è **non provisionato** per il percorso OAR e deve fallire chiuso. La lettura OAR non deve ricostruire una snapshot tramite timestamp applicativi, watermark temporali o più richieste `LIMIT/OFFSET` su stati database differenti.
 
 ## Autorità
@@ -59,9 +63,10 @@ Il codice può essere integrato prima del provisioning. Lo stato `USER_WEB_RUNTI
 3. migration `sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql` applicata quando il runtime espone il Workbench OAR G4 su Supabase;
 4. verifica presenza RPC `cew_oar_append_region_receipt_v1`, RPC `cew_oar_read_region_receipts_v1` e tabella `cew_oar_region_revision_heads` prima di abilitare write o read OAR;
 5. verifica che `cew_oar_read_region_receipts_v1` ritorni un singolo JSON aggregato con `receipt_count` coerente con `receipts`;
-6. variabili segrete configurate lato server;
-7. deploy Vercel completato;
-8. `/healthz` riporta storage persistente pronto;
-9. smoke autenticato su Control Room e task F7;
-10. smoke OAR, se il percorso OAR è esposto nel deploy, prova una transizione revisionale atomica e una lettura snapshot MVCC senza alcuna promozione di authority;
-11. nessuna receipt reale dell'utente è stata precompilata o sintetizzata durante il collaudo.
+6. per upgrade da una revisione table-returning, verifica che la migration abbia eseguito `DROP FUNCTION IF EXISTS` prima della ricreazione scalar-jsonb e che il return type attivo sia `jsonb`;
+7. variabili segrete configurate lato server;
+8. deploy Vercel completato;
+9. `/healthz` riporta storage persistente pronto;
+10. smoke autenticato su Control Room e task F7;
+11. smoke OAR, se il percorso OAR è esposto nel deploy, prova una transizione revisionale atomica e una lettura snapshot MVCC senza alcuna promozione di authority;
+12. nessuna receipt reale dell'utente è stata precompilata o sintetizzata durante il collaudo.
