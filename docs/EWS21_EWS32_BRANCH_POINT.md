@@ -1,1 +1,0 @@
-Temporary branch point marker; superseded by stacked branch creation.
