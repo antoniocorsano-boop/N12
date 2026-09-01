@@ -8,6 +8,7 @@ import tempfile
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.error import HTTPError
 from urllib.parse import parse_qs, urlsplit
 from urllib.request import Request, urlopen
 
@@ -22,6 +23,8 @@ import cew_runtime_audit_store as audit_store
 
 FUNCTION = ROOT / "netlify/functions/cew-audit.mjs"
 MIGRATION = ROOT / "netlify/database/migrations/001_cew-audit/migration.sql"
+MAX_GOVERNED_READ_RECEIPTS = 500
+MAX_GOVERNED_READ_PROBE = MAX_GOVERNED_READ_RECEIPTS + 1
 
 
 class AuditMock(BaseHTTPRequestHandler):
@@ -38,6 +41,13 @@ class AuditMock(BaseHTTPRequestHandler):
             return False
         return True
 
+    def _json(self, status: int, payload: dict) -> None:
+        body = json.dumps(payload).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_POST(self):
         if not self._authorized():
             return
@@ -45,48 +55,57 @@ class AuditMock(BaseHTTPRequestHandler):
         payload = json.loads(raw.decode("utf-8"))
         decision_id = payload["decision_id"]
         if payload["authority"] != "RUNTIME_AUDIT_ONLY" or payload["canonical_write"] is not False:
-            self.send_response(422)
-            self.end_headers()
+            self._json(422, {"state": "AUDIT_REJECTED", "reason": "AUTHORITY_BOUNDARY_VIOLATION"})
             return
         if decision_id in self.stored:
-            self.send_response(409)
-            self.end_headers()
-            self.wfile.write(b'{"reason":"DUPLICATE_DECISION_ID"}')
+            self._json(409, {"state": "AUDIT_REJECTED", "reason": "DUPLICATE_DECISION_ID"})
             return
         self.stored[decision_id] = payload
-        self.send_response(201)
-        self.send_header("Content-Type", "application/json")
-        self.end_headers()
-        self.wfile.write(b'{"state":"AUDIT_STORED"}')
+        self._json(201, {"state": "AUDIT_STORED"})
 
     def do_GET(self):
         if not self._authorized():
             return
         query = parse_qs(urlsplit(self.path).query)
         receipt_type = query.get("receipt_type", [""])[0]
-        limit = int(query.get("limit", ["500"])[0])
+        limit = int(query.get("limit", [str(MAX_GOVERNED_READ_RECEIPTS)])[0])
         offset = int(query.get("offset", ["0"])[0])
+        if limit < 1 or limit > MAX_GOVERNED_READ_PROBE:
+            self._json(422, {"state": "AUDIT_READ_REJECTED", "reason": "READ_LIMIT_INVALID"})
+            return
         matching = [
             row["receipt_json"]
             for row in self.stored.values()
             if row.get("receipt_json", {}).get("receipt_type") == receipt_type
         ]
         receipts = matching[offset : offset + limit]
-        body = json.dumps(
+        overflow_probe = limit == MAX_GOVERNED_READ_PROBE
+        if overflow_probe and len(receipts) > MAX_GOVERNED_READ_RECEIPTS:
+            self._json(
+                409,
+                {
+                    "state": "AUDIT_READ_REJECTED",
+                    "reason": "GOVERNED_READ_LIMIT_EXCEEDED",
+                    "limit": MAX_GOVERNED_READ_RECEIPTS,
+                    "authority": "RUNTIME_AUDIT_READ_ONLY",
+                    "canonical_write": False,
+                    "engineering_authority_effect": "NONE",
+                },
+            )
+            return
+        self._json(
+            200,
             {
                 "state": "AUDIT_READ_OK",
                 "receipts": receipts,
                 "offset": offset,
-                "limit": limit,
+                "limit": min(limit, MAX_GOVERNED_READ_RECEIPTS),
+                "overflow_probe": overflow_probe,
                 "authority": "RUNTIME_AUDIT_READ_ONLY",
                 "canonical_write": False,
                 "engineering_authority_effect": "NONE",
-            }
-        ).encode("utf-8")
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json")
-        self.end_headers()
-        self.wfile.write(body)
+            },
+        )
 
 
 def assert_static_contracts():
@@ -105,6 +124,9 @@ def assert_static_contracts():
         "receipt_json->>'receipt_type'",
         "OFFSET ${rawOffset}",
         "READ_OFFSET_INVALID",
+        "MAX_GOVERNED_READ_PROBE",
+        "GOVERNED_READ_LIMIT_EXCEEDED",
+        "overflow_probe",
     ]
     for marker in required_fn:
         if marker not in fn:
@@ -120,6 +142,19 @@ def assert_static_contracts():
     for marker in required_mig:
         if marker.lower() not in lower:
             raise SystemExit(f"FAIL: missing append-only migration marker {marker}")
+
+
+def envelope(receipt: dict) -> dict:
+    return {
+        "decision_id": receipt["decision_id"],
+        "task_id": receipt.get("task_id"),
+        "residual_id": receipt.get("residual_id"),
+        "receipt_sha256": "ci-direct-seed",
+        "receipt_json": receipt,
+        "authority": "RUNTIME_AUDIT_ONLY",
+        "canonical_write": False,
+        "submitted_at": receipt.get("timestamp"),
+    }
 
 
 def main():
@@ -184,6 +219,37 @@ def main():
             if page.get("receipts") != [] or page.get("offset") != 1 or page.get("limit") != 1:
                 raise SystemExit("FAIL: Netlify governed pagination offset mismatch")
 
+            # Generic non-OAR readers intentionally request max_receipts + 1 to
+            # detect overflow. Netlify accepts exactly that one-item transport
+            # probe, but never returns more than the governed 500 receipts.
+            probe_type = "CEW_R2GI_RUNTIME_AUDIT_RECEIPT_v1"
+            AuditMock.stored = {}
+            for index in range(MAX_GOVERNED_READ_RECEIPTS):
+                seeded = {
+                    "receipt_type": probe_type,
+                    "decision_id": f"probe-{index:04d}",
+                    "timestamp": f"2026-09-01T10:{index // 60:02d}:{index % 60:02d}+00:00",
+                }
+                AuditMock.stored[seeded["decision_id"]] = envelope(seeded)
+            at_limit = audit_store.load_runtime_receipts(probe_type, store)
+            if at_limit.get("receipt_count") != MAX_GOVERNED_READ_RECEIPTS:
+                raise SystemExit("FAIL: governed Netlify read failed at exact 500-receipt limit")
+
+            overflow = {
+                "receipt_type": probe_type,
+                "decision_id": "probe-overflow-0500",
+                "timestamp": "2026-09-01T11:00:00+00:00",
+            }
+            AuditMock.stored[overflow["decision_id"]] = envelope(overflow)
+            try:
+                audit_store.load_runtime_receipts(probe_type, store)
+            except ValueError as exc:
+                if "Netlify audit governed receipt read failed: HTTP 409" not in str(exc):
+                    raise
+            else:
+                raise SystemExit("FAIL: 501st Netlify receipt did not fail closed")
+
+            AuditMock.stored = {receipt["decision_id"]: envelope(receipt)}
             try:
                 audit_store.persist_runtime_receipt(receipt, store)
             except ValueError as exc:
@@ -213,6 +279,8 @@ def main():
     print("APPEND_ONLY_DUPLICATE_REJECTION=PASS")
     print("GOVERNED_RECEIPT_READ_BACK=PASS")
     print("GOVERNED_OFFSET_PAGINATION=PASS")
+    print("GENERIC_500_RECEIPT_READ=PASS")
+    print("GENERIC_501_RECEIPT_OVERFLOW=FAIL_CLOSED")
     print("PRODUCTION_RECEIPT_SUBMIT_READY=PASS")
     print("CANONICAL_WRITE=FORBIDDEN")
 
