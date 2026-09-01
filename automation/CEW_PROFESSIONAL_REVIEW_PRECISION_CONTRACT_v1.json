@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "contract": "CEW_PROFESSIONAL_REVIEW_PRECISION",
+  "status": "PR0_IN_PROGRESS",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "project_material_ready": false,
+  "ux_gate": {
+    "single_vertical_scroll_owner": true,
+    "sticky_workmode_header": true,
+    "sticky_primary_action_zone": true,
+    "nested_vertical_scroll_forbidden": true,
+    "full_vertical_lifecycle_form_forbidden": true,
+    "progressive_disclosure_required": true
+  },
+  "spatial_precision_gate": {
+    "global_registration_is_verified_locator": false,
+    "required_chain": [
+      "SOURCE_PAGE",
+      "NATIVE_DZI_FRAME",
+      "GLOBAL_REGISTRATION",
+      "STRUCTURAL_GCP",
+      "LOCAL_RESIDUAL_MODEL",
+      "DOCUMENT_SNAP",
+      "VERIFIED_LOCATOR"
+    ],
+    "locator_states": [
+      "UNLOCATED",
+      "REGISTERED_GLOBAL_NEEDS_LOCAL_QA",
+      "LOCALLY_CORRECTED_TO_VERIFY",
+      "SNAPPED_TO_DOCUMENT_GEOMETRY",
+      "HUMAN_VERIFIED_LOCATOR"
+    ],
+    "residual_threshold_frozen": false,
+    "similarity_used_for_position": false,
+    "visual_proximity_used_for_identity": false,
+    "sift_inlier_is_structural_gcp": false
+  },
+  "pr0": {
+    "structural_gcp_schema_required": true,
+    "global_prediction_register_required": true,
+    "residual_fields_required": true,
+    "fail_closed_without_verified_snap": true
+  },
+  "forbidden_shortcuts": [
+    "MARKER_LOOKS_CLOSE_THEREFORE_VERIFIED",
+    "GLOBAL_AFFINE_EQUALS_PRECISE_OBJECT_BINDING",
+    "SIFT_FEATURE_EQUALS_STRUCTURAL_GCP",
+    "NESTED_VERTICAL_SCROLL",
+    "SIMILARITY_SCORE_CREATES_POSITION",
+    "VISUAL_PROXIMITY_CREATES_IDENTITY",
+    "LOCATOR_CREATES_STRUCTURAL_IDENTITY",
+    "LOCATOR_CREATES_CANONICAL_GEOMETRY",
+    "OA6_RELEASE"
+  ],
+  "next_gate": "PR0_PRECISION_DIAGNOSTICS_PASS"
+}
