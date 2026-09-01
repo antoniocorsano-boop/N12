@@ -5,11 +5,14 @@ on:
     paths:
       - 'automation/CEW_OBJECT_ACQUISITION_CONTRACT_v1.json'
       - 'automation/CEW_OAR_G4_COLUMN_PILOT_INPUT_v1.json'
+      - 'automation/CEW_OAR_G4_COLUMN_REGION_BINDING_v1.json'
       - 'scripts/cew_object_acquisition.py'
       - 'scripts/cew_object_workbench.py'
       - 'scripts/cew_oar_g4_column_pilot.py'
+      - 'scripts/cew_oar_g4_region_binding.py'
       - 'scripts/validate_cew_object_acquisition.py'
       - 'scripts/validate_cew_oar_g4_column_pilot.py'
+      - 'scripts/validate_cew_oar_g4_region_binding.py'
       - 'docs/architecture/CEW_OBJECT_ACQUISITION_AND_PROJECT_MATERIAL_PLAN_v1.md'
       - '.github/workflows/validate-cew-object-acquisition.yml'
   workflow_dispatch:
@@ -31,14 +34,19 @@ jobs:
           scripts/cew_object_acquisition.py
           scripts/cew_object_workbench.py
           scripts/cew_oar_g4_column_pilot.py
+          scripts/cew_oar_g4_region_binding.py
           scripts/validate_cew_object_acquisition.py
           scripts/validate_cew_oar_g4_column_pilot.py
+          scripts/validate_cew_oar_g4_region_binding.py
       - name: Validate fail-closed OAR semantics
         working-directory: scripts
         run: python validate_cew_object_acquisition.py
       - name: Validate real G4 column pilot
         working-directory: scripts
         run: python validate_cew_oar_g4_column_pilot.py
+      - name: Validate governed G4 region localization
+        working-directory: scripts
+        run: python validate_cew_oar_g4_region_binding.py
       - name: Validate OAR contract is fail-closed
         run: |
           python - <<'PY'
@@ -46,6 +54,7 @@ jobs:
           from pathlib import Path
           contract = json.loads(Path('automation/CEW_OBJECT_ACQUISITION_CONTRACT_v1.json').read_text())
           pilot = json.loads(Path('automation/CEW_OAR_G4_COLUMN_PILOT_INPUT_v1.json').read_text())
+          binding = json.loads(Path('automation/CEW_OAR_G4_COLUMN_REGION_BINDING_v1.json').read_text())
           assert contract['authority']['canonical_write_authorized'] is False
           assert contract['authority']['structural_identity_authorized'] is False
           assert contract['promotion_policy']['structural_identity_is_separate_gate'] is True
@@ -55,5 +64,10 @@ jobs:
           assert pilot['cew_binding']['evidence_region_binding'] == 'MISSING_PER_OBJECT'
           assert pilot['authority']['human_confirmation'] is False
           assert pilot['authority']['canonical_write_authorized'] is False
+          assert len(binding['objects']) == 34
+          assert binding['document']['coordinate_system'] == 'NORMALIZED_0_1'
+          assert binding['workflow']['interaction_surface'] == 'FULL_VERIFIED_PAGE'
+          assert binding['workflow']['oar_classification_authority'] == 'SEPARATE_REVIEW_REQUIRED'
+          assert binding['workflow']['canonical_write_authorized'] is False
           print('CEW_OBJECT_ACQUISITION_CONTRACT_PASS')
           PY
