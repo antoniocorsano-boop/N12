@@ -9,6 +9,7 @@ import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
+from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
@@ -63,16 +64,20 @@ class AuditMock(BaseHTTPRequestHandler):
             return
         query = parse_qs(urlsplit(self.path).query)
         receipt_type = query.get("receipt_type", [""])[0]
-        limit = int(query.get("limit", ["501"])[0])
-        receipts = [
+        limit = int(query.get("limit", ["500"])[0])
+        offset = int(query.get("offset", ["0"])[0])
+        matching = [
             row["receipt_json"]
             for row in self.stored.values()
             if row.get("receipt_json", {}).get("receipt_type") == receipt_type
-        ][:limit]
+        ]
+        receipts = matching[offset : offset + limit]
         body = json.dumps(
             {
                 "state": "AUDIT_READ_OK",
                 "receipts": receipts,
+                "offset": offset,
+                "limit": limit,
                 "authority": "RUNTIME_AUDIT_READ_ONLY",
                 "canonical_write": False,
                 "engineering_authority_effect": "NONE",
@@ -98,6 +103,8 @@ def assert_static_contracts():
         'req.method === "GET"',
         "SELECT receipt_json",
         "receipt_json->>'receipt_type'",
+        "OFFSET ${rawOffset}",
+        "READ_OFFSET_INVALID",
     ]
     for marker in required_fn:
         if marker not in fn:
@@ -165,6 +172,18 @@ def main():
                 raise SystemExit("FAIL: governed read authority drift")
             if loaded.get("canonical_write") is not False:
                 raise SystemExit("FAIL: governed read changed canonical authority")
+
+            # The bridge must expose deterministic offset pagination so OAR can
+            # traverse histories larger than one governed read page.
+            req = Request(
+                f"{endpoint}?receipt_type={receipt['receipt_type']}&limit=1&offset=1",
+                headers={"Authorization": f"Bearer {AuditMock.secret}", "Accept": "application/json"},
+            )
+            with urlopen(req, timeout=5) as resp:
+                page = json.loads(resp.read().decode("utf-8"))
+            if page.get("receipts") != [] or page.get("offset") != 1 or page.get("limit") != 1:
+                raise SystemExit("FAIL: Netlify governed pagination offset mismatch")
+
             try:
                 audit_store.persist_runtime_receipt(receipt, store)
             except ValueError as exc:
@@ -193,6 +212,7 @@ def main():
     print("AUDIT_BACKEND=NETLIFY_AUDIT_HTTPS")
     print("APPEND_ONLY_DUPLICATE_REJECTION=PASS")
     print("GOVERNED_RECEIPT_READ_BACK=PASS")
+    print("GOVERNED_OFFSET_PAGINATION=PASS")
     print("PRODUCTION_RECEIPT_SUBMIT_READY=PASS")
     print("CANONICAL_WRITE=FORBIDDEN")
 
