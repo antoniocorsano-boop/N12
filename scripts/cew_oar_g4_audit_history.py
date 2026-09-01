@@ -21,6 +21,7 @@ import cew_runtime_audit_store as audit_store
 DEFAULT_PAGE_SIZE = 200
 MAX_PAGE_SIZE = audit_store.MAX_GOVERNED_READ_RECEIPTS
 SUPABASE_SNAPSHOT_RPC = "cew_oar_read_region_receipts_v1"
+SUPABASE_SNAPSHOT_MARKER = "SERVER_MVCC_SINGLE_JSON_VALUE"
 
 
 def _json_object(value) -> dict:
@@ -95,6 +96,30 @@ def _neon_pages(receipt_type: str, page_size: int) -> Iterator[list[dict]]:
         raise ValueError("Neon OAR governed receipt read failed") from exc
 
 
+def _parse_supabase_snapshot_payload(payload) -> list[dict]:
+    """Validate the one-value Supabase snapshot contract fail-closed."""
+    if not isinstance(payload, dict):
+        raise ValueError("Supabase OAR MVCC snapshot must return one JSON object")
+    if payload.get("snapshot") != SUPABASE_SNAPSHOT_MARKER:
+        raise ValueError("Supabase OAR MVCC snapshot marker invalid")
+    if payload.get("authority") != "RUNTIME_AUDIT_READ_ONLY":
+        raise ValueError("Supabase OAR MVCC snapshot authority invalid")
+    if payload.get("canonical_write") is not False:
+        raise ValueError("Supabase OAR MVCC snapshot canonical authority invalid")
+    if payload.get("engineering_authority_effect") != "NONE":
+        raise ValueError("Supabase OAR MVCC snapshot engineering authority invalid")
+    rows = payload.get("receipts")
+    count = payload.get("receipt_count")
+    if not isinstance(rows, list) or not isinstance(count, int) or isinstance(count, bool) or count < 0:
+        raise ValueError("Supabase OAR MVCC snapshot shape invalid")
+    if count != len(rows):
+        raise ValueError("OAR_SUPABASE_SNAPSHOT_RECEIPT_COUNT_MISMATCH")
+    receipts = [_json_object(row) for row in rows]
+    if any(row.get("receipt_type") != binding.RECEIPT_TYPE for row in receipts):
+        raise ValueError("OAR_SUPABASE_SNAPSHOT_RECEIPT_TYPE_MISMATCH")
+    return receipts
+
+
 def _supabase_snapshot(receipt_type: str) -> list[dict]:
     if receipt_type != binding.RECEIPT_TYPE:
         raise ValueError("OAR_SUPABASE_SNAPSHOT_RECEIPT_TYPE_INVALID")
@@ -115,24 +140,17 @@ def _supabase_snapshot(receipt_type: str) -> list[dict]:
         with request.urlopen(req, timeout=20) as resp:
             if resp.status != 200:
                 raise ValueError(f"unexpected Supabase OAR snapshot status: {resp.status}")
-            rows = json.loads(resp.read().decode("utf-8"))
+            payload = json.loads(resp.read().decode("utf-8"))
     except error.HTTPError as exc:
         raise ValueError(f"Supabase OAR MVCC snapshot read failed: HTTP {exc.code}") from exc
     except (error.URLError, json.JSONDecodeError) as exc:
         raise ValueError("Supabase OAR MVCC snapshot read unavailable") from exc
-    if not isinstance(rows, list):
-        raise ValueError("Supabase OAR MVCC snapshot must return a list")
-    receipts: list[dict] = []
-    for row in rows:
-        if not isinstance(row, dict) or "receipt_json" not in row:
-            raise ValueError("Supabase OAR MVCC snapshot row is invalid")
-        receipts.append(_json_object(row["receipt_json"]))
-    return receipts
+    return _parse_supabase_snapshot_payload(payload)
 
 
 def _supabase_pages(receipt_type: str, page_size: int) -> Iterator[list[dict]]:
-    # One RPC call = one PostgreSQL statement/MVCC snapshot. Local chunking does
-    # not re-query the remote database and therefore cannot be shifted by a late commit.
+    # One RPC call = one PostgreSQL statement/MVCC snapshot. The SQL returns one
+    # aggregated JSON value, so PostgREST Max Rows cannot truncate its receipts.
     yield from _chunks(_supabase_snapshot(receipt_type), page_size)
 
 
