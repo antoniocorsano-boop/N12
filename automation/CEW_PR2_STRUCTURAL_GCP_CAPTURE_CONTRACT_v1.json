@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "contract": "CEW_PR2_STRUCTURAL_GCP_CAPTURE",
-  "status": "IMPLEMENTED_PENDING_VALIDATION",
+  "status": "PR2_COMPLETE_PASS",
   "authority_effect": "NONE",
   "canonical_write_authorized": false,
   "receipt_type": "CEW_PRECISION_GCP_RECEIPT_V1",
@@ -26,7 +26,20 @@
     "HUMAN_DOCUMENT_SNAP"
   ],
   "current_method": "HUMAN_EXPLICIT_POINT",
-  "next_precision_step": "DOCUMENT_SNAP_AND_RESIDUAL_FIELD_ANALYSIS",
+  "validation_evidence": {
+    "pr2_ci": "PASS",
+    "pr1_ci": "PASS",
+    "oa_governed_persistence_ci": "PASS",
+    "ews2_ci": "PASS",
+    "ews21_ews32_ci": "PASS",
+    "ews3_ci": "PASS",
+    "ews31_ci": "PASS",
+    "context_continuity_ci": "PASS",
+    "human_first_ci": "PASS",
+    "knowledge_system_ci": "PASS",
+    "existing_assessment_ci": "PASS"
+  },
+  "next_precision_step": "COLLECT_DISTRIBUTED_GCP_THEN_PR3_RESIDUAL_FIELD_ANALYSIS",
   "forbidden_shortcuts": [
     "CLICK_AUTOMATICALLY_PROMOTES_LOCATOR",
     "CLIENT_SUPPLIED_RESIDUAL_TRUSTED",
