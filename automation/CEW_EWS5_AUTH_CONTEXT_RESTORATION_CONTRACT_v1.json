@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "contract": "CEW_EWS5_AUTH_CONTEXT_RESTORATION",
-  "status": "IMPLEMENTED_PENDING_VALIDATION",
+  "status": "EWS5_COMPLETE_PASS",
   "authority_effect": "NONE",
   "canonical_write_authorized": false,
   "project_material_ready": false,
@@ -23,6 +23,17 @@
     "return_to_contains_auth_secret": false,
     "return_to_is_governed_state": false,
     "fallback": "/"
+  },
+  "validation_evidence": {
+    "ews5_ci": "PASS",
+    "user_web_pilot": "PASS",
+    "candidate_runtime": "PASS",
+    "neon_user_runtime": "PASS",
+    "b1_production_runtime": "PASS",
+    "b1_human_acceptance_v2": "PASS",
+    "source_evidence_journey": "PASS",
+    "document_routes": "PASS",
+    "same_sha_ci_required": true
   },
   "forbidden_shortcuts": [
     "OPEN_REDIRECT",
