@@ -46,6 +46,43 @@ def _governed_runtime_loader(receipt_type, store, *, max_receipts=_history.MAX_P
 # existing governed loader unchanged.
 _base.audit_store.load_runtime_receipts = _governed_runtime_loader
 
+# Harden the already validated base UI without duplicating its router/domain
+# implementation. A displayed bbox that has been edited is explicitly dirty:
+# confirmation is disabled until PROPOSE_GEOMETRY persists it. Confirmation
+# also sends the displayed bbox so the server-side mismatch guard remains a
+# second, independent fail-closed boundary.
+_base_build_page = _base.build_page
+
+
+def build_page() -> str:
+    page = _base_build_page()
+    replacements = (
+        (
+            "let report=null, selected=null, draft=null, dragStart=null;",
+            "let report=null, selected=null, draft=null, dragStart=null, draftDirty=false;",
+        ),
+        (
+            "setBox(r?.bbox??null);propose.disabled=!selected;confirmBtn.disabled=!(r&&r.state==='PROPOSED');",
+            "setBox(r?.bbox??null);draftDirty=false;propose.disabled=!selected;confirmBtn.disabled=!(r&&r.state==='PROPOSED');",
+        ),
+        (
+            "setBox({x,y,w:Math.abs(p.x-dragStart.x),h:Math.abs(p.y-dragStart.y)});propose.disabled=!(draft&&draft.w>0&&draft.h>0)",
+            "setBox({x,y,w:Math.abs(p.x-dragStart.x),h:Math.abs(p.y-dragStart.y)});draftDirty=true;confirmBtn.disabled=true;propose.disabled=!(draft&&draft.w>0&&draft.h>0)",
+        ),
+        (
+            "if(action==='PROPOSE_GEOMETRY')payload.bbox=draft;message.textContent='Registrazione…';",
+            "if(action==='PROPOSE_GEOMETRY'||action==='CONFIRM_GEOMETRY')payload.bbox=draft;if(action==='CONFIRM_GEOMETRY'&&draftDirty){message.textContent='Registra prima la geometria modificata.';return};message.textContent='Registrazione…';",
+        ),
+    )
+    for old, new in replacements:
+        if old not in page:
+            raise RuntimeError("OAR_G4_UI_STALE_GEOMETRY_PATCH_MARKER_MISSING")
+        page = page.replace(old, new, 1)
+    return page
+
+
+_base.build_page = build_page
+
 
 def build_router():
     return _base.build_router()
