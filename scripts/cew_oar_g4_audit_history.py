@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Stable-snapshot governed audit-history reader for the G4/TAV-05S OAR pilot.
 
-The append-only backend remains the complete audit authority. This reader freezes
-an upper watermark (or uses a repeatable-read DB snapshot), pages only within
-that frozen view, validates the complete governed sequence once, and reduces it
-to the minimal anchor-closed receipt graph needed to reconstruct current OAR
-localization state. Invalid or authority-divergent history remains fail-closed.
+The append-only backend remains the complete audit authority. Filesystem freezes
+an in-memory list, Neon uses one REPEATABLE READ transaction, and Supabase/
+Netlify materialize the complete OAR receipt set in one server-side MVCC query.
+The client may chunk that frozen result locally for reduction, but it never pages
+across changing remote database states.
 """
 from __future__ import annotations
 
@@ -13,13 +13,14 @@ import json
 import os
 from pathlib import Path
 from typing import Iterable, Iterator
-from urllib import error, parse, request
+from urllib import error, request
 
 import cew_oar_g4_region_binding as binding
 import cew_runtime_audit_store as audit_store
 
 DEFAULT_PAGE_SIZE = 200
 MAX_PAGE_SIZE = audit_store.MAX_GOVERNED_READ_RECEIPTS
+SUPABASE_SNAPSHOT_RPC = "cew_oar_read_region_receipts_v1"
 
 
 def _json_object(value) -> dict:
@@ -33,6 +34,11 @@ def _json_object(value) -> dict:
         if isinstance(value, dict):
             return value
     raise ValueError("OAR_AUDIT_RECEIPT_JSON_OBJECT_REQUIRED")
+
+
+def _chunks(receipts: list[dict], page_size: int) -> Iterator[list[dict]]:
+    for offset in range(0, len(receipts), page_size):
+        yield receipts[offset : offset + page_size]
 
 
 def _file_pages(store: Path, receipt_type: str, page_size: int) -> Iterator[list[dict]]:
@@ -51,10 +57,7 @@ def _file_pages(store: Path, receipt_type: str, page_size: int) -> Iterator[list
             raise ValueError("runtime audit receipt file must contain an object")
         if payload.get("receipt_type") == receipt_type:
             receipts.append(payload)
-    # The list itself is the filesystem snapshot; later appends cannot alter it.
-    ordered = binding._ordered_receipts(receipts)
-    for offset in range(0, len(ordered), page_size):
-        yield ordered[offset : offset + page_size]
+    yield from _chunks(binding._ordered_receipts(receipts), page_size)
 
 
 def _neon_pages(receipt_type: str, page_size: int) -> Iterator[list[dict]]:
@@ -64,8 +67,6 @@ def _neon_pages(receipt_type: str, page_size: int) -> Iterator[list[dict]]:
         raise ValueError("Neon audit driver unavailable") from exc
     try:
         with psycopg.connect(os.environ["CEW_AUDIT_NEON_DATABASE_URL"], connect_timeout=10) as conn:
-            # One repeatable-read transaction makes all pages observe the same
-            # committed snapshot even while OAR writers continue appending.
             conn.execute("BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY")
             offset = 0
             while True:
@@ -94,142 +95,77 @@ def _neon_pages(receipt_type: str, page_size: int) -> Iterator[list[dict]]:
         raise ValueError("Neon OAR governed receipt read failed") from exc
 
 
-def _supabase_watermark(base: str, key: str, table: str, receipt_type: str) -> tuple[str, str] | None:
-    query = parse.urlencode(
-        {
-            "select": "submitted_at,decision_id",
-            "receipt_json->>receipt_type": f"eq.{receipt_type}",
-            "submitted_at": "not.is.null",
-            "order": "submitted_at.desc,decision_id.desc",
-            "limit": "1",
-        }
-    )
+def _supabase_snapshot(receipt_type: str) -> list[dict]:
+    if receipt_type != binding.RECEIPT_TYPE:
+        raise ValueError("OAR_SUPABASE_SNAPSHOT_RECEIPT_TYPE_INVALID")
+    base = os.environ["CEW_AUDIT_SUPABASE_URL"].rstrip("/")
+    key = os.environ["CEW_AUDIT_SUPABASE_SERVICE_ROLE_KEY"]
     req = request.Request(
-        f"{base}/rest/v1/{table}?{query}",
-        method="GET",
-        headers={"apikey": key, "Authorization": f"Bearer {key}", "Accept": "application/json"},
+        f"{base}/rest/v1/rpc/{SUPABASE_SNAPSHOT_RPC}",
+        data=b"{}",
+        method="POST",
+        headers={
+            "apikey": key,
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
     )
     try:
-        with request.urlopen(req, timeout=12) as resp:
+        with request.urlopen(req, timeout=20) as resp:
+            if resp.status != 200:
+                raise ValueError(f"unexpected Supabase OAR snapshot status: {resp.status}")
             rows = json.loads(resp.read().decode("utf-8"))
     except error.HTTPError as exc:
-        raise ValueError(f"Supabase OAR watermark read failed: HTTP {exc.code}") from exc
+        raise ValueError(f"Supabase OAR MVCC snapshot read failed: HTTP {exc.code}") from exc
     except (error.URLError, json.JSONDecodeError) as exc:
-        raise ValueError("Supabase OAR watermark read unavailable") from exc
+        raise ValueError("Supabase OAR MVCC snapshot read unavailable") from exc
     if not isinstance(rows, list):
-        raise ValueError("Supabase OAR watermark read must return a list")
-    if not rows:
-        return None
-    row = rows[0]
-    if not isinstance(row, dict) or not row.get("submitted_at") or not row.get("decision_id"):
-        raise ValueError("Supabase OAR watermark row is invalid")
-    return str(row["submitted_at"]), str(row["decision_id"])
+        raise ValueError("Supabase OAR MVCC snapshot must return a list")
+    receipts: list[dict] = []
+    for row in rows:
+        if not isinstance(row, dict) or "receipt_json" not in row:
+            raise ValueError("Supabase OAR MVCC snapshot row is invalid")
+        receipts.append(_json_object(row["receipt_json"]))
+    return receipts
 
 
 def _supabase_pages(receipt_type: str, page_size: int) -> Iterator[list[dict]]:
-    base = os.environ["CEW_AUDIT_SUPABASE_URL"].rstrip("/")
-    key = os.environ["CEW_AUDIT_SUPABASE_SERVICE_ROLE_KEY"]
-    table = os.getenv("CEW_AUDIT_TABLE", "cew_human_receipt_audit")
-    watermark = _supabase_watermark(base, key, table, receipt_type)
-    if watermark is None:
-        return
-    watermark_ts, watermark_id = watermark
-    offset = 0
-    while True:
-        # Atomic OAR persistence assigns submitted_at at commit. Freezing the
-        # maximum committed tuple excludes every later append from this read.
-        upper = f"(submitted_at.lt.{watermark_ts},and(submitted_at.eq.{watermark_ts},decision_id.lte.{watermark_id}))"
-        query = parse.urlencode(
-            {
-                "select": "receipt_json",
-                "receipt_json->>receipt_type": f"eq.{receipt_type}",
-                "submitted_at": "not.is.null",
-                "or": upper,
-                "order": "submitted_at.asc,decision_id.asc",
-                "limit": str(page_size),
-                "offset": str(offset),
-            }
-        )
-        req = request.Request(
-            f"{base}/rest/v1/{table}?{query}",
-            method="GET",
-            headers={"apikey": key, "Authorization": f"Bearer {key}", "Accept": "application/json"},
-        )
-        try:
-            with request.urlopen(req, timeout=12) as resp:
-                if resp.status != 200:
-                    raise ValueError(f"unexpected Supabase OAR audit read status: {resp.status}")
-                rows = json.loads(resp.read().decode("utf-8"))
-        except error.HTTPError as exc:
-            raise ValueError(f"Supabase OAR governed receipt read failed: HTTP {exc.code}") from exc
-        except (error.URLError, json.JSONDecodeError) as exc:
-            raise ValueError("Supabase OAR governed receipt read unavailable") from exc
-        if not isinstance(rows, list):
-            raise ValueError("Supabase OAR governed receipt read must return a list")
-        page = []
-        for row in rows:
-            if not isinstance(row, dict) or "receipt_json" not in row:
-                raise ValueError("Supabase OAR governed receipt row is invalid")
-            page.append(_json_object(row["receipt_json"]))
-        if page:
-            yield page
-        if len(page) < page_size:
-            break
-        offset += len(page)
+    # One RPC call = one PostgreSQL statement/MVCC snapshot. Local chunking does
+    # not re-query the remote database and therefore cannot be shifted by a late commit.
+    yield from _chunks(_supabase_snapshot(receipt_type), page_size)
+
+
+def _https_snapshot(receipt_type: str) -> list[dict]:
+    endpoint = os.environ["CEW_AUDIT_HTTPS_URL"].strip()
+    secret = os.environ["CEW_AUDIT_SHARED_SECRET"]
+    separator = "&" if "?" in endpoint else "?"
+    req = request.Request(
+        f"{endpoint}{separator}receipt_type={receipt_type}&snapshot=oar_mvcc",
+        method="GET",
+        headers={"Authorization": f"Bearer {secret}", "Accept": "application/json"},
+    )
+    try:
+        with request.urlopen(req, timeout=20) as resp:
+            if resp.status != 200:
+                raise ValueError(f"unexpected Netlify OAR snapshot status: {resp.status}")
+            payload = json.loads(resp.read().decode("utf-8"))
+    except error.HTTPError as exc:
+        raise ValueError(f"Netlify OAR MVCC snapshot read failed: HTTP {exc.code}") from exc
+    except (error.URLError, json.JSONDecodeError) as exc:
+        raise ValueError("Netlify OAR MVCC snapshot read unavailable") from exc
+    if not isinstance(payload, dict) or payload.get("snapshot") != "SERVER_MVCC_SINGLE_QUERY":
+        raise ValueError("Netlify OAR MVCC snapshot contract missing")
+    rows = payload.get("receipts")
+    if not isinstance(rows, list):
+        raise ValueError("Netlify OAR MVCC snapshot must return receipts")
+    return [_json_object(row.get("receipt_json") if isinstance(row, dict) and "receipt_json" in row else row) for row in rows]
 
 
 def _https_pages(receipt_type: str, page_size: int) -> Iterator[list[dict]]:
-    endpoint = os.environ["CEW_AUDIT_HTTPS_URL"].strip()
-    secret = os.environ["CEW_AUDIT_SHARED_SECRET"]
-    offset = 0
-    watermark_ts: str | None = None
-    watermark_id: str | None = None
-    while True:
-        separator = "&" if "?" in endpoint else "?"
-        params = {
-            "receipt_type": receipt_type,
-            "limit": str(page_size),
-            "offset": str(offset),
-            "snapshot": "stable",
-        }
-        if watermark_ts is not None and watermark_id is not None:
-            params["watermark_submitted_at"] = watermark_ts
-            params["watermark_decision_id"] = watermark_id
-        query = parse.urlencode(params)
-        req = request.Request(
-            f"{endpoint}{separator}{query}",
-            method="GET",
-            headers={"Authorization": f"Bearer {secret}", "Accept": "application/json"},
-        )
-        try:
-            with request.urlopen(req, timeout=12) as resp:
-                if resp.status != 200:
-                    raise ValueError(f"unexpected Netlify OAR audit read status: {resp.status}")
-                payload = json.loads(resp.read().decode("utf-8"))
-        except error.HTTPError as exc:
-            raise ValueError(f"Netlify OAR governed receipt read failed: HTTP {exc.code}") from exc
-        except (error.URLError, json.JSONDecodeError) as exc:
-            raise ValueError("Netlify OAR governed receipt read unavailable") from exc
-        if not isinstance(payload, dict) or payload.get("snapshot") != "STABLE_WATERMARK":
-            raise ValueError("Netlify OAR stable snapshot contract missing")
-        if watermark_ts is None:
-            watermark_ts = payload.get("watermark_submitted_at")
-            watermark_id = payload.get("watermark_decision_id")
-        elif payload.get("watermark_submitted_at") != watermark_ts or payload.get("watermark_decision_id") != watermark_id:
-            raise ValueError("Netlify OAR watermark changed during read")
-        rows = payload.get("receipts")
-        if not isinstance(rows, list):
-            raise ValueError("Netlify OAR governed receipt read must return receipts")
-        page = []
-        for row in rows:
-            if isinstance(row, dict) and "receipt_json" in row:
-                row = row["receipt_json"]
-            page.append(_json_object(row))
-        if page:
-            yield page
-        if len(page) < page_size:
-            break
-        offset += len(page)
+    # Netlify materializes the complete OAR set with one database SELECT and one
+    # HTTP response; page_size applies only after that immutable response exists.
+    yield from _chunks(_https_snapshot(receipt_type), page_size)
 
 
 def _pages(receipt_type: str, store: Path, page_size: int) -> tuple[str, Iterable[list[dict]]]:
@@ -311,7 +247,7 @@ def load_runtime_receipts(receipt_type: str, store: Path, *, max_receipts: int =
         "receipt_count": total,
         "reduced_receipt_count": len(receipts),
         "receipts": receipts,
-        "history_policy": "STABLE_SNAPSHOT_APPEND_ONLY_ANCHOR_CLOSED_SINGLE_PASS_REDUCED_FOR_STATE_RECONSTRUCTION",
+        "history_policy": "SERVER_MVCC_SNAPSHOT_APPEND_ONLY_ANCHOR_CLOSED_SINGLE_PASS_REDUCED_FOR_STATE_RECONSTRUCTION",
         "authority": "RUNTIME_AUDIT_READ_ONLY",
         "canonical_write": False,
         "engineering_authority_effect": "NONE",
