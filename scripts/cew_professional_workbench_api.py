@@ -52,7 +52,26 @@ def _assert_base_contract() -> None:
 _assert_base_contract()
 
 
+def _sync_runtime_stores() -> None:
+    """Keep legacy writable runtime-store overrides effective through the wrapper."""
+    _base.R2HR_RUNTIME_STORE = R2HR_RUNTIME_STORE
+    _base.R2GM_RUNTIME_STORE = R2GM_RUNTIME_STORE
+
+
+def _runtime_r2gi_report():
+    """Compatibility delegate for governed R2GI runtime consumers and validators."""
+    _sync_runtime_stores()
+    return _base._runtime_r2gi_report()
+
+
+def _runtime_r2gm_report():
+    """Compatibility delegate for governed R2GM runtime consumers and validators."""
+    _sync_runtime_stores()
+    return _base._runtime_r2gm_report()
+
+
 def build_router(source_workspace):
+    _sync_runtime_stores()
     router = _base.build_router(source_workspace)
     router.include_router(_oar_g4.build_router())
     return router
