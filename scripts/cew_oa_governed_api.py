@@ -8,6 +8,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 import cew_oa_governed_audit as governed
+import cew_precision_gcp_api as precision_gcp_api
 import cew_runtime_audit_store as audit_store
 
 OA_RUNTIME_STORE = Path("/tmp/cew-runtime/oa-governed-receipts")
@@ -227,4 +228,7 @@ def build_router(source_workspace) -> APIRouter:
             headers={"Cache-Control": "no-store"},
         )
 
+    # Precision control-point receipts share the audit backend but remain a separate
+    # receipt type and namespace. They do not enter or advance the OA stage chain.
+    router.include_router(precision_gcp_api.build_router(source_workspace))
     return router
