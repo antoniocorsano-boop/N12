@@ -1,0 +1,28 @@
+name: Validate CEW EWS-3 Spatial Candidate Review
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/cew_ews3_spatial_candidate_review_runtime.py'
+      - 'scripts/cew_enterprise_governed_resume_runtime.py'
+      - 'scripts/validate_cew_ews3_spatial_candidate_review.py'
+      - 'automation/CEW_EWS3_SPATIAL_CANDIDATE_REVIEW_CONTRACT_v1.json'
+      - 'data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv'
+      - 'data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv'
+      - 'scripts/cew_ews2_unified_context_rail_runtime.py'
+      - 'scripts/cew_ews4_oa_result_review_runtime.py'
+      - '.github/workflows/validate-cew-ews3-spatial-candidate-review.yml'
+  push:
+    branches:
+      - 'work/cew-ews3-spatial-candidate-review-v1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate EWS-3 spatial candidate review
+        run: python scripts/validate_cew_ews3_spatial_candidate_review.py
