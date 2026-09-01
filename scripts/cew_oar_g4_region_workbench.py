@@ -36,6 +36,27 @@ def _governed_runtime_loader(receipt_type, store, *, max_receipts=_history.MAX_P
 
 _base.audit_store.load_runtime_receipts = _governed_runtime_loader
 
+
+def _post_commit_summary(current: dict, row: dict, action: str) -> tuple[dict, str]:
+    """Project the committed support transition onto the pre-commit snapshot.
+
+    This summary is intentionally identified as a projection. It never performs a
+    second remote read, so a temporary read/source outage cannot turn a committed
+    append into an apparent rejection. The UI performs its normal status refresh
+    independently after receiving this success response.
+    """
+    summary = dict(current["summary"])
+    previous = str(row["state"])
+    if action == _binding.PROPOSAL_ACTION and previous == "UNBOUND":
+        summary["UNBOUND"] -= 1
+        summary["PROPOSED"] += 1
+    elif action == _binding.CONFIRM_ACTION and previous == "PROPOSED":
+        summary["PROPOSED"] -= 1
+        summary["GEOMETRY_CONFIRMED"] += 1
+    next_gate = "LOCALIZE_REMAINING_OBJECTS" if summary["UNBOUND"] else "GOVERNED_EVIDENCE_REGION_MATERIALIZATION_REVIEW"
+    return summary, next_gate
+
+
 # Arena-style optimistic concurrency: the client prepares an intent bound to the
 # exact revision it observed, while the persistence boundary performs the final
 # compare-and-set and assigns the governed timestamp inside the serialized commit.
@@ -89,19 +110,29 @@ def persist_action(payload: dict) -> dict:
     _binding.aggregate([*loaded["receipts"], receipt])
     persisted = _atomic_store.persist_region_receipt(receipt, _base.RUNTIME_STORE)
 
-    report = _base.load_report()
-    result_row = next(item for item in report["objects"] if str(item["support_id"]) == support_id)
+    # Persistence is the commit boundary. Do not perform a second governed read
+    # before acknowledging success: that read could fail after an irreversible
+    # append and incorrectly tell the operator that the receipt was rejected.
+    committed = persisted.get("committed_receipt")
+    if not isinstance(committed, dict) or committed.get("decision_id") != persisted.get("runtime_receipt_id"):
+        raise RuntimeError("OAR_REGION_COMMITTED_RECEIPT_MISSING")
+    object_state = "PROPOSED" if action == _binding.PROPOSAL_ACTION else "GEOMETRY_CONFIRMED"
+    committed_bbox = _binding.normalize_bbox(committed.get("bbox"))
+    summary, next_gate = _post_commit_summary(current, row, action)
     return {
-        "state": "OAR_REGION_RECEIPT_PERSISTED_AUDIT_ONLY",
+        "state": "OAR_REGION_RECEIPT_COMMITTED_AUDIT_ONLY",
         "runtime_receipt_id": persisted["runtime_receipt_id"],
         "sha256": persisted["sha256"],
         "audit_backend": persisted["audit_backend"],
         "atomic_revision": persisted.get("atomic_revision") is True,
+        "commit_acknowledged": True,
+        "status_refresh_required": True,
+        "summary_basis": "PRE_COMMIT_SNAPSHOT_PLUS_COMMITTED_TRANSITION",
         "support_id": support_id,
-        "object_state": result_row["state"],
-        "bbox": result_row["bbox"],
-        "summary": report["summary"],
-        "next_gate": report["next_gate"],
+        "object_state": object_state,
+        "bbox": committed_bbox,
+        "summary": summary,
+        "next_gate": next_gate,
         "oar_human_confirmation": False,
         "canonical_write_authorized": False,
         "engineering_authority_effect": "NONE",
