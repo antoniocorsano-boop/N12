@@ -11,6 +11,7 @@ on:
       - 'scripts/cew_oar_g4_column_pilot.py'
       - 'scripts/cew_oar_g4_audit_history.py'
       - 'scripts/cew_oar_g4_atomic_store.py'
+      - 'scripts/cew_oar_g4_revision_head.py'
       - 'scripts/cew_oar_g4_region_binding.py'
       - 'scripts/cew_oar_g4_region_workbench.py'
       - 'scripts/cew_oar_g4_region_workbench_base.py'
@@ -23,10 +24,12 @@ on:
       - 'scripts/validate_cew_oar_g4_audit_history.py'
       - 'scripts/validate_cew_oar_g4_atomic_store.py'
       - 'scripts/validate_cew_oar_g4_commit_ack.py'
+      - 'scripts/validate_cew_oar_g4_revision_head.py'
       - 'scripts/validate_cew_oar_g4_region_binding.py'
       - 'scripts/validate_cew_oar_g4_region_workbench.py'
       - 'scripts/validate_cew_oar_g4_region_runtime.py'
       - 'netlify/functions/cew-audit.mjs'
+      - 'netlify/functions/cew-oar-replay.mjs'
       - 'sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql'
       - 'data/canonical/tavole_originali_remote_index_v1.csv'
       - 'requirements.txt'
@@ -45,6 +48,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Compile OAR modules
         run: >-
           python -m py_compile
@@ -53,6 +59,7 @@ jobs:
           scripts/cew_oar_g4_column_pilot.py
           scripts/cew_oar_g4_audit_history.py
           scripts/cew_oar_g4_atomic_store.py
+          scripts/cew_oar_g4_revision_head.py
           scripts/cew_oar_g4_region_binding.py
           scripts/cew_oar_g4_region_workbench.py
           scripts/cew_oar_g4_region_workbench_base.py
@@ -64,9 +71,12 @@ jobs:
           scripts/validate_cew_oar_g4_audit_history.py
           scripts/validate_cew_oar_g4_atomic_store.py
           scripts/validate_cew_oar_g4_commit_ack.py
+          scripts/validate_cew_oar_g4_revision_head.py
           scripts/validate_cew_oar_g4_region_binding.py
           scripts/validate_cew_oar_g4_region_workbench.py
           scripts/validate_cew_oar_g4_region_runtime.py
+      - name: Validate Netlify replay module syntax
+        run: node --check netlify/functions/cew-oar-replay.mjs
       - name: Validate fail-closed OAR semantics
         working-directory: scripts
         run: python validate_cew_object_acquisition.py
@@ -79,6 +89,9 @@ jobs:
       - name: Validate Arena-style atomic revision persistence
         working-directory: scripts
         run: python validate_cew_oar_g4_atomic_store.py
+      - name: Validate cross-backend legacy revision-head replay
+        working-directory: scripts
+        run: python validate_cew_oar_g4_revision_head.py
       - name: Validate governed G4 region localization
         working-directory: scripts
         run: python validate_cew_oar_g4_region_binding.py
@@ -100,6 +113,7 @@ jobs:
           sql = Path('sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql').read_text()
           assert 'pg_advisory_xact_lock' in sql
           assert 'OAR_REGION_REVISION_CONFLICT' in sql
+          assert 'cew_oar_replay_region_head_v1' in sql
           assert 'cew_oar_read_region_receipts_v1' in sql
           assert 'one MVCC' in sql or 'MVCC' in sql
           assert "'RUNTIME_AUDIT_ONLY'" in sql
