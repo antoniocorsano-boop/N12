@@ -45,6 +45,9 @@ async function governedRead(req, db) {
   const receiptType = String(url.searchParams.get("receipt_type") || "").trim();
   const rawLimit = Number.parseInt(url.searchParams.get("limit") || String(MAX_GOVERNED_READ_RECEIPTS), 10);
   const rawOffset = Number.parseInt(url.searchParams.get("offset") || "0", 10);
+  const stableSnapshot = url.searchParams.get("snapshot") === "stable";
+  let watermarkSubmittedAt = String(url.searchParams.get("watermark_submitted_at") || "").trim();
+  let watermarkDecisionId = String(url.searchParams.get("watermark_decision_id") || "").trim();
   if (!receiptType || receiptType.length > 200) {
     return response(422, { state: "AUDIT_READ_REJECTED", reason: "RECEIPT_TYPE_INVALID" });
   }
@@ -54,15 +57,49 @@ async function governedRead(req, db) {
   if (!Number.isInteger(rawOffset) || rawOffset < 0) {
     return response(422, { state: "AUDIT_READ_REJECTED", reason: "READ_OFFSET_INVALID" });
   }
+  if ((watermarkSubmittedAt && !watermarkDecisionId) || (!watermarkSubmittedAt && watermarkDecisionId)) {
+    return response(422, { state: "AUDIT_READ_REJECTED", reason: "READ_WATERMARK_INCOMPLETE" });
+  }
   try {
-    const result = await db.sql`
-      SELECT receipt_json
-      FROM cew_human_receipt_audit
-      WHERE receipt_json->>'receipt_type' = ${receiptType}
-      ORDER BY submitted_at ASC NULLS LAST, decision_id ASC
-      LIMIT ${rawLimit}
-      OFFSET ${rawOffset}
-    `;
+    if (stableSnapshot && !watermarkSubmittedAt) {
+      const top = await db.sql`
+        SELECT submitted_at, decision_id
+        FROM cew_human_receipt_audit
+        WHERE receipt_json->>'receipt_type' = ${receiptType}
+          AND submitted_at IS NOT NULL
+        ORDER BY submitted_at DESC, decision_id DESC
+        LIMIT 1
+      `;
+      const topRows = rowsOf(top);
+      if (topRows.length) {
+        watermarkSubmittedAt = new Date(topRows[0].submitted_at).toISOString();
+        watermarkDecisionId = String(topRows[0].decision_id);
+      }
+    }
+
+    let result;
+    if (stableSnapshot && watermarkSubmittedAt) {
+      result = await db.sql`
+        SELECT receipt_json
+        FROM cew_human_receipt_audit
+        WHERE receipt_json->>'receipt_type' = ${receiptType}
+          AND submitted_at IS NOT NULL
+          AND (submitted_at < ${watermarkSubmittedAt}::timestamptz
+               OR (submitted_at = ${watermarkSubmittedAt}::timestamptz AND decision_id <= ${watermarkDecisionId}))
+        ORDER BY submitted_at ASC, decision_id ASC
+        LIMIT ${rawLimit}
+        OFFSET ${rawOffset}
+      `;
+    } else {
+      result = await db.sql`
+        SELECT receipt_json
+        FROM cew_human_receipt_audit
+        WHERE receipt_json->>'receipt_type' = ${receiptType}
+        ORDER BY submitted_at ASC NULLS LAST, decision_id ASC
+        LIMIT ${rawLimit}
+        OFFSET ${rawOffset}
+      `;
+    }
     const rows = rowsOf(result);
     const overflowProbe = rawLimit === MAX_GOVERNED_READ_PROBE;
     if (overflowProbe && rows.length > MAX_GOVERNED_READ_RECEIPTS) {
@@ -81,6 +118,9 @@ async function governedRead(req, db) {
       offset: rawOffset,
       limit: Math.min(rawLimit, MAX_GOVERNED_READ_RECEIPTS),
       overflow_probe: overflowProbe,
+      snapshot: stableSnapshot ? "STABLE_WATERMARK" : "LEGACY_OFFSET",
+      watermark_submitted_at: watermarkSubmittedAt || null,
+      watermark_decision_id: watermarkDecisionId || null,
       authority: "RUNTIME_AUDIT_READ_ONLY",
       canonical_write: false,
       engineering_authority_effect: "NONE",
