@@ -10,6 +10,7 @@ on:
       - 'scripts/cew_object_workbench.py'
       - 'scripts/cew_oar_g4_column_pilot.py'
       - 'scripts/cew_oar_g4_audit_history.py'
+      - 'scripts/cew_oar_g4_atomic_store.py'
       - 'scripts/cew_oar_g4_region_binding.py'
       - 'scripts/cew_oar_g4_region_workbench.py'
       - 'scripts/cew_oar_g4_region_workbench_base.py'
@@ -20,9 +21,11 @@ on:
       - 'scripts/validate_cew_object_acquisition.py'
       - 'scripts/validate_cew_oar_g4_column_pilot.py'
       - 'scripts/validate_cew_oar_g4_audit_history.py'
+      - 'scripts/validate_cew_oar_g4_atomic_store.py'
       - 'scripts/validate_cew_oar_g4_region_binding.py'
       - 'scripts/validate_cew_oar_g4_region_workbench.py'
       - 'scripts/validate_cew_oar_g4_region_runtime.py'
+      - 'sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql'
       - 'data/canonical/tavole_originali_remote_index_v1.csv'
       - 'requirements.txt'
       - 'docs/architecture/CEW_OBJECT_ACQUISITION_AND_PROJECT_MATERIAL_PLAN_v1.md'
@@ -47,6 +50,7 @@ jobs:
           scripts/cew_object_workbench.py
           scripts/cew_oar_g4_column_pilot.py
           scripts/cew_oar_g4_audit_history.py
+          scripts/cew_oar_g4_atomic_store.py
           scripts/cew_oar_g4_region_binding.py
           scripts/cew_oar_g4_region_workbench.py
           scripts/cew_oar_g4_region_workbench_base.py
@@ -56,6 +60,7 @@ jobs:
           scripts/validate_cew_object_acquisition.py
           scripts/validate_cew_oar_g4_column_pilot.py
           scripts/validate_cew_oar_g4_audit_history.py
+          scripts/validate_cew_oar_g4_atomic_store.py
           scripts/validate_cew_oar_g4_region_binding.py
           scripts/validate_cew_oar_g4_region_workbench.py
           scripts/validate_cew_oar_g4_region_runtime.py
@@ -68,6 +73,9 @@ jobs:
       - name: Validate governed OAR audit-history pagination and reduction
         working-directory: scripts
         run: python validate_cew_oar_g4_audit_history.py
+      - name: Validate Arena-style atomic revision persistence
+        working-directory: scripts
+        run: python validate_cew_oar_g4_atomic_store.py
       - name: Validate governed G4 region localization
         working-directory: scripts
         run: python validate_cew_oar_g4_region_binding.py
@@ -79,6 +87,18 @@ jobs:
       - name: Execute real G4 localization runtime smoke
         working-directory: scripts
         run: python validate_cew_oar_g4_region_runtime.py
+      - name: Validate atomic SQL authority boundary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          sql = Path('sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql').read_text()
+          assert 'pg_advisory_xact_lock' in sql
+          assert 'OAR_REGION_REVISION_CONFLICT' in sql
+          assert "'RUNTIME_AUDIT_ONLY'" in sql
+          assert 'canonical_write' in sql and 'false' in sql
+          assert 'GEOMETRY_CONFIRMED' in sql
+          print('CEW_OAR_ATOMIC_SQL_CONTRACT_PASS')
+          PY
       - name: Validate OAR contract is fail-closed
         run: |
           python - <<'PY'
