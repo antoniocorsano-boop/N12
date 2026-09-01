@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from cew_oar_g4_region_workbench_base import *  # noqa: F401,F403
 import cew_oar_g4_audit_history as _history
+import cew_oar_g4_atomic_store as _atomic_store
 import cew_oar_g4_region_binding as _binding
 import cew_oar_g4_region_workbench_base as _base
 import cew_oar_g4_source_resolver as _resolver
@@ -35,10 +36,9 @@ def _governed_runtime_loader(receipt_type, store, *, max_receipts=_history.MAX_P
 
 _base.audit_store.load_runtime_receipts = _governed_runtime_loader
 
-# Server-side optimistic concurrency: every proposal and confirmation is bound to
-# the exact revision observed before append. UNBOUND itself has a deterministic
-# governed revision anchor, so two first proposals from the same snapshot can be
-# resolved without poisoning append-only history.
+# Arena-style optimistic concurrency: the client prepares an intent bound to the
+# exact revision it observed, while the persistence boundary performs the final
+# compare-and-set and assigns the governed timestamp inside the serialized commit.
 def persist_action(payload: dict) -> dict:
     if not isinstance(payload, dict):
         raise ValueError("OAR_REGION_REQUEST_OBJECT_REQUIRED")
@@ -81,9 +81,14 @@ def persist_action(payload: dict) -> dict:
         action=action,
         base_proposal_decision_id=base_proposal_decision_id,
     )
+
+    # Pre-validation gives the operator an immediate domain error, but it is not
+    # the concurrency authority. The atomic store repeats revision validation
+    # inside its persistence boundary and may reject this intent as stale.
     loaded = _base.audit_store.load_runtime_receipts(_binding.RECEIPT_TYPE, _base.RUNTIME_STORE)
     _binding.aggregate([*loaded["receipts"], receipt])
-    persisted = _base.audit_store.persist_runtime_receipt(receipt, _base.RUNTIME_STORE)
+    persisted = _atomic_store.persist_region_receipt(receipt, _base.RUNTIME_STORE)
+
     report = _base.load_report()
     result_row = next(item for item in report["objects"] if str(item["support_id"]) == support_id)
     return {
@@ -91,6 +96,7 @@ def persist_action(payload: dict) -> dict:
         "runtime_receipt_id": persisted["runtime_receipt_id"],
         "sha256": persisted["sha256"],
         "audit_backend": persisted["audit_backend"],
+        "atomic_revision": persisted.get("atomic_revision") is True,
         "support_id": support_id,
         "object_state": result_row["state"],
         "bbox": result_row["bbox"],
