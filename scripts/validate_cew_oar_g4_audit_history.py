@@ -43,7 +43,6 @@ def main() -> None:
         assert row["state"] == "PROPOSED"
         assert report["canonical_write_authorized"] is False
 
-    # Filesystem snapshot regression: the list is frozen before page 1 is yielded.
     with tempfile.TemporaryDirectory(prefix="cew-oar-snapshot-") as tmp:
         store = Path(tmp)
         for index in range(4):
@@ -64,8 +63,6 @@ def main() -> None:
         assert len(frozen) == 4
         assert "snapshot-late" not in {item["decision_id"] for item in frozen}
 
-    # Remote snapshot readers must fetch exactly once, then chunk locally. A late
-    # commit cannot be inserted between chunks because no second remote query exists.
     remote_rows = [
         binding.build_receipt(
             decision_id=f"remote-snapshot-{index}", support_id="5", bbox=bbox,
@@ -101,6 +98,32 @@ def main() -> None:
     assert https_calls[0] == 1
     assert [len(page) for page in supabase_pages] == [2, 2, 1]
     assert [len(page) for page in https_pages] == [2, 2, 1]
+
+    # PostgREST Max Rows must be irrelevant: the RPC crosses the API as ONE JSON
+    # value even when the embedded receipt array is much larger than normal row caps.
+    many_rows = [
+        binding.build_receipt(
+            decision_id=f"supabase-json-{index:04d}", support_id="6", bbox=bbox,
+            action=binding.PROPOSAL_ACTION,
+            timestamp=(datetime(2026, 9, 1, 8, 20, tzinfo=timezone.utc) + timedelta(seconds=index)).isoformat(),
+            contract=contract,
+        )
+        for index in range(1200)
+    ]
+    payload = {
+        "schema_version": "1.0",
+        "snapshot": history.SUPABASE_SNAPSHOT_MARKER,
+        "receipt_count": len(many_rows),
+        "receipts": many_rows,
+        "authority": "RUNTIME_AUDIT_READ_ONLY",
+        "canonical_write": False,
+        "engineering_authority_effect": "NONE",
+    }
+    parsed = history._parse_supabase_snapshot_payload(payload)
+    assert len(parsed) == 1200
+    truncated = dict(payload)
+    truncated["receipts"] = many_rows[:1000]
+    _must_fail(lambda: history._parse_supabase_snapshot_payload(truncated), "OAR_SUPABASE_SNAPSHOT_RECEIPT_COUNT_MISMATCH")
 
     unbound = binding.unbound_revision_anchor("1")
     p0 = binding.build_receipt(decision_id="anchor-p0", support_id="1", bbox=bbox, action=binding.PROPOSAL_ACTION, base_proposal_decision_id=unbound, timestamp="2026-09-01T09:00:00+00:00", contract=contract)
@@ -149,13 +172,22 @@ def main() -> None:
     source = Path(history.__file__).read_text(encoding="utf-8")
     assert "REPEATABLE READ READ ONLY" in source
     assert 'SUPABASE_SNAPSHOT_RPC = "cew_oar_read_region_receipts_v1"' in source
+    assert 'SUPABASE_SNAPSHOT_MARKER = "SERVER_MVCC_SINGLE_JSON_VALUE"' in source
     assert 'snapshot=oar_mvcc' in source
     assert "_supabase_watermark" not in source
     assert "watermark_submitted_at" not in source
 
+    sql = (Path(__file__).resolve().parents[1] / "sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql").read_text(encoding="utf-8")
+    assert "returns jsonb" in sql.lower()
+    assert "jsonb_agg" in sql
+    assert "'receipt_count', count(*)" in sql
+    assert "SERVER_MVCC_SINGLE_JSON_VALUE" in sql
+    assert "returns table(receipt_json jsonb)" not in sql.lower()
+
     print("CEW_OAR_G4_AUDIT_HISTORY_PASS")
     print("server_mvcc_snapshot=true filesystem_frozen=true append_only_receipts=501")
-    print("neon=REPEATABLE_READ supabase=SINGLE_RPC netlify=SINGLE_QUERY remote_round_trips=1")
+    print("supabase_single_json_receipts=1200 truncation_detection=FAIL_CLOSED")
+    print("neon=REPEATABLE_READ supabase=SINGLE_JSON_RPC netlify=SINGLE_QUERY remote_round_trips=1")
     print("long_chain_receipts=1000 aggregate_calls=2 authority_divergent=FAIL_CLOSED")
 
 
