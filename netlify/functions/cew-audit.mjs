@@ -14,6 +14,7 @@ const REQUIRED = new Set([
 ]);
 const MAX_GOVERNED_READ_RECEIPTS = 500;
 const MAX_GOVERNED_READ_PROBE = MAX_GOVERNED_READ_RECEIPTS + 1;
+const OAR_RECEIPT_TYPE = "CEW_OAR_REGION_GEOMETRY_RECEIPT_v1";
 
 function stable(value) {
   if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`;
@@ -90,13 +91,105 @@ async function governedRead(req, db) {
   }
 }
 
-async function appendReceipt(req, db) {
-  let payload;
-  try {
-    payload = await req.json();
-  } catch {
-    return response(400, { state: "AUDIT_REJECTED", reason: "INVALID_JSON" });
+async function atomicOarAppend(payload, db) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload) || payload.oar_atomic_transition !== true) {
+    return null;
   }
+  const receipt = payload.receipt_json;
+  if (!receipt || typeof receipt !== "object" || Array.isArray(receipt) || receipt.receipt_type !== OAR_RECEIPT_TYPE) {
+    return response(422, { state: "AUDIT_REJECTED", reason: "OAR_ATOMIC_RECEIPT_REQUIRED" });
+  }
+  const decisionId = String(receipt.decision_id || "");
+  const bindingId = String(receipt.binding_id || "").trim();
+  const supportId = String(receipt.support_id || "").trim();
+  const expected = String(receipt.base_proposal_decision_id || "").trim();
+  const action = String(receipt.action || "");
+  if (!SAFE_DECISION_ID.test(decisionId) || !bindingId || !supportId || !expected || !["PROPOSE_GEOMETRY", "CONFIRM_GEOMETRY"].includes(action)) {
+    return response(422, { state: "AUDIT_REJECTED", reason: "OAR_ATOMIC_CONTRACT_VIOLATION" });
+  }
+  if (receipt.canonical_write_authorized !== false || receipt.structural_identity_authorized !== false || receipt.oar_human_confirmation !== false || receipt.engineering_authority_effect !== "NONE") {
+    return response(422, { state: "AUDIT_REJECTED", reason: "AUTHORITY_BOUNDARY_VIOLATION" });
+  }
+
+  try {
+    await db.sql`CREATE EXTENSION IF NOT EXISTS pgcrypto`;
+    await db.sql`
+      CREATE TABLE IF NOT EXISTS cew_oar_region_revision_heads (
+        binding_id text NOT NULL,
+        support_id text NOT NULL,
+        current_proposal_decision_id text,
+        state text NOT NULL CHECK (state IN ('UNBOUND','PROPOSED','GEOMETRY_CONFIRMED')),
+        updated_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+        PRIMARY KEY (binding_id, support_id)
+      )
+    `;
+
+    const initialAnchor = `CEW_OAR_UNBOUND_REVISION:${supportId}`;
+    const result = await db.sql`
+      WITH updated AS (
+        UPDATE cew_oar_region_revision_heads h
+        SET current_proposal_decision_id = CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN ${decisionId} ELSE h.current_proposal_decision_id END,
+            state = CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN 'PROPOSED' ELSE 'GEOMETRY_CONFIRMED' END,
+            updated_at = clock_timestamp()
+        WHERE h.binding_id = ${bindingId}
+          AND h.support_id = ${supportId}
+          AND h.current_proposal_decision_id = ${expected}
+          AND ((${action} = 'PROPOSE_GEOMETRY' AND h.state = 'PROPOSED')
+               OR (${action} = 'CONFIRM_GEOMETRY' AND h.state = 'PROPOSED'))
+        RETURNING h.binding_id
+      ),
+      inserted AS (
+        INSERT INTO cew_oar_region_revision_heads
+          (binding_id, support_id, current_proposal_decision_id, state, updated_at)
+        SELECT ${bindingId}, ${supportId}, ${decisionId}, 'PROPOSED', clock_timestamp()
+        WHERE ${action} = 'PROPOSE_GEOMETRY'
+          AND ${expected} = ${initialAnchor}
+          AND NOT EXISTS (SELECT 1 FROM cew_oar_region_revision_heads h WHERE h.binding_id=${bindingId} AND h.support_id=${supportId})
+        ON CONFLICT (binding_id, support_id) DO NOTHING
+        RETURNING binding_id
+      ),
+      transition AS (
+        SELECT binding_id FROM updated UNION ALL SELECT binding_id FROM inserted
+      ),
+      committed AS (
+        SELECT jsonb_set(${JSON.stringify(receipt)}::jsonb, '{timestamp}', to_jsonb(clock_timestamp()::text), true) AS receipt_json
+        FROM transition
+        LIMIT 1
+      ),
+      stored AS (
+        INSERT INTO cew_human_receipt_audit
+          (decision_id, task_id, residual_id, receipt_sha256, receipt_json, authority, canonical_write, submitted_at)
+        SELECT ${decisionId}, receipt_json->>'task_id', receipt_json->>'residual_id',
+               encode(digest(convert_to(receipt_json::text, 'UTF8'), 'sha256'), 'hex'),
+               receipt_json, 'RUNTIME_AUDIT_ONLY', false, (receipt_json->>'timestamp')::timestamptz
+        FROM committed
+        RETURNING receipt_json, receipt_sha256
+      )
+      SELECT receipt_json, receipt_sha256 FROM stored
+    `;
+    const rows = rowsOf(result);
+    if (rows.length !== 1) {
+      return response(409, { state: "AUDIT_REJECTED", reason: "OAR_REGION_REVISION_CONFLICT" });
+    }
+    return response(201, {
+      state: "AUDIT_STORED",
+      receipt_json: rows[0].receipt_json,
+      runtime_receipt_id: decisionId,
+      sha256: rows[0].receipt_sha256,
+      atomic_revision: true,
+      authority: "RUNTIME_AUDIT_ONLY",
+      canonical_write: false,
+    });
+  } catch (err) {
+    if (err?.code === "23505" || String(err?.message || "").toLowerCase().includes("duplicate")) {
+      return response(409, { state: "AUDIT_REJECTED", reason: "DUPLICATE_DECISION_ID" });
+    }
+    console.error("CEW_OAR_ATOMIC_DB_ERROR", err);
+    return response(503, { state: "AUDIT_REJECTED", reason: "AUDIT_DATABASE_UNAVAILABLE" });
+  }
+}
+
+async function appendReceipt(payload, db) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     return response(400, { state: "AUDIT_REJECTED", reason: "JSON_OBJECT_REQUIRED" });
   }
@@ -152,7 +245,17 @@ export default async (req) => {
 
   const db = getDatabase();
   if (req.method === "GET") return governedRead(req, db);
-  if (req.method === "POST") return appendReceipt(req, db);
+  if (req.method === "POST") {
+    let payload;
+    try {
+      payload = await req.json();
+    } catch {
+      return response(400, { state: "AUDIT_REJECTED", reason: "INVALID_JSON" });
+    }
+    const atomic = await atomicOarAppend(payload, db);
+    if (atomic) return atomic;
+    return appendReceipt(payload, db);
+  }
   return response(405, { state: "AUDIT_REJECTED", reason: "METHOD_NOT_ALLOWED" });
 };
 
