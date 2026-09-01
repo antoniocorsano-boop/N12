@@ -2,6 +2,8 @@
 """Deterministic validation for governed G4/TAV-05S region localization."""
 from __future__ import annotations
 
+from copy import deepcopy
+
 from cew_oar_g4_region_binding import (
     CONFIRM_ACTION,
     PROPOSAL_ACTION,
@@ -55,6 +57,25 @@ def main() -> None:
     assert proposal["oar_human_confirmation"] is False
     assert proposal["canonical_write_authorized"] is False
 
+    # Every governed field is validated before the first transition. A malformed
+    # or tampered audit record must not be able to establish PROPOSED state.
+    first_proposal_tampering = {
+        "family_id": "COL-G4-TAMPERED",
+        "authority": "HUMAN_EVIDENCE_LOCALIZATION_ONLY",
+        "oar_human_confirmation": True,
+        "structural_identity_authorized": True,
+        "canonical_write_authorized": True,
+        "engineering_authority_effect": "ENGINEERING_STATE_MUTATION",
+    }
+    for field, value in first_proposal_tampering.items():
+        tampered = deepcopy(proposal)
+        tampered["decision_id"] = f"tampered-proposal-{field}"
+        tampered[field] = value
+        _must_fail(
+            lambda tampered=tampered: aggregate([tampered], contract),
+            f"GOVERNED_FIELD_MISMATCH_{field.upper()}",
+        )
+
     proposed = aggregate([proposal], contract)
     row = next(item for item in proposed["objects"] if item["support_id"] == "1")
     assert row["state"] == "PROPOSED"
@@ -72,6 +93,26 @@ def main() -> None:
     )
     assert confirmation["authority"] == "HUMAN_EVIDENCE_LOCALIZATION_ONLY"
     assert confirmation["oar_human_confirmation"] is False
+
+    # The first confirmation is subject to the same full authority validation;
+    # strict equivalence is not deferred until a later/replayed confirmation.
+    first_confirmation_tampering = {
+        "family_id": "COL-G4-TAMPERED",
+        "authority": "WORKING_GEOMETRY_ONLY",
+        "oar_human_confirmation": True,
+        "structural_identity_authorized": True,
+        "canonical_write_authorized": True,
+        "engineering_authority_effect": "ENGINEERING_STATE_MUTATION",
+    }
+    for field, value in first_confirmation_tampering.items():
+        tampered = deepcopy(confirmation)
+        tampered["decision_id"] = f"tampered-confirm-{field}"
+        tampered[field] = value
+        _must_fail(
+            lambda tampered=tampered: aggregate([proposal, tampered], contract),
+            f"GOVERNED_FIELD_MISMATCH_{field.upper()}",
+        )
+
     confirmed = aggregate([proposal, confirmation], contract)
     row = next(item for item in confirmed["objects"] if item["support_id"] == "1")
     assert row["state"] == "GEOMETRY_CONFIRMED"
@@ -150,7 +191,7 @@ def main() -> None:
 
     print("CEW_OAR_G4_REGION_BINDING_PASS")
     print("objects=34 unbound=34 initial_canonical_regions=0 oar_human_confirmed=0")
-    print("equivalent_confirmation_replay=idempotent divergent_confirmation=fail_closed")
+    print("first_receipt_authority_validation=fail_closed equivalent_confirmation_replay=idempotent")
     print("geometry_confirmation_authority=HUMAN_EVIDENCE_LOCALIZATION_ONLY canonical_write_authorized=false")
 
 
