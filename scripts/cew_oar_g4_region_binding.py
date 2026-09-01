@@ -22,6 +22,23 @@ CONTRACT = ROOT / "automation" / "CEW_OAR_G4_COLUMN_REGION_BINDING_v1.json"
 RECEIPT_TYPE = "CEW_OAR_REGION_GEOMETRY_RECEIPT_v1"
 PROPOSAL_ACTION = "PROPOSE_GEOMETRY"
 CONFIRM_ACTION = "CONFIRM_GEOMETRY"
+_CONFIRM_EQUIVALENCE_FIELDS = (
+    "support_id",
+    "evidence_object_id",
+    "family_id",
+    "pilot_id",
+    "binding_id",
+    "source_version_id",
+    "page_id",
+    "derived_asset_id",
+    "page_transform_id",
+    "coordinate_system",
+    "authority",
+    "oar_human_confirmation",
+    "structural_identity_authorized",
+    "canonical_write_authorized",
+    "engineering_authority_effect",
+)
 
 
 def load_contract(path: Path = CONTRACT) -> dict[str, Any]:
@@ -112,6 +129,14 @@ def _ordered_receipts(receipts: list[dict[str, Any]]) -> list[dict[str, Any]]:
     )
 
 
+def _equivalent_confirmation(existing: dict[str, Any], receipt: dict[str, Any], bbox: dict[str, float]) -> bool:
+    if receipt.get("action") != CONFIRM_ACTION:
+        return False
+    if any(existing.get(key) != receipt.get(key) for key in _CONFIRM_EQUIVALENCE_FIELDS):
+        return False
+    return existing.get("bbox") == bbox
+
+
 def build_receipt(
     *,
     decision_id: str,
@@ -190,7 +215,12 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
                 raise ValueError("OAR_REGION_GEOMETRY_ALREADY_CONFIRMED")
             latest_proposal[support_id] = {**receipt, "bbox": bbox}
         elif action == CONFIRM_ACTION:
-            if support_id in confirmed:
+            existing = confirmed.get(support_id)
+            if existing is not None:
+                if _equivalent_confirmation(existing, receipt, bbox):
+                    # Concurrent/equivalent replay is audit-visible but does not
+                    # apply a second state transition. Divergence remains fatal.
+                    continue
                 raise ValueError("OAR_REGION_GEOMETRY_ALREADY_CONFIRMED")
             proposal = latest_proposal.get(support_id)
             if proposal is None:
