@@ -26,18 +26,18 @@ Il pilot è `SINGLE_OPERATOR_PILOT` e utilizza:
 
 In produzione, se l'autenticazione o lo storage audit persistente non sono configurati, CEW non accetta receipt. Non è consentito usare il filesystem effimero di una funzione serverless come archivio delle decisioni umane.
 
-Per il percorso OAR G4, la sola presenza della tabella audit non è sufficiente: la transizione revisionale deve essere serializzata dal database. Il runtime Supabase è quindi considerato correttamente provisionato per OAR soltanto quando sono stati applicati, in questo ordine:
+Per il percorso OAR G4, la sola presenza della tabella audit non è sufficiente: la transizione revisionale deve essere serializzata dal database e la ricostruzione dello storico deve osservare una vera snapshot MVCC server-side. Il runtime Supabase è quindi considerato correttamente provisionato per OAR soltanto quando sono stati applicati, in questo ordine:
 
 1. `automation/CEW_USER_WEB_PILOT_SUPABASE_v1.sql` — crea e protegge lo storage append-only `cew_human_receipt_audit`;
-2. `sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql` — crea `cew_oar_region_revision_heads` e la RPC `cew_oar_append_region_receipt_v1` che esegue il compare-and-set revisionale e assegna il timestamp governato all'interno della transazione.
+2. `sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql` — crea `cew_oar_region_revision_heads`, la RPC `cew_oar_append_region_receipt_v1` per il compare-and-set revisionale e la RPC `cew_oar_read_region_receipts_v1` che materializza l'intero storico OAR visibile in una singola statement/snapshot MVCC.
 
-La seconda migration dipende dalla prima e non la sostituisce. Un deploy che abilita il backend Supabase per OAR senza la RPC atomica è **non provisionato** per le write di localizzazione geometrica e deve fallire chiuso.
+La seconda migration dipende dalla prima e non la sostituisce. Un deploy che abilita il backend Supabase per OAR senza entrambe le RPC è **non provisionato** per il percorso OAR e deve fallire chiuso. La lettura OAR non deve ricostruire una snapshot tramite timestamp applicativi, watermark temporali o più richieste `LIMIT/OFFSET` su stati database differenti.
 
 ## Autorità
 
 La UI, la sessione, il database audit e il deploy non sono fonti di autorità ingegneristica. La decisione entra nel sistema soltanto come receipt umana F7 e deve superare i contratti già esistenti.
 
-La RPC OAR atomica è esclusivamente un boundary di concorrenza e audit runtime: non conferma la classificazione OAR, non crea identità strutturale, non materializza EvidenceRegion canoniche e non autorizza scritture canoniche.
+Le RPC OAR sono esclusivamente boundary di concorrenza e audit runtime: non confermano la classificazione OAR, non creano identità strutturale, non materializzano EvidenceRegion canoniche e non autorizzano scritture canoniche.
 
 Sono vietati dal pilot:
 
@@ -55,10 +55,10 @@ Il codice può essere integrato prima del provisioning. Lo stato `USER_WEB_RUNTI
 1. database audit CEW isolato;
 2. schema `automation/CEW_USER_WEB_PILOT_SUPABASE_v1.sql` applicato;
 3. migration `sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql` applicata quando il runtime espone il Workbench OAR G4 su Supabase;
-4. verifica presenza RPC `cew_oar_append_region_receipt_v1` e tabella `cew_oar_region_revision_heads` prima di abilitare le write OAR;
+4. verifica presenza RPC `cew_oar_append_region_receipt_v1`, RPC `cew_oar_read_region_receipts_v1` e tabella `cew_oar_region_revision_heads` prima di abilitare write o read OAR;
 5. variabili segrete configurate lato server;
 6. deploy Vercel completato;
 7. `/healthz` riporta storage persistente pronto;
 8. smoke autenticato su Control Room e task F7;
-9. smoke OAR, se il percorso OAR è esposto nel deploy, prova una transizione revisionale atomica senza alcuna promozione di authority;
+9. smoke OAR, se il percorso OAR è esposto nel deploy, prova una transizione revisionale atomica e una lettura snapshot MVCC senza alcuna promozione di authority;
 10. nessuna receipt reale dell'utente è stata precompilata o sintetizzata durante il collaudo.
