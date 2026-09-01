@@ -31,6 +31,8 @@ Per il percorso OAR G4, la sola presenza della tabella audit non è sufficiente:
 1. `automation/CEW_USER_WEB_PILOT_SUPABASE_v1.sql` — crea e protegge lo storage append-only `cew_human_receipt_audit`;
 2. `sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql` — crea `cew_oar_region_revision_heads`, la RPC `cew_oar_append_region_receipt_v1` per il compare-and-set revisionale e la RPC `cew_oar_read_region_receipts_v1` che materializza l'intero storico OAR visibile in una singola statement/snapshot MVCC.
 
+La RPC di lettura OAR deve attraversare PostgREST come **un solo valore JSON aggregato**, contenente almeno `receipt_count` e `receipts`; non deve restituire una riga API per receipt. In questo modo il limite `Max Rows` di PostgREST non può troncare silenziosamente lo storico OAR. Il client deve verificare `receipt_count == len(receipts)` e fallire chiuso in caso di incoerenza.
+
 La seconda migration dipende dalla prima e non la sostituisce. Un deploy che abilita il backend Supabase per OAR senza entrambe le RPC è **non provisionato** per il percorso OAR e deve fallire chiuso. La lettura OAR non deve ricostruire una snapshot tramite timestamp applicativi, watermark temporali o più richieste `LIMIT/OFFSET` su stati database differenti.
 
 ## Autorità
@@ -56,9 +58,10 @@ Il codice può essere integrato prima del provisioning. Lo stato `USER_WEB_RUNTI
 2. schema `automation/CEW_USER_WEB_PILOT_SUPABASE_v1.sql` applicato;
 3. migration `sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql` applicata quando il runtime espone il Workbench OAR G4 su Supabase;
 4. verifica presenza RPC `cew_oar_append_region_receipt_v1`, RPC `cew_oar_read_region_receipts_v1` e tabella `cew_oar_region_revision_heads` prima di abilitare write o read OAR;
-5. variabili segrete configurate lato server;
-6. deploy Vercel completato;
-7. `/healthz` riporta storage persistente pronto;
-8. smoke autenticato su Control Room e task F7;
-9. smoke OAR, se il percorso OAR è esposto nel deploy, prova una transizione revisionale atomica e una lettura snapshot MVCC senza alcuna promozione di authority;
-10. nessuna receipt reale dell'utente è stata precompilata o sintetizzata durante il collaudo.
+5. verifica che `cew_oar_read_region_receipts_v1` ritorni un singolo JSON aggregato con `receipt_count` coerente con `receipts`;
+6. variabili segrete configurate lato server;
+7. deploy Vercel completato;
+8. `/healthz` riporta storage persistente pronto;
+9. smoke autenticato su Control Room e task F7;
+10. smoke OAR, se il percorso OAR è esposto nel deploy, prova una transizione revisionale atomica e una lettura snapshot MVCC senza alcuna promozione di authority;
+11. nessuna receipt reale dell'utente è stata precompilata o sintetizzata durante il collaudo.
