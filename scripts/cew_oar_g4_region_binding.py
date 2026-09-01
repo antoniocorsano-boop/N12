@@ -33,6 +33,7 @@ _CONFIRM_EQUIVALENCE_FIELDS = (
     "derived_asset_id",
     "page_transform_id",
     "coordinate_system",
+    "base_proposal_decision_id",
     "authority",
     "oar_human_confirmation",
     "structural_identity_authorized",
@@ -134,14 +135,6 @@ def _validate_receipt_governance(
     row: dict[str, Any],
     contract: dict[str, Any],
 ) -> str:
-    """Validate all transition-governing fields before state is mutated.
-
-    Audit storage is append-only and therefore potentially contains malformed or
-    tampered historical records. A receipt must match the bounded pilot contract
-    in full before it can propose or confirm geometry. This check intentionally
-    precedes bbox/state-transition logic so the *first* receipt cannot establish
-    state with authority-divergent fields.
-    """
     action = receipt.get("action")
     if action not in {PROPOSAL_ACTION, CONFIRM_ACTION}:
         raise ValueError("OAR_REGION_ACTION_INVALID")
@@ -160,11 +153,7 @@ def _validate_receipt_governance(
         "derived_asset_id": document["derived_asset_id"],
         "page_transform_id": document["page_transform_id"],
         "coordinate_system": document["coordinate_system"],
-        "authority": (
-            "WORKING_GEOMETRY_ONLY"
-            if action == PROPOSAL_ACTION
-            else "HUMAN_EVIDENCE_LOCALIZATION_ONLY"
-        ),
+        "authority": "WORKING_GEOMETRY_ONLY" if action == PROPOSAL_ACTION else "HUMAN_EVIDENCE_LOCALIZATION_ONLY",
         "oar_human_confirmation": False,
         "structural_identity_authorized": False,
         "canonical_write_authorized": False,
@@ -173,6 +162,9 @@ def _validate_receipt_governance(
     for key, value in expected.items():
         if receipt.get(key) != value:
             raise ValueError(f"OAR_REGION_GOVERNED_FIELD_MISMATCH_{key.upper()}")
+    anchor = receipt.get("base_proposal_decision_id")
+    if anchor is not None and (not isinstance(anchor, str) or not anchor.strip()):
+        raise ValueError("OAR_REGION_BASE_PROPOSAL_DECISION_ID_INVALID")
     return action
 
 
@@ -192,6 +184,7 @@ def build_receipt(
     action: str,
     actor: str = "AUTHENTICATED_OPERATOR",
     timestamp: str | None = None,
+    base_proposal_decision_id: str | None = None,
     contract: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     contract = contract or load_contract()
@@ -202,6 +195,10 @@ def build_receipt(
     decision_id = str(decision_id).strip()
     if not decision_id:
         raise ValueError("OAR_REGION_DECISION_ID_REQUIRED")
+    if base_proposal_decision_id is not None:
+        base_proposal_decision_id = str(base_proposal_decision_id).strip()
+        if not base_proposal_decision_id:
+            raise ValueError("OAR_REGION_BASE_PROPOSAL_DECISION_ID_INVALID")
     timestamp = timestamp or datetime.now(timezone.utc).isoformat()
     _receipt_timestamp({"timestamp": timestamp})
     document = contract["document"]
@@ -213,6 +210,7 @@ def build_receipt(
         "timestamp": timestamp,
         "actor": actor,
         "action": action,
+        "base_proposal_decision_id": base_proposal_decision_id,
         "pilot_id": contract["pilot_id"],
         "binding_id": contract["binding_id"],
         "support_id": str(row["support_id"]),
@@ -224,11 +222,7 @@ def build_receipt(
         "page_transform_id": document["page_transform_id"],
         "coordinate_system": document["coordinate_system"],
         "bbox": geometry,
-        "authority": (
-            "WORKING_GEOMETRY_ONLY"
-            if action == PROPOSAL_ACTION
-            else "HUMAN_EVIDENCE_LOCALIZATION_ONLY"
-        ),
+        "authority": "WORKING_GEOMETRY_ONLY" if action == PROPOSAL_ACTION else "HUMAN_EVIDENCE_LOCALIZATION_ONLY",
         "oar_human_confirmation": False,
         "structural_identity_authorized": False,
         "canonical_write_authorized": False,
@@ -239,7 +233,9 @@ def build_receipt(
 def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = None) -> dict[str, Any]:
     contract = contract or load_contract()
     latest_proposal: dict[str, dict[str, Any]] = {}
+    proposal_history: dict[str, dict[str, dict[str, Any]]] = {}
     confirmed: dict[str, dict[str, Any]] = {}
+    stale_transition_count = 0
     seen_decisions: set[str] = set()
 
     for receipt in _ordered_receipts(receipts):
@@ -251,22 +247,60 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
         row = support_row(contract, support_id)
         action = _validate_receipt_governance(receipt, row, contract)
         bbox = normalize_bbox(receipt.get("bbox"))
+        anchor = receipt.get("base_proposal_decision_id")
+        history = proposal_history.setdefault(support_id, {})
 
         if action == PROPOSAL_ACTION:
-            if support_id in confirmed:
+            existing_confirmation = confirmed.get(support_id)
+            if existing_confirmation is not None:
+                # A proposal created from the same predecessor as an already-applied
+                # confirmation is a concurrent loser. Keep it in audit history but
+                # do not mutate state. Unanchored/other post-confirm proposals remain fatal.
+                if anchor is not None and anchor == existing_confirmation.get("base_proposal_decision_id"):
+                    stale_transition_count += 1
+                    continue
                 raise ValueError("OAR_REGION_GEOMETRY_ALREADY_CONFIRMED")
-            latest_proposal[support_id] = {**receipt, "bbox": bbox}
+
+            current = latest_proposal.get(support_id)
+            if current is not None and anchor is not None and anchor != current["decision_id"]:
+                # Another replacement already advanced the proposal revision.
+                stale_transition_count += 1
+                continue
+            if current is None and anchor is not None:
+                # Anchored proposal references a revision that is not current/known.
+                if anchor in history:
+                    stale_transition_count += 1
+                    continue
+                raise ValueError("OAR_REGION_BASE_PROPOSAL_NOT_FOUND")
+
+            proposal = {**receipt, "bbox": bbox}
+            latest_proposal[support_id] = proposal
+            history[decision_id] = proposal
+
         elif action == CONFIRM_ACTION:
             existing = confirmed.get(support_id)
             if existing is not None:
                 if _equivalent_confirmation(existing, receipt, bbox):
-                    # Concurrent/equivalent replay is audit-visible but does not
-                    # apply a second state transition. Divergence remains fatal.
+                    continue
+                # A confirmation anchored to a revision already consumed by the
+                # winning confirmation is stale only if it confirms that exact prior bbox.
+                anchored = history.get(str(anchor)) if anchor is not None else None
+                if anchored is not None and anchored.get("bbox") == bbox:
+                    stale_transition_count += 1
                     continue
                 raise ValueError("OAR_REGION_GEOMETRY_ALREADY_CONFIRMED")
+
             proposal = latest_proposal.get(support_id)
             if proposal is None:
                 raise ValueError("OAR_REGION_CONFIRMATION_WITHOUT_PROPOSAL")
+            if anchor is not None and anchor != proposal["decision_id"]:
+                anchored = history.get(str(anchor))
+                if anchored is not None and anchored.get("bbox") == bbox:
+                    # A concurrent replacement won first; this confirmation is bound
+                    # to the previous proposal revision and cannot mutate the newer one.
+                    stale_transition_count += 1
+                    continue
+                raise ValueError("OAR_REGION_BASE_PROPOSAL_MISMATCH")
             if bbox != proposal["bbox"]:
                 raise ValueError("OAR_REGION_CONFIRMATION_BBOX_MISMATCH")
             confirmed[support_id] = {**receipt, "bbox": bbox}
@@ -281,6 +315,7 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
             **row,
             "state": state,
             "bbox": confirmation["bbox"] if confirmation else (proposal["bbox"] if proposal else None),
+            "geometry_proposal_receipt_id": proposal["decision_id"] if proposal else None,
             "geometry_confirmation_receipt_id": confirmation["decision_id"] if confirmation else None,
             "oar_human_confirmation": False,
             "canonical_write_authorized": False,
@@ -295,6 +330,7 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
         "summary": {
             "total": 34,
             **counts,
+            "stale_concurrent_transitions": stale_transition_count,
             "oar_human_confirmed": 0,
             "canonical_evidence_regions_materialized": 0,
         },
