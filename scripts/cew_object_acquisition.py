@@ -130,6 +130,7 @@ class ObjectCandidate:
         payload = {
             "evidence_object_id": self.evidence_object_id,
             "object_type": self.object_type.value,
+            "family_id": self.family_id,
             "signature": self.signature.fingerprint(),
             "source_version_id": self.provenance.source_version_id,
             "page_id": self.provenance.page_id,
