@@ -96,21 +96,31 @@ begin
 end;
 $$;
 
--- OAR snapshot reads must not depend on application timestamps or OFFSET windows.
--- One RPC invocation is one PostgreSQL statement and therefore observes one MVCC
--- snapshot. PostgREST materializes the result of this statement before replying;
--- concurrent commits cannot appear part-way through the returned set.
+-- One RPC invocation is one PostgreSQL statement/MVCC snapshot. The complete
+-- receipt set is aggregated into ONE jsonb scalar before crossing PostgREST, so
+-- API Max Rows cannot truncate individual OAR receipts. receipt_count gives the
+-- client an independent fail-closed completeness check.
 create or replace function public.cew_oar_read_region_receipts_v1()
-returns table(receipt_json jsonb)
+returns jsonb
 language sql
 stable
 security definer
 set search_path = public, pg_temp
 as $$
-  select a.receipt_json
+  select jsonb_build_object(
+    'schema_version', '1.0',
+    'snapshot', 'SERVER_MVCC_SINGLE_JSON_VALUE',
+    'receipt_count', count(*),
+    'receipts', coalesce(
+      jsonb_agg(a.receipt_json order by a.submitted_at asc nulls last, a.decision_id asc),
+      '[]'::jsonb
+    ),
+    'authority', 'RUNTIME_AUDIT_READ_ONLY',
+    'canonical_write', false,
+    'engineering_authority_effect', 'NONE'
+  )
   from public.cew_human_receipt_audit a
   where a.receipt_json->>'receipt_type' = 'CEW_OAR_REGION_GEOMETRY_RECEIPT_v1'
-  order by a.submitted_at asc nulls last, a.decision_id asc
 $$;
 
 revoke all on function public.cew_oar_append_region_receipt_v1(jsonb) from public;
