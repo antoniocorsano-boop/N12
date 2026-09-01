@@ -7,7 +7,10 @@
     "primary_source_path": "archive/documentazione_originaria/tavola 5.pdf",
     "primary_source_blob_sha": "ec32cd621877e9037cb26ebc083164140a8e3e68",
     "primary_source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
-    "render_evidence": "n12-analysis-cycle-report/TAV05S_300dpi.jpg",
+    "render_evidence": "github-actions://N12/run/32561084360/artifact/9472799878/TAV05S_300dpi.jpg",
+    "render_sha256": "32dfa5976b3d6a6482f73159da1778de6483e5d90c671ae771793374781f58b7",
+    "render_dimensions_px": [7016, 12530],
+    "render_dpi": 300,
     "render_role": "DERIVATIVE_VISUALIZATION_ONLY",
     "evidence_status": "DOC",
     "source_validation_state": "DIRECT_REGISTERED",
@@ -24,10 +27,12 @@
     "residual_count": 0
   },
   "cew_binding": {
-    "source_version_id": null,
-    "page_id": null,
+    "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
+    "page_id": "CEW-N12-PAGE-TAV05S-P001",
+    "derived_asset_id": "CEW-N12-ASSET-TAV05S-P001-300DPI",
+    "page_transform_id": "CEW-N12-XFORM-TAV05S-P001",
     "evidence_region_binding": "MISSING_PER_OBJECT",
-    "policy": "DO_NOT_INVENT_IDENTIFIERS; KEEP_CANDIDATES_REVIEWABLE_BUT_PROMOTION_INELIGIBLE"
+    "policy": "USE_ONLY_REGISTERED_IDENTIFIERS; DO_NOT_INVENT_REGIONS; KEEP_CANDIDATES_REVIEWABLE_BUT_PROMOTION_INELIGIBLE"
   },
   "families": {
     "COL-G4-40X40": {"section_x_cm": 40, "section_y_cm": 40, "orientation_class": "X40_Y40"},
