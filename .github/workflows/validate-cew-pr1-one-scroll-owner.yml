@@ -1,0 +1,22 @@
+name: Validate CEW PR-1 One Scroll Owner
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_PR1_ONE_SCROLL_OWNER_CONTRACT_v1.json'
+      - 'scripts/cew_pr1_one_scroll_owner_runtime.py'
+      - 'scripts/cew_enterprise_governed_resume_runtime.py'
+      - 'scripts/validate_cew_pr1_one_scroll_owner.py'
+      - '.github/workflows/validate-cew-pr1-one-scroll-owner.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate PR-1 one-scroll-owner workspace
+        run: python scripts/validate_cew_pr1_one_scroll_owner.py
