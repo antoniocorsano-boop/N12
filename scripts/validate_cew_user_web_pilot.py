@@ -42,9 +42,12 @@ def main():
 
     atomic_sql = OAR_ATOMIC_SQL.read_text(encoding="utf-8")
     assert "cew_oar_append_region_receipt_v1" in atomic_sql
+    assert "cew_oar_read_region_receipts_v1" in atomic_sql
     assert "cew_oar_region_revision_heads" in atomic_sql
     assert "pg_advisory_xact_lock" in atomic_sql
     assert "OAR_REGION_REVISION_CONFLICT" in atomic_sql
+    assert "language sql" in atomic_sql.lower()
+    assert "stable" in atomic_sql.lower()
     assert "canonical_write" in atomic_sql and "false" in atomic_sql
 
     provisioning = PROVISIONING.read_text(encoding="utf-8")
@@ -52,7 +55,9 @@ def main():
     atomic_pos = provisioning.index("sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql")
     assert audit_pos < atomic_pos
     assert "cew_oar_append_region_receipt_v1" in provisioning
+    assert "cew_oar_read_region_receipts_v1" in provisioning
     assert "cew_oar_region_revision_heads" in provisioning
+    assert "snapshot MVCC" in provisioning
     assert "non provisionato" in provisioning.lower()
 
     with REGISTRY.open(newline="", encoding="utf-8") as handle:
@@ -102,7 +107,7 @@ def main():
         os.environ.clear()
         os.environ.update(old)
 
-    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | oar_atomic_supabase_provisioning=PASS | production_fail_closed=PASS | canonical_write=0")
+    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | oar_atomic_supabase_provisioning=PASS | oar_mvcc_snapshot_rpc=PASS | production_fail_closed=PASS | canonical_write=0")
 
 
 if __name__ == "__main__":
