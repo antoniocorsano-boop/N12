@@ -1,0 +1,23 @@
+name: Validate CEW Professional Review Precision
+
+on:
+  pull_request:
+    paths:
+      - 'docs/DESIGN/CEW_PROFESSIONAL_REVIEW_PRECISION_BASELINE_v1.md'
+      - 'automation/CEW_PROFESSIONAL_REVIEW_PRECISION_CONTRACT_v1.json'
+      - 'data/canonical/STRUCTURAL_GCP_REGISTER_v1.csv'
+      - 'scripts/build_cew_precision_diagnostics.py'
+      - 'scripts/validate_cew_professional_review_precision.py'
+      - '.github/workflows/validate-cew-professional-review-precision.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate professional review precision baseline
+        run: python scripts/validate_cew_professional_review_precision.py
