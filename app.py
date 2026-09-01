@@ -17,6 +17,7 @@ SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
+import cew_auth_context as auth_context
 import cew_b1_acceptance_lab as acceptance_lab
 import cew_b1_dual_workspace as dual_workspace
 import cew_document_drawing_workspace as document_workspace
@@ -86,11 +87,18 @@ def _authorized(request: Request) -> bool:
     return hmac.compare_digest(value, _session_value())
 
 
-def _login_page(message: str = "") -> str:
+def _request_return_to(request: Request) -> str:
+    query = f"?{request.url.query}" if request.url.query else ""
+    return auth_context.safe_return_to(request.url.path + query)
+
+
+def _login_page(message: str = "", return_to: str = "/") -> str:
+    target = auth_context.safe_return_to(return_to)
+    target_html = html.escape(target, quote=True)
     note = f"<p class='error'>{html.escape(message)}</p>" if message else ""
     config_note = "" if _auth_configured() else "<p class='error'>CEW non è ancora configurato per l'accesso utente.</p>"
     return f'''<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CEW — Accesso</title>
-<style>body{{font-family:system-ui;background:#f4f6f8;margin:0;color:#17202a}}main{{max-width:440px;margin:10vh auto;background:white;padding:28px;border:1px solid #d8dde3;border-radius:12px}}input,button{{width:100%;box-sizing:border-box;padding:11px;margin-top:8px}}button{{background:#173f5f;color:white;border:0;border-radius:7px;font-weight:700}}.error{{color:#a12622}}.muted{{color:#5d6875}}</style></head><body><main><h1>CEW</h1><p>Ambiente di lavoro per la valutazione strutturale dell’esistente</p><p class="muted">Accesso operatore</p>{config_note}{note}<form method="post" action="/login"><label>Password<input type="password" name="password" autocomplete="current-password" autofocus></label><button type="submit">Accedi al progetto</button></form></main></body></html>'''
+<style>body{{font-family:system-ui;background:#f4f6f8;margin:0;color:#17202a}}main{{max-width:440px;margin:10vh auto;background:white;padding:28px;border:1px solid #d8dde3;border-radius:12px}}input,button{{width:100%;box-sizing:border-box;padding:11px;margin-top:8px}}button{{background:#173f5f;color:white;border:0;border-radius:7px;font-weight:700}}.error{{color:#a12622}}.muted{{color:#5d6875}}</style></head><body><main><h1>CEW</h1><p>Ambiente di lavoro per la valutazione strutturale dell’esistente</p><p class="muted">Accesso operatore</p>{config_note}{note}<form method="post" action="/login"><input type="hidden" name="next" value="{target_html}"><label>Password<input type="password" name="password" autocomplete="current-password" autofocus></label><button type="submit">Accedi al progetto</button></form></main></body></html>'''
 
 
 @app.middleware("http")
@@ -98,7 +106,7 @@ async def access_guard(request: Request, call_next):
     if request.url.path in {"/healthz", "/readyz", "/login"}:
         return await call_next(request)
     if not _authorized(request):
-        return RedirectResponse(url="/login", status_code=303)
+        return RedirectResponse(url=auth_context.login_url_for(_request_return_to(request)), status_code=303)
     return await call_next(request)
 
 
@@ -160,22 +168,25 @@ def readyz():
 
 
 @app.get("/login", response_class=HTMLResponse)
-def login_get(request: Request):
+def login_get(request: Request, next: str = "/"):
+    target = auth_context.safe_return_to(next)
     if _authorized(request):
-        return RedirectResponse(url="/", status_code=303)
-    return HTMLResponse(_login_page())
+        return RedirectResponse(url=target, status_code=303)
+    return HTMLResponse(_login_page(return_to=target))
 
 
 @app.post("/login", response_class=HTMLResponse)
 async def login_post(request: Request):
-    if not _auth_configured():
-        return HTMLResponse(_login_page("Configurazione accesso mancante."), status_code=503)
     raw = (await request.body()).decode("utf-8", errors="replace")
-    supplied = parse_qs(raw).get("password", [""])[0]
+    fields = parse_qs(raw)
+    target = auth_context.safe_return_to(fields.get("next", ["/"])[0])
+    if not _auth_configured():
+        return HTMLResponse(_login_page("Configurazione accesso mancante.", target), status_code=503)
+    supplied = fields.get("password", [""])[0]
     expected = os.getenv("CEW_ACCESS_PASSWORD", "")
     if not hmac.compare_digest(supplied, expected):
-        return HTMLResponse(_login_page("Password non valida."), status_code=401)
-    response = RedirectResponse(url="/", status_code=303)
+        return HTMLResponse(_login_page("Password non valida.", target), status_code=401)
+    response = RedirectResponse(url=target, status_code=303)
     response.set_cookie(
         SESSION_COOKIE,
         _session_value(),

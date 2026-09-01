@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "contract": "CEW_EWS5_AUTH_CONTEXT_RESTORATION",
+  "status": "EWS5_COMPLETE_PASS",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "project_material_ready": false,
+  "scope": "AUTHENTICATION_RETURN_TO_UI_CONTEXT_ONLY",
+  "required_behavior": {
+    "preserve_internal_path": true,
+    "preserve_query_string": true,
+    "pilot_deep_link": "/workbench?task=OA-N12-G4-COLUMN-PILOT",
+    "login_form_hidden_next": true,
+    "authorized_login_get_returns_to_target": true,
+    "successful_login_post_returns_to_target": true,
+    "failed_login_preserves_target": true
+  },
+  "security_boundary": {
+    "same_origin_absolute_path_only": true,
+    "external_absolute_url_rejected": true,
+    "protocol_relative_url_rejected": true,
+    "login_logout_loop_rejected": true,
+    "return_to_contains_auth_secret": false,
+    "return_to_is_governed_state": false,
+    "fallback": "/"
+  },
+  "validation_evidence": {
+    "ews5_ci": "PASS",
+    "user_web_pilot": "PASS",
+    "candidate_runtime": "PASS",
+    "neon_user_runtime": "PASS",
+    "b1_production_runtime": "PASS",
+    "b1_human_acceptance_v2": "PASS",
+    "source_evidence_journey": "PASS",
+    "document_routes": "PASS",
+    "same_sha_ci_required": true
+  },
+  "forbidden_shortcuts": [
+    "OPEN_REDIRECT",
+    "EXTERNAL_RETURN_TO",
+    "PROTOCOL_RELATIVE_RETURN_TO",
+    "PASSWORD_IN_RETURN_TO",
+    "SESSION_SECRET_IN_RETURN_TO",
+    "RETURN_TO_CREATES_AUTHORITY",
+    "RETURN_TO_CREATES_CANONICAL_WRITE",
+    "OA6_RELEASE"
+  ],
+  "next_gate": "EWS5_HUMAN_DEEP_LINK_VALIDATION"
+}
