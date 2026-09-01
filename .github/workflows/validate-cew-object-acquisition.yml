@@ -22,9 +22,11 @@ on:
       - 'scripts/validate_cew_oar_g4_column_pilot.py'
       - 'scripts/validate_cew_oar_g4_audit_history.py'
       - 'scripts/validate_cew_oar_g4_atomic_store.py'
+      - 'scripts/validate_cew_oar_g4_commit_ack.py'
       - 'scripts/validate_cew_oar_g4_region_binding.py'
       - 'scripts/validate_cew_oar_g4_region_workbench.py'
       - 'scripts/validate_cew_oar_g4_region_runtime.py'
+      - 'netlify/functions/cew-audit.mjs'
       - 'sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql'
       - 'data/canonical/tavole_originali_remote_index_v1.csv'
       - 'requirements.txt'
@@ -61,6 +63,7 @@ jobs:
           scripts/validate_cew_oar_g4_column_pilot.py
           scripts/validate_cew_oar_g4_audit_history.py
           scripts/validate_cew_oar_g4_atomic_store.py
+          scripts/validate_cew_oar_g4_commit_ack.py
           scripts/validate_cew_oar_g4_region_binding.py
           scripts/validate_cew_oar_g4_region_workbench.py
           scripts/validate_cew_oar_g4_region_runtime.py
@@ -70,12 +73,15 @@ jobs:
       - name: Validate real G4 column pilot
         working-directory: scripts
         run: python validate_cew_oar_g4_column_pilot.py
-      - name: Validate governed OAR audit-history pagination and reduction
+      - name: Validate stable-snapshot OAR audit-history pagination and reduction
         working-directory: scripts
         run: python validate_cew_oar_g4_audit_history.py
       - name: Validate Arena-style atomic revision persistence
         working-directory: scripts
         run: python validate_cew_oar_g4_atomic_store.py
+      - name: Validate committed-write acknowledgement boundary
+        working-directory: scripts
+        run: python validate_cew_oar_g4_commit_ack.py
       - name: Validate governed G4 region localization
         working-directory: scripts
         run: python validate_cew_oar_g4_region_binding.py
