@@ -100,6 +100,7 @@ def main() -> None:
         support_id="1",
         bbox={"x": 0.11, "y": 0.20, "w": 0.015, "h": 0.020},
         action=CONFIRM_ACTION,
+        timestamp="2026-09-01T08:01:01+00:00",
         contract=contract,
     )
     _must_fail(lambda: aggregate([proposal, changed], contract), "CONFIRMATION_BBOX_MISMATCH")
@@ -110,6 +111,7 @@ def main() -> None:
         support_id="1",
         bbox={"x": 0.12, "y": 0.20, "w": 0.015, "h": 0.020},
         action=PROPOSAL_ACTION,
+        timestamp="2026-09-01T08:02:00+00:00",
         contract=contract,
     )
     reconfirm = build_receipt(
@@ -117,14 +119,38 @@ def main() -> None:
         support_id="1",
         bbox=bbox,
         action=CONFIRM_ACTION,
+        timestamp="2026-09-01T08:01:00.500000+00:00",
         contract=contract,
     )
     _must_fail(lambda: aggregate([proposal, confirmation, reproposal], contract), "GEOMETRY_ALREADY_CONFIRMED")
-    _must_fail(lambda: aggregate([proposal, confirmation, reconfirm], contract), "GEOMETRY_ALREADY_CONFIRMED")
+
+    # Equivalent confirmation replay is idempotent: this is the concurrency
+    # resolution rule for two workers that validated the same proposal before
+    # either append became visible. The first governed confirmation remains the
+    # state-transition receipt; both receipts may remain in append-only audit.
+    replayed = aggregate([proposal, confirmation, reconfirm], contract)
+    row = next(item for item in replayed["objects"] if item["support_id"] == "1")
+    assert row["state"] == "GEOMETRY_CONFIRMED"
+    assert row["geometry_confirmation_receipt_id"] == "oar-g4-1-confirm"
+    assert replayed["summary"]["GEOMETRY_CONFIRMED"] == 1
+    assert replayed["canonical_write_authorized"] is False
+
+    divergent_after_confirmation = build_receipt(
+        decision_id="oar-g4-1-reconfirm-divergent",
+        support_id="1",
+        bbox={"x": 0.105, "y": 0.20, "w": 0.015, "h": 0.020},
+        action=CONFIRM_ACTION,
+        timestamp="2026-09-01T08:01:00.600000+00:00",
+        contract=contract,
+    )
+    _must_fail(
+        lambda: aggregate([proposal, confirmation, divergent_after_confirmation], contract),
+        "GEOMETRY_ALREADY_CONFIRMED",
+    )
 
     print("CEW_OAR_G4_REGION_BINDING_PASS")
     print("objects=34 unbound=34 initial_canonical_regions=0 oar_human_confirmed=0")
-    print("confirmed_geometry_immutable=true")
+    print("equivalent_confirmation_replay=idempotent divergent_confirmation=fail_closed")
     print("geometry_confirmation_authority=HUMAN_EVIDENCE_LOCALIZATION_ONLY canonical_write_authorized=false")
 
 
