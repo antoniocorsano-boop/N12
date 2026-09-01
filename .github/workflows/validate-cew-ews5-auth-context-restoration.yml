@@ -1,0 +1,24 @@
+name: Validate CEW EWS-5 Auth Context Restoration
+
+on:
+  pull_request:
+    paths:
+      - 'app.py'
+      - 'scripts/cew_auth_context.py'
+      - 'scripts/validate_cew_ews5_auth_context_restoration.py'
+      - 'automation/CEW_EWS5_AUTH_CONTEXT_RESTORATION_CONTRACT_v1.json'
+      - '.github/workflows/validate-cew-ews5-auth-context-restoration.yml'
+  push:
+    branches:
+      - 'work/cew-ews5-auth-context-restoration-v1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate EWS-5 auth context restoration
+        run: python scripts/validate_cew_ews5_auth_context_restoration.py
