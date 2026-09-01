@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 """Governed adapter for the G4 / TAV-05S column OAR pilot.
 
-The historical register provides document-backed support identities and section
-families. It does not provide CEW SourceVersion/Page/EvidenceRegion identifiers,
-so this adapter deliberately leaves those bindings empty. Candidates remain
-reviewable in OA-1, but CAD promotion stays fail-closed until provenance binding
-is completed and a separate human OAR confirmation exists.
+The pilot now consumes a canonical CEW SourceVersion and Page plus the registered
+300 dpi derivative/page transform. Per-object EvidenceRegion identifiers are
+still deliberately absent: candidates remain reviewable in OA-1, while CAD
+promotion stays fail-closed until each support is geometrically bound and a
+separate human OAR confirmation exists.
 """
 from __future__ import annotations
 
 from hashlib import sha256
 import json
 from pathlib import Path
-from typing import Iterable
 
 from cew_object_acquisition import (
     CandidateState,
@@ -34,6 +33,7 @@ def _row_evidence_fingerprint(payload: dict, support_id: str, family_id: str) ->
         "family_id": family_id,
         "source": payload["source"],
         "semantic_audit": payload["semantic_audit"],
+        "cew_binding": payload["cew_binding"],
     }
     encoded = json.dumps(governed, sort_keys=True, separators=(",", ":"))
     return sha256(encoded.encode("utf-8")).hexdigest()
@@ -42,6 +42,7 @@ def _row_evidence_fingerprint(payload: dict, support_id: str, family_id: str) ->
 def load_g4_column_candidates(path: Path = DEFAULT_INPUT) -> list[ObjectCandidate]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     families = payload["families"]
+    binding = payload["cew_binding"]
     candidates: list[ObjectCandidate] = []
 
     for grouping in payload["objects"]:
@@ -77,11 +78,13 @@ def load_g4_column_candidates(path: Path = DEFAULT_INPUT) -> list[ObjectCandidat
                             "source_blob_sha": payload["source"]["primary_source_blob_sha"],
                             "source_sha256": payload["source"]["primary_source_sha256"],
                             "render_role": payload["source"]["render_role"],
+                            "derived_asset_id": binding["derived_asset_id"],
+                            "page_transform_id": binding["page_transform_id"],
                         },
                     ),
                     provenance=EvidenceProvenance(
-                        source_version_id="",
-                        page_id="",
+                        source_version_id=binding["source_version_id"],
+                        page_id=binding["page_id"],
                         evidence_region_id="",
                         evidence_fingerprint=evidence_fp,
                         registration_id=None,
@@ -93,14 +96,21 @@ def load_g4_column_candidates(path: Path = DEFAULT_INPUT) -> list[ObjectCandidat
 
 
 def build_g4_column_pilot_workbench(path: Path = DEFAULT_INPUT) -> dict:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    binding = payload["cew_binding"]
     view = build_object_workbench_view(load_g4_column_candidates(path))
     view["pilot"] = {
-        "id": "OAR-PILOT-G4-COLUMNS",
+        "id": payload["pilot_id"],
         "source_scope": "TAV-05S / G4",
         "source_registration": "DIRECT_REGISTERED_DOCUMENT_EVIDENCE",
+        "source_version_id": binding["source_version_id"],
+        "page_id": binding["page_id"],
+        "derived_asset_id": binding["derived_asset_id"],
+        "page_transform_id": binding["page_transform_id"],
+        "source_page_binding": "READY",
         "oar_human_confirmation": "NOT_ASSERTED",
-        "evidence_region_binding": "MISSING_PER_OBJECT",
-        "next_gate": "BIND_SOURCEVERSION_PAGE_EVIDENCEREGION",
+        "evidence_region_binding": binding["evidence_region_binding"],
+        "next_gate": "BIND_PER_OBJECT_EVIDENCE_REGIONS",
     }
     return view
 
