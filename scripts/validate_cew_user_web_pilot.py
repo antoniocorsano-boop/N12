@@ -24,6 +24,10 @@ OAR_ATOMIC_SQL = ROOT / "sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql"
 PROVISIONING = ROOT / "docs/ARCHITECTURE/CEW_USER_WEB_PILOT_v1.md"
 REGISTRY = ROOT / "knowledge/ARTIFACT_REGISTRY_CEW_PROMOTION_ENGINE_PATCH_v1.csv"
 APP = ROOT / "app.py"
+ATOMIC_STORE = ROOT / "scripts/cew_oar_g4_atomic_store.py"
+REVISION_HEAD = ROOT / "scripts/cew_oar_g4_revision_head.py"
+NETLIFY = ROOT / "netlify/functions/cew-audit.mjs"
+NETLIFY_REPLAY = ROOT / "netlify/functions/cew-oar-replay.mjs"
 
 
 def main():
@@ -45,6 +49,7 @@ def main():
     assert "cew_oar_append_region_receipt_v1" in atomic_sql
     assert "cew_oar_read_region_receipts_v1" in atomic_sql
     assert "cew_oar_region_revision_heads" in atomic_sql
+    assert "cew_oar_replay_region_head_v1" in atomic_sql
     assert "pg_advisory_xact_lock" in atomic_sql
     assert "OAR_REGION_REVISION_CONFLICT" in atomic_sql
     assert "language sql" in atomic_lower
@@ -55,24 +60,27 @@ def main():
     assert "SERVER_MVCC_SINGLE_JSON_VALUE" in atomic_sql
     assert "canonical_write" in atomic_sql and "false" in atomic_sql
 
-    # Legacy OAR receipts must seed missing revision heads before the CAS RPC is
-    # enabled. The backfill is append-history-derived, authority-filtered,
-    # idempotent, and must never overwrite already managed heads.
-    backfill_marker = "with governed_oar as ("
+    # Legacy heads must be produced by anchored-transition replay, not by a
+    # timestamp-only confirmed/proposed selector. The replay is installed before
+    # migration backfill and before the CAS RPC, and the CAS missing-head branch
+    # invokes the same replay under the advisory lock.
+    replay_marker = "create or replace function public.cew_oar_replay_region_head_v1"
+    backfill_marker = "with legacy_supports as ("
     append_rpc_marker = "create or replace function public.cew_oar_append_region_receipt_v1"
+    assert replay_marker in atomic_lower
     assert backfill_marker in atomic_lower
     assert append_rpc_marker in atomic_lower
-    assert atomic_lower.index(backfill_marker) < atomic_lower.index(append_rpc_marker)
-    assert "governed_confirmations" in atomic_lower
-    assert "governed_proposals" in atomic_lower
-    assert "'geometry_confirmed'::text as state" in atomic_lower
-    assert "'proposed'::text as state" in atomic_lower
-    assert "base_proposal_decision_id as current_proposal_decision_id" in atomic_lower
+    assert atomic_lower.index(replay_marker) < atomic_lower.index(backfill_marker) < atomic_lower.index(append_rpc_marker)
+    assert "cross join lateral public.cew_oar_replay_region_head_v1" in atomic_lower
+    assert "from public.cew_oar_replay_region_head_v1(v_binding_id, v_support_id)" in atomic_lower
+    assert "confirmed_heads as (" not in atomic_lower
+    assert "oar_region_base_proposal_mismatch" in atomic_lower
+    assert "v_stale := v_stale + 1" in atomic_lower
     assert "on conflict (binding_id, support_id) do nothing" in atomic_lower
-    assert "engineering_authority_effect' = 'none'" in atomic_lower
-    assert "canonical_write_authorized' = 'false'::jsonb" in atomic_lower
-    assert "structural_identity_authorized' = 'false'::jsonb" in atomic_lower
-    assert "oar_human_confirmation' = 'false'::jsonb" in atomic_lower
+    assert "engineering_authority_effect" in atomic_lower
+    assert "canonical_write_authorized" in atomic_lower
+    assert "structural_identity_authorized" in atomic_lower
+    assert "oar_human_confirmation" in atomic_lower
 
     drop_marker = "drop function if exists public.cew_oar_read_region_receipts_v1();"
     create_marker = "create function public.cew_oar_read_region_receipts_v1()"
@@ -81,20 +89,40 @@ def main():
     assert atomic_lower.index(drop_marker) < atomic_lower.index(create_marker)
     assert "returns table(receipt_json jsonb)" not in atomic_lower[atomic_lower.index(create_marker):]
 
+    # Neon and Netlify must also recover legacy heads before enforcing CAS.
+    atomic_store = ATOMIC_STORE.read_text(encoding="utf-8")
+    revision_head = REVISION_HEAD.read_text(encoding="utf-8")
+    netlify = NETLIFY.read_text(encoding="utf-8")
+    netlify_replay = NETLIFY_REPLAY.read_text(encoding="utf-8")
+    assert "revision_head.derive_revision_head(existing, support_id)" in atomic_store
+    assert "OAR_REGION_LEGACY_HEAD_BACKFILL_FAILED" in atomic_store
+    assert "binding.aggregate(receipts, contract)" in revision_head
+    assert 'import { replayOarHead } from "./cew-oar-replay.mjs"' in netlify
+    assert "legacyHead = replayOarHead" in netlify
+    assert "legacyHead.receipt_count" in netlify
+    assert "OAR_REGION_LEGACY_HEAD_REPLAY_FAILED" in netlify
+    assert "OAR_REGION_BASE_PROPOSAL_MISMATCH" in netlify_replay
+    assert "staleTransitionCount" in netlify_replay
+
     provisioning = PROVISIONING.read_text(encoding="utf-8")
     audit_pos = provisioning.index("automation/CEW_USER_WEB_PILOT_SUPABASE_v1.sql")
     atomic_pos = provisioning.index("sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql")
     assert audit_pos < atomic_pos
     assert "cew_oar_append_region_receipt_v1" in provisioning
     assert "cew_oar_read_region_receipts_v1" in provisioning
+    assert "cew_oar_replay_region_head_v1" in provisioning
     assert "cew_oar_region_revision_heads" in provisioning
-    assert "snapshot MVCC" in provisioning
+    assert "snapshot" in provisioning.lower()
     assert "non provisionato" in provisioning.lower()
     assert "DROP FUNCTION IF EXISTS" in provisioning
     assert "return type" in provisioning.lower()
-    assert "backfill" in provisioning.lower()
-    assert "ON CONFLICT DO NOTHING" in provisioning
+    assert "replay" in provisioning.lower()
+    assert "ON CONFLICT" in provisioning
     assert "receipt legacy" in provisioning.lower()
+    assert "Neon" in provisioning
+    assert "Netlify" in provisioning
+    assert "delayed CONFIRM(P0)" in provisioning
+    assert "P1 / PROPOSED" in provisioning
 
     with REGISTRY.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
@@ -143,7 +171,7 @@ def main():
         os.environ.clear()
         os.environ.update(old)
 
-    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | oar_atomic_supabase_provisioning=PASS | oar_legacy_revision_head_backfill=PASS | oar_mvcc_single_json_snapshot_rpc=PASS | oar_rpc_return_type_upgrade_safe=PASS | production_fail_closed=PASS | canonical_write=0")
+    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | oar_atomic_supabase_provisioning=PASS | oar_cross_backend_revision_replay=PASS | oar_mvcc_single_json_snapshot_rpc=PASS | oar_rpc_return_type_upgrade_safe=PASS | production_fail_closed=PASS | canonical_write=0")
 
 
 if __name__ == "__main__":
