@@ -61,8 +61,8 @@ jobs:
       - name: Validate authenticated G4 region Workbench wiring
         working-directory: scripts
         run: python validate_cew_oar_g4_region_workbench.py
-      - name: Install runtime dependencies
-        run: pip install -r requirements.txt
+      - name: Install runtime and smoke-test dependencies
+        run: pip install -r requirements.txt httpx2
       - name: Execute real G4 localization runtime smoke
         working-directory: scripts
         run: python validate_cew_oar_g4_region_runtime.py
