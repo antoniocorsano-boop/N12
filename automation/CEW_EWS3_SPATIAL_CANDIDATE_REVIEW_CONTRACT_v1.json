@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "contract": "CEW_EWS3_SPATIAL_CANDIDATE_REVIEW",
-  "status": "IMPLEMENTED_PENDING_VALIDATION",
+  "status": "EWS3_COMPLETE_PASS",
   "authority_effect": "NONE",
   "canonical_write_authorized": false,
   "project_material_ready": false,
@@ -42,6 +42,13 @@
     "shows_registration_state": true,
     "shows_metric_xy": true,
     "states_navigation_only": true
+  },
+  "validation_evidence": {
+    "locator_coverage": "34/34",
+    "frame": "12530x7016",
+    "registration_state": "CROSS_VALIDATED",
+    "registration_inliers": 160,
+    "same_sha_ci_required": true
   },
   "forbidden_shortcuts": [
     "SIMILARITY_SCORE_CREATES_POSITION",
