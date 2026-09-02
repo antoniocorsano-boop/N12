@@ -30,6 +30,8 @@ ALLOWED_HOST_SUFFIXES = (
     "wbdg.org",
     "nps.gov",
     "publications.usace.army.mil",
+    "erdc-library.erdc.dren.mil",
+    "sifacilities.si.edu",
 )
 
 AUTHORITY = {
