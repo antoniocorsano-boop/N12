@@ -4,12 +4,90 @@ from __future__ import annotations
 
 import ast
 from pathlib import Path
+import sys
+import tempfile
+import types
+
+import cew_oar_g4_source_resolver as resolver_runtime
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def text(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
+
+
+def _validate_single_source_fetch() -> None:
+    """Prove /source.png verification+rendering consumes one immutable fetch."""
+    calls = {"fetch": 0, "open": 0, "save": 0, "close": 0}
+
+    class Rect:
+        width = resolver_runtime.EXPECTED_PAGE_WIDTH_PT
+        height = resolver_runtime.EXPECTED_PAGE_HEIGHT_PT
+
+    class Pixmap:
+        def save(self, path):
+            calls["save"] += 1
+            Path(path).write_bytes(b"PNG")
+
+    class Page:
+        rect = Rect()
+
+        def get_pixmap(self, *, dpi, alpha):
+            assert dpi == resolver_runtime.RUNTIME_DPI
+            assert alpha is False
+            return Pixmap()
+
+    class Document:
+        page_count = 1
+
+        def __getitem__(self, index):
+            assert index == 0
+            return Page()
+
+        def close(self):
+            calls["close"] += 1
+
+    fake_fitz = types.ModuleType("fitz")
+
+    def fake_open(*, stream, filetype):
+        calls["open"] += 1
+        assert stream == b"verified-pdf"
+        assert filetype == "pdf"
+        return Document()
+
+    fake_fitz.open = fake_open
+
+    original_fetch = resolver_runtime.fetch_source
+    original_raster = resolver_runtime.RUNTIME_RASTER
+    original_fitz = sys.modules.get("fitz")
+    try:
+        def fake_fetch():
+            calls["fetch"] += 1
+            return b"verified-pdf", {"remote_path": resolver_runtime.EXPECTED_REMOTE_PATH}
+
+        resolver_runtime.fetch_source = fake_fetch
+        sys.modules["fitz"] = fake_fitz
+        with tempfile.TemporaryDirectory() as td:
+            resolver_runtime.RUNTIME_RASTER = Path(td) / "TAV05S_150dpi.png"
+            result = resolver_runtime.ensure_runtime_raster()
+            assert result == resolver_runtime.RUNTIME_RASTER
+            assert result.read_bytes() == b"PNG"
+            assert calls == {"fetch": 1, "open": 1, "save": 1, "close": 1}, calls
+
+            # Cached interaction raster still requires one verified source fetch
+            # and one in-process document verification, but never a second fetch
+            # and never a second render.
+            result = resolver_runtime.ensure_runtime_raster()
+            assert result == resolver_runtime.RUNTIME_RASTER
+            assert calls == {"fetch": 2, "open": 2, "save": 1, "close": 2}, calls
+    finally:
+        resolver_runtime.fetch_source = original_fetch
+        resolver_runtime.RUNTIME_RASTER = original_raster
+        if original_fitz is None:
+            sys.modules.pop("fitz", None)
+        else:
+            sys.modules["fitz"] = original_fitz
 
 
 def main() -> None:
@@ -59,10 +137,14 @@ def main() -> None:
     assert 'EXPECTED_REMOTE_PATH = "archive/documentazione_originaria/tavola 5.pdf"' in resolver
     assert "EXPECTED_PAGE_WIDTH_PT = 1683.72" in resolver
     assert "EXPECTED_PAGE_HEIGHT_PT = 3007.08" in resolver
+    assert "def _verification_from_document" in resolver
+    assert "_verification_from_document(document, source)" in resolver
+    assert "verify_source()" not in resolver[resolver.index("def ensure_runtime_raster"):]
     assert "fitz.open(stream=payload, filetype=\"pdf\")" in resolver
     assert "page.get_pixmap(dpi=RUNTIME_DPI" in resolver
     assert 'ARCHIVE_COMMIT = "78c20a52db4f391ce0d13b9705b9f04737e218c9"' in source_workspace
     assert "verify_source_bytes(source, payload)" in source_workspace
+    _validate_single_source_fetch()
 
     # Confirmation remains server-bound to the current proposal; the displayed
     # bbox is also sent by the hardened UI so mismatch remains fail-closed.
@@ -86,6 +168,7 @@ def main() -> None:
 
     print("CEW_OAR_G4_REGION_WORKBENCH_PASS")
     print("authenticated_composition=true governed_remote_source=true full_page_overlay=true")
+    print("immutable_source_fetch_per_raster_request=1 verified_document_reused_for_render=true")
     print("edited_bbox_requires_reproposal=true confirmation_bbox_server_checked=true")
     print("runtime_audit_only=true oar_human_confirmation=false canonical_write_authorized=false")
 
