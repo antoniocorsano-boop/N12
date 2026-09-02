@@ -147,6 +147,33 @@ def _install_sharp_environment(target: Path) -> dict:
     return meta
 
 
+def _normalize_sharp_dzi_jpeg_to_jpg(descriptor: Path, tile_root: Path) -> tuple[str, int]:
+    native_jpeg = sorted(tile_root.rglob("*.jpeg"))
+    existing_jpg = sorted(tile_root.rglob("*.jpg"))
+    if native_jpeg and existing_jpg:
+        raise AssertionError("OAR_ASSISTED_DZI_MIXED_TILE_EXTENSIONS")
+    if native_jpeg:
+        text = descriptor.read_text(encoding="utf-8")
+        if 'Format="jpeg"' not in text:
+            raise AssertionError("OAR_ASSISTED_DZI_NATIVE_FORMAT_MISMATCH")
+        for tile in native_jpeg:
+            destination = tile.with_suffix(".jpg")
+            if destination.exists():
+                raise AssertionError("OAR_ASSISTED_DZI_TILE_NORMALIZATION_COLLISION")
+            tile.rename(destination)
+        descriptor.write_text(text.replace('Format="jpeg"', 'Format="jpg"'), encoding="utf-8")
+        normalized = sorted(tile_root.rglob("*.jpg"))
+        if len(normalized) != len(native_jpeg):
+            raise AssertionError("OAR_ASSISTED_DZI_TILE_NORMALIZATION_COUNT_DRIFT")
+        return ".jpeg", len(normalized)
+    if existing_jpg:
+        text = descriptor.read_text(encoding="utf-8")
+        if 'Format="jpg"' not in text:
+            raise AssertionError("OAR_ASSISTED_DZI_SERVED_FORMAT_MISMATCH")
+        return ".jpg", len(existing_jpg)
+    raise AssertionError("OAR_ASSISTED_DZI_TILES_MISSING")
+
+
 def _build_deepzoom(raster: Path) -> dict:
     DZI_BASE.parent.mkdir(parents=True, exist_ok=True)
     descriptor = DZI_BASE.with_suffix(".dzi")
@@ -190,9 +217,14 @@ def _build_deepzoom(raster: Path) -> dict:
         raise AssertionError("OAR_ASSISTED_DZI_DIMENSION_DRIFT")
     if 'TileSize="256"' not in descriptor_text or 'Overlap="1"' not in descriptor_text:
         raise AssertionError("OAR_ASSISTED_DZI_TILE_CONTRACT_DRIFT")
-    tiles = sorted(tile_root.rglob("*.jpg"))
-    if not tiles:
+
+    native_tile_extension, tile_count = _normalize_sharp_dzi_jpeg_to_jpg(descriptor, tile_root)
+    normalized_descriptor = descriptor.read_text(encoding="utf-8")
+    if 'Format="jpg"' not in normalized_descriptor:
+        raise AssertionError("OAR_ASSISTED_DZI_NORMALIZED_FORMAT_DRIFT")
+    if tile_count <= 0:
         raise AssertionError("OAR_ASSISTED_DZI_TILES_MISSING")
+
     return {
         "builder": "sharp",
         "builder_version": SHARP_VERSION,
@@ -202,9 +234,11 @@ def _build_deepzoom(raster: Path) -> dict:
         "descriptor": str(descriptor.relative_to(OUT)),
         "descriptor_sha256": _sha256(descriptor),
         "tile_root": str(tile_root.relative_to(OUT)),
-        "tile_count": len(tiles),
+        "tile_count": tile_count,
         "tile_size": 256,
         "overlap": 1,
+        "sharp_native_tile_extension": native_tile_extension,
+        "served_tile_extension": ".jpg",
         "tile_format": "JPEG",
         "tile_quality": 88,
     }
@@ -250,8 +284,6 @@ def build() -> dict:
     if OUT.exists():
         shutil.rmtree(OUT)
     OUT.mkdir(parents=True, exist_ok=True)
-    # materialize_build_raster writes inside OUT's sibling tree; OUT reset does
-    # not delete the governed raster itself.
     vendor = _materialize_vendor()
     deepzoom = _build_deepzoom(raster)
     snap = _build_snap_candidates(raster)
@@ -281,6 +313,7 @@ def build() -> dict:
     print("CEW_OAR_G4_ASSISTED_ASSETS_PASS")
     print(f"deepzoom_tiles={deepzoom['tile_count']} snap_candidates={snap['candidate_count']}")
     print("deepzoom_builder=sharp-0.35.4 system_vips_cli_required=false")
+    print(f"sharp_native_tile_extension={deepzoom['sharp_native_tile_extension']} served_tile_extension=.jpg")
     print("vendor_delivery=SELF_HOSTED build_only_opencv=true canonical_write_authorized=false")
     return manifest
 
