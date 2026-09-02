@@ -131,6 +131,26 @@ def main() -> None:
     js_terminal = _node_head(terminal, binding_id, support_id)
     assert (js_terminal["current_proposal_decision_id"], js_terminal["state"]) == (expected_id, expected_state)
 
+    # A confirmation that consumes the current proposal revision but changes its
+    # geometry is never a legal transition. Canonical Python and Netlify replay
+    # must reject the same fixture with the same governed marker; the atomic
+    # Netlify statement is statically constrained below to enforce this before
+    # it can append the receipt or mutate the revision head.
+    mismatched_confirm = binding.build_receipt(
+        decision_id="legacy-confirm-p1-bbox-mismatch",
+        support_id=support_id,
+        bbox={"x": 0.115, "y": 0.20, "w": 0.02, "h": 0.03},
+        action=binding.CONFIRM_ACTION,
+        base_proposal_decision_id=p1["decision_id"],
+        timestamp="2026-09-01T10:00:00.000004+00:00",
+        contract=contract,
+    )
+    mismatch_fixture = [p0, p1, mismatched_confirm]
+    mismatch_marker = "OAR_REGION_CONFIRMATION_BBOX_MISMATCH"
+    _assert_python_rejects(mismatch_fixture, mismatch_marker)
+    mismatch_outcome = _node_outcome(mismatch_fixture, binding_id, support_id)
+    assert mismatch_outcome == {"ok": False, "marker": mismatch_marker}, mismatch_outcome
+
     field_mutations = {
         "task_id": "WRONG-TASK",
         "residual_id": "WRONG-RESIDUAL",
@@ -207,6 +227,28 @@ def main() -> None:
     assert "legacyHead.current_proposal_decision_id" in netlify
     assert "CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN ${decisionId} ELSE ${legacyHead.current_proposal_decision_id} END" in netlify
 
+    # Netlify confirmation geometry is checked against the immutable proposal
+    # consumed by `base_proposal_decision_id` inside the same atomic SQL
+    # statement. Both transition paths that can confirm a proposal are gated
+    # before either the audit INSERT or revision-head mutation can commit.
+    atomic_start = netlify.index("const result = await db.sql`")
+    atomic_end = netlify.index("const rows = rowsOf(result);", atomic_start)
+    netlify_atomic = netlify[atomic_start:atomic_end]
+    assert "anchored_proposal AS (" in netlify_atomic
+    assert "confirmation_guard AS (" in netlify_atomic
+    assert "a.decision_id = ${expected}" in netlify_atomic
+    assert "a.receipt_json->>'action' = 'PROPOSE_GEOMETRY'" in netlify_atomic
+    assert "p.receipt_json->'bbox' = ${receiptBboxJson}::jsonb" in netlify_atomic
+    assert "OAR_REGION_ANCHORED_PROPOSAL_NOT_FOUND" in netlify_atomic
+    assert "OAR_REGION_CONFIRMATION_BBOX_MISMATCH" in netlify_atomic
+    assert netlify_atomic.count("(SELECT reason FROM confirmation_guard) = 'OK'") == 2
+    assert netlify_atomic.index("anchored_proposal AS (") < netlify_atomic.index("confirmation_guard AS (")
+    assert netlify_atomic.index("confirmation_guard AS (") < netlify_atomic.index("updated_existing AS (")
+    assert netlify_atomic.index("confirmation_guard AS (") < netlify_atomic.index("seeded_transition AS (")
+    assert netlify_atomic.index("confirmation_guard AS (") < netlify_atomic.index("INSERT INTO cew_human_receipt_audit")
+    assert "rejection_reason" in netlify_atomic
+    assert "rows[0].rejection_reason" in netlify
+
     # OAR receipts are never permitted to fall through to the generic append
     # envelope. The atomic transition path is the only Netlify write authority
     # for this receipt type, otherwise history and revision heads can diverge.
@@ -221,6 +263,7 @@ def main() -> None:
     print("CEW_OAR_G4_REVISION_HEAD_REPLAY_PASS")
     print("legacy_p0_p1_delayed_confirm_p0=P1_PROPOSED")
     print("python_aggregate_projection=PASS netlify_replay_parity=PASS")
+    print("netlify_confirmation_bbox_replay=FAIL_CLOSED netlify_confirmation_bbox_cas=FAIL_CLOSED")
     print("netlify_full_oar_snapshot_validation=PASS netlify_seeded_transition_cas=PASS")
     print("netlify_generic_oar_append=FAIL_CLOSED atomic_transition_required=true")
     print("supabase_replay_backfill=PASS neon_replay_backfill=PASS netlify_replay_backfill=PASS")
