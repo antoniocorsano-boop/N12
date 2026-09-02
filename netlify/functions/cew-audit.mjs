@@ -172,8 +172,30 @@ async function atomicOarAppend(payload, db) {
 
     const globalReceiptCount = legacyHead.snapshot_receipt_count;
     const initialAnchor = `CEW_OAR_UNBOUND_REVISION:${supportId}`;
+    const receiptBboxJson = JSON.stringify(receipt.bbox);
     const result = await db.sql`
-      WITH updated_existing AS (
+      WITH anchored_proposal AS (
+        SELECT a.receipt_json
+        FROM cew_human_receipt_audit a
+        WHERE a.decision_id = ${expected}
+          AND a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+          AND a.receipt_json->>'binding_id' = ${bindingId}
+          AND a.receipt_json->>'support_id' = ${supportId}
+          AND a.receipt_json->>'action' = 'PROPOSE_GEOMETRY'
+        LIMIT 1
+      ),
+      confirmation_guard AS (
+        SELECT CASE
+          WHEN ${action} <> 'CONFIRM_GEOMETRY' THEN 'OK'
+          WHEN NOT EXISTS (SELECT 1 FROM anchored_proposal) THEN 'OAR_REGION_ANCHORED_PROPOSAL_NOT_FOUND'
+          WHEN EXISTS (
+            SELECT 1 FROM anchored_proposal p
+            WHERE p.receipt_json->'bbox' = ${receiptBboxJson}::jsonb
+          ) THEN 'OK'
+          ELSE 'OAR_REGION_CONFIRMATION_BBOX_MISMATCH'
+        END AS reason
+      ),
+      updated_existing AS (
         UPDATE cew_oar_region_revision_heads h
         SET current_proposal_decision_id = CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN ${decisionId} ELSE h.current_proposal_decision_id END,
             state = CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN 'PROPOSED' ELSE 'GEOMETRY_CONFIRMED' END,
@@ -182,6 +204,7 @@ async function atomicOarAppend(payload, db) {
           AND h.support_id = ${supportId}
           AND h.current_proposal_decision_id = ${expected}
           AND h.state = 'PROPOSED'
+          AND (SELECT reason FROM confirmation_guard) = 'OK'
           AND (
             SELECT count(*) FROM cew_human_receipt_audit a
             WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
@@ -203,6 +226,7 @@ async function atomicOarAppend(payload, db) {
                clock_timestamp()
         WHERE ${legacyHead.state} = 'PROPOSED'
           AND ${expected} = ${legacyHead.current_proposal_decision_id}
+          AND (SELECT reason FROM confirmation_guard) = 'OK'
           AND (
             SELECT count(*) FROM cew_human_receipt_audit a
             WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
@@ -264,9 +288,18 @@ async function atomicOarAppend(payload, db) {
         FROM committed
         RETURNING receipt_json, receipt_sha256
       )
-      SELECT receipt_json, receipt_sha256 FROM stored
+      SELECT receipt_json, receipt_sha256, NULL::text AS rejection_reason FROM stored
+      UNION ALL
+      SELECT NULL::jsonb, NULL::text, reason
+      FROM confirmation_guard
+      WHERE reason <> 'OK'
+        AND NOT EXISTS (SELECT 1 FROM stored)
+      LIMIT 1
     `;
     const rows = rowsOf(result);
+    if (rows.length === 1 && rows[0].rejection_reason) {
+      return response(409, { state: "AUDIT_REJECTED", reason: rows[0].rejection_reason });
+    }
     if (rows.length !== 1) {
       return response(409, { state: "AUDIT_REJECTED", reason: "OAR_REGION_REVISION_CONFLICT" });
     }
