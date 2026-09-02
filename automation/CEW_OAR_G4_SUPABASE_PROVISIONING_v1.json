@@ -10,12 +10,14 @@
   "required_runtime_contract": {
     "receipt_type": "CEW_OAR_REGION_GEOMETRY_RECEIPT_v1",
     "derived_asset_id": "CEW-N12-ASSET-TAV05S-P001-OAR-300DPI",
+    "page_transform_id": "CEW-N12-XFORM-TAV05S-P001-OAR",
     "render_sha256": "6344abae8d390ef799812c808427431e684a61cca6bb5792de331b2b9d2b6252",
     "append_rpc": "cew_oar_append_region_receipt_v1",
     "snapshot_rpc": "cew_oar_read_region_receipts_v1",
     "validator_function": "cew_oar_validate_g4_receipt_v1"
   },
-  "activation_rule": "OAR writes remain fail-closed until every ordered SQL artifact has been applied in order and the validator predicate binds the OAR-specific DerivedAsset shown by the Workbench.",
+  "rerun_policy": "RERUN_SAFE_WITH_CURRENT_OAR_RECEIPTS: the base atomic migration installs the current OAR DerivedAsset + PageTransform + bbox governance predicate before replay/backfill; the final display-asset SQL reapplies the same predicate idempotently.",
+  "activation_rule": "OAR writes remain fail-closed until every ordered SQL artifact has been applied in order and the validator predicate binds the OAR-specific DerivedAsset and PageTransform shown by the Workbench.",
   "authority": {
     "runtime_audit_only": true,
     "oar_human_confirmation": false,
