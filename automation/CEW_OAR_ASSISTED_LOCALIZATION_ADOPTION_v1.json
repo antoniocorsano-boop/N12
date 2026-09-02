@@ -21,10 +21,12 @@
       "runtime_delivery": "SELF_HOSTED_BUILD_MATERIALIZED"
     },
     "deep_zoom": {
-      "name": "libvips dzsave",
-      "version_policy": "RENDER_NATIVE_RUNTIME_BUILD_TOOL_RECORDED_IN_BUILD_MANIFEST",
-      "license": "LGPL-2.1-or-later",
-      "role": "DZI_TILE_PYRAMID_FROM_GOVERNED_300DPI_DERIVED_ASSET"
+      "name": "sharp",
+      "version": "0.35.4",
+      "license": "Apache-2.0",
+      "role": "BUILD_ONLY_DZI_TILE_PYRAMID_FROM_GOVERNED_300DPI_DERIVED_ASSET",
+      "system_vips_cli_required": false,
+      "runtime_required": false
     },
     "snap_geometry": {
       "name": "OpenCV",
@@ -82,6 +84,7 @@
     "requires_snap_never_auto_confirms": true,
     "requires_fallback_surface_preserved": true,
     "requires_self_hosted_runtime_assets": true,
+    "requires_render_build_without_system_vips_cli": true,
     "decision": "BLOCKED_UNTIL_POC_VALIDATED"
   }
 }
