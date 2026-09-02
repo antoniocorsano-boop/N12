@@ -36,9 +36,10 @@ pip install -r requirements.txt
 # serves the verified file and never cold-renders 7016x12530 on a human request.
 python scripts/build_cew_oar_g4_runtime_asset.py
 # Build the additive assisted-localization POC from the same governed raster:
-# self-hosted OpenSeadragon/Annotorious assets, a libvips DZI pyramid and
-# build-only OpenCV snap candidates. None of these derived interaction aids
-# carries evidence, classification or engineering authority.
+# self-hosted OpenSeadragon/Annotorious assets, a Sharp-pinned DZI pyramid and
+# build-only OpenCV snap candidates. The DZI build must not depend on Render's
+# system `vips` CLI. None of these interaction aids carries evidence,
+# classification or engineering authority.
 python scripts/build_cew_oar_g4_assisted_assets.py
 python scripts/build_cew_runtime_render_cache.py
 python scripts/build_cew_managed_f3_assets.py
@@ -82,6 +83,10 @@ if assisted.get('build_revision', '').lower() != expected:
     raise SystemExit('CEW_RENDER_BUILD_FAIL: assisted OAR revision mismatch')
 if assisted.get('authority', {}).get('canonical_write_authorized') is not False:
     raise SystemExit('CEW_RENDER_BUILD_FAIL: assisted OAR authority drift')
+if assisted.get('deepzoom', {}).get('builder') != 'sharp' or assisted.get('deepzoom', {}).get('builder_version') != '0.35.4':
+    raise SystemExit('CEW_RENDER_BUILD_FAIL: assisted OAR Deep Zoom builder drift')
+if assisted.get('deepzoom', {}).get('system_vips_cli_required') is not False:
+    raise SystemExit('CEW_RENDER_BUILD_FAIL: system vips CLI dependency forbidden')
 if assisted.get('deepzoom', {}).get('tile_count', 0) <= 0 or assisted.get('snap', {}).get('candidate_count', 0) <= 0:
     raise SystemExit('CEW_RENDER_BUILD_FAIL: assisted OAR assets incomplete')
 
@@ -89,5 +94,6 @@ print('CEW_RENDER_R2HR_RUNTIME_ARTIFACT = READY')
 print('CEW_RENDER_R2HR_REGION_COVERAGE = 4/4')
 print('CEW_RENDER_R2HR_GAP_TOTAL = 10')
 print('CEW_RENDER_OAR_ASSISTED = READY')
+print('CEW_RENDER_OAR_DEEPZOOM_BUILDER = SHARP_0_35_4')
 print('CEW_RENDER_BUILD = PASS')
 PY
