@@ -161,6 +161,21 @@ jobs:
           assert receipt['external_reference_acquisition']['status'] == 'PARTIAL_VERIFIED'
           assert receipt['external_reference_acquisition']['verified_source_count'] == 2
           assert receipt['external_reference_acquisition']['library_entries_created'] is False
+          review = receipt['external_reference_review_workspace']
+          assert review['review_item_count'] == 5
+          assert set(review['terminal_states']) == {'ACCEPT_REFERENCE_EVIDENCE', 'REJECT_REFERENCE_EVIDENCE'}
+          assert review['nonterminal_states'] == ['DEFER']
+          assert review['defer_is_terminal'] is False
+          assert review['decision_receipts_append_only'] is True
+          assert review['append_only_followup_after_defer_allowed'] is True
+          assert review['repeated_consecutive_defer_rejected'] is True
+          assert review['one_terminal_decision_per_review_item'] is True
+          assert review['followup_after_terminal_forbidden'] is True
+          assert review['pack_candidate_requires_terminal_decision_for_every_review_item'] is True
+          assert review['required_terminal_decision_count'] == 5
+          assert review['real_human_review_completed'] is False
+          assert review['repository_library_index_written'] is False
+          assert review['project_semantic_authority'] == 'NONE'
           assert receipt['library_readiness'] == 'LIBRARY_NOT_CONFIGURED'
           assert receipt['authority']['canonical_write_authorized'] is False
           assert receipt['authority']['structural_identity_authorized'] is False
