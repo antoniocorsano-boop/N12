@@ -13,10 +13,12 @@ create table if not exists public.cew_oar_region_revision_heads (
   primary key (binding_id, support_id)
 );
 
--- Single server-side governance predicate for this bounded G4/TAV-05S pilot.
--- It mirrors _validate_receipt_governance() in cew_oar_g4_region_binding.py so
--- replay/backfill and new atomic writes cannot accept a receipt that normal
--- Workbench reconstruction would reject.
+-- Current server-side governance predicate for this bounded G4/TAV-05S pilot.
+-- IMPORTANT: this base migration is intentionally aligned with the currently
+-- displayed OAR asset + transform BEFORE replay/backfill. Reapplying the
+-- documented provisioning sequence over an installation that already contains
+-- current OAR receipts must therefore remain replay-compatible; the later
+-- display-asset binding patch only reaffirms this same predicate idempotently.
 create or replace function public.cew_oar_validate_g4_receipt_v1(
   p_receipt jsonb,
   p_binding_id text,
@@ -32,6 +34,10 @@ declare
   v_action text := p_receipt->>'action';
   v_expected_evidence text;
   v_expected_family text;
+  v_x numeric;
+  v_y numeric;
+  v_w numeric;
+  v_h numeric;
   v_family_map jsonb := '{
     "1":"COL-G4-40X40","2":"COL-G4-40X40","3":"COL-G4-40X40","4":"COL-G4-40X40",
     "5":"COL-G4-40X40","6":"COL-G4-40X40","7":"COL-G4-40X40","8":"COL-G4-40X40",
@@ -90,10 +96,10 @@ begin
   if p_receipt->>'page_id' is distinct from 'CEW-N12-PAGE-TAV05S-P001' then
     raise exception 'OAR_REGION_GOVERNED_FIELD_MISMATCH_PAGE_ID' using errcode='23514';
   end if;
-  if p_receipt->>'derived_asset_id' is distinct from 'CEW-N12-ASSET-TAV05S-P001-300DPI' then
+  if p_receipt->>'derived_asset_id' is distinct from 'CEW-N12-ASSET-TAV05S-P001-OAR-300DPI' then
     raise exception 'OAR_REGION_GOVERNED_FIELD_MISMATCH_DERIVED_ASSET_ID' using errcode='23514';
   end if;
-  if p_receipt->>'page_transform_id' is distinct from 'CEW-N12-XFORM-TAV05S-P001' then
+  if p_receipt->>'page_transform_id' is distinct from 'CEW-N12-XFORM-TAV05S-P001-OAR' then
     raise exception 'OAR_REGION_GOVERNED_FIELD_MISMATCH_PAGE_TRANSFORM_ID' using errcode='23514';
   end if;
   if p_receipt->>'coordinate_system' is distinct from 'NORMALIZED_0_1' then
@@ -119,6 +125,31 @@ begin
      and p_receipt->'base_proposal_decision_id' <> 'null'::jsonb
      and nullif(trim(p_receipt->>'base_proposal_decision_id'), '') is null then
     raise exception 'OAR_REGION_BASE_PROPOSAL_DECISION_ID_INVALID' using errcode='23514';
+  end if;
+
+  if jsonb_typeof(p_receipt->'bbox') is distinct from 'object' then
+    raise exception 'OAR_REGION_BBOX_REQUIRED' using errcode='23514';
+  end if;
+  if jsonb_typeof(p_receipt->'bbox'->'x') is distinct from 'number'
+     or jsonb_typeof(p_receipt->'bbox'->'y') is distinct from 'number'
+     or jsonb_typeof(p_receipt->'bbox'->'w') is distinct from 'number'
+     or jsonb_typeof(p_receipt->'bbox'->'h') is distinct from 'number' then
+    raise exception 'OAR_REGION_BBOX_INVALID' using errcode='23514';
+  end if;
+
+  v_x := (p_receipt->'bbox'->>'x')::numeric;
+  v_y := (p_receipt->'bbox'->>'y')::numeric;
+  v_w := (p_receipt->'bbox'->>'w')::numeric;
+  v_h := (p_receipt->'bbox'->>'h')::numeric;
+
+  if v_x < 0 or v_x > 1 or v_y < 0 or v_y > 1 or v_w < 0 or v_w > 1 or v_h < 0 or v_h > 1 then
+    raise exception 'OAR_REGION_BBOX_OUT_OF_RANGE' using errcode='23514';
+  end if;
+  if v_w <= 0 or v_h <= 0 then
+    raise exception 'OAR_REGION_BBOX_EMPTY' using errcode='23514';
+  end if;
+  if v_x + v_w > 1 or v_y + v_h > 1 then
+    raise exception 'OAR_REGION_BBOX_EXCEEDS_PAGE' using errcode='23514';
   end if;
 end;
 $$;
