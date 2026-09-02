@@ -8,6 +8,18 @@
   "source_count": 0,
   "sources": [],
   "entries": [],
+  "reference_source_acquisition": {
+    "status": "PARTIAL_VERIFIED_2_OF_4",
+    "verified_source_count": 2,
+    "discovered_not_acquired_count": 2,
+    "receipt_ref": "knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_ACQUISITION_RECEIPT_v1.json",
+    "receipt_fingerprint": "sha256:9840d9a32f2be57abacc4d7de65654bb4def1824b2707a947af5f10d29b281d2",
+    "verified_source_ids": [
+      "GREF-SRC-NPS-CAD-STANDARDS",
+      "GREF-SRC-USACE-TOPO-2007"
+    ],
+    "does_not_configure_library": true
+  },
   "policy": {
     "evidence_backed_reference_pack_required": true,
     "internet_material_requires_evidence_backed_pack": true,
@@ -22,5 +34,5 @@
     "structural_identity_authorized": false,
     "engineering_authority_effect": "NONE"
   },
-  "next": "Populate through a separate governed external-reference acquisition workflow; do not infer readiness from model knowledge or ad-hoc web search."
+  "next": "Review exact acquired source/page evidence and build a fingerprinted EXTERNAL_REFERENCE pack through the separate review gate. Until that promotion occurs, entry_count remains zero and the library stays LIBRARY_NOT_CONFIGURED."
 }
