@@ -1,6 +1,16 @@
 name: Validate CEW New Project Pre-Acquisition
 
 on:
+  push:
+    branches:
+      - 'work/cew-new-project-preacquisition-v1'
+    paths:
+      - 'analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_ANALYSIS_v1.md'
+      - 'automation/CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1.json'
+      - 'knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json'
+      - 'scripts/cew_new_project_preacquisition.py'
+      - 'scripts/validate_cew_new_project_preacquisition.py'
+      - '.github/workflows/validate-cew-new-project-preacquisition.yml'
   pull_request:
     paths:
       - 'analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_ANALYSIS_v1.md'
