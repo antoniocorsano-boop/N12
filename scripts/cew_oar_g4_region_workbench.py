@@ -84,8 +84,10 @@ def _post_commit_summary(current: dict, row: dict, action: str) -> tuple[dict, s
 
 
 # Arena-style optimistic concurrency: the client prepares an intent bound to the
-# exact revision it observed, while the persistence boundary performs the final
-# compare-and-set and assigns the governed timestamp inside the serialized commit.
+# exact revision it observed. Local checks validate request shape, bbox and the
+# observed anchor only; transition ordering is deliberately NOT replayed with the
+# worker-created timestamp. The persistence boundary performs the only final CAS
+# and overwrites timestamp inside the serialized commit.
 def persist_action(payload: dict) -> dict:
     if not isinstance(payload, dict):
         raise ValueError("OAR_REGION_REQUEST_OBJECT_REQUIRED")
@@ -129,8 +131,10 @@ def persist_action(payload: dict) -> dict:
         base_proposal_decision_id=base_proposal_decision_id,
     )
 
-    loaded = _base.audit_store.load_runtime_receipts(_binding.RECEIPT_TYPE, _base.RUNTIME_STORE)
-    _binding.aggregate([*loaded["receipts"], receipt])
+    # Do not aggregate this provisional worker-timestamped intent with persisted
+    # history. A skewed worker clock can sort it before its own predecessor.
+    # The atomic store validates the current revision under its lock/transaction,
+    # assigns the governed commit timestamp, then replays the committed sequence.
     persisted = _atomic_store.persist_region_receipt(receipt, _base.RUNTIME_STORE)
 
     committed = persisted.get("committed_receipt")
