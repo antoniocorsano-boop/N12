@@ -1,0 +1,87 @@
+{
+  "schema": "CEW_OAR_ASSISTED_LOCALIZATION_ADOPTION_v1",
+  "program": "CEW_OBJECT_ACQUISITION_RECOGNITION",
+  "pilot_id": "OAR-PILOT-G4-COLUMNS",
+  "target_surface": "TAV-05S",
+  "status": "POC_NON_PROMOTING",
+  "goal": "Replace freehand full-page bbox drawing with mature deep-zoom navigation, editable annotations and geometry-assisted snapping while preserving existing OAR receipts and authority boundaries.",
+  "adopted_components": {
+    "viewer": {
+      "name": "OpenSeadragon",
+      "version": "6.1.0",
+      "license": "BSD-3-Clause",
+      "role": "DEEP_ZOOM_PAN_ROTATE_MOBILE_NAVIGATION",
+      "runtime_delivery": "SELF_HOSTED_BUILD_MATERIALIZED"
+    },
+    "annotation": {
+      "name": "@annotorious/openseadragon",
+      "version": "3.8.10",
+      "license": "BSD-3-Clause",
+      "role": "EDITABLE_RECTANGLE_MOVE_RESIZE_HUMAN_REVIEW",
+      "runtime_delivery": "SELF_HOSTED_BUILD_MATERIALIZED"
+    },
+    "deep_zoom": {
+      "name": "libvips dzsave",
+      "version_policy": "RENDER_NATIVE_RUNTIME_BUILD_TOOL_RECORDED_IN_BUILD_MANIFEST",
+      "license": "LGPL-2.1-or-later",
+      "role": "DZI_TILE_PYRAMID_FROM_GOVERNED_300DPI_DERIVED_ASSET"
+    },
+    "snap_geometry": {
+      "name": "OpenCV",
+      "version": "4.12.0.88",
+      "license": "Apache-2.0",
+      "role": "BUILD_ONLY_RASTER_CONTOUR_CANDIDATE_EXTRACTION",
+      "runtime_required": false
+    }
+  },
+  "interaction_contract": {
+    "default_mode": "PAN_ZOOM",
+    "localization_mode": "TAP_NEAR_OBJECT_THEN_SNAP",
+    "snap_is_proposal_only": true,
+    "annotation_is_editable_before_receipt": true,
+    "manual_freehand_bbox_required": false,
+    "existing_receipt_endpoint_reused": "/api/workbench/oar/g4-regions/receipt",
+    "confirmation_action": "CONFIRM_GEOMETRY",
+    "family_prior_may_rank_snap_candidates": true,
+    "family_prior_may_establish_classification": false,
+    "fallback_surface_preserved": "/workbench/oar/g4-regions"
+  },
+  "snap_contract": {
+    "source": "BUILD_DERIVED_RASTER_GEOMETRY_ONLY",
+    "candidate_geometry_authority": "INTERACTION_AID_ONLY",
+    "ranking_signals": [
+      "tap_distance",
+      "candidate_aspect_ratio_vs_family_prior",
+      "rectangularity",
+      "contour_compactness"
+    ],
+    "human_can": ["ACCEPT", "MOVE", "RESIZE", "TRY_NEXT_CANDIDATE", "REJECT"],
+    "human_confirmation_required": true
+  },
+  "evidence_boundary": {
+    "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
+    "page_id": "CEW-N12-PAGE-TAV05S-P001",
+    "derived_asset_id": "CEW-N12-ASSET-TAV05S-P001-OAR-300DPI",
+    "page_transform_id": "CEW-N12-XFORM-TAV05S-P001-OAR",
+    "derived_asset_sha256": "6344abae8d390ef799812c808427431e684a61cca6bb5792de331b2b9d2b6252",
+    "derived_asset_dimensions_px": [7016, 12530],
+    "deep_zoom_tiles_are_authority": false,
+    "snap_candidates_are_authority": false
+  },
+  "authority": {
+    "oar_human_confirmation": false,
+    "oar_classification_confirmed": false,
+    "f2_registry_written": false,
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "engineering_authority_effect": "NONE"
+  },
+  "promotion_gate": {
+    "requires_mobile_hva": true,
+    "requires_exact_coordinate_roundtrip": true,
+    "requires_snap_never_auto_confirms": true,
+    "requires_fallback_surface_preserved": true,
+    "requires_self_hosted_runtime_assets": true,
+    "decision": "BLOCKED_UNTIL_POC_VALIDATED"
+  }
+}
