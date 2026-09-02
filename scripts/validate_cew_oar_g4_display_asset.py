@@ -42,6 +42,47 @@ def _bbox_contract(sql: str) -> None:
     assert "v_x + v_w > 1 or v_y + v_h > 1" in lower
 
 
+def _confirmation_bbox_cas_guard(sql_patch: str) -> None:
+    lower = sql_patch.lower()
+    append_marker = "create or replace function public.cew_oar_append_region_receipt_v1"
+    assert append_marker in lower
+    append_sql = lower[lower.index(append_marker):]
+
+    lock_marker = "perform pg_advisory_xact_lock"
+    current_proposal_marker = "into v_current_proposal"
+    anchored_decision_marker = "where a.decision_id=v_current"
+    proposal_action_marker = "and a.receipt_json->>'action'='propose_geometry'"
+    validate_anchor_marker = "perform public.cew_oar_validate_g4_receipt_v1(v_current_proposal, v_binding_id, v_support_id)"
+    bbox_guard_marker = "if p_receipt->'bbox' is distinct from v_current_proposal->'bbox' then"
+    mismatch_marker = "oar_region_confirmation_bbox_mismatch"
+    audit_insert_marker = "insert into public.cew_human_receipt_audit"
+    head_confirm_marker = "state='geometry_confirmed'"
+
+    for marker in (
+        lock_marker,
+        current_proposal_marker,
+        anchored_decision_marker,
+        proposal_action_marker,
+        validate_anchor_marker,
+        bbox_guard_marker,
+        mismatch_marker,
+        audit_insert_marker,
+        head_confirm_marker,
+    ):
+        assert marker in append_sql, marker
+
+    # The immutable anchored proposal must be loaded and validated under the
+    # support advisory lock. A mismatched confirmation must fail before either
+    # the append-only audit INSERT or GEOMETRY_CONFIRMED head mutation.
+    lock_pos = append_sql.index(lock_marker)
+    proposal_pos = append_sql.index(current_proposal_marker)
+    validate_pos = append_sql.index(validate_anchor_marker)
+    bbox_guard_pos = append_sql.index(bbox_guard_marker)
+    audit_insert_pos = append_sql.index(audit_insert_marker)
+    head_confirm_pos = append_sql.index(head_confirm_marker)
+    assert lock_pos < proposal_pos < validate_pos < bbox_guard_pos < audit_insert_pos < head_confirm_pos
+
+
 def main() -> None:
     binding = json.loads(read("automation/CEW_OAR_G4_COLUMN_REGION_BINDING_v1.json"))
     doc = binding["document"]
@@ -103,6 +144,7 @@ def main() -> None:
     assert "canonical_write_authorized" in sql_patch
     assert "engineering_authority_effect" in sql_patch
     _bbox_contract(sql_patch)
+    _confirmation_bbox_cas_guard(sql_patch)
 
     # The base migration itself must already understand current receipts before
     # installing replay/backfill. Otherwise a rerun would temporarily restore
@@ -139,6 +181,9 @@ def main() -> None:
     runtime = provisioning["required_runtime_contract"]
     assert runtime["derived_asset_id"] == ASSET_ID
     assert runtime["render_sha256"] == ASSET_SHA256
+    assert runtime["confirmation_geometry_guard"] == "ATOMIC_ANCHORED_PROPOSAL_BBOX_MATCH_REQUIRED"
+    assert "CONFIRM_GEOMETRY" in provisioning["activation_rule"]
+    assert "advisory lock" in provisioning["activation_rule"]
     assert provisioning["authority"]["canonical_write_authorized"] is False
     assert provisioning["authority"]["structural_identity_authorized"] is False
     assert provisioning["authority"]["oar_human_confirmation"] is False
@@ -159,6 +204,7 @@ def main() -> None:
     print("python=BOUND netlify=BOUND supabase_base=BOUND supabase_patch=BOUND provisioning=ORDERED")
     print("base_migration_current_receipt_replay=RERUN_SAFE")
     print("supabase_bbox_validation=FAIL_CLOSED before_atomic_receipt_insert=true")
+    print("supabase_confirmation_bbox_guard=ATOMIC_ANCHORED_PROPOSAL_MATCH before_audit_append=true before_head_mutation=true")
     print("source_authority=IMMUTABLE_PDF display_authority=DERIVED_REVIEW_AID_ONLY canonical_write_authorized=false")
 
 
