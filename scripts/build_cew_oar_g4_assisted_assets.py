@@ -12,7 +12,6 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
-import sys
 import tarfile
 import tempfile
 import venv
@@ -26,9 +25,13 @@ VENDOR = OUT / "vendor"
 SNAP_JSON = OUT / "snap_candidates.json"
 MANIFEST = OUT / "manifest.json"
 SNAP_WORKER = ROOT / "scripts" / "cew_oar_g4_snap_worker.py"
+DEEPZOOM_WORKER = ROOT / "scripts" / "cew_oar_g4_deepzoom_worker.cjs"
 OPENCV_PIN = "opencv-python-headless==4.12.0.88"
 OSD_SPEC = "openseadragon@6.1.0"
 ANNOTORIOUS_SPEC = "@annotorious/openseadragon@3.8.10"
+SHARP_SPEC = "sharp@0.35.4"
+SHARP_VERSION = "0.35.4"
+SHARP_LICENSE = "Apache-2.0"
 
 
 def _sha256(path: Path) -> str:
@@ -122,9 +125,29 @@ def _materialize_vendor() -> dict:
     }
 
 
+def _install_sharp_environment(target: Path) -> dict:
+    if shutil.which("npm") is None or shutil.which("node") is None:
+        raise AssertionError("OAR_ASSISTED_NODE_NPM_REQUIRED")
+    target.mkdir(parents=True, exist_ok=True)
+    (target / "package.json").write_text(
+        json.dumps({"private": True, "description": "CEW build-only Sharp Deep Zoom environment"}) + "\n",
+        encoding="utf-8",
+    )
+    subprocess.run(
+        ["npm", "install", "--silent", "--no-audit", "--no-fund", "--save-exact", SHARP_SPEC],
+        check=True,
+        cwd=target,
+    )
+    package_json = target / "node_modules" / "sharp" / "package.json"
+    if not package_json.is_file():
+        raise AssertionError("OAR_ASSISTED_SHARP_PACKAGE_MISSING")
+    meta = json.loads(package_json.read_text(encoding="utf-8"))
+    if meta.get("version") != SHARP_VERSION or meta.get("license") != SHARP_LICENSE:
+        raise AssertionError("OAR_ASSISTED_SHARP_IDENTITY_DRIFT")
+    return meta
+
+
 def _build_deepzoom(raster: Path) -> dict:
-    if shutil.which("vips") is None:
-        raise AssertionError("OAR_ASSISTED_LIBVIPS_REQUIRED")
     DZI_BASE.parent.mkdir(parents=True, exist_ok=True)
     descriptor = DZI_BASE.with_suffix(".dzi")
     tile_root = DZI_BASE.parent / f"{DZI_BASE.name}_files"
@@ -132,17 +155,34 @@ def _build_deepzoom(raster: Path) -> dict:
     if tile_root.exists():
         shutil.rmtree(tile_root)
 
-    subprocess.run(
-        [
-            "vips", "dzsave", str(raster), str(DZI_BASE),
-            "--layout", "dz",
-            "--tile-size", "256",
-            "--overlap", "1",
-            "--suffix", ".jpg[Q=88,strip]",
-        ],
-        check=True,
-        cwd=ROOT,
-    )
+    if not DEEPZOOM_WORKER.is_file():
+        raise AssertionError("OAR_ASSISTED_SHARP_WORKER_MISSING")
+
+    with tempfile.TemporaryDirectory(prefix="cew-oar-sharp-") as tmp:
+        tmp_root = Path(tmp)
+        _install_sharp_environment(tmp_root)
+        worker = tmp_root / "cew_oar_g4_deepzoom_worker.cjs"
+        shutil.copy2(DEEPZOOM_WORKER, worker)
+        completed = subprocess.run(
+            ["node", str(worker), str(raster), str(DZI_BASE)],
+            check=True,
+            cwd=tmp_root,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        lines = [line.strip() for line in completed.stdout.splitlines() if line.strip()]
+        if not lines:
+            raise AssertionError("OAR_ASSISTED_SHARP_WORKER_OUTPUT_MISSING")
+        try:
+            worker_result = json.loads(lines[-1])
+        except json.JSONDecodeError as exc:
+            raise AssertionError("OAR_ASSISTED_SHARP_WORKER_OUTPUT_INVALID") from exc
+        if worker_result.get("state") != "CEW_OAR_SHARP_DEEPZOOM_PASS":
+            raise AssertionError("OAR_ASSISTED_SHARP_WORKER_STATE_INVALID")
+        if worker_result.get("sharp_version") != SHARP_VERSION or worker_result.get("sharp_license") != SHARP_LICENSE:
+            raise AssertionError("OAR_ASSISTED_SHARP_WORKER_IDENTITY_DRIFT")
+
     if not descriptor.is_file() or not tile_root.is_dir():
         raise AssertionError("OAR_ASSISTED_DZI_MATERIALIZATION_FAILED")
     descriptor_text = descriptor.read_text(encoding="utf-8")
@@ -154,7 +194,11 @@ def _build_deepzoom(raster: Path) -> dict:
     if not tiles:
         raise AssertionError("OAR_ASSISTED_DZI_TILES_MISSING")
     return {
-        "vips_version": _tool_version(["vips", "--version"]),
+        "builder": "sharp",
+        "builder_version": SHARP_VERSION,
+        "builder_license": SHARP_LICENSE,
+        "bundled_libvips_version": worker_result.get("bundled_libvips_version"),
+        "system_vips_cli_required": False,
         "descriptor": str(descriptor.relative_to(OUT)),
         "descriptor_sha256": _sha256(descriptor),
         "tile_root": str(tile_root.relative_to(OUT)),
@@ -236,6 +280,7 @@ def build() -> dict:
     MANIFEST.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print("CEW_OAR_G4_ASSISTED_ASSETS_PASS")
     print(f"deepzoom_tiles={deepzoom['tile_count']} snap_candidates={snap['candidate_count']}")
+    print("deepzoom_builder=sharp-0.35.4 system_vips_cli_required=false")
     print("vendor_delivery=SELF_HOSTED build_only_opencv=true canonical_write_authorized=false")
     return manifest
 
