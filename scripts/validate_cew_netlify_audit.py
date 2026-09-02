@@ -127,10 +127,18 @@ def assert_static_contracts():
         "MAX_GOVERNED_READ_PROBE",
         "GOVERNED_READ_LIMIT_EXCEEDED",
         "overflow_probe",
+        "anchored_proposal AS (",
+        "confirmation_guard AS (",
+        "OAR_REGION_ANCHORED_PROPOSAL_NOT_FOUND",
+        "OAR_REGION_CONFIRMATION_BBOX_MISMATCH",
+        "p.receipt_json->'bbox' = ${receiptBboxJson}::jsonb",
+        "rejection_reason",
     ]
     for marker in required_fn:
         if marker not in fn:
             raise SystemExit(f"FAIL: missing Netlify function marker {marker}")
+    if fn.count("(SELECT reason FROM confirmation_guard) = 'OK'") != 2:
+        raise SystemExit("FAIL: Netlify confirmation guard must gate both existing-head and legacy-seed transitions")
     required_mig = [
         "PRIMARY KEY",
         "canonical_write = false",
@@ -281,6 +289,7 @@ def main():
     print("GOVERNED_OFFSET_PAGINATION=PASS")
     print("GENERIC_500_RECEIPT_READ=PASS")
     print("GENERIC_501_RECEIPT_OVERFLOW=FAIL_CLOSED")
+    print("OAR_CONFIRMATION_BBOX_CAS_GUARD=FAIL_CLOSED")
     print("PRODUCTION_RECEIPT_SUBMIT_READY=PASS")
     print("CANONICAL_WRITE=FORBIDDEN")
 
