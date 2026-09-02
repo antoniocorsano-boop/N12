@@ -37,6 +37,30 @@ def _governed_runtime_loader(receipt_type, store, *, max_receipts=_history.MAX_P
 _base.audit_store.load_runtime_receipts = _governed_runtime_loader
 
 
+def load_report() -> dict:
+    """Reconstruct active state from compact history, preserving full-audit summary."""
+    loaded = _base.audit_store.load_runtime_receipts(_binding.RECEIPT_TYPE, _base.RUNTIME_STORE)
+    report = _binding.aggregate(loaded["receipts"])
+    # State reconstruction may legitimately compact stale/non-mutating receipts,
+    # but the audit summary must still disclose races present in the full stable
+    # snapshot. The governed history reader computed this before compaction.
+    report["summary"]["stale_concurrent_transitions"] = int(
+        loaded.get("stale_concurrent_transitions", report["summary"].get("stale_concurrent_transitions", 0))
+    )
+    report["audit_backend"] = loaded["audit_backend"]
+    report["receipt_count"] = loaded["receipt_count"]
+    report["source_verification"] = verify_source()
+    report["runtime_raster"] = {
+        "dpi": RUNTIME_DPI,
+        "authority": "DERIVED_INTERACTION_AID_ONLY",
+        "canonical_asset": False,
+    }
+    return report
+
+
+_base.load_report = load_report
+
+
 def _post_commit_summary(current: dict, row: dict, action: str) -> tuple[dict, str]:
     """Project the committed support transition onto the pre-commit snapshot.
 
@@ -103,16 +127,10 @@ def persist_action(payload: dict) -> dict:
         base_proposal_decision_id=base_proposal_decision_id,
     )
 
-    # Pre-validation gives the operator an immediate domain error, but it is not
-    # the concurrency authority. The atomic store repeats revision validation
-    # inside its persistence boundary and may reject this intent as stale.
     loaded = _base.audit_store.load_runtime_receipts(_binding.RECEIPT_TYPE, _base.RUNTIME_STORE)
     _binding.aggregate([*loaded["receipts"], receipt])
     persisted = _atomic_store.persist_region_receipt(receipt, _base.RUNTIME_STORE)
 
-    # Persistence is the commit boundary. Do not perform a second governed read
-    # before acknowledging success: that read could fail after an irreversible
-    # append and incorrectly tell the operator that the receipt was rejected.
     committed = persisted.get("committed_receipt")
     if not isinstance(committed, dict) or committed.get("decision_id") != persisted.get("runtime_receipt_id"):
         raise RuntimeError("OAR_REGION_COMMITTED_RECEIPT_MISSING")
@@ -141,10 +159,6 @@ def persist_action(payload: dict) -> dict:
 
 _base.persist_action = persist_action
 
-# Harden the already validated base UI. A displayed bbox that has been edited is
-# explicitly dirty: confirmation is disabled until PROPOSE_GEOMETRY persists it.
-# Confirmation also sends the displayed bbox so the server mismatch guard remains
-# a second, independent fail-closed boundary.
 _base_build_page = _base.build_page
 
 
