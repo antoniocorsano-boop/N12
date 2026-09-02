@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { getDatabase } from "@netlify/database";
-import { replayOarHead } from "./cew-oar-replay.mjs";
+import { replayOarHead, validateOarReceiptGovernance } from "./cew-oar-replay.mjs";
 
 const SAFE_DECISION_ID = /^[A-Za-z0-9._-]+$/;
 const REQUIRED = new Set([
@@ -133,8 +133,13 @@ async function atomicOarAppend(payload, db) {
   if (!SAFE_DECISION_ID.test(decisionId) || !bindingId || !supportId || !expected || !["PROPOSE_GEOMETRY", "CONFIRM_GEOMETRY"].includes(action)) {
     return response(422, { state: "AUDIT_REJECTED", reason: "OAR_ATOMIC_CONTRACT_VIOLATION" });
   }
-  if (receipt.canonical_write_authorized !== false || receipt.structural_identity_authorized !== false || receipt.oar_human_confirmation !== false || receipt.engineering_authority_effect !== "NONE") {
-    return response(422, { state: "AUDIT_REJECTED", reason: "AUTHORITY_BOUNDARY_VIOLATION" });
+  try {
+    validateOarReceiptGovernance(receipt, bindingId, supportId);
+  } catch (err) {
+    return response(422, {
+      state: "AUDIT_REJECTED",
+      reason: String(err?.code || err?.message || "OAR_REGION_GOVERNANCE_VALIDATION_FAILED"),
+    });
   }
 
   try {
@@ -151,9 +156,8 @@ async function atomicOarAppend(payload, db) {
     `;
 
     // Upgrade-safe legacy recovery. Replay the append-only receipts using the
-    // same anchored-transition semantics as the governed aggregate, then seed
-    // the derived head only if the database still has the exact same receipt
-    // count when the atomic transition statement starts.
+    // same full G4 binding validation and anchored-transition semantics as the
+    // governed aggregate, then seed only if the database history is unchanged.
     const legacyResult = await db.sql`
       SELECT receipt_json
       FROM cew_human_receipt_audit
