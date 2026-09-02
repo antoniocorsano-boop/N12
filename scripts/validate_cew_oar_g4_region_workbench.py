@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import csv
 import json
 from pathlib import Path
 import sys
@@ -80,15 +81,11 @@ def _validate_single_source_fetch() -> None:
         resolver_runtime._verify_registered_raster = fake_verify_raster
         sys.modules["fitz"] = fake_fitz
         with tempfile.TemporaryDirectory() as td:
-            resolver_runtime.RUNTIME_RASTER = Path(td) / "TAV05S_300dpi.jpg"
+            resolver_runtime.RUNTIME_RASTER = Path(td) / "TAV05S_OAR_300dpi.jpg"
             result = resolver_runtime.ensure_runtime_raster()
             assert result == resolver_runtime.RUNTIME_RASTER
             assert result.read_bytes() == b"JPEG"
             assert calls == {"fetch": 1, "open": 1, "save": 1, "close": 1, "verify_raster": 1}, calls
-
-            # Cache reuse still verifies the immutable source and the exact
-            # registered raster, but performs neither a second fetch nor render
-            # inside the same request.
             result = resolver_runtime.ensure_runtime_raster()
             assert result == resolver_runtime.RUNTIME_RASTER
             assert calls == {"fetch": 2, "open": 2, "save": 1, "close": 2, "verify_raster": 2}, calls
@@ -148,8 +145,8 @@ def main() -> None:
     assert 'EXPECTED_GIT_BLOB_SHA = "ec32cd621877e9037cb26ebc083164140a8e3e68"' in resolver
     assert 'EXPECTED_SOURCE_SHA256 = "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580"' in resolver
     assert 'EXPECTED_REMOTE_PATH = "archive/documentazione_originaria/tavola 5.pdf"' in resolver
-    assert 'REGISTERED_DERIVED_ASSET_ID = "CEW-N12-ASSET-TAV05S-P001-300DPI"' in resolver
-    assert 'REGISTERED_RENDER_SHA256 = "32dfa5976b3d6a6482f73159da1778de6483e5d90c671ae771793374781f58b7"' in resolver
+    assert 'REGISTERED_DERIVED_ASSET_ID = "CEW-N12-ASSET-TAV05S-P001-OAR-300DPI"' in resolver
+    assert 'REGISTERED_RENDER_SHA256 = "6344abae8d390ef799812c808427431e684a61cca6bb5792de331b2b9d2b6252"' in resolver
     assert "REGISTERED_RENDER_WIDTH_PX = 7016" in resolver
     assert "REGISTERED_RENDER_HEIGHT_PX = 12530" in resolver
     assert "RUNTIME_DPI = 300" in resolver
@@ -166,6 +163,21 @@ def main() -> None:
     assert document["render_width_px"] == resolver_runtime.REGISTERED_RENDER_WIDTH_PX
     assert document["render_height_px"] == resolver_runtime.REGISTERED_RENDER_HEIGHT_PX
     assert document["render_sha256"] == resolver_runtime.REGISTERED_RENDER_SHA256
+
+    with (ROOT / "data/canonical/CEW_DERIVED_ASSET_REGISTRY_v1.csv").open(newline="", encoding="utf-8") as handle:
+        assets = {row["derived_asset_id"]: row for row in csv.DictReader(handle)}
+    asset = assets[resolver_runtime.REGISTERED_DERIVED_ASSET_ID]
+    assert asset["source_version_id"] == document["source_version_id"]
+    assert asset["page_id"] == document["page_id"]
+    assert asset["asset_role"] == "OAR_FULL_PAGE_INTERACTION_RENDER"
+    assert asset["format"] == "JPEG"
+    assert asset["dpi"] == "300"
+    assert asset["width_px"] == str(document["render_width_px"])
+    assert asset["height_px"] == str(document["render_height_px"])
+    assert asset["generator"] == "PyMuPDF" and asset["generator_version"] == "1.26.4"
+    assert document["render_sha256"] in asset["generation_basis"]
+    assert asset["authority_state"] == "DERIVED_REVIEW_AID_ONLY"
+    assert asset["reproducibility_state"] == "REPRODUCIBLE_FROM_IMMUTABLE_SOURCE"
     _validate_single_source_fetch()
 
     assert "_latest_proposal_bbox(current, support_id)" in oar_base
@@ -187,7 +199,7 @@ def main() -> None:
 
     print("CEW_OAR_G4_REGION_WORKBENCH_PASS")
     print("authenticated_composition=true governed_remote_source=true full_page_overlay=true")
-    print("display_asset=CEW-N12-ASSET-TAV05S-P001-300DPI dpi=300 sha256_bound=true")
+    print("display_asset=CEW-N12-ASSET-TAV05S-P001-OAR-300DPI dpi=300 sha256_bound=true")
     print("immutable_source_fetch_per_raster_request=1 registered_asset_verified_before_serve=true")
     print("edited_bbox_requires_reproposal=true confirmation_bbox_server_checked=true")
     print("runtime_audit_only=true oar_human_confirmation=false canonical_write_authorized=false")
