@@ -3,8 +3,10 @@
 
 Acquisition, review and library-pack creation are deliberately separate gates.
 This builder accepts only explicit human ACCEPT_REFERENCE_EVIDENCE decisions
-bound to exact acquired source/page fingerprints. It never derives a semantic
-meaning from a discovery query.
+bound to exact acquired source/page fingerprints. DEFER is non-terminal: it may
+appear in append-only history before one final ACCEPT or REJECT, but a non-empty
+pack cannot be built until every queue item has a terminal human decision.
+Discovery queries never supply semantic meaning.
 """
 from __future__ import annotations
 
@@ -27,6 +29,11 @@ ALLOWED_STATES = {
     "REJECT_REFERENCE_EVIDENCE",
     "DEFER",
 }
+TERMINAL_STATES = {
+    "ACCEPT_REFERENCE_EVIDENCE",
+    "REJECT_REFERENCE_EVIDENCE",
+}
+NONTERMINAL_STATES = {"DEFER"}
 
 
 def _canonical(value: Any) -> str:
@@ -42,6 +49,17 @@ def _require_text(value: Any, field: str) -> str:
     if not text:
         raise ValueError(f"REFERENCE_REVIEW_{field.upper()}_REQUIRED")
     return text
+
+
+def _reviewed_at_key(decision: dict[str, Any]) -> tuple[datetime, str]:
+    value = _require_text(decision.get("reviewed_at"), "reviewed_at")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("REFERENCE_REVIEW_REVIEWED_AT_INVALID") from exc
+    if parsed.tzinfo is None:
+        raise ValueError("REFERENCE_REVIEW_REVIEWED_AT_TIMEZONE_REQUIRED")
+    return parsed.astimezone(timezone.utc), _require_text(decision.get("decision_id"), "decision_id")
 
 
 def _load_acquired_page_index(acquisition: dict[str, Any]) -> dict[tuple[str, int], dict[str, Any]]:
@@ -87,18 +105,18 @@ def _queue_index(queue: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return rows
 
 
-def _validate_decision(
+def _validate_decision_anchor(
     decision: dict[str, Any],
     queue_item: dict[str, Any],
     acquired_page: dict[str, Any],
-) -> dict[str, Any] | None:
+) -> tuple[str, str, str]:
     state = str(decision.get("state") or "")
     if state not in ALLOWED_STATES:
         raise ValueError("REFERENCE_REVIEW_DECISION_STATE_INVALID")
     reviewer = _require_text(decision.get("reviewer"), "reviewer")
     rationale = _require_text(decision.get("rationale"), "rationale")
+    _reviewed_at_key(decision)
 
-    # Decision identity must be bound to the exact queue/acquisition evidence.
     for field in ("source_id", "source_sha256", "page_index", "page_text_sha256", "page_feature_sha256"):
         expected = acquired_page[field]
         actual = decision.get(field)
@@ -113,10 +131,16 @@ def _validate_decision(
         raise ValueError("REFERENCE_REVIEW_QUEUE_ACQUISITION_MISMATCH")
     if str(queue_item["page_feature_sha256"]) != acquired_page["page_feature_sha256"]:
         raise ValueError("REFERENCE_REVIEW_QUEUE_PAGE_FEATURE_MISMATCH")
+    return state, reviewer, rationale
 
-    if state != "ACCEPT_REFERENCE_EVIDENCE":
-        return None
 
+def _entry_from_terminal_accept(
+    decision: dict[str, Any],
+    queue_item: dict[str, Any],
+    acquired_page: dict[str, Any],
+    reviewer: str,
+    rationale: str,
+) -> dict[str, Any]:
     meaning = _require_text(decision.get("meaning"), "meaning")
     scope = decision.get("scope")
     if not isinstance(scope, dict) or not scope:
@@ -180,6 +204,62 @@ def _validate_decision(
     }
 
 
+def _resolve_terminal_decisions(
+    decisions_rows: list[dict[str, Any]],
+    queued: dict[str, dict[str, Any]],
+    acquired_pages: dict[tuple[str, int], dict[str, Any]],
+) -> dict[str, tuple[dict[str, Any], dict[str, Any], dict[str, Any], str, str]]:
+    seen_decision_ids: set[str] = set()
+    by_item: dict[str, list[dict[str, Any]]] = {}
+    for decision in decisions_rows:
+        decision_id = _require_text(decision.get("decision_id"), "decision_id")
+        if not re.fullmatch(r"[A-Za-z0-9._-]+", decision_id) or decision_id in seen_decision_ids:
+            raise ValueError("REFERENCE_REVIEW_DECISION_ID_INVALID_OR_DUPLICATE")
+        seen_decision_ids.add(decision_id)
+        review_item_id = _require_text(decision.get("review_item_id"), "review_item_id")
+        if review_item_id not in queued:
+            raise ValueError("REFERENCE_REVIEW_ITEM_UNKNOWN")
+        by_item.setdefault(review_item_id, []).append(decision)
+
+    resolved: dict[str, tuple[dict[str, Any], dict[str, Any], dict[str, Any], str, str]] = {}
+    for review_item_id, history in by_item.items():
+        queue_item = queued[review_item_id]
+        key = (str(queue_item["source_id"]), int(queue_item["page_index"]))
+        acquired_page = acquired_pages.get(key)
+        if acquired_page is None:
+            raise ValueError("REFERENCE_REVIEW_ITEM_NOT_ACQUIRED")
+        history = sorted(history, key=_reviewed_at_key)
+        terminal_seen = False
+        for decision in history:
+            state, reviewer, rationale = _validate_decision_anchor(decision, queue_item, acquired_page)
+            if terminal_seen:
+                raise ValueError("REFERENCE_REVIEW_DECISION_AFTER_TERMINAL")
+            if state in NONTERMINAL_STATES:
+                continue
+            terminal_seen = True
+            resolved[review_item_id] = (decision, queue_item, acquired_page, reviewer, rationale)
+    return resolved
+
+
+def _empty_pack(build_state: str) -> dict[str, Any]:
+    return {
+        "schema": LIBRARY_SCHEMA,
+        "status": "LIBRARY_EMPTY",
+        "generation_id": None,
+        "content_sha256": None,
+        "entry_count": 0,
+        "tiers_present": [],
+        "source_count": 0,
+        "sources": [],
+        "entries": [],
+        "build_state": build_state,
+        "project_semantic_authority": "NONE",
+        "canonical_write_authorized": False,
+        "structural_identity_authorized": False,
+        "engineering_authority_effect": "NONE",
+    }
+
+
 def build_pack(
     acquisition: dict[str, Any],
     queue: dict[str, Any],
@@ -192,51 +272,28 @@ def build_pack(
         raise ValueError("REFERENCE_REVIEW_DECISIONS_ACQUISITION_FINGERPRINT_MISMATCH")
     acquired_pages = _load_acquired_page_index(acquisition)
     queued = _queue_index(queue)
-
-    seen_decision_ids: set[str] = set()
-    seen_review_items: set[str] = set()
-    entries: list[dict[str, Any]] = []
     decisions_rows = decisions.get("decisions")
     if not isinstance(decisions_rows, list):
         raise ValueError("REFERENCE_REVIEW_DECISIONS_LIST_REQUIRED")
-    for decision in decisions_rows:
-        decision_id = _require_text(decision.get("decision_id"), "decision_id")
-        if not re.fullmatch(r"[A-Za-z0-9._-]+", decision_id) or decision_id in seen_decision_ids:
-            raise ValueError("REFERENCE_REVIEW_DECISION_ID_INVALID_OR_DUPLICATE")
-        seen_decision_ids.add(decision_id)
-        review_item_id = _require_text(decision.get("review_item_id"), "review_item_id")
-        if review_item_id in seen_review_items:
-            raise ValueError("REFERENCE_REVIEW_ITEM_DECIDED_MORE_THAN_ONCE")
-        seen_review_items.add(review_item_id)
-        queue_item = queued.get(review_item_id)
-        if queue_item is None:
-            raise ValueError("REFERENCE_REVIEW_ITEM_UNKNOWN")
-        key = (str(queue_item["source_id"]), int(queue_item["page_index"]))
-        acquired_page = acquired_pages.get(key)
-        if acquired_page is None:
-            raise ValueError("REFERENCE_REVIEW_ITEM_NOT_ACQUIRED")
-        entry = _validate_decision(decision, queue_item, acquired_page)
-        if entry is not None:
-            entries.append(entry)
+    if not decisions_rows:
+        return _empty_pack("HUMAN_REVIEW_NOT_STARTED")
+
+    resolved = _resolve_terminal_decisions(decisions_rows, queued, acquired_pages)
+    if set(resolved) != set(queued):
+        raise ValueError("REFERENCE_REVIEW_INCOMPLETE")
+
+    entries: list[dict[str, Any]] = []
+    for review_item_id in sorted(resolved):
+        decision, queue_item, acquired_page, reviewer, rationale = resolved[review_item_id]
+        state = str(decision["state"])
+        if state == "ACCEPT_REFERENCE_EVIDENCE":
+            entries.append(_entry_from_terminal_accept(decision, queue_item, acquired_page, reviewer, rationale))
+        elif state != "REJECT_REFERENCE_EVIDENCE":
+            raise ValueError("REFERENCE_REVIEW_TERMINAL_STATE_INVALID")
 
     entries.sort(key=lambda x: x["entry_id"])
     if not entries:
-        return {
-            "schema": LIBRARY_SCHEMA,
-            "status": "LIBRARY_EMPTY",
-            "generation_id": None,
-            "content_sha256": None,
-            "entry_count": 0,
-            "tiers_present": [],
-            "source_count": 0,
-            "sources": [],
-            "entries": [],
-            "build_state": "NO_ACCEPTED_REFERENCE_EVIDENCE",
-            "project_semantic_authority": "NONE",
-            "canonical_write_authorized": False,
-            "structural_identity_authorized": False,
-            "engineering_authority_effect": "NONE",
-        }
+        return _empty_pack("HUMAN_REVIEW_COMPLETE_NO_ACCEPTED_REFERENCE_EVIDENCE")
 
     content_sha = _sha256(_canonical(entries).encode("utf-8"))
     generation_id = "GREF-GEN-" + content_sha[:16]
