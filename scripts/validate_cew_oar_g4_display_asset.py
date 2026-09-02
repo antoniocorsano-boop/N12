@@ -55,11 +55,40 @@ def main() -> None:
     assert "validateOarReceiptGovernance" in netlify_replay
 
     sql_patch = read("sql/CEW_OAR_G4_DISPLAY_ASSET_BINDING_v1.sql")
-    assert "create or replace function public.cew_oar_validate_g4_receipt_v1" in sql_patch.lower()
+    sql_patch_lower = sql_patch.lower()
+    assert "create or replace function public.cew_oar_validate_g4_receipt_v1" in sql_patch_lower
     assert f"is distinct from '{ASSET_ID}'" in sql_patch
-    assert "v_action is null or v_action not in" in sql_patch.lower()
+    assert "v_action is null or v_action not in" in sql_patch_lower
     assert "canonical_write_authorized" in sql_patch
     assert "engineering_authority_effect" in sql_patch
+
+    # Regression for Codex P2: the effective Supabase governance predicate must
+    # reject malformed geometry before the atomic append can touch either the
+    # append-only receipt log or the revision head. Keep all five bbox failure
+    # classes explicit so a future asset-binding patch cannot silently weaken
+    # the base validator while retaining the same function name.
+    for marker in (
+        "OAR_REGION_BBOX_REQUIRED",
+        "OAR_REGION_BBOX_INVALID",
+        "OAR_REGION_BBOX_OUT_OF_RANGE",
+        "OAR_REGION_BBOX_EMPTY",
+        "OAR_REGION_BBOX_EXCEEDS_PAGE",
+    ):
+        assert marker in sql_patch, marker
+    assert "jsonb_typeof(p_receipt->'bbox') is distinct from 'object'" in sql_patch_lower
+    for key in ("x", "y", "w", "h"):
+        assert f"jsonb_typeof(p_receipt->'bbox'->'{key}') is distinct from 'number'" in sql_patch_lower
+    assert "(p_receipt->'bbox'->>'w')::numeric <= 0" in sql_patch_lower
+    assert "(p_receipt->'bbox'->>'h')::numeric <= 0" in sql_patch_lower
+    assert "(p_receipt->'bbox'->>'x')::numeric + (p_receipt->'bbox'->>'w')::numeric > 1" in sql_patch_lower
+    assert "(p_receipt->'bbox'->>'y')::numeric + (p_receipt->'bbox'->>'h')::numeric > 1" in sql_patch_lower
+
+    atomic_sql = read("sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql")
+    validator_call = "perform public.cew_oar_validate_g4_receipt_v1(p_receipt, v_binding_id, v_support_id);"
+    receipt_insert = "insert into public.cew_human_receipt_audit"
+    assert validator_call in atomic_sql
+    assert receipt_insert in atomic_sql
+    assert atomic_sql.index(validator_call) < atomic_sql.index(receipt_insert)
 
     provisioning = json.loads(read("automation/CEW_OAR_G4_SUPABASE_PROVISIONING_v1.json"))
     assert provisioning["ordered_sql"] == [
@@ -88,6 +117,7 @@ def main() -> None:
     print(f"derived_asset_id={ASSET_ID}")
     print(f"render_sha256={ASSET_SHA256} dimensions=7016x12530 dpi=300 generator=PyMuPDF-1.26.4")
     print("python=BOUND netlify=BOUND supabase_patch=BOUND provisioning=ORDERED")
+    print("supabase_bbox_validation=FAIL_CLOSED before_atomic_receipt_insert=true")
     print("source_authority=IMMUTABLE_PDF display_authority=DERIVED_REVIEW_AID_ONLY canonical_write_authorized=false")
 
 
