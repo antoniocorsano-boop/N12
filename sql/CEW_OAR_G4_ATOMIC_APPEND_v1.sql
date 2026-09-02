@@ -57,7 +57,7 @@ begin
   if v_expected_family is null then
     raise exception 'OAR_REGION_SUPPORT_NOT_IN_PILOT' using errcode='23514';
   end if;
-  if v_action not in ('PROPOSE_GEOMETRY','CONFIRM_GEOMETRY') then
+  if v_action is null or v_action not in ('PROPOSE_GEOMETRY','CONFIRM_GEOMETRY') then
     raise exception 'OAR_REGION_ACTION_INVALID' using errcode='23514';
   end if;
 
@@ -362,7 +362,8 @@ declare
   v_digest text;
 begin
   if p_receipt is null
-     or v_binding_id is null or v_support_id is null or v_decision_id is null or v_expected is null then
+     or v_binding_id is null or v_support_id is null or v_decision_id is null or v_expected is null
+     or v_action is null then
     raise exception 'OAR_REGION_ATOMIC_CONTRACT_VIOLATION' using errcode='23514';
   end if;
 
