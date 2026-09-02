@@ -134,8 +134,15 @@ jobs:
           assert all(item['meaning'] is None for item in queue['review_items'])
           assert decisions['status'] == 'TEMPLATE_NO_DECISIONS'
           assert decisions['decisions'] == []
-          assert decisions['decision_contract']['discovery_query_may_supply_meaning'] is False
-          assert decisions['decision_contract']['automatic_acceptance_forbidden'] is True
+          contract = decisions['decision_contract']
+          assert contract['discovery_query_may_supply_meaning'] is False
+          assert contract['automatic_acceptance_forbidden'] is True
+          assert set(contract['terminal_states']) == {'ACCEPT_REFERENCE_EVIDENCE', 'REJECT_REFERENCE_EVIDENCE'}
+          assert contract['nonterminal_states'] == ['DEFER']
+          assert contract['defer_is_terminal'] is False
+          assert contract['append_only_followup_after_defer_allowed'] is True
+          assert contract['followup_after_terminal_forbidden'] is True
+          assert contract['pack_requires_terminal_decision_for_every_review_item'] is True
           assert decisions['authority']['library_entries_created'] is False
           print('CEW_EXTERNAL_REFERENCE_HUMAN_REVIEW_BOUNDARY_PASS')
           PY
