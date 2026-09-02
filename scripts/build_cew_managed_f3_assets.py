@@ -14,8 +14,12 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
+from urllib.error import URLError
+from urllib.parse import quote
+from urllib.request import Request, urlopen
 
 import fitz
 
@@ -25,6 +29,10 @@ ASSET_ROOT = ROOT / ".cew_professional_workbench_assets"
 MANIFEST = ASSET_ROOT / "managed_manifest.json"
 REQUIRED_SOURCES = ("TAV-05A", "TAV-06A", "TAV-05S", "TAV-06S")
 LOCATOR_RE = re.compile(r"^git\+github://antoniocorsano-boop/N12@([0-9a-f]{40})/(.+)$")
+ARCHIVE_RAW_ORIGIN = "https://raw.githubusercontent.com/antoniocorsano-boop/N12"
+ARCHIVE_FETCH_ATTEMPTS = 3
+ARCHIVE_FETCH_TIMEOUT_SECONDS = 30
+MAX_SOURCE_BYTES = 8 * 1024 * 1024
 OSD_VERSION = "5.0.1"
 DPI = 300
 TILE_SIZE = 256
@@ -106,33 +114,76 @@ def _run(command: list[str], *, cwd: Path = ROOT, stdout=None) -> None:
     subprocess.run(command, cwd=cwd, check=True, stdout=stdout)
 
 
-def _ensure_archive_commit(commit: str) -> None:
+def _git_blob_sha(payload: bytes) -> str:
+    header = f"blob {len(payload)}\0".encode("ascii")
+    return hashlib.sha1(header + payload).hexdigest()
+
+
+def _source_available_locally(source: dict[str, str]) -> bool:
+    spec = f"{source['archive_commit']}:{source['archive_path']}"
     result = subprocess.run(
-        ["git", "cat-file", "-e", f"{commit}^{{commit}}"],
+        ["git", "cat-file", "-e", spec],
         cwd=ROOT,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    if result.returncode == 0:
-        return
-    _run(["git", "fetch", "--no-tags", "--depth=1", "origin", commit])
-    _run(["git", "cat-file", "-e", f"{commit}^{{commit}}"])
+    return result.returncode == 0
 
 
-def _materialize_source(source: dict[str, str], target: Path) -> None:
-    spec = f"{source['archive_commit']}:{source['archive_path']}"
-    with target.open("wb") as handle:
-        _run(["git", "show", spec], stdout=handle)
-    actual = hashlib.sha256(target.read_bytes()).hexdigest()
+def _archive_raw_url(source: dict[str, str]) -> str:
+    path = "/".join(quote(part) for part in source["archive_path"].split("/"))
+    return f"{ARCHIVE_RAW_ORIGIN}/{source['archive_commit']}/{path}"
+
+
+def _fetch_archive_payload(source: dict[str, str]) -> bytes:
+    request = Request(
+        _archive_raw_url(source),
+        headers={"User-Agent": "CEW/1 managed-f3-source-materializer"},
+    )
+    for attempt in range(1, ARCHIVE_FETCH_ATTEMPTS + 1):
+        try:
+            with urlopen(request, timeout=ARCHIVE_FETCH_TIMEOUT_SECONDS) as response:
+                payload = response.read(MAX_SOURCE_BYTES + 1)
+        except (TimeoutError, URLError):
+            if attempt >= ARCHIVE_FETCH_ATTEMPTS:
+                raise
+            time.sleep(attempt)
+            continue
+        if len(payload) > MAX_SOURCE_BYTES:
+            raise AssertionError(f"immutable source exceeds byte limit for {source['source_code']}")
+        return payload
+    raise AssertionError("immutable archive fetch retry invariant violated")
+
+
+def _verify_source_payload(source: dict[str, str], payload: bytes) -> None:
+    if not payload:
+        raise AssertionError(f"immutable source empty for {source['source_code']}")
+    actual = hashlib.sha256(payload).hexdigest()
     if actual != source["sha256"]:
         raise AssertionError(
             f"immutable source digest mismatch for {source['source_code']}: expected={source['sha256']} actual={actual}"
         )
-    blob = subprocess.check_output(["git", "rev-parse", spec], cwd=ROOT, text=True).strip()
+    blob = _git_blob_sha(payload)
     if source["git_blob_sha"] and blob != source["git_blob_sha"]:
         raise AssertionError(
             f"immutable Git blob mismatch for {source['source_code']}: expected={source['git_blob_sha']} actual={blob}"
         )
+
+
+def _materialize_source(source: dict[str, str], target: Path) -> None:
+    spec = f"{source['archive_commit']}:{source['archive_path']}"
+    if _source_available_locally(source):
+        payload = subprocess.check_output(["git", "show", spec], cwd=ROOT)
+        transport = "LOCAL_GIT_OBJECT"
+    else:
+        payload = _fetch_archive_payload(source)
+        transport = "IMMUTABLE_RAW_COMMIT"
+    _verify_source_payload(source, payload)
+    target.write_bytes(payload)
+    print(
+        f"CEW_MANAGED_F3_SOURCE_READY source={source['source_code']} transport={transport} "
+        f"sha256={source['sha256']} git_blob_sha={source['git_blob_sha']}"
+    )
 
 
 def _require_tool(name: str) -> str:
@@ -350,7 +401,6 @@ def build_assets() -> dict[str, Any]:
     _require_tool("git")
     _require_tool("npm")
     plan = build_plan()
-    _ensure_archive_commit(plan["archive_commit"])
 
     if ASSET_ROOT.exists():
         shutil.rmtree(ASSET_ROOT)
