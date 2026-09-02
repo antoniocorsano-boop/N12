@@ -1,7 +1,8 @@
--- CEW OAR G4 — display-asset binding patch
+-- CEW OAR G4 — display-asset binding + complete receipt-governance patch
 -- Apply after sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql.
--- This patch changes only the bounded receipt provenance predicate so Supabase
--- accepts exactly the reproducible PyMuPDF asset shown by the OAR Workbench.
+-- The atomic append/replay RPCs call this validator by its stable function name,
+-- therefore this patch is the effective server-side predicate for every OAR write
+-- after the governed provisioning sequence is complete.
 -- It grants no canonical, structural, classification or engineering authority.
 
 create or replace function public.cew_oar_validate_g4_receipt_v1(
@@ -19,6 +20,10 @@ declare
   v_action text := p_receipt->>'action';
   v_expected_evidence text;
   v_expected_family text;
+  v_x numeric;
+  v_y numeric;
+  v_w numeric;
+  v_h numeric;
   v_family_map jsonb := '{
     "1":"COL-G4-40X40","2":"COL-G4-40X40","3":"COL-G4-40X40","4":"COL-G4-40X40",
     "5":"COL-G4-40X40","6":"COL-G4-40X40","7":"COL-G4-40X40","8":"COL-G4-40X40",
@@ -106,6 +111,34 @@ begin
      and p_receipt->'base_proposal_decision_id' <> 'null'::jsonb
      and nullif(trim(p_receipt->>'base_proposal_decision_id'), '') is null then
     raise exception 'OAR_REGION_BASE_PROPOSAL_DECISION_ID_INVALID' using errcode='23514';
+  end if;
+
+  -- Geometry is part of the same atomic receipt contract. Validate JSON shape
+  -- before numeric casts so malformed input fails with governed markers rather
+  -- than reaching the append/head mutation or surfacing backend cast errors.
+  if jsonb_typeof(p_receipt->'bbox') is distinct from 'object' then
+    raise exception 'OAR_REGION_BBOX_REQUIRED' using errcode='23514';
+  end if;
+  if jsonb_typeof(p_receipt->'bbox'->'x') is distinct from 'number'
+     or jsonb_typeof(p_receipt->'bbox'->'y') is distinct from 'number'
+     or jsonb_typeof(p_receipt->'bbox'->'w') is distinct from 'number'
+     or jsonb_typeof(p_receipt->'bbox'->'h') is distinct from 'number' then
+    raise exception 'OAR_REGION_BBOX_INVALID' using errcode='23514';
+  end if;
+
+  v_x := (p_receipt->'bbox'->>'x')::numeric;
+  v_y := (p_receipt->'bbox'->>'y')::numeric;
+  v_w := (p_receipt->'bbox'->>'w')::numeric;
+  v_h := (p_receipt->'bbox'->>'h')::numeric;
+
+  if v_x < 0 or v_x > 1 or v_y < 0 or v_y > 1 or v_w < 0 or v_w > 1 or v_h < 0 or v_h > 1 then
+    raise exception 'OAR_REGION_BBOX_OUT_OF_RANGE' using errcode='23514';
+  end if;
+  if v_w <= 0 or v_h <= 0 then
+    raise exception 'OAR_REGION_BBOX_EMPTY' using errcode='23514';
+  end if;
+  if v_x + v_w > 1 or v_y + v_h > 1 then
+    raise exception 'OAR_REGION_BBOX_EXCEEDS_PAGE' using errcode='23514';
   end if;
 end;
 $$;
