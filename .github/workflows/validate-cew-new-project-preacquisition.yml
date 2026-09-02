@@ -10,10 +10,15 @@ on:
       - 'automation/CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1.json'
       - 'knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json'
       - 'knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_DISCOVERY_SEEDS_v1.json'
+      - 'knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_ACQUISITION_RECEIPT_v1.json'
+      - 'knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_REVIEW_QUEUE_v1.json'
+      - 'knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_REVIEW_DECISIONS_TEMPLATE_v1.json'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/validate_cew_new_project_preacquisition.py'
       - 'scripts/cew_external_graphic_reference_acquisition.py'
       - 'scripts/validate_cew_external_graphic_reference_acquisition.py'
+      - 'scripts/cew_external_graphic_reference_pack.py'
+      - 'scripts/validate_cew_external_graphic_reference_pack.py'
       - '.github/workflows/validate-cew-new-project-preacquisition.yml'
   pull_request:
     paths:
@@ -22,10 +27,15 @@ on:
       - 'automation/CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1.json'
       - 'knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json'
       - 'knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_DISCOVERY_SEEDS_v1.json'
+      - 'knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_ACQUISITION_RECEIPT_v1.json'
+      - 'knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_REVIEW_QUEUE_v1.json'
+      - 'knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_REVIEW_DECISIONS_TEMPLATE_v1.json'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/validate_cew_new_project_preacquisition.py'
       - 'scripts/cew_external_graphic_reference_acquisition.py'
       - 'scripts/validate_cew_external_graphic_reference_acquisition.py'
+      - 'scripts/cew_external_graphic_reference_pack.py'
+      - 'scripts/validate_cew_external_graphic_reference_pack.py'
       - '.github/workflows/validate-cew-new-project-preacquisition.yml'
   workflow_dispatch:
 
@@ -49,6 +59,8 @@ jobs:
           scripts/validate_cew_new_project_preacquisition.py
           scripts/cew_external_graphic_reference_acquisition.py
           scripts/validate_cew_external_graphic_reference_acquisition.py
+          scripts/cew_external_graphic_reference_pack.py
+          scripts/validate_cew_external_graphic_reference_pack.py
       - name: Validate analysis and zero-prior contract
         run: |
           python - <<'PY'
@@ -71,7 +83,7 @@ jobs:
           assert 'Internet acquisition rule' in text
           print('CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_PASS')
           PY
-      - name: Validate graphic library readiness is explicit
+      - name: Validate graphic library readiness and acquired-reference separation
         run: |
           python - <<'PY'
           import json
@@ -79,6 +91,10 @@ jobs:
           library = json.loads(Path('knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json').read_text())
           assert library['status'] == 'LIBRARY_NOT_CONFIGURED'
           assert library['entry_count'] == 0
+          assert library['source_count'] == 0
+          assert library['reference_source_acquisition']['status'] == 'PARTIAL_VERIFIED_2_OF_4'
+          assert library['reference_source_acquisition']['verified_source_count'] == 2
+          assert library['reference_source_acquisition']['does_not_configure_library'] is True
           assert library['policy']['direct_web_result_may_be_project_truth'] is False
           assert library['policy']['unrecorded_model_knowledge_may_be_library_entry'] is False
           assert library['policy']['evidence_backed_reference_pack_required'] is True
@@ -87,8 +103,32 @@ jobs:
           assert seeds['status'] == 'DISCOVERED_PENDING_BINARY_ACQUISITION'
           assert seeds['sources']
           assert seeds['authority']['library_entries_created'] is False
-          assert seeds['authority']['project_semantic_authority'] == 'NONE'
+          acquisition = json.loads(Path('knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_ACQUISITION_RECEIPT_v1.json').read_text())
+          assert acquisition['status'] == 'PARTIAL_VERIFIED_2_OF_4'
+          assert len(acquisition['acquired_sources']) == 2
+          assert len(acquisition['discovered_not_acquired']) == 2
+          assert acquisition['source_bytes_committed_to_repo'] is False
+          assert acquisition['library_promotion_authorized'] is False
+          assert acquisition['authority']['library_entries_created'] is False
           print('CEW_GRAPHIC_REFERENCE_LIBRARY_READINESS_PASS')
+          PY
+      - name: Validate human reference-review boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          queue = json.loads(Path('knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_REVIEW_QUEUE_v1.json').read_text())
+          decisions = json.loads(Path('knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_REVIEW_DECISIONS_TEMPLATE_v1.json').read_text())
+          assert queue['status'] == 'BLOCKED_HUMAN_REFERENCE_REVIEW'
+          assert queue['automatic_library_pack_build_authorized'] is False
+          assert queue['review_items']
+          assert all(item['meaning'] is None for item in queue['review_items'])
+          assert decisions['status'] == 'TEMPLATE_NO_DECISIONS'
+          assert decisions['decisions'] == []
+          assert decisions['decision_contract']['discovery_query_may_supply_meaning'] is False
+          assert decisions['decision_contract']['automatic_acceptance_forbidden'] is True
+          assert decisions['authority']['library_entries_created'] is False
+          print('CEW_EXTERNAL_REFERENCE_HUMAN_REVIEW_BOUNDARY_PASS')
           PY
       - name: Validate implementation receipt remains non-promoting
         run: |
@@ -102,6 +142,9 @@ jobs:
           assert receipt['validation_evidence']['stable_candidate_identity'] is True
           assert receipt['validation_evidence']['stable_cluster_identity'] is True
           assert receipt['validation_evidence']['automatic_structural_labels'] is False
+          assert receipt['external_reference_acquisition']['status'] == 'PARTIAL_VERIFIED'
+          assert receipt['external_reference_acquisition']['verified_source_count'] == 2
+          assert receipt['external_reference_acquisition']['library_entries_created'] is False
           assert receipt['library_readiness'] == 'LIBRARY_NOT_CONFIGURED'
           assert receipt['authority']['canonical_write_authorized'] is False
           assert receipt['authority']['structural_identity_authorized'] is False
@@ -114,3 +157,6 @@ jobs:
       - name: Run deterministic external-reference acquisition gate
         working-directory: scripts
         run: python validate_cew_external_graphic_reference_acquisition.py
+      - name: Run human-reviewed external-reference pack gate
+        working-directory: scripts
+        run: python validate_cew_external_graphic_reference_pack.py
