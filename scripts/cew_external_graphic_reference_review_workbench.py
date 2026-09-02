@@ -231,7 +231,9 @@ def build_review_receipt(payload: dict[str, Any]) -> dict[str, Any]:
         "discovery_query_supplied_meaning": False,
         "authority": dict(AUTHORITY),
     }
-    for field in ("source_sha256", "page_text_sha256", "page_feature_sha256"):
+    if str(receipt["source_sha256"]) != str(source["source_sha256"]):
+        raise ValueError("REFERENCE_REVIEW_SOURCE_SHA256_MISMATCH")
+    for field in ("page_text_sha256", "page_feature_sha256"):
         if str(receipt[field]) != str(acquired[field]):
             raise ValueError(f"REFERENCE_REVIEW_{field.upper()}_MISMATCH")
     if state == "ACCEPT_REFERENCE_EVIDENCE":
