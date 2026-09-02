@@ -2,6 +2,7 @@
 """Composizione del Workbench OAR G4 con risoluzione governata di TAV-05S."""
 from __future__ import annotations
 
+import re
 from fastapi.responses import FileResponse as _FastAPIFileResponse
 
 from cew_oar_g4_region_workbench_base import *  # noqa: F401,F403
@@ -42,6 +43,34 @@ def _governed_runtime_loader(receipt_type, store, *, max_receipts=_history.MAX_P
 
 
 _base.audit_store.load_runtime_receipts = _governed_runtime_loader
+
+
+# The legacy base router carries detailed ValueError text in `reason`. For the
+# governed G4 receipt surface only, expose a stable CEW reason code and never
+# reflect arbitrary exception text to the operator. This preserves diagnostics
+# without reopening the exception-disclosure finding previously caught by CodeQL.
+_original_error = _base._error
+_SAFE_REASON = re.compile(r"^OAR_[A-Z0-9_]+$")
+
+
+def _public_receipt_reason(reason: object) -> str:
+    marker = str(reason).strip()
+    if _SAFE_REASON.fullmatch(marker):
+        return marker
+    if "duplicate decision_id" in marker.lower():
+        return "OAR_REGION_DUPLICATE_DECISION_ID"
+    return "OAR_REGION_RECEIPT_REJECTED"
+
+
+def _governed_error(state: str, reason: str, status_code: int):
+    if state == "OAR_G4_REGION_RECEIPT_REJECTED":
+        marker = _public_receipt_reason(reason)
+        code = 409 if marker in {"OAR_REGION_DUPLICATE_DECISION_ID", "OAR_REGION_REVISION_CONFLICT"} else status_code
+        return _base._json({"state": marker, "reason_code": marker}, code)
+    return _original_error(state, reason, status_code)
+
+
+_base._error = _governed_error
 
 
 def load_report() -> dict:
