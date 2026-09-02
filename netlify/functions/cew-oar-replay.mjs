@@ -2,6 +2,26 @@ const OAR_RECEIPT_TYPE = "CEW_OAR_REGION_GEOMETRY_RECEIPT_v1";
 const PROPOSAL_ACTION = "PROPOSE_GEOMETRY";
 const CONFIRM_ACTION = "CONFIRM_GEOMETRY";
 const UNBOUND_PREFIX = "CEW_OAR_UNBOUND_REVISION:";
+const G4_BINDING_ID = "OAR-G4-COLUMN-REGION-BINDING";
+const G4_PILOT_ID = "OAR-PILOT-G4-COLUMNS";
+const G4_DOCUMENT = Object.freeze({
+  source_version_id: "CEW-N12-SRC-TAV05S-V2143DBCF",
+  page_id: "CEW-N12-PAGE-TAV05S-P001",
+  derived_asset_id: "CEW-N12-ASSET-TAV05S-P001-300DPI",
+  page_transform_id: "CEW-N12-XFORM-TAV05S-P001",
+  coordinate_system: "NORMALIZED_0_1",
+});
+const G4_FAMILY_BY_SUPPORT = Object.freeze({
+  "1": "COL-G4-40X40", "2": "COL-G4-40X40", "3": "COL-G4-40X40", "4": "COL-G4-40X40",
+  "5": "COL-G4-40X40", "6": "COL-G4-40X40", "7": "COL-G4-40X40", "8": "COL-G4-40X40",
+  "9": "COL-G4-40X40", "10": "COL-G4-45X30", "11": "COL-G4-45X30", "12": "COL-G4-30X45",
+  "13": "COL-G4-45X30", "14": "COL-G4-45X30", "15": "COL-G4-45X30", "16": "COL-G4-40X40",
+  "17": "COL-G4-40X40", "18": "COL-G4-30X110", "19": "COL-G4-40X40", "20": "COL-G4-40X40",
+  "21": "COL-G4-30X45", "22": "COL-G4-30X45", "22'": "COL-G4-40X40", "23": "COL-G4-30X110",
+  "24": "COL-G4-40X40", "25": "COL-G4-40X40", "26": "COL-G4-30X45", "27": "COL-G4-40X40",
+  "28": "COL-G4-40X40", "29": "COL-G4-30X45", "30": "COL-G4-110X30", "31": "COL-G4-40X40",
+  "32": "COL-G4-40X40", "33": "COL-G4-40X40",
+});
 const CONFIRM_EQUIVALENCE_FIELDS = [
   "support_id",
   "evidence_object_id",
@@ -70,17 +90,36 @@ function equivalentConfirmation(existing, receipt, bbox) {
   return bboxEqual(existing.bbox, bbox);
 }
 
-function validateGovernance(receipt, bindingId, supportId) {
+export function validateOarReceiptGovernance(receipt, bindingId, supportId) {
   if (!receipt || typeof receipt !== "object" || Array.isArray(receipt)) fail("OAR_REGION_RECEIPT_INVALID");
+  bindingId = String(bindingId || "").trim();
+  supportId = String(supportId || "").trim();
+  if (bindingId !== G4_BINDING_ID) fail("OAR_REGION_GOVERNED_FIELD_MISMATCH_BINDING_ID");
+  const expectedFamily = G4_FAMILY_BY_SUPPORT[supportId];
+  if (!expectedFamily) fail("OAR_REGION_SUPPORT_NOT_IN_PILOT");
   if (receipt.receipt_type !== OAR_RECEIPT_TYPE) fail("OAR_REGION_RECEIPT_TYPE_INVALID");
-  if (String(receipt.binding_id || "") !== bindingId || String(receipt.support_id || "") !== supportId) {
-    fail("OAR_REGION_RECEIPT_SCOPE_MISMATCH");
-  }
   if (![PROPOSAL_ACTION, CONFIRM_ACTION].includes(receipt.action)) fail("OAR_REGION_ACTION_INVALID");
-  const expectedAuthority = receipt.action === PROPOSAL_ACTION ? "WORKING_GEOMETRY_ONLY" : "HUMAN_EVIDENCE_LOCALIZATION_ONLY";
-  if (receipt.authority !== expectedAuthority || receipt.oar_human_confirmation !== false || receipt.structural_identity_authorized !== false || receipt.canonical_write_authorized !== false || receipt.engineering_authority_effect !== "NONE") {
-    fail("OAR_REGION_GOVERNED_AUTHORITY_MISMATCH");
+
+  const evidenceObjectId = `EOBJ-G4-SUPPORT-${supportId}`;
+  const expected = {
+    task_id: G4_BINDING_ID,
+    residual_id: evidenceObjectId,
+    pilot_id: G4_PILOT_ID,
+    binding_id: G4_BINDING_ID,
+    support_id: supportId,
+    evidence_object_id: evidenceObjectId,
+    family_id: expectedFamily,
+    ...G4_DOCUMENT,
+    authority: receipt.action === PROPOSAL_ACTION ? "WORKING_GEOMETRY_ONLY" : "HUMAN_EVIDENCE_LOCALIZATION_ONLY",
+    oar_human_confirmation: false,
+    structural_identity_authorized: false,
+    canonical_write_authorized: false,
+    engineering_authority_effect: "NONE",
+  };
+  for (const [key, value] of Object.entries(expected)) {
+    if (receipt[key] !== value) fail(`OAR_REGION_GOVERNED_FIELD_MISMATCH_${key.toUpperCase()}`);
   }
+
   const decisionId = String(receipt.decision_id || "");
   if (!decisionId) fail("OAR_REGION_DECISION_ID_REQUIRED");
   if (decisionId.startsWith(UNBOUND_PREFIX)) fail("OAR_REGION_DECISION_ID_RESERVED");
@@ -94,6 +133,8 @@ export function replayOarHead(receipts, bindingId, supportId) {
   bindingId = String(bindingId || "").trim();
   supportId = String(supportId || "").trim();
   if (!bindingId || !supportId) fail("OAR_REGION_REPLAY_SCOPE_REQUIRED");
+  if (bindingId !== G4_BINDING_ID) fail("OAR_REGION_GOVERNED_FIELD_MISMATCH_BINDING_ID");
+  if (!G4_FAMILY_BY_SUPPORT[supportId]) fail("OAR_REGION_SUPPORT_NOT_IN_PILOT");
   const initialAnchor = `${UNBOUND_PREFIX}${supportId}`;
   const ordered = [...receipts]
     .filter((receipt) => receipt?.receipt_type === OAR_RECEIPT_TYPE && String(receipt.binding_id || "") === bindingId && String(receipt.support_id || "") === supportId)
@@ -114,7 +155,7 @@ export function replayOarHead(receipts, bindingId, supportId) {
   let staleTransitionCount = 0;
 
   for (const receipt of ordered) {
-    const bbox = validateGovernance(receipt, bindingId, supportId);
+    const bbox = validateOarReceiptGovernance(receipt, bindingId, supportId);
     const decisionId = String(receipt.decision_id);
     if (seen.has(decisionId)) fail("OAR_REGION_DUPLICATE_DECISION_ID");
     seen.add(decisionId);
