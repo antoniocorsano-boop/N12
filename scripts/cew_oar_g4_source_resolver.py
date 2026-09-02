@@ -29,20 +29,15 @@ def fetch_source() -> tuple[bytes, dict[str, Any]]:
     return payload, source
 
 
-def verify_source() -> dict[str, Any]:
-    payload, source = fetch_source()
-    import fitz
-    document = fitz.open(stream=payload, filetype="pdf")
-    try:
-        if document.page_count != 1:
-            raise ValueError("OAR_G4_SOURCE_PAGE_COUNT_MISMATCH")
-        page = document[0]
-        width = float(page.rect.width)
-        height = float(page.rect.height)
-        if abs(width - EXPECTED_PAGE_WIDTH_PT) > 0.01 or abs(height - EXPECTED_PAGE_HEIGHT_PT) > 0.01:
-            raise ValueError("OAR_G4_SOURCE_PAGE_DIMENSIONS_MISMATCH")
-    finally:
-        document.close()
+def _verification_from_document(document: Any, source: dict[str, Any]) -> dict[str, Any]:
+    """Validate an already-fetched immutable PDF without another remote read."""
+    if document.page_count != 1:
+        raise ValueError("OAR_G4_SOURCE_PAGE_COUNT_MISMATCH")
+    page = document[0]
+    width = float(page.rect.width)
+    height = float(page.rect.height)
+    if abs(width - EXPECTED_PAGE_WIDTH_PT) > 0.01 or abs(height - EXPECTED_PAGE_HEIGHT_PT) > 0.01:
+        raise ValueError("OAR_G4_SOURCE_PAGE_DIMENSIONS_MISMATCH")
     return {
         "state": "READY",
         "source_id": SOURCE_ID,
@@ -59,18 +54,33 @@ def verify_source() -> dict[str, Any]:
     }
 
 
-def ensure_runtime_raster() -> Path:
-    payload, _ = fetch_source()
-    verify_source()
-    RUNTIME_RASTER.parent.mkdir(parents=True, exist_ok=True)
-    if RUNTIME_RASTER.is_file():
-        return RUNTIME_RASTER
+def verify_source() -> dict[str, Any]:
+    payload, source = fetch_source()
     import fitz
+
     document = fitz.open(stream=payload, filetype="pdf")
     try:
+        return _verification_from_document(document, source)
+    finally:
+        document.close()
+
+
+def ensure_runtime_raster() -> Path:
+    payload, source = fetch_source()
+    import fitz
+
+    document = fitz.open(stream=payload, filetype="pdf")
+    try:
+        # Verification and rendering share the same immutable payload/document.
+        # This keeps /source.png on one governed remote fetch while preserving
+        # page-count and page-dimension fail-closed checks before cache reuse.
+        _verification_from_document(document, source)
+        RUNTIME_RASTER.parent.mkdir(parents=True, exist_ok=True)
+        if RUNTIME_RASTER.is_file():
+            return RUNTIME_RASTER
         page = document[0]
         pixmap = page.get_pixmap(dpi=RUNTIME_DPI, alpha=False)
         pixmap.save(RUNTIME_RASTER)
+        return RUNTIME_RASTER
     finally:
         document.close()
-    return RUNTIME_RASTER
