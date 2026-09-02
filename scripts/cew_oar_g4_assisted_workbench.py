@@ -170,16 +170,16 @@ function annotationFromBBox(b){const x=b.x*W,y=b.y*H,w=b.w*W,h=b.h*H,id=`cew-g4-
 function showBBox(b,editable=true,fit=false){draft=b;draftDirty=false;if(!anno)return;anno.clearAnnotations();if(!b){syncDecision();return}const a=annotationFromBBox(b);anno.addAnnotation(a);anno.setSelected(a.id,editable);if(fit)anno.fitBounds(a.id,{padding:90});syncDecision()}
 function syncDecision(){const r=row();el('selected').textContent=selected??'—';el('family').textContent=r?.family_id??'—';el('state').textContent=r?.state??'UNBOUND';el('bbox').textContent=draft?JSON.stringify(draft):'—';const frozen=r?.state==='GEOMETRY_CONFIRMED';el('propose').disabled=!selected||!draft||frozen;el('confirm').disabled=!(r?.state==='PROPOSED'&&draft&&!draftDirty);el('clear').disabled=!draft||frozen;el('edit').disabled=!draft||frozen;el('snap').disabled=!selected||frozen}
 function refreshSelection(){if(!report)return;const r=row();document.querySelectorAll('.support').forEach(b=>{const rr=report.objects.find(o=>String(o.support_id)===b.dataset.support);b.classList.toggle('active',b.dataset.support===String(selected));b.classList.toggle('proposed',rr?.state==='PROPOSED');b.classList.toggle('confirmed',rr?.state==='GEOMETRY_CONFIRMED')});snapCandidates=[];snapIndex=0;el('snapchoices').innerHTML='';el('snapinfo').textContent='—';if(!r){showBBox(null);return}showBBox(r.bbox??null,r.state!=='GEOMETRY_CONFIRMED',Boolean(r.bbox));}
-async function loadStatus(){const res=await fetch('/api/workbench/oar/g4-regions/status',{cache:'no-store'});const body=await res.json();if(!res.ok)throw new Error(body.reason||body.state);report=body;renderSupports();refreshSelection()}
+async function loadStatus(){const res=await fetch('/api/workbench/oar/g4-regions/status',{cache:'no-store'});const body=await res.json();if(!res.ok)throw new Error(body.state||'OAR_STATUS_UNAVAILABLE');report=body;renderSupports();refreshSelection()}
 function renderSupports(){const host=el('supports');host.innerHTML='';for(const r of report.objects){const b=document.createElement('button');b.className='support';b.dataset.support=String(r.support_id);b.innerHTML=`${r.support_id}<span>${r.family_id.replace('COL-G4-','')}</span>`;b.onclick=()=>{selected=String(r.support_id);refreshSelection()};host.appendChild(b)}const s=report.summary;el('progress').textContent=`${s.GEOMETRY_CONFIRMED}/34 confermati · ${s.PROPOSED} proposti · ${s.UNBOUND} da localizzare`}
 function currentTap(event){const item=viewer.world.getItemAt(0),vp=viewer.viewport.pointFromPixel(event.position),ip=item.viewportToImageCoordinates(vp);return{x:Math.max(0,Math.min(1,ip.x/W)),y:Math.max(0,Math.min(1,ip.y/H))}}
-viewer.addHandler('canvas-click',async event=>{if(!snapMode||!selected||!event.quick)return;event.preventDefaultAction=true;snapMode=false;el('snap').classList.remove('active');const p=currentTap(event);message.textContent='Ricerca snap…';const res=await fetch(`/api/workbench/oar/g4-assisted/snap?support_id=${encodeURIComponent(selected)}&x=${p.x}&y=${p.y}`,{cache:'no-store'});const body=await res.json();if(!res.ok){message.textContent=body.reason||body.state;return}snapCandidates=body.candidates||[];snapIndex=0;if(!snapCandidates.length){el('snapinfo').textContent='Nessun candidato vicino';message.textContent='Nessun contorno compatibile nell’apertura. Zooma e tocca più vicino oppure usa il fallback.';return}renderSnap(0);renderSnapChoices();message.textContent='Snap proposto. Controlla, sposta/ridimensiona se necessario, poi registra.'});
+viewer.addHandler('canvas-click',async event=>{if(!snapMode||!selected||!event.quick)return;event.preventDefaultAction=true;snapMode=false;el('snap').classList.remove('active');const p=currentTap(event);message.textContent='Ricerca snap…';const res=await fetch(`/api/workbench/oar/g4-assisted/snap?support_id=${encodeURIComponent(selected)}&x=${p.x}&y=${p.y}`,{cache:'no-store'});const body=await res.json();if(!res.ok){message.textContent=body.state||'OAR_ASSISTED_SNAP_REJECTED';return}snapCandidates=body.candidates||[];snapIndex=0;if(!snapCandidates.length){el('snapinfo').textContent='Nessun candidato vicino';message.textContent='Nessun contorno compatibile nell’apertura. Zooma e tocca più vicino oppure usa il fallback.';return}renderSnap(0);renderSnapChoices();message.textContent='Snap proposto. Controlla, sposta/ridimensiona se necessario, poi registra.'});
 function renderSnap(i){snapIndex=i;const c=snapCandidates[i];showBBox(c.bbox,true,true);draftDirty=true;el('snapinfo').textContent=`${c.candidate_id} · score ${Math.round(c.score*100)}% · ratio ${Math.round(c.ratio_compatibility*100)}%`}
 function renderSnapChoices(){const host=el('snapchoices');host.innerHTML='';snapCandidates.slice(0,5).forEach((c,i)=>{const b=document.createElement('button');b.className='snap-choice';b.textContent=`${i+1} · ${Math.round(c.score*100)}%`;b.onclick=()=>renderSnap(i);host.appendChild(b)})}
 el('home').onclick=()=>viewer.viewport.goHome();el('zin').onclick=()=>viewer.viewport.zoomBy(1.6);el('zout').onclick=()=>viewer.viewport.zoomBy(0.625);el('rot').onclick=()=>viewer.viewport.setRotation((viewer.viewport.getRotation()+90)%360);el('pan').onclick=()=>{if(anno)anno.setSelected();message.textContent='Pan attivo: trascina la tavola. Il box resta visibile.'};el('edit').onclick=()=>{if(anno&&draft&&selected)anno.setSelected(`cew-g4-${clean(selected)}`,true)};el('snap').onclick=()=>{if(!selected)return;snapMode=!snapMode;el('snap').classList.toggle('active',snapMode);message.textContent=snapMode?'Tocca vicino al pilastro: il sistema cercherà i contorni compatibili.':'Snap annullato.'};el('clear').onclick=()=>{showBBox(row()?.bbox??null,row()?.state!=='GEOMETRY_CONFIRMED');message.textContent='Proposta visuale scartata; stato persistito invariato.'};
-async function postAction(action){if(!selected||!draft)return;const payload={decision_id:decision(action),support_id:selected,action,bbox:draft};message.textContent='Registrazione…';const res=await fetch('/api/workbench/oar/g4-regions/receipt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const body=await res.json();if(!res.ok){message.textContent=body.reason||body.state;return}message.textContent=`${body.object_state} · receipt ${body.runtime_receipt_id}`;await loadStatus()}
+async function postAction(action){if(!selected||!draft)return;const payload={decision_id:decision(action),support_id:selected,action,bbox:draft};message.textContent='Registrazione…';const res=await fetch('/api/workbench/oar/g4-regions/receipt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const body=await res.json();if(!res.ok){message.textContent=body.state||'OAR_REGION_RECEIPT_REJECTED';return}message.textContent=`${body.object_state} · receipt ${body.runtime_receipt_id}`;await loadStatus()}
 el('propose').onclick=()=>postAction('PROPOSE_GEOMETRY');el('confirm').onclick=()=>postAction('CONFIRM_GEOMETRY');
-loadStatus().catch(err=>message.textContent=String(err));
+loadStatus().catch(()=>message.textContent='OAR_STATUS_UNAVAILABLE');
 </script></body></html>'''
 
 
@@ -191,8 +191,8 @@ def build_router() -> APIRouter:
         try:
             _manifest()
             _snap_payload()
-        except ValueError as exc:
-            return HTMLResponse(f"CEW OAR assisted surface unavailable: {exc}", status_code=503)
+        except ValueError:
+            return HTMLResponse("CEW OAR assisted surface unavailable", status_code=503)
         return HTMLResponse(
             _page(),
             headers={
@@ -210,16 +210,16 @@ def build_router() -> APIRouter:
             return _json({"state": "OAR_ASSISTED_VENDOR_NOT_ALLOWED"}, 404)
         try:
             target = _safe_asset(VENDOR_ROOT, filename, {".js", ".css"})
-        except ValueError as exc:
-            return _json({"state": "OAR_ASSISTED_VENDOR_UNAVAILABLE", "reason": str(exc)}, 404)
+        except ValueError:
+            return _json({"state": "OAR_ASSISTED_VENDOR_UNAVAILABLE"}, 404)
         return FileResponse(target, media_type=media, headers={"Cache-Control": "private, max-age=86400"})
 
     @router.get("/workbench/oar/g4-assisted/deepzoom/{asset_path:path}")
     def deepzoom_asset(asset_path: str):
         try:
             target = _safe_asset(DZI_ROOT, asset_path, {".dzi", ".jpg"})
-        except ValueError as exc:
-            return _json({"state": "OAR_ASSISTED_DEEPZOOM_UNAVAILABLE", "reason": str(exc)}, 404)
+        except ValueError:
+            return _json({"state": "OAR_ASSISTED_DEEPZOOM_UNAVAILABLE"}, 404)
         media = "application/xml" if target.suffix.lower() == ".dzi" else "image/jpeg"
         return FileResponse(target, media_type=media, headers={"Cache-Control": "private, max-age=86400"})
 
@@ -228,8 +228,8 @@ def build_router() -> APIRouter:
         try:
             manifest = _manifest()
             report = oar.load_report()
-        except ValueError as exc:
-            return _json({"state": "OAR_ASSISTED_STATUS_BLOCKED", "reason": str(exc)}, 503)
+        except ValueError:
+            return _json({"state": "OAR_ASSISTED_STATUS_BLOCKED"}, 503)
         return _json({
             "state": "READY_FOR_ASSISTED_LOCALIZATION",
             "build": manifest,
@@ -245,8 +245,8 @@ def build_router() -> APIRouter:
         try:
             binding.support_row(binding.load_contract(), support_id)
             result = _rank_snap(support_id, float(x), float(y), float(radius))
-        except (ValueError, KeyError) as exc:
-            return _json({"state": "OAR_ASSISTED_SNAP_REJECTED", "reason": str(exc)}, 422)
+        except (ValueError, KeyError):
+            return _json({"state": "OAR_ASSISTED_SNAP_REJECTED"}, 422)
         return _json(result)
 
     return router
