@@ -50,7 +50,7 @@ def main() -> None:
 
     raster = workbench.ensure_runtime_raster()
     assert raster.is_file()
-    assert raster.name == "TAV05S_300dpi.jpg"
+    assert raster.name == "TAV05S_OAR_300dpi.jpg"
     assert _sha256(raster) == workbench.REGISTERED_RENDER_SHA256
     pix = fitz.Pixmap(str(raster))
     assert pix.width == workbench.REGISTERED_RENDER_WIDTH_PX == 7016, pix.width
@@ -159,7 +159,7 @@ def main() -> None:
 
     print("CEW_OAR_G4_REGION_RUNTIME_PASS")
     print("source_resolution=remote_immutable_archive_sha256_verified")
-    print("display_asset=CEW-N12-ASSET-TAV05S-P001-300DPI raster=7016x12530 dpi=300 sha256_verified=true")
+    print(f"display_asset={workbench.REGISTERED_DERIVED_ASSET_ID} raster=7016x12530 dpi=300 sha256_verified=true")
     print("proposal_persisted=true confirmation_persisted=true post_confirmation_mutation_rejected=true")
     print("global_auth_guard=true canonical_write_authorized=false oar_human_confirmation=false")
 
