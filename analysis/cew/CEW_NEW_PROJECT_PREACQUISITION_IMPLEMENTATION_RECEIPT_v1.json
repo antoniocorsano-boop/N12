@@ -1,11 +1,27 @@
 {
   "schema": "CEW_NEW_PROJECT_PREACQUISITION_IMPLEMENTATION_RECEIPT_v1",
-  "status": "IMPLEMENTED_PENDING_CI",
+  "status": "IMPLEMENTED_CI_VALIDATED",
   "analysis_ref": "analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_ANALYSIS_v1.md",
   "contract_ref": "automation/CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1.json",
   "engine_ref": "scripts/cew_new_project_preacquisition.py",
   "validator_ref": "scripts/validate_cew_new_project_preacquisition.py",
   "library_index_ref": "knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json",
+  "validated_engine_revision": "a2af49c3579aed726bd0ec4a48410f1bcc01bcf4",
+  "validation_workflow": "Validate CEW New Project Pre-Acquisition",
+  "validation_run_id": 33680176434,
+  "validation_result": "PASS",
+  "validation_evidence": {
+    "page_count": 2,
+    "primitive_candidate_count": 25,
+    "graphic_cluster_count": 5,
+    "zero_semantic_prior": true,
+    "stable_candidate_identity": true,
+    "stable_cluster_identity": true,
+    "library_absence_nonfatal": true,
+    "library_matches_proposal_only": true,
+    "human_triage_queue": "READY",
+    "automatic_structural_labels": false
+  },
   "implemented_slice": [
     "ARBITRARY_PDF_PREFLIGHT",
     "PAGE_MODALITY_CLASSIFICATION",
@@ -30,5 +46,5 @@
     "structural_identity_authorized": false,
     "engineering_authority_effect": "NONE"
   },
-  "next": "Pass exact-head CI, then implement the governed external-reference acquisition and Document Discovery Workspace as separate slices following the analysis."
+  "next": "Implement governed external-reference acquisition and a fingerprinted graphic reference pack before building the production Document Discovery Workspace."
 }
