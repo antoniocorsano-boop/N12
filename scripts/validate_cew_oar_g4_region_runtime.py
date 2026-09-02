@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import os
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 
@@ -14,6 +15,7 @@ import fitz
 
 import cew_oar_g4_region_binding as binding
 import cew_oar_g4_region_workbench as workbench
+import cew_oar_g4_source_resolver as resolver
 import cew_runtime_audit_store as audit_store
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,6 +34,47 @@ def _sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _assert_prebuilt_runtime_boundary(raster: Path) -> None:
+    original_build = resolver.BUILD_RASTER
+    original_runtime = resolver.RUNTIME_RASTER
+    original_fetch = resolver.fetch_source
+    original_required = os.environ.get(resolver.REQUIRE_PREBUILT_ENV)
+    try:
+        with tempfile.TemporaryDirectory(prefix="cew-oar-g4-prebuilt-") as tmp:
+            root = Path(tmp)
+            prebuilt = root / "TAV05S_OAR_300dpi.jpg"
+            shutil.copyfile(raster, prebuilt)
+            resolver.BUILD_RASTER = prebuilt
+            resolver.RUNTIME_RASTER = root / "must-not-be-created.jpg"
+            os.environ[resolver.REQUIRE_PREBUILT_ENV] = "1"
+
+            def forbidden_fetch():
+                raise AssertionError("governed Render request must not fetch/rasterize source when prebuilt asset exists")
+
+            resolver.fetch_source = forbidden_fetch
+            served = resolver.ensure_runtime_raster()
+            assert served == prebuilt
+            assert _sha256(served) == resolver.REGISTERED_RENDER_SHA256
+            assert not resolver.RUNTIME_RASTER.exists()
+
+            prebuilt.unlink()
+            try:
+                resolver.ensure_runtime_raster()
+            except ValueError as exc:
+                assert str(exc) == "OAR_G4_PREBUILT_RENDER_REQUIRED"
+            else:
+                raise AssertionError("missing prebuilt Render asset must fail closed")
+            assert not resolver.RUNTIME_RASTER.exists()
+    finally:
+        resolver.BUILD_RASTER = original_build
+        resolver.RUNTIME_RASTER = original_runtime
+        resolver.fetch_source = original_fetch
+        if original_required is None:
+            os.environ.pop(resolver.REQUIRE_PREBUILT_ENV, None)
+        else:
+            os.environ[resolver.REQUIRE_PREBUILT_ENV] = original_required
 
 
 def main() -> None:
@@ -55,6 +98,7 @@ def main() -> None:
     pix = fitz.Pixmap(str(raster))
     assert pix.width == workbench.REGISTERED_RENDER_WIDTH_PX == 7016, pix.width
     assert pix.height == workbench.REGISTERED_RENDER_HEIGHT_PX == 12530, pix.height
+    _assert_prebuilt_runtime_boundary(raster)
 
     router = workbench.build_router()
     route_paths = {route.path for route in router.routes}
@@ -160,6 +204,7 @@ def main() -> None:
     print("CEW_OAR_G4_REGION_RUNTIME_PASS")
     print("source_resolution=remote_immutable_archive_sha256_verified")
     print(f"display_asset={workbench.REGISTERED_DERIVED_ASSET_ID} raster=7016x12530 dpi=300 sha256_verified=true")
+    print("render_runtime_prebuilt_required=true first_request_rasterization=false missing_prebuilt_fail_closed=true")
     print("proposal_persisted=true confirmation_persisted=true post_confirmation_mutation_rejected=true")
     print("global_auth_guard=true canonical_write_authorized=false oar_human_confirmation=false")
 
