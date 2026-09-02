@@ -23,6 +23,10 @@ def _must_fail(callable_, marker: str) -> None:
 def main() -> None:
     contract = binding.load_contract()
     bbox = {"x": 0.10, "y": 0.20, "w": 0.02, "h": 0.03}
+    expected_history_policy = (
+        "SERVER_MVCC_SNAPSHOT_APPEND_ONLY_ANCHOR_CLOSED_SINGLE_PASS_"
+        "REDUCED_FOR_STATE_RECONSTRUCTION_WITH_FULL_AUDIT_SUMMARY"
+    )
 
     with tempfile.TemporaryDirectory(prefix="cew-oar-history-") as tmp:
         store = Path(tmp)
@@ -37,7 +41,8 @@ def main() -> None:
         loaded = history.load_runtime_receipts(binding.RECEIPT_TYPE, store, max_receipts=73)
         assert loaded["receipt_count"] == 501
         assert loaded["reduced_receipt_count"] == 1
-        assert loaded["history_policy"] == "SERVER_MVCC_SNAPSHOT_APPEND_ONLY_ANCHOR_CLOSED_SINGLE_PASS_REDUCED_FOR_STATE_RECONSTRUCTION"
+        assert loaded["stale_concurrent_transitions"] == 0
+        assert loaded["history_policy"] == expected_history_policy
         report = binding.aggregate(loaded["receipts"], contract)
         row = next(item for item in report["objects"] if item["support_id"] == "1")
         assert row["state"] == "PROPOSED"
@@ -131,12 +136,57 @@ def main() -> None:
     assert total == 3
     assert [row["decision_id"] for row in compact] == ["anchor-p0", "anchor-p1", "anchor-p2"]
 
+    # Exact stale-race fixture from the review: P0 -> replacement P1 -> delayed
+    # CONFIRM(P0). The full audit has one stale transition while the anchor-closed
+    # state chain legitimately drops that non-mutating receipt. The loader must
+    # therefore carry the full-audit count separately from compact state receipts.
+    stale_p0 = binding.build_receipt(
+        decision_id="stale-p0", support_id="7", bbox={"x":0.20,"y":0.30,"w":0.02,"h":0.03},
+        action=binding.PROPOSAL_ACTION, base_proposal_decision_id=binding.unbound_revision_anchor("7"),
+        timestamp="2026-09-01T09:10:00+00:00", contract=contract,
+    )
+    stale_p1 = binding.build_receipt(
+        decision_id="stale-p1", support_id="7", bbox={"x":0.22,"y":0.30,"w":0.02,"h":0.03},
+        action=binding.PROPOSAL_ACTION, base_proposal_decision_id=stale_p0["decision_id"],
+        timestamp="2026-09-01T09:11:00+00:00", contract=contract,
+    )
+    stale_confirm_p0 = binding.build_receipt(
+        decision_id="stale-confirm-p0", support_id="7", bbox=stale_p0["bbox"],
+        action=binding.CONFIRM_ACTION, base_proposal_decision_id=stale_p0["decision_id"],
+        timestamp="2026-09-01T09:12:00+00:00", contract=contract,
+    )
+    stale_compact, stale_total, stale_full_report = history._reduce_history_with_report(
+        [[stale_p0, stale_p1, stale_confirm_p0]], contract
+    )
+    assert stale_total == 3
+    assert stale_full_report["summary"]["stale_concurrent_transitions"] == 1
+    assert [row["decision_id"] for row in stale_compact] == ["stale-p0", "stale-p1"]
+    compact_report = binding.aggregate(stale_compact, contract)
+    assert compact_report["summary"]["stale_concurrent_transitions"] == 0
+    assert next(row for row in compact_report["objects"] if row["support_id"] == "7")["state"] == "PROPOSED"
+
+    with tempfile.TemporaryDirectory(prefix="cew-oar-stale-summary-") as tmp:
+        store = Path(tmp)
+        for receipt in (stale_p0, stale_p1, stale_confirm_p0):
+            (store / f"{receipt['decision_id']}.json").write_text(json.dumps(receipt), encoding="utf-8")
+        original_backend_status = history.audit_store.backend_status
+        history.audit_store.backend_status = lambda: "FILESYSTEM_APPEND_ONLY"
+        try:
+            stale_loaded = history.load_runtime_receipts(binding.RECEIPT_TYPE, store, max_receipts=2)
+        finally:
+            history.audit_store.backend_status = original_backend_status
+        assert stale_loaded["receipt_count"] == 3
+        assert stale_loaded["reduced_receipt_count"] == 2
+        assert stale_loaded["stale_concurrent_transitions"] == 1
+        assert stale_loaded["history_policy"] == expected_history_policy
+
     initial_anchor = binding.unbound_revision_anchor("3")
     first = binding.build_receipt(decision_id="unbound-first-winner", support_id="3", bbox={"x":0.20,"y":0.30,"w":0.02,"h":0.03}, action=binding.PROPOSAL_ACTION, base_proposal_decision_id=initial_anchor, timestamp="2026-09-01T10:00:00+00:00", contract=contract)
     first_confirm = binding.build_receipt(decision_id="unbound-first-confirm", support_id="3", bbox=first["bbox"], action=binding.CONFIRM_ACTION, base_proposal_decision_id=first["decision_id"], timestamp="2026-09-01T10:01:00+00:00", contract=contract)
     delayed = binding.build_receipt(decision_id="unbound-delayed-loser", support_id="3", bbox={"x":0.24,"y":0.30,"w":0.02,"h":0.03}, action=binding.PROPOSAL_ACTION, base_proposal_decision_id=initial_anchor, timestamp="2026-09-01T10:02:00+00:00", contract=contract)
-    race_compact, race_total = history._reduce_history([[first, first_confirm, delayed]], contract)
+    race_compact, race_total, race_full_report = history._reduce_history_with_report([[first, first_confirm, delayed]], contract)
     assert race_total == 3
+    assert race_full_report["summary"]["stale_concurrent_transitions"] == 1
     assert [row["decision_id"] for row in race_compact] == ["unbound-first-winner", "unbound-first-confirm"]
 
     long_chain: list[dict] = []
@@ -172,8 +222,16 @@ def main() -> None:
     assert 'SUPABASE_SNAPSHOT_RPC = "cew_oar_read_region_receipts_v1"' in source
     assert 'SUPABASE_SNAPSHOT_MARKER = "SERVER_MVCC_SINGLE_JSON_VALUE"' in source
     assert 'snapshot=oar_mvcc' in source
+    assert "_reduce_history_with_report" in source
+    assert "stale_concurrent_transitions" in source
+    assert "WITH_FULL_AUDIT_SUMMARY" in source
     assert "_supabase_watermark" not in source
     assert "watermark_submitted_at" not in source
+
+    workbench = (Path(__file__).resolve().parent / "cew_oar_g4_region_workbench.py").read_text(encoding="utf-8")
+    assert "def load_report()" in workbench
+    assert '_base.load_report = load_report' in workbench
+    assert 'loaded.get("stale_concurrent_transitions"' in workbench
 
     sql = (Path(__file__).resolve().parents[1] / "sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql").read_text(encoding="utf-8")
     lower_sql = sql.lower()
@@ -193,6 +251,7 @@ def main() -> None:
     print("server_mvcc_snapshot=true filesystem_frozen=true append_only_receipts=501")
     print("supabase_single_json_receipts=1200 truncation_detection=FAIL_CLOSED rpc_return_type_upgrade_safe=true")
     print("neon=REPEATABLE_READ supabase=SINGLE_JSON_RPC netlify=SINGLE_QUERY remote_round_trips=1")
+    print("stale_race_full_audit=1 compact_state=0 exposed_summary=1")
     print("long_chain_receipts=1000 aggregate_calls=2 authority_divergent=FAIL_CLOSED")
 
 
