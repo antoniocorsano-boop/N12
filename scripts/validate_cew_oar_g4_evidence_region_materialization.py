@@ -149,6 +149,20 @@ def main() -> int:
         errors,
     )
 
+    workbench = (SCRIPTS / "cew_oar_g4_region_workbench.py").read_text(encoding="utf-8")
+    for marker in [
+        "import cew_oar_g4_evidence_region_materialization as _er_materialization",
+        '"export_endpoint": "/api/workbench/oar/g4-regions/evidence-region-candidates"',
+        '@router.get("/api/workbench/oar/g4-regions/evidence-region-candidates")',
+        "_er_materialization.build_export(load_report())",
+        '"candidate_is_evidence_region": False',
+        '"oar_classification_confirmed": False',
+        '"f2_registry_written": False',
+        '"canonical_write_authorized": False',
+    ]:
+        if marker not in workbench:
+            errors.append(f"Workbench materialization wiring missing marker: {marker}")
+
     if errors:
         print("CEW_OAR_G4_EVIDENCE_REGION_MATERIALIZATION = FAIL")
         for error in errors:
@@ -159,6 +173,7 @@ def main() -> int:
     print("GEOMETRY_CONFIRMED_REQUIRED = true")
     print("EVIDENCE_REGION_CANDIDATE_MODEL_REUSED = true")
     print("SOURCE_PAGE_DERIVED_ASSET_PAGE_TRANSFORM_RECEIPT_BOUND = true")
+    print("WORKBENCH_EXPORT_ENDPOINT_WIRED = true")
     print("OAR_CLASSIFICATION_CONFIRMED = false")
     print("F2_REGISTRY_WRITTEN = false")
     print("CANONICAL_WRITE_AUTHORIZED = false")
