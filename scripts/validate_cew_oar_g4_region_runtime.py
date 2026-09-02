@@ -2,6 +2,7 @@
 """Runtime smoke for the authenticated G4/TAV-05S localization surface."""
 from __future__ import annotations
 
+import hashlib
 import os
 from pathlib import Path
 import sys
@@ -18,10 +19,19 @@ import cew_runtime_audit_store as audit_store
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_ROUTES = {
     "/workbench/oar/g4-regions",
-    "/workbench/oar/g4-regions/source.png",
+    "/workbench/oar/g4-regions/source.jpg",
     "/api/workbench/oar/g4-regions/status",
     "/api/workbench/oar/g4-regions/receipt",
 }
+LEGACY_IMAGE_ROUTE = "/workbench/oar/g4-regions/source.png"
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def main() -> None:
@@ -31,17 +41,25 @@ def main() -> None:
     assert source["page_width_pt"] == workbench.EXPECTED_PAGE_WIDTH_PT
     assert source["page_height_pt"] == workbench.EXPECTED_PAGE_HEIGHT_PT
     assert source["source_resolution"] == "REMOTE_IMMUTABLE_ARCHIVE_SHA256_VERIFIED"
+    assert source["derived_asset_id"] == workbench.REGISTERED_DERIVED_ASSET_ID
+    assert source["render_sha256"] == workbench.REGISTERED_RENDER_SHA256
+    assert source["render_width_px"] == workbench.REGISTERED_RENDER_WIDTH_PX
+    assert source["render_height_px"] == workbench.REGISTERED_RENDER_HEIGHT_PX
+    assert source["render_dpi"] == 300
     assert source["canonical_write_authorized"] is False
 
     raster = workbench.ensure_runtime_raster()
     assert raster.is_file()
+    assert raster.name == "TAV05S_300dpi.jpg"
+    assert _sha256(raster) == workbench.REGISTERED_RENDER_SHA256
     pix = fitz.Pixmap(str(raster))
-    assert pix.width == 3508, pix.width
-    assert pix.height == 6265, pix.height
+    assert pix.width == workbench.REGISTERED_RENDER_WIDTH_PX == 7016, pix.width
+    assert pix.height == workbench.REGISTERED_RENDER_HEIGHT_PX == 12530, pix.height
 
     router = workbench.build_router()
     route_paths = {route.path for route in router.routes}
     assert EXPECTED_ROUTES.issubset(route_paths)
+    assert LEGACY_IMAGE_ROUTE not in route_paths
 
     isolated = FastAPI()
     isolated.include_router(router)
@@ -49,13 +67,19 @@ def main() -> None:
     page = client.get("/workbench/oar/g4-regions")
     assert page.status_code == 200
     assert "Localizzazione documentale — Pilastri G4" in page.text
+    assert "/workbench/oar/g4-regions/source.jpg" in page.text
+    assert LEGACY_IMAGE_ROUTE not in page.text
     assert page.headers["x-cew-oar-human-confirmation"] == "false"
     assert page.headers["x-cew-canonical-write"] == "false"
 
-    image = client.get("/workbench/oar/g4-regions/source.png")
+    image = client.get("/workbench/oar/g4-regions/source.jpg")
     assert image.status_code == 200
-    assert image.headers["x-cew-derived-authority"] == "DERIVED_INTERACTION_AID_ONLY"
+    assert image.headers["content-type"].startswith("image/jpeg")
+    assert image.headers["x-cew-derived-authority"] == "DERIVED_REVIEW_AID_ONLY"
+    assert image.headers["x-cew-derived-asset-id"] == workbench.REGISTERED_DERIVED_ASSET_ID
+    assert image.headers["x-cew-render-sha256"] == workbench.REGISTERED_RENDER_SHA256
     assert image.headers["x-cew-source-sha256"] == workbench.EXPECTED_SOURCE_SHA256
+    assert hashlib.sha256(image.content).hexdigest() == workbench.REGISTERED_RENDER_SHA256
 
     original_backend_status = audit_store.backend_status
     original_store = workbench.RUNTIME_STORE
@@ -71,6 +95,9 @@ def main() -> None:
             state = status.json()
             assert state["summary"]["UNBOUND"] == 34
             assert state["summary"]["GEOMETRY_CONFIRMED"] == 0
+            assert state["runtime_raster"]["derived_asset_id"] == workbench.REGISTERED_DERIVED_ASSET_ID
+            assert state["runtime_raster"]["render_sha256"] == workbench.REGISTERED_RENDER_SHA256
+            assert state["runtime_raster"]["shown_to_operator"] is True
             assert state["canonical_write_authorized"] is False
 
             bbox = {"x": 0.10, "y": 0.20, "w": 0.02, "h": 0.03}
@@ -131,7 +158,8 @@ def main() -> None:
     assert unauthorized.headers["location"] == "/login"
 
     print("CEW_OAR_G4_REGION_RUNTIME_PASS")
-    print("source_resolution=remote_immutable_archive_sha256_verified raster_150dpi=3508x6265 routes=4")
+    print("source_resolution=remote_immutable_archive_sha256_verified")
+    print("display_asset=CEW-N12-ASSET-TAV05S-P001-300DPI raster=7016x12530 dpi=300 sha256_verified=true")
     print("proposal_persisted=true confirmation_persisted=true post_confirmation_mutation_rejected=true")
     print("global_auth_guard=true canonical_write_authorized=false oar_human_confirmation=false")
 
