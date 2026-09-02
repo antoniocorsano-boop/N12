@@ -6,6 +6,7 @@ on:
       - 'work/cew-new-project-preacquisition-v1'
     paths:
       - 'analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_ANALYSIS_v1.md'
+      - 'analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_IMPLEMENTATION_RECEIPT_v1.json'
       - 'automation/CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1.json'
       - 'knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json'
       - 'scripts/cew_new_project_preacquisition.py'
@@ -14,6 +15,7 @@ on:
   pull_request:
     paths:
       - 'analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_ANALYSIS_v1.md'
+      - 'analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_IMPLEMENTATION_RECEIPT_v1.json'
       - 'automation/CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1.json'
       - 'knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json'
       - 'scripts/cew_new_project_preacquisition.py'
@@ -72,6 +74,24 @@ jobs:
           assert library['policy']['evidence_backed_reference_pack_required'] is True
           assert library['authority']['semantic_authority'] == 'NONE'
           print('CEW_GRAPHIC_REFERENCE_LIBRARY_READINESS_PASS')
+          PY
+      - name: Validate implementation receipt remains non-promoting
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          receipt = json.loads(Path('analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_IMPLEMENTATION_RECEIPT_v1.json').read_text())
+          assert receipt['status'] == 'IMPLEMENTED_CI_VALIDATED'
+          assert receipt['validation_result'] == 'PASS'
+          assert receipt['validation_evidence']['zero_semantic_prior'] is True
+          assert receipt['validation_evidence']['stable_candidate_identity'] is True
+          assert receipt['validation_evidence']['stable_cluster_identity'] is True
+          assert receipt['validation_evidence']['automatic_structural_labels'] is False
+          assert receipt['library_readiness'] == 'LIBRARY_NOT_CONFIGURED'
+          assert receipt['authority']['canonical_write_authorized'] is False
+          assert receipt['authority']['structural_identity_authorized'] is False
+          assert receipt['authority']['engineering_authority_effect'] == 'NONE'
+          print('CEW_NEW_PROJECT_PREACQUISITION_RECEIPT_PASS')
           PY
       - name: Run deterministic unknown-project pre-acquisition gate
         working-directory: scripts
