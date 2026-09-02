@@ -31,6 +31,10 @@ else
 fi
 
 pip install -r requirements.txt
+# Materialize the exact governed 300-DPI G4 interaction asset while the Render
+# build pipeline has its separate high-memory compute. The Free web worker then
+# serves the verified file and never cold-renders 7016x12530 on a human request.
+python scripts/build_cew_oar_g4_runtime_asset.py
 python scripts/build_cew_runtime_render_cache.py
 python scripts/build_cew_managed_f3_assets.py
 python scripts/build_cew_document_geometry_artifacts.py

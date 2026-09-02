@@ -71,9 +71,6 @@ def _confirmation_bbox_cas_guard(sql_patch: str) -> None:
     ):
         assert marker in append_sql, marker
 
-    # The immutable anchored proposal must be loaded and validated under the
-    # support advisory lock. A mismatched confirmation must fail before either
-    # the append-only audit INSERT or GEOMETRY_CONFIRMED head mutation.
     lock_pos = append_sql.index(lock_marker)
     proposal_pos = append_sql.index(current_proposal_marker)
     validate_pos = append_sql.index(validate_anchor_marker)
@@ -128,8 +125,13 @@ def main() -> None:
     assert f'REGISTERED_RENDER_SHA256 = "{ASSET_SHA256}"' in resolver
     assert "RUNTIME_DPI = 300" in resolver
     assert "JPEG_QUALITY = 92" in resolver
-    assert "pixmap.save(RUNTIME_RASTER, jpg_quality=JPEG_QUALITY)" in resolver
-    assert "_verify_registered_raster(RUNTIME_RASTER)" in resolver
+    assert "pixmap.save(path, jpg_quality=JPEG_QUALITY)" in resolver
+    assert "verify_registered_raster(path)" in resolver
+    assert "materialize_build_raster" in resolver
+    assert "if BUILD_RASTER.is_file()" in resolver
+    assert "OAR_G4_PREBUILT_RENDER_REQUIRED" in resolver
+    assert "_jpeg_dimensions" in resolver
+    assert "fitz.Pixmap(str(path))" not in resolver
 
     netlify_replay = read("netlify/functions/cew-oar-replay.mjs")
     assert f'derived_asset_id: "{ASSET_ID}"' in netlify_replay
@@ -147,9 +149,6 @@ def main() -> None:
     _bbox_contract(sql_patch)
     _confirmation_bbox_cas_guard(sql_patch)
 
-    # The base migration itself must already understand current receipts before
-    # installing replay/backfill. Otherwise a rerun would temporarily restore
-    # the historical asset predicate and abort while replaying current history.
     atomic_sql = read("sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql")
     atomic_lower = atomic_sql.lower()
     validator_marker = "create or replace function public.cew_oar_validate_g4_receipt_v1"
@@ -203,6 +202,7 @@ def main() -> None:
     print(f"derived_asset_id={ASSET_ID} transform_id={TRANSFORM_ID}")
     print(f"render_sha256={ASSET_SHA256} dimensions=7016x12530 dpi=300 generator=PyMuPDF-1.26.4")
     print("python=BOUND netlify=BOUND supabase_base=BOUND supabase_patch=BOUND provisioning=ORDERED")
+    print("render_materialization=BUILD_TIME runtime_decode=HEADER_ONLY first_request_rasterization=false")
     print("base_migration_current_receipt_replay=RERUN_SAFE")
     print("supabase_bbox_validation=FAIL_CLOSED before_atomic_receipt_insert=true")
     print("supabase_confirmation_bbox_guard=ATOMIC_ANCHORED_PROPOSAL_MATCH before_audit_append=true before_head_mutation=true")

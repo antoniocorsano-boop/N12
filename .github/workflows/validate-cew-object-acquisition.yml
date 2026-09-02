@@ -17,6 +17,8 @@ on:
       - 'scripts/cew_oar_g4_region_workbench.py'
       - 'scripts/cew_oar_g4_region_workbench_base.py'
       - 'scripts/cew_oar_g4_source_resolver.py'
+      - 'scripts/build_cew_oar_g4_runtime_asset.py'
+      - 'scripts/render_build_candidate.sh'
       - 'scripts/cew_source_evidence_workspace.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/cew_professional_workbench_api_base.py'
@@ -38,6 +40,7 @@ on:
       - 'data/canonical/CEW_DERIVED_ASSET_REGISTRY_v1.csv'
       - 'knowledge/ARTIFACT_REGISTRY_CEW_PROMOTION_ENGINE_PATCH_v1.csv'
       - 'requirements.txt'
+      - 'render.yaml'
       - 'docs/architecture/CEW_OBJECT_ACQUISITION_AND_PROJECT_MATERIAL_PLAN_v1.md'
       - '.github/workflows/validate-cew-object-acquisition.yml'
   workflow_dispatch:
@@ -69,6 +72,7 @@ jobs:
           scripts/cew_oar_g4_region_workbench.py
           scripts/cew_oar_g4_region_workbench_base.py
           scripts/cew_oar_g4_source_resolver.py
+          scripts/build_cew_oar_g4_runtime_asset.py
           scripts/cew_professional_workbench_api.py
           scripts/cew_professional_workbench_api_base.py
           scripts/validate_cew_object_acquisition.py
@@ -115,6 +119,22 @@ jobs:
       - name: Execute real G4 localization runtime smoke
         working-directory: scripts
         run: python validate_cew_oar_g4_region_runtime.py
+      - name: Validate Render prebuilt-raster deployment boundary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          resolver = Path('scripts/cew_oar_g4_source_resolver.py').read_text()
+          builder = Path('scripts/render_build_candidate.sh').read_text()
+          blueprint = Path('render.yaml').read_text()
+          assert 'python scripts/build_cew_oar_g4_runtime_asset.py' in builder
+          assert 'CEW_OAR_G4_REQUIRE_PREBUILT_RASTER' in blueprint
+          assert 'OAR_G4_PREBUILT_RENDER_REQUIRED' in resolver
+          assert 'if BUILD_RASTER.is_file()' in resolver
+          assert 'return _materialize_registered_raster(RUNTIME_RASTER)' in resolver
+          print('CEW_OAR_G4_RENDER_PREBUILT_RASTER_CONTRACT_PASS')
+          print('render_first_request_rasterization=false')
+          print('registered_display_asset_unchanged=true')
+          PY
       - name: Validate atomic write and MVCC read SQL authority boundaries
         run: |
           python - <<'PY'
