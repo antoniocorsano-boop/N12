@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/cew_professional_workbench_client.py'
       - 'scripts/cew_professional_workbench_api.py'
+      - 'scripts/cew_professional_workbench_api_base.py'
       - 'scripts/cew_project_home.py'
       - 'scripts/cew_professional_workbench_core.py'
       - 'scripts/validate_cew_professional_workbench_client.py'
