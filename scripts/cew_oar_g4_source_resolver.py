@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Any
 
@@ -12,8 +13,13 @@ EXPECTED_GIT_BLOB_SHA = "ec32cd621877e9037cb26ebc083164140a8e3e68"
 EXPECTED_REMOTE_PATH = "archive/documentazione_originaria/tavola 5.pdf"
 EXPECTED_PAGE_WIDTH_PT = 1683.72
 EXPECTED_PAGE_HEIGHT_PT = 3007.08
-RUNTIME_DPI = 150
-RUNTIME_RASTER = Path("/tmp/cew-runtime/oar-g4-region-assets/TAV05S_150dpi.png")
+REGISTERED_DERIVED_ASSET_ID = "CEW-N12-ASSET-TAV05S-P001-300DPI"
+REGISTERED_RENDER_SHA256 = "32dfa5976b3d6a6482f73159da1778de6483e5d90c671ae771793374781f58b7"
+REGISTERED_RENDER_WIDTH_PX = 7016
+REGISTERED_RENDER_HEIGHT_PX = 12530
+RUNTIME_DPI = 300
+RUNTIME_RASTER = Path("/tmp/cew-runtime/oar-g4-region-assets/TAV05S_300dpi.jpg")
+JPEG_QUALITY = 92
 
 
 def fetch_source() -> tuple[bytes, dict[str, Any]]:
@@ -49,7 +55,13 @@ def _verification_from_document(document: Any, source: dict[str, Any]) -> dict[s
         "page_height_pt": EXPECTED_PAGE_HEIGHT_PT,
         "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
         "page_id": "CEW-N12-PAGE-TAV05S-P001",
+        "derived_asset_id": REGISTERED_DERIVED_ASSET_ID,
+        "render_sha256": REGISTERED_RENDER_SHA256,
+        "render_width_px": REGISTERED_RENDER_WIDTH_PX,
+        "render_height_px": REGISTERED_RENDER_HEIGHT_PX,
+        "render_dpi": RUNTIME_DPI,
         "source_resolution": "REMOTE_IMMUTABLE_ARCHIVE_SHA256_VERIFIED",
+        "display_asset_authority": "DERIVED_REVIEW_AID_ONLY",
         "canonical_write_authorized": False,
     }
 
@@ -65,22 +77,48 @@ def verify_source() -> dict[str, Any]:
         document.close()
 
 
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _verify_registered_raster(path: Path) -> None:
+    if not path.is_file():
+        raise ValueError("OAR_G4_REGISTERED_RENDER_NOT_MATERIALIZED")
+    digest = _file_sha256(path)
+    if digest != REGISTERED_RENDER_SHA256:
+        raise ValueError(f"OAR_G4_REGISTERED_RENDER_SHA256_MISMATCH:{digest}")
+    import fitz
+
+    pixmap = fitz.Pixmap(str(path))
+    if pixmap.width != REGISTERED_RENDER_WIDTH_PX or pixmap.height != REGISTERED_RENDER_HEIGHT_PX:
+        raise ValueError("OAR_G4_REGISTERED_RENDER_DIMENSIONS_MISMATCH")
+
+
 def ensure_runtime_raster() -> Path:
     payload, source = fetch_source()
     import fitz
 
     document = fitz.open(stream=payload, filetype="pdf")
     try:
-        # Verification and rendering share the same immutable payload/document.
-        # This keeps /source.png on one governed remote fetch while preserving
-        # page-count and page-dimension fail-closed checks before cache reuse.
+        # The Workbench must show exactly the registered review asset referenced
+        # by every governed geometry receipt. Source verification and rendering
+        # share the same immutable payload/document, so one request performs one
+        # governed source fetch and cannot drift to a different PDF revision.
         _verification_from_document(document, source)
         RUNTIME_RASTER.parent.mkdir(parents=True, exist_ok=True)
         if RUNTIME_RASTER.is_file():
+            _verify_registered_raster(RUNTIME_RASTER)
             return RUNTIME_RASTER
         page = document[0]
         pixmap = page.get_pixmap(dpi=RUNTIME_DPI, alpha=False)
-        pixmap.save(RUNTIME_RASTER)
+        if pixmap.width != REGISTERED_RENDER_WIDTH_PX or pixmap.height != REGISTERED_RENDER_HEIGHT_PX:
+            raise ValueError("OAR_G4_REGISTERED_RENDER_DIMENSIONS_MISMATCH")
+        pixmap.save(RUNTIME_RASTER, jpg_quality=JPEG_QUALITY)
+        _verify_registered_raster(RUNTIME_RASTER)
         return RUNTIME_RASTER
     finally:
         document.close()
