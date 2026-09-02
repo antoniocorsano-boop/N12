@@ -8,6 +8,8 @@ on:
       - 'scripts/cew_oar_g4_deepzoom_worker.cjs'
       - 'scripts/build_cew_oar_g4_assisted_assets.py'
       - 'scripts/cew_oar_g4_assisted_workbench.py'
+      - 'scripts/cew_oar_g4_region_workbench.py'
+      - 'scripts/cew_oar_g4_atomic_store.py'
       - 'scripts/validate_cew_oar_g4_assisted_localization.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/render_build_candidate.sh'
@@ -36,6 +38,8 @@ jobs:
           scripts/cew_oar_g4_snap_worker.py
           scripts/build_cew_oar_g4_assisted_assets.py
           scripts/cew_oar_g4_assisted_workbench.py
+          scripts/cew_oar_g4_region_workbench.py
+          scripts/cew_oar_g4_atomic_store.py
           scripts/validate_cew_oar_g4_assisted_localization.py
           scripts/cew_professional_workbench_api.py
       - name: Validate Sharp worker syntax
@@ -85,10 +89,14 @@ jobs:
           build = Path('scripts/render_build_candidate.sh').read_text()
           builder = Path('scripts/build_cew_oar_g4_assisted_assets.py').read_text()
           api = Path('scripts/cew_professional_workbench_api.py').read_text()
+          atomic = Path('scripts/cew_oar_g4_atomic_store.py').read_text()
           assert 'python scripts/build_cew_oar_g4_runtime_asset.py' in build
           assert 'python scripts/build_cew_oar_g4_assisted_assets.py' in build
           assert 'SHARP_SPEC = "sharp@0.35.4"' in builder
           assert '"vips", "dzsave"' not in builder
+          assert 'CREATE TABLE' not in atomic
+          assert 'cew_oar_region_revision_heads' not in atomic
+          assert 'pg_advisory_xact_lock' in atomic
           assert 'import cew_oar_g4_assisted_workbench as _oar_g4_assisted' in api
           assert 'router.include_router(_oar_g4_assisted.build_router())' in api
           print('CEW_OAR_ASSISTED_RENDER_WIRING_PASS')
