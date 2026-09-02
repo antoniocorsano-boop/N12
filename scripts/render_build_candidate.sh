@@ -35,6 +35,11 @@ pip install -r requirements.txt
 # build pipeline has its separate high-memory compute. The Free web worker then
 # serves the verified file and never cold-renders 7016x12530 on a human request.
 python scripts/build_cew_oar_g4_runtime_asset.py
+# Build the additive assisted-localization POC from the same governed raster:
+# self-hosted OpenSeadragon/Annotorious assets, a libvips DZI pyramid and
+# build-only OpenCV snap candidates. None of these derived interaction aids
+# carries evidence, classification or engineering authority.
+python scripts/build_cew_oar_g4_assisted_assets.py
 python scripts/build_cew_runtime_render_cache.py
 python scripts/build_cew_managed_f3_assets.py
 python scripts/build_cew_document_geometry_artifacts.py
@@ -68,8 +73,21 @@ if actual != expected:
 regions = manifest.get('regions') or []
 if len(regions) != 4 or manifest.get('gap_hypothesis_total') != 10:
     raise SystemExit('CEW_RENDER_BUILD_FAIL: R2HR coverage mismatch')
+
+assisted_manifest_path = Path('artifacts/cew_oar_g4_assisted/manifest.json')
+if not assisted_manifest_path.is_file():
+    raise SystemExit('CEW_RENDER_BUILD_FAIL: assisted OAR manifest missing after build')
+assisted = json.loads(assisted_manifest_path.read_text(encoding='utf-8'))
+if assisted.get('build_revision', '').lower() != expected:
+    raise SystemExit('CEW_RENDER_BUILD_FAIL: assisted OAR revision mismatch')
+if assisted.get('authority', {}).get('canonical_write_authorized') is not False:
+    raise SystemExit('CEW_RENDER_BUILD_FAIL: assisted OAR authority drift')
+if assisted.get('deepzoom', {}).get('tile_count', 0) <= 0 or assisted.get('snap', {}).get('candidate_count', 0) <= 0:
+    raise SystemExit('CEW_RENDER_BUILD_FAIL: assisted OAR assets incomplete')
+
 print('CEW_RENDER_R2HR_RUNTIME_ARTIFACT = READY')
 print('CEW_RENDER_R2HR_REGION_COVERAGE = 4/4')
 print('CEW_RENDER_R2HR_GAP_TOTAL = 10')
+print('CEW_RENDER_OAR_ASSISTED = READY')
 print('CEW_RENDER_BUILD = PASS')
 PY
