@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import hashlib
+import os
 from pathlib import Path
 from typing import Any
 
 import cew_source_evidence_workspace as source_workspace
 
+ROOT = Path(__file__).resolve().parents[1]
 SOURCE_ID = "TAV-05S"
 EXPECTED_SOURCE_SHA256 = "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580"
 EXPECTED_GIT_BLOB_SHA = "ec32cd621877e9037cb26ebc083164140a8e3e68"
@@ -18,7 +20,9 @@ REGISTERED_RENDER_SHA256 = "6344abae8d390ef799812c808427431e684a61cca6bb5792de33
 REGISTERED_RENDER_WIDTH_PX = 7016
 REGISTERED_RENDER_HEIGHT_PX = 12530
 RUNTIME_DPI = 300
+BUILD_RASTER = ROOT / "artifacts" / "cew_oar_g4_runtime" / "TAV05S_OAR_300dpi.jpg"
 RUNTIME_RASTER = Path("/tmp/cew-runtime/oar-g4-region-assets/TAV05S_OAR_300dpi.jpg")
+REQUIRE_PREBUILT_ENV = "CEW_OAR_G4_REQUIRE_PREBUILT_RASTER"
 JPEG_QUALITY = 92
 
 
@@ -85,7 +89,7 @@ def _file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _verify_registered_raster(path: Path) -> None:
+def verify_registered_raster(path: Path) -> None:
     if not path.is_file():
         raise ValueError("OAR_G4_REGISTERED_RENDER_NOT_MATERIALIZED")
     digest = _file_sha256(path)
@@ -98,26 +102,48 @@ def _verify_registered_raster(path: Path) -> None:
         raise ValueError("OAR_G4_REGISTERED_RENDER_DIMENSIONS_MISMATCH")
 
 
-def ensure_runtime_raster() -> Path:
+def _materialize_registered_raster(path: Path) -> Path:
+    """Create the exact governed display asset from the immutable SourceVersion."""
+    if path.is_file():
+        verify_registered_raster(path)
+        return path
+
     payload, source = fetch_source()
     import fitz
 
     document = fitz.open(stream=payload, filetype="pdf")
     try:
-        # This PyMuPDF 1.26.4 render is itself the governed DerivedAsset bound to
-        # OAR receipts. The historical Poppler render remains registered as a
-        # separate prior review aid and is never misrepresented as the UI asset.
         _verification_from_document(document, source)
-        RUNTIME_RASTER.parent.mkdir(parents=True, exist_ok=True)
-        if RUNTIME_RASTER.is_file():
-            _verify_registered_raster(RUNTIME_RASTER)
-            return RUNTIME_RASTER
+        path.parent.mkdir(parents=True, exist_ok=True)
         page = document[0]
         pixmap = page.get_pixmap(dpi=RUNTIME_DPI, alpha=False)
         if pixmap.width != REGISTERED_RENDER_WIDTH_PX or pixmap.height != REGISTERED_RENDER_HEIGHT_PX:
             raise ValueError("OAR_G4_REGISTERED_RENDER_DIMENSIONS_MISMATCH")
-        pixmap.save(RUNTIME_RASTER, jpg_quality=JPEG_QUALITY)
-        _verify_registered_raster(RUNTIME_RASTER)
-        return RUNTIME_RASTER
+        pixmap.save(path, jpg_quality=JPEG_QUALITY)
+        verify_registered_raster(path)
+        return path
     finally:
         document.close()
+
+
+def materialize_build_raster() -> Path:
+    """Build-pipeline materialization; Render's build compute is isolated from the web worker."""
+    return _materialize_registered_raster(BUILD_RASTER)
+
+
+def _prebuilt_required() -> bool:
+    return os.getenv(REQUIRE_PREBUILT_ENV, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def ensure_runtime_raster() -> Path:
+    """Serve a build-materialized raster; never cold-render on governed Render runtime."""
+    if BUILD_RASTER.is_file():
+        verify_registered_raster(BUILD_RASTER)
+        return BUILD_RASTER
+
+    if _prebuilt_required():
+        raise ValueError("OAR_G4_PREBUILT_RENDER_REQUIRED")
+
+    # Local/test fallback only. Production Render sets REQUIRE_PREBUILT_ENV and
+    # therefore cannot allocate the full 7016x12530 pixmap on a user request.
+    return _materialize_registered_raster(RUNTIME_RASTER)
