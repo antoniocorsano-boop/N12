@@ -9,8 +9,11 @@ on:
       - 'analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_IMPLEMENTATION_RECEIPT_v1.json'
       - 'automation/CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1.json'
       - 'knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json'
+      - 'knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_DISCOVERY_SEEDS_v1.json'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/validate_cew_new_project_preacquisition.py'
+      - 'scripts/cew_external_graphic_reference_acquisition.py'
+      - 'scripts/validate_cew_external_graphic_reference_acquisition.py'
       - '.github/workflows/validate-cew-new-project-preacquisition.yml'
   pull_request:
     paths:
@@ -18,8 +21,11 @@ on:
       - 'analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_IMPLEMENTATION_RECEIPT_v1.json'
       - 'automation/CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1.json'
       - 'knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json'
+      - 'knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_DISCOVERY_SEEDS_v1.json'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/validate_cew_new_project_preacquisition.py'
+      - 'scripts/cew_external_graphic_reference_acquisition.py'
+      - 'scripts/validate_cew_external_graphic_reference_acquisition.py'
       - '.github/workflows/validate-cew-new-project-preacquisition.yml'
   workflow_dispatch:
 
@@ -41,6 +47,8 @@ jobs:
           python -m py_compile
           scripts/cew_new_project_preacquisition.py
           scripts/validate_cew_new_project_preacquisition.py
+          scripts/cew_external_graphic_reference_acquisition.py
+          scripts/validate_cew_external_graphic_reference_acquisition.py
       - name: Validate analysis and zero-prior contract
         run: |
           python - <<'PY'
@@ -53,6 +61,8 @@ jobs:
           assert contract['mature_object_interaction'] == 'TEACH_THIS_IS->FIND_SIMILAR->REVIEW_SIMILAR_GROUP'
           assert contract['first_implementation_slice']['requires_known_object_types'] is False
           assert contract['first_implementation_slice']['library_optional'] is True
+          assert contract['internet_reference_policy']['evidence_backed_reference_pack_required'] is True
+          assert contract['internet_reference_policy']['direct_web_result_may_be_project_truth'] is False
           assert contract['authority']['semantic_authority'] == 'NONE_UNTIL_PROJECT_HUMAN_VALIDATION'
           assert contract['authority']['canonical_write_authorized'] is False
           assert contract['authority']['structural_identity_authorized'] is False
@@ -73,6 +83,11 @@ jobs:
           assert library['policy']['unrecorded_model_knowledge_may_be_library_entry'] is False
           assert library['policy']['evidence_backed_reference_pack_required'] is True
           assert library['authority']['semantic_authority'] == 'NONE'
+          seeds = json.loads(Path('knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_DISCOVERY_SEEDS_v1.json').read_text())
+          assert seeds['status'] == 'DISCOVERED_PENDING_BINARY_ACQUISITION'
+          assert seeds['sources']
+          assert seeds['authority']['library_entries_created'] is False
+          assert seeds['authority']['project_semantic_authority'] == 'NONE'
           print('CEW_GRAPHIC_REFERENCE_LIBRARY_READINESS_PASS')
           PY
       - name: Validate implementation receipt remains non-promoting
@@ -96,3 +111,6 @@ jobs:
       - name: Run deterministic unknown-project pre-acquisition gate
         working-directory: scripts
         run: python validate_cew_new_project_preacquisition.py
+      - name: Run deterministic external-reference acquisition gate
+        working-directory: scripts
+        run: python validate_cew_external_graphic_reference_acquisition.py
