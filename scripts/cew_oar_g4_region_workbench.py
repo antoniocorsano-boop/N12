@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse as _FastAPIFileResponse
 from cew_oar_g4_region_workbench_base import *  # noqa: F401,F403
 import cew_oar_g4_audit_history as _history
 import cew_oar_g4_atomic_store as _atomic_store
+import cew_oar_g4_evidence_region_materialization as _er_materialization
 import cew_oar_g4_region_binding as _binding
 import cew_oar_g4_region_workbench_base as _base
 import cew_oar_g4_source_resolver as _resolver
@@ -62,6 +63,15 @@ def load_report() -> dict:
         "authority": "DERIVED_REVIEW_AID_ONLY",
         "canonical_asset": False,
         "shown_to_operator": True,
+    }
+    report["evidence_region_materialization"] = {
+        "eligible_geometry_confirmed": int(report["summary"].get("GEOMETRY_CONFIRMED", 0)),
+        "export_endpoint": "/api/workbench/oar/g4-regions/evidence-region-candidates",
+        "candidate_is_evidence_region": False,
+        "oar_classification_confirmed": False,
+        "f2_registry_written": False,
+        "canonical_write_authorized": False,
+        "next_gate": "F2_PROMOTION_REVIEW_REQUIRED",
     }
     return report
 
@@ -230,5 +240,13 @@ def build_router():
                 "X-CEW-Canonical-Write": "false",
             },
         )
+
+    @router.get("/api/workbench/oar/g4-regions/evidence-region-candidates")
+    def governed_evidence_region_candidate_export():
+        try:
+            export = _er_materialization.build_export(load_report())
+        except ValueError as exc:
+            return _base._error("OAR_G4_EVIDENCE_REGION_MATERIALIZATION_BLOCKED", str(exc), 409)
+        return _base._json(export)
 
     return router
