@@ -19,7 +19,7 @@ from typing import Any
 import pymupdf
 
 SCHEMA = "CEW_NEW_PROJECT_PREACQUISITION_REPORT_v1"
-EXTRACTOR_VERSION = "CEW_NEW_PROJECT_PREFLIGHT_PYMUPDF_v1"
+EXTRACTOR_VERSION = "CEW_NEW_PROJECT_PREFLIGHT_PYMUPDF_v2"
 CONTRACT_SCHEMA = "CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1"
 LIBRARY_SCHEMA = "CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1"
 
@@ -59,9 +59,25 @@ def _stable_id(prefix: str, payload: Any, length: int = 20) -> str:
 
 
 def _normalized_bbox(rect: pymupdf.Rect, page_rect: pymupdf.Rect) -> dict[str, float]:
+    """Normalize a source geometry bbox while preserving linear primitives.
+
+    PyMuPDF legitimately returns zero-height / zero-width rectangles for exact
+    horizontal or vertical strokes. Those are valid graphic primitives, not
+    empty evidence. Expand only degenerate dimensions by a deterministic
+    sub-point halo before clipping to the page.
+    """
     if page_rect.width <= 0 or page_rect.height <= 0:
         raise ValueError("INVALID_PAGE_GEOMETRY")
-    clipped = rect & page_rect
+    working = pymupdf.Rect(rect)
+    pad_x = max(0.25, float(page_rect.width) * 1e-6)
+    pad_y = max(0.25, float(page_rect.height) * 1e-6)
+    if working.width <= 0:
+        working.x0 -= pad_x
+        working.x1 += pad_x
+    if working.height <= 0:
+        working.y0 -= pad_y
+        working.y1 += pad_y
+    clipped = working & page_rect
     if clipped.is_empty or clipped.width <= 0 or clipped.height <= 0:
         raise ValueError("EMPTY_GRAPHIC_BBOX")
     x = max(0.0, min(1.0, clipped.x0 / page_rect.width))
