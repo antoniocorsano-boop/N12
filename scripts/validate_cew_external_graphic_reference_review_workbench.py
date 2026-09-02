@@ -25,6 +25,8 @@ def main() -> None:
     assert queue["automatic_library_pack_build_authorized"] is False
     assert all(item["meaning"] is None for item in items)
     assert all(item["review_state"] == "UNREVIEWED" for item in items)
+    assert review.NONTERMINAL_REVIEW_STATES == {"DEFER"}
+    assert review.TERMINAL_REVIEW_STATES == {"ACCEPT_REFERENCE_EVIDENCE", "REJECT_REFERENCE_EVIDENCE"}
 
     html = review._page()
     for marker in (
@@ -32,6 +34,7 @@ def main() -> None:
         "Accetta come riferimento",
         "Rifiuta come riferimento",
         "Calcola pack candidate",
+        "DEFER è non terminale",
         "EXTERNAL_REFERENCE",
     ):
         assert marker in html
@@ -55,11 +58,24 @@ def main() -> None:
     assert receipt["page_text_sha256"] == first["page_text_sha256"]
     assert receipt["page_feature_sha256"] == first["page_feature_sha256"]
     assert receipt["meaning"] == "SYNTHETIC_REFERENCE_MEANING_FOR_GATE_ONLY"
+    assert receipt["terminal_decision"] is True
     assert receipt["automatic_acceptance"] is False
     assert receipt["discovery_query_supplied_meaning"] is False
     assert receipt["authority"]["project_semantic_authority"] == "NONE"
     assert receipt["authority"]["canonical_write_authorized"] is False
     assert receipt["authority"]["structural_identity_authorized"] is False
+
+    defer_receipt = review.build_review_receipt(
+        {
+            "decision_id": "test-reference-defer-shape-001",
+            "review_item_id": items[1]["review_item_id"],
+            "state": "DEFER",
+            "reviewer": "CI-HUMAN-REVIEW-SIMULATION",
+            "rationale": "Synthetic non-terminal defer gate.",
+        }
+    )
+    assert defer_receipt["terminal_decision"] is False
+    assert defer_receipt["meaning"] is None
 
     bad_accept = dict(accept_payload)
     bad_accept["decision_id"] = "test-reference-invalid-001"
@@ -88,45 +104,107 @@ def main() -> None:
             review.REVIEW_STORE = Path(tmp)
             persisted = review.persist_review_receipt(accept_payload)
             assert persisted["decision_state"] == "ACCEPT_REFERENCE_EVIDENCE"
+            assert persisted["terminal_decision"] is True
             assert persisted["repository_library_index_written"] is False
             assert persisted["authority"]["project_semantic_authority"] == "NONE"
 
             _expect_value_error(
-                lambda: review.persist_review_receipt({**accept_payload, "decision_id": "test-reference-duplicate-item"}),
-                "REFERENCE_REVIEW_ITEM_ALREADY_DECIDED",
+                lambda: review.persist_review_receipt({**accept_payload, "decision_id": "test-reference-after-terminal"}),
+                "REFERENCE_REVIEW_ITEM_ALREADY_TERMINAL",
             )
 
-            states = [
+            initial_states = [
                 "REJECT_REFERENCE_EVIDENCE",
                 "DEFER",
                 "REJECT_REFERENCE_EVIDENCE",
                 "DEFER",
             ]
-            for index, (item, state) in enumerate(zip(items[1:], states), start=2):
+            deferred_items: list[dict] = []
+            for index, (item, state) in enumerate(zip(items[1:], initial_states), start=2):
                 payload = {
                     "decision_id": f"test-reference-decision-{index:03d}",
                     "review_item_id": item["review_item_id"],
                     "state": state,
                     "reviewer": "CI-HUMAN-REVIEW-SIMULATION",
-                    "rationale": "Synthetic deterministic terminal review decision for gate validation only.",
+                    "rationale": "Synthetic deterministic review decision for gate validation only.",
                 }
                 result = review.persist_review_receipt(payload)
                 assert result["decision_state"] == state
+                assert result["terminal_decision"] is (state in review.TERMINAL_REVIEW_STATES)
                 assert result["repository_library_index_written"] is False
+                if state == "DEFER":
+                    deferred_items.append(item)
 
             status = review.review_status()
-            assert status["state"] == "HUMAN_REFERENCE_REVIEW_COMPLETE"
+            assert status["state"] == "HUMAN_REFERENCE_REVIEW_REQUIRED"
+            assert status["terminal_decision_count"] == 3
             assert status["summary"]["UNREVIEWED"] == 0
             assert status["summary"]["ACCEPT_REFERENCE_EVIDENCE"] == 1
             assert status["summary"]["REJECT_REFERENCE_EVIDENCE"] == 2
             assert status["summary"]["DEFER"] == 2
-            assert status["pack_candidate_available"] is True
+            assert status["defer_is_terminal"] is False
+            assert status["pack_candidate_available"] is False
             assert status["repository_library_index_written"] is False
 
             decisions = review.decisions_document()
-            assert decisions["status"] == "HUMAN_REVIEW_COMPLETE"
-            assert len(decisions["decisions"]) == 5
+            assert decisions["status"] == "HUMAN_REVIEW_IN_PROGRESS"
+            assert decisions["terminal_decision_count"] == 3
+            assert decisions["required_terminal_decision_count"] == 5
+            assert len(decisions["decisions"]) == 3
+            assert len(decisions["active_decisions"]) == 5
+            assert len(decisions["decision_history"]) == 5
+            assert decisions["defer_is_terminal"] is False
             assert decisions["authority"]["project_semantic_authority"] == "NONE"
+
+            _expect_value_error(
+                review.build_pack_candidate,
+                "REFERENCE_REVIEW_INCOMPLETE",
+            )
+
+            _expect_value_error(
+                lambda: review.persist_review_receipt(
+                    {
+                        "decision_id": "test-reference-repeat-defer",
+                        "review_item_id": deferred_items[0]["review_item_id"],
+                        "state": "DEFER",
+                        "reviewer": "CI-HUMAN-REVIEW-SIMULATION",
+                        "rationale": "A second consecutive defer must not add a redundant receipt.",
+                    }
+                ),
+                "REFERENCE_REVIEW_ITEM_ALREADY_DEFERRED",
+            )
+
+            # Resolve both deferred items terminally. Their DEFER receipts remain
+            # in append-only history but no longer block completion.
+            for index, item in enumerate(deferred_items, start=1):
+                result = review.persist_review_receipt(
+                    {
+                        "decision_id": f"test-reference-resolve-defer-{index:03d}",
+                        "review_item_id": item["review_item_id"],
+                        "state": "REJECT_REFERENCE_EVIDENCE",
+                        "reviewer": "CI-HUMAN-REVIEW-SIMULATION",
+                        "rationale": "Synthetic terminal follow-up resolving an earlier defer.",
+                    }
+                )
+                assert result["decision_state"] == "REJECT_REFERENCE_EVIDENCE"
+                assert result["terminal_decision"] is True
+
+            final_status = review.review_status()
+            assert final_status["state"] == "HUMAN_REFERENCE_REVIEW_COMPLETE"
+            assert final_status["terminal_decision_count"] == 5
+            assert final_status["summary"]["UNREVIEWED"] == 0
+            assert final_status["summary"]["ACCEPT_REFERENCE_EVIDENCE"] == 1
+            assert final_status["summary"]["REJECT_REFERENCE_EVIDENCE"] == 4
+            assert final_status["summary"]["DEFER"] == 0
+            assert final_status["decision_history_count"] == 7
+            assert final_status["pack_candidate_available"] is True
+
+            final_decisions = review.decisions_document()
+            assert final_decisions["status"] == "HUMAN_REVIEW_COMPLETE"
+            assert len(final_decisions["decisions"]) == 5
+            assert len(final_decisions["active_decisions"]) == 5
+            assert len(final_decisions["decision_history"]) == 7
+            assert final_decisions["terminal_decision_count"] == 5
 
             pack = review.build_pack_candidate()
             assert pack["status"] == "LIBRARY_AVAILABLE_UNVERIFIED_FOR_CONTEXT"
@@ -150,8 +228,9 @@ def main() -> None:
         review.REVIEW_STORE = old_store
 
     print("CEW_EXTERNAL_REFERENCE_REVIEW_WORKBENCH_PASS")
-    print("review_items=5 human_decision_receipts=append_only duplicate_item_rejected=true")
-    print("pack_candidate_requires_complete_review=true synthetic_external_reference_entries=1")
+    print("review_items=5 human_decision_receipts=append_only defer_nonterminal=true")
+    print("defer_then_terminal_allowed=true repeated_defer_rejected=true post_terminal_rejected=true")
+    print("pack_candidate_requires_five_terminal_decisions=true synthetic_external_reference_entries=1")
     print("repository_library_index_written=false project_semantic_authority=NONE")
 
 
