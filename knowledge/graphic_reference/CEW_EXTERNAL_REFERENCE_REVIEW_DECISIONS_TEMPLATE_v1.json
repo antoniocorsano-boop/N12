@@ -5,7 +5,22 @@
   "review_queue_ref": "knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_REVIEW_QUEUE_v1.json",
   "decisions": [],
   "decision_contract": {
-    "allowed_states": ["ACCEPT_REFERENCE_EVIDENCE", "REJECT_REFERENCE_EVIDENCE", "DEFER"],
+    "allowed_states": [
+      "ACCEPT_REFERENCE_EVIDENCE",
+      "REJECT_REFERENCE_EVIDENCE",
+      "DEFER"
+    ],
+    "terminal_states": [
+      "ACCEPT_REFERENCE_EVIDENCE",
+      "REJECT_REFERENCE_EVIDENCE"
+    ],
+    "nonterminal_states": [
+      "DEFER"
+    ],
+    "defer_is_terminal": false,
+    "append_only_followup_after_defer_allowed": true,
+    "followup_after_terminal_forbidden": true,
+    "pack_requires_terminal_decision_for_every_review_item": true,
     "acceptance_requires": [
       "decision_id",
       "review_item_id",
@@ -21,7 +36,12 @@
       "rationale",
       "reviewed_at"
     ],
-    "optional_pattern_constraints": ["aspect_buckets", "area_buckets", "filled", "counterexample_refs"],
+    "optional_pattern_constraints": [
+      "aspect_buckets",
+      "area_buckets",
+      "filled",
+      "counterexample_refs"
+    ],
     "discovery_query_may_supply_meaning": false,
     "automatic_acceptance_forbidden": true
   },
