@@ -74,8 +74,6 @@ def _extract_candidates(mask, w: int, h: int, min_side: int, max_side: int, dete
         if best_error > math.log(2.25):
             continue
 
-        # Axis-suppressed contours are intended to recover the whole footprint,
-        # so they need less visual halo than fallback raw contours.
         margin_factor = 0.08 if envelope_detector else 0.12
         margin_x = bw * margin_factor
         margin_y = bh * margin_factor
@@ -107,9 +105,19 @@ def _extract_candidates(mask, w: int, h: int, min_side: int, max_side: int, dete
 
 
 def _suppress_nested_raw_candidates(rows: list[dict]) -> tuple[list[dict], int]:
+    """Suppress internal cells using geometry, not nearest-family labels.
+
+    The previous equality check on ``best_family_prior`` failed when an off-centre
+    crossing axis made an internal cell rectangular while the recovered outer
+    footprint remained square. Here the outer envelope only needs to be compatible
+    with at least one admitted pilot family; containment and relative area establish
+    that the raw contour is a nested sub-contour. Family classification remains a
+    separate human gate.
+    """
     envelopes = [row for row in rows if row.get("detector") == "LONG_AXIS_SUPPRESSED"]
     filtered: list[dict] = []
     suppressed = 0
+    max_family_error = math.log(1.45)
     for row in rows:
         if row.get("detector") != "RAW_CONTOUR":
             filtered.append(row)
@@ -117,15 +125,15 @@ def _suppress_nested_raw_candidates(rows: list[dict]) -> tuple[list[dict], int]:
         row_area = _area(row["bbox"])
         nested = False
         for envelope in envelopes:
-            if envelope.get("best_family_prior") != row.get("best_family_prior"):
-                continue
             envelope_area = _area(envelope["bbox"])
             if row_area <= 0 or envelope_area < row_area * 1.55 or envelope_area > row_area * 7.0:
                 continue
             if _contained_fraction(row["bbox"], envelope["bbox"]) < 0.82:
                 continue
-            family = row["best_family_prior"]
-            if float(envelope["family_ratio_error"][family]) > float(row["family_ratio_error"][family]) + 0.12:
+            envelope_errors = envelope.get("family_ratio_error", {})
+            if not envelope_errors or min(float(v) for v in envelope_errors.values()) > max_family_error:
+                continue
+            if float(envelope.get("rectangularity", 0.0)) < 0.12:
                 continue
             nested = True
             break
@@ -156,9 +164,6 @@ def main() -> None:
     min_side = max(5, int(min(w, h) * 0.0010))
     max_side = int(min(w, h) * 0.060)
 
-    # Any horizontal/vertical run longer than the maximum admitted footprint
-    # cannot itself be one pilot column footprint. Remove those long runs before
-    # contouring so grid/axis lines do not split a column into internal cells.
     long_run = max_side + 5
     horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (long_run, 1))
     vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, long_run))
