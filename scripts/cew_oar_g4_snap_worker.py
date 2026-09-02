@@ -106,9 +106,10 @@ def _extract_candidates(mask, w: int, h: int, min_side: int, max_side: int, dete
     return raw
 
 
-def _suppress_nested_raw_candidates(rows: list[dict]) -> list[dict]:
+def _suppress_nested_raw_candidates(rows: list[dict]) -> tuple[list[dict], int]:
     envelopes = [row for row in rows if row.get("detector") == "LONG_AXIS_SUPPRESSED"]
     filtered: list[dict] = []
+    suppressed = 0
     for row in rows:
         if row.get("detector") != "RAW_CONTOUR":
             filtered.append(row)
@@ -123,16 +124,16 @@ def _suppress_nested_raw_candidates(rows: list[dict]) -> list[dict]:
                 continue
             if _contained_fraction(row["bbox"], envelope["bbox"]) < 0.82:
                 continue
-            # Only suppress when the envelope is at least as compatible with the
-            # same family prior as the nested contour, allowing a small tolerance.
             family = row["best_family_prior"]
             if float(envelope["family_ratio_error"][family]) > float(row["family_ratio_error"][family]) + 0.12:
                 continue
             nested = True
             break
-        if not nested:
+        if nested:
+            suppressed += 1
+        else:
             filtered.append(row)
-    return filtered
+    return filtered, suppressed
 
 
 def main() -> None:
@@ -145,8 +146,6 @@ def main() -> None:
         raise SystemExit("OAR_G4_SNAP_IMAGE_UNREADABLE")
 
     original_h, original_w = image.shape[:2]
-    # Work at half resolution. Candidate coordinates are normalized back to the
-    # governed 7016x12530 asset, so this only affects build cost, not receipts.
     work = cv2.resize(image, (original_w // 2, original_h // 2), interpolation=cv2.INTER_AREA)
     h, w = work.shape[:2]
     blurred = cv2.GaussianBlur(work, (3, 3), 0)
@@ -157,11 +156,9 @@ def main() -> None:
     min_side = max(5, int(min(w, h) * 0.0010))
     max_side = int(min(w, h) * 0.060)
 
-    # A valid pilot footprint is never allowed to exceed max_side. Therefore a
-    # horizontal/vertical run longer than max_side can be treated as drawing
-    # infrastructure (axes, grids, beam lines) for this proposal detector. This
-    # removes the long lines that split a column symbol into internal cells while
-    # preserving every footprint size that the candidate contract itself admits.
+    # Any horizontal/vertical run longer than the maximum admitted footprint
+    # cannot itself be one pilot column footprint. Remove those long runs before
+    # contouring so grid/axis lines do not split a column into internal cells.
     long_run = max_side + 5
     horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (long_run, 1))
     vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, long_run))
@@ -175,11 +172,8 @@ def main() -> None:
         axis_suppressed, w, h, min_side, max_side, "LONG_AXIS_SUPPRESSED"
     )
     raw.extend(_extract_candidates(closed, w, h, min_side, max_side, "RAW_CONTOUR"))
-    raw = _suppress_nested_raw_candidates(raw)
+    raw, suppressed_nested_count = _suppress_nested_raw_candidates(raw)
 
-    # Envelope candidates sort first when quality is otherwise comparable. The
-    # runtime still performs family-specific ranking and the human still owns the
-    # proposal/confirmation decision.
     raw.sort(
         key=lambda row: (
             row["build_quality"],
@@ -198,6 +192,12 @@ def main() -> None:
     for idx, row in enumerate(kept, start=1):
         row["candidate_id"] = f"G4-SNAP-{idx:04d}"
 
+    envelope_count = sum(1 for row in kept if row["detector"] == "LONG_AXIS_SUPPRESSED")
+    if envelope_count <= 0:
+        raise SystemExit("OAR_G4_SNAP_AXIS_SUPPRESSED_ENVELOPE_EMPTY")
+    if suppressed_nested_count <= 0:
+        raise SystemExit("OAR_G4_SNAP_NESTED_SUPPRESSION_NOT_EXERCISED")
+
     output = {
         "schema": "CEW_OAR_G4_SNAP_CANDIDATES_v1",
         "source_asset": "CEW-N12-ASSET-TAV05S-P001-OAR-300DPI",
@@ -206,6 +206,8 @@ def main() -> None:
         "coordinate_system": "NORMALIZED_0_1",
         "candidate_count": len(kept),
         "detectors": ["LONG_AXIS_SUPPRESSED", "RAW_CONTOUR"],
+        "axis_suppressed_candidate_count": envelope_count,
+        "nested_raw_candidate_suppressed_count": suppressed_nested_count,
         "candidates": kept,
         "authority": {
             "snap_candidates_are_authority": False,
@@ -217,10 +219,9 @@ def main() -> None:
     }
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    envelope_count = sum(1 for row in kept if row["detector"] == "LONG_AXIS_SUPPRESSED")
     print(
         f"CEW_OAR_G4_SNAP_WORKER_PASS candidates={len(kept)} "
-        f"axis_suppressed={envelope_count}"
+        f"axis_suppressed={envelope_count} nested_raw_suppressed={suppressed_nested_count}"
     )
 
 
