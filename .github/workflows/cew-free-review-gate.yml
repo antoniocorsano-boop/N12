@@ -46,7 +46,7 @@ jobs:
         run: semgrep scan --config .semgrep/cew-governance.yml --error --metrics=off automation netlify/functions scripts sql
 
   codeql-review:
-    name: CodeQL review (${{ matrix.language }})
+    name: CodeQL security analysis (${{ matrix.language }})
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
@@ -63,11 +63,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           config-file: ./.github/codeql/cew-config.yml
-      - name: Analyze
-        uses: github/codeql-action/analyze@v3
+      - name: Analyze and publish security alerts
+        uses: github/codeql-action/analyze@v4
         with:
           category: '/language:${{ matrix.language }}'
