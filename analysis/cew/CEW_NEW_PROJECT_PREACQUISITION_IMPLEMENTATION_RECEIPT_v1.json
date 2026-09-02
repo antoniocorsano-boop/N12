@@ -6,6 +6,7 @@
   "engine_ref": "scripts/cew_new_project_preacquisition.py",
   "validator_ref": "scripts/validate_cew_new_project_preacquisition.py",
   "library_index_ref": "knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json",
+  "external_reference_acquisition_ref": "knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_ACQUISITION_RECEIPT_v1.json",
   "validated_engine_revision": "a2af49c3579aed726bd0ec4a48410f1bcc01bcf4",
   "validation_workflow": "Validate CEW New Project Pre-Acquisition",
   "validation_run_id": 33680176434,
@@ -22,13 +23,43 @@
     "human_triage_queue": "READY",
     "automatic_structural_labels": false
   },
+  "external_reference_acquisition": {
+    "status": "PARTIAL_VERIFIED",
+    "live_workflow_run_id": 33681074474,
+    "live_workflow_head_sha": "2587898047e55df96e9850a2dbf71d759a27de1e",
+    "artifact_id": 9866265153,
+    "artifact_zip_sha256": "cc671f9ea5bb55ec7486f14579fd2c38e2fcfa388230cd28ad82075e85592a1e",
+    "receipt_fingerprint": "sha256:9840d9a32f2be57abacc4d7de65654bb4def1824b2707a947af5f10d29b281d2",
+    "verified_source_count": 2,
+    "verified_sources": [
+      {
+        "source_id": "GREF-SRC-NPS-CAD-STANDARDS",
+        "source_sha256": "aa3e3e082d976ec3cf183a977be14ee29594a5b4aa950b605c191359361bec2d",
+        "page_count": 157
+      },
+      {
+        "source_id": "GREF-SRC-USACE-TOPO-2007",
+        "source_sha256": "c28c1ee9a483d5e94515b518e03a1c11a2afafed9029de928651ad0f40871792",
+        "page_count": 498
+      }
+    ],
+    "discovered_not_acquired": [
+      "GREF-SRC-AEC-GRAPHICS-2023",
+      "GREF-SRC-SMITHSONIAN-CAD-2024"
+    ],
+    "library_entries_created": false,
+    "library_promotion_authorized": false
+  },
   "implemented_slice": [
     "ARBITRARY_PDF_PREFLIGHT",
     "PAGE_MODALITY_CLASSIFICATION",
     "SOURCE_BOUND_GRAPHIC_PRIMITIVE_DISCOVERY",
     "DETERMINISTIC_NON_SEMANTIC_CLUSTERING",
     "OPTIONAL_GOVERNED_LIBRARY_MATCH_PROPOSALS",
-    "HUMAN_TRIAGE_QUEUE"
+    "HUMAN_TRIAGE_QUEUE",
+    "GOVERNED_EXTERNAL_REFERENCE_DISCOVERY",
+    "EXACT_BYTE_REFERENCE_ACQUISITION",
+    "REFERENCE_PAGE_QUERY_FINGERPRINTING"
   ],
   "explicitly_not_implemented_yet": [
     "POPULATED_EXTERNAL_REFERENCE_LIBRARY",
@@ -46,5 +77,5 @@
     "structural_identity_authorized": false,
     "engineering_authority_effect": "NONE"
   },
-  "next": "Implement governed external-reference acquisition and a fingerprinted graphic reference pack before building the production Document Discovery Workspace."
+  "next": "Create the governed Reference Source Review queue and pack builder. Only reviewed source/page evidence may become EXTERNAL_REFERENCE entries; the production Document Discovery Workspace remains downstream of that pack gate."
 }
