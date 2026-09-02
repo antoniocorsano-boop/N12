@@ -78,10 +78,13 @@ def main() -> None:
     assert "jsonb_typeof(p_receipt->'bbox') is distinct from 'object'" in sql_patch_lower
     for key in ("x", "y", "w", "h"):
         assert f"jsonb_typeof(p_receipt->'bbox'->'{key}') is distinct from 'number'" in sql_patch_lower
-    assert "(p_receipt->'bbox'->>'w')::numeric <= 0" in sql_patch_lower
-    assert "(p_receipt->'bbox'->>'h')::numeric <= 0" in sql_patch_lower
-    assert "(p_receipt->'bbox'->>'x')::numeric + (p_receipt->'bbox'->>'w')::numeric > 1" in sql_patch_lower
-    assert "(p_receipt->'bbox'->>'y')::numeric + (p_receipt->'bbox'->>'h')::numeric > 1" in sql_patch_lower
+        assert f"v_{key} := (p_receipt->'bbox'->>'{key}')::numeric;" in sql_patch_lower
+    assert "v_x < 0 or v_x > 1" in sql_patch_lower
+    assert "v_y < 0 or v_y > 1" in sql_patch_lower
+    assert "v_w < 0 or v_w > 1" in sql_patch_lower
+    assert "v_h < 0 or v_h > 1" in sql_patch_lower
+    assert "v_w <= 0 or v_h <= 0" in sql_patch_lower
+    assert "v_x + v_w > 1 or v_y + v_h > 1" in sql_patch_lower
 
     atomic_sql = read("sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql")
     validator_call = "perform public.cew_oar_validate_g4_receipt_v1(p_receipt, v_binding_id, v_support_id);"
