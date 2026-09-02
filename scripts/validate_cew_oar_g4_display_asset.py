@@ -56,7 +56,7 @@ def _confirmation_bbox_cas_guard(sql_patch: str) -> None:
     bbox_guard_marker = "if p_receipt->'bbox' is distinct from v_current_proposal->'bbox' then"
     mismatch_marker = "oar_region_confirmation_bbox_mismatch"
     audit_insert_marker = "insert into public.cew_human_receipt_audit"
-    head_confirm_marker = "state='geometry_confirmed'"
+    head_update_marker = "update public.cew_oar_region_revision_heads set"
 
     for marker in (
         lock_marker,
@@ -67,7 +67,7 @@ def _confirmation_bbox_cas_guard(sql_patch: str) -> None:
         bbox_guard_marker,
         mismatch_marker,
         audit_insert_marker,
-        head_confirm_marker,
+        head_update_marker,
     ):
         assert marker in append_sql, marker
 
@@ -79,8 +79,9 @@ def _confirmation_bbox_cas_guard(sql_patch: str) -> None:
     validate_pos = append_sql.index(validate_anchor_marker)
     bbox_guard_pos = append_sql.index(bbox_guard_marker)
     audit_insert_pos = append_sql.index(audit_insert_marker)
-    head_confirm_pos = append_sql.index(head_confirm_marker)
-    assert lock_pos < proposal_pos < validate_pos < bbox_guard_pos < audit_insert_pos < head_confirm_pos
+    head_update_pos = append_sql.index(head_update_marker, audit_insert_pos)
+    assert "state='geometry_confirmed'" in append_sql[head_update_pos:]
+    assert lock_pos < proposal_pos < validate_pos < bbox_guard_pos < audit_insert_pos < head_update_pos
 
 
 def main() -> None:
