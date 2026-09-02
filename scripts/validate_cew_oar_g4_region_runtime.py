@@ -182,7 +182,10 @@ def main() -> None:
                 },
             )
             assert frozen.status_code == 422
-            assert "OAR_REGION_GEOMETRY_ALREADY_CONFIRMED" in frozen.json()["reason"]
+            frozen_body = frozen.json()
+            assert frozen_body["state"] == "OAR_REGION_GEOMETRY_ALREADY_CONFIRMED"
+            assert frozen_body["reason_code"] == "OAR_REGION_GEOMETRY_ALREADY_CONFIRMED"
+            assert "reason" not in frozen_body
     finally:
         audit_store.backend_status = original_backend_status
         workbench.RUNTIME_STORE = original_store
@@ -205,7 +208,7 @@ def main() -> None:
     print("source_resolution=remote_immutable_archive_sha256_verified")
     print(f"display_asset={workbench.REGISTERED_DERIVED_ASSET_ID} raster=7016x12530 dpi=300 sha256_verified=true")
     print("render_runtime_prebuilt_required=true first_request_rasterization=false missing_prebuilt_fail_closed=true")
-    print("proposal_persisted=true confirmation_persisted=true post_confirmation_mutation_rejected=true")
+    print("proposal_persisted=true confirmation_persisted=true post_confirmation_mutation_rejected=true safe_reason_code=true")
     print("global_auth_guard=true canonical_write_authorized=false oar_human_confirmation=false")
 
 
