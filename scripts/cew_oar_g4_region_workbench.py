@@ -2,6 +2,8 @@
 """Composizione del Workbench OAR G4 con risoluzione governata di TAV-05S."""
 from __future__ import annotations
 
+from fastapi.responses import FileResponse as _FastAPIFileResponse
+
 from cew_oar_g4_region_workbench_base import *  # noqa: F401,F403
 import cew_oar_g4_audit_history as _history
 import cew_oar_g4_atomic_store as _atomic_store
@@ -14,6 +16,10 @@ ensure_runtime_raster = _resolver.ensure_runtime_raster
 EXPECTED_SOURCE_SHA256 = _resolver.EXPECTED_SOURCE_SHA256
 EXPECTED_PAGE_WIDTH_PT = _resolver.EXPECTED_PAGE_WIDTH_PT
 EXPECTED_PAGE_HEIGHT_PT = _resolver.EXPECTED_PAGE_HEIGHT_PT
+REGISTERED_DERIVED_ASSET_ID = _resolver.REGISTERED_DERIVED_ASSET_ID
+REGISTERED_RENDER_SHA256 = _resolver.REGISTERED_RENDER_SHA256
+REGISTERED_RENDER_WIDTH_PX = _resolver.REGISTERED_RENDER_WIDTH_PX
+REGISTERED_RENDER_HEIGHT_PX = _resolver.REGISTERED_RENDER_HEIGHT_PX
 RUNTIME_DPI = _resolver.RUNTIME_DPI
 RUNTIME_RASTER = _resolver.RUNTIME_RASTER
 
@@ -41,9 +47,6 @@ def load_report() -> dict:
     """Reconstruct active state from compact history, preserving full-audit summary."""
     loaded = _base.audit_store.load_runtime_receipts(_binding.RECEIPT_TYPE, _base.RUNTIME_STORE)
     report = _binding.aggregate(loaded["receipts"])
-    # State reconstruction may legitimately compact stale/non-mutating receipts,
-    # but the audit summary must still disclose races present in the full stable
-    # snapshot. The governed history reader computed this before compaction.
     report["summary"]["stale_concurrent_transitions"] = int(
         loaded.get("stale_concurrent_transitions", report["summary"].get("stale_concurrent_transitions", 0))
     )
@@ -51,9 +54,14 @@ def load_report() -> dict:
     report["receipt_count"] = loaded["receipt_count"]
     report["source_verification"] = verify_source()
     report["runtime_raster"] = {
+        "derived_asset_id": REGISTERED_DERIVED_ASSET_ID,
+        "render_sha256": REGISTERED_RENDER_SHA256,
+        "width_px": REGISTERED_RENDER_WIDTH_PX,
+        "height_px": REGISTERED_RENDER_HEIGHT_PX,
         "dpi": RUNTIME_DPI,
-        "authority": "DERIVED_INTERACTION_AID_ONLY",
+        "authority": "DERIVED_REVIEW_AID_ONLY",
         "canonical_asset": False,
+        "shown_to_operator": True,
     }
     return report
 
@@ -62,13 +70,7 @@ _base.load_report = load_report
 
 
 def _post_commit_summary(current: dict, row: dict, action: str) -> tuple[dict, str]:
-    """Project the committed support transition onto the pre-commit snapshot.
-
-    This summary is intentionally identified as a projection. It never performs a
-    second remote read, so a temporary read/source outage cannot turn a committed
-    append into an apparent rejection. The UI performs its normal status refresh
-    independently after receiving this success response.
-    """
+    """Project the committed support transition onto the pre-commit snapshot."""
     summary = dict(current["summary"])
     previous = str(row["state"])
     if action == _binding.PROPOSAL_ACTION and previous == "UNBOUND":
@@ -166,6 +168,10 @@ def build_page() -> str:
     page = _base_build_page()
     replacements = (
         (
+            "/workbench/oar/g4-regions/source.png",
+            "/workbench/oar/g4-regions/source.jpg",
+        ),
+        (
             "let report=null, selected=null, draft=null, dragStart=null;",
             "let report=null, selected=null, draft=null, dragStart=null, draftDirty=false;",
         ),
@@ -193,4 +199,32 @@ _base.build_page = build_page
 
 
 def build_router():
-    return _base.build_router()
+    router = _base.build_router()
+    # Remove the legacy 150-DPI/PNG endpoint from the public router. The page is
+    # explicitly wired to the registered 300-DPI JPEG below, so the displayed
+    # visual evidence is byte-identical to the derived asset named by receipts.
+    router.routes[:] = [
+        route for route in router.routes
+        if getattr(route, "path", None) != "/workbench/oar/g4-regions/source.png"
+    ]
+
+    @router.get("/workbench/oar/g4-regions/source.jpg")
+    def registered_region_source_image():
+        try:
+            target = ensure_runtime_raster()
+        except ValueError as exc:
+            return _base._error("OAR_G4_SOURCE_RENDER_UNAVAILABLE", str(exc), 503)
+        return _FastAPIFileResponse(
+            target,
+            media_type="image/jpeg",
+            headers={
+                "Cache-Control": "private, max-age=3600",
+                "X-CEW-Derived-Authority": "DERIVED_REVIEW_AID_ONLY",
+                "X-CEW-Derived-Asset-ID": REGISTERED_DERIVED_ASSET_ID,
+                "X-CEW-Render-SHA256": REGISTERED_RENDER_SHA256,
+                "X-CEW-Source-SHA256": EXPECTED_SOURCE_SHA256,
+                "X-CEW-Canonical-Write": "false",
+            },
+        )
+
+    return router
