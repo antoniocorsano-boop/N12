@@ -205,8 +205,16 @@ def main() -> None:
     assert "v_stale := v_stale + 1" in sql
     assert "on conflict (binding_id, support_id) do nothing" in sql
 
-    assert "revision_head.derive_revision_head(existing, support_id)" in atomic
-    assert "OAR_REGION_LEGACY_HEAD_BACKFILL_FAILED" in atomic
+    # Render/Neon no longer mutates or backfills a secondary revision-head
+    # table. The append-only receipt history is replayed under a per-support
+    # advisory transaction lock, which preserves the same canonical transition
+    # semantics without runtime DDL.
+    assert "pg_advisory_xact_lock" in atomic
+    assert "binding.aggregate(existing)" in atomic
+    assert "receipt_json->>'support_id'=%s" in atomic
+    assert "CREATE TABLE" not in atomic
+    assert "cew_oar_region_revision_heads" not in atomic
+    assert "OAR_REGION_NEON_ATOMIC_PERSISTENCE_FAILED" in atomic
 
     legacy_query_start = netlify.index("const legacyResult = await db.sql`")
     legacy_query_end = netlify.index("const allOarReceipts", legacy_query_start)
@@ -267,7 +275,7 @@ def main() -> None:
     print("netlify_confirmation_bbox_replay=FAIL_CLOSED netlify_confirmation_bbox_cas=FAIL_CLOSED")
     print("netlify_full_oar_snapshot_validation=PASS netlify_seeded_transition_cas=PASS")
     print("netlify_generic_oar_append=FAIL_CLOSED atomic_transition_required=true")
-    print("supabase_replay_backfill=PASS neon_replay_backfill=PASS netlify_replay_backfill=PASS")
+    print("supabase_replay_backfill=PASS neon_append_only_history_cas=PASS netlify_replay_backfill=PASS")
     print("canonical_write_authorized=false structural_identity_authorized=false engineering_authority_effect=NONE")
 
 
