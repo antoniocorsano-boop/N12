@@ -1,0 +1,25 @@
+{
+  "schema": "CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1",
+  "status": "LIBRARY_NOT_CONFIGURED",
+  "generation_id": null,
+  "content_sha256": null,
+  "entry_count": 0,
+  "tiers_present": [],
+  "source_count": 0,
+  "sources": [],
+  "entries": [],
+  "policy": {
+    "internet_material_requires_evidence_backed_pack": true,
+    "direct_web_result_may_be_project_truth": false,
+    "unrecorded_model_knowledge_may_be_library_entry": false,
+    "positive_negative_uncertain_examples_supported": true,
+    "project_human_validation_required_for_semantic_authority": true
+  },
+  "authority": {
+    "semantic_authority": "NONE",
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "engineering_authority_effect": "NONE"
+  },
+  "next": "Populate through a separate governed external-reference acquisition workflow; do not infer readiness from model knowledge or ad-hoc web search."
+}
