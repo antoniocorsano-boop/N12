@@ -85,7 +85,7 @@ begin
   if p_receipt->>'derived_asset_id' is distinct from 'CEW-N12-ASSET-TAV05S-P001-OAR-300DPI' then
     raise exception 'OAR_REGION_GOVERNED_FIELD_MISMATCH_DERIVED_ASSET_ID' using errcode='23514';
   end if;
-  if p_receipt->>'page_transform_id' is distinct from 'CEW-N12-XFORM-TAV05S-P001' then
+  if p_receipt->>'page_transform_id' is distinct from 'CEW-N12-XFORM-TAV05S-P001-OAR' then
     raise exception 'OAR_REGION_GOVERNED_FIELD_MISMATCH_PAGE_TRANSFORM_ID' using errcode='23514';
   end if;
   if p_receipt->>'coordinate_system' is distinct from 'NORMALIZED_0_1' then
