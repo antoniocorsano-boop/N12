@@ -7,7 +7,7 @@ const G4_PILOT_ID = "OAR-PILOT-G4-COLUMNS";
 const G4_DOCUMENT = Object.freeze({
   source_version_id: "CEW-N12-SRC-TAV05S-V2143DBCF",
   page_id: "CEW-N12-PAGE-TAV05S-P001",
-  derived_asset_id: "CEW-N12-ASSET-TAV05S-P001-300DPI",
+  derived_asset_id: "CEW-N12-ASSET-TAV05S-P001-OAR-300DPI",
   page_transform_id: "CEW-N12-XFORM-TAV05S-P001",
   coordinate_system: "NORMALIZED_0_1",
 });
@@ -136,10 +136,6 @@ export function replayOarHead(receipts, bindingId, supportId) {
   if (bindingId !== G4_BINDING_ID) fail("OAR_REGION_GOVERNED_FIELD_MISMATCH_BINDING_ID");
   if (!G4_FAMILY_BY_SUPPORT[supportId]) fail("OAR_REGION_SUPPORT_NOT_IN_PILOT");
 
-  // Validate the complete OAR snapshot before applying the requested support
-  // scope. A divergent legacy row must poison replay exactly as it poisons the
-  // canonical full-history aggregate; it must never disappear in a SQL/filter
-  // preselection and leave a deceptively clean CAS head behind.
   const governed = [...receipts].filter((receipt) => receipt?.receipt_type === OAR_RECEIPT_TYPE);
   const globallySeenDecisions = new Set();
   for (const receipt of governed) {
