@@ -231,7 +231,8 @@ def main() -> None:
     # consumed by `base_proposal_decision_id` inside the same atomic SQL
     # statement. Both transition paths that can confirm a proposal are gated
     # before either the audit INSERT or revision-head mutation can commit.
-    atomic_start = netlify.index("const result = await db.sql`")
+    atomic_fn_start = netlify.index("async function atomicOarAppend(payload, db)")
+    atomic_start = netlify.index("const result = await db.sql`", atomic_fn_start)
     atomic_end = netlify.index("const rows = rowsOf(result);", atomic_start)
     netlify_atomic = netlify[atomic_start:atomic_end]
     assert "anchored_proposal AS (" in netlify_atomic
