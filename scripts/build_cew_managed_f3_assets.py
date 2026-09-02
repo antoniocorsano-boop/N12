@@ -114,6 +114,19 @@ def _run(command: list[str], *, cwd: Path = ROOT, stdout=None) -> None:
     subprocess.run(command, cwd=cwd, check=True, stdout=stdout)
 
 
+def _ensure_archive_commit(commit: str) -> None:
+    """Compatibility preflight: validate identity, never fetch Git history.
+
+    Historical callers use this hook before materializing sources. Managed
+    runtimes must not perform a secondary authenticated ``git fetch`` here;
+    per-source availability and immutable identity are enforced later by
+    ``_materialize_source`` using the pinned commit/path plus SHA-256 and
+    Git blob SHA.
+    """
+    if not re.fullmatch(r"[0-9a-f]{40}", str(commit).strip()):
+        raise AssertionError(f"invalid immutable archive commit: {commit}")
+
+
 def _git_blob_sha(payload: bytes) -> str:
     header = f"blob {len(payload)}\0".encode("ascii")
     return hashlib.sha1(header + payload).hexdigest()
@@ -401,6 +414,7 @@ def build_assets() -> dict[str, Any]:
     _require_tool("git")
     _require_tool("npm")
     plan = build_plan()
+    _ensure_archive_commit(plan["archive_commit"])
 
     if ASSET_ROOT.exists():
         shutil.rmtree(ASSET_ROOT)
