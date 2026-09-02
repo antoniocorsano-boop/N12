@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression: legacy revision-head recovery must replay governed transitions."""
+"""Regression: legacy revision-head recovery must replay governed transitions and binding fields."""
 from __future__ import annotations
 
 import json
@@ -33,6 +33,38 @@ process.stdout.write(JSON.stringify(replayOarHead(payload.receipts, payload.bind
         check=True,
     )
     return json.loads(proc.stdout)
+
+
+def _node_failure(receipts: list[dict], binding_id: str, support_id: str) -> str:
+    program = r"""
+import { replayOarHead } from './netlify/functions/cew-oar-replay.mjs';
+let raw = '';
+for await (const chunk of process.stdin) raw += chunk;
+const payload = JSON.parse(raw);
+try {
+  replayOarHead(payload.receipts, payload.binding_id, payload.support_id);
+  process.stdout.write('NO_FAILURE');
+} catch (err) {
+  process.stdout.write(String(err.code || err.message || 'UNKNOWN'));
+}
+"""
+    proc = subprocess.run(
+        ["node", "--input-type=module", "-e", program],
+        cwd=ROOT,
+        input=json.dumps({"receipts": receipts, "binding_id": binding_id, "support_id": support_id}),
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    return proc.stdout.strip()
+
+
+def _python_failure(receipts: list[dict]) -> str:
+    try:
+        binding.aggregate(receipts)
+    except ValueError as exc:
+        return str(exc)
+    raise AssertionError("expected canonical aggregate to fail closed")
 
 
 def _head_from_report(receipts: list[dict], support_id: str) -> tuple[str, str]:
@@ -111,14 +143,44 @@ def main() -> None:
     js_terminal = _node_head(terminal, binding_id, support_id)
     assert (js_terminal["current_proposal_decision_id"], js_terminal["state"]) == (expected_id, expected_state)
 
+    # Codex P2 regression: backend replay must reject every project/binding field
+    # that canonical _validate_receipt_governance() rejects. These mutations keep
+    # binding/support scope stable so the receipt reaches both replay validators.
+    mutations = {
+        "task_id": ("WRONG-BINDING", "OAR_REGION_GOVERNED_FIELD_MISMATCH_TASK_ID"),
+        "residual_id": ("EOBJ-WRONG", "OAR_REGION_GOVERNED_FIELD_MISMATCH_RESIDUAL_ID"),
+        "pilot_id": ("OAR-PILOT-WRONG", "OAR_REGION_GOVERNED_FIELD_MISMATCH_PILOT_ID"),
+        "evidence_object_id": ("EOBJ-WRONG", "OAR_REGION_GOVERNED_FIELD_MISMATCH_EVIDENCE_OBJECT_ID"),
+        "family_id": ("COL-G4-WRONG", "OAR_REGION_GOVERNED_FIELD_MISMATCH_FAMILY_ID"),
+        "source_version_id": ("CEW-N12-SRC-WRONG", "OAR_REGION_GOVERNED_FIELD_MISMATCH_SOURCE_VERSION_ID"),
+        "page_id": ("CEW-N12-PAGE-WRONG", "OAR_REGION_GOVERNED_FIELD_MISMATCH_PAGE_ID"),
+        "derived_asset_id": ("CEW-N12-ASSET-WRONG", "OAR_REGION_GOVERNED_FIELD_MISMATCH_DERIVED_ASSET_ID"),
+        "page_transform_id": ("CEW-N12-XFORM-WRONG", "OAR_REGION_GOVERNED_FIELD_MISMATCH_PAGE_TRANSFORM_ID"),
+        "coordinate_system": ("WRONG_COORDINATES", "OAR_REGION_GOVERNED_FIELD_MISMATCH_COORDINATE_SYSTEM"),
+    }
+    for field, (bad_value, marker) in mutations.items():
+        tampered = dict(p0)
+        tampered[field] = bad_value
+        py_error = _python_failure([tampered])
+        js_error = _node_failure([tampered], binding_id, support_id)
+        assert marker in py_error, (field, marker, py_error)
+        assert js_error == marker, (field, marker, js_error)
+
     sql = SQL.read_text(encoding="utf-8").lower()
     atomic = ATOMIC.read_text(encoding="utf-8")
     netlify = NETLIFY.read_text(encoding="utf-8")
     replay_js = NETLIFY_REPLAY.read_text(encoding="utf-8")
 
-    # Supabase: replay function drives both migration backfill and missing-head
-    # recovery under the advisory-lock CAS boundary. Timestamp-only confirmed
-    # head selection is forbidden.
+    # Supabase: one full G4 governance validator drives both migration replay and
+    # new append RPC. Timestamp-only confirmed-head selection is forbidden.
+    assert "cew_oar_validate_g4_receipt_v1" in sql
+    assert "perform public.cew_oar_validate_g4_receipt_v1(v_receipt, p_binding_id, p_support_id)" in sql
+    assert "perform public.cew_oar_validate_g4_receipt_v1(p_receipt, v_binding_id, v_support_id)" in sql
+    for field in (
+        "task_id", "residual_id", "pilot_id", "evidence_object_id", "family_id",
+        "source_version_id", "page_id", "derived_asset_id", "page_transform_id", "coordinate_system",
+    ):
+        assert f"oar_region_governed_field_mismatch_{field}" in sql
     assert "cew_oar_replay_region_head_v1" in sql
     assert "cross join lateral public.cew_oar_replay_region_head_v1" in sql
     assert "from public.cew_oar_replay_region_head_v1(v_binding_id, v_support_id)" in sql
@@ -127,22 +189,26 @@ def main() -> None:
     assert "v_stale := v_stale + 1" in sql
     assert "on conflict (binding_id, support_id) do nothing" in sql
 
-    # Neon: no missing row may default directly to UNBOUND when legacy history
-    # exists; it must derive through the canonical Python aggregate first.
+    # Neon: missing heads derive through canonical Python aggregate directly.
     assert "revision_head.derive_revision_head(existing, support_id)" in atomic
     assert "OAR_REGION_LEGACY_HEAD_BACKFILL_FAILED" in atomic
 
-    # Netlify: pure replay module + receipt-count guarded seed precede the CAS.
-    assert 'import { replayOarHead } from "./cew-oar-replay.mjs"' in netlify
+    # Netlify: shared full-field validator protects both replay and new CAS input.
+    assert 'replayOarHead, validateOarReceiptGovernance' in netlify
+    assert "validateOarReceiptGovernance(receipt, bindingId, supportId)" in netlify
     assert "legacyHead = replayOarHead" in netlify
     assert "legacyHead.receipt_count" in netlify
     assert "OAR_REGION_LEGACY_HEAD_REPLAY_FAILED" in netlify
+    assert "export function validateOarReceiptGovernance" in replay_js
+    assert "G4_FAMILY_BY_SUPPORT" in replay_js
+    assert "G4_DOCUMENT" in replay_js
     assert "staleTransitionCount" in replay_js
     assert "OAR_REGION_BASE_PROPOSAL_MISMATCH" in replay_js
 
     print("CEW_OAR_G4_REVISION_HEAD_REPLAY_PASS")
     print("legacy_p0_p1_delayed_confirm_p0=P1_PROPOSED")
     print("python_aggregate_projection=PASS netlify_replay_parity=PASS")
+    print("full_binding_governance_mutations=FAIL_CLOSED_PARITY")
     print("supabase_replay_backfill=PASS neon_replay_backfill=PASS netlify_replay_backfill=PASS")
     print("canonical_write_authorized=false structural_identity_authorized=false engineering_authority_effect=NONE")
 
