@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
 import json
 import tempfile
 from pathlib import Path
@@ -19,6 +20,16 @@ def expect_value_error(fn, code: str) -> None:
             raise AssertionError(f"expected {code}, got {exc}") from exc
         return
     raise AssertionError(f"expected ValueError containing {code}")
+
+
+def expect_assertion_error(fn, code: str) -> None:
+    try:
+        fn()
+    except AssertionError as exc:
+        if code not in str(exc):
+            raise AssertionError(f"expected {code}, got {exc}") from exc
+        return
+    raise AssertionError(f"expected AssertionError containing {code}")
 
 
 def main() -> None:
@@ -59,6 +70,54 @@ def main() -> None:
     assert "build_cew_source_viewer.py" in builder_text
     assert "npm" in builder_text and "openseadragon@" in builder_text
     assert "shutil.rmtree(render_root / source[\"source_code\"]" in builder_text
+    assert '"fetch", "--no-tags"' not in builder_text
+    assert "ARCHIVE_RAW_ORIGIN" in builder_text
+    assert "_git_blob_sha" in builder_text
+    assert builder.ARCHIVE_FETCH_ATTEMPTS == 3
+    assert builder.ARCHIVE_FETCH_TIMEOUT_SECONDS == 30
+    assert builder.MAX_SOURCE_BYTES == 8 * 1024 * 1024
+
+    # Render clones can omit the historical archive commit. Prove that the
+    # builder can materialize the exact immutable blob without a secondary
+    # git fetch, while still enforcing both registered identities.
+    probe_payload = b"%PDF-1.4\n% CEW immutable source probe\n%%EOF\n"
+    probe_source = {
+        "source_code": "PROBE",
+        "archive_commit": "a" * 40,
+        "archive_path": "archive/probe.pdf",
+        "sha256": hashlib.sha256(probe_payload).hexdigest(),
+        "git_blob_sha": builder._git_blob_sha(probe_payload),
+    }
+    with tempfile.TemporaryDirectory(prefix="cew-f3-source-fallback-") as fallback_temp:
+        target = Path(fallback_temp) / "probe.pdf"
+        old_local = builder._source_available_locally
+        old_fetch = builder._fetch_archive_payload
+        fetch_calls: list[str] = []
+        try:
+            builder._source_available_locally = lambda source: False
+
+            def fake_fetch(source):
+                fetch_calls.append(source["source_code"])
+                return probe_payload
+
+            builder._fetch_archive_payload = fake_fetch
+            builder._materialize_source(probe_source, target)
+        finally:
+            builder._source_available_locally = old_local
+            builder._fetch_archive_payload = old_fetch
+        assert target.read_bytes() == probe_payload
+        assert fetch_calls == ["PROBE"]
+
+    bad_digest = {**probe_source, "sha256": "0" * 64}
+    expect_assertion_error(
+        lambda: builder._verify_source_payload(bad_digest, probe_payload),
+        "immutable source digest mismatch",
+    )
+    bad_blob = {**probe_source, "git_blob_sha": "0" * 40}
+    expect_assertion_error(
+        lambda: builder._verify_source_payload(bad_blob, probe_payload),
+        "immutable Git blob mismatch",
+    )
 
     # Prove the bounded PyMuPDF DZI engine itself with a real multi-level pyramid.
     with tempfile.TemporaryDirectory(prefix="cew-pymupdf-dzi-") as probe_temp:
@@ -156,6 +215,7 @@ def main() -> None:
     print("CEW_MANAGED_F3_ASSETS = PASS")
     print("SOURCE_COVERAGE = 4/4")
     print("SOURCE_IDENTITY = IMMUTABLE_COMMIT_PLUS_SHA256_PLUS_GIT_BLOB")
+    print("ARCHIVE_MATERIALIZATION = LOCAL_GIT_OR_PINNED_RAW_NO_GIT_FETCH")
     print("RENDER_DPI = 300")
     print("DZI_TILE_SIZE = 256")
     print("DZI_OVERLAP = 1")
