@@ -135,9 +135,25 @@ export function replayOarHead(receipts, bindingId, supportId) {
   if (!bindingId || !supportId) fail("OAR_REGION_REPLAY_SCOPE_REQUIRED");
   if (bindingId !== G4_BINDING_ID) fail("OAR_REGION_GOVERNED_FIELD_MISMATCH_BINDING_ID");
   if (!G4_FAMILY_BY_SUPPORT[supportId]) fail("OAR_REGION_SUPPORT_NOT_IN_PILOT");
+
+  // Validate the complete OAR snapshot before applying the requested support
+  // scope. A divergent legacy row must poison replay exactly as it poisons the
+  // canonical full-history aggregate; it must never disappear in a SQL/filter
+  // preselection and leave a deceptively clean CAS head behind.
+  const governed = [...receipts].filter((receipt) => receipt?.receipt_type === OAR_RECEIPT_TYPE);
+  const globallySeenDecisions = new Set();
+  for (const receipt of governed) {
+    const receiptBinding = String(receipt?.binding_id || "").trim();
+    const receiptSupport = String(receipt?.support_id || "").trim();
+    validateOarReceiptGovernance(receipt, receiptBinding, receiptSupport);
+    const decisionId = String(receipt.decision_id || "");
+    if (globallySeenDecisions.has(decisionId)) fail("OAR_REGION_DUPLICATE_DECISION_ID");
+    globallySeenDecisions.add(decisionId);
+  }
+
   const initialAnchor = `${UNBOUND_PREFIX}${supportId}`;
-  const ordered = [...receipts]
-    .filter((receipt) => receipt?.receipt_type === OAR_RECEIPT_TYPE && String(receipt.binding_id || "") === bindingId && String(receipt.support_id || "") === supportId)
+  const ordered = governed
+    .filter((receipt) => String(receipt.binding_id || "") === bindingId && String(receipt.support_id || "") === supportId)
     .sort((a, b) => {
       const ta = timestampMicros(a.timestamp);
       const tb = timestampMicros(b.timestamp);
@@ -147,7 +163,6 @@ export function replayOarHead(receipts, bindingId, supportId) {
     });
 
   const history = new Map();
-  const seen = new Set();
   let latestProposal = null;
   let confirmed = null;
   let hasInitialProposal = false;
@@ -157,8 +172,6 @@ export function replayOarHead(receipts, bindingId, supportId) {
   for (const receipt of ordered) {
     const bbox = validateOarReceiptGovernance(receipt, bindingId, supportId);
     const decisionId = String(receipt.decision_id);
-    if (seen.has(decisionId)) fail("OAR_REGION_DUPLICATE_DECISION_ID");
-    seen.add(decisionId);
     const anchor = receipt.base_proposal_decision_id == null ? null : String(receipt.base_proposal_decision_id);
 
     if (receipt.action === PROPOSAL_ACTION) {
@@ -221,6 +234,7 @@ export function replayOarHead(receipts, bindingId, supportId) {
     current_proposal_decision_id: latestProposal ? latestProposal.decision_id : initialAnchor,
     state: confirmed ? "GEOMETRY_CONFIRMED" : latestProposal ? "PROPOSED" : "UNBOUND",
     receipt_count: ordered.length,
+    snapshot_receipt_count: governed.length,
     stale_transition_count: staleTransitionCount,
     updated_at: lastTransitionAt,
     authority: "RUNTIME_REVISION_PROJECTION_ONLY",
