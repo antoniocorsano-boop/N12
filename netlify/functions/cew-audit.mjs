@@ -155,9 +155,6 @@ async function atomicOarAppend(payload, db) {
       )
     `;
 
-    // Read the complete OAR history first. replayOarHead() validates every OAR
-    // receipt in this snapshot before it scopes transitions to this support, so
-    // a divergent binding/support row cannot disappear before governance checks.
     const legacyResult = await db.sql`
       SELECT receipt_json
       FROM cew_human_receipt_audit
@@ -294,6 +291,9 @@ async function atomicOarAppend(payload, db) {
 async function appendReceipt(payload, db) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     return response(400, { state: "AUDIT_REJECTED", reason: "JSON_OBJECT_REQUIRED" });
+  }
+  if (payload.receipt_json?.receipt_type === OAR_RECEIPT_TYPE) {
+    return response(422, { state: "AUDIT_REJECTED", reason: "OAR_ATOMIC_TRANSITION_REQUIRED" });
   }
   const keys = Object.keys(payload);
   if (keys.length !== REQUIRED.size || keys.some((k) => !REQUIRED.has(k))) {
