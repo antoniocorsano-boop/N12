@@ -1,0 +1,12 @@
+name: CEW CodeQL Scope
+
+paths:
+  - scripts
+  - netlify/functions
+
+paths-ignore:
+  - archive
+  - data
+  - knowledge
+  - node_modules
+  - '**/__pycache__/**'
