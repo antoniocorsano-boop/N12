@@ -7,9 +7,13 @@
   "validator_ref": "scripts/validate_cew_new_project_preacquisition.py",
   "library_index_ref": "knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json",
   "external_reference_acquisition_ref": "knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_ACQUISITION_RECEIPT_v1.json",
+  "reference_review_queue_ref": "knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_REVIEW_QUEUE_v1.json",
+  "reference_review_workspace_ref": "scripts/cew_external_graphic_reference_review_workbench.py",
+  "reference_pack_builder_ref": "scripts/cew_external_graphic_reference_pack.py",
   "validated_engine_revision": "a2af49c3579aed726bd0ec4a48410f1bcc01bcf4",
+  "validated_integrated_revision": "0ac363a507e42db5fdbf18ef2a2dd8c58d84edc7",
   "validation_workflow": "Validate CEW New Project Pre-Acquisition",
-  "validation_run_id": 33680176434,
+  "validation_run_id": 33682647548,
   "validation_result": "PASS",
   "validation_evidence": {
     "page_count": 2,
@@ -21,7 +25,15 @@
     "library_absence_nonfatal": true,
     "library_matches_proposal_only": true,
     "human_triage_queue": "READY",
-    "automatic_structural_labels": false
+    "automatic_structural_labels": false,
+    "external_reference_review_workspace_gate": "PASS",
+    "professional_workbench_client_gate": "PASS",
+    "object_acquisition_gate": "PASS",
+    "oar_assisted_localization_gate": "PASS",
+    "b1_human_acceptance_v2_gate": "PASS",
+    "r2gi_governed_review_ingest_gate": "PASS",
+    "r2gm_explicit_geometry_acceptance_gate": "PASS",
+    "free_review_gate": "PASS"
   },
   "external_reference_acquisition": {
     "status": "PARTIAL_VERIFIED",
@@ -50,6 +62,28 @@
     "library_entries_created": false,
     "library_promotion_authorized": false
   },
+  "external_reference_review_workspace": {
+    "status": "IMPLEMENTED_CI_VALIDATED_AWAITING_REAL_HUMAN_REVIEW",
+    "route": "/workbench/reference-review",
+    "review_item_count": 5,
+    "review_states": [
+      "ACCEPT_REFERENCE_EVIDENCE",
+      "REJECT_REFERENCE_EVIDENCE",
+      "DEFER"
+    ],
+    "source_render_requires_exact_source_sha256": true,
+    "page_render_requires_text_and_feature_fingerprint": true,
+    "decision_receipts_append_only": true,
+    "one_terminal_decision_per_review_item": true,
+    "discovery_query_may_supply_meaning": false,
+    "acceptance_requires_explicit_meaning_scope_reviewer_rationale_and_primitive_families": true,
+    "pack_candidate_requires_complete_human_review": true,
+    "pack_candidate_tier": "EXTERNAL_REFERENCE",
+    "runtime_pack_candidate_only": true,
+    "real_human_review_completed": false,
+    "repository_library_index_written": false,
+    "project_semantic_authority": "NONE"
+  },
   "implemented_slice": [
     "ARBITRARY_PDF_PREFLIGHT",
     "PAGE_MODALITY_CLASSIFICATION",
@@ -59,7 +93,11 @@
     "HUMAN_TRIAGE_QUEUE",
     "GOVERNED_EXTERNAL_REFERENCE_DISCOVERY",
     "EXACT_BYTE_REFERENCE_ACQUISITION",
-    "REFERENCE_PAGE_QUERY_FINGERPRINTING"
+    "REFERENCE_PAGE_QUERY_FINGERPRINTING",
+    "HUMAN_REFERENCE_SOURCE_REVIEW_QUEUE",
+    "HUMAN_REFERENCE_REVIEW_WORKSPACE",
+    "APPEND_ONLY_REFERENCE_REVIEW_DECISIONS",
+    "HUMAN_REVIEWED_EXTERNAL_REFERENCE_PACK_BUILDER"
   ],
   "explicitly_not_implemented_yet": [
     "POPULATED_EXTERNAL_REFERENCE_LIBRARY",
@@ -67,7 +105,7 @@
     "RASTER_OCR_PIPELINE",
     "VISUAL_EMBEDDING_CLUSTERING",
     "CROSS_DOCUMENT_CLUSTER_MERGE",
-    "HUMAN_CLUSTER_REVIEW_PERSISTENCE",
+    "PROJECT_LOCAL_HUMAN_CLUSTER_REVIEW_PERSISTENCE",
     "AUTOMATIC_OBJECT_PROMOTION"
   ],
   "library_readiness": "LIBRARY_NOT_CONFIGURED",
@@ -77,5 +115,5 @@
     "structural_identity_authorized": false,
     "engineering_authority_effect": "NONE"
   },
-  "next": "Create the governed Reference Source Review queue and pack builder. Only reviewed source/page evidence may become EXTERNAL_REFERENCE entries; the production Document Discovery Workspace remains downstream of that pack gate."
+  "next": "Run a real human visual review of the five exact acquired reference pages through /workbench/reference-review. Only after those decisions may a reviewed EXTERNAL_REFERENCE pack candidate be promoted through a separate governed repository update; the production Document Discovery Workspace remains downstream."
 }
