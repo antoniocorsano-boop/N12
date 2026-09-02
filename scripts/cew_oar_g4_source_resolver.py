@@ -13,12 +13,12 @@ EXPECTED_GIT_BLOB_SHA = "ec32cd621877e9037cb26ebc083164140a8e3e68"
 EXPECTED_REMOTE_PATH = "archive/documentazione_originaria/tavola 5.pdf"
 EXPECTED_PAGE_WIDTH_PT = 1683.72
 EXPECTED_PAGE_HEIGHT_PT = 3007.08
-REGISTERED_DERIVED_ASSET_ID = "CEW-N12-ASSET-TAV05S-P001-300DPI"
-REGISTERED_RENDER_SHA256 = "32dfa5976b3d6a6482f73159da1778de6483e5d90c671ae771793374781f58b7"
+REGISTERED_DERIVED_ASSET_ID = "CEW-N12-ASSET-TAV05S-P001-OAR-300DPI"
+REGISTERED_RENDER_SHA256 = "6344abae8d390ef799812c808427431e684a61cca6bb5792de331b2b9d2b6252"
 REGISTERED_RENDER_WIDTH_PX = 7016
 REGISTERED_RENDER_HEIGHT_PX = 12530
 RUNTIME_DPI = 300
-RUNTIME_RASTER = Path("/tmp/cew-runtime/oar-g4-region-assets/TAV05S_300dpi.jpg")
+RUNTIME_RASTER = Path("/tmp/cew-runtime/oar-g4-region-assets/TAV05S_OAR_300dpi.jpg")
 JPEG_QUALITY = 92
 
 
@@ -104,10 +104,9 @@ def ensure_runtime_raster() -> Path:
 
     document = fitz.open(stream=payload, filetype="pdf")
     try:
-        # The Workbench must show exactly the registered review asset referenced
-        # by every governed geometry receipt. Source verification and rendering
-        # share the same immutable payload/document, so one request performs one
-        # governed source fetch and cannot drift to a different PDF revision.
+        # This PyMuPDF 1.26.4 render is itself the governed DerivedAsset bound to
+        # OAR receipts. The historical Poppler render remains registered as a
+        # separate prior review aid and is never misrepresented as the UI asset.
         _verification_from_document(document, source)
         RUNTIME_RASTER.parent.mkdir(parents=True, exist_ok=True)
         if RUNTIME_RASTER.is_file():
