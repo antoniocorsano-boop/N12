@@ -9,6 +9,7 @@
   "sources": [],
   "entries": [],
   "policy": {
+    "evidence_backed_reference_pack_required": true,
     "internet_material_requires_evidence_backed_pack": true,
     "direct_web_result_may_be_project_truth": false,
     "unrecorded_model_knowledge_may_be_library_entry": false,
