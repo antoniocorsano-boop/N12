@@ -22,6 +22,8 @@ async function main() {
 
   process.stdout.write(JSON.stringify({
     state: 'CEW_OAR_SHARP_DEEPZOOM_PASS',
+    sharp_version: '0.35.4',
+    sharp_license: 'Apache-2.0',
     bundled_libvips_version: sharp.versions.vips,
     output_format: info.format || null
   }) + '\n');
