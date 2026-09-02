@@ -66,7 +66,7 @@ def validate_contract(payload: dict[str, Any]) -> None:
     expected = {
         "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
         "page_id": "CEW-N12-PAGE-TAV05S-P001",
-        "derived_asset_id": "CEW-N12-ASSET-TAV05S-P001-300DPI",
+        "derived_asset_id": "CEW-N12-ASSET-TAV05S-P001-OAR-300DPI",
         "page_transform_id": "CEW-N12-XFORM-TAV05S-P001",
         "coordinate_system": "NORMALIZED_0_1",
     }
@@ -267,10 +267,6 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
         if action == PROPOSAL_ACTION:
             existing_confirmation = confirmed.get(support_id)
             if existing_confirmation is not None:
-                # A proposal created from the same predecessor as an already-applied
-                # confirmation is a concurrent loser. The initial UNBOUND revision
-                # is also a governed predecessor, so a delayed first proposal cannot
-                # poison append-only history after another first proposal is confirmed.
                 same_confirmed_base = anchor is not None and anchor == existing_confirmation.get("base_proposal_decision_id")
                 same_initial_base = anchor == initial_anchor and any(
                     item.get("base_proposal_decision_id") == initial_anchor for item in history.values()
@@ -282,8 +278,6 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
 
             current = latest_proposal.get(support_id)
             if current is not None and anchor is not None and anchor != current["decision_id"]:
-                # Another proposal already advanced the revision consumed by this
-                # request, including the governed UNBOUND revision zero.
                 stale_transition_count += 1
                 continue
             if current is None and anchor is not None:
@@ -316,8 +310,6 @@ def aggregate(receipts: list[dict[str, Any]], contract: dict[str, Any] | None = 
             if anchor is not None and anchor != proposal["decision_id"]:
                 anchored = history.get(str(anchor))
                 if anchored is not None and anchored.get("bbox") == bbox:
-                    # A concurrent replacement won first; this confirmation is bound
-                    # to the previous proposal revision and cannot mutate the newer one.
                     stale_transition_count += 1
                     continue
                 raise ValueError("OAR_REGION_BASE_PROPOSAL_MISMATCH")
