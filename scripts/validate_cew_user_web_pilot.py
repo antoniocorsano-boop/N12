@@ -75,6 +75,12 @@ def main():
     assert atomic_lower.index(validator_marker) < atomic_lower.index(replay_marker) < atomic_lower.index(backfill_marker) < atomic_lower.index(append_rpc_marker)
     assert "perform public.cew_oar_validate_g4_receipt_v1(v_receipt, p_binding_id, p_support_id)" in atomic_lower
     assert "perform public.cew_oar_validate_g4_receipt_v1(p_receipt, v_binding_id, v_support_id)" in atomic_lower
+    # PostgreSQL `NULL NOT IN (...)` evaluates to NULL rather than TRUE. Both
+    # the reusable governance validator and atomic RPC contract must therefore
+    # reject NULL actions explicitly before any confirmation-like else branch.
+    assert atomic_lower.count("v_action is null") >= 2
+    assert "v_action is null or v_action not in ('propose_geometry','confirm_geometry')" in atomic_lower
+    assert "oar_region_action_invalid" in atomic_lower
     for field in (
         "task_id", "residual_id", "pilot_id", "binding_id", "support_id", "evidence_object_id", "family_id",
         "source_version_id", "page_id", "derived_asset_id", "page_transform_id", "coordinate_system",
@@ -182,7 +188,7 @@ def main():
         os.environ.clear()
         os.environ.update(old)
 
-    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | oar_atomic_supabase_provisioning=PASS | oar_cross_backend_revision_replay=PASS | oar_full_binding_replay_governance=PASS | oar_mvcc_single_json_snapshot_rpc=PASS | oar_rpc_return_type_upgrade_safe=PASS | production_fail_closed=PASS | canonical_write=0")
+    print("CEW USER WEB PILOT: PASS | auth_guard=PASS | audit_append_only=PASS | oar_atomic_supabase_provisioning=PASS | oar_cross_backend_revision_replay=PASS | oar_full_binding_replay_governance=PASS | oar_null_action_fail_closed=PASS | oar_mvcc_single_json_snapshot_rpc=PASS | oar_rpc_return_type_upgrade_safe=PASS | production_fail_closed=PASS | canonical_write=0")
 
 
 if __name__ == "__main__":
