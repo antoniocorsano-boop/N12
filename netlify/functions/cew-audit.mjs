@@ -155,44 +155,28 @@ async function atomicOarAppend(payload, db) {
       )
     `;
 
-    // Upgrade-safe legacy recovery. Replay the append-only receipts using the
-    // same full G4 binding validation and anchored-transition semantics as the
-    // governed aggregate, then seed only if the database history is unchanged.
+    // Read the complete OAR history first. replayOarHead() validates every OAR
+    // receipt in this snapshot before it scopes transitions to this support, so
+    // a divergent binding/support row cannot disappear before governance checks.
     const legacyResult = await db.sql`
       SELECT receipt_json
       FROM cew_human_receipt_audit
       WHERE receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
-        AND receipt_json->>'binding_id' = ${bindingId}
-        AND receipt_json->>'support_id' = ${supportId}
       ORDER BY (receipt_json->>'timestamp')::timestamptz ASC, decision_id ASC
     `;
-    const legacyReceipts = rowsOf(legacyResult).map((row) => row.receipt_json);
+    const allOarReceipts = rowsOf(legacyResult).map((row) => row.receipt_json);
     let legacyHead;
     try {
-      legacyHead = replayOarHead(legacyReceipts, bindingId, supportId);
+      legacyHead = replayOarHead(allOarReceipts, bindingId, supportId);
     } catch (err) {
       console.error("CEW_OAR_LEGACY_HEAD_REPLAY_ERROR", err);
       return response(409, { state: "AUDIT_REJECTED", reason: "OAR_REGION_LEGACY_HEAD_REPLAY_FAILED" });
     }
 
+    const globalReceiptCount = legacyHead.snapshot_receipt_count;
     const initialAnchor = `CEW_OAR_UNBOUND_REVISION:${supportId}`;
     const result = await db.sql`
-      WITH seeded AS (
-        INSERT INTO cew_oar_region_revision_heads
-          (binding_id, support_id, current_proposal_decision_id, state, updated_at)
-        SELECT ${bindingId}, ${supportId}, ${legacyHead.current_proposal_decision_id}, ${legacyHead.state},
-               COALESCE(${legacyHead.updated_at}::timestamptz, clock_timestamp())
-        WHERE ${legacyHead.state} <> 'UNBOUND'
-          AND (
-            SELECT count(*) FROM cew_human_receipt_audit a
-            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
-              AND a.receipt_json->>'binding_id' = ${bindingId}
-              AND a.receipt_json->>'support_id' = ${supportId}
-          ) = ${legacyHead.receipt_count}
-        ON CONFLICT (binding_id, support_id) DO NOTHING
-        RETURNING binding_id
-      ),
-      updated AS (
+      WITH updated_existing AS (
         UPDATE cew_oar_region_revision_heads h
         SET current_proposal_decision_id = CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN ${decisionId} ELSE h.current_proposal_decision_id END,
             state = CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN 'PROPOSED' ELSE 'GEOMETRY_CONFIRMED' END,
@@ -201,10 +185,45 @@ async function atomicOarAppend(payload, db) {
           AND h.support_id = ${supportId}
           AND h.current_proposal_decision_id = ${expected}
           AND h.state = 'PROPOSED'
-          AND (SELECT count(*) FROM seeded) >= 0
+          AND (
+            SELECT count(*) FROM cew_human_receipt_audit a
+            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+          ) = ${globalReceiptCount}
+          AND (
+            SELECT count(*) FROM cew_human_receipt_audit a
+            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+              AND a.receipt_json->>'binding_id' = ${bindingId}
+              AND a.receipt_json->>'support_id' = ${supportId}
+          ) = ${legacyHead.receipt_count}
         RETURNING h.binding_id
       ),
-      inserted AS (
+      seeded_transition AS (
+        INSERT INTO cew_oar_region_revision_heads
+          (binding_id, support_id, current_proposal_decision_id, state, updated_at)
+        SELECT ${bindingId}, ${supportId},
+               CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN ${decisionId} ELSE ${legacyHead.current_proposal_decision_id} END,
+               CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN 'PROPOSED' ELSE 'GEOMETRY_CONFIRMED' END,
+               clock_timestamp()
+        WHERE ${legacyHead.state} = 'PROPOSED'
+          AND ${expected} = ${legacyHead.current_proposal_decision_id}
+          AND (
+            SELECT count(*) FROM cew_human_receipt_audit a
+            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+          ) = ${globalReceiptCount}
+          AND (
+            SELECT count(*) FROM cew_human_receipt_audit a
+            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+              AND a.receipt_json->>'binding_id' = ${bindingId}
+              AND a.receipt_json->>'support_id' = ${supportId}
+          ) = ${legacyHead.receipt_count}
+          AND NOT EXISTS (
+            SELECT 1 FROM cew_oar_region_revision_heads h
+            WHERE h.binding_id=${bindingId} AND h.support_id=${supportId}
+          )
+        ON CONFLICT (binding_id, support_id) DO NOTHING
+        RETURNING binding_id
+      ),
+      inserted_initial AS (
         INSERT INTO cew_oar_region_revision_heads
           (binding_id, support_id, current_proposal_decision_id, state, updated_at)
         SELECT ${bindingId}, ${supportId}, ${decisionId}, 'PROPOSED', clock_timestamp()
@@ -212,7 +231,10 @@ async function atomicOarAppend(payload, db) {
           AND ${expected} = ${initialAnchor}
           AND ${legacyHead.state} = 'UNBOUND'
           AND ${legacyHead.receipt_count} = 0
-          AND (SELECT count(*) FROM seeded) >= 0
+          AND (
+            SELECT count(*) FROM cew_human_receipt_audit a
+            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+          ) = ${globalReceiptCount}
           AND NOT EXISTS (
             SELECT 1 FROM cew_human_receipt_audit a
             WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
@@ -227,7 +249,9 @@ async function atomicOarAppend(payload, db) {
         RETURNING binding_id
       ),
       transition AS (
-        SELECT binding_id FROM updated UNION ALL SELECT binding_id FROM inserted
+        SELECT binding_id FROM updated_existing
+        UNION ALL SELECT binding_id FROM seeded_transition
+        UNION ALL SELECT binding_id FROM inserted_initial
       ),
       committed AS (
         SELECT jsonb_set(${JSON.stringify(receipt)}::jsonb, '{timestamp}', to_jsonb(clock_timestamp()::text), true) AS receipt_json
