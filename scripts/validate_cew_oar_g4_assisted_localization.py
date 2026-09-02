@@ -43,12 +43,18 @@ def main() -> None:
     assert components["annotation"]["name"] == "@annotorious/openseadragon"
     assert components["annotation"]["version"] == "3.8.10"
     assert components["annotation"]["license"] == "BSD-3-Clause"
+    assert components["deep_zoom"]["name"] == "sharp"
+    assert components["deep_zoom"]["version"] == "0.35.4"
+    assert components["deep_zoom"]["license"] == "Apache-2.0"
+    assert components["deep_zoom"]["system_vips_cli_required"] is False
+    assert components["deep_zoom"]["runtime_required"] is False
     assert components["snap_geometry"]["version"] == "4.12.0.88"
     assert components["snap_geometry"]["runtime_required"] is False
     assert adoption["interaction_contract"]["manual_freehand_bbox_required"] is False
     assert adoption["interaction_contract"]["snap_is_proposal_only"] is True
     assert adoption["interaction_contract"]["existing_receipt_endpoint_reused"] == "/api/workbench/oar/g4-regions/receipt"
     assert adoption["interaction_contract"]["family_prior_may_establish_classification"] is False
+    assert adoption["promotion_gate"]["requires_render_build_without_system_vips_cli"] is True
     assert adoption["authority"] == {
         "oar_human_confirmation": False,
         "oar_classification_confirmed": False,
@@ -65,6 +71,11 @@ def main() -> None:
     assert manifest["derived_asset_dimensions_px"] == [7016, 12530]
     assert manifest["vendor"]["openseadragon"]["version"] == "6.1.0"
     assert manifest["vendor"]["annotorious_openseadragon"]["version"] == "3.8.10"
+    assert manifest["deepzoom"]["builder"] == "sharp"
+    assert manifest["deepzoom"]["builder_version"] == "0.35.4"
+    assert manifest["deepzoom"]["builder_license"] == "Apache-2.0"
+    assert manifest["deepzoom"]["system_vips_cli_required"] is False
+    assert manifest["deepzoom"]["bundled_libvips_version"]
     assert manifest["deepzoom"]["tile_count"] > 0
     assert manifest["deepzoom"]["tile_size"] == 256
     assert manifest["deepzoom"]["overlap"] == 1
@@ -73,6 +84,13 @@ def main() -> None:
     assert manifest["authority"]["deep_zoom_tiles_are_authority"] is False
     assert manifest["authority"]["snap_candidates_are_authority"] is False
     assert manifest["authority"]["canonical_write_authorized"] is False
+
+    builder_source = (ROOT / "scripts/build_cew_oar_g4_assisted_assets.py").read_text(encoding="utf-8")
+    worker_source = (ROOT / "scripts/cew_oar_g4_deepzoom_worker.cjs").read_text(encoding="utf-8")
+    assert 'SHARP_SPEC = "sharp@0.35.4"' in builder_source
+    assert 'shutil.which("vips")' not in builder_source
+    assert '"vips", "dzsave"' not in builder_source
+    assert ".tile({ layout: 'dz', size: 256, overlap: 1" in worker_source
 
     snap = read_json(SNAP)
     assert snap["schema"] == "CEW_OAR_G4_SNAP_CANDIDATES_v1"
@@ -87,9 +105,6 @@ def main() -> None:
         assert bbox["x"] + bbox["w"] <= 1.0000001
         assert bbox["y"] + bbox["h"] <= 1.0000001
 
-    # The build-derived snap index must provide a proposal when tapped exactly
-    # at one of its own candidates. Family prior ranks candidates but does not
-    # change authority.
     sample = snap["candidates"][0]
     family_id = sample["best_family_prior"]
     support_id = _first_support_for_family(family_id)
@@ -102,8 +117,6 @@ def main() -> None:
     assert ranked["canonical_write_authorized"] is False
     assert ranked["structural_identity_authorized"] is False
 
-    # Exact normalized<->image-pixel roundtrip used between OAR receipts and
-    # Annotorious geometry. This is independent from viewer rotation/pan.
     for bbox in (
         {"x": 0.1, "y": 0.2, "w": 0.03, "h": 0.04},
         sample["bbox"],
@@ -120,7 +133,7 @@ def main() -> None:
     assert "AnnotoriousOSD.createOSDAnnotator" in source
     assert "showNavigator:true" in source
     assert "viewport.setRotation" in source
-    assert "TAP_NEAR_OBJECT" not in source  # UI is implementation, governance lives in adoption contract.
+    assert "TAP_NEAR_OBJECT" not in source
     assert "snapMode" in source and "TRY_NEXT_CANDIDATE" not in source
     assert "'/api/workbench/oar/g4-regions/receipt'" in source or '"/api/workbench/oar/g4-regions/receipt"' in source
     assert "canonical_write_authorized" in source and "False" in source
@@ -159,6 +172,7 @@ def main() -> None:
 
     print("CEW_OAR_G4_ASSISTED_LOCALIZATION_PASS")
     print(f"deepzoom_tiles={manifest['deepzoom']['tile_count']} snap_candidates={snap['candidate_count']}")
+    print("deepzoom_builder=sharp-0.35.4 system_vips_cli_required=false")
     print("viewer=OpenSeadragon-6.1.0 annotation=Annotorious-3.8.10 runtime_vendor=self_hosted")
     print("mobile_pan_zoom_rotate=true snap_proposal_only=true editable_before_receipt=true")
     print("normalized_pixel_roundtrip=PASS fallback_preserved=true")
