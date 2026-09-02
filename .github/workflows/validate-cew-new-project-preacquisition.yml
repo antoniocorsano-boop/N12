@@ -1,0 +1,68 @@
+name: Validate CEW New Project Pre-Acquisition
+
+on:
+  pull_request:
+    paths:
+      - 'analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_ANALYSIS_v1.md'
+      - 'automation/CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1.json'
+      - 'knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json'
+      - 'scripts/cew_new_project_preacquisition.py'
+      - 'scripts/validate_cew_new_project_preacquisition.py'
+      - '.github/workflows/validate-cew-new-project-preacquisition.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-new-project-preacquisition:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CEW runtime dependencies
+        run: pip install -r requirements.txt
+      - name: Compile pre-acquisition modules
+        run: >-
+          python -m py_compile
+          scripts/cew_new_project_preacquisition.py
+          scripts/validate_cew_new_project_preacquisition.py
+      - name: Validate analysis and zero-prior contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          contract = json.loads(Path('automation/CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1.json').read_text())
+          assert contract['status'] == 'IMPLEMENTATION_SLICE_ACTIVE'
+          assert contract['input_assumption'] == 'ZERO_SEMANTIC_OBJECT_PRIOR'
+          assert contract['default_interaction'] == 'DOCUMENT_DISCOVERY_WORKSPACE'
+          assert contract['mature_object_interaction'] == 'TEACH_THIS_IS->FIND_SIMILAR->REVIEW_SIMILAR_GROUP'
+          assert contract['first_implementation_slice']['requires_known_object_types'] is False
+          assert contract['first_implementation_slice']['library_optional'] is True
+          assert contract['authority']['semantic_authority'] == 'NONE_UNTIL_PROJECT_HUMAN_VALIDATION'
+          assert contract['authority']['canonical_write_authorized'] is False
+          assert contract['authority']['structural_identity_authorized'] is False
+          text = Path('analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_ANALYSIS_v1.md').read_text()
+          assert 'NON-SEMANTIC GRAPHIC CLUSTERING' in text
+          assert 'Internet acquisition rule' in text
+          print('CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_PASS')
+          PY
+      - name: Validate graphic library readiness is explicit
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          library = json.loads(Path('knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json').read_text())
+          assert library['status'] == 'LIBRARY_NOT_CONFIGURED'
+          assert library['entry_count'] == 0
+          assert library['policy']['direct_web_result_may_be_project_truth'] is False
+          assert library['policy']['unrecorded_model_knowledge_may_be_library_entry'] is False
+          assert library['policy']['evidence_backed_reference_pack_required'] is True
+          assert library['authority']['semantic_authority'] == 'NONE'
+          print('CEW_GRAPHIC_REFERENCE_LIBRARY_READINESS_PASS')
+          PY
+      - name: Run deterministic unknown-project pre-acquisition gate
+        working-directory: scripts
+        run: python validate_cew_new_project_preacquisition.py
