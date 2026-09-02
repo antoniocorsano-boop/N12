@@ -29,15 +29,28 @@ def _ratio_error(actual: float, expected: float) -> float:
     return abs(math.log(actual / expected))
 
 
-def _iou(a: dict, b: dict) -> float:
+def _area(box: dict) -> float:
+    return max(0.0, float(box["w"])) * max(0.0, float(box["h"]))
+
+
+def _intersection_area(a: dict, b: dict) -> float:
     ax1, ay1, ax2, ay2 = a["x"], a["y"], a["x"] + a["w"], a["y"] + a["h"]
     bx1, by1, bx2, by2 = b["x"], b["y"], b["x"] + b["w"], b["y"] + b["h"]
     ix1, iy1, ix2, iy2 = max(ax1, bx1), max(ay1, by1), min(ax2, bx2), min(ay2, by2)
     if ix2 <= ix1 or iy2 <= iy1:
         return 0.0
-    inter = (ix2 - ix1) * (iy2 - iy1)
-    union = a["w"] * a["h"] + b["w"] * b["h"] - inter
+    return (ix2 - ix1) * (iy2 - iy1)
+
+
+def _iou(a: dict, b: dict) -> float:
+    inter = _intersection_area(a, b)
+    union = _area(a) + _area(b) - inter
     return inter / union if union > 0 else 0.0
+
+
+def _contained_fraction(inner: dict, outer: dict) -> float:
+    inner_area = _area(inner)
+    return _intersection_area(inner, outer) / inner_area if inner_area > 0 else 0.0
 
 
 def _extract_candidates(mask, w: int, h: int, min_side: int, max_side: int, detector: str) -> list[dict]:
@@ -93,6 +106,35 @@ def _extract_candidates(mask, w: int, h: int, min_side: int, max_side: int, dete
     return raw
 
 
+def _suppress_nested_raw_candidates(rows: list[dict]) -> list[dict]:
+    envelopes = [row for row in rows if row.get("detector") == "LONG_AXIS_SUPPRESSED"]
+    filtered: list[dict] = []
+    for row in rows:
+        if row.get("detector") != "RAW_CONTOUR":
+            filtered.append(row)
+            continue
+        row_area = _area(row["bbox"])
+        nested = False
+        for envelope in envelopes:
+            if envelope.get("best_family_prior") != row.get("best_family_prior"):
+                continue
+            envelope_area = _area(envelope["bbox"])
+            if row_area <= 0 or envelope_area < row_area * 1.55 or envelope_area > row_area * 7.0:
+                continue
+            if _contained_fraction(row["bbox"], envelope["bbox"]) < 0.82:
+                continue
+            # Only suppress when the envelope is at least as compatible with the
+            # same family prior as the nested contour, allowing a small tolerance.
+            family = row["best_family_prior"]
+            if float(envelope["family_ratio_error"][family]) > float(row["family_ratio_error"][family]) + 0.12:
+                continue
+            nested = True
+            break
+        if not nested:
+            filtered.append(row)
+    return filtered
+
+
 def main() -> None:
     if len(sys.argv) != 3:
         raise SystemExit("usage: cew_oar_g4_snap_worker.py INPUT_JPEG OUTPUT_JSON")
@@ -133,6 +175,7 @@ def main() -> None:
         axis_suppressed, w, h, min_side, max_side, "LONG_AXIS_SUPPRESSED"
     )
     raw.extend(_extract_candidates(closed, w, h, min_side, max_side, "RAW_CONTOUR"))
+    raw = _suppress_nested_raw_candidates(raw)
 
     # Envelope candidates sort first when quality is otherwise comparable. The
     # runtime still performs family-specific ranking and the human still owns the
