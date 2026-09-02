@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 import csv
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -20,7 +21,7 @@ def text(path: str) -> str:
 
 
 def _validate_single_source_fetch() -> None:
-    """Prove registered-asset verification+rendering consumes one immutable fetch."""
+    """Prove local fallback fetches once and cached raster does not refetch."""
     calls = {"fetch": 0, "open": 0, "save": 0, "close": 0, "verify_raster": 0}
 
     class Rect:
@@ -65,8 +66,10 @@ def _validate_single_source_fetch() -> None:
     fake_fitz.open = fake_open
 
     original_fetch = resolver_runtime.fetch_source
-    original_raster = resolver_runtime.RUNTIME_RASTER
-    original_verify_raster = resolver_runtime._verify_registered_raster
+    original_build_raster = resolver_runtime.BUILD_RASTER
+    original_runtime_raster = resolver_runtime.RUNTIME_RASTER
+    original_verify_raster = resolver_runtime.verify_registered_raster
+    original_required = os.environ.get(resolver_runtime.REQUIRE_PREBUILT_ENV)
     original_fitz = sys.modules.get("fitz")
     try:
         def fake_fetch():
@@ -78,21 +81,29 @@ def _validate_single_source_fetch() -> None:
             assert Path(path).is_file()
 
         resolver_runtime.fetch_source = fake_fetch
-        resolver_runtime._verify_registered_raster = fake_verify_raster
+        resolver_runtime.verify_registered_raster = fake_verify_raster
         sys.modules["fitz"] = fake_fitz
+        os.environ.pop(resolver_runtime.REQUIRE_PREBUILT_ENV, None)
         with tempfile.TemporaryDirectory() as td:
-            resolver_runtime.RUNTIME_RASTER = Path(td) / "TAV05S_OAR_300dpi.jpg"
+            root = Path(td)
+            resolver_runtime.BUILD_RASTER = root / "prebuilt-missing.jpg"
+            resolver_runtime.RUNTIME_RASTER = root / "TAV05S_OAR_300dpi.jpg"
             result = resolver_runtime.ensure_runtime_raster()
             assert result == resolver_runtime.RUNTIME_RASTER
             assert result.read_bytes() == b"JPEG"
             assert calls == {"fetch": 1, "open": 1, "save": 1, "close": 1, "verify_raster": 1}, calls
             result = resolver_runtime.ensure_runtime_raster()
             assert result == resolver_runtime.RUNTIME_RASTER
-            assert calls == {"fetch": 2, "open": 2, "save": 1, "close": 2, "verify_raster": 2}, calls
+            assert calls == {"fetch": 1, "open": 1, "save": 1, "close": 1, "verify_raster": 2}, calls
     finally:
         resolver_runtime.fetch_source = original_fetch
-        resolver_runtime.RUNTIME_RASTER = original_raster
-        resolver_runtime._verify_registered_raster = original_verify_raster
+        resolver_runtime.BUILD_RASTER = original_build_raster
+        resolver_runtime.RUNTIME_RASTER = original_runtime_raster
+        resolver_runtime.verify_registered_raster = original_verify_raster
+        if original_required is None:
+            os.environ.pop(resolver_runtime.REQUIRE_PREBUILT_ENV, None)
+        else:
+            os.environ[resolver_runtime.REQUIRE_PREBUILT_ENV] = original_required
         if original_fitz is None:
             sys.modules.pop("fitz", None)
         else:
@@ -151,8 +162,13 @@ def main() -> None:
     assert "REGISTERED_RENDER_HEIGHT_PX = 12530" in resolver
     assert "RUNTIME_DPI = 300" in resolver
     assert "JPEG_QUALITY = 92" in resolver
-    assert "pixmap.save(RUNTIME_RASTER, jpg_quality=JPEG_QUALITY)" in resolver
-    assert "_verify_registered_raster(RUNTIME_RASTER)" in resolver
+    assert "pixmap.save(path, jpg_quality=JPEG_QUALITY)" in resolver
+    assert "verify_registered_raster(path)" in resolver
+    assert "materialize_build_raster" in resolver
+    assert "if BUILD_RASTER.is_file()" in resolver
+    assert "OAR_G4_PREBUILT_RENDER_REQUIRED" in resolver
+    assert "_jpeg_dimensions" in resolver
+    assert "fitz.Pixmap(str(path))" not in resolver
     assert "verify_source()" not in resolver[resolver.index("def ensure_runtime_raster"):]
     assert "fitz.open(stream=payload, filetype=\"pdf\")" in resolver
     assert 'ARCHIVE_COMMIT = "78c20a52db4f391ce0d13b9705b9f04737e218c9"' in source_workspace
@@ -200,7 +216,7 @@ def main() -> None:
     print("CEW_OAR_G4_REGION_WORKBENCH_PASS")
     print("authenticated_composition=true governed_remote_source=true full_page_overlay=true")
     print("display_asset=CEW-N12-ASSET-TAV05S-P001-OAR-300DPI dpi=300 sha256_bound=true")
-    print("immutable_source_fetch_per_raster_request=1 registered_asset_verified_before_serve=true")
+    print("local_cold_render_source_fetch=1 local_cached_raster_source_fetch=0 render_runtime_prebuilt=true")
     print("edited_bbox_requires_reproposal=true confirmation_bbox_server_checked=true")
     print("runtime_audit_only=true oar_human_confirmation=false canonical_write_authorized=false")
 
