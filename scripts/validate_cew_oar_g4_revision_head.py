@@ -115,7 +115,6 @@ def main() -> None:
     assert js_head["canonical_write_authorized"] is False
     assert js_head["engineering_authority_effect"] == "NONE"
 
-    # Ordinary confirmation remains terminal and must agree across replay paths.
     confirmed = binding.build_receipt(
         decision_id="legacy-confirm-p1",
         support_id=support_id,
@@ -132,8 +131,6 @@ def main() -> None:
     js_terminal = _node_head(terminal, binding_id, support_id)
     assert (js_terminal["current_proposal_decision_id"], js_terminal["state"]) == (expected_id, expected_state)
 
-    # Full governed-field parity: backend replay must reject every field that
-    # canonical _validate_receipt_governance() rejects before deriving a head.
     field_mutations = {
         "task_id": "WRONG-TASK",
         "residual_id": "WRONG-RESIDUAL",
@@ -157,9 +154,6 @@ def main() -> None:
         outcome = _node_outcome(fixture, binding_id, support_id)
         assert outcome == {"ok": False, "marker": marker}, (field, outcome)
 
-    # The complete OAR snapshot must be validated before requested-support
-    # scoping. A divergent row outside that scope must poison both canonical
-    # aggregate and Netlify replay instead of being silently filtered away.
     bad_binding = dict(p0)
     bad_binding["decision_id"] = "legacy-divergent-binding"
     bad_binding["timestamp"] = "2026-09-01T12:00:00.000001+00:00"
@@ -183,9 +177,6 @@ def main() -> None:
     netlify = NETLIFY.read_text(encoding="utf-8")
     replay_js = NETLIFY_REPLAY.read_text(encoding="utf-8")
 
-    # Supabase: replay function drives both migration backfill and missing-head
-    # recovery under the advisory-lock CAS boundary. Timestamp-only confirmed
-    # head selection is forbidden.
     assert "cew_oar_replay_region_head_v1" in sql
     assert "cross join lateral public.cew_oar_replay_region_head_v1" in sql
     assert "from public.cew_oar_replay_region_head_v1(v_binding_id, v_support_id)" in sql
@@ -194,12 +185,9 @@ def main() -> None:
     assert "v_stale := v_stale + 1" in sql
     assert "on conflict (binding_id, support_id) do nothing" in sql
 
-    # Neon: no missing row may default directly to UNBOUND when legacy history
-    # exists; it must derive through the canonical Python aggregate first.
     assert "revision_head.derive_revision_head(existing, support_id)" in atomic
     assert "OAR_REGION_LEGACY_HEAD_BACKFILL_FAILED" in atomic
 
-    # Netlify: the legacy query reads all OAR receipts before replay scoping.
     legacy_query_start = netlify.index("const legacyResult = await db.sql`")
     legacy_query_end = netlify.index("const allOarReceipts", legacy_query_start)
     legacy_query = netlify[legacy_query_start:legacy_query_end]
@@ -210,9 +198,6 @@ def main() -> None:
     assert "globallySeenDecisions" in replay_js
     assert "validateOarReceiptGovernance(receipt, receiptBinding, receiptSupport)" in replay_js
 
-    # Netlify legacy seed and CAS transition must not depend on sibling CTE
-    # visibility. A missing PROPOSED head is inserted directly in its final
-    # post-transition state and its RETURNING row drives receipt commit.
     assert "WITH seeded AS (" not in netlify
     assert "seeded_transition AS (" in netlify
     assert "updated_existing AS (" in netlify
@@ -222,10 +207,22 @@ def main() -> None:
     assert "legacyHead.current_proposal_decision_id" in netlify
     assert "CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN ${decisionId} ELSE ${legacyHead.current_proposal_decision_id} END" in netlify
 
+    # OAR receipts are never permitted to fall through to the generic append
+    # envelope. The atomic transition path is the only Netlify write authority
+    # for this receipt type, otherwise history and revision heads can diverge.
+    generic_start = netlify.index("async function appendReceipt(payload, db)")
+    generic_end = netlify.index("export default async", generic_start)
+    generic_append = netlify[generic_start:generic_end]
+    guard = "payload.receipt_json?.receipt_type === OAR_RECEIPT_TYPE"
+    assert guard in generic_append
+    assert "OAR_ATOMIC_TRANSITION_REQUIRED" in generic_append
+    assert generic_append.index(guard) < generic_append.index("INSERT INTO cew_human_receipt_audit")
+
     print("CEW_OAR_G4_REVISION_HEAD_REPLAY_PASS")
     print("legacy_p0_p1_delayed_confirm_p0=P1_PROPOSED")
     print("python_aggregate_projection=PASS netlify_replay_parity=PASS")
     print("netlify_full_oar_snapshot_validation=PASS netlify_seeded_transition_cas=PASS")
+    print("netlify_generic_oar_append=FAIL_CLOSED atomic_transition_required=true")
     print("supabase_replay_backfill=PASS neon_replay_backfill=PASS netlify_replay_backfill=PASS")
     print("canonical_write_authorized=false structural_identity_authorized=false engineering_authority_effect=NONE")
 
