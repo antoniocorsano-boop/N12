@@ -5,12 +5,16 @@ from __future__ import annotations
 import json
 import math
 from pathlib import Path
+import tempfile
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 import cew_oar_g4_assisted_workbench as assisted
+import cew_oar_g4_atomic_store as atomic_store
 import cew_oar_g4_region_binding as binding
+import cew_oar_g4_region_workbench as oar
+import cew_runtime_audit_store as audit_store
 
 ROOT = Path(__file__).resolve().parents[1]
 ADOPTION = ROOT / "automation/CEW_OAR_ASSISTED_LOCALIZATION_ADOPTION_v1.json"
@@ -87,10 +91,19 @@ def main() -> None:
 
     builder_source = (ROOT / "scripts/build_cew_oar_g4_assisted_assets.py").read_text(encoding="utf-8")
     worker_source = (ROOT / "scripts/cew_oar_g4_deepzoom_worker.cjs").read_text(encoding="utf-8")
+    atomic_source = (ROOT / "scripts/cew_oar_g4_atomic_store.py").read_text(encoding="utf-8")
+    region_source = (ROOT / "scripts/cew_oar_g4_region_workbench.py").read_text(encoding="utf-8")
     assert 'SHARP_SPEC = "sharp@0.35.4"' in builder_source
     assert 'shutil.which("vips")' not in builder_source
     assert '"vips", "dzsave"' not in builder_source
     assert ".tile({ layout: 'dz', size: 256, overlap: 1" in worker_source
+    assert "pg_advisory_xact_lock" in atomic_source
+    assert "receipt_json->>'support_id'=%s" in atomic_source
+    assert "CREATE TABLE" not in atomic_source
+    assert "cew_oar_region_revision_heads" not in atomic_source
+    assert "OAR_REGION_NEON_ATOMIC_PERSISTENCE_FAILED" in atomic_source
+    assert "_public_receipt_reason" in region_source
+    assert "reason_code" in region_source
 
     snap = read_json(SNAP)
     assert snap["schema"] == "CEW_OAR_G4_SNAP_CANDIDATES_v1"
@@ -138,8 +151,8 @@ def main() -> None:
     assert "'/api/workbench/oar/g4-regions/receipt'" in source or '"/api/workbench/oar/g4-regions/receipt"' in source
     assert "canonical_write_authorized" in source and "False" in source
 
-    router = assisted.build_router()
-    paths = {route.path for route in router.routes}
+    assisted_router = assisted.build_router()
+    paths = {route.path for route in assisted_router.routes}
     for path in (
         "/workbench/oar/g4-assisted",
         "/workbench/oar/g4-assisted/vendor/{filename}",
@@ -149,32 +162,87 @@ def main() -> None:
     ):
         assert path in paths, path
 
-    app = FastAPI()
-    app.include_router(router)
-    client = TestClient(app)
-    page = client.get("/workbench/oar/g4-assisted")
-    assert page.status_code == 200
-    assert "Localizzazione assistita" in page.text
-    assert "Fallback" in page.text
-    assert page.headers["x-cew-canonical-write"] == "false"
-    js = client.get("/workbench/oar/g4-assisted/vendor/openseadragon-6.1.0.min.js")
-    assert js.status_code == 200 and "javascript" in js.headers["content-type"]
-    dzi = client.get("/workbench/oar/g4-assisted/deepzoom/TAV05S_OAR_300dpi.dzi")
-    assert dzi.status_code == 200 and "xml" in dzi.headers["content-type"]
-    snap_response = client.get(
-        "/api/workbench/oar/g4-assisted/snap",
-        params={"support_id": support_id, "x": sample["center"]["x"], "y": sample["center"]["y"], "radius": 0.01},
-    )
-    assert snap_response.status_code == 200
-    assert snap_response.json()["snap_is_proposal_only"] is True
-    blocked = client.get("/workbench/oar/g4-assisted/deepzoom/../manifest.json")
-    assert blocked.status_code in {404, 422}
+    # Exercise the actual governed receipt boundary. Previous revisions tested
+    # only GET snap/status and therefore missed a production write-path defect.
+    original_store = oar._base.RUNTIME_STORE
+    original_backend_status = audit_store.backend_status
+    with tempfile.TemporaryDirectory(prefix="cew-oar-assisted-receipt-") as tmp:
+        oar._base.RUNTIME_STORE = Path(tmp)
+        audit_store.backend_status = lambda: "FILESYSTEM_APPEND_ONLY"
+        try:
+            app = FastAPI()
+            app.include_router(oar.build_router())
+            app.include_router(assisted_router)
+            client = TestClient(app)
+
+            page = client.get("/workbench/oar/g4-assisted")
+            assert page.status_code == 200
+            assert "Localizzazione assistita" in page.text
+            assert "Fallback" in page.text
+            assert page.headers["x-cew-canonical-write"] == "false"
+            js = client.get("/workbench/oar/g4-assisted/vendor/openseadragon-6.1.0.min.js")
+            assert js.status_code == 200 and "javascript" in js.headers["content-type"]
+            dzi = client.get("/workbench/oar/g4-assisted/deepzoom/TAV05S_OAR_300dpi.dzi")
+            assert dzi.status_code == 200 and "xml" in dzi.headers["content-type"]
+            snap_response = client.get(
+                "/api/workbench/oar/g4-assisted/snap",
+                params={"support_id": support_id, "x": sample["center"]["x"], "y": sample["center"]["y"], "radius": 0.01},
+            )
+            assert snap_response.status_code == 200
+            snap_body = snap_response.json()
+            assert snap_body["snap_is_proposal_only"] is True
+            proposal_bbox = snap_body["candidates"][0]["bbox"]
+
+            proposal = client.post(
+                "/api/workbench/oar/g4-regions/receipt",
+                json={
+                    "decision_id": "oar-g4-assisted-ci-proposal-001",
+                    "support_id": support_id,
+                    "action": "PROPOSE_GEOMETRY",
+                    "bbox": proposal_bbox,
+                },
+            )
+            assert proposal.status_code == 200, proposal.text
+            proposal_body = proposal.json()
+            assert proposal_body["object_state"] == "PROPOSED"
+            assert proposal_body["atomic_revision"] is True
+            assert proposal_body["bbox"] == binding.normalize_bbox(proposal_bbox)
+            assert proposal_body["canonical_write_authorized"] is False
+
+            status = client.get("/api/workbench/oar/g4-regions/status")
+            assert status.status_code == 200
+            persisted_row = next(row for row in status.json()["objects"] if str(row["support_id"]) == support_id)
+            assert persisted_row["state"] == "PROPOSED"
+            assert persisted_row["bbox"] == binding.normalize_bbox(proposal_bbox)
+
+            rejected = client.post(
+                "/api/workbench/oar/g4-regions/receipt",
+                json={
+                    "decision_id": "oar-g4-assisted-ci-invalid-001",
+                    "support_id": support_id,
+                    "action": "PROPOSE_GEOMETRY",
+                    "bbox": {"x": -0.1, "y": 0.2, "w": 0.1, "h": 0.1},
+                },
+            )
+            assert rejected.status_code == 422
+            rejected_body = rejected.json()
+            assert rejected_body["state"] == "OAR_REGION_BBOX_OUT_OF_RANGE"
+            assert rejected_body["reason_code"] == "OAR_REGION_BBOX_OUT_OF_RANGE"
+            assert "reason" not in rejected_body
+
+            blocked = client.get("/workbench/oar/g4-assisted/deepzoom/../manifest.json")
+            assert blocked.status_code in {404, 422}
+        finally:
+            oar._base.RUNTIME_STORE = original_store
+            audit_store.backend_status = original_backend_status
 
     print("CEW_OAR_G4_ASSISTED_LOCALIZATION_PASS")
     print(f"deepzoom_tiles={manifest['deepzoom']['tile_count']} snap_candidates={snap['candidate_count']}")
     print("deepzoom_builder=sharp-0.35.4 system_vips_cli_required=false")
     print("viewer=OpenSeadragon-6.1.0 annotation=Annotorious-3.8.10 runtime_vendor=self_hosted")
     print("mobile_pan_zoom_rotate=true snap_proposal_only=true editable_before_receipt=true")
+    print("snap_to_receipt_post=PASS atomic_filesystem_revision=PASS safe_reason_code=PASS")
+    print("neon_revision_source=append_only_history runtime_ddl=false")
     print("normalized_pixel_roundtrip=PASS fallback_preserved=true")
     print("oar_classification_confirmed=false canonical_write_authorized=false structural_identity_authorized=false")
 
