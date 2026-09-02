@@ -8,7 +8,7 @@ const G4_DOCUMENT = Object.freeze({
   source_version_id: "CEW-N12-SRC-TAV05S-V2143DBCF",
   page_id: "CEW-N12-PAGE-TAV05S-P001",
   derived_asset_id: "CEW-N12-ASSET-TAV05S-P001-OAR-300DPI",
-  page_transform_id: "CEW-N12-XFORM-TAV05S-P001",
+  page_transform_id: "CEW-N12-XFORM-TAV05S-P001-OAR",
   coordinate_system: "NORMALIZED_0_1",
 });
 const G4_FAMILY_BY_SUPPORT = Object.freeze({
