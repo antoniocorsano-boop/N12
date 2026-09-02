@@ -4,7 +4,7 @@
   "pilot_id": "OAR-PILOT-G4-COLUMNS",
   "target_surface": "TAV-05S",
   "status": "POC_NON_PROMOTING",
-  "goal": "Replace freehand full-page bbox drawing with mature deep-zoom navigation, editable annotations and geometry-assisted snapping while preserving existing OAR receipts and authority boundaries.",
+  "goal": "Use the existing CEW object/prototype/family model to let a human teach one correct project-local example, search the verified page for similar occurrences, and review candidates visually; deep zoom and editable rectangles remain the interaction surface while local contour snap is retained only as fallback.",
   "adopted_components": {
     "viewer": {
       "name": "OpenSeadragon",
@@ -17,7 +17,7 @@
       "name": "@annotorious/openseadragon",
       "version": "3.8.10",
       "license": "BSD-3-Clause",
-      "role": "EDITABLE_RECTANGLE_MOVE_RESIZE_HUMAN_REVIEW",
+      "role": "DRAW_EDIT_MOVE_RESIZE_RECTANGLE_HUMAN_REVIEW",
       "runtime_delivery": "SELF_HOSTED_BUILD_MATERIALIZED"
     },
     "deep_zoom": {
@@ -32,13 +32,19 @@
       "name": "OpenCV",
       "version": "4.12.0.88",
       "license": "Apache-2.0",
-      "role": "BUILD_ONLY_RASTER_CONTOUR_CANDIDATE_EXTRACTION",
+      "role": "BUILD_ONLY_REGION_PROPOSALS_AND_FALLBACK_LOCAL_SNAP",
       "runtime_required": false
     }
   },
   "interaction_contract": {
     "default_mode": "PAN_ZOOM",
-    "localization_mode": "TAP_NEAR_OBJECT_THEN_SNAP",
+    "primary_localization_mode": "DRAW_OR_ADJUST_EXAMPLE_THEN_FIND_SIMILAR",
+    "primary_actions": ["TEACH_THIS_IS", "FIND_SIMILAR", "REVIEW_SIMILAR_GROUP"],
+    "prototype_is_project_local_training_example": true,
+    "prototype_is_not_oar_classification": true,
+    "similar_search_auto_assigns_support_identity": false,
+    "similar_search_auto_confirms_family": false,
+    "snap_role": "FALLBACK_LOCAL_BOX_AID",
     "snap_is_proposal_only": true,
     "annotation_is_editable_before_receipt": true,
     "manual_freehand_bbox_required": false,
@@ -48,16 +54,34 @@
     "family_prior_may_establish_classification": false,
     "fallback_surface_preserved": "/workbench/oar/g4-regions"
   },
+  "prototype_search_contract": {
+    "domain_primitives_reused": ["ObjectPrototype", "ObjectFamily", "ObjectSignature", "EvidenceProvenance"],
+    "training_receipt_type": "CEW_OAR_PROTOTYPE_TEACH_RECEIPT_v1",
+    "search_scope": "VERIFIED_PAGE_WIDE",
+    "search_method": "PROJECT_LOCAL_HUMAN_PROTOTYPE_GEOMETRIC_SIMILARITY_V1",
+    "ranking_signals": [
+      "candidate_size_vs_human_example",
+      "candidate_aspect_ratio_vs_human_example",
+      "rectangularity",
+      "long_axis_suppressed_envelope_preference"
+    ],
+    "tap_distance_used": false,
+    "candidate_support_identity": "UNASSIGNED_UNTIL_SEPARATE_HUMAN_BINDING",
+    "expected_family_count_is_prior_only": true,
+    "human_group_review_required": true,
+    "canonical_promotion": "DISABLED"
+  },
   "snap_contract": {
     "source": "BUILD_DERIVED_RASTER_GEOMETRY_ONLY",
     "candidate_geometry_authority": "INTERACTION_AID_ONLY",
+    "role": "FALLBACK_ONLY",
     "ranking_signals": [
       "tap_distance",
       "candidate_aspect_ratio_vs_family_prior",
       "rectangularity",
-      "contour_compactness"
+      "axis_suppressed_envelope_preference"
     ],
-    "human_can": ["ACCEPT", "MOVE", "RESIZE", "TRY_NEXT_CANDIDATE", "REJECT"],
+    "human_can": ["ACCEPT_AS_WORKING_BOX", "MOVE", "RESIZE", "TRY_NEXT_CANDIDATE", "REJECT"],
     "human_confirmation_required": true
   },
   "evidence_boundary": {
@@ -68,7 +92,8 @@
     "derived_asset_sha256": "6344abae8d390ef799812c808427431e684a61cca6bb5792de331b2b9d2b6252",
     "derived_asset_dimensions_px": [7016, 12530],
     "deep_zoom_tiles_are_authority": false,
-    "snap_candidates_are_authority": false
+    "snap_candidates_are_authority": false,
+    "prototype_search_candidates_are_authority": false
   },
   "authority": {
     "oar_human_confirmation": false,
@@ -81,6 +106,8 @@
   "promotion_gate": {
     "requires_mobile_hva": true,
     "requires_exact_coordinate_roundtrip": true,
+    "requires_prototype_search_never_auto_assigns_identity": true,
+    "requires_prototype_search_never_auto_confirms_family": true,
     "requires_snap_never_auto_confirms": true,
     "requires_fallback_surface_preserved": true,
     "requires_self_hosted_runtime_assets": true,
