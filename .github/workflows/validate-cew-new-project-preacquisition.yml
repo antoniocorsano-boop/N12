@@ -19,6 +19,9 @@ on:
       - 'scripts/validate_cew_external_graphic_reference_acquisition.py'
       - 'scripts/cew_external_graphic_reference_pack.py'
       - 'scripts/validate_cew_external_graphic_reference_pack.py'
+      - 'scripts/cew_external_graphic_reference_review_workbench.py'
+      - 'scripts/validate_cew_external_graphic_reference_review_workbench.py'
+      - 'scripts/cew_professional_workbench_api.py'
       - '.github/workflows/validate-cew-new-project-preacquisition.yml'
   pull_request:
     paths:
@@ -36,6 +39,9 @@ on:
       - 'scripts/validate_cew_external_graphic_reference_acquisition.py'
       - 'scripts/cew_external_graphic_reference_pack.py'
       - 'scripts/validate_cew_external_graphic_reference_pack.py'
+      - 'scripts/cew_external_graphic_reference_review_workbench.py'
+      - 'scripts/validate_cew_external_graphic_reference_review_workbench.py'
+      - 'scripts/cew_professional_workbench_api.py'
       - '.github/workflows/validate-cew-new-project-preacquisition.yml'
   workflow_dispatch:
 
@@ -61,6 +67,9 @@ jobs:
           scripts/validate_cew_external_graphic_reference_acquisition.py
           scripts/cew_external_graphic_reference_pack.py
           scripts/validate_cew_external_graphic_reference_pack.py
+          scripts/cew_external_graphic_reference_review_workbench.py
+          scripts/validate_cew_external_graphic_reference_review_workbench.py
+          scripts/cew_professional_workbench_api.py
       - name: Validate analysis and zero-prior contract
         run: |
           python - <<'PY'
@@ -160,3 +169,6 @@ jobs:
       - name: Run human-reviewed external-reference pack gate
         working-directory: scripts
         run: python validate_cew_external_graphic_reference_pack.py
+      - name: Run external-reference review workspace gate
+        working-directory: scripts
+        run: python validate_cew_external_graphic_reference_review_workbench.py
