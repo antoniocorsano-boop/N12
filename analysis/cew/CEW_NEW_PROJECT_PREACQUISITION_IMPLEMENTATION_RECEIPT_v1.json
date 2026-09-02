@@ -11,9 +11,9 @@
   "reference_review_workspace_ref": "scripts/cew_external_graphic_reference_review_workbench.py",
   "reference_pack_builder_ref": "scripts/cew_external_graphic_reference_pack.py",
   "validated_engine_revision": "a2af49c3579aed726bd0ec4a48410f1bcc01bcf4",
-  "validated_integrated_revision": "0ac363a507e42db5fdbf18ef2a2dd8c58d84edc7",
+  "validated_integrated_revision": "dd70619ba58dd10e04885de817e1b02d09ff1df5",
   "validation_workflow": "Validate CEW New Project Pre-Acquisition",
-  "validation_run_id": 33682647548,
+  "validation_run_id": 33683747251,
   "validation_result": "PASS",
   "validation_evidence": {
     "page_count": 2,
@@ -27,6 +27,10 @@
     "human_triage_queue": "READY",
     "automatic_structural_labels": false,
     "external_reference_review_workspace_gate": "PASS",
+    "external_reference_pack_gate": "PASS",
+    "defer_nonterminal_gate": "PASS",
+    "defer_then_terminal_gate": "PASS",
+    "decision_after_terminal_blocked_gate": "PASS",
     "professional_workbench_client_gate": "PASS",
     "object_acquisition_gate": "PASS",
     "oar_assisted_localization_gate": "PASS",
@@ -71,13 +75,25 @@
       "REJECT_REFERENCE_EVIDENCE",
       "DEFER"
     ],
+    "terminal_states": [
+      "ACCEPT_REFERENCE_EVIDENCE",
+      "REJECT_REFERENCE_EVIDENCE"
+    ],
+    "nonterminal_states": [
+      "DEFER"
+    ],
+    "defer_is_terminal": false,
     "source_render_requires_exact_source_sha256": true,
     "page_render_requires_text_and_feature_fingerprint": true,
     "decision_receipts_append_only": true,
+    "append_only_followup_after_defer_allowed": true,
+    "repeated_consecutive_defer_rejected": true,
     "one_terminal_decision_per_review_item": true,
+    "followup_after_terminal_forbidden": true,
     "discovery_query_may_supply_meaning": false,
     "acceptance_requires_explicit_meaning_scope_reviewer_rationale_and_primitive_families": true,
-    "pack_candidate_requires_complete_human_review": true,
+    "pack_candidate_requires_terminal_decision_for_every_review_item": true,
+    "required_terminal_decision_count": 5,
     "pack_candidate_tier": "EXTERNAL_REFERENCE",
     "runtime_pack_candidate_only": true,
     "real_human_review_completed": false,
@@ -97,6 +113,7 @@
     "HUMAN_REFERENCE_SOURCE_REVIEW_QUEUE",
     "HUMAN_REFERENCE_REVIEW_WORKSPACE",
     "APPEND_ONLY_REFERENCE_REVIEW_DECISIONS",
+    "NONTERMINAL_DEFER_REVIEW_LIFECYCLE",
     "HUMAN_REVIEWED_EXTERNAL_REFERENCE_PACK_BUILDER"
   ],
   "explicitly_not_implemented_yet": [
@@ -115,5 +132,5 @@
     "structural_identity_authorized": false,
     "engineering_authority_effect": "NONE"
   },
-  "next": "Run a real human visual review of the five exact acquired reference pages through /workbench/reference-review. Only after those decisions may a reviewed EXTERNAL_REFERENCE pack candidate be promoted through a separate governed repository update; the production Document Discovery Workspace remains downstream."
+  "next": "Run a real human visual review of the five exact acquired reference pages through /workbench/reference-review. DEFER remains unresolved and must later receive ACCEPT_REFERENCE_EVIDENCE or REJECT_REFERENCE_EVIDENCE. Only after all five items have terminal decisions may a reviewed EXTERNAL_REFERENCE pack candidate be built; repository library promotion remains a separate governed step."
 }
