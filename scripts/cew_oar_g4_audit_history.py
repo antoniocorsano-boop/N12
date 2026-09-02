@@ -149,8 +149,6 @@ def _supabase_snapshot(receipt_type: str) -> list[dict]:
 
 
 def _supabase_pages(receipt_type: str, page_size: int) -> Iterator[list[dict]]:
-    # One RPC call = one PostgreSQL statement/MVCC snapshot. The SQL returns one
-    # aggregated JSON value, so PostgREST Max Rows cannot truncate its receipts.
     yield from _chunks(_supabase_snapshot(receipt_type), page_size)
 
 
@@ -181,8 +179,6 @@ def _https_snapshot(receipt_type: str) -> list[dict]:
 
 
 def _https_pages(receipt_type: str, page_size: int) -> Iterator[list[dict]]:
-    # Netlify materializes the complete OAR set with one database SELECT and one
-    # HTTP response; page_size applies only after that immutable response exists.
     yield from _chunks(_https_snapshot(receipt_type), page_size)
 
 
@@ -236,7 +232,10 @@ def _anchor_closed_compact(receipts: list[dict], contract: dict, *, report: dict
     return compact
 
 
-def _reduce_history(pages: Iterable[list[dict]], contract: dict | None = None) -> tuple[list[dict], int]:
+def _reduce_history_with_report(
+    pages: Iterable[list[dict]], contract: dict | None = None
+) -> tuple[list[dict], int, dict]:
+    """Reduce state history while retaining the full-audit aggregate summary."""
     contract = contract or binding.load_contract()
     receipts: list[dict] = []
     seen_decisions: set[str] = set()
@@ -247,9 +246,14 @@ def _reduce_history(pages: Iterable[list[dict]], contract: dict | None = None) -
                 raise ValueError("OAR_REGION_DUPLICATE_DECISION_ID")
             seen_decisions.add(decision_id)
             receipts.append(receipt)
-    report = binding.aggregate(receipts, contract)
-    compact = _anchor_closed_compact(receipts, contract, report=report)
-    return compact, len(receipts)
+    full_report = binding.aggregate(receipts, contract)
+    compact = _anchor_closed_compact(receipts, contract, report=full_report)
+    return compact, len(receipts), full_report
+
+
+def _reduce_history(pages: Iterable[list[dict]], contract: dict | None = None) -> tuple[list[dict], int]:
+    compact, total, _ = _reduce_history_with_report(pages, contract)
+    return compact, total
 
 
 def load_runtime_receipts(receipt_type: str, store: Path, *, max_receipts: int = MAX_PAGE_SIZE) -> dict:
@@ -258,14 +262,16 @@ def load_runtime_receipts(receipt_type: str, store: Path, *, max_receipts: int =
     if not isinstance(max_receipts, int) or max_receipts < 1 or max_receipts > MAX_PAGE_SIZE:
         raise ValueError("runtime audit max_receipts is invalid")
     backend, pages = _pages(receipt_type, store, max_receipts)
-    receipts, total = _reduce_history(pages)
+    receipts, total, full_report = _reduce_history_with_report(pages)
+    stale_count = int(full_report["summary"].get("stale_concurrent_transitions", 0))
     return {
         "audit_backend": backend,
         "receipt_type": receipt_type,
         "receipt_count": total,
         "reduced_receipt_count": len(receipts),
         "receipts": receipts,
-        "history_policy": "SERVER_MVCC_SNAPSHOT_APPEND_ONLY_ANCHOR_CLOSED_SINGLE_PASS_REDUCED_FOR_STATE_RECONSTRUCTION",
+        "stale_concurrent_transitions": stale_count,
+        "history_policy": "SERVER_MVCC_SNAPSHOT_APPEND_ONLY_ANCHOR_CLOSED_SINGLE_PASS_REDUCED_FOR_STATE_RECONSTRUCTION_WITH_FULL_AUDIT_SUMMARY",
         "authority": "RUNTIME_AUDIT_READ_ONLY",
         "canonical_write": False,
         "engineering_authority_effect": "NONE",
