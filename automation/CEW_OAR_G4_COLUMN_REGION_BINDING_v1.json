@@ -5,12 +5,12 @@
   "document": {
     "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
     "page_id": "CEW-N12-PAGE-TAV05S-P001",
-    "derived_asset_id": "CEW-N12-ASSET-TAV05S-P001-300DPI",
+    "derived_asset_id": "CEW-N12-ASSET-TAV05S-P001-OAR-300DPI",
     "page_transform_id": "CEW-N12-XFORM-TAV05S-P001",
     "coordinate_system": "NORMALIZED_0_1",
     "render_width_px": 7016,
     "render_height_px": 12530,
-    "render_sha256": "32dfa5976b3d6a6482f73159da1778de6483e5d90c671ae771793374781f58b7"
+    "render_sha256": "6344abae8d390ef799812c808427431e684a61cca6bb5792de331b2b9d2b6252"
   },
   "workflow": {
     "interaction_surface": "FULL_VERIFIED_PAGE",
