@@ -4,6 +4,9 @@ from __future__ import annotations
 import json
 import math
 import os
+import time
+from typing import Any
+from urllib.error import URLError
 
 import cew_drawing_viewer as drawing_viewer
 import cew_source_evidence_workspace as source_workspace
@@ -13,6 +16,54 @@ import cew_source_evidence_workspace as source_workspace
 # engineering/canonical authority.
 MAX_RUNTIME_RENDER_PIXELS = 6_000_000
 MIN_RUNTIME_DPI = 36
+
+# A managed-runtime cache build renders several views of the same immutable
+# SourceVersion. Fetch and SHA verification remain delegated to the governed
+# Source Workspace, but a verified payload is reused for the rest of the
+# current process so Render does not repeatedly depend on the remote archive.
+SOURCE_FETCH_ATTEMPTS = 3
+SOURCE_FETCH_TIMEOUT_SECONDS = 30
+_VERIFIED_SOURCE_CACHE: dict[str, tuple[bytes, dict[str, Any]]] = {}
+
+
+def clear_verified_source_cache() -> None:
+    """Clear process-local verified source bytes; intended for deterministic tests."""
+    _VERIFIED_SOURCE_CACHE.clear()
+
+
+def _fetch_verified_source_cached(source_id: str) -> tuple[bytes, dict[str, Any]]:
+    source_id = str(source_id).strip()
+    if not source_id:
+        raise ValueError("SOURCE_VERSION_ID_REQUIRED")
+
+    cached = _VERIFIED_SOURCE_CACHE.get(source_id)
+    if cached is not None:
+        payload, source = cached
+        return payload, dict(source)
+
+    last_transport_error: BaseException | None = None
+    for attempt in range(1, SOURCE_FETCH_ATTEMPTS + 1):
+        try:
+            payload, source = source_workspace.fetch_verified_source(
+                source_id,
+                timeout=SOURCE_FETCH_TIMEOUT_SECONDS,
+            )
+        except (TimeoutError, URLError) as exc:
+            last_transport_error = exc
+            if attempt >= SOURCE_FETCH_ATTEMPTS:
+                raise
+            time.sleep(attempt)
+            continue
+
+        # fetch_verified_source is the authority boundary: it has already
+        # enforced the registered immutable URL, byte limit, PDF signature and
+        # exact SHA-256. Cache only after that call succeeds.
+        frozen_source = dict(source)
+        _VERIFIED_SOURCE_CACHE[source_id] = (payload, frozen_source)
+        return payload, dict(frozen_source)
+
+    assert last_transport_error is not None
+    raise last_transport_error
 
 
 def bounded_dpi(width_pt: float, height_pt: float, requested_dpi: int) -> tuple[int, int]:
@@ -63,7 +114,7 @@ def render_task_source_bounded(task_id: str, scale: str) -> tuple[bytes, dict]:
 
     ctx = source_workspace.task_context(task_id)
     source_id = ctx["task"]["source_id"]
-    payload, source = source_workspace.fetch_verified_source(source_id)
+    payload, source = _fetch_verified_source_cached(source_id)
     page_index = int(ctx["page"]["page_index"])
 
     with pymupdf.open(stream=payload, filetype="pdf") as doc:
@@ -100,7 +151,7 @@ def render_full_page_bounded(source_id: str, dpi: int = drawing_viewer.DEFAULT_D
         raise ValueError(ctx["viewer_reason"])
 
     page_record = ctx["page"]
-    payload, source = source_workspace.fetch_verified_source(source_id)
+    payload, source = _fetch_verified_source_cached(source_id)
     page_index = int(page_record["page_index"])
 
     with pymupdf.open(stream=payload, filetype="pdf") as doc:
