@@ -2,7 +2,6 @@
 """Regression gate for concurrent/replayed external-reference review receipts."""
 from __future__ import annotations
 
-import json
 from pathlib import Path
 import tempfile
 
@@ -49,6 +48,8 @@ def main() -> None:
             review.audit_store.backend_status = lambda: "FILESYSTEM_APPEND_ONLY"
             second = items[1]
             receipt_a = review.build_review_receipt(_payload(second, "legacy-race-a"))
+            receipt_a["timestamp"] = "2026-09-03T03:14:04.778447+00:00"
+            receipt_a["reviewed_at"] = receipt_a["timestamp"]
             receipt_b = dict(receipt_a)
             receipt_b["decision_id"] = "legacy-race-b"
             receipt_b["timestamp"] = "2026-09-03T03:14:04.792491+00:00"
@@ -69,8 +70,10 @@ def main() -> None:
             review.audit_store.backend_status = lambda: "FILESYSTEM_APPEND_ONLY"
             third = items[2]
             reject = review.build_review_receipt(_payload(third, "conflict-terminal"))
+            reject["timestamp"] = "2026-09-03T03:15:04.700000+00:00"
+            reject["reviewed_at"] = reject["timestamp"]
             defer = review.build_review_receipt(_payload(third, "conflict-after-terminal", state="DEFER"))
-            defer["timestamp"] = "2026-09-03T03:15:04.792491+00:00"
+            defer["timestamp"] = "2026-09-03T03:15:04.800000+00:00"
             defer["reviewed_at"] = defer["timestamp"]
             review.audit_store.persist_runtime_receipt(reject, review.REVIEW_STORE)
             review.audit_store.persist_runtime_receipt(defer, review.REVIEW_STORE)
