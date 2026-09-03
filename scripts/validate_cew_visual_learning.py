@@ -49,7 +49,7 @@ def main() -> None:
     assert contract["structured_graphic"]["state"] == "READY"
     assert contract["structured_graphic"]["is_foundation_model"] is False
     assert contract["visual_foundation"]["provider_id"] == "DINOV3_FROZEN_FEATURES"
-    assert contract["visual_foundation"]["state"] == "DINOV3_PROVIDER_NOT_CONFIGURED"
+    assert contract["visual_foundation"]["state"] == "IMPLEMENTED_NOT_PROVISIONED"
     assert contract["visual_foundation"]["simulated"] is False
 
     p1 = candidate("P1", "RECTILINEAR_CLOSED_SHAPE", "SQUAREISH", "SMALL", "FEW", False, "MEDIUM")
@@ -141,7 +141,7 @@ def main() -> None:
     print("counterexample_penalty=PASS")
     print("receipt_replay=DETERMINISTIC")
     print("append_only_learning_receipt=PASS")
-    print("dinov3_provider_state=DINOV3_PROVIDER_NOT_CONFIGURED")
+    print("dinov3_provider_state=IMPLEMENTED_NOT_PROVISIONED")
     print("project_semantic_authority=NONE canonical_write_authorized=false")
 
 
