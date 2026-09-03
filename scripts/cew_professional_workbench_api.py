@@ -4,8 +4,9 @@
 The historical Workbench API is preserved byte-for-byte in
 cew_professional_workbench_api_base.py. This composition layer adds the governed
 G4/TAV-05S OAR evidence-localization router, the additive assisted-localization
-POC, and the governed external-reference human review workspace without altering
-existing R2HR/R2GM routes or their authority semantics.
+POC, the governed external-reference human review workspace, and the document-
+first discovery/teaching workspace without altering existing R2HR/R2GM routes or
+their authority semantics.
 
 The delegated compatibility markers below are executable invariants, not stale
 comments: import fails closed if the preserved base implementation no longer
@@ -23,6 +24,7 @@ import cew_oar_g4_assisted_workbench as _oar_g4_assisted
 import cew_external_graphic_reference_review_workbench as _reference_review
 import cew_external_graphic_reference_review_hardening as _reference_review_hardening
 import cew_external_graphic_reference_review_asset_hardening as _reference_review_asset_hardening
+import cew_document_discovery_workbench as _document_discovery
 
 _REQUIRED_BASE_MARKERS = (
     '@router.get("/workbench", response_class=HTMLResponse)',
@@ -83,4 +85,5 @@ def build_router(source_workspace):
     router.include_router(_oar_g4.build_router())
     router.include_router(_oar_g4_assisted.build_router())
     router.include_router(_reference_review.build_router())
+    router.include_router(_document_discovery.build_router(source_workspace))
     return router
