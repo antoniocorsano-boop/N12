@@ -25,7 +25,7 @@ def candidate(candidate_id: str, family: str, aspect: str, area: str, complexity
     }
 
 
-def receipt(decision_id: str, role: str, item: dict, meaning: str = "PROJECT_CONCEPT_A"):
+def receipt(decision_id: str, role: str, item: dict, timestamp: str, meaning: str = "PROJECT_CONCEPT_A"):
     emb = learning.structured_embedding_from_candidate(item)
     return learning.build_learning_receipt(
         decision_id=decision_id,
@@ -40,7 +40,7 @@ def receipt(decision_id: str, role: str, item: dict, meaning: str = "PROJECT_CON
         evidence_fingerprint=f"sha256:evidence-{item['candidate_id']}",
         embedding=emb,
         rationale=f"human {role.lower()} example",
-        timestamp=f"2026-09-03T10:0{len(decision_id)}:00+00:00",
+        timestamp=timestamp,
     )
 
 
@@ -60,10 +60,10 @@ def main() -> None:
     bad = candidate("BAD", "RECTILINEAR_CLOSED_SHAPE", "VERY_WIDE", "SMALL", "FEW", False, "MEDIUM")
 
     memory = learning.new_memory(project_id="PROJECT-NEW-001", concept_id="CONCEPT-A", meaning="PROJECT_CONCEPT_A")
-    r1 = receipt("learn-positive-1", "POSITIVE", p1)
-    r2 = receipt("learn-positive-2", "POSITIVE", p2)
-    rn = receipt("learn-negative-1", "NEGATIVE", n1)
-    ra = receipt("learn-ambiguous-1", "AMBIGUOUS", a1)
+    r1 = receipt("learn-positive-1", "POSITIVE", p1, "2026-09-03T10:01:00+00:00")
+    r2 = receipt("learn-positive-2", "POSITIVE", p2, "2026-09-03T10:02:00+00:00")
+    rn = receipt("learn-negative-1", "NEGATIVE", n1, "2026-09-03T10:03:00+00:00")
+    ra = receipt("learn-ambiguous-1", "AMBIGUOUS", a1, "2026-09-03T10:04:00+00:00")
 
     for row in (r1, r2, rn, ra):
         memory = learning.apply_learning_receipt(memory, row)
@@ -107,7 +107,10 @@ def main() -> None:
     stale["decision_id"] = "learn-stale-1"
     stale["receipt_fingerprint"] = "sha256:invalid"
     try:
-        learning.apply_learning_receipt(learning.new_memory(project_id="PROJECT-NEW-001", concept_id="CONCEPT-A", meaning="PROJECT_CONCEPT_A"), stale)
+        learning.apply_learning_receipt(
+            learning.new_memory(project_id="PROJECT-NEW-001", concept_id="CONCEPT-A", meaning="PROJECT_CONCEPT_A"),
+            stale,
+        )
         raise AssertionError("stale embedding should fail")
     except ValueError as exc:
         assert "STALE_EMBEDDING_FINGERPRINT" in str(exc) or "RECEIPT_FINGERPRINT_MISMATCH" in str(exc)
