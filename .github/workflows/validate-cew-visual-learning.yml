@@ -8,14 +8,18 @@ on:
       - 'analysis/cew/CEW_VISUAL_LEARNING_ARCHITECTURE_v1.md'
       - 'automation/CEW_VISUAL_LEARNING_CONTRACT_v1.json'
       - 'scripts/cew_visual_learning.py'
+      - 'scripts/cew_visual_learning_bridge.py'
       - 'scripts/validate_cew_visual_learning.py'
+      - 'scripts/validate_cew_visual_learning_bridge.py'
       - '.github/workflows/validate-cew-visual-learning.yml'
   pull_request:
     paths:
       - 'analysis/cew/CEW_VISUAL_LEARNING_ARCHITECTURE_v1.md'
       - 'automation/CEW_VISUAL_LEARNING_CONTRACT_v1.json'
       - 'scripts/cew_visual_learning.py'
+      - 'scripts/cew_visual_learning_bridge.py'
       - 'scripts/validate_cew_visual_learning.py'
+      - 'scripts/validate_cew_visual_learning_bridge.py'
       - '.github/workflows/validate-cew-visual-learning.yml'
   workflow_dispatch:
 
@@ -31,7 +35,12 @@ jobs:
         with:
           python-version: '3.12'
       - name: Compile learning modules
-        run: python -m py_compile scripts/cew_visual_learning.py scripts/validate_cew_visual_learning.py
+        run: >-
+          python -m py_compile
+          scripts/cew_visual_learning.py
+          scripts/cew_visual_learning_bridge.py
+          scripts/validate_cew_visual_learning.py
+          scripts/validate_cew_visual_learning_bridge.py
       - name: Validate visual learning contract
         run: |
           python - <<'PY'
@@ -56,3 +65,6 @@ jobs:
       - name: Validate active prototype learning end to end
         working-directory: scripts
         run: python validate_cew_visual_learning.py
+      - name: Validate zero-prior learning bridge
+        working-directory: scripts
+        run: python validate_cew_visual_learning_bridge.py
