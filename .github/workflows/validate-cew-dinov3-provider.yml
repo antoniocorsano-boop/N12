@@ -9,8 +9,10 @@ on:
       - 'requirements-dinov3.txt'
       - 'requirements.txt'
       - 'scripts/cew_dinov3_provider.py'
+      - 'scripts/cew_dinov3_embedding_worker.py'
       - 'scripts/cew_visual_embedding_cache.py'
       - 'scripts/validate_cew_dinov3_provider.py'
+      - 'scripts/validate_cew_dinov3_embedding_worker.py'
       - '.github/workflows/validate-cew-dinov3-provider.yml'
   pull_request:
     paths:
@@ -18,8 +20,10 @@ on:
       - 'requirements-dinov3.txt'
       - 'requirements.txt'
       - 'scripts/cew_dinov3_provider.py'
+      - 'scripts/cew_dinov3_embedding_worker.py'
       - 'scripts/cew_visual_embedding_cache.py'
       - 'scripts/validate_cew_dinov3_provider.py'
+      - 'scripts/validate_cew_dinov3_embedding_worker.py'
       - '.github/workflows/validate-cew-dinov3-provider.yml'
   workflow_dispatch:
 
@@ -34,12 +38,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Compile provider and cache without ML dependencies
+      - name: Compile provider, worker and cache without ML dependencies
         run: >-
           python -m py_compile
           scripts/cew_dinov3_provider.py
+          scripts/cew_dinov3_embedding_worker.py
           scripts/cew_visual_embedding_cache.py
           scripts/validate_cew_dinov3_provider.py
+          scripts/validate_cew_dinov3_embedding_worker.py
       - name: Validate provider contract
         run: |
           python - <<'PY'
@@ -55,6 +61,7 @@ jobs:
           assert data['execution']['web_worker_dependency'] is False
           assert data['model']['allowed_model_names'] == ['dinov3_vits16']
           assert data['model']['feature_output'] == 'x_norm_clstoken'
+          assert data['cache']['content_addressed'] is True
           assert data['authority']['project_semantic_authority'] == 'NONE'
           assert data['authority']['canonical_write_authorized'] is False
           print('CEW_DINOV3_PROVIDER_MACHINE_CONTRACT_PASS')
@@ -73,3 +80,6 @@ jobs:
       - name: Validate immutable provider and content-addressed cache
         working-directory: scripts
         run: python validate_cew_dinov3_provider.py
+      - name: Validate cache-first embedding worker
+        working-directory: scripts
+        run: python validate_cew_dinov3_embedding_worker.py
