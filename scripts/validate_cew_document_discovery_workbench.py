@@ -18,6 +18,8 @@ PROJECT_ID = "PROJECT-DISCOVERY-TEST-001"
 SOURCE_ID = "DISCOVERY-TEST-DRAWING"
 SOURCE_VERSION_ID = "CEW-TEST-SRC-DISCOVERY-V1"
 PAGE_ID = "CEW-TEST-PAGE-DISCOVERY-P001"
+HVA_FINDING = "MOBILE_PREVIEW_TAP_WITHOUT_LOCAL_FEEDBACK"
+HVA_REMEDIATION = "DIRECT_FILE_UPLOAD_PLUS_VISIBLE_PROGRESS_AND_LIMIT_GUARD"
 
 
 def _pdf() -> bytes:
@@ -221,6 +223,7 @@ def main() -> None:
     assert "router.include_router(_document_discovery.build_router(source_workspace))" in composition
 
     print("CEW_DOCUMENT_DISCOVERY_WORKBENCH_PASS")
+    print(f"hva_finding={HVA_FINDING} remediation={HVA_REMEDIATION}")
     print("preview_analysis=PASS preview_training=BLOCKED")
     print("mobile_preview_feedback=PASS direct_file_upload=PASS")
     print("governed_source_page_binding=PASS learning_receipt=APPEND_ONLY")
