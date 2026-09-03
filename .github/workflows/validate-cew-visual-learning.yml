@@ -7,6 +7,7 @@ on:
     paths:
       - 'analysis/cew/CEW_VISUAL_LEARNING_ARCHITECTURE_v1.md'
       - 'automation/CEW_VISUAL_LEARNING_CONTRACT_v1.json'
+      - 'automation/CEW_VISUAL_LEARNING_IMPLEMENTATION_STATUS_v1.json'
       - 'scripts/cew_visual_learning.py'
       - 'scripts/cew_visual_learning_bridge.py'
       - 'scripts/validate_cew_visual_learning.py'
@@ -16,6 +17,7 @@ on:
     paths:
       - 'analysis/cew/CEW_VISUAL_LEARNING_ARCHITECTURE_v1.md'
       - 'automation/CEW_VISUAL_LEARNING_CONTRACT_v1.json'
+      - 'automation/CEW_VISUAL_LEARNING_IMPLEMENTATION_STATUS_v1.json'
       - 'scripts/cew_visual_learning.py'
       - 'scripts/cew_visual_learning_bridge.py'
       - 'scripts/validate_cew_visual_learning.py'
@@ -41,7 +43,7 @@ jobs:
           scripts/cew_visual_learning_bridge.py
           scripts/validate_cew_visual_learning.py
           scripts/validate_cew_visual_learning_bridge.py
-      - name: Validate visual learning contract
+      - name: Validate visual learning contract and implementation status
         run: |
           python - <<'PY'
           import json
@@ -60,7 +62,18 @@ jobs:
           assert data['authority']['project_semantic_authority'] == 'NONE'
           assert data['authority']['canonical_write_authorized'] is False
           assert data['authority']['structural_identity_authorized'] is False
-          print('CEW_VISUAL_LEARNING_CONTRACT_PASS')
+
+          status = json.loads(Path('automation/CEW_VISUAL_LEARNING_IMPLEMENTATION_STATUS_v1.json').read_text())
+          assert status['schema'] == 'CEW_VISUAL_LEARNING_IMPLEMENTATION_STATUS_v1'
+          assert status['implementation_state'] == 'FOUNDATION_VALIDATED'
+          assert status['providers']['CEW_STRUCTURED_GRAPHIC_DESCRIPTOR_V1'] == 'READY'
+          assert status['providers']['DINOV3_FROZEN_FEATURES'] == 'DINOV3_PROVIDER_NOT_CONFIGURED'
+          assert status['dino_simulated'] is False
+          assert status['visual_foundation_embedding_operational'] is False
+          assert status['learning_operational_without_visual_foundation_model'] is True
+          assert status['authority']['project_semantic_authority'] == 'NONE'
+          assert status['authority']['canonical_write_authorized'] is False
+          print('CEW_VISUAL_LEARNING_CONTRACT_AND_STATUS_PASS')
           PY
       - name: Validate active prototype learning end to end
         working-directory: scripts
