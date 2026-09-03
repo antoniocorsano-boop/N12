@@ -1,0 +1,75 @@
+name: Validate CEW DINOv3 Provider
+
+on:
+  push:
+    branches:
+      - work/cew-new-project-preacquisition-v1
+    paths:
+      - 'automation/CEW_DINOV3_PROVIDER_CONTRACT_v1.json'
+      - 'requirements-dinov3.txt'
+      - 'requirements.txt'
+      - 'scripts/cew_dinov3_provider.py'
+      - 'scripts/cew_visual_embedding_cache.py'
+      - 'scripts/validate_cew_dinov3_provider.py'
+      - '.github/workflows/validate-cew-dinov3-provider.yml'
+  pull_request:
+    paths:
+      - 'automation/CEW_DINOV3_PROVIDER_CONTRACT_v1.json'
+      - 'requirements-dinov3.txt'
+      - 'requirements.txt'
+      - 'scripts/cew_dinov3_provider.py'
+      - 'scripts/cew_visual_embedding_cache.py'
+      - 'scripts/validate_cew_dinov3_provider.py'
+      - '.github/workflows/validate-cew-dinov3-provider.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-dinov3-provider:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile provider and cache without ML dependencies
+        run: >-
+          python -m py_compile
+          scripts/cew_dinov3_provider.py
+          scripts/cew_visual_embedding_cache.py
+          scripts/validate_cew_dinov3_provider.py
+      - name: Validate provider contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('automation/CEW_DINOV3_PROVIDER_CONTRACT_v1.json').read_text())
+          assert data['schema'] == 'CEW_DINOV3_PROVIDER_CONTRACT_v1'
+          assert data['provider_id'] == 'DINOV3_FROZEN_FEATURES'
+          assert data['implementation_state'] == 'IMPLEMENTED_NOT_PROVISIONED'
+          assert data['official_source']['runtime_network_fetch_allowed'] is False
+          assert data['official_source']['repository_commit_required'] is True
+          assert data['official_source']['weights_sha256_required'] is True
+          assert data['execution']['web_worker_dependency'] is False
+          assert data['model']['allowed_model_names'] == ['dinov3_vits16']
+          assert data['model']['feature_output'] == 'x_norm_clstoken'
+          assert data['authority']['project_semantic_authority'] == 'NONE'
+          assert data['authority']['canonical_write_authorized'] is False
+          print('CEW_DINOV3_PROVIDER_MACHINE_CONTRACT_PASS')
+          PY
+      - name: Prove web worker remains ML-free
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          main = Path('requirements.txt').read_text().lower()
+          for forbidden in ('torch', 'torchvision', 'transformers', 'pillow'):
+              assert forbidden not in main, f'{forbidden} leaked into web runtime requirements'
+          optional = Path('requirements-dinov3.txt').read_text().lower()
+          assert 'torch' in optional and 'torchvision' in optional and 'pillow' in optional
+          print('CEW_DINOV3_WEB_RUNTIME_ISOLATION_PASS')
+          PY
+      - name: Validate immutable provider and content-addressed cache
+        working-directory: scripts
+        run: python validate_cew_dinov3_provider.py
