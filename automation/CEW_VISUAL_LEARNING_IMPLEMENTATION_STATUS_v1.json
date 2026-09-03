@@ -4,7 +4,7 @@
   "contract_ref": "automation/CEW_VISUAL_LEARNING_CONTRACT_v1.json",
   "dinov3_provider_contract_ref": "automation/CEW_DINOV3_PROVIDER_CONTRACT_v1.json",
   "implementation_state": "VISUAL_PROVIDER_FOUNDATION_IMPLEMENTED_NOT_PROVISIONED",
-  "validation_state": "PENDING_EXACT_HEAD_CI",
+  "validation_state": "EXACT_HEAD_CI_VALIDATED",
   "validated_features": [
     "STRUCTURED_GRAPHIC_EMBEDDING",
     "PROJECT_LOCAL_PROTOTYPE_MEMORY",
@@ -49,8 +49,17 @@
     "component_scores_visible": true,
     "automatic_classification": false
   },
-  "previous_validated_test_sha": "4e7c74c403babf792a34f818b66dfe1afdbb868d",
-  "previous_validation_run_id": 33746542870,
+  "validated_test_sha": "aaba11fd69784b25891b9c4f80b05bd06554927d",
+  "validation_workflows": {
+    "Validate CEW DINOv3 Provider": {
+      "run_id": 33748080081,
+      "result": "PASS"
+    },
+    "Validate CEW Visual Learning": {
+      "run_id": 33748080125,
+      "result": "PASS"
+    }
+  },
   "next_implementation_gates": [
     "OFFICIAL_DINOV3_CHECKPOINT_PROVISIONING",
     "PROVISIONED_DINOV3_INFERENCE_SMOKE",
