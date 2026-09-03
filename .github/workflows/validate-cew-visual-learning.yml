@@ -1,0 +1,58 @@
+name: Validate CEW Visual Learning
+
+on:
+  push:
+    branches:
+      - work/cew-new-project-preacquisition-v1
+    paths:
+      - 'analysis/cew/CEW_VISUAL_LEARNING_ARCHITECTURE_v1.md'
+      - 'automation/CEW_VISUAL_LEARNING_CONTRACT_v1.json'
+      - 'scripts/cew_visual_learning.py'
+      - 'scripts/validate_cew_visual_learning.py'
+      - '.github/workflows/validate-cew-visual-learning.yml'
+  pull_request:
+    paths:
+      - 'analysis/cew/CEW_VISUAL_LEARNING_ARCHITECTURE_v1.md'
+      - 'automation/CEW_VISUAL_LEARNING_CONTRACT_v1.json'
+      - 'scripts/cew_visual_learning.py'
+      - 'scripts/validate_cew_visual_learning.py'
+      - '.github/workflows/validate-cew-visual-learning.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-visual-learning:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile learning modules
+        run: python -m py_compile scripts/cew_visual_learning.py scripts/validate_cew_visual_learning.py
+      - name: Validate visual learning contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('automation/CEW_VISUAL_LEARNING_CONTRACT_v1.json').read_text())
+          assert data['schema'] == 'CEW_VISUAL_LEARNING_CONTRACT_v1'
+          assert data['embedding_channels']['structured_graphic']['state'] == 'IMPLEMENTED'
+          visual = data['embedding_channels']['visual_foundation']
+          assert visual['target_provider_id'] == 'DINOV3_FROZEN_FEATURES'
+          assert visual['state'] == 'DINOV3_PROVIDER_NOT_CONFIGURED'
+          assert visual['required_for_v1'] is False
+          assert data['learning_receipt']['roles'] == ['POSITIVE', 'NEGATIVE', 'AMBIGUOUS']
+          assert data['prototype_memory']['negative_examples_penalize_similarity'] is True
+          assert data['prototype_memory']['ambiguous_examples_excluded_from_centroids'] is True
+          assert data['similarity']['automatic_classification'] is False
+          assert data['authority']['project_semantic_authority'] == 'NONE'
+          assert data['authority']['canonical_write_authorized'] is False
+          assert data['authority']['structural_identity_authorized'] is False
+          print('CEW_VISUAL_LEARNING_CONTRACT_PASS')
+          PY
+      - name: Validate active prototype learning end to end
+        working-directory: scripts
+        run: python validate_cew_visual_learning.py
