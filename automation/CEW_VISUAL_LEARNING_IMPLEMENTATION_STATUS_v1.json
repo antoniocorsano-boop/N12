@@ -2,7 +2,9 @@
   "schema": "CEW_VISUAL_LEARNING_IMPLEMENTATION_STATUS_v1",
   "architecture_ref": "analysis/cew/CEW_VISUAL_LEARNING_ARCHITECTURE_v1.md",
   "contract_ref": "automation/CEW_VISUAL_LEARNING_CONTRACT_v1.json",
-  "implementation_state": "FOUNDATION_VALIDATED",
+  "dinov3_provider_contract_ref": "automation/CEW_DINOV3_PROVIDER_CONTRACT_v1.json",
+  "implementation_state": "VISUAL_PROVIDER_FOUNDATION_IMPLEMENTED_NOT_PROVISIONED",
+  "validation_state": "PENDING_EXACT_HEAD_CI",
   "validated_features": [
     "STRUCTURED_GRAPHIC_EMBEDDING",
     "PROJECT_LOCAL_PROTOTYPE_MEMORY",
@@ -16,23 +18,42 @@
     "ZERO_PRIOR_TO_LEARNING_RECEIPT_BRIDGE",
     "PROJECT_LOCAL_LEARNING_TRIAGE_OVERLAY",
     "CROSS_PROJECT_MEMORY_BLOCK",
-    "EXTERNAL_REFERENCE_TO_PROJECT_MEMORY_BLOCK"
+    "EXTERNAL_REFERENCE_TO_PROJECT_MEMORY_BLOCK",
+    "DINOV3_PROVIDER_ADAPTER_CONTRACT",
+    "DINOV3_PROVIDER_IMMUTABLE_REPO_AND_CHECKPOINT_VERIFICATION",
+    "IMMUTABLE_REGION_VISUAL_EMBEDDING_CACHE",
+    "CACHE_FIRST_DINOV3_WORKER",
+    "STRUCTURED_PLUS_DINOV3_MULTICHANNEL_FUSION"
   ],
   "providers": {
     "CEW_STRUCTURED_GRAPHIC_DESCRIPTOR_V1": "READY",
-    "DINOV3_FROZEN_FEATURES": "DINOV3_PROVIDER_NOT_CONFIGURED"
+    "DINOV3_FROZEN_FEATURES": "IMPLEMENTED_NOT_PROVISIONED"
   },
   "dino_simulated": false,
+  "actual_dinov3_inference_validated": false,
+  "actual_dinov3_inference_blocker": "OFFICIAL_DINOV3_REPOSITORY_AND_CHECKPOINT_NOT_PROVISIONED",
   "visual_foundation_embedding_operational": false,
   "learning_operational_without_visual_foundation_model": true,
-  "validated_test_sha": "4e7c74c403babf792a34f818b66dfe1afdbb868d",
-  "validation_workflow": "Validate CEW Visual Learning",
-  "validation_run_id": 33746542870,
-  "validation_result": "PASS",
+  "web_runtime_ml_dependencies_added": false,
+  "embedding_cache": {
+    "schema": "CEW_VISUAL_EMBEDDING_CACHE_ENTRY_v1",
+    "content_addressed": true,
+    "filesystem_backend_implemented": true,
+    "neon_backend_implemented": true,
+    "neon_schema_applied_live": false,
+    "cache_first_worker_implemented": true
+  },
+  "multichannel_fusion": {
+    "policy": "NORMALIZED_WEIGHTED_MEAN_AVAILABLE_CHANNELS",
+    "structured_only_fallback_allowed": true,
+    "component_scores_visible": true,
+    "automatic_classification": false
+  },
+  "previous_validated_test_sha": "4e7c74c403babf792a34f818b66dfe1afdbb868d",
+  "previous_validation_run_id": 33746542870,
   "next_implementation_gates": [
-    "DINOV3_FROZEN_FEATURE_PROVIDER",
-    "IMMUTABLE_REGION_IMAGE_EMBEDDING_CACHE",
-    "MULTI_CHANNEL_FUSION_STRUCTURED_PLUS_VISUAL",
+    "OFFICIAL_DINOV3_CHECKPOINT_PROVISIONING",
+    "PROVISIONED_DINOV3_INFERENCE_SMOKE",
     "DOCUMENT_DISCOVERY_WORKSPACE_TEACHING_UI",
     "GROUP_REVIEW_TO_LEARNING_RECEIPTS"
   ],
