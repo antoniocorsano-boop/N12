@@ -61,7 +61,7 @@ jobs:
           assert not found, found
           print('CEW_DOCUMENT_DISCOVERY_WEB_RUNTIME_ML_DEPENDENCIES_ABSENT_PASS')
           PY
-      - name: Verify additive Workbench mount and authority markers
+      - name: Verify additive Workbench mount, authority and empty-state UX
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -73,5 +73,12 @@ jobs:
           assert 'X-CEW-Engineering-Authority-Effect' in workspace
           assert 'Preview analizzabile, ma training bloccato' in workspace
           assert 'Significato automatico: <b>nessuno</b>' in workspace
-          print('CEW_DOCUMENT_DISCOVERY_PROFESSIONAL_WORKBENCH_MOUNT_PASS')
+          assert 'id="viewer-placeholder"' in workspace
+          assert '<img id="page" alt="Pagina documento" hidden>' in workspace
+          assert "q('viewer-placeholder').hidden=true" in workspace
+          assert "q('page').hidden=true" in workspace
+          assert 'Provider: caricamento stato' in workspace
+          assert 'DINOv3:' in workspace
+          assert 'nessuna classificazione automatica' in workspace
+          print('CEW_DOCUMENT_DISCOVERY_PROFESSIONAL_WORKBENCH_MOUNT_AND_EMPTY_STATE_PASS')
           PY
