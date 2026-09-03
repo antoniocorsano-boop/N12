@@ -1,6 +1,6 @@
 {
   "schema": "CEW_VISUAL_LEARNING_CONTRACT_v1",
-  "status": "IMPLEMENTATION_FOUNDATION",
+  "status": "VISUAL_PROVIDER_FOUNDATION_IMPLEMENTED_NOT_PROVISIONED",
   "purpose": "Govern incremental project-local learning from human-taught positive, negative and ambiguous examples without granting project semantic or engineering authority.",
   "knowledge_layers": [
     "EXTERNAL_REFERENCE",
@@ -16,8 +16,15 @@
     },
     "visual_foundation": {
       "target_provider_id": "DINOV3_FROZEN_FEATURES",
-      "state": "DINOV3_PROVIDER_NOT_CONFIGURED",
+      "provider_contract_ref": "automation/CEW_DINOV3_PROVIDER_CONTRACT_v1.json",
+      "state": "IMPLEMENTED_NOT_PROVISIONED",
       "required_for_v1": false,
+      "web_worker_dependency": false,
+      "runtime_network_fetch_allowed": false,
+      "cache_schema": "CEW_VISUAL_EMBEDDING_CACHE_ENTRY_v1",
+      "cache_first_worker": true,
+      "actual_inference_validated": false,
+      "actual_inference_blocker": "OFFICIAL_DINOV3_REPOSITORY_AND_CHECKPOINT_NOT_PROVISIONED",
       "semantic_authority": "NONE"
     }
   },
@@ -35,10 +42,17 @@
     "positive_centroid_required_for_search": true,
     "negative_examples_penalize_similarity": true,
     "ambiguous_examples_excluded_from_centroids": true,
-    "replayable_from_learning_receipts": true
+    "replayable_from_learning_receipts": true,
+    "multiple_embedding_providers_allowed": true
   },
   "similarity": {
     "method_v1": "COSINE_POSITIVE_CENTROID_WITH_NEGATIVE_PENALTY",
+    "multichannel_policy": "NORMALIZED_WEIGHTED_MEAN_AVAILABLE_CHANNELS",
+    "default_provider_weights": {
+      "CEW_STRUCTURED_GRAPHIC_DESCRIPTOR_V1": 1.0,
+      "DINOV3_FROZEN_FEATURES": 1.0
+    },
+    "structured_only_fallback_allowed": true,
     "component_scores_visible": true,
     "automatic_classification": false,
     "human_project_validation_required": true
