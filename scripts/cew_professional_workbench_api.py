@@ -21,6 +21,7 @@ import cew_professional_workbench_api_base as _base
 import cew_oar_g4_region_workbench as _oar_g4
 import cew_oar_g4_assisted_workbench as _oar_g4_assisted
 import cew_external_graphic_reference_review_workbench as _reference_review
+import cew_external_graphic_reference_review_hardening as _reference_review_hardening
 
 _REQUIRED_BASE_MARKERS = (
     '@router.get("/workbench", response_class=HTMLResponse)',
@@ -53,6 +54,7 @@ def _assert_base_contract() -> None:
 
 
 _assert_base_contract()
+_reference_review_hardening.install(_reference_review)
 
 
 def _sync_runtime_stores() -> None:
