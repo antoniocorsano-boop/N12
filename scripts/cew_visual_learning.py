@@ -6,7 +6,7 @@ learning memory is derived and replayable from append-only LearningReceipt
 records. It grants no project semantic, CAD, structural or engineering authority.
 
 v1 ships an explainable structured-graphic embedding. A DINOv3 frozen-feature
-provider is a declared future/pluggable channel and is not simulated when absent.
+provider is implemented as an optional channel and is not simulated when absent.
 """
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ EMBEDDING_SCHEMA = "CEW_VISUAL_EMBEDDING_v1"
 STRUCTURED_PROVIDER_ID = "CEW_STRUCTURED_GRAPHIC_DESCRIPTOR_V1"
 STRUCTURED_PROVIDER_VERSION = "1.0.0"
 DINOV3_PROVIDER_ID = "DINOV3_FROZEN_FEATURES"
-DINOV3_PROVIDER_STATE = "DINOV3_PROVIDER_NOT_CONFIGURED"
+DINOV3_PROVIDER_STATE = "IMPLEMENTED_NOT_PROVISIONED"
 RUNTIME_STORE = Path(__file__).resolve().parents[1] / "runtime" / "visual_learning_receipts"
 
 LEARNING_ROLES = {"POSITIVE", "NEGATIVE", "AMBIGUOUS"}
