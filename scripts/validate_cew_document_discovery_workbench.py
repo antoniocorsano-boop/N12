@@ -186,6 +186,17 @@ def main() -> None:
     assert "Significato automatico: <b>nessuno</b>" in html
     assert "Preview analizzabile, ma training bloccato" in html
 
+    # Mobile HVA regression: a tap must provide immediate, local feedback and must
+    # stream the browser File directly instead of duplicating it with arrayBuffer().
+    assert 'id="intake-message"' in html
+    assert "Analisi grafica in corso" in html
+    assert "Preview completata" in html
+    assert "body:f" in html
+    assert "arrayBuffer()" not in html
+    assert "maxPreviewBytes" in html
+    assert "supera il limite preview" in html
+    assert "responseJson" in html
+
     router = workbench.build_router(workspace)
     paths = {route.path for route in router.routes}
     required = {
@@ -200,12 +211,18 @@ def main() -> None:
     }
     assert required.issubset(paths)
 
+    workbench_source = Path(workbench.__file__).read_text(encoding="utf-8")
+    assert '"max_preview_pdf_bytes":discovery.MAX_PDF_BYTES' in workbench_source
+    assert "run_in_threadpool(discovery.create_preview" in workbench_source
+    assert "DOCUMENT_DISCOVERY_PREVIEW_BLOCKED" in workbench_source
+
     composition = (Path(__file__).with_name("cew_professional_workbench_api.py")).read_text(encoding="utf-8")
     assert "import cew_document_discovery_workbench as _document_discovery" in composition
     assert "router.include_router(_document_discovery.build_router(source_workspace))" in composition
 
     print("CEW_DOCUMENT_DISCOVERY_WORKBENCH_PASS")
     print("preview_analysis=PASS preview_training=BLOCKED")
+    print("mobile_preview_feedback=PASS direct_file_upload=PASS")
     print("governed_source_page_binding=PASS learning_receipt=APPEND_ONLY")
     print("find_similar=PROPOSAL_ONLY automatic_classification=false")
     print("document_discovery_router=MOUNTED_IN_PROFESSIONAL_WORKBENCH")
