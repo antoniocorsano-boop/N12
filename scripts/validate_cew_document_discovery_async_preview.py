@@ -154,15 +154,23 @@ def main() -> None:
     assert "RASTER_SAFE_MODE" in jobs_source
     assert "DOCUMENT_DISCOVERY_PREVIEW_RASTER_FALLBACK_FAILED" in jobs_source
     assert "preview_engine.preacquire_preview_pdf" not in jobs_source
+    assert "cwd=str(work_dir)" in jobs_source
+    assert "completed.stderr" not in jobs_source
     assert "resource.RLIMIT_AS" in worker_source
     assert "CEW_PREVIEW_WORKER_MEMORY_MB" in worker_source
     assert "cew_document_discovery_preview_engine" in worker_source
     assert "cew_document_discovery_raster_preview_engine" in worker_source
     assert "os.nice(10)" in worker_source
+    assert 'Path(INPUT_FILENAME)' in worker_source
+    assert 'Path(OUTPUT_FILENAME)' in worker_source
+    assert "input_path_raw" not in worker_source
+    assert "output_path_raw" not in worker_source
+    assert "DOCUMENT_DISCOVERY_PREVIEW_WORKER_INTERNAL_ERROR" in worker_source
+    assert "{exc}" not in worker_source
 
     print("CEW_DOCUMENT_DISCOVERY_ASYNC_PREVIEW_PASS")
     print("http_boundary=ENQUEUE_THEN_POLL gateway_wait=DECOUPLED")
-    print("worker_boundary=PROCESS_ISOLATED_SUBPROCESS memory_ceiling=ENFORCED")
+    print("worker_boundary=PROCESS_ISOLATED_SUBPROCESS memory_ceiling=ENFORCED path_boundary=FIXED_PRIVATE_WORKDIR")
     print("vector_failure=RASTER_SAFE_RESOURCE_BOUNDED_FALLBACK")
     print("preview_training=BLOCKED semantic_authority=NONE canonical_write_authorized=false")
 
