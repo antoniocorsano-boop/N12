@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression gate for async/bounded CEW Document Discovery preview."""
+"""Regression gate for async/resource-bounded CEW Document Discovery preview."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -11,6 +11,7 @@ import pymupdf
 import cew_document_discovery as discovery
 import cew_document_discovery_async_preview as async_preview
 import cew_document_discovery_preview_engine as preview_engine
+import cew_document_discovery_raster_preview_engine as raster_preview_engine
 import cew_document_discovery_preview_jobs as preview_jobs
 
 
@@ -60,6 +61,20 @@ def main() -> None:
         if row["primitive_family"] != "TEXT_BLOCK"
     )
 
+    raster_report = raster_preview_engine.preacquire_preview_pdf(
+        payload,
+        source_version_id="PREVIEW-RASTER-SAFE-TEST",
+    )
+    assert raster_report["analysis_scope"] == "BOUNDED_INTERACTIVE_PREVIEW"
+    assert raster_report["preview_fallback_mode"] == "RASTER_SAFE_RESOURCE_BOUNDED"
+    assert raster_report["semantic_labels_assigned_automatically"] is False
+    assert raster_report["authority"]["canonical_write_authorized"] is False
+    assert raster_report["primitive_candidate_count"] > 0
+    assert any(
+        row["detector"] == "PYMUPDF_RASTER_INK_TILE_BOUNDED"
+        for row in raster_report["primitive_candidates"]
+    )
+
     job = preview_jobs.start_preview_job(payload, "HVA-DISCOVERY-ASYNC-TEST")
     assert job["state"] == "QUEUED"
     assert job["session_id"] is None
@@ -70,6 +85,7 @@ def main() -> None:
     assert current["state"] == "READY", current
     assert current["session_id"]
     assert current["execution_boundary"] == "PROCESS_ISOLATED_SUBPROCESS"
+    assert current["preview_worker_mode"] in {preview_jobs.VECTOR_MODE, preview_jobs.RASTER_SAFE_MODE}
 
     status = discovery.status(current["session_id"])
     assert status["source_registration_state"] == "UNREGISTERED_PREVIEW"
@@ -79,8 +95,8 @@ def main() -> None:
     assert status["authority"]["canonical_write_authorized"] is False
     assert status["authority"]["structural_identity_authorized"] is False
 
-    # A child-process failure must fail only the preview job. The validator
-    # continues in the same Python process and can still query provider/session state.
+    # If both vector and raster-safe child executions fail, only the preview job
+    # fails. The validator remains alive and authority remains fail-closed.
     original_worker = preview_jobs.WORKER_SCRIPT
     with tempfile.TemporaryDirectory(prefix="cew-preview-worker-failure-test-") as tmp:
         failing_worker = Path(tmp) / "fail_worker.py"
@@ -91,7 +107,11 @@ def main() -> None:
         preview_jobs.WORKER_SCRIPT = original_worker
         failed = _wait(failed_job["job_id"])
         assert failed["state"] == "FAILED", failed
-        assert failed["reason"] == "DOCUMENT_DISCOVERY_PREVIEW_WORKER_EXIT_7", failed
+        assert failed["reason"] == (
+            "DOCUMENT_DISCOVERY_PREVIEW_RASTER_FALLBACK_FAILED:"
+            "DOCUMENT_DISCOVERY_PREVIEW_WORKER_EXIT_7"
+        ), failed
+        assert failed["preview_fallback_used"] is True
         assert failed["session_id"] is None
         assert discovery.provider_states()["structured_graphic"]["state"] == "READY"
 
@@ -117,25 +137,33 @@ def main() -> None:
     assert composition.index(async_mount) < composition.index(legacy_mount)
 
     engine_source = Path("cew_document_discovery_preview_engine.py").read_text(encoding="utf-8")
+    raster_source = Path("cew_document_discovery_raster_preview_engine.py").read_text(encoding="utf-8")
     assert "page.get_cdrawings()" in engine_source
     assert "MAX_VECTOR_PATHS_PER_PAGE" in engine_source
     assert "MAX_TOTAL_CANDIDATES" in engine_source
+    assert "page.get_pixmap(" in raster_source
+    assert "PYMUPDF_RASTER_INK_TILE_BOUNDED" in raster_source
+    assert "RASTER_SAFE_RESOURCE_BOUNDED" in raster_source
 
     jobs_source = Path("cew_document_discovery_preview_jobs.py").read_text(encoding="utf-8")
     worker_source = Path("cew_document_discovery_preview_worker.py").read_text(encoding="utf-8")
     assert "subprocess.run(" in jobs_source
     assert "PROCESS_ISOLATED_SUBPROCESS" in jobs_source
-    assert "PREVIEW_WORKER_TIMEOUT_SECONDS" in jobs_source
+    assert "PREVIEW_VECTOR_TIMEOUT_SECONDS" in jobs_source
+    assert "PREVIEW_RASTER_TIMEOUT_SECONDS" in jobs_source
+    assert "RASTER_SAFE_MODE" in jobs_source
+    assert "DOCUMENT_DISCOVERY_PREVIEW_RASTER_FALLBACK_FAILED" in jobs_source
     assert "preview_engine.preacquire_preview_pdf" not in jobs_source
-    assert "DOCUMENT_DISCOVERY_PREVIEW_WORKER_TIMEOUT" in jobs_source
-    assert "DOCUMENT_DISCOVERY_PREVIEW_WORKER_INTERNAL_ERROR" in jobs_source
-    assert "preview_engine.preacquire_preview_pdf" in worker_source
+    assert "resource.RLIMIT_AS" in worker_source
+    assert "CEW_PREVIEW_WORKER_MEMORY_MB" in worker_source
+    assert "cew_document_discovery_preview_engine" in worker_source
+    assert "cew_document_discovery_raster_preview_engine" in worker_source
     assert "os.nice(10)" in worker_source
 
     print("CEW_DOCUMENT_DISCOVERY_ASYNC_PREVIEW_PASS")
     print("http_boundary=ENQUEUE_THEN_POLL gateway_wait=DECOUPLED")
-    print("worker_boundary=PROCESS_ISOLATED_SUBPROCESS worker_failure=FAIL_CLOSED_WEB_PROCESS_SURVIVES")
-    print("preview_engine=BOUNDED_INTERACTIVE_PREVIEW vector_api=GET_CDRAWINGS")
+    print("worker_boundary=PROCESS_ISOLATED_SUBPROCESS memory_ceiling=ENFORCED")
+    print("vector_failure=RASTER_SAFE_RESOURCE_BOUNDED_FALLBACK")
     print("preview_training=BLOCKED semantic_authority=NONE canonical_write_authorized=false")
 
 
