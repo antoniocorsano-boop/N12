@@ -40,20 +40,28 @@ async function boot(){const b=await api('/api/workbench/document-discovery/statu
 q('file').onchange=()=>{const f=q('file').files[0];if(!f){intakeMessage(`Preview PDF: massimo ${mb(maxPreviewBytes)}.`);return}if(f.size>maxPreviewBytes){intakeMessage(`${f.name} · ${mb(f.size)} supera il limite preview di ${mb(maxPreviewBytes)}.`, 'error');return}intakeMessage(`${f.name} · ${mb(f.size)} · pronto per la preview.`,'ok')}
 q('analyze').onclick=async()=>{if(busy)return;try{const project=q('project').value.trim(),source=q('source').value;if(!project||!source)throw Error('Indica progetto e fonte.');setBusy(true,'Fonte governata: acquisizione e analisi in corso…');resetViewer();const b=await api('/api/workbench/document-discovery/analyze-governed',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:project,source_id:source})});session=b.session_id;clusterId=null;await load();intakeMessage(`Analisi completata · ${state.page_count} pagine · ${state.primitive_candidate_count} primitive · ${state.graphic_cluster_count} cluster.`,'ok')}catch(e){intakeMessage(e.message,'error');q('message').textContent=e.message}finally{setBusy(false)}}
 q('preview').onclick=async()=>{if(busy)return;try{const project=q('project').value.trim(),f=q('file').files[0];if(!project||!f)throw Error('Indica progetto e PDF.');if(f.size>maxPreviewBytes)throw Error(`${f.name} · ${mb(f.size)} supera il limite preview di ${mb(maxPreviewBytes)}.`);setBusy(true,`Upload ${f.name} · ${mb(f.size)}. Analisi grafica in corso…`);resetViewer();const r=await fetch(`/api/workbench/document-discovery/analyze-preview?project_id=${encodeURIComponent(project)}`,{method:'POST',headers:{'Content-Type':'application/pdf'},body:f});const b=await responseJson(r);session=b.session_id;clusterId=null;await load();intakeMessage(`Preview completata · ${state.page_count} pagine · ${state.primitive_candidate_count} primitive · ${state.graphic_cluster_count} cluster. Training bloccato.`,'ok')}catch(e){intakeMessage(e.message,'error');q('message').textContent=e.message}finally{setBusy(false)}}
-async function learn(role){try{const p={candidate_id:candidateId,role,concept_id:q('concept').value.trim(),meaning:q('meaning').value.trim(),reviewer:q('reviewer').value.trim(),rationale:q('rationale').value.trim()};const b=await api(`/api/workbench/document-discovery/session/${encodeURIComponent(session)}/learn`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});q('message').textContent=`${b.role} registrato · +${b.example_counts.POSITIVE} / −${b.example_counts.NEGATIVE} / ?${b.example_counts.AMBIGUOUS}`;await load()}catch(e){q('message').textContent=e.message}}q('pos').onclick=()=>learn('POSITIVE');q('neg').onclick=()=>learn('NEGATIVE');q('amb').onclick=()=>learn('AMBIGUOUS');q('concept').oninput=buttons;q('meaning').oninput=buttons;q('similar').onclick=async()=>{try{const b=await api(`/api/workbench/document-discovery/session/${encodeURIComponent(session)}/similar`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({concept_id:q('concept').value.trim(),meaning:q('meaning').value.trim(),limit:40})});q('results').innerHTML='<b>Simili proposti</b><br>'+b.ranked_candidates.map(x=>`<button class="card sim" data-id="${h(x.candidate_id)}"><b>${Number(x.similarity).toFixed(3)}</b><span class="meta">${h(x.candidate_id)} · significato assegnato: nessuno</span></button>`).join('');for(const s of document.querySelectorAll('.sim'))s.onclick=()=>{const c=state.candidates.find(x=>x.candidate_id===s.dataset.id);box(c);buttons()};q('message').textContent=`${b.ranked_candidates.length} proposte. Nessuna classificazione automatica.`}catch(e){q('message').textContent=e.message}};boot().catch(e=>{intakeMessage(e.message,'error');q('message').textContent=e.message});
+async function learn(role){try{const p={candidate_id:candidateId,role,concept_id:q('concept').value.trim(),meaning:q('meaning').value.trim(),reviewer:q('reviewer').value.trim(),rationale:q('rationale').value.trim()};const b=await api(`/api/workbench/document-discovery/session/${encodeURIComponent(session)}/learn`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});q('message').textContent=`${b.role} registrato · +${b.example_counts.POSITIVE} / −${b.example_counts.NEGATIVE} / ?${b.example_counts.AMBIGUOUS}`;await load()}catch(e){q('message').textContent=e.message}}q('pos').onclick=()=>learn('POSITIVE');q('neg').onclick=()=>learn('NEGATIVE');q('amb').onclick=()=>learn('AMBIGUOUS');q('concept').oninput=buttons;q('meaning').oninput=buttons;
+q('similar').onclick=async()=>{try{const b=await api(`/api/workbench/document-discovery/session/${encodeURIComponent(session)}/similar`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({concept_id:q('concept').value.trim(),meaning:q('meaning').value.trim(),limit:40})});q('results').innerHTML='<b>Proposte simili</b><br>'+b.candidates.map(x=>`<button class="card result" data-id="${h(x.candidate_id)}"><b>${h(x.primitive_family)} · ${(x.fused_score*100).toFixed(1)}%</b><span class="meta">${h(x.candidate_id)}${x.is_training_example?' · training':''}</span></button>`).join('');for(const btn of document.querySelectorAll('.result'))btn.onclick=()=>{const x=b.candidates.find(v=>v.candidate_id===btn.dataset.id);if(x)box(x)};q('message').textContent=`${b.candidate_count} proposte · ${b.search_channel_state}. Nessuna classificazione automatica.`}catch(e){q('message').textContent=e.message}};boot().catch(e=>{intakeMessage(e.message,'error');q('message').textContent=e.message});
 </script></body></html>'''
 
 
 def build_router(source_workspace) -> APIRouter:
-    router=APIRouter()
+    router = APIRouter()
+
+    @router.get("/workbench/document-discovery", response_class=HTMLResponse)
+    def page():
+        return HTMLResponse(_page(), headers={"Cache-Control":"no-store","X-CEW-Canonical-Write":"false","X-CEW-Engineering-Authority-Effect":"NONE"})
 
     @router.get("/api/workbench/document-discovery/status")
-    def bootstrap():
+    def status():
         try:
             return _json({
-                "service":"CEW_DOCUMENT_DISCOVERY",
+                "state":"DOCUMENT_DISCOVERY_AVAILABLE",
+                "governed_sources":discovery.governed_sources(source_workspace),
+                "preview_allowed":True,
+                "preview_teaching_allowed":False,
                 "max_preview_pdf_bytes":discovery.MAX_PDF_BYTES,
-                "governed_sources":discovery.available_sources(source_workspace),
+                "max_preview_pages":discovery.MAX_PAGES,
                 "provider_states":discovery.provider_states(),
             })
         except Exception:
@@ -66,7 +74,7 @@ def build_router(source_workspace) -> APIRouter:
             body=await request.json()
             session=await run_in_threadpool(discovery.create_governed,source_workspace,body.get("source_id"),body.get("project_id"))
             return _json(discovery.status(session["session_id"]))
-        except (KeyError,ValueError):
+        except (KeyError,ValueError) as exc:
             return _json({"state":"DOCUMENT_DISCOVERY_GOVERNED_ANALYSIS_REJECTED","reason":"DOCUMENT_DISCOVERY_REQUEST_REJECTED"},409)
         except Exception:
             LOGGER.exception("DOCUMENT_DISCOVERY_GOVERNED_ANALYSIS_BLOCKED")
