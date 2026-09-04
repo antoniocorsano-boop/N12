@@ -109,6 +109,10 @@ def start_preview_job(payload: bytes, project_id: str) -> dict[str, Any]:
         "session_id": None,
         "reason": None,
     }
+    # Capture the enqueue acknowledgement before the worker can mutate the
+    # shared job object. The POST contract is always QUEUED; subsequent state
+    # is observable only through preview_job_status().
+    queued_public = _public(dict(job))
     with JOB_LOCK:
         while len(JOBS) >= MAX_JOBS:
             terminal = [key for key, row in JOBS.items() if row["state"] in {"READY", "FAILED"}]
@@ -119,7 +123,7 @@ def start_preview_job(payload: bytes, project_id: str) -> dict[str, Any]:
             JOBS.pop(oldest, None)
         JOBS[job_id] = job
     EXECUTOR.submit(_run, job_id, payload, project_id)
-    return _public(job)
+    return queued_public
 
 
 def preview_job_status(job_id: str) -> dict[str, Any]:
