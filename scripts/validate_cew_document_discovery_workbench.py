@@ -218,6 +218,20 @@ def main() -> None:
     assert "run_in_threadpool(discovery.create_preview" in workbench_source
     assert "DOCUMENT_DISCOVERY_PREVIEW_BLOCKED" in workbench_source
 
+    # Security regression: unexpected runtime exceptions are logged server-side and
+    # must never be serialized into client-visible response reasons.
+    blocked_states = (
+        "DOCUMENT_DISCOVERY_STATUS_BLOCKED",
+        "DOCUMENT_DISCOVERY_GOVERNED_ANALYSIS_BLOCKED",
+        "DOCUMENT_DISCOVERY_PREVIEW_BLOCKED",
+        "DOCUMENT_DISCOVERY_LEARNING_BLOCKED",
+    )
+    assert "LOGGER = logging.getLogger(__name__)" in workbench_source
+    assert workbench_source.count('"reason":"DOCUMENT_DISCOVERY_INTERNAL_ERROR"') == len(blocked_states)
+    for blocked_state in blocked_states:
+        assert f'LOGGER.exception("{blocked_state}")' in workbench_source
+        assert f'"state":"{blocked_state}","reason":str(exc)' not in workbench_source
+
     composition = (Path(__file__).with_name("cew_professional_workbench_api.py")).read_text(encoding="utf-8")
     assert "import cew_document_discovery_workbench as _document_discovery" in composition
     assert "router.include_router(_document_discovery.build_router(source_workspace))" in composition
@@ -226,6 +240,7 @@ def main() -> None:
     print(f"hva_finding={HVA_FINDING} remediation={HVA_REMEDIATION}")
     print("preview_analysis=PASS preview_training=BLOCKED")
     print("mobile_preview_feedback=PASS direct_file_upload=PASS")
+    print("unexpected_exception_exposure=BLOCKED server_logging=ENABLED")
     print("governed_source_page_binding=PASS learning_receipt=APPEND_ONLY")
     print("find_similar=PROPOSAL_ONLY automatic_classification=false")
     print("document_discovery_router=MOUNTED_IN_PROFESSIONAL_WORKBENCH")
