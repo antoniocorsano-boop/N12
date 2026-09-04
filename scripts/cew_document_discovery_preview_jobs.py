@@ -3,8 +3,10 @@
 
 The HTTP request validates and enqueues only. Expensive PyMuPDF extraction runs
 in a separate Python process so vector parsing cannot monopolize or terminate the
-Uvicorn web process. Jobs and preview sessions remain transient process-local
-state and create no project truth.
+Uvicorn web process. The preferred vector worker is memory-capped; if it cannot
+complete inside that envelope, the supervisor retries once with a raster-safe,
+zero-semantic-prior preview. Jobs and preview sessions remain transient state and
+create no project truth.
 """
 from __future__ import annotations
 
@@ -25,8 +27,12 @@ from typing import Any
 import cew_document_discovery as discovery
 
 MAX_JOBS = 6
-PREVIEW_WORKER_TIMEOUT_SECONDS = 150.0
+PREVIEW_VECTOR_TIMEOUT_SECONDS = 45.0
+PREVIEW_RASTER_TIMEOUT_SECONDS = 90.0
+PREVIEW_WORKER_MEMORY_MB = 192
 WORKER_SCRIPT = Path(__file__).with_name("cew_document_discovery_preview_worker.py")
+VECTOR_MODE = "VECTOR_BOUNDED"
+RASTER_SAFE_MODE = "RASTER_SAFE"
 JOB_LOCK = RLock()
 JOBS: dict[str, dict[str, Any]] = {}
 EXECUTOR = ThreadPoolExecutor(max_workers=1, thread_name_prefix="cew-preview-supervisor")
@@ -55,6 +61,8 @@ def _public(job: dict[str, Any]) -> dict[str, Any]:
         "reason": job.get("reason"),
         "analysis_scope": "BOUNDED_INTERACTIVE_PREVIEW",
         "execution_boundary": "PROCESS_ISOLATED_SUBPROCESS",
+        "preview_worker_mode": job.get("preview_worker_mode"),
+        "preview_fallback_used": bool(job.get("preview_fallback_used", False)),
         "teaching_enabled": False,
         "authority": dict(discovery.AUTHORITY),
     }
@@ -115,12 +123,56 @@ def _save_preview_session(
     })
 
 
+def _invoke_worker(
+    *,
+    worker_script: Path,
+    input_path: Path,
+    output_path: Path,
+    source_version_id: str,
+    digest: str,
+    mode: str,
+    timeout_seconds: float,
+    env: dict[str, str],
+) -> tuple[subprocess.CompletedProcess[str] | None, str | None]:
+    try:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(worker_script),
+                str(input_path),
+                str(output_path),
+                source_version_id,
+                digest,
+                mode,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False,
+            timeout=timeout_seconds,
+            env=env,
+        )
+    except subprocess.TimeoutExpired:
+        return None, f"DOCUMENT_DISCOVERY_PREVIEW_WORKER_TIMEOUT_{mode}"
+
+    if completed.returncode != 0:
+        LOGGER.warning(
+            "DOCUMENT_DISCOVERY_PREVIEW_WORKER_NONZERO mode=%s returncode=%s stderr=%s",
+            mode,
+            completed.returncode,
+            (completed.stderr or "").strip()[:2000],
+        )
+        return completed, _worker_exit_reason(completed.returncode)
+    return completed, None
+
+
 def _run(
     job_id: str,
     payload: bytes,
     project_id: str,
     worker_script: Path,
-    timeout_seconds: float,
+    vector_timeout_seconds: float,
+    raster_timeout_seconds: float,
 ) -> None:
     _set(job_id, state="RUNNING")
     digest = sha256(payload).hexdigest()
@@ -138,39 +190,57 @@ def _run(
             env.setdefault("OPENBLAS_NUM_THREADS", "1")
             env.setdefault("MKL_NUM_THREADS", "1")
             env.setdefault("NUMEXPR_NUM_THREADS", "1")
+            env.setdefault("CEW_PREVIEW_WORKER_MEMORY_MB", str(PREVIEW_WORKER_MEMORY_MB))
 
-            completed = subprocess.run(
-                [
-                    sys.executable,
-                    str(worker_script),
-                    str(input_path),
-                    str(output_path),
-                    source_version_id,
-                    digest,
-                ],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                check=False,
-                timeout=timeout_seconds,
+            _, primary_failure = _invoke_worker(
+                worker_script=worker_script,
+                input_path=input_path,
+                output_path=output_path,
+                source_version_id=source_version_id,
+                digest=digest,
+                mode=VECTOR_MODE,
+                timeout_seconds=vector_timeout_seconds,
                 env=env,
             )
 
-            if completed.returncode != 0:
-                LOGGER.error(
-                    "DOCUMENT_DISCOVERY_PREVIEW_WORKER_NONZERO job_id=%s returncode=%s stderr=%s",
+            fallback_used = primary_failure is not None
+            if fallback_used:
+                output_path.unlink(missing_ok=True)
+                LOGGER.warning(
+                    "DOCUMENT_DISCOVERY_PREVIEW_VECTOR_FALLBACK job_id=%s reason=%s",
                     job_id,
-                    completed.returncode,
-                    (completed.stderr or "").strip()[:2000],
+                    primary_failure,
                 )
-                _set(job_id, state="FAILED", reason=_worker_exit_reason(completed.returncode))
-                return
+                _, fallback_failure = _invoke_worker(
+                    worker_script=worker_script,
+                    input_path=input_path,
+                    output_path=output_path,
+                    source_version_id=source_version_id,
+                    digest=digest,
+                    mode=RASTER_SAFE_MODE,
+                    timeout_seconds=raster_timeout_seconds,
+                    env=env,
+                )
+                if fallback_failure is not None:
+                    _set(
+                        job_id,
+                        state="FAILED",
+                        reason=f"DOCUMENT_DISCOVERY_PREVIEW_RASTER_FALLBACK_FAILED:{fallback_failure}",
+                        preview_worker_mode=RASTER_SAFE_MODE,
+                        preview_fallback_used=True,
+                    )
+                    return
 
             report = _load_worker_report(
                 output_path,
                 digest=digest,
                 source_version_id=source_version_id,
             )
+            report["preview_fallback"] = {
+                "used": fallback_used,
+                "primary_failure": primary_failure,
+                "fallback_mode": RASTER_SAFE_MODE if fallback_used else None,
+            }
             session = _save_preview_session(
                 payload,
                 project_id,
@@ -178,14 +248,14 @@ def _run(
                 source_version_id=source_version_id,
                 report=report,
             )
-            _set(job_id, state="READY", session_id=session["session_id"], reason=None)
-    except subprocess.TimeoutExpired:
-        LOGGER.warning(
-            "DOCUMENT_DISCOVERY_PREVIEW_WORKER_TIMEOUT job_id=%s timeout_seconds=%s",
-            job_id,
-            timeout_seconds,
-        )
-        _set(job_id, state="FAILED", reason="DOCUMENT_DISCOVERY_PREVIEW_WORKER_TIMEOUT")
+            _set(
+                job_id,
+                state="READY",
+                session_id=session["session_id"],
+                reason=None,
+                preview_worker_mode=report.get("preview_worker_mode", VECTOR_MODE),
+                preview_fallback_used=fallback_used,
+            )
     except Exception:
         LOGGER.exception("DOCUMENT_DISCOVERY_PREVIEW_WORKER_SUPERVISOR_FAILED job_id=%s", job_id)
         _set(job_id, state="FAILED", reason="DOCUMENT_DISCOVERY_PREVIEW_WORKER_INTERNAL_ERROR")
@@ -206,10 +276,9 @@ def start_preview_job(payload: bytes, project_id: str) -> dict[str, Any]:
         "source_bytes": len(payload),
         "session_id": None,
         "reason": None,
+        "preview_worker_mode": None,
+        "preview_fallback_used": False,
     }
-    # Capture the enqueue acknowledgement before the supervisor can mutate the
-    # shared job object. The POST contract is always QUEUED; subsequent state
-    # is observable only through preview_job_status().
     queued_public = _public(dict(job))
     with JOB_LOCK:
         while len(JOBS) >= MAX_JOBS:
@@ -221,11 +290,18 @@ def start_preview_job(payload: bytes, project_id: str) -> dict[str, Any]:
             JOBS.pop(oldest, None)
         JOBS[job_id] = job
 
-    # Snapshot mutable test/runtime knobs before queueing. The supervisor thread
-    # waits for the child process only; PyMuPDF extraction never runs in Uvicorn.
     worker_script = Path(WORKER_SCRIPT)
-    timeout_seconds = float(PREVIEW_WORKER_TIMEOUT_SECONDS)
-    EXECUTOR.submit(_run, job_id, payload, project_id, worker_script, timeout_seconds)
+    vector_timeout_seconds = float(PREVIEW_VECTOR_TIMEOUT_SECONDS)
+    raster_timeout_seconds = float(PREVIEW_RASTER_TIMEOUT_SECONDS)
+    EXECUTOR.submit(
+        _run,
+        job_id,
+        payload,
+        project_id,
+        worker_script,
+        vector_timeout_seconds,
+        raster_timeout_seconds,
+    )
     return queued_public
 
 
