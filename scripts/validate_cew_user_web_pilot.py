@@ -102,13 +102,16 @@ def main():
     assert atomic_lower.index(drop_marker) < atomic_lower.index(create_marker)
     assert "returns table(receipt_json jsonb)" not in atomic_lower[atomic_lower.index(create_marker):]
 
-    # Neon and Netlify must also recover legacy heads before enforcing CAS.
+    # Neon and Netlify recover the current head from governed append-only replay
+    # before enforcing CAS. Neon deliberately has no mutable revision-head table.
     atomic_store = ATOMIC_STORE.read_text(encoding="utf-8")
     revision_head = REVISION_HEAD.read_text(encoding="utf-8")
     netlify = NETLIFY.read_text(encoding="utf-8")
     netlify_replay = NETLIFY_REPLAY.read_text(encoding="utf-8")
-    assert "revision_head.derive_revision_head(existing, support_id)" in atomic_store
-    assert "OAR_REGION_LEGACY_HEAD_BACKFILL_FAILED" in atomic_store
+    assert "binding.aggregate(existing)" in atomic_store
+    assert "_assert_current_revision(receipt, existing)" in atomic_store
+    assert "SELECT pg_advisory_xact_lock" in atomic_store
+    assert "SELECT receipt_json FROM public.cew_human_receipt_audit" in atomic_store
     assert "binding.aggregate(receipts, contract)" in revision_head
     assert 'replayOarHead, validateOarReceiptGovernance' in netlify
     assert "validateOarReceiptGovernance(receipt, bindingId, supportId)" in netlify
