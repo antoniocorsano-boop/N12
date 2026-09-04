@@ -71,3 +71,12 @@ jobs:
         uses: github/codeql-action/analyze@v4
         with:
           category: '/language:${{ matrix.language }}'
+          output: ../codeql-results-${{ matrix.language }}
+      - name: Upload CodeQL diagnostic SARIF
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-sarif-${{ matrix.language }}-${{ github.run_id }}
+          path: ../codeql-results-${{ matrix.language }}
+          if-no-files-found: error
+          retention-days: 1
