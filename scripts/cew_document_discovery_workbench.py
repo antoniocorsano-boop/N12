@@ -75,7 +75,7 @@ def build_router(source_workspace) -> APIRouter:
             session=await run_in_threadpool(discovery.create_governed,source_workspace,body.get("source_id"),body.get("project_id"))
             return _json(discovery.status(session["session_id"]))
         except (KeyError,ValueError) as exc:
-            return _json({"state":"DOCUMENT_DISCOVERY_GOVERNED_ANALYSIS_REJECTED","reason":str(exc)},409)
+            return _json({"state":"DOCUMENT_DISCOVERY_GOVERNED_ANALYSIS_REJECTED","reason":"DOCUMENT_DISCOVERY_REQUEST_REJECTED"},409)
         except Exception:
             LOGGER.exception("DOCUMENT_DISCOVERY_GOVERNED_ANALYSIS_BLOCKED")
             return _json({"state":"DOCUMENT_DISCOVERY_GOVERNED_ANALYSIS_BLOCKED","reason":"DOCUMENT_DISCOVERY_INTERNAL_ERROR"},503)
@@ -91,8 +91,8 @@ def build_router(source_workspace) -> APIRouter:
             payload=await request.body()
             session=await run_in_threadpool(discovery.create_preview,payload,project_id)
             return _json(discovery.status(session["session_id"]))
-        except ValueError as exc:
-            return _json({"state":"DOCUMENT_DISCOVERY_PREVIEW_REJECTED","reason":str(exc)},400)
+        except ValueError:
+            return _json({"state":"DOCUMENT_DISCOVERY_PREVIEW_REJECTED","reason":"DOCUMENT_DISCOVERY_REQUEST_REJECTED"},400)
         except Exception:
             LOGGER.exception("DOCUMENT_DISCOVERY_PREVIEW_BLOCKED")
             return _json({"state":"DOCUMENT_DISCOVERY_PREVIEW_BLOCKED","reason":"DOCUMENT_DISCOVERY_INTERNAL_ERROR"},503)
@@ -101,22 +101,22 @@ def build_router(source_workspace) -> APIRouter:
     def session_status(session_id: str):
         try:
             return _json(discovery.status(session_id))
-        except ValueError as exc:
-            return _json({"state":"DOCUMENT_DISCOVERY_SESSION_REJECTED","reason":str(exc)},404)
+        except ValueError:
+            return _json({"state":"DOCUMENT_DISCOVERY_SESSION_REJECTED","reason":"DOCUMENT_DISCOVERY_REQUEST_REJECTED"},404)
 
     @router.get("/api/workbench/document-discovery/session/{session_id}/page/{page_index}.jpg")
     def page_image(session_id: str,page_index: int):
         try:
             return Response(discovery.render_page(session_id,page_index),media_type="image/jpeg",headers={"Cache-Control":"no-store","X-CEW-Authority":"READING_AID_ONLY"})
-        except ValueError as exc:
-            return _json({"state":"DOCUMENT_DISCOVERY_PAGE_REJECTED","reason":str(exc)},404)
+        except ValueError:
+            return _json({"state":"DOCUMENT_DISCOVERY_PAGE_REJECTED","reason":"DOCUMENT_DISCOVERY_REQUEST_REJECTED"},404)
 
     @router.post("/api/workbench/document-discovery/session/{session_id}/learn")
     async def learn(session_id: str,request: Request):
         try:
             return _json(discovery.teach(session_id,await request.json()))
-        except ValueError as exc:
-            return _json({"state":"DOCUMENT_DISCOVERY_LEARNING_REJECTED","reason":str(exc)},409)
+        except ValueError:
+            return _json({"state":"DOCUMENT_DISCOVERY_LEARNING_REJECTED","reason":"DOCUMENT_DISCOVERY_REQUEST_REJECTED"},409)
         except Exception:
             LOGGER.exception("DOCUMENT_DISCOVERY_LEARNING_BLOCKED")
             return _json({"state":"DOCUMENT_DISCOVERY_LEARNING_BLOCKED","reason":"DOCUMENT_DISCOVERY_INTERNAL_ERROR"},503)
@@ -126,7 +126,7 @@ def build_router(source_workspace) -> APIRouter:
         try:
             body=await request.json()
             return _json(discovery.find_similar(session_id,body.get("concept_id"),body.get("meaning"),int(body.get("limit",40))))
-        except ValueError as exc:
-            return _json({"state":"DOCUMENT_DISCOVERY_SIMILARITY_REJECTED","reason":str(exc)},409)
+        except ValueError:
+            return _json({"state":"DOCUMENT_DISCOVERY_SIMILARITY_REJECTED","reason":"DOCUMENT_DISCOVERY_REQUEST_REJECTED"},409)
 
     return router
