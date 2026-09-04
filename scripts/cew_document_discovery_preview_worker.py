@@ -2,10 +2,15 @@
 """Isolated extraction worker for CEW Document Discovery preview.
 
 This module is executed in a separate Python process. It performs only bounded
-preview extraction and writes the derived report to an isolated temporary file.
+preview extraction inside a supervisor-created private temporary directory. The
+worker never accepts filesystem paths from its command line: it reads the fixed
+``source.pdf`` input and atomically writes the fixed ``report.json`` output in
+its current working directory. This keeps the process boundary both resource-
+bounded and path-confined.
+
 The worker applies a hard address-space ceiling before importing PyMuPDF so a
-pathological vector page cannot exhaust the whole Render service container.
-It never creates project truth, learning receipts, canonical writes or session
+pathological vector page cannot exhaust the whole Render service container. It
+never creates project truth, learning receipts, canonical writes or session
 state. The web process remains authoritative for transient job/session state.
 """
 from __future__ import annotations
@@ -18,6 +23,9 @@ import sys
 VECTOR_MODE = "VECTOR_BOUNDED"
 RASTER_SAFE_MODE = "RASTER_SAFE"
 DEFAULT_MEMORY_LIMIT_MB = 192
+INPUT_FILENAME = "source.pdf"
+OUTPUT_FILENAME = "report.json"
+TEMP_OUTPUT_FILENAME = "report.json.tmp"
 
 
 def _lower_priority() -> None:
@@ -47,7 +55,7 @@ def _apply_resource_limits() -> None:
         import resource
 
         limit_bytes = _memory_limit_mb() * 1024 * 1024
-        current_soft, current_hard = resource.getrlimit(resource.RLIMIT_AS)
+        _current_soft, current_hard = resource.getrlimit(resource.RLIMIT_AS)
         infinity = resource.RLIM_INFINITY
         hard = limit_bytes if current_hard == infinity else min(current_hard, limit_bytes)
         soft = min(limit_bytes, hard)
@@ -67,15 +75,15 @@ def _engine(mode: str):
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) not in {5, 6}:
+    if len(argv) not in {3, 4}:
         print("DOCUMENT_DISCOVERY_PREVIEW_WORKER_ARGUMENTS_INVALID", file=sys.stderr)
         return 64
 
-    _, input_path_raw, output_path_raw, source_version_id, expected_sha256, *rest = argv
+    _, source_version_id, expected_sha256, *rest = argv
     mode = rest[0] if rest else VECTOR_MODE
-    input_path = Path(input_path_raw)
-    output_path = Path(output_path_raw)
-    temp_output = output_path.with_suffix(output_path.suffix + ".tmp")
+    input_path = Path(INPUT_FILENAME)
+    output_path = Path(OUTPUT_FILENAME)
+    temp_output = Path(TEMP_OUTPUT_FILENAME)
 
     _lower_priority()
     _apply_resource_limits()
@@ -103,12 +111,13 @@ def main(argv: list[str]) -> int:
             pass
         print("DOCUMENT_DISCOVERY_PREVIEW_WORKER_MEMORY_LIMIT", file=sys.stderr)
         return 75
-    except Exception as exc:
+    except Exception:
         try:
             temp_output.unlink(missing_ok=True)
         except OSError:
             pass
-        print(f"{type(exc).__name__}: {exc}", file=sys.stderr)
+        # Do not expose exception types/messages from parsing untrusted PDFs.
+        print("DOCUMENT_DISCOVERY_PREVIEW_WORKER_INTERNAL_ERROR", file=sys.stderr)
         return 2
 
 
