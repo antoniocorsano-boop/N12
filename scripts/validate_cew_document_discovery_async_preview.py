@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import tempfile
 import time
 
 import pymupdf
@@ -27,6 +28,17 @@ def _pdf() -> bytes:
     return payload
 
 
+def _wait(job_id: str, timeout_seconds: float = 30.0) -> dict:
+    deadline = time.time() + timeout_seconds
+    current = preview_jobs.preview_job_status(job_id)
+    while time.time() < deadline:
+        current = preview_jobs.preview_job_status(job_id)
+        if current["state"] in {"READY", "FAILED"}:
+            return current
+        time.sleep(0.05)
+    raise AssertionError(f"preview job did not terminate: {current}")
+
+
 def main() -> None:
     payload = _pdf()
     discovery.clear_sessions()
@@ -49,19 +61,15 @@ def main() -> None:
     )
 
     job = preview_jobs.start_preview_job(payload, "HVA-DISCOVERY-ASYNC-TEST")
-    assert job["state"] in {"QUEUED", "RUNNING"}
+    assert job["state"] == "QUEUED"
     assert job["session_id"] is None
+    assert job["execution_boundary"] == "PROCESS_ISOLATED_SUBPROCESS"
     assert job["teaching_enabled"] is False
 
-    deadline = time.time() + 20
-    current = job
-    while time.time() < deadline:
-        current = preview_jobs.preview_job_status(job["job_id"])
-        if current["state"] in {"READY", "FAILED"}:
-            break
-        time.sleep(0.05)
+    current = _wait(job["job_id"])
     assert current["state"] == "READY", current
     assert current["session_id"]
+    assert current["execution_boundary"] == "PROCESS_ISOLATED_SUBPROCESS"
 
     status = discovery.status(current["session_id"])
     assert status["source_registration_state"] == "UNREGISTERED_PREVIEW"
@@ -70,6 +78,22 @@ def main() -> None:
     assert status["semantic_labels_assigned_automatically"] is False
     assert status["authority"]["canonical_write_authorized"] is False
     assert status["authority"]["structural_identity_authorized"] is False
+
+    # A child-process failure must fail only the preview job. The validator
+    # continues in the same Python process and can still query provider/session state.
+    original_worker = preview_jobs.WORKER_SCRIPT
+    with tempfile.TemporaryDirectory(prefix="cew-preview-worker-failure-test-") as tmp:
+        failing_worker = Path(tmp) / "fail_worker.py"
+        failing_worker.write_text("raise SystemExit(7)\n", encoding="utf-8")
+        preview_jobs.WORKER_SCRIPT = failing_worker
+        preview_jobs.clear_jobs()
+        failed_job = preview_jobs.start_preview_job(payload, "HVA-DISCOVERY-WORKER-FAILURE-TEST")
+        preview_jobs.WORKER_SCRIPT = original_worker
+        failed = _wait(failed_job["job_id"])
+        assert failed["state"] == "FAILED", failed
+        assert failed["reason"] == "DOCUMENT_DISCOVERY_PREVIEW_WORKER_EXIT_7", failed
+        assert failed["session_id"] is None
+        assert discovery.provider_states()["structured_graphic"]["state"] == "READY"
 
     html = async_preview._patched_page()
     assert "/api/workbench/document-discovery/analyze-preview-async" in html
@@ -97,8 +121,20 @@ def main() -> None:
     assert "MAX_VECTOR_PATHS_PER_PAGE" in engine_source
     assert "MAX_TOTAL_CANDIDATES" in engine_source
 
+    jobs_source = Path("cew_document_discovery_preview_jobs.py").read_text(encoding="utf-8")
+    worker_source = Path("cew_document_discovery_preview_worker.py").read_text(encoding="utf-8")
+    assert "subprocess.run(" in jobs_source
+    assert "PROCESS_ISOLATED_SUBPROCESS" in jobs_source
+    assert "PREVIEW_WORKER_TIMEOUT_SECONDS" in jobs_source
+    assert "preview_engine.preacquire_preview_pdf" not in jobs_source
+    assert "DOCUMENT_DISCOVERY_PREVIEW_WORKER_TIMEOUT" in jobs_source
+    assert "DOCUMENT_DISCOVERY_PREVIEW_WORKER_INTERNAL_ERROR" in jobs_source
+    assert "preview_engine.preacquire_preview_pdf" in worker_source
+    assert "os.nice(10)" in worker_source
+
     print("CEW_DOCUMENT_DISCOVERY_ASYNC_PREVIEW_PASS")
     print("http_boundary=ENQUEUE_THEN_POLL gateway_wait=DECOUPLED")
+    print("worker_boundary=PROCESS_ISOLATED_SUBPROCESS worker_failure=FAIL_CLOSED_WEB_PROCESS_SURVIVES")
     print("preview_engine=BOUNDED_INTERACTIVE_PREVIEW vector_api=GET_CDRAWINGS")
     print("preview_training=BLOCKED semantic_authority=NONE canonical_write_authorized=false")
 

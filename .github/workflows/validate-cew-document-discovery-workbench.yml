@@ -10,6 +10,7 @@ on:
       - 'scripts/cew_document_discovery_async_preview.py'
       - 'scripts/cew_document_discovery_preview_engine.py'
       - 'scripts/cew_document_discovery_preview_jobs.py'
+      - 'scripts/cew_document_discovery_preview_worker.py'
       - 'scripts/validate_cew_document_discovery_workbench.py'
       - 'scripts/validate_cew_document_discovery_async_preview.py'
       - 'scripts/cew_new_project_preacquisition.py'
@@ -24,6 +25,7 @@ on:
       - 'scripts/cew_document_discovery_async_preview.py'
       - 'scripts/cew_document_discovery_preview_engine.py'
       - 'scripts/cew_document_discovery_preview_jobs.py'
+      - 'scripts/cew_document_discovery_preview_worker.py'
       - 'scripts/validate_cew_document_discovery_workbench.py'
       - 'scripts/validate_cew_document_discovery_async_preview.py'
       - 'scripts/cew_new_project_preacquisition.py'
@@ -54,6 +56,7 @@ jobs:
           scripts/cew_document_discovery_async_preview.py
           scripts/cew_document_discovery_preview_engine.py
           scripts/cew_document_discovery_preview_jobs.py
+          scripts/cew_document_discovery_preview_worker.py
           scripts/validate_cew_document_discovery_workbench.py
           scripts/validate_cew_document_discovery_async_preview.py
           scripts/cew_new_project_preacquisition.py
@@ -63,7 +66,7 @@ jobs:
       - name: Validate Document Discovery governance and interaction
         working-directory: scripts
         run: python validate_cew_document_discovery_workbench.py
-      - name: Validate async bounded preview and gateway decoupling
+      - name: Validate async bounded preview and process-isolated extraction
         working-directory: scripts
         run: python validate_cew_document_discovery_async_preview.py
       - name: Verify web runtime remains free of DINOv3 ML dependencies
@@ -83,6 +86,8 @@ jobs:
           composition = Path('scripts/cew_professional_workbench_api.py').read_text(encoding='utf-8')
           workspace = Path('scripts/cew_document_discovery_workbench.py').read_text(encoding='utf-8')
           async_adapter = Path('scripts/cew_document_discovery_async_preview.py').read_text(encoding='utf-8')
+          jobs = Path('scripts/cew_document_discovery_preview_jobs.py').read_text(encoding='utf-8')
+          worker = Path('scripts/cew_document_discovery_preview_worker.py').read_text(encoding='utf-8')
           assert 'import cew_document_discovery_async_preview as _document_discovery_async_preview' in composition
           assert 'import cew_document_discovery_workbench as _document_discovery' in composition
           async_mount = 'router.include_router(_document_discovery_async_preview.build_router())'
@@ -104,5 +109,9 @@ jobs:
           assert 'analyze-preview-async' in async_adapter
           assert 'preview-job/{job_id}' in async_adapter
           assert 'X-CEW-Preview-Execution' in async_adapter
+          assert 'PROCESS_ISOLATED_SUBPROCESS' in jobs
+          assert 'subprocess.run(' in jobs
+          assert 'preview_engine.preacquire_preview_pdf' not in jobs
+          assert 'preview_engine.preacquire_preview_pdf' in worker
           print('CEW_DOCUMENT_DISCOVERY_PROFESSIONAL_WORKBENCH_MOUNT_AND_ASYNC_PREVIEW_PASS')
           PY
