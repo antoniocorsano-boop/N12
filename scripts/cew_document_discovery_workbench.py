@@ -2,6 +2,7 @@
 """FastAPI surface for CEW document-first discovery and project-local teaching."""
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from fastapi import APIRouter, Request
@@ -9,6 +10,9 @@ from fastapi.responses import HTMLResponse, JSONResponse, Response
 from starlette.concurrency import run_in_threadpool
 
 import cew_document_discovery as discovery
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 def _json(payload: dict[str, Any], status_code: int = 200) -> JSONResponse:
@@ -60,8 +64,9 @@ def build_router(source_workspace) -> APIRouter:
                 "max_preview_pages":discovery.MAX_PAGES,
                 "provider_states":discovery.provider_states(),
             })
-        except Exception as exc:
-            return _json({"state":"DOCUMENT_DISCOVERY_STATUS_BLOCKED","reason":str(exc)},409)
+        except Exception:
+            LOGGER.exception("DOCUMENT_DISCOVERY_STATUS_BLOCKED")
+            return _json({"state":"DOCUMENT_DISCOVERY_STATUS_BLOCKED","reason":"DOCUMENT_DISCOVERY_INTERNAL_ERROR"},409)
 
     @router.post("/api/workbench/document-discovery/analyze-governed")
     async def analyze_governed(request: Request):
@@ -71,8 +76,9 @@ def build_router(source_workspace) -> APIRouter:
             return _json(discovery.status(session["session_id"]))
         except (KeyError,ValueError) as exc:
             return _json({"state":"DOCUMENT_DISCOVERY_GOVERNED_ANALYSIS_REJECTED","reason":str(exc)},409)
-        except Exception as exc:
-            return _json({"state":"DOCUMENT_DISCOVERY_GOVERNED_ANALYSIS_BLOCKED","reason":str(exc)},503)
+        except Exception:
+            LOGGER.exception("DOCUMENT_DISCOVERY_GOVERNED_ANALYSIS_BLOCKED")
+            return _json({"state":"DOCUMENT_DISCOVERY_GOVERNED_ANALYSIS_BLOCKED","reason":"DOCUMENT_DISCOVERY_INTERNAL_ERROR"},503)
 
     @router.post("/api/workbench/document-discovery/analyze-preview")
     async def analyze_preview(request: Request, project_id: str=""):
@@ -87,8 +93,9 @@ def build_router(source_workspace) -> APIRouter:
             return _json(discovery.status(session["session_id"]))
         except ValueError as exc:
             return _json({"state":"DOCUMENT_DISCOVERY_PREVIEW_REJECTED","reason":str(exc)},400)
-        except Exception as exc:
-            return _json({"state":"DOCUMENT_DISCOVERY_PREVIEW_BLOCKED","reason":str(exc)},503)
+        except Exception:
+            LOGGER.exception("DOCUMENT_DISCOVERY_PREVIEW_BLOCKED")
+            return _json({"state":"DOCUMENT_DISCOVERY_PREVIEW_BLOCKED","reason":"DOCUMENT_DISCOVERY_INTERNAL_ERROR"},503)
 
     @router.get("/api/workbench/document-discovery/session/{session_id}")
     def session_status(session_id: str):
@@ -110,8 +117,9 @@ def build_router(source_workspace) -> APIRouter:
             return _json(discovery.teach(session_id,await request.json()))
         except ValueError as exc:
             return _json({"state":"DOCUMENT_DISCOVERY_LEARNING_REJECTED","reason":str(exc)},409)
-        except Exception as exc:
-            return _json({"state":"DOCUMENT_DISCOVERY_LEARNING_BLOCKED","reason":str(exc)},503)
+        except Exception:
+            LOGGER.exception("DOCUMENT_DISCOVERY_LEARNING_BLOCKED")
+            return _json({"state":"DOCUMENT_DISCOVERY_LEARNING_BLOCKED","reason":"DOCUMENT_DISCOVERY_INTERNAL_ERROR"},503)
 
     @router.post("/api/workbench/document-discovery/session/{session_id}/similar")
     async def similar(session_id: str,request: Request):
