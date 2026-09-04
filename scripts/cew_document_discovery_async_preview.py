@@ -7,6 +7,8 @@ session/learning endpoints remain provided by the preserved workbench router.
 """
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
@@ -15,6 +17,8 @@ import cew_document_discovery_preview_engine as preview_engine
 import cew_document_discovery_preview_jobs as preview_jobs
 import cew_document_discovery_workbench as base_workbench
 
+
+LOGGER = logging.getLogger(__name__)
 
 _ASYNC_SCRIPT = r'''<script>
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -84,7 +88,7 @@ def build_router() -> APIRouter:
             if content_length and int(content_length) > discovery.MAX_PDF_BYTES:
                 return base_workbench._json({
                     "state": "DOCUMENT_DISCOVERY_PREVIEW_TOO_LARGE",
-                    "reason": f"PDF exceeds preview limit of {discovery.MAX_PDF_BYTES} bytes",
+                    "reason": "DOCUMENT_DISCOVERY_PREVIEW_TOO_LARGE",
                 }, 413)
             payload = await request.body()
             job = preview_jobs.start_preview_job(payload, project_id)
@@ -98,25 +102,26 @@ def build_router() -> APIRouter:
                     "max_total_candidates": preview_engine.MAX_TOTAL_CANDIDATES,
                 },
             }, 202)
-        except ValueError as exc:
+        except ValueError:
             return base_workbench._json({
                 "state": "DOCUMENT_DISCOVERY_PREVIEW_REJECTED",
-                "reason": str(exc),
+                "reason": "DOCUMENT_DISCOVERY_PREVIEW_REJECTED",
             }, 400)
-        except Exception as exc:
+        except Exception:
+            LOGGER.exception("DOCUMENT_DISCOVERY_PREVIEW_ENQUEUE_BLOCKED")
             return base_workbench._json({
                 "state": "DOCUMENT_DISCOVERY_PREVIEW_ENQUEUE_BLOCKED",
-                "reason": f"{type(exc).__name__}: {exc}",
+                "reason": "DOCUMENT_DISCOVERY_INTERNAL_ERROR",
             }, 503)
 
     @router.get("/api/workbench/document-discovery/preview-job/{job_id}")
     def preview_job(job_id: str):
         try:
             return base_workbench._json(preview_jobs.preview_job_status(job_id))
-        except ValueError as exc:
+        except ValueError:
             return base_workbench._json({
                 "state": "DOCUMENT_DISCOVERY_PREVIEW_JOB_NOT_FOUND",
-                "reason": str(exc),
+                "reason": "DOCUMENT_DISCOVERY_PREVIEW_JOB_NOT_FOUND",
             }, 404)
 
     return router
