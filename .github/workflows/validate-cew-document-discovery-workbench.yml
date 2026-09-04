@@ -7,7 +7,11 @@ on:
     paths:
       - 'scripts/cew_document_discovery.py'
       - 'scripts/cew_document_discovery_workbench.py'
+      - 'scripts/cew_document_discovery_async_preview.py'
+      - 'scripts/cew_document_discovery_preview_engine.py'
+      - 'scripts/cew_document_discovery_preview_jobs.py'
       - 'scripts/validate_cew_document_discovery_workbench.py'
+      - 'scripts/validate_cew_document_discovery_async_preview.py'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/cew_visual_learning.py'
       - 'scripts/cew_dinov3_provider.py'
@@ -17,7 +21,11 @@ on:
     paths:
       - 'scripts/cew_document_discovery.py'
       - 'scripts/cew_document_discovery_workbench.py'
+      - 'scripts/cew_document_discovery_async_preview.py'
+      - 'scripts/cew_document_discovery_preview_engine.py'
+      - 'scripts/cew_document_discovery_preview_jobs.py'
       - 'scripts/validate_cew_document_discovery_workbench.py'
+      - 'scripts/validate_cew_document_discovery_async_preview.py'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/cew_visual_learning.py'
       - 'scripts/cew_dinov3_provider.py'
@@ -43,7 +51,11 @@ jobs:
           python -m py_compile
           scripts/cew_document_discovery.py
           scripts/cew_document_discovery_workbench.py
+          scripts/cew_document_discovery_async_preview.py
+          scripts/cew_document_discovery_preview_engine.py
+          scripts/cew_document_discovery_preview_jobs.py
           scripts/validate_cew_document_discovery_workbench.py
+          scripts/validate_cew_document_discovery_async_preview.py
           scripts/cew_new_project_preacquisition.py
           scripts/cew_visual_learning.py
           scripts/cew_dinov3_provider.py
@@ -51,6 +63,9 @@ jobs:
       - name: Validate Document Discovery governance and interaction
         working-directory: scripts
         run: python validate_cew_document_discovery_workbench.py
+      - name: Validate async bounded preview and gateway decoupling
+        working-directory: scripts
+        run: python validate_cew_document_discovery_async_preview.py
       - name: Verify web runtime remains free of DINOv3 ML dependencies
         run: |
           python - <<'PY'
@@ -67,8 +82,14 @@ jobs:
           from pathlib import Path
           composition = Path('scripts/cew_professional_workbench_api.py').read_text(encoding='utf-8')
           workspace = Path('scripts/cew_document_discovery_workbench.py').read_text(encoding='utf-8')
+          async_adapter = Path('scripts/cew_document_discovery_async_preview.py').read_text(encoding='utf-8')
+          assert 'import cew_document_discovery_async_preview as _document_discovery_async_preview' in composition
           assert 'import cew_document_discovery_workbench as _document_discovery' in composition
-          assert 'router.include_router(_document_discovery.build_router(source_workspace))' in composition
+          async_mount = 'router.include_router(_document_discovery_async_preview.build_router())'
+          legacy_mount = 'router.include_router(_document_discovery.build_router(source_workspace))'
+          assert async_mount in composition
+          assert legacy_mount in composition
+          assert composition.index(async_mount) < composition.index(legacy_mount)
           assert 'X-CEW-Canonical-Write' in workspace
           assert 'X-CEW-Engineering-Authority-Effect' in workspace
           assert 'Preview analizzabile, ma training bloccato' in workspace
@@ -80,5 +101,8 @@ jobs:
           assert 'Provider: caricamento stato' in workspace
           assert 'DINOv3:' in workspace
           assert 'nessuna classificazione automatica' in workspace
-          print('CEW_DOCUMENT_DISCOVERY_PROFESSIONAL_WORKBENCH_MOUNT_AND_EMPTY_STATE_PASS')
+          assert 'analyze-preview-async' in async_adapter
+          assert 'preview-job/{job_id}' in async_adapter
+          assert 'X-CEW-Preview-Execution' in async_adapter
+          print('CEW_DOCUMENT_DISCOVERY_PROFESSIONAL_WORKBENCH_MOUNT_AND_ASYNC_PREVIEW_PASS')
           PY
