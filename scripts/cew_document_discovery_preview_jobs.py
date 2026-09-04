@@ -126,8 +126,7 @@ def _save_preview_session(
 def _invoke_worker(
     *,
     worker_script: Path,
-    input_path: Path,
-    output_path: Path,
+    work_dir: Path,
     source_version_id: str,
     digest: str,
     mode: str,
@@ -139,12 +138,11 @@ def _invoke_worker(
             [
                 sys.executable,
                 str(worker_script),
-                str(input_path),
-                str(output_path),
                 source_version_id,
                 digest,
                 mode,
             ],
+            cwd=str(work_dir),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
@@ -156,11 +154,12 @@ def _invoke_worker(
         return None, f"DOCUMENT_DISCOVERY_PREVIEW_WORKER_TIMEOUT_{mode}"
 
     if completed.returncode != 0:
+        # Do not copy child stderr into service logs: PDF parser failures may
+        # contain attacker-controlled or environment-sensitive details.
         LOGGER.warning(
-            "DOCUMENT_DISCOVERY_PREVIEW_WORKER_NONZERO mode=%s returncode=%s stderr=%s",
+            "DOCUMENT_DISCOVERY_PREVIEW_WORKER_NONZERO mode=%s returncode=%s",
             mode,
             completed.returncode,
-            (completed.stderr or "").strip()[:2000],
         )
         return completed, _worker_exit_reason(completed.returncode)
     return completed, None
@@ -194,8 +193,7 @@ def _run(
 
             _, primary_failure = _invoke_worker(
                 worker_script=worker_script,
-                input_path=input_path,
-                output_path=output_path,
+                work_dir=root,
                 source_version_id=source_version_id,
                 digest=digest,
                 mode=VECTOR_MODE,
@@ -213,8 +211,7 @@ def _run(
                 )
                 _, fallback_failure = _invoke_worker(
                     worker_script=worker_script,
-                    input_path=input_path,
-                    output_path=output_path,
+                    work_dir=root,
                     source_version_id=source_version_id,
                     digest=digest,
                     mode=RASTER_SAFE_MODE,
