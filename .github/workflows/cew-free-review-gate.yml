@@ -80,3 +80,49 @@ jobs:
           path: codeql-results-${{ matrix.language }}
           if-no-files-found: error
           retention-days: 1
+
+  remediate-codeql-once:
+    name: Apply exact CEW CodeQL remediation
+    if: github.event_name == 'pull_request' && github.head_ref == 'work/cew-new-project-preacquisition-v1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: work/cew-new-project-preacquisition-v1
+          fetch-depth: 1
+      - name: Apply bounded security substitutions
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          workbench = Path('scripts/cew_document_discovery_workbench.py')
+          text = workbench.read_text(encoding='utf-8')
+          text = text.replace('except ValueError as exc:', 'except ValueError:')
+          text = text.replace('"reason":str(exc)', '"reason":"DOCUMENT_DISCOVERY_REQUEST_REJECTED"')
+          workbench.write_text(text, encoding='utf-8')
+
+          audit = Path('scripts/cew_runtime_audit_store.py')
+          text = audit.read_text(encoding='utf-8')
+          old = 'target = store / f"{decision_id}.json"'
+          new = 'target = store / ("receipt-" + hashlib.sha256(decision_id.encode("utf-8")).hexdigest() + ".json")'
+          if old not in text:
+              raise SystemExit('expected runtime audit target expression not found')
+          audit.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+      - name: Commit remediation if needed
+        shell: bash
+        run: |
+          if git diff --quiet -- scripts/cew_document_discovery_workbench.py scripts/cew_runtime_audit_store.py; then
+            echo CEW_CODEQL_REMEDIATION_ALREADY_APPLIED
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add scripts/cew_document_discovery_workbench.py scripts/cew_runtime_audit_store.py
+          git commit -m 'fix(cew): close CodeQL response and path sinks'
+          git push origin HEAD:work/cew-new-project-preacquisition-v1
