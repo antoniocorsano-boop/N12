@@ -1,0 +1,25 @@
+name: Validate CEW Guided Group Review
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/cew_guided_group_review.py'
+      - 'scripts/validate_cew_guided_group_review.py'
+      - 'scripts/cew_document_discovery.py'
+      - 'scripts/cew_document_discovery_workbench.py'
+      - 'scripts/cew_guided_group_review_workbench.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - 'automation/CEW_GUIDED_GROUP_REVIEW_CONTRACT_v1.json'
+      - '.github/workflows/validate-cew-guided-group-review.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python scripts/validate_cew_guided_group_review.py
