@@ -27,6 +27,7 @@ import cew_external_graphic_reference_review_asset_hardening as _reference_revie
 import cew_document_discovery_async_preview as _document_discovery_async_preview
 import cew_document_discovery_workbench as _document_discovery
 import cew_guided_group_review_workbench as _guided_group_review
+import cew_hva_ephemeral_audit as _hva_ephemeral_audit
 
 _REQUIRED_BASE_MARKERS = (
     '@router.get("/workbench", response_class=HTMLResponse)',
@@ -59,6 +60,7 @@ def _assert_base_contract() -> None:
 
 
 _assert_base_contract()
+_hva_ephemeral_audit.install()
 _reference_review_hardening.install(_reference_review)
 _reference_review_asset_hardening.install(_reference_review)
 
