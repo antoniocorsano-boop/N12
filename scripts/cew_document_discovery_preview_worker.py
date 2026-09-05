@@ -3,18 +3,14 @@
 
 This module is executed in a separate Python process. It performs only bounded
 preview extraction inside a supervisor-created private temporary directory. The
-worker never accepts filesystem paths from its command line: it reads the fixed
-``source.pdf`` input and atomically writes the fixed ``report.json`` output in
-its current working directory. This keeps the process boundary both resource-
-bounded and path-confined.
+worker never accepts filesystem paths from its command line: it reads fixed
+files in its current working directory and atomically writes ``report.json``.
 
 The worker applies a hard address-space ceiling before importing PyMuPDF so a
-pathological vector page cannot exhaust the whole Render service container. It
-also produces bounded page inspection artifacts and independent blank-page
-corroboration inside this same isolated boundary. If the normal raster evidence
-pass returns zero primitives while independent evidence proves that content is
-present, a deterministic adaptive signal-recovery pass is allowed inside the
-same bounded worker before the result is exposed to the web process.
+pathological page cannot exhaust the Render service container. Vector, baseline
+raster evidence, and adaptive signal recovery are separate process stages. This
+prevents adaptive recovery from consuming the baseline raster timeout and lets
+the supervisor retain baseline evidence if recovery times out.
 
 The worker never creates project truth, learning receipts, canonical writes,
 structural identity or engineering effects.
@@ -28,10 +24,12 @@ import sys
 
 VECTOR_MODE = "VECTOR_BOUNDED"
 RASTER_SAFE_MODE = "RASTER_SAFE"
+RASTER_SIGNAL_RECOVERY_MODE = "RASTER_SIGNAL_RECOVERY"
 DEFAULT_MEMORY_LIMIT_MB = 192
 INPUT_FILENAME = "source.pdf"
 OUTPUT_FILENAME = "report.json"
 TEMP_OUTPUT_FILENAME = "report.json.tmp"
+PRIOR_REPORT_FILENAME = "prior_report.json"
 
 
 def _lower_priority() -> None:
@@ -73,19 +71,50 @@ def _engine(mode: str):
     if mode == RASTER_SAFE_MODE:
         import cew_document_discovery_raster_preview_engine as engine
         return engine
+    if mode == RASTER_SIGNAL_RECOVERY_MODE:
+        import cew_document_discovery_raster_signal_recovery as engine
+        return engine
     raise ValueError("DOCUMENT_DISCOVERY_PREVIEW_WORKER_MODE_INVALID")
 
 
-def _corroborated_content_without_candidates(report: dict) -> bool:
-    if int(report.get("primitive_candidate_count") or 0) != 0:
-        return False
+def _read_prior_report() -> dict:
+    path = Path(PRIOR_REPORT_FILENAME)
+    if not path.is_file():
+        raise ValueError("DOCUMENT_DISCOVERY_PREVIEW_PRIOR_REPORT_MISSING")
+    report = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(report, dict):
+        raise ValueError("DOCUMENT_DISCOVERY_PREVIEW_PRIOR_REPORT_INVALID")
+    return report
+
+
+def _inherit_trust_evidence(prior: dict, report: dict) -> dict:
+    """Reuse already-produced trust artifacts without re-rendering the PDF."""
+    for key in (
+        "preview_page_image_mode",
+        "preview_page_artifact_count",
+        "preview_page_images",
+    ):
+        if key in prior:
+            report[key] = prior[key]
+
+    prior_pages = {
+        int(row.get("page_index", -1)): row
+        for row in (prior.get("pages") or [])
+        if isinstance(row, dict)
+    }
     for page in report.get("pages") or []:
         if not isinstance(page, dict):
             continue
-        witness = page.get("blank_corroboration")
-        if isinstance(witness, dict) and witness.get("state") == "CONTENT_PRESENT":
-            return True
-    return False
+        prior_page = prior_pages.get(int(page.get("page_index", -1)))
+        if not isinstance(prior_page, dict):
+            continue
+        if "blank_corroboration" in prior_page:
+            page["blank_corroboration"] = prior_page["blank_corroboration"]
+
+    report["preview_signal_recovery_used"] = True
+    report["preview_signal_recovery_trigger"] = "BLANK_CORROBORATION_CONTRADICTED"
+    report["preview_signal_recovery_prior_fingerprint"] = prior.get("report_fingerprint")
+    return report
 
 
 def main(argv: list[str]) -> int:
@@ -104,32 +133,28 @@ def main(argv: list[str]) -> int:
 
     try:
         engine = _engine(mode)
-        # Imported only after RLIMIT_AS has been applied. This module uses
-        # PyMuPDF for bounded inspection JPEGs and blank corroboration.
-        import cew_document_discovery_preview_trust as preview_trust
-
         payload = input_path.read_bytes()
-        report = engine.preacquire_preview_pdf(
-            payload,
-            source_version_id=source_version_id,
-            expected_sha256=expected_sha256,
-        )
-        report = preview_trust.attach_trust_evidence(payload, report)
 
-        if mode == RASTER_SAFE_MODE and _corroborated_content_without_candidates(report):
-            import cew_document_discovery_raster_signal_recovery as signal_recovery
-
-            prior_report = report
-            report = signal_recovery.preacquire_preview_pdf(
+        if mode == RASTER_SIGNAL_RECOVERY_MODE:
+            prior_report = _read_prior_report()
+            report = engine.preacquire_preview_pdf(
                 payload,
                 source_version_id=source_version_id,
                 expected_sha256=expected_sha256,
                 prior_report=prior_report,
             )
-            report = preview_trust.attach_trust_evidence(payload, report)
-            report["preview_signal_recovery_used"] = True
-            report["preview_signal_recovery_trigger"] = "BLANK_CORROBORATION_CONTRADICTED"
+            report = _inherit_trust_evidence(prior_report, report)
         else:
+            report = engine.preacquire_preview_pdf(
+                payload,
+                source_version_id=source_version_id,
+                expected_sha256=expected_sha256,
+            )
+            # Imported only after RLIMIT_AS has been applied. Trust evidence is
+            # attached once to the baseline result and reused by recovery.
+            import cew_document_discovery_preview_trust as preview_trust
+
+            report = preview_trust.attach_trust_evidence(payload, report)
             report["preview_signal_recovery_used"] = False
 
         report["preview_worker_mode"] = mode
