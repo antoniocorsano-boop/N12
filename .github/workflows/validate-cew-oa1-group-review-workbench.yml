@@ -10,6 +10,7 @@ on:
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/validate_cew_oa1_group_review_workbench.py'
       - 'automation/CEW_OA1_GROUP_REVIEW_WORKBENCH_CONTRACT_v1.json'
+      - 'automation/CEW_TERMINOLOGY_LAYER_v1.json'
       - '.github/workflows/validate-cew-oa1-group-review-workbench.yml'
   pull_request:
     paths:
@@ -18,6 +19,7 @@ on:
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/validate_cew_oa1_group_review_workbench.py'
       - 'automation/CEW_OA1_GROUP_REVIEW_WORKBENCH_CONTRACT_v1.json'
+      - 'automation/CEW_TERMINOLOGY_LAYER_v1.json'
       - '.github/workflows/validate-cew-oa1-group-review-workbench.yml'
   workflow_dispatch:
 
@@ -41,7 +43,7 @@ jobs:
           scripts/cew_acquisition_human_workbench.py
           scripts/cew_professional_workbench_api.py
           scripts/validate_cew_oa1_group_review_workbench.py
-      - name: Validate group-review interaction and authority boundaries
+      - name: Validate group-review interaction, navigation and authority boundaries
         working-directory: scripts
         run: python validate_cew_oa1_group_review_workbench.py
       - name: Verify no direct promotion authority is introduced
@@ -54,5 +56,8 @@ jobs:
           assert c['authority']['structural_identity_authorized'] is False
           assert c['governance_boundaries']['group_review_satisfies_oa_g4'] is False
           assert c['governance_boundaries']['r2hr_r2gi_r2gm_bypassed'] is False
+          t = json.loads(Path('automation/CEW_TERMINOLOGY_LAYER_v1.json').read_text())
+          nav = {row['id']: row for row in t['navigation']}
+          assert nav['ASSISTED_ACQUISITION']['href'] == '/workbench/acquisition'
           print('CEW_OA1_GROUP_REVIEW_AUTHORITY_BOUNDARY_PASS')
           PY
