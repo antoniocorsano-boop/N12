@@ -10,6 +10,7 @@ import cew_acquisition_human_workbench as workbench
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "automation" / "CEW_OA1_GROUP_REVIEW_WORKBENCH_CONTRACT_v1.json"
+TERMINOLOGY = ROOT / "automation" / "CEW_TERMINOLOGY_LAYER_v1.json"
 COMPOSITION = ROOT / "scripts" / "cew_professional_workbench_api.py"
 
 
@@ -26,6 +27,12 @@ def main() -> None:
     assert contract["governance_boundaries"]["evidence_region_materialization_required_before_oa_g4"] is True
     assert contract["authority"]["canonical_write_authorized"] is False
     assert contract["authority"]["structural_identity_authorized"] is False
+
+    terminology = json.loads(TERMINOLOGY.read_text(encoding="utf-8"))
+    nav = {row["id"]: row for row in terminology["navigation"]}
+    assert terminology["terms"]["ASSISTED_ACQUISITION"]["primary"] == "Acquisizione assistita"
+    assert nav["ASSISTED_ACQUISITION"]["href"] == "/workbench/acquisition"
+    assert nav["ASSISTED_ACQUISITION"]["state"] == "OA1_IMPLEMENTED_CANDIDATE_NOT_PROMOTED"
 
     assert group_review.ACTION_TO_ROLE == {
         "CONFIRM_GROUP": "POSITIVE",
