@@ -10,8 +10,12 @@ bounded and path-confined.
 
 The worker applies a hard address-space ceiling before importing PyMuPDF so a
 pathological vector page cannot exhaust the whole Render service container. It
-never creates project truth, learning receipts, canonical writes or session
-state. The web process remains authoritative for transient job/session state.
+also produces the bounded page inspection artifact and independent blank-page
+corroboration inside this same isolated boundary. The web process remains
+responsible only for transient job/session state and serving cached bytes.
+
+The worker never creates project truth, learning receipts, canonical writes,
+structural identity or engineering effects.
 """
 from __future__ import annotations
 
@@ -46,11 +50,7 @@ def _memory_limit_mb() -> int:
 
 
 def _apply_resource_limits() -> None:
-    """Bound child memory before importing PyMuPDF.
-
-    RLIMIT_AS is Linux/POSIX-specific. If unavailable, process isolation and the
-    supervisor timeout remain active; the worker does not escalate authority.
-    """
+    """Bound child memory before importing PyMuPDF or any PDF parser."""
     try:
         import resource
 
@@ -90,14 +90,20 @@ def main(argv: list[str]) -> int:
 
     try:
         engine = _engine(mode)
+        # Imported only after RLIMIT_AS has been applied. This module uses
+        # PyMuPDF for bounded inspection JPEGs and blank corroboration.
+        import cew_document_discovery_preview_trust as preview_trust
+
         payload = input_path.read_bytes()
         report = engine.preacquire_preview_pdf(
             payload,
             source_version_id=source_version_id,
             expected_sha256=expected_sha256,
         )
+        report = preview_trust.attach_trust_evidence(payload, report)
         report["preview_worker_mode"] = mode
         report["preview_worker_memory_limit_mb"] = _memory_limit_mb()
+        report["preview_page_render_boundary"] = "PROCESS_ISOLATED_WORKER"
         temp_output.write_text(
             json.dumps(report, ensure_ascii=False, sort_keys=True, separators=(",", ":")),
             encoding="utf-8",
