@@ -40,6 +40,27 @@ def _wait(job_id: str, timeout_seconds: float = 30.0) -> dict:
     raise AssertionError(f"preview job did not terminate: {current}")
 
 
+def _fake_empty_then_raster_worker(path: Path) -> None:
+    path.write_text(
+        """import json, sys\n"
+        "_, source_version_id, digest, mode = sys.argv\n"
+        "primitive_count = 0 if mode == 'VECTOR_BOUNDED' else 1\n"
+        "cluster_count = 0 if primitive_count == 0 else 1\n"
+        "report = {\n"
+        "    'analysis_scope': 'BOUNDED_INTERACTIVE_PREVIEW',\n"
+        "    'source_sha256': digest,\n"
+        "    'source_version_id': source_version_id,\n"
+        "    'page_count': 1,\n"
+        "    'primitive_candidate_count': primitive_count,\n"
+        "    'graphic_cluster_count': cluster_count,\n"
+        "    'preview_worker_mode': mode,\n"
+        "}\n"
+        "open('report.json', 'w', encoding='utf-8').write(json.dumps(report))\n"
+        """,
+        encoding="utf-8",
+    )
+
+
 def main() -> None:
     payload = _pdf()
     discovery.clear_sessions()
@@ -95,9 +116,24 @@ def main() -> None:
     assert status["authority"]["canonical_write_authorized"] is False
     assert status["authority"]["structural_identity_authorized"] is False
 
+    # A successful vector worker that returns a non-empty page with zero graphic
+    # candidates is not a valid READY result. It must trigger raster-safe fallback.
+    original_worker = preview_jobs.WORKER_SCRIPT
+    with tempfile.TemporaryDirectory(prefix="cew-preview-empty-vector-test-") as tmp:
+        fake_worker = Path(tmp) / "empty_then_raster_worker.py"
+        _fake_empty_then_raster_worker(fake_worker)
+        preview_jobs.WORKER_SCRIPT = fake_worker
+        preview_jobs.clear_jobs()
+        fallback_job = preview_jobs.start_preview_job(payload, "HVA-DISCOVERY-EMPTY-VECTOR-TEST")
+        preview_jobs.WORKER_SCRIPT = original_worker
+        fallback = _wait(fallback_job["job_id"])
+        assert fallback["state"] == "READY", fallback
+        assert fallback["preview_fallback_used"] is True, fallback
+        assert fallback["preview_worker_mode"] == preview_jobs.RASTER_SAFE_MODE, fallback
+        assert fallback["session_id"], fallback
+
     # If both vector and raster-safe child executions fail, only the preview job
     # fails. The validator remains alive and authority remains fail-closed.
-    original_worker = preview_jobs.WORKER_SCRIPT
     with tempfile.TemporaryDirectory(prefix="cew-preview-worker-failure-test-") as tmp:
         failing_worker = Path(tmp) / "fail_worker.py"
         failing_worker.write_text("raise SystemExit(7)\n", encoding="utf-8")
@@ -122,6 +158,9 @@ def main() -> None:
     assert "Accodamento analisi" in html
     assert "body:f" in html
     assert "arrayBuffer()" not in html
+    assert "showPreviewPage" in html
+    assert "state?.page_count>0" in html
+    assert "fallback raster" in html
 
     router = async_preview.build_router()
     paths = [route.path for route in router.routes]
@@ -152,6 +191,8 @@ def main() -> None:
     assert "PREVIEW_VECTOR_TIMEOUT_SECONDS" in jobs_source
     assert "PREVIEW_RASTER_TIMEOUT_SECONDS" in jobs_source
     assert "RASTER_SAFE_MODE" in jobs_source
+    assert "DOCUMENT_DISCOVERY_PREVIEW_VECTOR_EMPTY" in jobs_source
+    assert "DOCUMENT_DISCOVERY_PREVIEW_EMPTY_AFTER_RASTER_FALLBACK" in jobs_source
     assert "DOCUMENT_DISCOVERY_PREVIEW_RASTER_FALLBACK_FAILED" in jobs_source
     assert "preview_engine.preacquire_preview_pdf" not in jobs_source
     assert "resource.RLIMIT_AS" in worker_source
@@ -163,7 +204,9 @@ def main() -> None:
     print("CEW_DOCUMENT_DISCOVERY_ASYNC_PREVIEW_PASS")
     print("http_boundary=ENQUEUE_THEN_POLL gateway_wait=DECOUPLED")
     print("worker_boundary=PROCESS_ISOLATED_SUBPROCESS memory_ceiling=ENFORCED")
+    print("vector_empty=RASTER_SAFE_RESOURCE_BOUNDED_FALLBACK")
     print("vector_failure=RASTER_SAFE_RESOURCE_BOUNDED_FALLBACK")
+    print("empty_cluster_viewer=PAGE_ZERO_VISIBLE")
     print("preview_training=BLOCKED semantic_authority=NONE canonical_write_authorized=false")
 
 
