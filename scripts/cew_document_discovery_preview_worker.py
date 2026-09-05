@@ -10,9 +10,11 @@ bounded and path-confined.
 
 The worker applies a hard address-space ceiling before importing PyMuPDF so a
 pathological vector page cannot exhaust the whole Render service container. It
-also produces the bounded page inspection artifact and independent blank-page
-corroboration inside this same isolated boundary. The web process remains
-responsible only for transient job/session state and serving cached bytes.
+also produces bounded page inspection artifacts and independent blank-page
+corroboration inside this same isolated boundary. If the normal raster evidence
+pass returns zero primitives while independent evidence proves that content is
+present, a deterministic adaptive signal-recovery pass is allowed inside the
+same bounded worker before the result is exposed to the web process.
 
 The worker never creates project truth, learning receipts, canonical writes,
 structural identity or engineering effects.
@@ -74,6 +76,18 @@ def _engine(mode: str):
     raise ValueError("DOCUMENT_DISCOVERY_PREVIEW_WORKER_MODE_INVALID")
 
 
+def _corroborated_content_without_candidates(report: dict) -> bool:
+    if int(report.get("primitive_candidate_count") or 0) != 0:
+        return False
+    for page in report.get("pages") or []:
+        if not isinstance(page, dict):
+            continue
+        witness = page.get("blank_corroboration")
+        if isinstance(witness, dict) and witness.get("state") == "CONTENT_PRESENT":
+            return True
+    return False
+
+
 def main(argv: list[str]) -> int:
     if len(argv) not in {3, 4}:
         print("DOCUMENT_DISCOVERY_PREVIEW_WORKER_ARGUMENTS_INVALID", file=sys.stderr)
@@ -101,6 +115,23 @@ def main(argv: list[str]) -> int:
             expected_sha256=expected_sha256,
         )
         report = preview_trust.attach_trust_evidence(payload, report)
+
+        if mode == RASTER_SAFE_MODE and _corroborated_content_without_candidates(report):
+            import cew_document_discovery_raster_signal_recovery as signal_recovery
+
+            prior_report = report
+            report = signal_recovery.preacquire_preview_pdf(
+                payload,
+                source_version_id=source_version_id,
+                expected_sha256=expected_sha256,
+                prior_report=prior_report,
+            )
+            report = preview_trust.attach_trust_evidence(payload, report)
+            report["preview_signal_recovery_used"] = True
+            report["preview_signal_recovery_trigger"] = "BLANK_CORROBORATION_CONTRADICTED"
+        else:
+            report["preview_signal_recovery_used"] = False
+
         report["preview_worker_mode"] = mode
         report["preview_worker_memory_limit_mb"] = _memory_limit_mb()
         report["preview_page_render_boundary"] = "PROCESS_ISOLATED_WORKER"
