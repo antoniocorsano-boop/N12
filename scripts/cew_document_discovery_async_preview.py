@@ -40,7 +40,7 @@ async function waitPreviewJob(jobId){
   for(let attempt=0;attempt<240;attempt++){
     await sleep(750);
     const j=await api(`/api/workbench/document-discovery/preview-job/${encodeURIComponent(jobId)}`);
-    if(j.state==='READY')return j;
+    if(j.state==='READY'||j.state==='INCONCLUSIVE')return j;
     if(j.state==='FAILED')throw Error(j.reason||'Analisi preview fallita.');
     intakeMessage(`Analisi grafica ${j.state==='QUEUED'?'in coda':'in corso'}… Il browser può restare su questa pagina.`,'busy');
   }
@@ -63,8 +63,15 @@ q('preview').onclick=async()=>{
     session=done.session_id;clusterId=null;await load();
     const budget=state.preview_budget||{};
     const bounded=budget.truncated?' · preview limitata dal budget grafico':'';
-    const mode=done.preview_fallback_used?' · fallback raster':' · vettoriale';
-    intakeMessage(`Preview completata · ${state.page_count} pagine analizzate · ${state.primitive_candidate_count} primitive · ${state.graphic_cluster_count} cluster${mode}${bounded}. Training bloccato.`,'ok');
+    const mode=done.preview_fallback_used?' · raster tiled evidence':' · vettoriale';
+    const coverage=done.minimum_page_coverage_ratio==null?'':` · copertura ${(100*done.minimum_page_coverage_ratio).toFixed(1)}%`;
+    if(done.state==='INCONCLUSIVE'){
+      if(state?.page_count>0)showPreviewPage(0);
+      intakeMessage(`Preview inconcludente${mode}${coverage} · ${done.reason||'evidenza insufficiente'}. Pagina osservabile; training bloccato.`,'error');
+      q('message').textContent=`INCONCLUSIVE · ${done.reason||'evidenza raster insufficiente'} · nessuna classificazione automatica`;
+      return;
+    }
+    intakeMessage(`Preview completata · ${state.page_count} pagine analizzate · ${state.primitive_candidate_count} primitive · ${state.graphic_cluster_count} cluster${mode}${coverage}${bounded}. Training bloccato.`,'ok');
   }catch(e){
     intakeMessage(e.message,'error');q('message').textContent=e.message;
   }finally{setBusy(false)}
