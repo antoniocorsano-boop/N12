@@ -42,7 +42,7 @@ def _wait(job_id: str, timeout_seconds: float = 30.0) -> dict:
 
 def _fake_empty_then_raster_worker(path: Path) -> None:
     path.write_text(
-        """import json, sys\n"
+        "import json, sys\n"
         "_, source_version_id, digest, mode = sys.argv\n"
         "primitive_count = 0 if mode == 'VECTOR_BOUNDED' else 1\n"
         "cluster_count = 0 if primitive_count == 0 else 1\n"
@@ -55,8 +55,7 @@ def _fake_empty_then_raster_worker(path: Path) -> None:
         "    'graphic_cluster_count': cluster_count,\n"
         "    'preview_worker_mode': mode,\n"
         "}\n"
-        "open('report.json', 'w', encoding='utf-8').write(json.dumps(report))\n"
-        """,
+        "open('report.json', 'w', encoding='utf-8').write(json.dumps(report))\n",
         encoding="utf-8",
     )
 
@@ -66,35 +65,22 @@ def main() -> None:
     discovery.clear_sessions()
     preview_jobs.clear_jobs()
 
-    report = preview_engine.preacquire_preview_pdf(
-        payload,
-        source_version_id="PREVIEW-ASYNC-TEST",
-    )
+    report = preview_engine.preacquire_preview_pdf(payload, source_version_id="PREVIEW-ASYNC-TEST")
     assert report["analysis_scope"] == "BOUNDED_INTERACTIVE_PREVIEW"
     assert report["preview_budget"]["max_pages_analyzed"] == preview_engine.MAX_PREVIEW_PAGES_ANALYZED
     assert report["preview_budget"]["max_total_candidates"] == preview_engine.MAX_TOTAL_CANDIDATES
     assert report["semantic_labels_assigned_automatically"] is False
     assert report["authority"]["canonical_write_authorized"] is False
     assert report["primitive_candidate_count"] > 0
-    assert all(
-        row["detector"] != "PYMUPDF_GET_DRAWINGS"
-        for row in report["primitive_candidates"]
-        if row["primitive_family"] != "TEXT_BLOCK"
-    )
+    assert all(row["detector"] != "PYMUPDF_GET_DRAWINGS" for row in report["primitive_candidates"] if row["primitive_family"] != "TEXT_BLOCK")
 
-    raster_report = raster_preview_engine.preacquire_preview_pdf(
-        payload,
-        source_version_id="PREVIEW-RASTER-SAFE-TEST",
-    )
+    raster_report = raster_preview_engine.preacquire_preview_pdf(payload, source_version_id="PREVIEW-RASTER-SAFE-TEST")
     assert raster_report["analysis_scope"] == "BOUNDED_INTERACTIVE_PREVIEW"
     assert raster_report["preview_fallback_mode"] == "RASTER_SAFE_RESOURCE_BOUNDED"
     assert raster_report["semantic_labels_assigned_automatically"] is False
     assert raster_report["authority"]["canonical_write_authorized"] is False
     assert raster_report["primitive_candidate_count"] > 0
-    assert any(
-        row["detector"] == "PYMUPDF_RASTER_INK_TILE_BOUNDED"
-        for row in raster_report["primitive_candidates"]
-    )
+    assert any(row["detector"] == "PYMUPDF_RASTER_INK_TILE_BOUNDED" for row in raster_report["primitive_candidates"])
 
     job = preview_jobs.start_preview_job(payload, "HVA-DISCOVERY-ASYNC-TEST")
     assert job["state"] == "QUEUED"
@@ -116,8 +102,6 @@ def main() -> None:
     assert status["authority"]["canonical_write_authorized"] is False
     assert status["authority"]["structural_identity_authorized"] is False
 
-    # A successful vector worker that returns a non-empty page with zero graphic
-    # candidates is not a valid READY result. It must trigger raster-safe fallback.
     original_worker = preview_jobs.WORKER_SCRIPT
     with tempfile.TemporaryDirectory(prefix="cew-preview-empty-vector-test-") as tmp:
         fake_worker = Path(tmp) / "empty_then_raster_worker.py"
@@ -132,8 +116,6 @@ def main() -> None:
         assert fallback["preview_worker_mode"] == preview_jobs.RASTER_SAFE_MODE, fallback
         assert fallback["session_id"], fallback
 
-    # If both vector and raster-safe child executions fail, only the preview job
-    # fails. The validator remains alive and authority remains fail-closed.
     with tempfile.TemporaryDirectory(prefix="cew-preview-worker-failure-test-") as tmp:
         failing_worker = Path(tmp) / "fail_worker.py"
         failing_worker.write_text("raise SystemExit(7)\n", encoding="utf-8")
@@ -143,10 +125,7 @@ def main() -> None:
         preview_jobs.WORKER_SCRIPT = original_worker
         failed = _wait(failed_job["job_id"])
         assert failed["state"] == "FAILED", failed
-        assert failed["reason"] == (
-            "DOCUMENT_DISCOVERY_PREVIEW_RASTER_FALLBACK_FAILED:"
-            "DOCUMENT_DISCOVERY_PREVIEW_WORKER_EXIT_7"
-        ), failed
+        assert failed["reason"] == "DOCUMENT_DISCOVERY_PREVIEW_RASTER_FALLBACK_FAILED:DOCUMENT_DISCOVERY_PREVIEW_WORKER_EXIT_7", failed
         assert failed["preview_fallback_used"] is True
         assert failed["session_id"] is None
         assert discovery.provider_states()["structured_graphic"]["state"] == "READY"
