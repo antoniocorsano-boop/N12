@@ -64,6 +64,15 @@
     "detection_mask_may_expand_signal": true,
     "declared_geometry_must_reference_original_raster_coordinates": true
   },
+  "recovery_policy": {
+    "baseline_raster_and_adaptive_recovery_are_separate_process_stages": true,
+    "adaptive_recovery_trigger": "BLANK_CORROBORATION_CONTRADICTED_WITH_ZERO_CANDIDATES",
+    "adaptive_recovery_has_independent_timeout_budget": true,
+    "adaptive_recovery_must_reuse_baseline_trust_artifacts": true,
+    "adaptive_recovery_timeout_must_preserve_baseline_evidence_session": true,
+    "adaptive_recovery_timeout_terminal_state": "INCONCLUSIVE",
+    "adaptive_recovery_timeout_must_not_become_failed_if_baseline_evidence_is_complete": true
+  },
   "region_policy": {
     "fixed_grid_cells_must_not_be_final_candidates": true,
     "adjacent_signal_must_be_aggregated": true,
@@ -97,8 +106,8 @@
   },
   "terminal_states": {
     "READY": "Required observation coverage completed and the result is evidentially sufficient, including a demonstrated blank page.",
-    "INCONCLUSIVE": "Page observation completed wholly or partly but evidence is insufficient to derive reliable graphic candidates.",
-    "FAILED": "Acquisition or analysis could not complete inside the governed execution envelope."
+    "INCONCLUSIVE": "Page observation completed wholly or partly but evidence is insufficient to derive reliable graphic candidates, including optional recovery that timed out after baseline evidence completed.",
+    "FAILED": "Acquisition or baseline analysis could not complete inside the governed execution envelope."
   },
   "blank_vs_inconclusive": {
     "page_blank_observed_allowed": true,
@@ -140,7 +149,8 @@
     "canonical_write_blocker_visible": true,
     "generic_confidence_percentage_forbidden": true,
     "page_render_boundary_visible_or_auditable": true,
-    "blank_corroboration_state_visible_or_auditable": true
+    "blank_corroboration_state_visible_or_auditable": true,
+    "signal_recovery_outcome_visible_or_auditable": true
   },
   "quality_invariants": {
     "R1_FULL_OBSERVATION": "READY is forbidden when required coverage has not completed.",
@@ -155,7 +165,8 @@
     "R10_NO_HIDDEN_FALLBACK": "VECTOR, RASTER_FALLBACK, TILED, PARTIAL and INCONCLUSIVE modes are externally observable.",
     "R11_NO_WEB_PDF_EXECUTION_FOR_USER_PREVIEW": "The web process may byte-check and enqueue an unregistered user PDF but may not open, parse or rasterize it with PyMuPDF.",
     "R12_BLANK_REQUIRES_INDEPENDENT_CORROBORATION": "Zero candidates may become PAGE_BLANK_OBSERVED only when complete coverage and an independent blank witness agree; contradiction or insufficient witness yields INCONCLUSIVE.",
-    "R13_PAGE_INSPECTION_ARTIFACT_REQUIRED": "READY and INCONCLUSIVE preview sessions must expose a bounded, integrity-checked page artifact produced inside the isolated worker."
+    "R13_PAGE_INSPECTION_ARTIFACT_REQUIRED": "READY and INCONCLUSIVE preview sessions must expose a bounded, integrity-checked page artifact produced inside the isolated worker.",
+    "R14_RECOVERY_CANNOT_DESTROY_BASELINE_EVIDENCE": "Adaptive signal recovery is a separate optional bounded stage; timeout or nonzero exit after baseline raster evidence completed must yield an INCONCLUSIVE session retaining that baseline evidence, not FAILED with evidence loss."
   },
   "acceptance_gate": {
     "http_502_count": 0,
@@ -167,6 +178,7 @@
     "elongated_page_fixture_detected": true,
     "blank_page_fixture_distinguished": true,
     "blank_independent_corroboration_required": true,
+    "adaptive_recovery_timeout_preserves_baseline_session": true,
     "unregistered_preview_web_pdf_parse_count": 0,
     "unregistered_preview_web_pdf_render_count": 0,
     "page_inspection_artifact_boundary": "PROCESS_ISOLATED_WORKER",
