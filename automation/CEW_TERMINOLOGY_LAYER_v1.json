@@ -16,6 +16,7 @@
     "PROJECT_HOME": {"primary": "Progetto", "secondary": "Project Home"},
     "DOCUMENTS": {"primary": "Documenti", "secondary": "Document Library"},
     "DRAWINGS": {"primary": "Tavole", "secondary": "Drawing Register"},
+    "ASSISTED_ACQUISITION": {"primary": "Acquisizione assistita", "secondary": "Acquisition Human Workbench"},
     "CURRENT_WORK_ITEM": {"primary": "Attività corrente", "secondary": "Work item"},
     "RESIDUAL": {"primary": "Dato da completare", "alternative": "Questione aperta"},
     "HUMAN_REVIEW_TASK": {"primary": "Revisione evidenza", "action": "Rivedi evidenza"},
@@ -28,6 +29,7 @@
     "TECHNICAL_CONTROL_ROOM": {"primary": "Dettagli tecnici e audit", "secondary": "Control Room"}
   },
   "navigation": [
+    {"id": "ASSISTED_ACQUISITION", "label": "Acquisizione assistita", "href": "/workbench/acquisition", "state": "OA1_IMPLEMENTED_CANDIDATE_NOT_PROMOTED"},
     {"id": "DOCUMENTS", "label": "Documenti", "href": "/documents", "state": "B11_ACTIVE"},
     {"id": "DRAWINGS", "label": "Tavole", "href": "/drawings", "state": "B11_ACTIVE"},
     {"id": "SOURCES", "label": "Fonti", "href": "/sources", "state": "B1_ACTIVE"},
