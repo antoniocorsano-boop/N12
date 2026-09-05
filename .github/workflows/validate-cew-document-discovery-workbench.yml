@@ -10,6 +10,7 @@ on:
       - 'scripts/cew_document_discovery_async_preview.py'
       - 'scripts/cew_document_discovery_preview_engine.py'
       - 'scripts/cew_document_discovery_raster_preview_engine.py'
+      - 'scripts/cew_document_discovery_raster_signal_recovery.py'
       - 'scripts/cew_document_discovery_preview_jobs.py'
       - 'scripts/cew_document_discovery_preview_safe_jobs.py'
       - 'scripts/cew_document_discovery_preview_worker.py'
@@ -17,6 +18,7 @@ on:
       - 'scripts/validate_cew_document_discovery_workbench.py'
       - 'scripts/validate_cew_document_discovery_async_preview.py'
       - 'scripts/validate_cew_raster_evidence_engine.py'
+      - 'scripts/validate_cew_raster_signal_recovery.py'
       - 'scripts/validate_cew_preview_trust_boundary.py'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/cew_visual_learning.py'
@@ -32,6 +34,7 @@ on:
       - 'scripts/cew_document_discovery_async_preview.py'
       - 'scripts/cew_document_discovery_preview_engine.py'
       - 'scripts/cew_document_discovery_raster_preview_engine.py'
+      - 'scripts/cew_document_discovery_raster_signal_recovery.py'
       - 'scripts/cew_document_discovery_preview_jobs.py'
       - 'scripts/cew_document_discovery_preview_safe_jobs.py'
       - 'scripts/cew_document_discovery_preview_worker.py'
@@ -39,6 +42,7 @@ on:
       - 'scripts/validate_cew_document_discovery_workbench.py'
       - 'scripts/validate_cew_document_discovery_async_preview.py'
       - 'scripts/validate_cew_raster_evidence_engine.py'
+      - 'scripts/validate_cew_raster_signal_recovery.py'
       - 'scripts/validate_cew_preview_trust_boundary.py'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/cew_visual_learning.py'
@@ -70,6 +74,7 @@ jobs:
           scripts/cew_document_discovery_async_preview.py
           scripts/cew_document_discovery_preview_engine.py
           scripts/cew_document_discovery_raster_preview_engine.py
+          scripts/cew_document_discovery_raster_signal_recovery.py
           scripts/cew_document_discovery_preview_jobs.py
           scripts/cew_document_discovery_preview_safe_jobs.py
           scripts/cew_document_discovery_preview_worker.py
@@ -77,6 +82,7 @@ jobs:
           scripts/validate_cew_document_discovery_workbench.py
           scripts/validate_cew_document_discovery_async_preview.py
           scripts/validate_cew_raster_evidence_engine.py
+          scripts/validate_cew_raster_signal_recovery.py
           scripts/validate_cew_preview_trust_boundary.py
           scripts/cew_new_project_preacquisition.py
           scripts/cew_visual_learning.py
@@ -91,6 +97,9 @@ jobs:
       - name: Validate Raster Evidence Engine v2 deterministic corpus
         working-directory: scripts
         run: python validate_cew_raster_evidence_engine.py
+      - name: Validate adaptive faint-line raster signal recovery
+        working-directory: scripts
+        run: python validate_cew_raster_signal_recovery.py
       - name: Validate isolated page rendering and blank corroboration
         working-directory: scripts
         run: python validate_cew_preview_trust_boundary.py
@@ -117,6 +126,7 @@ jobs:
           worker = Path('scripts/cew_document_discovery_preview_worker.py').read_text(encoding='utf-8')
           trust = Path('scripts/cew_document_discovery_preview_trust.py').read_text(encoding='utf-8')
           raster = Path('scripts/cew_document_discovery_raster_preview_engine.py').read_text(encoding='utf-8')
+          recovery = Path('scripts/cew_document_discovery_raster_signal_recovery.py').read_text(encoding='utf-8')
           contract = json.loads(Path('automation/CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2.json').read_text(encoding='utf-8'))
           assert contract['schema'] == 'CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2'
           assert contract['quality_invariants']['R2_NO_SILENT_EMPTY']
@@ -156,13 +166,19 @@ jobs:
           assert 'resource.RLIMIT_AS' in worker
           assert 'cew_document_discovery_preview_engine' in worker
           assert 'cew_document_discovery_raster_preview_engine' in worker
+          assert 'cew_document_discovery_raster_signal_recovery' in worker
+          assert '_corroborated_content_without_candidates' in worker
           assert 'preview_trust.attach_trust_evidence' in worker
           assert 'CONFIRMED_BLANK' in trust
           assert 'BLANK_CORROBORATION_CONTRADICTED' in trust
+          assert 'BOUNDED_CONTRAST_PRESERVING_READING_AID' in trust
           assert 'PROCESS_ISOLATED_WORKER' in trust
           assert 'TILED_FULL_COVERAGE' in raster
           assert 'PYMUPDF_RASTER_CONNECTED_REGION_TILED_V2' in raster
           assert 'PAGE_BLANK_OBSERVED' in raster
           assert 'INCONCLUSIVE_RASTER_DETECTION' in raster
+          assert 'TILED_FULL_COVERAGE_ADAPTIVE_RECOVERY' in recovery
+          assert 'PYMUPDF_RASTER_ADAPTIVE_SIGNAL_RECOVERY_V1' in recovery
+          assert 'semantic_authority' in recovery
           print('CEW_DOCUMENT_DISCOVERY_RASTER_EVIDENCE_V2_CONTRACT_PASS')
           PY
