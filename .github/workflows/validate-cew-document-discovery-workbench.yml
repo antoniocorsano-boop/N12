@@ -19,6 +19,7 @@ on:
       - 'scripts/validate_cew_document_discovery_async_preview.py'
       - 'scripts/validate_cew_raster_evidence_engine.py'
       - 'scripts/validate_cew_raster_signal_recovery.py'
+      - 'scripts/validate_cew_signal_recovery_degradation.py'
       - 'scripts/validate_cew_preview_trust_boundary.py'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/cew_visual_learning.py'
@@ -43,6 +44,7 @@ on:
       - 'scripts/validate_cew_document_discovery_async_preview.py'
       - 'scripts/validate_cew_raster_evidence_engine.py'
       - 'scripts/validate_cew_raster_signal_recovery.py'
+      - 'scripts/validate_cew_signal_recovery_degradation.py'
       - 'scripts/validate_cew_preview_trust_boundary.py'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/cew_visual_learning.py'
@@ -83,6 +85,7 @@ jobs:
           scripts/validate_cew_document_discovery_async_preview.py
           scripts/validate_cew_raster_evidence_engine.py
           scripts/validate_cew_raster_signal_recovery.py
+          scripts/validate_cew_signal_recovery_degradation.py
           scripts/validate_cew_preview_trust_boundary.py
           scripts/cew_new_project_preacquisition.py
           scripts/cew_visual_learning.py
@@ -100,6 +103,9 @@ jobs:
       - name: Validate adaptive faint-line raster signal recovery
         working-directory: scripts
         run: python validate_cew_raster_signal_recovery.py
+      - name: Validate recovery timeout preserves baseline evidence
+        working-directory: scripts
+        run: python validate_cew_signal_recovery_degradation.py
       - name: Validate isolated page rendering and blank corroboration
         working-directory: scripts
         run: python validate_cew_preview_trust_boundary.py
@@ -130,6 +136,8 @@ jobs:
           contract = json.loads(Path('automation/CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2.json').read_text(encoding='utf-8'))
           assert contract['schema'] == 'CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2'
           assert contract['quality_invariants']['R2_NO_SILENT_EMPTY']
+          assert contract['quality_invariants']['R14_RECOVERY_CANNOT_DESTROY_BASELINE_EVIDENCE']
+          assert contract['recovery_policy']['adaptive_recovery_timeout_terminal_state'] == 'INCONCLUSIVE'
           assert contract['authority']['canonical_write_authorized'] is False
           assert 'import cew_document_discovery_async_preview as _document_discovery_async_preview' in composition
           assert 'import cew_document_discovery_workbench as _document_discovery' in composition
@@ -159,15 +167,20 @@ jobs:
           assert 'PROCESS_ISOLATED_SUBPROCESS' in jobs
           assert 'subprocess.run(' in jobs
           assert 'RASTER_SAFE_MODE' in jobs
+          assert 'RASTER_SIGNAL_RECOVERY_MODE' in jobs
+          assert 'PREVIEW_SIGNAL_RECOVERY_TIMEOUT_SECONDS' in jobs
+          assert 'DOCUMENT_DISCOVERY_SIGNAL_RECOVERY_DEGRADED' in jobs
           assert 'PREVIEW_WORKER_MEMORY_MB' in jobs
           assert 'state="INCONCLUSIVE"' in jobs
           assert 'discovery._validate_pdf(payload)' not in safe_jobs
           assert '_validate_upload_envelope(payload)' in safe_jobs
+          assert 'PREVIEW_SIGNAL_RECOVERY_TIMEOUT_SECONDS' in safe_jobs
           assert 'resource.RLIMIT_AS' in worker
           assert 'cew_document_discovery_preview_engine' in worker
           assert 'cew_document_discovery_raster_preview_engine' in worker
           assert 'cew_document_discovery_raster_signal_recovery' in worker
-          assert '_corroborated_content_without_candidates' in worker
+          assert 'PRIOR_REPORT_FILENAME' in worker
+          assert '_inherit_trust_evidence' in worker
           assert 'preview_trust.attach_trust_evidence' in worker
           assert 'CONFIRMED_BLANK' in trust
           assert 'BLANK_CORROBORATION_CONTRADICTED' in trust
