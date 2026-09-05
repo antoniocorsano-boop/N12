@@ -1,0 +1,48 @@
+{
+  "schema": "CEW_GUIDED_GROUP_REVIEW_CONTRACT_v1",
+  "status": "IMPLEMENTATION_CANDIDATE",
+  "goal": "Replace candidate-by-candidate similarity handling with one human group decision while preserving evidence provenance and fail-closed authority.",
+  "canonical_interaction": [
+    "TEACH_THIS_IS",
+    "FIND_SIMILAR",
+    "REVIEW_SIMILAR_GROUP",
+    "CONFIRM_OR_REJECT_GROUP",
+    "REPLAY_PROJECT_LOCAL_MEMORY",
+    "SURFACE_EXCEPTIONS_ONLY"
+  ],
+  "review_bands": {
+    "HIGH_SIMILARITY_PROPOSAL": {"min_fused_score": 0.85, "default_selected": true},
+    "REVIEW_PROPOSAL": {"min_fused_score": 0.60, "default_selected": false},
+    "LOW_SIMILARITY_PROPOSAL": {"default_selected": false}
+  },
+  "human_actions": [
+    "CONFIRM_SELECTED",
+    "REJECT_SELECTED",
+    "MARK_SELECTED_AMBIGUOUS"
+  ],
+  "persistence": {
+    "receipt": "CEW_GUIDED_GROUP_REVIEW_RECEIPT_v1",
+    "append_only": true,
+    "replayable_into_project_local_prototype_memory": true,
+    "one_human_action_may_cover_multiple_candidates": true
+  },
+  "authority": {
+    "project_semantic_authority": "NONE",
+    "oar_human_confirmation": false,
+    "oar_classification_confirmed": false,
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "engineering_authority_effect": "NONE"
+  },
+  "non_negotiable_invariants": [
+    "SIMILARITY_BAND_IS_NOT_CLASSIFICATION",
+    "GROUP_CONFIRMATION_IS_PROJECT_LOCAL_TRAINING_EVIDENCE_ONLY",
+    "TRAINING_EXAMPLES_CANNOT_BE_RESELECTED_IN_THE_SAME_MEMORY_STATE",
+    "GROUP_RECEIPT_MUST_BIND_MEMORY_FINGERPRINT_AND_EVIDENCE_FINGERPRINTS",
+    "NO_F2_MUTATION",
+    "NO_STRUCTURAL_IDENTITY",
+    "NO_CANONICAL_ENGINEERING_WRITE",
+    "EXCEPTIONS_REMAIN_VISIBLE_AND_REVIEWABLE"
+  ],
+  "acceptance_gate": "GUIDED_GROUP_REVIEW_PASS"
+}
