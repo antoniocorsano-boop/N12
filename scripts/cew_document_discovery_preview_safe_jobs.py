@@ -40,6 +40,8 @@ def start_preview_job(payload: bytes, project_id: str) -> dict[str, Any]:
         "reason": None,
         "preview_worker_mode": None,
         "preview_fallback_used": False,
+        "preview_signal_recovery_used": False,
+        "preview_signal_recovery_outcome": None,
         "quality_status": None,
         "minimum_page_coverage_ratio": None,
     }
@@ -66,6 +68,7 @@ def start_preview_job(payload: bytes, project_id: str) -> dict[str, Any]:
         worker_script,
         float(base.PREVIEW_VECTOR_TIMEOUT_SECONDS),
         float(base.PREVIEW_RASTER_TIMEOUT_SECONDS),
+        float(base.PREVIEW_SIGNAL_RECOVERY_TIMEOUT_SECONDS),
     )
     return queued_public
 
