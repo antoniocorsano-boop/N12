@@ -28,6 +28,15 @@
     "runtime_network_fetch_allowed": false,
     "third_party_cv_or_ml_required": false
   },
+  "web_process_pdf_boundary": {
+    "unregistered_preview_pdf_parse_in_web_forbidden": true,
+    "unregistered_preview_pdf_render_in_web_forbidden": true,
+    "web_enqueue_validation": "BYTE_ENVELOPE_ONLY",
+    "page_inspection_artifact_render_boundary": "PROCESS_ISOLATED_WORKER",
+    "web_page_delivery": "CACHED_VERIFIED_JPEG_BYTES_ONLY",
+    "page_artifact_sha256_required": true,
+    "page_artifact_size_bound_required": true
+  },
   "raster_plan": {
     "schema": "CEW_RASTER_PLAN_v2",
     "strategy": "TILED_FULL_COVERAGE",
@@ -73,6 +82,19 @@
     "ready_requires_required_coverage": true,
     "partial_observation_must_be_visible": true
   },
+  "blank_corroboration": {
+    "zero_candidates_never_proves_blank": true,
+    "independent_witness_required": true,
+    "independent_witness_channels": [
+      "TEXT_BLOCK_PRESENCE",
+      "EMBEDDED_IMAGE_PRESENCE",
+      "BOUNDED_OVERVIEW_RASTER_VARIATION"
+    ],
+    "extreme_aspect_ratio_may_not_be_declared_blank_from_global_overview_alone": true,
+    "corroborated_content_with_zero_candidates": "INCONCLUSIVE",
+    "insufficient_blank_witness": "INCONCLUSIVE",
+    "confirmed_blank_requires_complete_coverage": true
+  },
   "terminal_states": {
     "READY": "Required observation coverage completed and the result is evidentially sufficient, including a demonstrated blank page.",
     "INCONCLUSIVE": "Page observation completed wholly or partly but evidence is insufficient to derive reliable graphic candidates.",
@@ -81,7 +103,9 @@
   "blank_vs_inconclusive": {
     "page_blank_observed_allowed": true,
     "blank_requires_complete_observation": true,
+    "blank_requires_independent_corroboration": true,
     "signal_present_and_zero_candidates": "INCONCLUSIVE",
+    "independent_content_present_and_zero_candidates": "INCONCLUSIVE",
     "zero_candidates_alone_never_proves_blank": true
   },
   "candidate_provenance": {
@@ -114,7 +138,9 @@
     "automatic_semantic_labels_visible_as_none": true,
     "training_blocker_visible": true,
     "canonical_write_blocker_visible": true,
-    "generic_confidence_percentage_forbidden": true
+    "generic_confidence_percentage_forbidden": true,
+    "page_render_boundary_visible_or_auditable": true,
+    "blank_corroboration_state_visible_or_auditable": true
   },
   "quality_invariants": {
     "R1_FULL_OBSERVATION": "READY is forbidden when required coverage has not completed.",
@@ -126,7 +152,10 @@
     "R7_SOURCE_BINDING": "Every candidate is reconstructible from SourceVersion/Page coordinates.",
     "R8_ZERO_SEMANTIC_AUTHORITY": "Raster evidence never assigns structural identity or project truth.",
     "R9_HUMAN_VISIBLE_UNCERTAINTY": "Incomplete or inconclusive analysis is explicit in the UI.",
-    "R10_NO_HIDDEN_FALLBACK": "VECTOR, RASTER_FALLBACK, TILED, PARTIAL and INCONCLUSIVE modes are externally observable."
+    "R10_NO_HIDDEN_FALLBACK": "VECTOR, RASTER_FALLBACK, TILED, PARTIAL and INCONCLUSIVE modes are externally observable.",
+    "R11_NO_WEB_PDF_EXECUTION_FOR_USER_PREVIEW": "The web process may byte-check and enqueue an unregistered user PDF but may not open, parse or rasterize it with PyMuPDF.",
+    "R12_BLANK_REQUIRES_INDEPENDENT_CORROBORATION": "Zero candidates may become PAGE_BLANK_OBSERVED only when complete coverage and an independent blank witness agree; contradiction or insufficient witness yields INCONCLUSIVE.",
+    "R13_PAGE_INSPECTION_ARTIFACT_REQUIRED": "READY and INCONCLUSIVE preview sessions must expose a bounded, integrity-checked page artifact produced inside the isolated worker."
   },
   "acceptance_gate": {
     "http_502_count": 0,
@@ -137,6 +166,11 @@
     "technical_thin_line_fixture_detected": true,
     "elongated_page_fixture_detected": true,
     "blank_page_fixture_distinguished": true,
+    "blank_independent_corroboration_required": true,
+    "unregistered_preview_web_pdf_parse_count": 0,
+    "unregistered_preview_web_pdf_render_count": 0,
+    "page_inspection_artifact_boundary": "PROCESS_ISOLATED_WORKER",
+    "page_inspection_artifact_integrity_verified": true,
     "tavola_6_signal_detected": true,
     "tavola_6_graphic_regions_gt": 0,
     "tavola_6_graphic_clusters_gt": 0,
