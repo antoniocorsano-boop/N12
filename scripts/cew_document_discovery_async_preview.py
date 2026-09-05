@@ -1,24 +1,29 @@
 #!/usr/bin/env python3
 """Async/bounded preview adapter for the CEW Document Discovery Workbench.
 
-Mounted before the original Document Discovery router. It shadows only the HTML
-workspace route so the Preview button uses enqueue + polling, while all existing
-session/learning endpoints remain provided by the preserved workbench router.
+Mounted before the original Document Discovery router. It shadows the HTML
+workspace, unregistered-preview enqueue/poll endpoints, and the preview page
+image route. User PDFs are never opened or rasterized in the web process: page
+inspection bytes are produced inside the isolated worker and served from the
+transient session report.
 """
 from __future__ import annotations
 
+import base64
+from hashlib import sha256
 import logging
 
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 
 import cew_document_discovery as discovery
 import cew_document_discovery_preview_engine as preview_engine
-import cew_document_discovery_preview_jobs as preview_jobs
+import cew_document_discovery_preview_safe_jobs as preview_jobs
 import cew_document_discovery_workbench as base_workbench
 
 
 LOGGER = logging.getLogger(__name__)
+MAX_PREVIEW_PAGE_ARTIFACT_BYTES = 6 * 1024 * 1024
 
 _ASYNC_SCRIPT = r'''<script>
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -86,6 +91,31 @@ def _patched_page() -> str:
     return html.replace("</body>", _ASYNC_SCRIPT + "</body>", 1)
 
 
+def _preview_artifact(session_id: str, page_index: int) -> bytes:
+    session = discovery.get_session(session_id)
+    if session.get("source_registration_state") != "UNREGISTERED_PREVIEW":
+        # Governed-source analysis retains the existing route semantics. The
+        # hard boundary here is specifically for unregistered user previews.
+        return discovery.render_page(session_id, page_index)
+    rows = session.get("report", {}).get("preview_page_images") or []
+    selected = None
+    for row in rows:
+        if isinstance(row, dict) and int(row.get("page_index", -1)) == page_index:
+            selected = row
+            break
+    if selected is None:
+        raise ValueError("DOCUMENT_DISCOVERY_PREVIEW_PAGE_ARTIFACT_MISSING")
+    if selected.get("render_boundary") != "PROCESS_ISOLATED_WORKER":
+        raise ValueError("DOCUMENT_DISCOVERY_PREVIEW_PAGE_BOUNDARY_INVALID")
+    encoded = str(selected.get("data_base64") or "")
+    payload = base64.b64decode(encoded, validate=True)
+    if not payload.startswith(b"\xff\xd8") or len(payload) > MAX_PREVIEW_PAGE_ARTIFACT_BYTES:
+        raise ValueError("DOCUMENT_DISCOVERY_PREVIEW_PAGE_ARTIFACT_INVALID")
+    if sha256(payload).hexdigest() != str(selected.get("sha256") or "").lower():
+        raise ValueError("DOCUMENT_DISCOVERY_PREVIEW_PAGE_ARTIFACT_SHA_INVALID")
+    return payload
+
+
 def build_router() -> APIRouter:
     router = APIRouter()
 
@@ -144,6 +174,25 @@ def build_router() -> APIRouter:
             return base_workbench._json({
                 "state": "DOCUMENT_DISCOVERY_PREVIEW_JOB_NOT_FOUND",
                 "reason": "DOCUMENT_DISCOVERY_PREVIEW_JOB_NOT_FOUND",
+            }, 404)
+
+    @router.get("/api/workbench/document-discovery/session/{session_id}/page/{page_index}.jpg")
+    def preview_page_image(session_id: str, page_index: int):
+        try:
+            payload = _preview_artifact(session_id, page_index)
+            return Response(
+                payload,
+                media_type="image/jpeg",
+                headers={
+                    "Cache-Control": "no-store",
+                    "X-CEW-Authority": "READING_AID_ONLY",
+                    "X-CEW-Preview-Page-Render": "PROCESS_ISOLATED_CACHED",
+                },
+            )
+        except (ValueError, TypeError, base64.binascii.Error):
+            return base_workbench._json({
+                "state": "DOCUMENT_DISCOVERY_PAGE_REJECTED",
+                "reason": "DOCUMENT_DISCOVERY_REQUEST_REJECTED",
             }, 404)
 
     return router
