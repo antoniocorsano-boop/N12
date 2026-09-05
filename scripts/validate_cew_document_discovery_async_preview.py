@@ -34,7 +34,7 @@ def _wait(job_id: str, timeout_seconds: float = 30.0) -> dict:
     current = preview_jobs.preview_job_status(job_id)
     while time.time() < deadline:
         current = preview_jobs.preview_job_status(job_id)
-        if current["state"] in {"READY", "FAILED"}:
+        if current["state"] in {"READY", "INCONCLUSIVE", "FAILED"}:
             return current
         time.sleep(0.05)
     raise AssertionError(f"preview job did not terminate: {current}")
@@ -54,7 +54,27 @@ def _fake_empty_then_raster_worker(path: Path) -> None:
         "    'primitive_candidate_count': primitive_count,\n"
         "    'graphic_cluster_count': cluster_count,\n"
         "    'preview_worker_mode': mode,\n"
+        "    'quality_gate': {'status': 'READY', 'reasons': [], 'minimum_page_coverage_ratio': 1.0, 'blank_pages_observed': []} if mode == 'RASTER_SAFE' else None,\n"
         "}\n"
+        "open('report.json', 'w', encoding='utf-8').write(json.dumps(report))\n",
+        encoding="utf-8",
+    )
+
+
+def _fake_inconclusive_worker(path: Path) -> None:
+    path.write_text(
+        "import json, sys\n"
+        "_, source_version_id, digest, mode = sys.argv\n"
+        "report = {\n"
+        "    'analysis_scope': 'BOUNDED_INTERACTIVE_PREVIEW',\n"
+        "    'source_sha256': digest,\n"
+        "    'source_version_id': source_version_id,\n"
+        "    'page_count': 1,\n"
+        "    'primitive_candidate_count': 0,\n"
+        "    'graphic_cluster_count': 0,\n"
+        "    'preview_worker_mode': mode,\n"
+        "}\n"
+        "if mode == 'RASTER_SAFE': report['quality_gate'] = {'status':'INCONCLUSIVE','reasons':['INCONCLUSIVE_RASTER_DETECTION'],'minimum_page_coverage_ratio':1.0,'blank_pages_observed':[]}\n"
         "open('report.json', 'w', encoding='utf-8').write(json.dumps(report))\n",
         encoding="utf-8",
     )
@@ -74,13 +94,18 @@ def main() -> None:
     assert report["primitive_candidate_count"] > 0
     assert all(row["detector"] != "PYMUPDF_GET_DRAWINGS" for row in report["primitive_candidates"] if row["primitive_family"] != "TEXT_BLOCK")
 
-    raster_report = raster_preview_engine.preacquire_preview_pdf(payload, source_version_id="PREVIEW-RASTER-SAFE-TEST")
+    raster_report = raster_preview_engine.preacquire_preview_pdf(payload, source_version_id="PREVIEW-RASTER-EVIDENCE-V2-TEST")
     assert raster_report["analysis_scope"] == "BOUNDED_INTERACTIVE_PREVIEW"
-    assert raster_report["preview_fallback_mode"] == "RASTER_SAFE_RESOURCE_BOUNDED"
+    assert raster_report["raster_contract_schema"] == raster_preview_engine.RASTER_CONTRACT_SCHEMA
+    assert raster_report["preview_fallback_mode"] == "RASTER_TILED_EVIDENCE_V2"
+    assert raster_report["quality_gate"]["status"] == "READY"
+    assert raster_report["quality_gate"]["minimum_page_coverage_ratio"] == 1.0
     assert raster_report["semantic_labels_assigned_automatically"] is False
     assert raster_report["authority"]["canonical_write_authorized"] is False
     assert raster_report["primitive_candidate_count"] > 0
-    assert any(row["detector"] == "PYMUPDF_RASTER_INK_TILE_BOUNDED" for row in raster_report["primitive_candidates"])
+    assert any(row["detector"] == "PYMUPDF_RASTER_CONNECTED_REGION_TILED_V2" for row in raster_report["primitive_candidates"])
+    assert all(page["tiles_failed"] == 0 for page in raster_report["pages"])
+    assert all(page["coverage_ratio"] == 1.0 for page in raster_report["pages"])
 
     job = preview_jobs.start_preview_job(payload, "HVA-DISCOVERY-ASYNC-TEST")
     assert job["state"] == "QUEUED"
@@ -115,6 +140,26 @@ def main() -> None:
         assert fallback["preview_fallback_used"] is True, fallback
         assert fallback["preview_worker_mode"] == preview_jobs.RASTER_SAFE_MODE, fallback
         assert fallback["session_id"], fallback
+        assert fallback["quality_status"] == "READY"
+        assert fallback["minimum_page_coverage_ratio"] == 1.0
+
+    with tempfile.TemporaryDirectory(prefix="cew-preview-inconclusive-test-") as tmp:
+        fake_worker = Path(tmp) / "inconclusive_worker.py"
+        _fake_inconclusive_worker(fake_worker)
+        preview_jobs.WORKER_SCRIPT = fake_worker
+        preview_jobs.clear_jobs()
+        inconclusive_job = preview_jobs.start_preview_job(payload, "HVA-DISCOVERY-INCONCLUSIVE-TEST")
+        preview_jobs.WORKER_SCRIPT = original_worker
+        inconclusive = _wait(inconclusive_job["job_id"])
+        assert inconclusive["state"] == "INCONCLUSIVE", inconclusive
+        assert inconclusive["session_id"], inconclusive
+        assert inconclusive["reason"] == "INCONCLUSIVE_RASTER_DETECTION"
+        assert inconclusive["preview_fallback_used"] is True
+        assert inconclusive["quality_status"] == "INCONCLUSIVE"
+        assert inconclusive["minimum_page_coverage_ratio"] == 1.0
+        inconclusive_status = discovery.status(inconclusive["session_id"])
+        assert inconclusive_status["teaching_enabled"] is False
+        assert inconclusive_status["authority"]["canonical_write_authorized"] is False
 
     with tempfile.TemporaryDirectory(prefix="cew-preview-worker-failure-test-") as tmp:
         failing_worker = Path(tmp) / "fail_worker.py"
@@ -139,7 +184,9 @@ def main() -> None:
     assert "arrayBuffer()" not in html
     assert "showPreviewPage" in html
     assert "state?.page_count>0" in html
-    assert "fallback raster" in html
+    assert "INCONCLUSIVE" in html
+    assert "raster tiled evidence" in html
+    assert "copertura" in html
 
     router = async_preview.build_router()
     paths = [route.path for route in router.routes]
@@ -160,8 +207,11 @@ def main() -> None:
     assert "MAX_VECTOR_PATHS_PER_PAGE" in engine_source
     assert "MAX_TOTAL_CANDIDATES" in engine_source
     assert "page.get_pixmap(" in raster_source
-    assert "PYMUPDF_RASTER_INK_TILE_BOUNDED" in raster_source
-    assert "RASTER_SAFE_RESOURCE_BOUNDED" in raster_source
+    assert "TILED_FULL_COVERAGE" in raster_source
+    assert "PYMUPDF_RASTER_CONNECTED_REGION_TILED_V2" in raster_source
+    assert "PAGE_BLANK_OBSERVED" in raster_source
+    assert "INCONCLUSIVE_RASTER_DETECTION" in raster_source
+    assert "RASTER_TILED_EVIDENCE_V2" in raster_source
 
     jobs_source = Path("cew_document_discovery_preview_jobs.py").read_text(encoding="utf-8")
     worker_source = Path("cew_document_discovery_preview_worker.py").read_text(encoding="utf-8")
@@ -171,8 +221,7 @@ def main() -> None:
     assert "PREVIEW_RASTER_TIMEOUT_SECONDS" in jobs_source
     assert "RASTER_SAFE_MODE" in jobs_source
     assert "DOCUMENT_DISCOVERY_PREVIEW_VECTOR_EMPTY" in jobs_source
-    assert "DOCUMENT_DISCOVERY_PREVIEW_EMPTY_AFTER_RASTER_FALLBACK" in jobs_source
-    assert "DOCUMENT_DISCOVERY_PREVIEW_RASTER_FALLBACK_FAILED" in jobs_source
+    assert 'state="INCONCLUSIVE"' in jobs_source
     assert "preview_engine.preacquire_preview_pdf" not in jobs_source
     assert "resource.RLIMIT_AS" in worker_source
     assert "CEW_PREVIEW_WORKER_MEMORY_MB" in worker_source
@@ -183,9 +232,8 @@ def main() -> None:
     print("CEW_DOCUMENT_DISCOVERY_ASYNC_PREVIEW_PASS")
     print("http_boundary=ENQUEUE_THEN_POLL gateway_wait=DECOUPLED")
     print("worker_boundary=PROCESS_ISOLATED_SUBPROCESS memory_ceiling=ENFORCED")
-    print("vector_empty=RASTER_SAFE_RESOURCE_BOUNDED_FALLBACK")
-    print("vector_failure=RASTER_SAFE_RESOURCE_BOUNDED_FALLBACK")
-    print("empty_cluster_viewer=PAGE_ZERO_VISIBLE")
+    print("vector_empty=RASTER_TILED_EVIDENCE_V2_FALLBACK")
+    print("raster_inconclusive=EVIDENCE_SESSION_VISIBLE training=BLOCKED")
     print("preview_training=BLOCKED semantic_authority=NONE canonical_write_authorized=false")
 
 
