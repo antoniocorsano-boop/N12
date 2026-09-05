@@ -4,8 +4,8 @@
 The HTTP request validates and enqueues only. Expensive PyMuPDF extraction runs
 in a separate Python process so vector parsing cannot monopolize or terminate the
 Uvicorn web process. The preferred vector worker is memory-capped; if it cannot
-complete inside that envelope, the supervisor retries once with a raster-safe,
-zero-semantic-prior preview. Jobs and preview sessions remain transient state and
+complete inside that envelope, the supervisor retries once with the governed
+raster evidence engine. Jobs and preview sessions remain transient state and
 create no project truth.
 """
 from __future__ import annotations
@@ -63,6 +63,8 @@ def _public(job: dict[str, Any]) -> dict[str, Any]:
         "execution_boundary": "PROCESS_ISOLATED_SUBPROCESS",
         "preview_worker_mode": job.get("preview_worker_mode"),
         "preview_fallback_used": bool(job.get("preview_fallback_used", False)),
+        "quality_status": job.get("quality_status"),
+        "minimum_page_coverage_ratio": job.get("minimum_page_coverage_ratio"),
         "teaching_enabled": False,
         "authority": dict(discovery.AUTHORITY),
     }
@@ -103,6 +105,19 @@ def _report_is_empty(report: dict[str, Any]) -> bool:
         int(report.get("page_count") or 0) > 0
         and int(report.get("primitive_candidate_count") or 0) == 0
     )
+
+
+def _quality(report: dict[str, Any]) -> tuple[str | None, list[str], float | None]:
+    gate = report.get("quality_gate")
+    if not isinstance(gate, dict):
+        return None, [], None
+    status = str(gate.get("status") or "").strip().upper() or None
+    reasons = [str(value) for value in (gate.get("reasons") or []) if str(value).strip()]
+    try:
+        coverage = float(gate.get("minimum_page_coverage_ratio"))
+    except (TypeError, ValueError):
+        coverage = None
+    return status, reasons, coverage
 
 
 def _save_preview_session(
@@ -161,8 +176,6 @@ def _invoke_worker(
         return None, f"DOCUMENT_DISCOVERY_PREVIEW_WORKER_TIMEOUT_{mode}"
 
     if completed.returncode != 0:
-        # Do not copy child stderr into service logs: PDF parser failures may
-        # contain attacker-controlled or environment-sensitive details.
         LOGGER.warning(
             "DOCUMENT_DISCOVERY_PREVIEW_WORKER_NONZERO mode=%s returncode=%s",
             mode,
@@ -262,13 +275,34 @@ def _run(
                     digest=digest,
                     source_version_id=source_version_id,
                 )
-                if _report_is_empty(report):
+                quality_status, quality_reasons, coverage = _quality(report)
+                blank_observed = bool((report.get("quality_gate") or {}).get("blank_pages_observed"))
+                inconclusive = quality_status == "INCONCLUSIVE" or (
+                    _report_is_empty(report) and not blank_observed
+                )
+                if inconclusive:
+                    report["preview_fallback"] = {
+                        "used": True,
+                        "primary_failure": primary_failure,
+                        "fallback_mode": RASTER_SAFE_MODE,
+                    }
+                    session = _save_preview_session(
+                        payload,
+                        project_id,
+                        digest=digest,
+                        source_version_id=source_version_id,
+                        report=report,
+                    )
+                    reason = quality_reasons[0] if quality_reasons else "INCONCLUSIVE_RASTER_DETECTION"
                     _set(
                         job_id,
-                        state="FAILED",
-                        reason="DOCUMENT_DISCOVERY_PREVIEW_EMPTY_AFTER_RASTER_FALLBACK",
-                        preview_worker_mode=RASTER_SAFE_MODE,
+                        state="INCONCLUSIVE",
+                        session_id=session["session_id"],
+                        reason=reason,
+                        preview_worker_mode=report.get("preview_worker_mode", RASTER_SAFE_MODE),
                         preview_fallback_used=True,
+                        quality_status="INCONCLUSIVE",
+                        minimum_page_coverage_ratio=coverage,
                     )
                     return
             else:
@@ -281,6 +315,7 @@ def _run(
                 "primary_failure": primary_failure,
                 "fallback_mode": RASTER_SAFE_MODE if fallback_used else None,
             }
+            quality_status, _quality_reasons, coverage = _quality(report)
             session = _save_preview_session(
                 payload,
                 project_id,
@@ -295,6 +330,8 @@ def _run(
                 reason=None,
                 preview_worker_mode=report.get("preview_worker_mode", VECTOR_MODE),
                 preview_fallback_used=fallback_used,
+                quality_status=quality_status or "READY",
+                minimum_page_coverage_ratio=coverage,
             )
     except Exception:
         LOGGER.exception("DOCUMENT_DISCOVERY_PREVIEW_WORKER_SUPERVISOR_FAILED job_id=%s", job_id)
@@ -318,11 +355,13 @@ def start_preview_job(payload: bytes, project_id: str) -> dict[str, Any]:
         "reason": None,
         "preview_worker_mode": None,
         "preview_fallback_used": False,
+        "quality_status": None,
+        "minimum_page_coverage_ratio": None,
     }
     queued_public = _public(dict(job))
     with JOB_LOCK:
         while len(JOBS) >= MAX_JOBS:
-            terminal = [key for key, row in JOBS.items() if row["state"] in {"READY", "FAILED"}]
+            terminal = [key for key, row in JOBS.items() if row["state"] in {"READY", "INCONCLUSIVE", "FAILED"}]
             if terminal:
                 oldest = min(terminal, key=lambda key: JOBS[key]["updated_at"])
             else:
