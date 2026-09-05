@@ -98,6 +98,13 @@ def _load_worker_report(output_path: Path, *, digest: str, source_version_id: st
     return report
 
 
+def _report_is_empty(report: dict[str, Any]) -> bool:
+    return (
+        int(report.get("page_count") or 0) > 0
+        and int(report.get("primitive_candidate_count") or 0) == 0
+    )
+
+
 def _save_preview_session(
     payload: bytes,
     project_id: str,
@@ -201,6 +208,29 @@ def _run(
                 env=env,
             )
 
+            primary_report: dict[str, Any] | None = None
+            if primary_failure is None:
+                try:
+                    primary_report = _load_worker_report(
+                        output_path,
+                        digest=digest,
+                        source_version_id=source_version_id,
+                    )
+                except Exception:
+                    LOGGER.exception(
+                        "DOCUMENT_DISCOVERY_PREVIEW_VECTOR_REPORT_INVALID job_id=%s",
+                        job_id,
+                    )
+                    primary_failure = "DOCUMENT_DISCOVERY_PREVIEW_VECTOR_REPORT_INVALID"
+                else:
+                    if _report_is_empty(primary_report):
+                        primary_failure = "DOCUMENT_DISCOVERY_PREVIEW_VECTOR_EMPTY"
+                        LOGGER.warning(
+                            "DOCUMENT_DISCOVERY_PREVIEW_VECTOR_EMPTY job_id=%s page_count=%s",
+                            job_id,
+                            primary_report.get("page_count"),
+                        )
+
             fallback_used = primary_failure is not None
             if fallback_used:
                 output_path.unlink(missing_ok=True)
@@ -227,12 +257,25 @@ def _run(
                         preview_fallback_used=True,
                     )
                     return
+                report = _load_worker_report(
+                    output_path,
+                    digest=digest,
+                    source_version_id=source_version_id,
+                )
+                if _report_is_empty(report):
+                    _set(
+                        job_id,
+                        state="FAILED",
+                        reason="DOCUMENT_DISCOVERY_PREVIEW_EMPTY_AFTER_RASTER_FALLBACK",
+                        preview_worker_mode=RASTER_SAFE_MODE,
+                        preview_fallback_used=True,
+                    )
+                    return
+            else:
+                if primary_report is None:
+                    raise RuntimeError("DOCUMENT_DISCOVERY_PREVIEW_PRIMARY_REPORT_MISSING")
+                report = primary_report
 
-            report = _load_worker_report(
-                output_path,
-                digest=digest,
-                source_version_id=source_version_id,
-            )
             report["preview_fallback"] = {
                 "used": fallback_used,
                 "primary_failure": primary_failure,
