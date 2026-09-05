@@ -22,6 +22,20 @@ LOGGER = logging.getLogger(__name__)
 
 _ASYNC_SCRIPT = r'''<script>
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function showPreviewPage(pageIndex=0){
+  if(!session)return;
+  candidateId=null;
+  q('box').hidden=true;
+  q('viewer-placeholder').hidden=true;
+  const img=q('page');
+  img.hidden=false;
+  img.src=`/api/workbench/document-discovery/session/${encodeURIComponent(session)}/page/${pageIndex}.jpg`;
+}
+const baseRender=render;
+render=function(){
+  baseRender();
+  if(state?.page_count>0&&(!state.clusters||state.clusters.length===0)&&session)showPreviewPage(0);
+};
 async function waitPreviewJob(jobId){
   for(let attempt=0;attempt<240;attempt++){
     await sleep(750);
@@ -49,7 +63,8 @@ q('preview').onclick=async()=>{
     session=done.session_id;clusterId=null;await load();
     const budget=state.preview_budget||{};
     const bounded=budget.truncated?' · preview limitata dal budget grafico':'';
-    intakeMessage(`Preview completata · ${state.page_count} pagine analizzate · ${state.primitive_candidate_count} primitive · ${state.graphic_cluster_count} cluster${bounded}. Training bloccato.`,'ok');
+    const mode=done.preview_fallback_used?' · fallback raster':' · vettoriale';
+    intakeMessage(`Preview completata · ${state.page_count} pagine analizzate · ${state.primitive_candidate_count} primitive · ${state.graphic_cluster_count} cluster${mode}${bounded}. Training bloccato.`,'ok');
   }catch(e){
     intakeMessage(e.message,'error');q('message').textContent=e.message;
   }finally{setBusy(false)}
