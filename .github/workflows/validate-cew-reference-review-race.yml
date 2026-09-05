@@ -1,0 +1,55 @@
+name: Validate CEW Reference Review Race
+
+on:
+  push:
+    branches:
+      - 'work/cew-new-project-preacquisition-v1'
+    paths:
+      - 'scripts/cew_external_graphic_reference_review_hardening.py'
+      - 'scripts/cew_external_graphic_reference_review_workbench.py'
+      - 'scripts/validate_cew_external_graphic_reference_review_race.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - '.github/workflows/validate-cew-reference-review-race.yml'
+  pull_request:
+    paths:
+      - 'scripts/cew_external_graphic_reference_review_hardening.py'
+      - 'scripts/cew_external_graphic_reference_review_workbench.py'
+      - 'scripts/validate_cew_external_graphic_reference_review_race.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - '.github/workflows/validate-cew-reference-review-race.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-reference-review-race:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CEW runtime dependencies
+        run: pip install -r requirements.txt
+      - name: Compile reference review race hardening
+        run: >-
+          python -m py_compile
+          scripts/cew_external_graphic_reference_review_hardening.py
+          scripts/validate_cew_external_graphic_reference_review_race.py
+          scripts/cew_professional_workbench_api.py
+      - name: Run idempotent and legacy-race regression gate
+        working-directory: scripts
+        run: python validate_cew_external_graphic_reference_review_race.py
+      - name: Validate runtime composition installs hardening before router creation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source = Path('scripts/cew_professional_workbench_api.py').read_text()
+          assert 'import cew_external_graphic_reference_review_hardening as _reference_review_hardening' in source
+          assert '_reference_review_hardening.install(_reference_review)' in source
+          hardening = Path('scripts/cew_external_graphic_reference_review_hardening.py').read_text()
+          assert 'pg_advisory_xact_lock' in hardening
+          assert 'REFERENCE_REVIEW_DECISION_AFTER_TERMINAL' in hardening
+          print('CEW_REFERENCE_REVIEW_RACE_WIRING_PASS')
+          PY

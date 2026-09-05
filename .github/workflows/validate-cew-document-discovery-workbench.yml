@@ -1,0 +1,126 @@
+name: Validate CEW Document Discovery Workbench
+
+on:
+  push:
+    branches:
+      - 'work/cew-new-project-preacquisition-v1'
+    paths:
+      - 'scripts/cew_document_discovery.py'
+      - 'scripts/cew_document_discovery_workbench.py'
+      - 'scripts/cew_document_discovery_async_preview.py'
+      - 'scripts/cew_document_discovery_preview_engine.py'
+      - 'scripts/cew_document_discovery_raster_preview_engine.py'
+      - 'scripts/cew_document_discovery_preview_jobs.py'
+      - 'scripts/cew_document_discovery_preview_worker.py'
+      - 'scripts/validate_cew_document_discovery_workbench.py'
+      - 'scripts/validate_cew_document_discovery_async_preview.py'
+      - 'scripts/cew_new_project_preacquisition.py'
+      - 'scripts/cew_visual_learning.py'
+      - 'scripts/cew_dinov3_provider.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - '.github/workflows/validate-cew-document-discovery-workbench.yml'
+  pull_request:
+    paths:
+      - 'scripts/cew_document_discovery.py'
+      - 'scripts/cew_document_discovery_workbench.py'
+      - 'scripts/cew_document_discovery_async_preview.py'
+      - 'scripts/cew_document_discovery_preview_engine.py'
+      - 'scripts/cew_document_discovery_raster_preview_engine.py'
+      - 'scripts/cew_document_discovery_preview_jobs.py'
+      - 'scripts/cew_document_discovery_preview_worker.py'
+      - 'scripts/validate_cew_document_discovery_workbench.py'
+      - 'scripts/validate_cew_document_discovery_async_preview.py'
+      - 'scripts/cew_new_project_preacquisition.py'
+      - 'scripts/cew_visual_learning.py'
+      - 'scripts/cew_dinov3_provider.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - '.github/workflows/validate-cew-document-discovery-workbench.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-document-discovery-workbench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CEW runtime dependencies
+        run: pip install -r requirements.txt
+      - name: Compile Document Discovery modules
+        run: >-
+          python -m py_compile
+          scripts/cew_document_discovery.py
+          scripts/cew_document_discovery_workbench.py
+          scripts/cew_document_discovery_async_preview.py
+          scripts/cew_document_discovery_preview_engine.py
+          scripts/cew_document_discovery_raster_preview_engine.py
+          scripts/cew_document_discovery_preview_jobs.py
+          scripts/cew_document_discovery_preview_worker.py
+          scripts/validate_cew_document_discovery_workbench.py
+          scripts/validate_cew_document_discovery_async_preview.py
+          scripts/cew_new_project_preacquisition.py
+          scripts/cew_visual_learning.py
+          scripts/cew_dinov3_provider.py
+          scripts/cew_professional_workbench_api.py
+      - name: Validate Document Discovery governance and interaction
+        working-directory: scripts
+        run: python validate_cew_document_discovery_workbench.py
+      - name: Validate async bounded preview and resource-fallback extraction
+        working-directory: scripts
+        run: python validate_cew_document_discovery_async_preview.py
+      - name: Verify web runtime remains free of DINOv3 ML dependencies
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('requirements.txt').read_text(encoding='utf-8').lower()
+          forbidden = ('torch', 'torchvision', 'transformers')
+          found = [name for name in forbidden if name in text]
+          assert not found, found
+          print('CEW_DOCUMENT_DISCOVERY_WEB_RUNTIME_ML_DEPENDENCIES_ABSENT_PASS')
+          PY
+      - name: Verify additive Workbench mount, authority and empty-state UX
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          composition = Path('scripts/cew_professional_workbench_api.py').read_text(encoding='utf-8')
+          workspace = Path('scripts/cew_document_discovery_workbench.py').read_text(encoding='utf-8')
+          async_adapter = Path('scripts/cew_document_discovery_async_preview.py').read_text(encoding='utf-8')
+          jobs = Path('scripts/cew_document_discovery_preview_jobs.py').read_text(encoding='utf-8')
+          worker = Path('scripts/cew_document_discovery_preview_worker.py').read_text(encoding='utf-8')
+          raster = Path('scripts/cew_document_discovery_raster_preview_engine.py').read_text(encoding='utf-8')
+          assert 'import cew_document_discovery_async_preview as _document_discovery_async_preview' in composition
+          assert 'import cew_document_discovery_workbench as _document_discovery' in composition
+          async_mount = 'router.include_router(_document_discovery_async_preview.build_router())'
+          legacy_mount = 'router.include_router(_document_discovery.build_router(source_workspace))'
+          assert async_mount in composition
+          assert legacy_mount in composition
+          assert composition.index(async_mount) < composition.index(legacy_mount)
+          assert 'X-CEW-Canonical-Write' in workspace
+          assert 'X-CEW-Engineering-Authority-Effect' in workspace
+          assert 'Preview analizzabile, ma training bloccato' in workspace
+          assert 'Significato automatico: <b>nessuno</b>' in workspace
+          assert 'id="viewer-placeholder"' in workspace
+          assert '<img id="page" alt="Pagina documento" hidden>' in workspace
+          assert "q('viewer-placeholder').hidden=true" in workspace
+          assert "q('page').hidden=true" in workspace
+          assert 'Provider: caricamento stato' in workspace
+          assert 'DINOv3:' in workspace
+          assert 'nessuna classificazione automatica' in workspace
+          assert 'analyze-preview-async' in async_adapter
+          assert 'preview-job/{job_id}' in async_adapter
+          assert 'X-CEW-Preview-Execution' in async_adapter
+          assert 'PROCESS_ISOLATED_SUBPROCESS' in jobs
+          assert 'subprocess.run(' in jobs
+          assert 'RASTER_SAFE_MODE' in jobs
+          assert 'PREVIEW_WORKER_MEMORY_MB' in jobs
+          assert 'resource.RLIMIT_AS' in worker
+          assert 'cew_document_discovery_preview_engine' in worker
+          assert 'cew_document_discovery_raster_preview_engine' in worker
+          assert 'PYMUPDF_RASTER_INK_TILE_BOUNDED' in raster
+          assert 'RASTER_SAFE_RESOURCE_BOUNDED' in raster
+          print('CEW_DOCUMENT_DISCOVERY_PROFESSIONAL_WORKBENCH_MOUNT_AND_RESOURCE_FALLBACK_PASS')
+          PY
