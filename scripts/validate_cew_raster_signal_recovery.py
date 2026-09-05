@@ -111,13 +111,21 @@ def main() -> None:
     assert reading_aid["preview_page_reading_aid_policy"] == "CONTRAST_PRESERVING_DECLARED_TRANSFORM"
 
     worker = Path("cew_document_discovery_preview_worker.py").read_text(encoding="utf-8")
-    assert "_corroborated_content_without_candidates" in worker
+    jobs = Path("cew_document_discovery_preview_jobs.py").read_text(encoding="utf-8")
+    assert 'RASTER_SIGNAL_RECOVERY_MODE = "RASTER_SIGNAL_RECOVERY"' in worker
     assert "cew_document_discovery_raster_signal_recovery" in worker
-    assert "BLANK_CORROBORATION_CONTRADICTED" in worker
-    assert worker.index("preview_trust.attach_trust_evidence") < worker.index("cew_document_discovery_raster_signal_recovery")
+    assert "PRIOR_REPORT_FILENAME" in worker
+    assert "_inherit_trust_evidence" in worker
+    assert "preview_trust.attach_trust_evidence" in worker
+    assert 'RASTER_SIGNAL_RECOVERY_MODE = "RASTER_SIGNAL_RECOVERY"' in jobs
+    assert "_needs_signal_recovery" in jobs
+    assert "BLANK_CORROBORATION_CONTRADICTED" in jobs
+    assert "PREVIEW_SIGNAL_RECOVERY_TIMEOUT_SECONDS" in jobs
+    assert "DOCUMENT_DISCOVERY_SIGNAL_RECOVERY_DEGRADED" in jobs
 
     print("CEW_RASTER_SIGNAL_RECOVERY_PASS")
     print("faint_line_recovery=PASS full_coverage=PASS deterministic_replay=PASS")
+    print("staged_recovery=PASS baseline_evidence_preservation=GOVERNED")
     print("blank_control=INCONCLUSIVE reading_aid_transform=DECLARED")
     print("semantic_authority=NONE canonical_write_authorized=false")
 
