@@ -43,9 +43,9 @@ jobs:
           python - <<'PY'
           import app
 
-          registered = {route.path for route in app.app.routes}
+          registered = {getattr(route, 'path', None) for route in app.app.routes}
           for path in ['/documents', '/drawings', '/drawings/{source_id}']:
-              assert path in registered, (path, sorted(registered))
+              assert path in registered, (path, sorted(str(item) for item in registered))
 
           responses = [
               (app.document_library(), 'Documenti del progetto'),

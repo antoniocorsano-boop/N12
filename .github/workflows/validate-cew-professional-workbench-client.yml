@@ -1,0 +1,26 @@
+name: Validate CEW Professional Workbench Client
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/cew_professional_workbench_client.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - 'scripts/cew_professional_workbench_api_base.py'
+      - 'scripts/cew_project_home.py'
+      - 'scripts/cew_professional_workbench_core.py'
+      - 'scripts/validate_cew_professional_workbench_client.py'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_PRODUCT_CONTRACT_v1.md'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_UX_WIREFRAMES_STATE_MAPS_v1.md'
+      - '.github/workflows/validate-cew-professional-workbench-client.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-professional-workbench-client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate professional Workbench client integration
+        run: python scripts/validate_cew_professional_workbench_client.py

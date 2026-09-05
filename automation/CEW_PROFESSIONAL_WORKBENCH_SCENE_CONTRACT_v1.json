@@ -1,0 +1,122 @@
+{
+  "schema_version": "1.1",
+  "scene_schema_version": "1.0",
+  "view_schema_version": "1.0",
+  "working_edit_schema_version": "1.0",
+  "reading_issue_schema_version": "1.0",
+  "contract_id": "CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRACT_v1",
+  "status": "IMPLEMENTATION_FOUNDATION",
+  "authority_effect": "NONE",
+  "canonical_write_authorized": false,
+  "invariants": [
+    "document geometry != technical candidate != structural identity",
+    "viewport coordinates are never persisted as engineering geometry",
+    "visual proximity never creates identity or EvidenceLink",
+    "semantic synchronization does not imply spatial registration",
+    "only VERIFIED revision-matched RegistrationTransform enables SPATIAL_LOCKED or OVERLAY",
+    "working edits and reading issues are non-canonical workbench state",
+    "saved workbench views are revision-bound view state and never engineering geometry",
+    "governed structural objects are projected by existing id and are never cloned into new authority"
+  ],
+  "coordinate_spaces": [
+    "SOURCE_PAGE_PT",
+    "SOURCE_NORMALIZED_0_1",
+    "TECHNICAL_2D",
+    "STRUCTURAL_MODEL_XY",
+    "VIEWPORT_PX"
+  ],
+  "scene_object_families": [
+    "DocumentGraphicPrimitive",
+    "RecognizedText",
+    "RecognizedDimension",
+    "TechnicalObjectCandidate",
+    "GovernedStructuralObjectProjection"
+  ],
+  "layer_ids": [
+    "ORIGINAL_SOURCE",
+    "DOCUMENT_LINEWORK",
+    "RECOGNIZED_TEXT",
+    "DIMENSIONS",
+    "TECHNICAL_CANDIDATES",
+    "STRUCTURAL_GOVERNED",
+    "ISSUES",
+    "WORKING_EDITS",
+    "VALIDATION_STATE"
+  ],
+  "evidence_link_types": [
+    "SUPPORTS",
+    "DERIVED_FROM",
+    "CANDIDATE_CORRESPONDENCE",
+    "GOVERNED_BINDING",
+    "CONFLICTS_WITH"
+  ],
+  "registration_states": [
+    "UNAVAILABLE",
+    "PROPOSED",
+    "VERIFIED",
+    "REJECTED",
+    "STALE"
+  ],
+  "registration_types": [
+    "IDENTITY_PAGE",
+    "AFFINE_2D",
+    "HOMOGRAPHY_2D"
+  ],
+  "display_modes": [
+    "SOURCE",
+    "TECHNICAL",
+    "SPLIT",
+    "OVERLAY"
+  ],
+  "sync_modes": [
+    "OFF",
+    "SEMANTIC",
+    "SPATIAL_LOCKED"
+  ],
+  "working_edit_states": [
+    "DRAFT",
+    "READY_FOR_REVIEW",
+    "WITHDRAWN",
+    "HANDED_OFF"
+  ],
+  "reading_issue_states": [
+    "OPEN",
+    "IN_REVIEW",
+    "RESOLVED",
+    "NOT_RESOLVABLE_FROM_CURRENT_SOURCES"
+  ],
+  "editable_object_families": [
+    "RecognizedText",
+    "RecognizedDimension",
+    "TechnicalObjectCandidate"
+  ],
+  "required_scene_envelope_fields": [
+    "schema_version",
+    "scene_id",
+    "scene_revision",
+    "task_id",
+    "source",
+    "objects",
+    "evidence_links",
+    "registrations",
+    "capabilities",
+    "authority"
+  ],
+  "required_view_snapshot_fields": [
+    "schema_version",
+    "view_id",
+    "scene_revision",
+    "source_revision",
+    "display_mode",
+    "sync_mode",
+    "active_layers",
+    "source_viewport",
+    "technical_viewport",
+    "canonical_write"
+  ],
+  "required_authority_flags": {
+    "canonical_write_authorized": false,
+    "engineering_authority_effect": "NONE",
+    "promotion_authorized": false
+  }
+}

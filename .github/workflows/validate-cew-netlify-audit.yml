@@ -43,7 +43,9 @@ jobs:
       - name: Python syntax
         run: python -m py_compile app.py scripts/cew_runtime_audit_store.py scripts/validate_cew_netlify_audit.py
       - name: Netlify function syntax
-        run: node --check netlify/functions/cew-audit.mjs
+        run: |
+          node --check netlify/functions/cew-oar-replay.mjs
+          node --check netlify/functions/cew-audit.mjs
       - name: Validate Netlify audit bridge
         run: python scripts/validate_cew_netlify_audit.py
       - name: Preserve native F7 review authority

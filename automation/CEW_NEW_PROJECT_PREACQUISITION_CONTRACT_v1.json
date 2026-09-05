@@ -1,0 +1,134 @@
+{
+  "schema": "CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1",
+  "program": "CEW_NEW_PROJECT_BOOTSTRAP",
+  "status": "IMPLEMENTATION_SLICE_ACTIVE",
+  "analysis_ref": "analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_ANALYSIS_v1.md",
+  "input_assumption": "ZERO_SEMANTIC_OBJECT_PRIOR",
+  "canonical_sequence": [
+    "DOCUMENT_INTAKE",
+    "IMMUTABLE_SOURCE_REGISTRATION",
+    "DOCUMENT_PAGE_PREFLIGHT",
+    "GRAPHIC_PRIMITIVE_DISCOVERY",
+    "NON_SEMANTIC_GRAPHIC_CLUSTERING",
+    "GOVERNED_LIBRARY_MATCH_PROPOSALS",
+    "HUMAN_TRIAGE_TEACH_THIS_IS",
+    "PROJECT_LOCAL_PROTOTYPES_AND_FAMILIES",
+    "FIND_SIMILAR",
+    "GROUP_REVIEW_AND_EXCEPTIONS",
+    "CANONICAL_CAD_PROMOTION",
+    "STRUCTURAL_IDENTITY",
+    "ENGINEERING_USE"
+  ],
+  "page_modalities": [
+    "NATIVE_VECTOR",
+    "RASTER_OR_SCANNED",
+    "MIXED",
+    "TEXT_OR_SPARSE"
+  ],
+  "primitive_families": [
+    "TEXT_BLOCK",
+    "LINEAR_STROKE_GROUP",
+    "RECTILINEAR_CLOSED_SHAPE",
+    "CURVED_OR_ARC_SHAPE",
+    "FILLED_OR_HATCHED_REGION",
+    "RASTER_IMAGE_REGION",
+    "COMPLEX_VECTOR_GROUP",
+    "UNKNOWN_GRAPHIC_GROUP"
+  ],
+  "intermediate_entities": {
+    "GraphicPrimitiveCandidate": {
+      "semantic_meaning_required": false,
+      "source_binding_required": true,
+      "page_binding_required": true,
+      "normalized_bbox_required": true,
+      "stable_feature_signature_required": true
+    },
+    "GraphicClusterCandidate": {
+      "opaque_project_local_id_required": true,
+      "automatic_structural_label_forbidden": true,
+      "member_candidate_ids_required": true
+    },
+    "KnowledgeMatchProposal": {
+      "library_generation_required": true,
+      "support_and_conflict_allowed": true,
+      "project_semantic_authority": "NONE"
+    }
+  },
+  "library_tiers": [
+    "EXTERNAL_REFERENCE",
+    "SHARED_VALIDATED",
+    "PROJECT_LOCAL"
+  ],
+  "library_states": [
+    "LIBRARY_NOT_CONFIGURED",
+    "LIBRARY_EMPTY",
+    "LIBRARY_AVAILABLE_UNVERIFIED_FOR_CONTEXT",
+    "LIBRARY_MATCHES_AVAILABLE"
+  ],
+  "internet_reference_policy": {
+    "direct_web_result_may_be_project_truth": false,
+    "unrecorded_model_knowledge_may_be_library_entry": false,
+    "evidence_backed_reference_pack_required": true,
+    "source_locator_required": true,
+    "acquisition_date_required": true,
+    "source_fingerprint_required": true,
+    "license_or_usage_note_required_when_available": true
+  },
+  "human_actions": [
+    "CONFIRM_DOCUMENT_FAMILY",
+    "CORRECT_DOCUMENT_FAMILY",
+    "LEAVE_UNKNOWN",
+    "TEACH_THIS_IS",
+    "NOT_THIS",
+    "UNCERTAIN",
+    "SPLIT_CLUSTER",
+    "MERGE_CLUSTERS",
+    "IGNORE_FOR_NOW"
+  ],
+  "default_interaction": "DOCUMENT_DISCOVERY_WORKSPACE",
+  "mature_object_interaction": "TEACH_THIS_IS->FIND_SIMILAR->REVIEW_SIMILAR_GROUP",
+  "snap_role": "GEOMETRY_EDITING_AID_ONLY",
+  "promotion_gates": [
+    "GRAPHIC_OCCURRENCE_DISCOVERED",
+    "CLUSTER_MEMBERSHIP_PROPOSED",
+    "SEMANTIC_MEANING_PROPOSED",
+    "PROJECT_MEANING_HUMAN_VALIDATED",
+    "OBJECT_OCCURRENCE_LOCALIZED",
+    "OBJECT_TYPE_FAMILY_CONFIRMED",
+    "CANONICAL_EVIDENCE_REGION_PROMOTED",
+    "CANONICAL_CAD_OBJECT_PROMOTED",
+    "STRUCTURAL_IDENTITY_ASSIGNED",
+    "ENGINEERING_USE_AUTHORIZED"
+  ],
+  "authority": {
+    "semantic_authority": "NONE_UNTIL_PROJECT_HUMAN_VALIDATION",
+    "oar_human_confirmation": false,
+    "oar_classification_confirmed": false,
+    "f2_registry_written": false,
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "engineering_authority_effect": "NONE"
+  },
+  "first_implementation_slice": {
+    "input": "ARBITRARY_PDF_BYTES",
+    "requires_known_object_types": false,
+    "outputs": [
+      "PagePreflight",
+      "GraphicPrimitiveCandidate",
+      "GraphicClusterCandidate",
+      "KnowledgeMatchProposal",
+      "HumanTriageQueue"
+    ],
+    "library_optional": true,
+    "absence_of_library_is_explicit_nonfatal": true
+  },
+  "acceptance": {
+    "zero_semantic_prior_test_required": true,
+    "stable_identity_test_required": true,
+    "source_page_bbox_provenance_test_required": true,
+    "opaque_cluster_identity_test_required": true,
+    "library_non_authority_test_required": true,
+    "no_library_nonfatal_test_required": true,
+    "human_triage_queue_required": true
+  }
+}

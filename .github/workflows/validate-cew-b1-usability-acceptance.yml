@@ -1,53 +1,333 @@
-name: Validate CEW B1 Usability Acceptance
+name: Validate CEW B1 Human Acceptance v2
 
 on:
   pull_request:
     paths:
       - 'app.py'
+      - 'render.yaml'
+      - 'requirements.txt'
       - 'scripts/cew_b1_acceptance_lab.py'
+      - 'scripts/cew_b1_human_acceptance_v2.py'
+      - 'scripts/cew_b1_human_acceptance_v2_hardening.py'
+      - 'scripts/cew_b1_dual_workspace.py'
+      - 'scripts/cew_evidence_viewer_interaction.py'
+      - 'scripts/cew_runtime_render_budget.py'
+      - 'scripts/cew_runtime_render_cache.py'
+      - 'scripts/build_cew_runtime_render_cache.py'
+      - 'scripts/build_cew_managed_f3_assets.py'
+      - 'scripts/cew_managed_f3_assets.py'
+      - 'scripts/validate_cew_managed_f3_assets.py'
+      - 'scripts/build_cew_document_geometry_artifacts.py'
+      - 'scripts/cew_professional_workbench_document_geometry.py'
+      - 'scripts/validate_cew_document_geometry_artifacts.py'
+      - 'scripts/validate_cew_document_geometry_scene_adapter.py'
+      - 'scripts/build_cew_evidence_region_content_diagnostic.py'
+      - 'scripts/validate_cew_evidence_region_content_diagnostic.py'
+      - 'scripts/build_cew_evidence_region_mapping_root_cause.py'
+      - 'scripts/validate_cew_evidence_region_mapping_root_cause.py'
+      - 'scripts/cew_raster_geometry_candidate_worker.py'
+      - 'scripts/build_cew_raster_geometry_candidates.py'
+      - 'scripts/validate_cew_raster_geometry_candidates.py'
+      - 'scripts/build_cew_raster_geometry_quality.py'
+      - 'scripts/validate_cew_raster_geometry_quality.py'
+      - 'scripts/build_cew_raster_geometry_consolidation.py'
+      - 'scripts/validate_cew_raster_geometry_consolidation.py'
+      - 'scripts/build_cew_raster_geometry_topology.py'
+      - 'scripts/validate_cew_raster_geometry_topology.py'
+      - 'scripts/build_cew_raster_support_continuity.py'
+      - 'scripts/validate_cew_raster_support_continuity.py'
+      - 'scripts/build_cew_raster_support_negative_controls.py'
+      - 'scripts/validate_cew_raster_support_negative_controls.py'
+      - 'scripts/build_cew_raster_bridge_review_layer.py'
+      - 'scripts/validate_cew_raster_bridge_review_layer.py'
+      - 'scripts/build_cew_raster_gap_review_view.py'
+      - 'scripts/validate_cew_raster_gap_review_view.py'
+      - 'scripts/build_cew_human_gap_review_receipts.py'
+      - 'scripts/validate_cew_human_gap_review_receipts.py'
+      - 'scripts/cew_professional_workbench_core.py'
+      - 'scripts/cew_professional_workbench_projection.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - 'scripts/validate_cew_professional_workbench_core.py'
+      - 'scripts/validate_cew_professional_workbench_runtime_smoke.py'
+      - 'scripts/validate_cew_runtime_render_budget.py'
+      - 'scripts/validate_cew_runtime_render_cache.py'
+      - 'scripts/validate_cew_evidence_viewer_interaction.py'
+      - 'scripts/render_cew_viewer_sources.py'
+      - 'scripts/build_cew_source_viewer.py'
+      - 'scripts/cew_dual_vector_agreement.py'
+      - 'scripts/validate_cew_b18_hva_hardening.py'
+      - 'scripts/validate_cew_b18_dual_workspace.py'
+      - 'scripts/validate_cew_professional_workbench_audit.py'
+      - 'scripts/validate_cew_professional_workbench_design.py'
       - 'scripts/validate_cew_b1_usability_acceptance.py'
-      - 'automation/CEW_B1_USABILITY_ACCEPTANCE_CONTRACT_v1.json'
-      - 'automation/CEW_USABILITY_METRICS_MODEL_v1.json'
+      - 'automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json'
+      - 'automation/CEW_B18_DUAL_WORKSPACE_HVA_CONTRACT_v1.json'
+      - 'automation/CEW_PROFESSIONAL_WORKBENCH_IMPLEMENTATION_MATRIX_v1.json'
+      - 'automation/CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRACT_v1.json'
+      - 'automation/CEW_DUAL_VECTOR_AGREEMENT_CONTRACT_v1.json'
+      - 'automation/CEW_SOURCE_VIEWER_CONTRACT_v1.json'
+      - 'automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json'
+      - 'automation/CEW_PRODUCT_TRANSFORMATION_QUEUE_v1.json'
+      - 'automation/CEW_PWB005_R2HR_HUMAN_GAP_REVIEW_RECEIPT_SCHEMA_v1.json'
+      - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
+      - 'data/canonical/CEW_DOCUMENT_MAP_REGISTRY_v1.json'
+      - 'data/canonical/CEW_EVIDENCE_REGION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_OBSERVATION_REGISTRY_v1.csv'
+      - 'data/canonical/CEW_SOURCE_VIEWER_BINDINGS_v1.csv'
+      - 'data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv'
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv'
+      - 'docs/ACCEPTANCE/CEW_B1_HUMAN_ACCEPTANCE_V2_PLAN.md'
+      - 'docs/ACCEPTANCE/CEW_B18_DUAL_WORKSPACE_CONTRACT_v1.md'
+      - 'docs/AUDIT/CEW_PROFESSIONAL_EVIDENCE_WORKBENCH_AUDIT_v1.md'
+      - 'docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_REUSE_MAP_v1.md'
+      - 'docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_PWB005_R1_FINDINGS_v1.md'
+      - 'docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_PWB005_R1A_FINDINGS_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R1_EVIDENCE_REGION_CONTENT_DIAGNOSTIC_PLAN_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R1A_REGION_MAPPING_ROOT_CAUSE_PLAN_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R2_RASTER_GEOMETRY_CANDIDATE_PLAN_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R2Q_RASTER_GEOMETRY_QUALITY_PLAN_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R2M_RASTER_GEOMETRY_CONSOLIDATION_PLAN_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R2T_TOPOLOGY_COHERENCE_PLAN_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R2S_RASTER_SUPPORT_CONTINUITY_PLAN_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R2SN_NEGATIVE_CONTROL_PLAN_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R2BR_BRIDGE_REVIEW_LAYER_PLAN_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R2RV_RASTER_GAP_REVIEW_VIEW_PLAN_v1.md'
+      - 'docs/PLAN/CEW_PWB005_R2HR_HUMAN_GAP_REVIEW_RECEIPT_PLAN_v1.md'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_PRODUCT_CONTRACT_v1.md'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_INTERACTION_ARCHITECTURE_v1.md'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_TECHNICAL_PROJECTION_MODEL_v1.md'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_RENDERING_ARCHITECTURE_v1.md'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_UX_WIREFRAMES_STATE_MAPS_v1.md'
+      - 'docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_HVA_PROTOCOL_v1.md'
       - '.github/workflows/validate-cew-b1-usability-acceptance.yml'
+  workflow_dispatch:
 
 jobs:
-  validate-b1-usability-acceptance:
+  validate-b1-human-acceptance-v2:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
       - name: Syntax
         run: |
-          python -m py_compile scripts/cew_b1_acceptance_lab.py
-          python -m py_compile scripts/validate_cew_b1_usability_acceptance.py
-          python -m py_compile app.py
+          python -m py_compile \
+            scripts/cew_b1_human_acceptance_v2.py \
+            scripts/cew_b1_human_acceptance_v2_hardening.py \
+            scripts/cew_b1_dual_workspace.py \
+            scripts/cew_evidence_viewer_interaction.py \
+            scripts/cew_runtime_render_budget.py \
+            scripts/cew_runtime_render_cache.py \
+            scripts/build_cew_runtime_render_cache.py \
+            scripts/build_cew_managed_f3_assets.py \
+            scripts/cew_managed_f3_assets.py \
+            scripts/validate_cew_managed_f3_assets.py \
+            scripts/build_cew_document_geometry_artifacts.py \
+            scripts/cew_professional_workbench_document_geometry.py \
+            scripts/validate_cew_document_geometry_artifacts.py \
+            scripts/validate_cew_document_geometry_scene_adapter.py \
+            scripts/build_cew_evidence_region_content_diagnostic.py \
+            scripts/validate_cew_evidence_region_content_diagnostic.py \
+            scripts/build_cew_evidence_region_mapping_root_cause.py \
+            scripts/validate_cew_evidence_region_mapping_root_cause.py \
+            scripts/cew_raster_geometry_candidate_worker.py \
+            scripts/build_cew_raster_geometry_candidates.py \
+            scripts/validate_cew_raster_geometry_candidates.py \
+            scripts/build_cew_raster_geometry_quality.py \
+            scripts/validate_cew_raster_geometry_quality.py \
+            scripts/build_cew_raster_geometry_consolidation.py \
+            scripts/validate_cew_raster_geometry_consolidation.py \
+            scripts/build_cew_raster_geometry_topology.py \
+            scripts/validate_cew_raster_geometry_topology.py \
+            scripts/build_cew_raster_support_continuity.py \
+            scripts/validate_cew_raster_support_continuity.py \
+            scripts/build_cew_raster_support_negative_controls.py \
+            scripts/validate_cew_raster_support_negative_controls.py \
+            scripts/build_cew_raster_bridge_review_layer.py \
+            scripts/validate_cew_raster_bridge_review_layer.py \
+            scripts/build_cew_raster_gap_review_view.py \
+            scripts/validate_cew_raster_gap_review_view.py \
+            scripts/build_cew_human_gap_review_receipts.py \
+            scripts/validate_cew_human_gap_review_receipts.py \
+            scripts/cew_professional_workbench_core.py \
+            scripts/cew_professional_workbench_projection.py \
+            scripts/cew_professional_workbench_api.py \
+            scripts/validate_cew_professional_workbench_core.py \
+            scripts/validate_cew_professional_workbench_runtime_smoke.py \
+            scripts/validate_cew_runtime_render_budget.py \
+            scripts/validate_cew_runtime_render_cache.py \
+            scripts/validate_cew_evidence_viewer_interaction.py \
+            scripts/cew_b1_acceptance_lab.py \
+            scripts/validate_cew_b18_hva_hardening.py \
+            scripts/validate_cew_b18_dual_workspace.py \
+            scripts/validate_cew_professional_workbench_audit.py \
+            scripts/validate_cew_professional_workbench_design.py \
+            scripts/validate_cew_b1_usability_acceptance.py \
+            app.py
+
       - name: Install runtime dependencies
         run: pip install -r requirements.txt
-      - name: Validate acceptance contract and blocker semantics
+
+      - name: Validate B1.8 participant, observation, reviewer and receipt boundaries
         run: python scripts/validate_cew_b1_usability_acceptance.py
-      - name: Route and health smoke
+
+      - name: Validate provenance-backed dual workspace boundaries
+        run: python scripts/validate_cew_b18_dual_workspace.py
+
+      - name: Validate professional workbench audit consistency
+        run: python scripts/validate_cew_professional_workbench_audit.py
+
+      - name: Validate professional workbench design package
+        run: python scripts/validate_cew_professional_workbench_design.py
+
+      - name: Validate professional workbench kernel foundation
+        run: python scripts/validate_cew_professional_workbench_core.py
+
+      - name: Validate managed F3 build plan and runtime guards
+        run: |
+          python scripts/build_cew_managed_f3_assets.py --validate-plan-only
+          python scripts/validate_cew_managed_f3_assets.py
+
+      - name: Build and validate governed document geometry artifacts
+        run: |
+          python scripts/build_cew_document_geometry_artifacts.py --validate-plan-only
+          python scripts/build_cew_document_geometry_artifacts.py
+          python scripts/validate_cew_document_geometry_artifacts.py
+          python scripts/validate_cew_document_geometry_scene_adapter.py
+
+      - name: Build and validate PWB-005-R1 EvidenceRegion content diagnostic
+        run: |
+          python scripts/build_cew_evidence_region_content_diagnostic.py --validate-plan-only
+          python scripts/build_cew_evidence_region_content_diagnostic.py
+          python scripts/validate_cew_evidence_region_content_diagnostic.py
+
+      - name: Build and validate PWB-005-R1A mapping root cause
+        run: |
+          python scripts/build_cew_evidence_region_mapping_root_cause.py
+          python scripts/validate_cew_evidence_region_mapping_root_cause.py
+
+      - name: Build and validate PWB-005-R2A/R2B raster geometry candidates
+        run: |
+          python scripts/build_cew_raster_geometry_candidates.py
+          python scripts/validate_cew_raster_geometry_candidates.py
+
+      - name: Build and validate PWB-005-R2Q geometry quality diagnostic
+        run: |
+          python scripts/build_cew_raster_geometry_quality.py
+          python scripts/validate_cew_raster_geometry_quality.py
+
+      - name: Build and validate PWB-005-R2M geometry consolidation
+        run: |
+          python scripts/build_cew_raster_geometry_consolidation.py
+          python scripts/validate_cew_raster_geometry_consolidation.py
+
+      - name: Build and validate PWB-005-R2T topology coherence diagnostic
+        run: |
+          python scripts/build_cew_raster_geometry_topology.py
+          python scripts/validate_cew_raster_geometry_topology.py
+
+      - name: Build and validate PWB-005-R2S raster support continuity
+        run: |
+          python scripts/build_cew_raster_support_continuity.py
+          python scripts/validate_cew_raster_support_continuity.py
+
+      - name: Build and validate PWB-005-R2SN gap negative controls
+        run: |
+          python scripts/build_cew_raster_support_negative_controls.py
+          python scripts/validate_cew_raster_support_negative_controls.py
+
+      - name: Build and validate PWB-005-R2BR bridge review layer
+        run: |
+          python scripts/build_cew_raster_bridge_review_layer.py
+          python scripts/validate_cew_raster_bridge_review_layer.py
+
+      - name: Build and validate PWB-005-R2RV raster gap review view
+        run: |
+          python scripts/build_cew_raster_gap_review_view.py
+          python scripts/validate_cew_raster_gap_review_view.py
+
+      - name: Upload PWB-005-R2RV human inspection package
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-r2rv-human-inspection-${{ github.run_id }}
+          path: artifacts/cew_r2rv_review/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Build and validate PWB-005-R2HR human gap review receipt package
+        env:
+          CEW_REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python scripts/build_cew_human_gap_review_receipts.py
+          python scripts/validate_cew_human_gap_review_receipts.py
+
+      - name: Upload PWB-005-R2HR human review receipt package
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-r2hr-human-gap-review-${{ github.run_id }}
+          path: artifacts/cew_r2hr_review/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Validate same-revision HVA hardening
+        run: python scripts/validate_cew_b18_hva_hardening.py
+
+      - name: Validate bounded raster generation policy
+        run: python scripts/validate_cew_runtime_render_budget.py
+
+      - name: Build deterministic managed-runtime render cache
+        run: python scripts/build_cew_runtime_render_cache.py
+
+      - name: Validate managed-runtime render cache and exact route wiring
+        run: python scripts/validate_cew_runtime_render_cache.py
+
+      - name: Validate evidence zoom pan and inspection controls
+        run: python scripts/validate_cew_evidence_viewer_interaction.py
+
+      - name: Route, API, managed-F3 and document-geometry health smoke
         env:
           CEW_AUTH_DISABLED_FOR_TEST: '1'
           CEW_AUDIT_BACKEND_MODE: 'LOCAL_TEST_ONLY'
+          RENDER_GIT_COMMIT: '0123456789abcdef0123456789abcdef01234567'
+          RENDER_EXTERNAL_URL: 'https://cew-hva.example.invalid'
+        run: python scripts/validate_cew_professional_workbench_runtime_smoke.py
+
+      - name: Preserve human professional-workbench and promotion gates
         run: |
-          python - <<'PY'
-          import app
-          routes={r.path for r in app.app.routes}
-          assert '/acceptance/b1' in routes
-          response=app.b1_acceptance_lab()
-          assert response.status_code == 200
-          text=response.body.decode('utf-8')
-          assert 'Acceptance Lab' in text
-          h=app.healthz()
-          assert h['b1_acceptance_lab']=='B17_PREP_AVAILABLE_NOT_PROMOTED'
-          assert h['canonical_write_authorized'] is False
-          print('CEW B1.7 ACCEPTANCE LAB ROUTE: PASS')
-          PY
-      - name: Preserve human gate
-        run: |
-          echo 'Automated gate validates the measurement instrument only.'
-          echo 'HVA_GATE = REQUIRED_NOT_AUTOMATED'
-          echo 'PRODUCTION_SMOKE = REQUIRED_AFTER_HVA'
+          echo 'Automated gate validates B1.8 runtime safety, Workbench audit/design/kernel, managed-F3, claim-scoped document diagnostics, R2 candidates, R2Q quality, R2M consolidation, R2T topology, R2S raster support, R2SN negative controls, R2BR review triage, R2RV human review package and R2HR local human receipt package.'
+          echo 'PWB005_R1_CONTENT_DIAGNOSTIC = RASTER_4_OF_4'
+          echo 'PWB005_R1A_MAPPING_DIAGNOSTIC = FLOATING_POINT_DEFECT_ISOLATED'
+          echo 'PWB005_R2A_R2B = CANDIDATE_REVIEW_REQUIRED'
+          echo 'PWB005_R2Q = QUALITY_DIAGNOSTIC_COMPLETE'
+          echo 'PWB005_R2M = CONSOLIDATION_COMPLETE_REVIEW_REQUIRED'
+          echo 'PWB005_R2T = TOPOLOGY_DIAGNOSTIC_COMPLETE_REVIEW_REQUIRED'
+          echo 'PWB005_R2S = RASTER_SUPPORT_DIAGNOSTIC_COMPLETE_REVIEW_REQUIRED'
+          echo 'PWB005_R2SN = NEGATIVE_CONTROL_DIAGNOSTIC_COMPLETE_REVIEW_REQUIRED'
+          echo 'PWB005_R2BR = BRIDGE_REVIEW_LAYER_READY_HUMAN_INSPECTION_REQUIRED'
+          echo 'PWB005_R2RV = REVIEW_PACKAGE_READY_HUMAN_INSPECTION_REQUIRED'
+          echo 'PWB005_R2HR = HUMAN_GAP_REVIEW_PACKAGE_READY_RECEIPT_NOT_YET_PRODUCED'
+          echo 'RECEIPT_AUTHORITY = HUMAN_REVIEW_EVIDENCE_ONLY'
+          echo 'HUMAN_GAP_REVIEW_RECEIPT_PRODUCED = false'
+          echo 'REVIEW_PRIORITY_IS_CORRECTNESS_THRESHOLD = false'
+          echo 'GAP_OVERLAY_IS_GEOMETRY = false'
+          echo 'SUPPORTED_CONTINUITY_HYPOTHESIS_IS_GEOMETRY = false'
+          echo 'HUMAN_REVIEW_IS_BRIDGE_ACCEPTANCE = false'
+          echo 'GEOMETRIC_INTERSECTION_IS_STRUCTURAL_NODE = false'
+          echo 'RASTER_SUPPORT_IS_TECHNICAL_IDENTITY = false'
+          echo 'GAP_HYPOTHESIS_IS_GEOMETRY = false'
+          echo 'GAP_SUPPORT_CONTRAST_IS_GEOMETRY = false'
+          echo 'R2_BRIDGE_CANDIDATE_AUTHORIZED = false'
+          echo 'PWB005_R2C_SCENE_ADAPTER_AUTHORIZED = false'
+          echo 'RUNTIME_OPENCV_REQUIRED = false'
+          echo 'PROFESSIONAL_WORKBENCH_READINESS = REWORK_REQUIRED'
+          echo 'HVA_EXECUTION_AUTHORIZED = false'
+          echo 'HVA_GATE = REQUIRED_NOT_SATISFIED'
+          echo 'ACCESSIBILITY_GATE = REQUIRED_NOT_SATISFIED'
+          echo 'PRODUCTION_SMOKE = BLOCKED_UNTIL_PROFESSIONAL_HVA_ACCEPTANCE'
           echo 'SLICE_COMPLETE = false'
+          echo 'PRODUCTION_PROMOTION_AUTHORIZED = false'
+          echo 'CANONICAL_WRITE_AUTHORIZED = false'
