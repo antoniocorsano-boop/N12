@@ -8,6 +8,8 @@ on:
       - 'scripts/cew_document_discovery.py'
       - 'scripts/cew_document_discovery_workbench.py'
       - 'scripts/cew_guided_group_review_workbench.py'
+      - 'scripts/cew_hva_ephemeral_audit.py'
+      - 'scripts/validate_cew_hva_ephemeral_audit.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'automation/CEW_GUIDED_GROUP_REVIEW_CONTRACT_v1.json'
       - '.github/workflows/validate-cew-guided-group-review.yml'
@@ -23,3 +25,4 @@ jobs:
           python-version: '3.12'
       - run: pip install -r requirements.txt
       - run: python scripts/validate_cew_guided_group_review.py
+      - run: python scripts/validate_cew_hva_ephemeral_audit.py
