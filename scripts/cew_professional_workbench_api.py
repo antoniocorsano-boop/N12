@@ -26,6 +26,7 @@ import cew_external_graphic_reference_review_hardening as _reference_review_hard
 import cew_external_graphic_reference_review_asset_hardening as _reference_review_asset_hardening
 import cew_document_discovery_async_preview as _document_discovery_async_preview
 import cew_document_discovery_workbench as _document_discovery
+import cew_guided_group_review_workbench as _guided_group_review
 
 _REQUIRED_BASE_MARKERS = (
     '@router.get("/workbench", response_class=HTMLResponse)',
@@ -86,9 +87,10 @@ def build_router(source_workspace):
     router.include_router(_oar_g4.build_router())
     router.include_router(_oar_g4_assisted.build_router())
     router.include_router(_reference_review.build_router())
-    # Mount the async/bounded adapter first so its HTML route shadows the
-    # historical synchronous Preview button. Existing session/learning API
-    # routes remain provided by the preserved Document Discovery router below.
+    # Guided Group Review shadows only the Document Discovery HTML route.
+    # It delegates to the async/bounded page, so preview semantics are preserved.
+    # Existing session/learning APIs remain provided by the routers below.
+    router.include_router(_guided_group_review.build_router())
     router.include_router(_document_discovery_async_preview.build_router())
     router.include_router(_document_discovery.build_router(source_workspace))
     return router
