@@ -11,10 +11,13 @@ on:
       - 'scripts/cew_document_discovery_preview_engine.py'
       - 'scripts/cew_document_discovery_raster_preview_engine.py'
       - 'scripts/cew_document_discovery_preview_jobs.py'
+      - 'scripts/cew_document_discovery_preview_safe_jobs.py'
       - 'scripts/cew_document_discovery_preview_worker.py'
+      - 'scripts/cew_document_discovery_preview_trust.py'
       - 'scripts/validate_cew_document_discovery_workbench.py'
       - 'scripts/validate_cew_document_discovery_async_preview.py'
       - 'scripts/validate_cew_raster_evidence_engine.py'
+      - 'scripts/validate_cew_preview_trust_boundary.py'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/cew_visual_learning.py'
       - 'scripts/cew_dinov3_provider.py'
@@ -30,10 +33,13 @@ on:
       - 'scripts/cew_document_discovery_preview_engine.py'
       - 'scripts/cew_document_discovery_raster_preview_engine.py'
       - 'scripts/cew_document_discovery_preview_jobs.py'
+      - 'scripts/cew_document_discovery_preview_safe_jobs.py'
       - 'scripts/cew_document_discovery_preview_worker.py'
+      - 'scripts/cew_document_discovery_preview_trust.py'
       - 'scripts/validate_cew_document_discovery_workbench.py'
       - 'scripts/validate_cew_document_discovery_async_preview.py'
       - 'scripts/validate_cew_raster_evidence_engine.py'
+      - 'scripts/validate_cew_preview_trust_boundary.py'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/cew_visual_learning.py'
       - 'scripts/cew_dinov3_provider.py'
@@ -65,10 +71,13 @@ jobs:
           scripts/cew_document_discovery_preview_engine.py
           scripts/cew_document_discovery_raster_preview_engine.py
           scripts/cew_document_discovery_preview_jobs.py
+          scripts/cew_document_discovery_preview_safe_jobs.py
           scripts/cew_document_discovery_preview_worker.py
+          scripts/cew_document_discovery_preview_trust.py
           scripts/validate_cew_document_discovery_workbench.py
           scripts/validate_cew_document_discovery_async_preview.py
           scripts/validate_cew_raster_evidence_engine.py
+          scripts/validate_cew_preview_trust_boundary.py
           scripts/cew_new_project_preacquisition.py
           scripts/cew_visual_learning.py
           scripts/cew_dinov3_provider.py
@@ -82,6 +91,9 @@ jobs:
       - name: Validate Raster Evidence Engine v2 deterministic corpus
         working-directory: scripts
         run: python validate_cew_raster_evidence_engine.py
+      - name: Validate isolated page rendering and blank corroboration
+        working-directory: scripts
+        run: python validate_cew_preview_trust_boundary.py
       - name: Verify web runtime remains free of DINOv3 ML dependencies
         run: |
           python - <<'PY'
@@ -101,7 +113,9 @@ jobs:
           workspace = Path('scripts/cew_document_discovery_workbench.py').read_text(encoding='utf-8')
           async_adapter = Path('scripts/cew_document_discovery_async_preview.py').read_text(encoding='utf-8')
           jobs = Path('scripts/cew_document_discovery_preview_jobs.py').read_text(encoding='utf-8')
+          safe_jobs = Path('scripts/cew_document_discovery_preview_safe_jobs.py').read_text(encoding='utf-8')
           worker = Path('scripts/cew_document_discovery_preview_worker.py').read_text(encoding='utf-8')
+          trust = Path('scripts/cew_document_discovery_preview_trust.py').read_text(encoding='utf-8')
           raster = Path('scripts/cew_document_discovery_raster_preview_engine.py').read_text(encoding='utf-8')
           contract = json.loads(Path('automation/CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2.json').read_text(encoding='utf-8'))
           assert contract['schema'] == 'CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2'
@@ -130,14 +144,22 @@ jobs:
           assert 'X-CEW-Preview-Execution' in async_adapter
           assert 'INCONCLUSIVE' in async_adapter
           assert 'raster tiled evidence' in async_adapter
+          assert 'cew_document_discovery_preview_safe_jobs as preview_jobs' in async_adapter
+          assert 'PROCESS_ISOLATED_CACHED' in async_adapter
           assert 'PROCESS_ISOLATED_SUBPROCESS' in jobs
           assert 'subprocess.run(' in jobs
           assert 'RASTER_SAFE_MODE' in jobs
           assert 'PREVIEW_WORKER_MEMORY_MB' in jobs
           assert 'state="INCONCLUSIVE"' in jobs
+          assert 'discovery._validate_pdf(payload)' not in safe_jobs
+          assert '_validate_upload_envelope(payload)' in safe_jobs
           assert 'resource.RLIMIT_AS' in worker
           assert 'cew_document_discovery_preview_engine' in worker
           assert 'cew_document_discovery_raster_preview_engine' in worker
+          assert 'preview_trust.attach_trust_evidence' in worker
+          assert 'CONFIRMED_BLANK' in trust
+          assert 'BLANK_CORROBORATION_CONTRADICTED' in trust
+          assert 'PROCESS_ISOLATED_WORKER' in trust
           assert 'TILED_FULL_COVERAGE' in raster
           assert 'PYMUPDF_RASTER_CONNECTED_REGION_TILED_V2' in raster
           assert 'PAGE_BLANK_OBSERVED' in raster
