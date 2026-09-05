@@ -8,6 +8,12 @@ web process must never compute from an unregistered user PDF:
 1. bounded JPEG page inspection artifacts;
 2. an independent blank-page corroboration witness.
 
+The inspection artifact is explicitly a reading aid, not source truth. For
+sparse technical drawings it may apply a deterministic grayscale gamma
+transformation so faint source linework survives overview down-scaling. The
+transformation is declared in artifact metadata and never changes source bytes,
+geometry, semantic authority, or canonical state.
+
 The witness does not classify structural objects. It can only confirm that a
 normal-aspect page is demonstrably blank, contradict a blank claim when
 independent content evidence exists, or remain inconclusive. All outputs remain
@@ -22,11 +28,12 @@ from typing import Any
 
 import pymupdf
 
-PREVIEW_TRUST_VERSION = "CEW_DOCUMENT_DISCOVERY_PREVIEW_TRUST_v1"
-PREVIEW_PAGE_MAX_PIXELS = 1_800_000
+PREVIEW_TRUST_VERSION = "CEW_DOCUMENT_DISCOVERY_PREVIEW_TRUST_v2"
+PREVIEW_PAGE_MAX_PIXELS = 4_000_000
 PREVIEW_PAGE_MAX_SCALE = 1.25
-PREVIEW_PAGE_MIN_SCALE = 0.05
-PREVIEW_PAGE_JPEG_QUALITY = 82
+PREVIEW_PAGE_MIN_SCALE = 0.08
+PREVIEW_PAGE_JPEG_QUALITY = 84
+PREVIEW_READING_AID_GAMMA = 4.0
 OVERVIEW_MAX_DIMENSION_PX = 768
 OVERVIEW_MIN_SCALE = 0.03
 BLANK_MAX_ASPECT_RATIO = 4.0
@@ -69,10 +76,20 @@ def _render_inspection_artifact(page: pymupdf.Page, page_index: int) -> dict[str
     scale = max(PREVIEW_PAGE_MIN_SCALE, scale)
     pix = page.get_pixmap(
         matrix=pymupdf.Matrix(scale, scale),
-        colorspace=pymupdf.csRGB,
+        colorspace=pymupdf.csGRAY,
         alpha=False,
         annots=False,
     )
+
+    samples = pix.samples_mv if hasattr(pix, "samples_mv") else memoryview(pix.samples)
+    histogram, total, minimum = _histogram(samples, int(pix.width), int(pix.height), int(pix.stride))
+    background = _percentile(histogram, total, 0.94)
+    contrast_span = max(0, background - minimum)
+    gamma_applied = False
+    if contrast_span >= 2 and hasattr(pix, "gamma_with"):
+        pix.gamma_with(PREVIEW_READING_AID_GAMMA)
+        gamma_applied = True
+
     payload = pix.tobytes("jpeg", jpg_quality=PREVIEW_PAGE_JPEG_QUALITY)
     if not payload.startswith(b"\xff\xd8") or len(payload) > MAX_PREVIEW_PAGE_ARTIFACT_BYTES:
         raise ValueError("DOCUMENT_DISCOVERY_PREVIEW_PAGE_ARTIFACT_INVALID")
@@ -80,7 +97,13 @@ def _render_inspection_artifact(page: pymupdf.Page, page_index: int) -> dict[str
         "page_index": page_index,
         "media_type": "image/jpeg",
         "render_boundary": "PROCESS_ISOLATED_WORKER",
-        "render_policy": "BOUNDED_INSPECTION_ARTIFACT",
+        "render_policy": "BOUNDED_CONTRAST_PRESERVING_READING_AID",
+        "source_pixels_transformed": gamma_applied,
+        "display_enhancement": "GRAYSCALE_GAMMA" if gamma_applied else "NONE",
+        "display_gamma": PREVIEW_READING_AID_GAMMA if gamma_applied else None,
+        "pre_enhancement_background_estimate": int(background),
+        "pre_enhancement_minimum_sample": int(minimum),
+        "pre_enhancement_contrast_span": int(contrast_span),
         "scale_px_per_pt": round(scale, 8),
         "width_px": int(pix.width),
         "height_px": int(pix.height),
@@ -222,6 +245,7 @@ def attach_trust_evidence(payload: bytes, report: dict[str, Any]) -> dict[str, A
 
     report["preview_trust_version"] = PREVIEW_TRUST_VERSION
     report["preview_page_image_mode"] = "PROCESS_ISOLATED_BOUNDED_JPEG"
+    report["preview_page_reading_aid_policy"] = "CONTRAST_PRESERVING_DECLARED_TRANSFORM"
     report["preview_page_images"] = artifacts
     report["preview_page_artifact_count"] = len(artifacts)
 
