@@ -14,10 +14,13 @@ on:
       - 'scripts/cew_document_discovery_preview_worker.py'
       - 'scripts/validate_cew_document_discovery_workbench.py'
       - 'scripts/validate_cew_document_discovery_async_preview.py'
+      - 'scripts/validate_cew_raster_evidence_engine.py'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/cew_visual_learning.py'
       - 'scripts/cew_dinov3_provider.py'
       - 'scripts/cew_professional_workbench_api.py'
+      - 'automation/CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2.json'
+      - 'analysis/cew/CEW_RASTER_EVIDENCE_ENGINE_ARCHITECTURE_v2.md'
       - '.github/workflows/validate-cew-document-discovery-workbench.yml'
   pull_request:
     paths:
@@ -30,10 +33,13 @@ on:
       - 'scripts/cew_document_discovery_preview_worker.py'
       - 'scripts/validate_cew_document_discovery_workbench.py'
       - 'scripts/validate_cew_document_discovery_async_preview.py'
+      - 'scripts/validate_cew_raster_evidence_engine.py'
       - 'scripts/cew_new_project_preacquisition.py'
       - 'scripts/cew_visual_learning.py'
       - 'scripts/cew_dinov3_provider.py'
       - 'scripts/cew_professional_workbench_api.py'
+      - 'automation/CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2.json'
+      - 'analysis/cew/CEW_RASTER_EVIDENCE_ENGINE_ARCHITECTURE_v2.md'
       - '.github/workflows/validate-cew-document-discovery-workbench.yml'
   workflow_dispatch:
 
@@ -62,6 +68,7 @@ jobs:
           scripts/cew_document_discovery_preview_worker.py
           scripts/validate_cew_document_discovery_workbench.py
           scripts/validate_cew_document_discovery_async_preview.py
+          scripts/validate_cew_raster_evidence_engine.py
           scripts/cew_new_project_preacquisition.py
           scripts/cew_visual_learning.py
           scripts/cew_dinov3_provider.py
@@ -72,6 +79,9 @@ jobs:
       - name: Validate async bounded preview and resource-fallback extraction
         working-directory: scripts
         run: python validate_cew_document_discovery_async_preview.py
+      - name: Validate Raster Evidence Engine v2 deterministic corpus
+        working-directory: scripts
+        run: python validate_cew_raster_evidence_engine.py
       - name: Verify web runtime remains free of DINOv3 ML dependencies
         run: |
           python - <<'PY'
@@ -82,9 +92,10 @@ jobs:
           assert not found, found
           print('CEW_DOCUMENT_DISCOVERY_WEB_RUNTIME_ML_DEPENDENCIES_ABSENT_PASS')
           PY
-      - name: Verify additive Workbench mount, authority and empty-state UX
+      - name: Verify additive Workbench mount, authority and raster evidence contract
         run: |
           python - <<'PY'
+          import json
           from pathlib import Path
           composition = Path('scripts/cew_professional_workbench_api.py').read_text(encoding='utf-8')
           workspace = Path('scripts/cew_document_discovery_workbench.py').read_text(encoding='utf-8')
@@ -92,6 +103,10 @@ jobs:
           jobs = Path('scripts/cew_document_discovery_preview_jobs.py').read_text(encoding='utf-8')
           worker = Path('scripts/cew_document_discovery_preview_worker.py').read_text(encoding='utf-8')
           raster = Path('scripts/cew_document_discovery_raster_preview_engine.py').read_text(encoding='utf-8')
+          contract = json.loads(Path('automation/CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2.json').read_text(encoding='utf-8'))
+          assert contract['schema'] == 'CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2'
+          assert contract['quality_invariants']['R2_NO_SILENT_EMPTY']
+          assert contract['authority']['canonical_write_authorized'] is False
           assert 'import cew_document_discovery_async_preview as _document_discovery_async_preview' in composition
           assert 'import cew_document_discovery_workbench as _document_discovery' in composition
           async_mount = 'router.include_router(_document_discovery_async_preview.build_router())'
@@ -113,14 +128,19 @@ jobs:
           assert 'analyze-preview-async' in async_adapter
           assert 'preview-job/{job_id}' in async_adapter
           assert 'X-CEW-Preview-Execution' in async_adapter
+          assert 'INCONCLUSIVE' in async_adapter
+          assert 'raster tiled evidence' in async_adapter
           assert 'PROCESS_ISOLATED_SUBPROCESS' in jobs
           assert 'subprocess.run(' in jobs
           assert 'RASTER_SAFE_MODE' in jobs
           assert 'PREVIEW_WORKER_MEMORY_MB' in jobs
+          assert 'state="INCONCLUSIVE"' in jobs
           assert 'resource.RLIMIT_AS' in worker
           assert 'cew_document_discovery_preview_engine' in worker
           assert 'cew_document_discovery_raster_preview_engine' in worker
-          assert 'PYMUPDF_RASTER_INK_TILE_BOUNDED' in raster
-          assert 'RASTER_SAFE_RESOURCE_BOUNDED' in raster
-          print('CEW_DOCUMENT_DISCOVERY_PROFESSIONAL_WORKBENCH_MOUNT_AND_RESOURCE_FALLBACK_PASS')
+          assert 'TILED_FULL_COVERAGE' in raster
+          assert 'PYMUPDF_RASTER_CONNECTED_REGION_TILED_V2' in raster
+          assert 'PAGE_BLANK_OBSERVED' in raster
+          assert 'INCONCLUSIVE_RASTER_DETECTION' in raster
+          print('CEW_DOCUMENT_DISCOVERY_RASTER_EVIDENCE_V2_CONTRACT_PASS')
           PY
