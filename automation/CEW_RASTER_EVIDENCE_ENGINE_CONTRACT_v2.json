@@ -1,0 +1,157 @@
+{
+  "schema": "CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2",
+  "status": "GOVERNED_IMPLEMENTATION_IN_PROGRESS",
+  "purpose": "Provide deterministic, source-bound, resource-bounded raster observation of technical PDF pages when vector preview is empty or unavailable, without granting semantic, structural or engineering authority.",
+  "position_in_process": [
+    "DOCUMENT_INTAKE",
+    "IMMUTABLE_SOURCE_REGISTRATION_OR_UNREGISTERED_PREVIEW",
+    "PAGE_PREFLIGHT",
+    "RASTER_EVIDENCE_ACQUISITION",
+    "NON_SEMANTIC_GRAPHIC_REGION_DISCOVERY",
+    "GRAPHIC_PRIMITIVE_CANDIDATES",
+    "NON_SEMANTIC_CLUSTERING",
+    "HUMAN_TRIAGE"
+  ],
+  "separation_of_concerns": {
+    "raster_capture": "OBSERVES_PAGE_PIXELS_ONLY",
+    "signal_detection": "DERIVES_NON_SEMANTIC_SIGNAL_ONLY",
+    "region_building": "DERIVES_GEOMETRIC_REGIONS_ONLY",
+    "candidate_adaptation": "CREATES_GRAPHIC_PRIMITIVE_CANDIDATES_WITHOUT_MEANING",
+    "clustering": "GROUPS_BY_NON_SEMANTIC_GEOMETRY_ONLY",
+    "semantic_classification": "NOT_AUTHORIZED"
+  },
+  "execution_boundary": {
+    "process_isolated": true,
+    "web_process_owns_job_and_session_state": true,
+    "worker_memory_ceiling_required": true,
+    "worker_timeout_required": true,
+    "runtime_network_fetch_allowed": false,
+    "third_party_cv_or_ml_required": false
+  },
+  "raster_plan": {
+    "schema": "CEW_RASTER_PLAN_v2",
+    "strategy": "TILED_FULL_COVERAGE",
+    "deterministic": true,
+    "page_geometry_bound": true,
+    "fixed_global_max_dimension_strategy_forbidden": true,
+    "tile_memory_bounded": true,
+    "tile_overlap_required": true,
+    "plan_fingerprint_required": true,
+    "scale_degradation_must_be_declared": true
+  },
+  "observation_layers": [
+    "PAGE_OVERVIEW",
+    "EVIDENCE_TILES",
+    "RAW_RASTER_SIGNAL",
+    "DETECTION_MASK",
+    "DERIVED_GRAPHIC_REGION"
+  ],
+  "signal_policy": {
+    "single_global_dark_ratio_gate_forbidden": true,
+    "background_estimation": "LOCAL_DETERMINISTIC",
+    "threshold_must_be_reported": true,
+    "thin_line_preservation_required": true,
+    "horizontal_and_vertical_continuity_are_evidence": true,
+    "detection_mask_may_expand_signal": true,
+    "declared_geometry_must_reference_original_raster_coordinates": true
+  },
+  "region_policy": {
+    "fixed_grid_cells_must_not_be_final_candidates": true,
+    "adjacent_signal_must_be_aggregated": true,
+    "cross_tile_boundary_reconciliation_required": true,
+    "candidate_identity_must_not_depend_on_tile_processing_order": true,
+    "semantic_meaning": null,
+    "semantic_authority": "NONE"
+  },
+  "coverage": {
+    "planned_area_required": true,
+    "processed_area_required": true,
+    "coverage_ratio_required": true,
+    "tiles_planned_required": true,
+    "tiles_completed_required": true,
+    "tiles_failed_required": true,
+    "ready_requires_required_coverage": true,
+    "partial_observation_must_be_visible": true
+  },
+  "terminal_states": {
+    "READY": "Required observation coverage completed and the result is evidentially sufficient, including a demonstrated blank page.",
+    "INCONCLUSIVE": "Page observation completed wholly or partly but evidence is insufficient to derive reliable graphic candidates.",
+    "FAILED": "Acquisition or analysis could not complete inside the governed execution envelope."
+  },
+  "blank_vs_inconclusive": {
+    "page_blank_observed_allowed": true,
+    "blank_requires_complete_observation": true,
+    "signal_present_and_zero_candidates": "INCONCLUSIVE",
+    "zero_candidates_alone_never_proves_blank": true
+  },
+  "candidate_provenance": {
+    "required_fields": [
+      "source_sha256",
+      "source_version_id",
+      "page_index",
+      "coordinate_system",
+      "bbox",
+      "raster_plan_id",
+      "supporting_tile_ids",
+      "detector",
+      "extractor_version",
+      "signal_metrics",
+      "aggregation_method"
+    ],
+    "reconstructible_from_source_page": true
+  },
+  "determinism": {
+    "same_source_same_engine_same_plan_same_candidate_ids": true,
+    "same_source_same_engine_same_plan_same_report_fingerprint": true,
+    "tile_processing_order_must_not_change_identity": true
+  },
+  "trust_surface": {
+    "page_visible_for_ready": true,
+    "page_visible_for_inconclusive": true,
+    "coverage_visible": true,
+    "raster_mode_visible": true,
+    "candidate_overlay_visible_when_present": true,
+    "automatic_semantic_labels_visible_as_none": true,
+    "training_blocker_visible": true,
+    "canonical_write_blocker_visible": true,
+    "generic_confidence_percentage_forbidden": true
+  },
+  "quality_invariants": {
+    "R1_FULL_OBSERVATION": "READY is forbidden when required coverage has not completed.",
+    "R2_NO_SILENT_EMPTY": "Signal present with zero candidates yields INCONCLUSIVE.",
+    "R3_BLANK_MUST_BE_DEMONSTRATED": "Blank is valid only after complete observation with no significant raster signal.",
+    "R4_RESOURCE_BOUNDED": "Every raster operation is tile, memory and timeout bounded.",
+    "R5_WEB_PROCESS_SURVIVAL": "Raster worker failure must not terminate the web process.",
+    "R6_DETERMINISM": "Repeated execution over the same source and engine version is fingerprint stable.",
+    "R7_SOURCE_BINDING": "Every candidate is reconstructible from SourceVersion/Page coordinates.",
+    "R8_ZERO_SEMANTIC_AUTHORITY": "Raster evidence never assigns structural identity or project truth.",
+    "R9_HUMAN_VISIBLE_UNCERTAINTY": "Incomplete or inconclusive analysis is explicit in the UI.",
+    "R10_NO_HIDDEN_FALLBACK": "VECTOR, RASTER_FALLBACK, TILED, PARTIAL and INCONCLUSIVE modes are externally observable."
+  },
+  "acceptance_gate": {
+    "http_502_count": 0,
+    "web_process_survives": true,
+    "required_page_coverage_ratio": 1.0,
+    "failed_tiles": 0,
+    "deterministic_replay_required": true,
+    "technical_thin_line_fixture_detected": true,
+    "elongated_page_fixture_detected": true,
+    "blank_page_fixture_distinguished": true,
+    "tavola_6_signal_detected": true,
+    "tavola_6_graphic_regions_gt": 0,
+    "tavola_6_graphic_clusters_gt": 0,
+    "page_visible": true,
+    "automatic_semantic_labels": 0,
+    "training_enabled": false,
+    "canonical_write_authorized": false
+  },
+  "authority": {
+    "project_semantic_authority": "NONE",
+    "oar_human_confirmation": false,
+    "oar_classification_confirmed": false,
+    "f2_registry_written": false,
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}
