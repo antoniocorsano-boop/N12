@@ -1,0 +1,58 @@
+name: Validate CEW OA1 Group Review Workbench
+
+on:
+  push:
+    branches:
+      - 'work/cew-oa1-group-review-workbench'
+    paths:
+      - 'scripts/cew_acquisition_group_review.py'
+      - 'scripts/cew_acquisition_human_workbench.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - 'scripts/validate_cew_oa1_group_review_workbench.py'
+      - 'automation/CEW_OA1_GROUP_REVIEW_WORKBENCH_CONTRACT_v1.json'
+      - '.github/workflows/validate-cew-oa1-group-review-workbench.yml'
+  pull_request:
+    paths:
+      - 'scripts/cew_acquisition_group_review.py'
+      - 'scripts/cew_acquisition_human_workbench.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - 'scripts/validate_cew_oa1_group_review_workbench.py'
+      - 'automation/CEW_OA1_GROUP_REVIEW_WORKBENCH_CONTRACT_v1.json'
+      - '.github/workflows/validate-cew-oa1-group-review-workbench.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-oa1-group-review-workbench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CEW runtime dependencies
+        run: pip install -r requirements.txt
+      - name: Compile acquisition-first modules
+        run: >-
+          python -m py_compile
+          scripts/cew_acquisition_group_review.py
+          scripts/cew_acquisition_human_workbench.py
+          scripts/cew_professional_workbench_api.py
+          scripts/validate_cew_oa1_group_review_workbench.py
+      - name: Validate group-review interaction and authority boundaries
+        working-directory: scripts
+        run: python validate_cew_oa1_group_review_workbench.py
+      - name: Verify no direct promotion authority is introduced
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c = json.loads(Path('automation/CEW_OA1_GROUP_REVIEW_WORKBENCH_CONTRACT_v1.json').read_text())
+          assert c['authority']['canonical_write_authorized'] is False
+          assert c['authority']['structural_identity_authorized'] is False
+          assert c['governance_boundaries']['group_review_satisfies_oa_g4'] is False
+          assert c['governance_boundaries']['r2hr_r2gi_r2gm_bypassed'] is False
+          print('CEW_OA1_GROUP_REVIEW_AUTHORITY_BOUNDARY_PASS')
+          PY
