@@ -95,12 +95,50 @@ def main() -> None:
             assert page.locator("#cew-editor-label").inner_text().strip() == "Nessuna fonte aperta"
             assert page.locator("#cew-editor-evidence").inner_text().strip() == "Nessuna fonte"
             assert page.locator("#cew-editor-authority").inner_text().strip() == "Sola lettura"
-            assert page.locator("#cew-viewport-note").inner_text().strip() == "Trascina: sposta · rotella: zoom"
+            assert page.locator("#cew-viewport-note").inner_text().strip() == "Pan attivo · trascina per spostare · rotella per zoom"
+
+            pan = page.locator("#preview-pan")
+            assert pan.count() == 1
+            assert pan.get_attribute("aria-pressed") == "true"
+            assert "Pan attivo" in (pan.get_attribute("aria-label") or "")
+            page.evaluate(
+                """
+                () => {
+                  const viewer=document.getElementById('viewer');
+                  const img=document.getElementById('page');
+                  img.hidden=false;
+                  viewer.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:77,button:0,clientX:300,clientY:300}));
+                  viewer.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerId:77,button:0,clientX:360,clientY:345}));
+                  viewer.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:77,button:0,clientX:360,clientY:345}));
+                }
+                """
+            )
+            translated = page.locator(".pagewrap").evaluate("el => el.style.translate")
+            assert translated and translated != "0px 0px", translated
 
             assert page.locator("#cew-inspector-head strong").inner_text().strip().upper() == "DETTAGLI"
             assert page.locator("#title").inner_text().strip() == "Nessun elemento selezionato"
             inspector_empty = page.locator("#cew-inspector-meta .cew-empty").inner_text().strip()
             assert "seleziona un elemento" in inspector_empty.lower(), inspector_empty
+
+            page.evaluate(
+                """
+                () => {
+                  document.getElementById('title').textContent='Famiglia grafica · 1 occorrenze';
+                  document.getElementById('detail').innerHTML='<span class="pill">LINEAR_STROKE_GROUP</span><span class="pill">SQUAREISH</span><span class="pill">LARGE</span><br>Significato automatico: <b>nessuno</b>';
+                  document.getElementById('cew-inspector-meta').innerHTML='<h4>Cluster selezionato</h4><dl class="cew-kv"><dt>ID</dt><dd>GC-test</dd><dt>Famiglia</dt><dd>LINEAR_STROKE_GROUP</dd><dt>Occorrenze</dt><dd>1</dd><dt>Pagina</dt><dd>1</dd><dt>BBox</dt><dd>0.0089 · 0.0000 · 0.9911 · 1.0000</dd><dt>Significato</dt><dd>NON ASSEGNATO</dd><dt>Validazione</dt><dd>UMANA RICHIESTA</dd></dl>';
+                  document.getElementById('cew-provenance-meta').innerHTML='<h4>Provenienza e autorità</h4><dl class="cew-kv"><dt>Sessione</dt><dd>DISC-test</dd></dl>';
+                }
+                """
+            )
+            page.wait_for_timeout(100)
+            assert page.locator("#title").inner_text().strip() == "Gruppo grafico · 1 occorrenza"
+            assert page.locator("#detail .pill").nth(0).inner_text().strip() == "Gruppo lineare"
+            assert page.locator("#detail .pill").nth(1).inner_text().strip() == "Forma compatta"
+            assert page.locator("#detail .pill").nth(2).inner_text().strip() == "Area grande"
+            assert page.locator("#cew-inspector-meta h4").inner_text().strip() == "Gruppo selezionato"
+            assert page.locator("#cew-inspector-meta").get_by_text("BBox", exact=True).count() == 0
+            assert page.locator("#cew-provenance-meta").get_by_text("Riquadro normalizzato", exact=True).count() == 1
 
             status = page.locator("#cew-statusbar")
             status_text = status.inner_text().strip()
@@ -127,6 +165,7 @@ def main() -> None:
 
     print("CEW_MATURE_PANEL_CONTENT_HVA_REFINED_V1_PASS")
     print("operator_copy=ITALIAN_TASK_FIRST technical_diagnostics=SECONDARY_HOVER")
+    print("pan=EXPLICIT_FREE_CAMERA_DRAG cluster_details=HUMANIZED bbox=PROVENANCE")
     print("empty_state=CONTEXTUAL statusbar=OPERATIVE_ONLY topology=UNCHANGED")
 
 
