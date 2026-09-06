@@ -2,9 +2,10 @@
 """Process-isolated async job boundary for CEW interactive PDF preview.
 
 HTTP only validates and enqueues. Vector parsing, baseline raster evidence and
-adaptive raster signal recovery execute in separate bounded subprocess stages.
-If adaptive recovery cannot complete, the already-completed baseline raster
-report is retained as an INCONCLUSIVE evidence session instead of being lost.
+independent raster signal recovery execute in separate bounded subprocess
+stages. If independent recovery cannot complete, the already-completed baseline
+raster report is retained as an INCONCLUSIVE evidence session instead of being
+lost.
 """
 from __future__ import annotations
 
@@ -34,6 +35,10 @@ VECTOR_MODE = "VECTOR_BOUNDED"
 RASTER_SAFE_MODE = "RASTER_SAFE"
 RASTER_SIGNAL_RECOVERY_MODE = "RASTER_SIGNAL_RECOVERY"
 PRIOR_REPORT_FILENAME = "prior_report.json"
+RECOVERY_TRIGGER_REASONS = (
+    "BLANK_CORROBORATION_CONTRADICTED",
+    "BLANK_CORROBORATION_INSUFFICIENT",
+)
 JOB_LOCK = RLock()
 JOBS: dict[str, dict[str, Any]] = {}
 EXECUTOR = ThreadPoolExecutor(max_workers=1, thread_name_prefix="cew-preview-supervisor")
@@ -120,21 +125,35 @@ def _quality(report: dict[str, Any]) -> tuple[str | None, list[str], float | Non
     return status, reasons, coverage
 
 
-def _needs_signal_recovery(report: dict[str, Any]) -> bool:
+def _signal_recovery_trigger(report: dict[str, Any]) -> str | None:
+    """Return the explicit reason that justifies independent PDFium recovery.
+
+    A zero-candidate MuPDF baseline must not stop merely because its independent
+    blank witness is *insufficient*. That state is exactly where a second
+    renderer is evidentially useful. Confirmed blanks remain excluded.
+    """
     if not _report_is_empty(report):
-        return False
+        return None
     gate = report.get("quality_gate")
-    if isinstance(gate, dict) and "BLANK_CORROBORATION_CONTRADICTED" in {
-        str(value) for value in (gate.get("reasons") or [])
-    }:
-        return True
+    reasons = {
+        str(value)
+        for value in ((gate or {}).get("reasons") or [])
+        if str(value).strip()
+    }
+    for reason in RECOVERY_TRIGGER_REASONS:
+        if reason in reasons:
+            return reason
     for page in report.get("pages") or []:
         if not isinstance(page, dict):
             continue
         witness = page.get("blank_corroboration")
         if isinstance(witness, dict) and witness.get("state") == "CONTENT_PRESENT":
-            return True
-    return False
+            return "CONTENT_PRESENT"
+    return None
+
+
+def _needs_signal_recovery(report: dict[str, Any]) -> bool:
+    return _signal_recovery_trigger(report) is not None
 
 
 def _save_preview_session(
@@ -322,15 +341,20 @@ def _run(
 
                 report = _load_worker_report(output_path, digest=digest, source_version_id=source_version_id)
                 quality_status, quality_reasons, coverage = _quality(report)
+                recovery_trigger = _signal_recovery_trigger(report)
 
-                if _needs_signal_recovery(report):
+                if recovery_trigger is not None:
                     recovery_used = True
                     prior_report_path.write_text(
                         json.dumps(report, ensure_ascii=False, sort_keys=True, separators=(",", ":")),
                         encoding="utf-8",
                     )
                     output_path.unlink(missing_ok=True)
-                    LOGGER.warning("DOCUMENT_DISCOVERY_PREVIEW_SIGNAL_RECOVERY job_id=%s trigger=BLANK_CORROBORATION_CONTRADICTED", job_id)
+                    LOGGER.warning(
+                        "DOCUMENT_DISCOVERY_PREVIEW_SIGNAL_RECOVERY job_id=%s trigger=%s",
+                        job_id,
+                        recovery_trigger,
+                    )
                     _, recovery_failure = _invoke_worker(
                         worker_script=worker_script,
                         work_dir=root,
@@ -344,6 +368,7 @@ def _run(
                         recovery_outcome = recovery_failure
                         degraded_reason = f"DOCUMENT_DISCOVERY_SIGNAL_RECOVERY_DEGRADED:{recovery_failure}"
                         report["preview_signal_recovery_used"] = True
+                        report["preview_signal_recovery_trigger"] = recovery_trigger
                         report["preview_signal_recovery_outcome"] = recovery_failure
                         report["preview_fallback"] = {
                             "used": True,
@@ -368,6 +393,7 @@ def _run(
                         return
 
                     report = _load_worker_report(output_path, digest=digest, source_version_id=source_version_id)
+                    report["preview_signal_recovery_trigger"] = recovery_trigger
                     quality_status, quality_reasons, coverage = _quality(report)
                     recovery_outcome = "COMPLETED"
 
