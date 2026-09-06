@@ -6,7 +6,7 @@ worker memory ceiling has been applied. It adds two evidence products that the
 web process must never compute from an unregistered user PDF:
 
 1. bounded JPEG page inspection artifacts;
-2. an independent blank-page corroboration witness.
+2. a conservative blank-page corroboration witness.
 
 The inspection artifact is explicitly a reading aid, not source truth. For
 sparse technical drawings it may apply a deterministic grayscale gamma
@@ -16,8 +16,9 @@ geometry, semantic authority, or canonical state.
 
 The witness does not classify structural objects. It can only confirm that a
 normal-aspect page is demonstrably blank, contradict a blank claim when
-independent content evidence exists, or remain inconclusive. All outputs remain
-preview-only and carry zero semantic / engineering authority.
+independent content evidence exists, or remain inconclusive. Image evidence is
+counted only when PyMuPDF reports that the image is actually displayed on the
+page; referenced-but-unused PDF image resources are not treated as content.
 """
 from __future__ import annotations
 
@@ -28,7 +29,7 @@ from typing import Any
 
 import pymupdf
 
-PREVIEW_TRUST_VERSION = "CEW_DOCUMENT_DISCOVERY_PREVIEW_TRUST_v2"
+PREVIEW_TRUST_VERSION = "CEW_DOCUMENT_DISCOVERY_PREVIEW_TRUST_v3"
 PREVIEW_PAGE_MAX_PIXELS = 4_000_000
 PREVIEW_PAGE_MAX_SCALE = 1.25
 PREVIEW_PAGE_MIN_SCALE = 0.08
@@ -42,6 +43,13 @@ OVERVIEW_BACKGROUND_PERCENTILE = 0.90
 OVERVIEW_INK_DELTA = 4
 OVERVIEW_MIN_DARK_PIXELS = 8
 MAX_PREVIEW_PAGE_ARTIFACT_BYTES = 6 * 1024 * 1024
+
+
+def _rect_values(rect: Any) -> list[float] | None:
+    try:
+        return [round(float(value), 6) for value in (rect.x0, rect.y0, rect.x1, rect.y1)]
+    except Exception:
+        return None
 
 
 def _histogram(samples: memoryview, width: int, height: int, stride: int) -> tuple[list[int], int, int]:
@@ -97,6 +105,7 @@ def _render_inspection_artifact(page: pymupdf.Page, page_index: int) -> dict[str
         "page_index": page_index,
         "media_type": "image/jpeg",
         "render_boundary": "PROCESS_ISOLATED_WORKER",
+        "render_engine": "MUPDF_BASELINE_READING_AID",
         "render_policy": "BOUNDED_CONTRAST_PRESERVING_READING_AID",
         "source_pixels_transformed": gamma_applied,
         "display_enhancement": "GRAYSCALE_GAMMA" if gamma_applied else "NONE",
@@ -156,7 +165,10 @@ def _blank_corroboration(page: pymupdf.Page) -> dict[str, Any]:
         text_witness_available = True
 
     try:
-        image_count = len(page.get_images(full=True))
+        # get_image_info() reports exactly images displayed on the page, unlike
+        # get_images(), which may include dead / referenced-only resources.
+        displayed_images = page.get_image_info()
+        image_count = len(displayed_images)
     except Exception:
         image_count = 0
         image_witness_available = False
@@ -183,8 +195,6 @@ def _blank_corroboration(page: pymupdf.Page) -> dict[str, Any]:
         state = "INCONCLUSIVE_WITNESS_UNAVAILABLE"
         blank_confirmed = False
     elif not (BLANK_MIN_ASPECT_RATIO <= aspect <= BLANK_MAX_ASPECT_RATIO):
-        # Extreme technical sheets are never declared blank solely because a
-        # globally reduced witness did not observe sparse linework.
         state = "INCONCLUSIVE_EXTREME_ASPECT_RATIO"
         blank_confirmed = False
     else:
@@ -197,10 +207,14 @@ def _blank_corroboration(page: pymupdf.Page) -> dict[str, Any]:
         "state": state,
         "blank_confirmed": blank_confirmed,
         "page_aspect_ratio": round(aspect, 8),
+        "page_rotation": int(page.rotation),
+        "page_rect": _rect_values(page.rect),
+        "page_cropbox": _rect_values(page.cropbox),
+        "page_mediabox": _rect_values(page.mediabox),
         "text_witness_available": text_witness_available,
         "text_block_count": len(text_blocks),
         "image_witness_available": image_witness_available,
-        "image_count": image_count,
+        "displayed_image_count": image_count,
         "overview": overview,
     }
 
