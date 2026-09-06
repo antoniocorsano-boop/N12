@@ -1,130 +1,115 @@
-# CEW Professional Document Workbench v2 — canonical panel architecture
+# CEW Professional Document Workbench v2
 
-## Decision
+## Status
 
-The Document Discovery Workspace no longer evolves through local layout experiments. The repository adopts one stable workbench topology for document acquisition, graphic inspection and later governed human teaching.
+This document is the canonical workbench topology contract for Document Discovery. It replaces incremental viewer-layout experiments with one stable professional panel architecture.
 
-This is a **workbench architecture**, not a visual clone of another product. The user-provided Devin/Cascade-style screenshot is treated as an interaction benchmark only. The implementation is grounded in open-source workbench patterns that can be inspected and audited.
+A source-level/string validator is **not sufficient** to certify this UI. The workbench must also execute successfully in a real browser against the mounted FastAPI route and materialize the canonical parts in the DOM.
 
-## Open-source references used
+## Reference model
 
-1. **Microsoft VS Code — Agents Window layout**  
-   `https://github.com/microsoft/vscode/blob/main/src/vs/sessions/LAYOUT.md`
+The topology is grounded in mature, inspectable workbench patterns rather than copied proprietary UI:
 
-   Adopted principles:
-   - explicit ownership of each workbench part;
-   - a flexible central surface absorbs general resize;
-   - side parts preserve user-established sizes;
-   - layout state is restored independently from domain state.
+- **Microsoft VS Code — Agents Window layout**: stable part ownership, a flexible central surface, independently sized side parts, and persisted layout state;
+- **Microsoft VS Code workbench**: shell infrastructure is separated from feature contributions and layout controllers own restoration rather than domain state;
+- **OpenHands Agent Canvas**: one workspace coordinates multiple tool surfaces while UI state remains distinct from agent/execution authority.
 
-2. **Microsoft VS Code — workbench organization**  
-   `https://github.com/microsoft/vscode/wiki/Source-Code-Organization`
-
-   Adopted principle: the workbench shell is infrastructure; document-discovery features contribute views and state without owning the shell itself.
-
-3. **OpenHands Agent Canvas**  
-   `https://github.com/OpenHands/agent-canvas`
-
-   Adopted principle: one persistent workspace can coordinate several tool surfaces while keeping UI state distinct from execution/runtime authority.
-
-No third-party source code or branding is copied into CEW.
-
-## Frozen upstream baselines
-
-- Document acquisition/runtime HVA baseline: `320755e66a7263f1842f73dc14fb9a0ea8ccd7f8`.
-- Human orientation/zoom/pan/cluster-selection baseline: `5db4e6bdf1b7a6853edd342ef9cc914e0e74ad91`.
-- First professional-workbench checkpoint: `94f26d36b4b3fa6f97891950e0f0bb05d9c2158d`, frozen as `checkpoint/cew-professional-document-workbench-v1-94f26d3`.
-
-The v2 shell is UI-only. It must not modify PDF parsing, raster/vector recovery, primitive discovery, clustering, SourceVersion/Page governance, learning receipts or canonical-write authority.
+A Devin/Cascade-style interface may be used as a behavioral usability benchmark, but CEW does not copy third-party branding or proprietary source code.
 
 ## Canonical topology
 
 ```text
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ TITLE BAR — Document Discovery Workspace · provider/runtime state           │
-├──────────────────────────────────────────────────────────────────────────────┤
-│ COMMAND BAR — project · governed source · analyze · file · preview          │
-├────┬──────────────────┬─┬──────────────────────────────┬─┬──────────────────┤
-│    │ PRIMARY SIDEBAR  │ │ EDITOR / DOCUMENT CANVAS     │ │ AUXILIARY SIDEBAR│
-│ A  │                  │ │                              │ │                  │
-│ C  │ Pagine           │ │ editor tab / page identity   │ │ Proprietà        │
-│ T  │ Primitive        │ │                              │ │ Provenienza      │
-│ I  │ Cluster          │ │ original document surface    │ │ Decisione*       │
-│ V  │ Da verificare    │ │                              │ │                  │
-│ I  │                  │ │ viewport tools               │ │ * governed only  │
-│ T  │                  │ │                              │ │                  │
-│ Y  │                  │ │                              │ │                  │
-├────┴──────────────────┴─┴──────────────────────────────┴─┴──────────────────┤
-│ STATUS BAR — page · zoom · rotation · renderer · primitives · clusters ... │
-└──────────────────────────────────────────────────────────────────────────────┘
+TITLE_BAR
+COMMAND_BAR
+WORKBENCH
+├── ACTIVITY_RAIL
+├── PRIMARY_SIDEBAR
+├── LEFT_SASH
+├── FLEXIBLE_EDITOR_CANVAS
+├── RIGHT_SASH
+└── AUXILIARY_SIDEBAR
+STATUS_BAR
 ```
 
-### Activity rail
+The central editor is the flexible surface. Sidebars retain user-established sizes inside governed bounds and must not consume general window resize.
 
-The rail switches the active primary view. It does not contain viewport tools or document semantics. Clicking the currently active rail item may collapse the Primary Sidebar; selecting any view reopens it.
+## Part ownership
 
-Stable view IDs:
+| Part | Ownership |
+|---|---|
+| TITLE_BAR | Workspace identity, provider/runtime summary |
+| COMMAND_BAR | Project/source/PDF intake and analysis commands |
+| ACTIVITY_RAIL | Stable primary-view switching |
+| PRIMARY_SIDEBAR | Page/evidence navigation |
+| FLEXIBLE_EDITOR_CANVAS | Original document / technical drawing inspection |
+| AUXILIARY_SIDEBAR | Contextual properties, provenance, governed decision surface |
+| STATUS_BAR | Compact persistent viewer/acquisition/authority state |
+
+## Activity rail and Primary Sidebar
+
+Stable primary views:
 
 - `pages`
 - `primitives`
 - `clusters`
 - `verify`
 
-### Primary Sidebar
+The activity rail is persistent. Selecting the already-active primary view toggles the Primary Sidebar, so a collapsed sidebar remains recoverable without a hidden control.
 
-Purpose: **find and navigate evidence**.
+The Primary Sidebar is independently resizable and collapsible. Its width is persisted within the range defined by `CEW_DOCUMENT_WORKBENCH_PANEL_CONTRACT_v2.json`.
 
-It is horizontally resizable, collapsible and persistent. Width bounds are governed by the machine-readable contract. Resizing the Primary Sidebar must not resize the Auxiliary Sidebar; the Editor Canvas absorbs the remaining width.
+Viewport commands do not belong in the Primary Sidebar.
 
-### Editor / document canvas
+## Flexible editor canvas
 
-Purpose: **make the original document the dominant human surface**.
+The document is the dominant visual authority.
 
-The editor region owns:
+The editor surface contains:
 
-- page display;
-- fit page / fit width;
-- wheel zoom centered on the pointer;
+- a compact editor tab/header;
+- page fit;
+- width fit;
+- zoom in/out/reset;
+- mouse-wheel zoom around the cursor;
 - drag pan;
-- 90° rotations;
-- direct cluster hotspot selection.
+- 90-degree rotation;
+- direct graphic-cluster hotspot selection.
 
-Viewport tools remain anchored to the editor viewport, never to the moving page image. Actual zoom percentage belongs in the Status Bar; the toolbar remains compact.
+Navigation tools remain anchored to the editor viewport. They do not travel away with the document during pan.
 
-### Auxiliary Sidebar
+The central editor absorbs remaining width when either side panel is resized or collapsed.
 
-Purpose: **inspect the current selection and its authority**.
+## Auxiliary Sidebar
 
-Canonical tabs:
+Stable inspector views:
 
 - `properties`
 - `provenance`
 - `decision`
 
-`decision` is hidden unless governed teaching is enabled. The blocked preview therefore never presents an editable training form as the main right-hand surface.
+`decision` is available only when governed project-local teaching is actually enabled by immutable `SourceVersion + READY Page` identities.
 
-The Auxiliary Sidebar is horizontally resizable, collapsible and persistent independently of the Primary Sidebar.
+When teaching is blocked, the permanent inspector must not expose an editable training form as its default surface.
 
-### Status Bar
+## Sashes and resize behavior
 
-Persistent compact state:
+Left and right sidebars are independently resizable by sashes.
 
-- current page;
-- zoom;
-- rotation;
-- renderer / preview mode;
-- primitive count;
-- cluster count;
-- source-registration state;
-- training state.
+Required interaction:
 
-## Layout state controller
+- pointer drag changes the relevant panel only;
+- keyboard Left/Right adjusts a focused sash;
+- double click restores the default width;
+- width is clamped to the machine-readable bounds;
+- the editor canvas absorbs the complementary change.
 
-UI layout state is persisted under:
+## Persistent layout state
+
+Storage key:
 
 `cew.documentDiscovery.workbench.v2`
 
-Persisted values:
+Persisted state:
 
 - `leftWidth`
 - `rightWidth`
@@ -133,51 +118,64 @@ Persisted values:
 - `activeNav`
 - `activeInspector`
 
-This state has **no evidentiary or engineering authority**. It is presentation-only state and is never part of SourceVersion, Page, Observation, ObjectCandidate or canonical CAD identity.
+This state is presentation-only. It has no engineering, semantic, learning, evidence, or canonical authority.
 
 ## Result semantics
 
-Execution completion and evidence acquisition remain separate facts.
+Execution completion and evidence acquisition are separate states.
 
-`ANALYSIS_COMPLETED != GRAPHIC_EVIDENCE_FOUND`
+`ANALYSIS_COMPLETED` does not imply `GRAPHIC_EVIDENCE_FOUND`.
 
-When analysis completes with zero primitives and zero clusters, the workbench must show:
+If analysis completes with `0 primitive` and `0 cluster`, the UI must show:
 
 `NESSUNA_REGIONE_GRAFICA_ACQUISITA -> VERIFICA_NECESSARIA`
 
-It must not render the normal green success state.
+It must not display a green success state for graphic acquisition.
 
 ## Authority invariants
 
-- automatic semantic authority: `NONE`;
-- automatic semantic labels: disabled;
-- unregistered preview training: `BLOCKED`;
-- canonical write: `BLOCKED`;
-- structural identity: `BLOCKED`;
-- engineering authority effect: `NONE`;
-- original document: evidentiary authority.
+- `automatic_semantic_authority = NONE`;
+- automatic semantic labels remain disabled;
+- unregistered preview training remains `BLOCKED`;
+- canonical write remains `BLOCKED`;
+- structural identity remains `BLOCKED`;
+- engineering authority effect remains `NONE`;
+- original document remains evidentiary authority;
+- panel/layout state is presentation state only.
+
+## Browser materialization gate
+
+A canonical workbench release is not valid merely because its CSS/JavaScript markers exist in generated HTML.
+
+The dedicated browser gate must start the **real mounted FastAPI application**, navigate Chromium to `/workbench/document-discovery`, and prove all of the following before any Render deployment or HVA:
+
+1. HTTP response identifies `X-CEW-Document-Workbench: PROFESSIONAL_V2`;
+2. HTTP response identifies `X-CEW-Panel-Architecture: ACTIVITY_PRIMARY_EDITOR_AUXILIARY_STATUS`;
+3. no browser startup JavaScript or console error occurs;
+4. `body.cew-professional-document` is active;
+5. Activity Rail materializes;
+6. Primary Sidebar header/content materialize;
+7. left sash materializes;
+8. editor bar and document canvas materialize;
+9. Auxiliary Sidebar header/tabs materialize;
+10. right sash materializes;
+11. status bar materializes;
+12. title/provider are actually composed into the professional title bar;
+13. Primary Sidebar collapse/restore expands/contracts the editor as expected;
+14. Auxiliary Sidebar collapse persists through `cew.documentDiscovery.workbench.v2`;
+15. blocked training keeps the `decision` tab unavailable.
+
+A screenshot or HVA showing the legacy composition on a `PROFESSIONAL_V2` candidate is an explicit `UI_MATERIALIZATION_FAIL`, even when static marker tests, build, security, and `/readyz` pass.
 
 ## Change policy
 
-The following are now **architecture changes** and require a contract/spec update plus deterministic gate:
+The topology, part ownership, persistence schema, panel bounds, or authority boundaries may change only through:
 
-- adding/removing a top-level workbench part;
-- changing ownership of a part;
-- changing persisted layout state;
-- allowing a side panel to absorb global resize instead of the central editor;
-- moving human-decision controls outside the governed contextual inspector;
-- changing authority boundaries.
+1. an update to this architecture document;
+2. an update to `automation/CEW_DOCUMENT_WORKBENCH_PANEL_CONTRACT_v2.json` when the machine contract changes;
+3. deterministic validation;
+4. mounted-route browser validation;
+5. exact-head CI/security;
+6. focused human HVA.
 
-The following do **not** change the architecture and belong in implementation/tests only:
-
-- exact colors;
-- icon glyphs;
-- pixel-level padding;
-- individual row/card styling;
-- small action placement changes inside an owned panel.
-
-## Machine-readable contract
-
-`automation/CEW_DOCUMENT_WORKBENCH_PANEL_CONTRACT_v2.json`
-
-The deterministic validator must prove the code, the HTML shell and this contract remain aligned before deployment.
+Pixel styling and ordinary bug fixes do not redefine topology, but they still must preserve the browser materialization gate.
