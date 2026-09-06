@@ -6,11 +6,11 @@ preview extraction inside a supervisor-created private temporary directory. The
 worker never accepts filesystem paths from its command line: it reads fixed
 files in its current working directory and atomically writes ``report.json``.
 
-The worker applies a hard address-space ceiling before importing PyMuPDF so a
-pathological page cannot exhaust the Render service container. Vector, baseline
-raster evidence, and adaptive signal recovery are separate process stages. This
-prevents adaptive recovery from consuming the baseline raster timeout and lets
-the supervisor retain baseline evidence if recovery times out.
+The worker applies a hard address-space ceiling before importing a PDF renderer.
+Vector extraction and baseline raster evidence use MuPDF, while adaptive signal
+recovery uses PDFium as an independent renderer. This prevents repeated analysis
+of the same failed raster path and lets the supervisor retain baseline evidence
+if recovery times out.
 
 The worker never creates project truth, learning receipts, canonical writes,
 structural identity or engineering effects.
@@ -50,7 +50,7 @@ def _memory_limit_mb() -> int:
 
 
 def _apply_resource_limits() -> None:
-    """Bound child memory before importing PyMuPDF or any PDF parser."""
+    """Bound child memory before importing any PDF parser or renderer."""
     try:
         import resource
 
@@ -72,7 +72,7 @@ def _engine(mode: str):
         import cew_document_discovery_raster_preview_engine as engine
         return engine
     if mode == RASTER_SIGNAL_RECOVERY_MODE:
-        import cew_document_discovery_raster_signal_recovery as engine
+        import cew_document_discovery_pdfium_signal_recovery as engine
         return engine
     raise ValueError("DOCUMENT_DISCOVERY_PREVIEW_WORKER_MODE_INVALID")
 
@@ -88,13 +88,13 @@ def _read_prior_report() -> dict:
 
 
 def _inherit_trust_evidence(prior: dict, report: dict) -> dict:
-    """Reuse already-produced trust artifacts without re-rendering the PDF."""
+    """Reuse trust evidence without overwriting a stronger recovery artifact."""
     for key in (
         "preview_page_image_mode",
         "preview_page_artifact_count",
         "preview_page_images",
     ):
-        if key in prior:
+        if key not in report and key in prior:
             report[key] = prior[key]
 
     prior_pages = {
