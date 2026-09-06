@@ -24,6 +24,10 @@ import cew_oar_g4_assisted_workbench as _oar_g4_assisted
 import cew_external_graphic_reference_review_workbench as _reference_review
 import cew_external_graphic_reference_review_hardening as _reference_review_hardening
 import cew_external_graphic_reference_review_asset_hardening as _reference_review_asset_hardening
+import cew_professional_document_workbench_mature_panels as _professional_document_workbench
+import cew_professional_document_workbench_mature_content as _professional_document_content
+import cew_professional_document_workbench_governed_async as _professional_document_governed_async
+import cew_document_discovery_governed_async as _document_discovery_governed_async
 import cew_document_discovery_async_preview as _document_discovery_async_preview
 import cew_document_discovery_workbench as _document_discovery
 
@@ -48,6 +52,23 @@ _REQUIRED_BASE_MARKERS = (
     '/workbench/assets/{asset_path:path}',
 )
 
+_DOCUMENT_RENDER_TARGET_COMPAT_SCRIPT = r'''<script id="cew-document-render-target-compat">
+(function(){
+  'use strict';
+  // The inherited Document Discovery render() still writes operational status
+  // into #status. The professional navigator replaces the legacy sidebar, so
+  // preserve that non-visual render target instead of letting a later session
+  // reload fail after a runtime reconstruction.
+  if(!document.getElementById('status')){
+    const status=document.createElement('div');
+    status.id='status';
+    status.hidden=true;
+    status.setAttribute('aria-hidden','true');
+    document.body.appendChild(status);
+  }
+})();
+</script>'''
+
 
 def _assert_base_contract() -> None:
     base_path = Path(_base.__file__).resolve()
@@ -57,7 +78,26 @@ def _assert_base_contract() -> None:
         raise RuntimeError("CEW_PROFESSIONAL_WORKBENCH_BASE_CONTRACT_DRIFT:" + "|".join(missing))
 
 
+def _install_document_render_target_compat() -> None:
+    """Keep inherited Document Discovery render targets alive after shell composition."""
+    if getattr(_professional_document_workbench, "_cew_render_target_compat_installed", False):
+        return
+    original_patched_page = _professional_document_workbench._patched_page
+
+    def patched_page_with_render_target_compat() -> str:
+        html = original_patched_page()
+        if 'id="cew-document-render-target-compat"' in html:
+            return html
+        if "</body>" not in html:
+            raise RuntimeError("CEW_DOCUMENT_RENDER_TARGET_COMPAT_BODY_MARKER_MISSING")
+        return html.replace("</body>", _DOCUMENT_RENDER_TARGET_COMPAT_SCRIPT + "</body>", 1)
+
+    _professional_document_workbench._patched_page = patched_page_with_render_target_compat
+    _professional_document_workbench._cew_render_target_compat_installed = True
+
+
 _assert_base_contract()
+_install_document_render_target_compat()
 _reference_review_hardening.install(_reference_review)
 _reference_review_asset_hardening.install(_reference_review)
 
@@ -86,9 +126,16 @@ def build_router(source_workspace):
     router.include_router(_oar_g4.build_router())
     router.include_router(_oar_g4_assisted.build_router())
     router.include_router(_reference_review.build_router())
-    # Mount the async/bounded adapter first so its HTML route shadows the
-    # historical synchronous Preview button. Existing session/learning API
-    # routes remain provided by the preserved Document Discovery router below.
+    # The governed-async HVA route shadows only the Document Discovery HTML
+    # surface and redirects the governed-source action to the bounded subprocess
+    # job boundary. The HVA-refined and mature shell routes remain mounted as
+    # compatibility fallbacks. Governed async API/page-artifact routes are
+    # mounted before preview and historical routes so large governed PDFs never
+    # fall back to in-process parsing/rendering during normal use.
+    router.include_router(_professional_document_governed_async.build_router())
+    router.include_router(_professional_document_content.build_router())
+    router.include_router(_professional_document_workbench.build_router())
+    router.include_router(_document_discovery_governed_async.build_router(source_workspace))
     router.include_router(_document_discovery_async_preview.build_router())
     router.include_router(_document_discovery.build_router(source_workspace))
     return router

@@ -1,0 +1,159 @@
+{
+  "schema": "CEW_DOCUMENT_WORKBENCH_PANEL_CONTRACT_v2",
+  "architecture_id": "CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_V2",
+  "status": "CANONICAL_UI_ARCHITECTURE_CANDIDATE",
+  "panel_quality_layer": "MATURE_V1",
+  "design_reference_policy": "BEHAVIORAL_REFERENCE_ONLY_NO_CODE_COPY",
+  "open_source_references": [
+    {
+      "name": "Microsoft VS Code Custom Layout / Agents Window layout",
+      "url": "https://code.visualstudio.com/docs/configure/custom-layout",
+      "adopted_principles": [
+        "activity bar switches primary views",
+        "stable part ownership",
+        "flexible central surface absorbs resize",
+        "primary and auxiliary side parts preserve user-established sizes",
+        "compact layout density",
+        "layout state is persisted independently from domain state"
+      ]
+    },
+    {
+      "name": "JupyterLab application shell",
+      "url": "https://jupyterlab.readthedocs.io/en/stable/user/interface.html",
+      "adopted_principles": [
+        "persistent left right and main shell areas",
+        "active sidebar tab can collapse the sidebar",
+        "explicit keyboard commands expose or hide left and right sidebars"
+      ]
+    },
+    {
+      "name": "OpenHands Agent Canvas",
+      "url": "https://github.com/OpenHands/OpenHands/blob/main/docs/architecture.md",
+      "adopted_principles": [
+        "single workspace coordinates multiple tool surfaces",
+        "frontend shell remains distinct from execution authority"
+      ]
+    }
+  ],
+  "mature_product_references": [
+    {
+      "name": "Bluebeam Revu",
+      "url": "https://support.bluebeam.com/user-manual/welcome/revu-interface.html",
+      "usage": "behavioral reference only",
+      "adopted_principles": [
+        "main PDF workspace remains dominant",
+        "panels are distinct from toolbars",
+        "panel visibility recovers workspace area",
+        "status and navigation remain compact and separate"
+      ]
+    },
+    {
+      "name": "Autodesk Viewer",
+      "url": "https://help.autodesk.com/cloudhelp/2025/ENU/Vault-Essentials/files/GUID-EA5CF17C-B218-49FE-8466-C64D883794AF.htm",
+      "usage": "behavioral reference only",
+      "adopted_principles": [
+        "viewer navigation belongs to the viewer surface",
+        "properties are contextual to selected geometry"
+      ]
+    }
+  ],
+  "topology": [
+    "TITLE_BAR",
+    "COMMAND_BAR",
+    "ACTIVITY_RAIL",
+    "PRIMARY_SIDEBAR",
+    "EDITOR_CANVAS",
+    "AUXILIARY_SIDEBAR",
+    "STATUS_BAR"
+  ],
+  "panel_ownership": {
+    "ACTIVITY_RAIL": "view switching only",
+    "PRIMARY_SIDEBAR": "pages, primitives, clusters, verification queues",
+    "EDITOR_CANVAS": "original document reading and geometry interaction",
+    "AUXILIARY_SIDEBAR": "contextual properties, provenance, governed human decision",
+    "STATUS_BAR": "persistent viewport, acquisition and authority state"
+  },
+  "layout_state": {
+    "storage_key": "cew.documentDiscovery.workbench.v2",
+    "persist": [
+      "leftWidth",
+      "rightWidth",
+      "leftVisible",
+      "rightVisible",
+      "activeNav",
+      "activeInspector"
+    ],
+    "primary_width_px": {
+      "default": 292,
+      "min": 220,
+      "max": 500
+    },
+    "auxiliary_width_px": {
+      "default": 336,
+      "min": 260,
+      "max": 560
+    }
+  },
+  "panel_quality_contract": {
+    "density": "COMPACT",
+    "single_visible_title_per_panel_level": true,
+    "ordinary_panel_copy": "HUMAN_READABLE_ITALIAN",
+    "machine_tokens_allowed_in_logs_and_diagnostics": true,
+    "context_before_forms": true,
+    "document_first_space_allocation": true,
+    "visible_controls_must_be_functional": true,
+    "activity_items_expose_pressed_state": true,
+    "inspector_tabs_expose_selected_state": true,
+    "sashes_expose_accessible_values": true,
+    "panel_toggles_expose_expanded_state": true
+  },
+  "keyboard_contract": {
+    "toggle_primary_sidebar": "Ctrl+B",
+    "toggle_auxiliary_sidebar": "Ctrl+J",
+    "open_pages": "Alt+1",
+    "open_primitives": "Alt+2",
+    "open_clusters": "Alt+3",
+    "open_verify": "Alt+4",
+    "activity_focus_navigation": "ArrowUp/ArrowDown",
+    "focused_sash_resize": "ArrowLeft/ArrowRight"
+  },
+  "interaction_contract": {
+    "primary_sidebar": [
+      "activity view selection",
+      "collapse and restore",
+      "drag resize",
+      "keyboard resize",
+      "double-click width reset"
+    ],
+    "auxiliary_sidebar": [
+      "properties tab",
+      "provenance tab",
+      "decision tab only when teaching is governed",
+      "collapse and restore",
+      "drag resize",
+      "keyboard resize",
+      "double-click width reset"
+    ],
+    "editor_canvas": [
+      "fit page",
+      "fit width",
+      "wheel zoom around cursor",
+      "drag pan",
+      "90-degree rotation",
+      "direct cluster hotspot selection"
+    ]
+  },
+  "result_semantics": {
+    "analysis_completed_is_not_graphic_evidence_found": true,
+    "zero_primitive_zero_cluster_state": "WARNING_REVIEW_REQUIRED",
+    "human_readable_zero_evidence_copy": "Nessuna regione grafica acquisita"
+  },
+  "authority_invariants": {
+    "automatic_semantic_authority": "NONE",
+    "unregistered_preview_training": "BLOCKED",
+    "canonical_write": "BLOCKED",
+    "structural_identity": "BLOCKED",
+    "engineering_authority_effect": "NONE",
+    "original_document_authority": "EVIDENTIARY"
+  }
+}
