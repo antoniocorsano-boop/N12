@@ -117,7 +117,8 @@ def main() -> None:
             # The title/provider must actually be composed into the mature top bar.
             assert page.locator("header .cew-title-main").count() == 1
             assert page.locator("header #provider").count() == 1
-            assert page.locator("#cew-primary-title").inner_text() == "Cluster"
+            # innerText reflects CSS text-transform:uppercase on the rendered header.
+            assert page.locator("#cew-primary-title").inner_text().strip().upper() == "CLUSTER"
             assert page.locator("#cew-inspector-head").is_visible()
             assert page.locator("#cew-inspector-tabs").is_visible()
 
