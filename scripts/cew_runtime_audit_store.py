@@ -37,7 +37,7 @@ def _persist_file(receipt: dict, store: Path, digest: str) -> dict:
     decision_id = str(receipt["decision_id"])
     store = store.resolve()
     store.mkdir(parents=True, exist_ok=True)
-    target = store / f"{decision_id}.json"
+    target = store / ("receipt-" + hashlib.sha256(decision_id.encode("utf-8")).hexdigest() + ".json")
     pretty = json.dumps(receipt, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
     try:
         with target.open("x", encoding="utf-8") as f:
