@@ -2,7 +2,13 @@
 """Regression gate for independent PDFium recovery and reading-aid fidelity."""
 from __future__ import annotations
 
+from hashlib import sha256
+import json
+import os
 from pathlib import Path
+import subprocess
+import sys
+import tempfile
 
 import pymupdf
 
@@ -76,6 +82,7 @@ def _zero_report() -> dict:
             "blank_pages_observed": [],
         },
         "analysis_completeness": "FULL_REQUIRED_COVERAGE",
+        "report_fingerprint": "sha256:baseline-fixture",
     }
 
 
@@ -87,6 +94,7 @@ def _insufficient_witness_report() -> dict:
         "state": "INSUFFICIENT",
         "blank_confirmed": False,
     }
+    report["preview_signal_recovery_trigger"] = "BLANK_CORROBORATION_INSUFFICIENT"
     return report
 
 
@@ -99,6 +107,45 @@ def _contradicted_witness_report() -> dict:
         "blank_confirmed": False,
     }
     return report
+
+
+def _worker_pdfium_smoke(payload: bytes) -> dict:
+    scripts_dir = Path.cwd()
+    worker = scripts_dir / "cew_document_discovery_preview_worker.py"
+    source_version_id = "RECOVERY-WORKER-ADDRESS-SPACE"
+    digest = sha256(payload).hexdigest()
+    with tempfile.TemporaryDirectory(prefix="cew-pdfium-worker-test-") as tmp:
+        root = Path(tmp)
+        (root / "source.pdf").write_bytes(payload)
+        (root / "prior_report.json").write_text(
+            json.dumps(_insufficient_witness_report(), sort_keys=True, separators=(",", ":")),
+            encoding="utf-8",
+        )
+        env = dict(os.environ)
+        env["CEW_PREVIEW_WORKER_MEMORY_MB"] = "192"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(worker),
+                source_version_id,
+                digest,
+                "RASTER_SIGNAL_RECOVERY",
+            ],
+            cwd=str(root),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False,
+            timeout=45,
+            env=env,
+        )
+        assert completed.returncode == 0, (completed.returncode, completed.stderr[-2000:])
+        report = json.loads((root / "report.json").read_text(encoding="utf-8"))
+        assert report["preview_worker_mode"] == "RASTER_SIGNAL_RECOVERY"
+        assert report["preview_worker_address_space_limit_mb"] >= 6144
+        assert report["preview_worker_resource_policy"] == "PDFIUM_MULTI_GB_VIRTUAL_ADDRESS_WITH_BOUNDED_RASTER"
+        assert report["primitive_candidate_count"] > 0
+        return report
 
 
 def main() -> None:
@@ -145,6 +192,9 @@ def main() -> None:
     assert artifact["media_type"] == "image/jpeg"
     assert artifact["byte_count"] > 0
 
+    worker_report = _worker_pdfium_smoke(faint)
+    assert worker_report["preview_signal_recovery_used"] is True
+
     blank = recovery.preacquire_preview_pdf(
         _blank_pdf(),
         source_version_id="RECOVERY-BLANK-CONTROL",
@@ -171,15 +221,18 @@ def main() -> None:
     assert baseline_artifact["display_enhancement"] in {"GRAYSCALE_GAMMA", "NONE"}
     assert reading_aid["preview_page_reading_aid_policy"] == "CONTRAST_PRESERVING_DECLARED_TRANSFORM"
 
-    worker = Path("cew_document_discovery_preview_worker.py").read_text(encoding="utf-8")
+    worker_source = Path("cew_document_discovery_preview_worker.py").read_text(encoding="utf-8")
     jobs_source = Path("cew_document_discovery_preview_jobs.py").read_text(encoding="utf-8")
     trust_source = Path("cew_document_discovery_preview_trust.py").read_text(encoding="utf-8")
-    assert 'RASTER_SIGNAL_RECOVERY_MODE = "RASTER_SIGNAL_RECOVERY"' in worker
-    assert "cew_document_discovery_pdfium_signal_recovery" in worker
-    assert "PRIOR_REPORT_FILENAME" in worker
-    assert "_inherit_trust_evidence" in worker
-    assert 'if key not in report and key in prior' in worker
-    assert "preview_trust.attach_trust_evidence" in worker
+    assert 'RASTER_SIGNAL_RECOVERY_MODE = "RASTER_SIGNAL_RECOVERY"' in worker_source
+    assert "cew_document_discovery_pdfium_signal_recovery" in worker_source
+    assert "PDFIUM_ADDRESS_SPACE_LIMIT_MB" in worker_source
+    assert "_address_space_limit_mb(mode)" in worker_source
+    assert "PDFIUM_MULTI_GB_VIRTUAL_ADDRESS_WITH_BOUNDED_RASTER" in worker_source
+    assert "PRIOR_REPORT_FILENAME" in worker_source
+    assert "_inherit_trust_evidence" in worker_source
+    assert 'if key not in report and key in prior' in worker_source
+    assert "preview_trust.attach_trust_evidence" in worker_source
     assert 'RASTER_SIGNAL_RECOVERY_MODE = "RASTER_SIGNAL_RECOVERY"' in jobs_source
     assert "_signal_recovery_trigger" in jobs_source
     assert "BLANK_CORROBORATION_CONTRADICTED" in jobs_source
@@ -191,6 +244,7 @@ def main() -> None:
 
     print("CEW_PDFIUM_SIGNAL_RECOVERY_PASS")
     print("independent_renderer=PDFIUM faint_line_recovery=PASS deterministic_replay=PASS")
+    print("pdfium_worker_address_space_policy=PASS strict_192mb_virtual_cap_not_reused=PASS")
     print("insufficient_blank_witness_trigger=PASS confirmed_blank_excluded=PASS")
     print("cropbox_media_probe=PASS recovery_artifact=PDFIUM_JPEG")
     print("displayed_image_witness=PASS baseline_evidence_preservation=GOVERNED")
