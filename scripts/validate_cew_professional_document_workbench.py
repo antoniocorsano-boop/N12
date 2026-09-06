@@ -9,6 +9,7 @@ import cew_professional_document_workbench as professional
 
 def main() -> None:
     html = professional._patched_page()
+    professional_source = Path("cew_professional_document_workbench.py").read_text(encoding="utf-8")
 
     required = (
         "cew-professional-document-style",
@@ -27,9 +28,8 @@ def main() -> None:
         "Decisione umana",
         "NON ASSEGNATO",
         "UMANA RICHIESTA",
-        "X-CEW-Document-Workbench",
     )
-    missing = [marker for marker in required if marker not in html and marker != "X-CEW-Document-Workbench"]
+    missing = [marker for marker in required if marker not in html]
     assert not missing, missing
 
     # Mature workbench contract: sidebars + dominant viewport + anchored tools + status bar.
@@ -49,9 +49,11 @@ def main() -> None:
     assert "nessuna regione grafica acquisita · verifica necessaria" in html
     assert "intake-status meta warn" in html
 
-    # Authority boundaries are still inherited from the validated async adapter.
-    assert "X-CEW-Canonical-Write" in html
-    assert "X-CEW-Engineering-Authority-Effect" in html
+    # Authority headers belong to the HTML route response, while semantic/training
+    # declarations remain visible in the rendered workbench.
+    assert '"X-CEW-Canonical-Write": "false"' in professional_source
+    assert '"X-CEW-Engineering-Authority-Effect": "NONE"' in professional_source
+    assert '"X-CEW-Document-Workbench": "PROFESSIONAL_V1"' in professional_source
     assert "nessuna classificazione automatica" in html
     assert "Preview analizzabile, ma training bloccato" in html
 
