@@ -104,7 +104,9 @@ def main() -> None:
     assert "Preview analizzabile, ma training bloccato" in html
 
     # The canonical spec records the same topology and machine-readable contract.
-    assert "ACTIVITY_RAIL" in spec and "PRIMARY SIDEBAR" in spec and "AUXILIARY SIDEBAR" in spec
+    assert "### Activity rail" in spec
+    assert "### Primary Sidebar" in spec
+    assert "### Auxiliary Sidebar" in spec
     assert "cew.documentDiscovery.workbench.v2" in spec
     assert "CEW_DOCUMENT_WORKBENCH_PANEL_CONTRACT_v2.json" in spec
     assert "Microsoft VS Code — Agents Window layout" in spec
