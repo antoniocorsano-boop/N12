@@ -91,7 +91,7 @@ def main() -> None:
     assert "discovery._validate_pdf(payload)" not in safe_source
     assert "_validate_upload_envelope(payload)" in safe_source
     assert "preview_trust.attach_trust_evidence" in worker_source
-    assert worker_source.index("_apply_resource_limits()") < worker_source.index("import cew_document_discovery_preview_trust")
+    assert worker_source.index("_apply_resource_limits(mode)") < worker_source.index("import cew_document_discovery_preview_trust")
     assert "cew_document_discovery_preview_safe_jobs as preview_jobs" in async_source
     assert "X-CEW-Preview-Page-Render" in async_source
     assert "PROCESS_ISOLATED_CACHED" in async_source
@@ -109,6 +109,7 @@ def main() -> None:
     print("CEW_PREVIEW_TRUST_BOUNDARY_PASS")
     print("web_user_pdf_parse=FORBIDDEN page_render=PROCESS_ISOLATED_CACHED")
     print("blank=CORROBORATED extreme_aspect_blank=INCONCLUSIVE contradictory_content=INCONCLUSIVE")
+    print("renderer_compatible_resource_limits=PASS")
     print("semantic_authority=NONE canonical_write_authorized=false")
 
 
