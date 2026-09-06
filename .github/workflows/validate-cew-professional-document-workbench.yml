@@ -9,6 +9,7 @@ on:
       - 'scripts/cew_professional_document_workbench_mature_panels.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
       - 'scripts/validate_cew_professional_document_workbench_browser.py'
+      - 'scripts/validate_cew_preview_runtime_recovery_browser.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/cew_document_discovery_async_preview.py'
       - 'analysis/cew/CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_ARCHITECTURE_v2.md'
@@ -21,6 +22,7 @@ on:
       - 'scripts/cew_professional_document_workbench_mature_panels.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
       - 'scripts/validate_cew_professional_document_workbench_browser.py'
+      - 'scripts/validate_cew_preview_runtime_recovery_browser.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/cew_document_discovery_async_preview.py'
       - 'analysis/cew/CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_ARCHITECTURE_v2.md'
@@ -52,6 +54,7 @@ jobs:
           scripts/cew_professional_document_workbench_mature_panels.py
           scripts/validate_cew_professional_document_workbench.py
           scripts/validate_cew_professional_document_workbench_browser.py
+          scripts/validate_cew_preview_runtime_recovery_browser.py
           scripts/cew_professional_workbench_api.py
           scripts/cew_document_discovery_async_preview.py
       - name: Validate canonical panel workbench and authority boundary
@@ -60,3 +63,6 @@ jobs:
       - name: Execute generated workbench in Chromium
         working-directory: scripts
         run: python validate_cew_professional_document_workbench_browser.py
+      - name: Validate preview recovery across runtime restart
+        working-directory: scripts
+        run: python validate_cew_preview_runtime_recovery_browser.py
