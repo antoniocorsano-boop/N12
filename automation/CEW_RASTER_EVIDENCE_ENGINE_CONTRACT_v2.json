@@ -68,7 +68,7 @@
   },
   "recovery_policy": {
     "baseline_raster_and_adaptive_recovery_are_separate_process_stages": true,
-    "adaptive_recovery_trigger": "BLANK_CORROBORATION_CONTRADICTED_WITH_ZERO_CANDIDATES",
+    "adaptive_recovery_trigger": "BLANK_CORROBORATION_CONTRADICTED_OR_INSUFFICIENT_WITH_ZERO_CANDIDATES",
     "adaptive_recovery_renderer": "PDFIUM_INDEPENDENT_FROM_MUPDF_BASELINE",
     "adaptive_recovery_has_independent_timeout_budget": true,
     "baseline_blank_witness_may_be_inherited": true,
@@ -189,9 +189,10 @@
     "R12_BLANK_REQUIRES_INDEPENDENT_CORROBORATION": "Zero candidates may become PAGE_BLANK_OBSERVED only when complete coverage and an independent blank witness agree; contradiction or insufficient witness yields INCONCLUSIVE.",
     "R13_PAGE_INSPECTION_ARTIFACT_REQUIRED": "READY and INCONCLUSIVE preview sessions must expose a bounded, integrity-checked page artifact produced inside the isolated worker.",
     "R14_RECOVERY_CANNOT_DESTROY_BASELINE_EVIDENCE": "Adaptive signal recovery is a separate optional bounded stage; timeout or nonzero exit after baseline raster evidence completed must yield an INCONCLUSIVE session retaining that baseline evidence, not FAILED with evidence loss.",
-    "R15_RECOVERY_RENDERER_INDEPENDENCE": "After an empty MuPDF baseline contradicted by content evidence, signal recovery must use an independently implemented PDF renderer rather than retuning the same MuPDF pixel stream.",
+    "R15_RECOVERY_RENDERER_INDEPENDENCE": "After an empty MuPDF baseline whose blank witness is contradicted or insufficient, signal recovery must use an independently implemented PDF renderer rather than retuning the same MuPDF pixel stream.",
     "R16_DISPLAYED_IMAGE_WITNESS_ONLY": "Referenced-but-not-displayed PDF image resources must not be counted as independent evidence that page content is visible.",
-    "R17_PAGE_BOX_DISAGREEMENT_FAIL_CLOSED": "If signal is recovered only after widening the visible CropBox to the MediaBox, the result remains INCONCLUSIVE and is exposed only as a reading aid until human governance resolves the page-box discrepancy."
+    "R17_PAGE_BOX_DISAGREEMENT_FAIL_CLOSED": "If signal is recovered only after widening the visible CropBox to the MediaBox, the result remains INCONCLUSIVE and is exposed only as a reading aid until human governance resolves the page-box discrepancy.",
+    "R18_INSUFFICIENT_WITNESS_ESCALATES_TO_INDEPENDENT_RECOVERY": "A zero-candidate baseline with BLANK_CORROBORATION_INSUFFICIENT must invoke the independent renderer before terminating INCONCLUSIVE; a confirmed blank must not invoke recovery."
   },
   "acceptance_gate": {
     "http_502_count": 0,
@@ -206,6 +207,8 @@
     "displayed_image_witness_required": true,
     "independent_recovery_renderer": "PDFIUM",
     "cropbox_media_probe_required": true,
+    "insufficient_blank_witness_invokes_independent_recovery": true,
+    "confirmed_blank_skips_independent_recovery": true,
     "adaptive_recovery_timeout_preserves_baseline_session": true,
     "unregistered_preview_web_pdf_parse_count": 0,
     "unregistered_preview_web_pdf_render_count": 0,
