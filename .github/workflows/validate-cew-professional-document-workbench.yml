@@ -1,0 +1,44 @@
+name: Validate CEW Professional Document Workbench
+
+on:
+  push:
+    branches:
+      - 'work/cew-professional-document-workbench-v1'
+    paths:
+      - 'scripts/cew_professional_document_workbench.py'
+      - 'scripts/validate_cew_professional_document_workbench.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - 'scripts/cew_document_discovery_async_preview.py'
+      - '.github/workflows/validate-cew-professional-document-workbench.yml'
+  pull_request:
+    paths:
+      - 'scripts/cew_professional_document_workbench.py'
+      - 'scripts/validate_cew_professional_document_workbench.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - 'scripts/cew_document_discovery_async_preview.py'
+      - '.github/workflows/validate-cew-professional-document-workbench.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-professional-document-workbench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CEW runtime dependencies
+        run: pip install -r requirements.txt
+      - name: Compile professional document workbench
+        run: >-
+          python -m py_compile
+          scripts/cew_professional_document_workbench.py
+          scripts/validate_cew_professional_document_workbench.py
+          scripts/cew_professional_workbench_api.py
+          scripts/cew_document_discovery_async_preview.py
+      - name: Validate mature document workbench layout and authority boundary
+        working-directory: scripts
+        run: python validate_cew_professional_document_workbench.py
