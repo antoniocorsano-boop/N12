@@ -1,31 +1,43 @@
 #!/usr/bin/env python3
-"""Deterministic gate for CEW Professional Document Workbench v2."""
+"""Deterministic gate for CEW Professional Document Workbench v2 + mature panels."""
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
-import cew_professional_document_workbench as professional
+import cew_professional_document_workbench_mature_panels as professional
 
 
 def main() -> None:
     html = professional._patched_page()
-    professional_source = Path("cew_professional_document_workbench.py").read_text(encoding="utf-8")
+    professional_source = Path("cew_professional_document_workbench_mature_panels.py").read_text(encoding="utf-8")
     contract_path = Path("../automation/CEW_DOCUMENT_WORKBENCH_PANEL_CONTRACT_v2.json")
     spec_path = Path("../analysis/cew/CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_ARCHITECTURE_v2.md")
+    research_path = Path("../analysis/cew/CEW_PANEL_MATURITY_REFERENCE_v1.md")
     contract = json.loads(contract_path.read_text(encoding="utf-8"))
     spec = spec_path.read_text(encoding="utf-8")
+    research = research_path.read_text(encoding="utf-8")
     spec_lower = spec.lower()
+    research_lower = research.lower()
 
     assert contract["schema"] == "CEW_DOCUMENT_WORKBENCH_PANEL_CONTRACT_v2"
     assert contract["architecture_id"] == "CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_V2"
+    assert contract["panel_quality_layer"] == "MATURE_V1"
     assert contract["layout_state"]["storage_key"] == "cew.documentDiscovery.workbench.v2"
+    assert contract["panel_quality_contract"]["density"] == "COMPACT"
+    assert contract["panel_quality_contract"]["single_visible_title_per_panel_level"] is True
+    assert contract["panel_quality_contract"]["ordinary_panel_copy"] == "HUMAN_READABLE_ITALIAN"
+    assert contract["keyboard_contract"]["toggle_primary_sidebar"] == "Ctrl+B"
+    assert contract["keyboard_contract"]["toggle_auxiliary_sidebar"] == "Ctrl+J"
     assert contract["authority_invariants"]["canonical_write"] == "BLOCKED"
     assert contract["authority_invariants"]["automatic_semantic_authority"] == "NONE"
 
     required = (
         "cew-professional-document-style",
         "cew-professional-document-script",
+        "cew-mature-panel-style",
+        "cew-mature-panel-script",
+        "data-cew-panel-quality",
         "WORKBENCH_STATE_KEY='cew.documentDiscovery.workbench.v2'",
         "PRIMARY_VIEWS",
         "cew-activity-rail",
@@ -42,9 +54,14 @@ def main() -> None:
         "cew-right-sash",
         "cew-statusbar",
         "NESSUNA_REGIONE_GRAFICA_ACQUISITA",
+        "Nessuna regione grafica acquisita",
         "NON ASSEGNATO",
         "UMANA RICHIESTA",
         "Trascina: pan · rotella: zoom",
+        "aria-pressed",
+        "aria-selected",
+        "aria-valuenow",
+        "aria-expanded",
     )
     missing = [marker for marker in required if marker not in html]
     assert not missing, missing
@@ -67,9 +84,19 @@ def main() -> None:
     assert "pointerdown" in html and "dblclick" in html and "ArrowLeft" in html and "ArrowRight" in html
     assert "cew-primary-collapsed" in html and "cew-aux-collapsed" in html
 
-    # View registries are stable and domain-oriented, not viewport controls.
+    # Mature-panel refinement keeps only one visible active-view title in the sidebar body.
+    assert ".cew-nav-panel>.cew-sidebar-title:first-child{display:none!important}" in html
+    assert "cew-primary-count" in html
+    assert "humanizePanelCopy" in html
+    assert "Nessuna sessione" in html and "Revisione umana richiesta" in html
+
+    # Stable view registry and mature keyboard parity.
     for view_id in ("pages", "primitives", "clusters", "verify"):
         assert f"id:'{view_id}'" in html
+    for shortcut in ("Alt+1", "Alt+2", "Alt+3", "Alt+4"):
+        assert shortcut in html
+    assert "e.key.toLowerCase()==='j'" in html
+    assert "ArrowDown" in html and "ArrowUp" in html
     assert "showInspectorTab" in html
     for inspector_id in ("properties", "provenance", "decision"):
         assert f'data-inspector="{inspector_id}"' in html
@@ -96,16 +123,16 @@ def main() -> None:
     assert "'warn'" in html
     assert "intake-status.warn" in html
 
-    # Authority route headers are explicit and unchanged by the layout tranche.
+    # Authority route headers are explicit and unchanged by the presentation tranche.
     assert '"X-CEW-Canonical-Write": "false"' in professional_source
     assert '"X-CEW-Engineering-Authority-Effect": "NONE"' in professional_source
     assert '"X-CEW-Document-Workbench": "PROFESSIONAL_V2"' in professional_source
     assert '"X-CEW-Panel-Architecture": "ACTIVITY_PRIMARY_EDITOR_AUXILIARY_STATUS"' in professional_source
+    assert '"X-CEW-Panel-Quality": "MATURE_V1"' in professional_source
     assert "nessuna classificazione automatica" in html
     assert "Preview analizzabile, ma training bloccato" in html
 
-    # The prose spec must preserve the same semantic topology without coupling
-    # CI to cosmetic Markdown heading levels or exact capitalization.
+    # Prose and research docs preserve the source-backed panel maturity rationale.
     for concept in (
         "activity_rail",
         "primary_sidebar",
@@ -116,12 +143,19 @@ def main() -> None:
         assert concept in spec_lower, concept
     assert "cew.documentdiscovery.workbench.v2" in spec_lower
     assert "cew_document_workbench_panel_contract_v2.json" in spec_lower
-    assert "microsoft vs code" in spec_lower and "agents window layout" in spec_lower
+    assert "microsoft vs code" in spec_lower
+    assert "jupyterlab" in spec_lower
+    assert "bluebeam revu" in spec_lower
+    assert "autodesk viewer" in spec_lower
     assert "openhands agent canvas" in spec_lower
     assert "browser materialization gate" in spec_lower
     assert "ui_materialization_fail" in spec_lower
+    for source_name in ("microsoft vs code", "jupyterlab", "bluebeam revu", "autodesk viewer", "openhands agent canvas"):
+        assert source_name in research_lower, source_name
+    assert "no source code, icons, branding" in research_lower
 
     composition = Path("cew_professional_workbench_api.py").read_text(encoding="utf-8")
+    assert "import cew_professional_document_workbench_mature_panels as _professional_document_workbench" in composition
     professional_mount = "router.include_router(_professional_document_workbench.build_router())"
     async_mount = "router.include_router(_document_discovery_async_preview.build_router())"
     legacy_mount = "router.include_router(_document_discovery.build_router(source_workspace))"
@@ -133,9 +167,11 @@ def main() -> None:
     router = professional.build_router()
     assert [route.path for route in router.routes] == ["/workbench/document-discovery"]
 
-    print("CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_V2_PASS")
+    print("CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_V2_MATURE_PANELS_PASS")
     print("layout=TITLE+COMMAND+ACTIVITY+PRIMARY+FLEX_EDITOR+AUXILIARY+STATUS")
+    print("panel_quality=MATURE_V1 density=COMPACT human_copy=PASS single_title=PASS")
     print("panel_state=PERSISTED independent_resize=PASS central_editor_absorbs_resize=PASS")
+    print("keyboard=CTRL_B+CTRL_J+ALT_1_4 accessibility_state=PASS")
     print("viewport_tools=EDITOR_ANCHORED wheel_zoom=ENABLED drag_pan=INHERITED")
     print("zero_graphic_result=WARNING_REVIEW_REQUIRED")
     print("decision_surface=GOVERNED_CONTEXTUAL_ONLY canonical_write_authorized=false semantic_authority=NONE")
