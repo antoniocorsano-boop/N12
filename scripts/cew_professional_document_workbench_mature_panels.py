@@ -215,12 +215,179 @@ window.addEventListener('resize',scheduleSync,{passive:true});
 </script>'''
 
 
+_RUNTIME_RESILIENCE_SCRIPT = r'''<script id="cew-preview-runtime-resilience-script">
+(function(){
+'use strict';
+const TRANSIENT_HTTP=new Set([502,503,504]);
+const MAX_TRANSIENT_RETRIES=12;
+const MAX_REBUILD_ATTEMPTS=1;
+let activePreviewContext=null;
+let artifactRecoveryRunning=false;
+let pageArtifactRetry=0;
+document.body.dataset.cewPreviewRuntimeRecovery='enabled';
+
+function runtimeMessage(detail=''){
+  const suffix=detail?` · ${detail}`:'';
+  intakeMessage(`Runtime CEW temporaneamente non disponibile${suffix}. Recupero automatico in corso…`,'busy');
+}
+
+async function runtimeFetch(url,options={},allowNotFound=false){
+  let delay=500;
+  for(let attempt=0;attempt<=MAX_TRANSIENT_RETRIES;attempt++){
+    let response=null;
+    try{
+      response=await fetch(url,options);
+    }catch(_){
+      if(attempt>=MAX_TRANSIENT_RETRIES)throw Error('Runtime CEW non raggiungibile dopo i tentativi di recupero.');
+      runtimeMessage('connessione interrotta');
+      await sleep(delay);delay=Math.min(2500,Math.round(delay*1.35));continue;
+    }
+    if(TRANSIENT_HTTP.has(response.status)){
+      if(attempt>=MAX_TRANSIENT_RETRIES)throw Error(`Runtime CEW ancora indisponibile · HTTP ${response.status}.`);
+      runtimeMessage(`HTTP ${response.status}`);
+      await sleep(delay);delay=Math.min(2500,Math.round(delay*1.35));continue;
+    }
+    if(allowNotFound&&response.status===404)return {response,notFound:true};
+    return {response,notFound:false};
+  }
+  throw Error('Runtime CEW non raggiungibile.');
+}
+
+async function enqueuePreview(project,file){
+  const {response}=await runtimeFetch(
+    `/api/workbench/document-discovery/analyze-preview-async?project_id=${encodeURIComponent(project)}`,
+    {method:'POST',headers:{'Content-Type':'application/pdf'},body:file},
+    false
+  );
+  return responseJson(response);
+}
+
+async function pollPreviewJob(jobId){
+  for(let attempt=0;attempt<240;attempt++){
+    await sleep(750);
+    const result=await runtimeFetch(`/api/workbench/document-discovery/preview-job/${encodeURIComponent(jobId)}`,{},true);
+    if(result.notFound)return {state:'RUNTIME_JOB_LOST',job_id:jobId};
+    const job=await responseJson(result.response);
+    if(job.state==='READY'||job.state==='INCONCLUSIVE')return job;
+    if(job.state==='FAILED')throw Error(job.reason||'Analisi preview fallita.');
+    intakeMessage(`Analisi grafica ${job.state==='QUEUED'?'in coda':'in corso'}… Il browser mantiene il PDF disponibile per il recupero.`,'busy');
+  }
+  throw Error('Analisi preview oltre il tempo di attesa. Il PDF resta selezionato e può essere rilanciato senza sceglierlo di nuovo.');
+}
+
+async function loadPreviewSession(sessionId){
+  const result=await runtimeFetch(`/api/workbench/document-discovery/session/${encodeURIComponent(sessionId)}`,{},true);
+  if(result.notFound)return false;
+  state=await responseJson(result.response);
+  render();
+  return true;
+}
+
+function finalPreviewMessage(done){
+  const budget=state.preview_budget||{};
+  const bounded=budget.truncated?' · preview limitata dal budget grafico':'';
+  const mode=done.preview_fallback_used?' · evidenza raster':' · vettoriale';
+  const coverage=done.minimum_page_coverage_ratio==null?'':` · copertura ${(100*done.minimum_page_coverage_ratio).toFixed(1)}%`;
+  if(done.state==='INCONCLUSIVE'){
+    if(state?.page_count>0)showPreviewPage(0,'overview');
+    intakeMessage(`Preview inconcludente${mode}${coverage} · ${done.reason||'evidenza insufficiente'}. Pagina mostrata in panoramica; training bloccato.`,'error');
+    q('message').textContent=`INCONCLUSIVE · ${done.reason||'evidenza raster insufficiente'} · nessuna classificazione automatica`;
+    return;
+  }
+  intakeMessage(`Preview completata · ${state.page_count} pagine analizzate · ${state.primitive_candidate_count} primitive · ${state.graphic_cluster_count} cluster${mode}${coverage}${bounded}. Training bloccato.`,'ok');
+}
+
+async function executePreview(project,file,rebuildAttempt=0){
+  const queued=await enqueuePreview(project,file);
+  intakeMessage(`PDF ricevuto · job ${queued.job_id}. Analisi grafica in corso…`,'busy');
+  const done=await pollPreviewJob(queued.job_id);
+  if(done.state==='RUNTIME_JOB_LOST'){
+    if(rebuildAttempt>=MAX_REBUILD_ATTEMPTS)throw Error('Il runtime CEW si è riavviato più volte durante la stessa preview. Ripeti Preview PDF.');
+    intakeMessage('Il runtime CEW è stato riavviato: il job transitorio non è più disponibile. Ricostruzione automatica dal PDF ancora selezionato…','busy');
+    return executePreview(project,file,rebuildAttempt+1);
+  }
+  session=done.session_id;clusterId=null;
+  const loaded=await loadPreviewSession(session);
+  if(!loaded){
+    if(rebuildAttempt>=MAX_REBUILD_ATTEMPTS)throw Error('La sessione preview è stata persa dopo un nuovo riavvio del runtime. Ripeti Preview PDF.');
+    intakeMessage('La sessione preview non è più presente nel runtime. Ricostruzione automatica dal PDF ancora selezionato…','busy');
+    session=null;state=null;resetViewer();
+    return executePreview(project,file,rebuildAttempt+1);
+  }
+  activePreviewContext={project,file,rebuildAttempt};
+  pageArtifactRetry=0;
+  finalPreviewMessage(done);
+  return done;
+}
+
+async function startPreviewFromSelectedFile(project,file,rebuildAttempt=0){
+  setBusy(true,rebuildAttempt?'Ricostruzione automatica della preview…':`Upload ${file.name} · ${mb(file.size)}. Accodamento analisi…`);
+  if(!rebuildAttempt)resetViewer();
+  try{
+    return await executePreview(project,file,rebuildAttempt);
+  }catch(error){
+    const text=String(error?.message||error||'Errore preview CEW.');
+    const message=/HTTP 50[234]/.test(text)
+      ? 'Runtime CEW temporaneamente non disponibile dopo i tentativi automatici. Ripeti Preview PDF senza riselezionare il file.'
+      : text;
+    intakeMessage(message,'error');q('message').textContent=message;
+    throw error;
+  }finally{
+    setBusy(false);
+  }
+}
+
+q('preview').onclick=async()=>{
+  if(busy)return;
+  const project=q('project').value.trim(),file=q('file').files[0];
+  if(!project||!file){intakeMessage('Indica progetto e PDF.','error');return}
+  if(file.size>maxPreviewBytes){intakeMessage(`${file.name} · ${mb(file.size)} supera il limite preview di ${mb(maxPreviewBytes)}.`,'error');return}
+  activePreviewContext={project,file,rebuildAttempt:0};
+  try{await startPreviewFromSelectedFile(project,file,0)}catch(_){}
+};
+
+async function recoverPageArtifact(){
+  if(artifactRecoveryRunning||busy||!activePreviewContext)return;
+  const {project,file,rebuildAttempt}=activePreviewContext;
+  if(rebuildAttempt>=MAX_REBUILD_ATTEMPTS){
+    intakeMessage('La pagina non è più disponibile dopo un ulteriore riavvio del runtime. Ripeti Preview PDF.','error');
+    return;
+  }
+  artifactRecoveryRunning=true;
+  try{
+    session=null;state=null;clusterId=null;resetViewer();
+    intakeMessage('La pagina della sessione non è più disponibile. Ricostruzione automatica dal PDF ancora selezionato…','busy');
+    await startPreviewFromSelectedFile(project,file,rebuildAttempt+1);
+  }catch(_){}finally{artifactRecoveryRunning=false}
+}
+
+const pageImage=q('page');
+if(pageImage){
+  pageImage.addEventListener('load',()=>{pageArtifactRetry=0});
+  pageImage.addEventListener('error',()=>{
+    if(!session||!activePreviewContext||pageImage.hidden)return;
+    if(pageArtifactRetry<2){
+      pageArtifactRetry+=1;
+      const current=pageImage.getAttribute('src')||'';
+      if(current){
+        runtimeMessage('recupero pagina');
+        setTimeout(()=>{pageImage.src=current.split('?')[0]+`?runtime_retry=${Date.now()}`},650*pageArtifactRetry);
+        return;
+      }
+    }
+    recoverPageArtifact();
+  });
+}
+})();
+</script>'''
+
+
 def _patched_page() -> str:
     html = base._patched_page()
     if "</head>" not in html or "</body>" not in html:
         raise RuntimeError("CEW_MATURE_PANEL_HTML_MARKER_MISSING")
     html = html.replace("</head>", _MATURE_PANEL_STYLE + "</head>", 1)
-    html = html.replace("</body>", _MATURE_PANEL_SCRIPT + "</body>", 1)
+    html = html.replace("</body>", _MATURE_PANEL_SCRIPT + _RUNTIME_RESILIENCE_SCRIPT + "</body>", 1)
     return html
 
 
@@ -238,6 +405,7 @@ def build_router() -> APIRouter:
                 "X-CEW-Document-Workbench": "PROFESSIONAL_V2",
                 "X-CEW-Panel-Architecture": "ACTIVITY_PRIMARY_EDITOR_AUXILIARY_STATUS",
                 "X-CEW-Panel-Quality": "MATURE_V1",
+                "X-CEW-Preview-Runtime-Recovery": "BROWSER_RECONSTRUCT_V1",
             },
         )
 
