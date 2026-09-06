@@ -77,7 +77,7 @@ def build_project_home(state: dict, issues: dict, tasks: list[dict], terminology
           <div class="eyebrow">Revisione evidenza · {esc(task.get('source_id'))}</div>
           <h3>{esc(_attention_title(task))}</h3>
           <p><b>Da completare:</b> {esc(_attention_unknown(task))}</p>
-          <a class="button" href="/evidence/review?task={quote(task.get('task_id',''))}">Rivedi evidenza</a>
+          <a class="button" href="/workbench?task={quote(task.get('task_id',''))}">Rivedi evidenza</a>
           <details><summary>Dettagli tecnici</summary>
             <dl><dt>Localizzazione fonte</dt><dd>{esc(task.get('source_locator'))}</dd>
             <dt>Dato già noto</dt><dd>{esc(task.get('known_claims'))}</dd>

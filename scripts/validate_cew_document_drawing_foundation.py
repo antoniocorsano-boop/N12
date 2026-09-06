@@ -88,7 +88,6 @@ def main() -> int:
     drawing_html = workspace.build_drawing_card("TAV-05A")
     combined_user_surface = (documents_html + drawing_html).lower()
 
-    # UX-DOC-01: semantic concepts, not brittle wording.
     required_concepts = {
         "Documenti del progetto": "documenti del progetto",
         "TAV-05A": "tav-05a",
@@ -112,24 +111,25 @@ def main() -> int:
     if task_ids != {"UX-DOC-01", "UX-DOC-02", "UX-DOC-03", "UX-DOC-04"}:
         errors.append(f"usability task set drift: {sorted(task_ids)}")
 
-    # The foundation validator must validate the foundation without pretending
-    # it is still the active orchestration slice. B1.1/B1.2 are prepared but
-    # explicitly non-promoted; B1.8 owns the current human-acceptance work.
     slices = {x["id"]: x for x in plan.get("slices", [])}
     if slices.get("B1.1", {}).get("state") != "PREPARED_BLOCKED_PROMOTION":
         errors.append("B1.1 must remain technically prepared and blocked from promotion")
     if slices.get("B1.2", {}).get("state") != "PREPARED_BLOCKED_PROMOTION":
         errors.append("B1.2 viewer must remain technically prepared and blocked from promotion")
-    if slices.get("B1.8", {}).get("state") != "IN_PROGRESS_DESIGN_REQUIRED":
-        errors.append("B1.8 Human Acceptance v2 must be the current B1 human slice")
+    if slices.get("B1.8", {}).get("state") != "IMPLEMENTED_CANDIDATE_HVA_PENDING":
+        errors.append("B1.8 must be implemented but remain HVA-pending")
     if slices.get("B1.8", {}).get("contract") != "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json":
         errors.append("B1.8 must bind the current Human Acceptance v2 contract")
     if "HVA_GATE" not in slices.get("B1.1", {}).get("gates", []):
         errors.append("B1.1 integrated promotion must still require Human/Visual Acceptance")
     if "HVA_GATE" not in slices.get("B1.8", {}).get("gates", []):
         errors.append("B1.8 must require HVA_GATE")
+    if human_acceptance.get("status") != "IMPLEMENTED_CANDIDATE_HVA_PENDING":
+        errors.append("B1.8 Human Acceptance contract must identify implemented candidate state")
+    if human_acceptance.get("human_hva_state") != "REQUIRED_NOT_SATISFIED":
+        errors.append("B1.8 HVA must remain unsatisfied")
     if human_acceptance.get("production_promotion_authorized") is not False:
-        errors.append("Human Acceptance v2 design must not authorize Production promotion before execution")
+        errors.append("Human Acceptance v2 must not authorize Production promotion before execution")
 
     forbidden = ["documenti completi", "progetto completo", "modello completo"]
     combined = (documents_html + drawings_html + drawing_html).lower()
@@ -149,7 +149,7 @@ def main() -> int:
     print("UX_DOC_04 = AUTOMATED_FIXTURE_PASS")
     print("B1_1_STATE = PREPARED_BLOCKED_PROMOTION")
     print("B1_2_STATE = PREPARED_BLOCKED_PROMOTION")
-    print("B1_8_STATE = IN_PROGRESS_DESIGN_REQUIRED")
+    print("B1_8_STATE = IMPLEMENTED_CANDIDATE_HVA_PENDING")
     print("HVA_V2 = REQUIRED_NOT_SATISFIED")
     print("CANONICAL_WRITE_AUTHORIZED = false")
     return 0

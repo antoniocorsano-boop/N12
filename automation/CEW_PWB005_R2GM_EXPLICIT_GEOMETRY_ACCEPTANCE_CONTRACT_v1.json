@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.1",
+  "contract_id": "CEW_PWB005_R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE_CONTRACT_v1",
+  "stage": "PWB-005-R2GM",
+  "purpose": "Require an explicit human decision on the exact assembled raster-derived region geometry before it may become governed document geometry for the technical scene.",
+  "upstream_gate": "R2GI_EXACT_REVISION_READY_FOR_EXPLICIT_GEOMETRY_ACCEPTANCE_REVIEW",
+  "required_region_coverage": "4/4",
+  "provenance_identity_rule": "CANDIDATE_HEAD_SHA_AND_BUILD_REVISION_ARE_DISTINCT_GOVERNED_FIELDS",
+  "proposal_inputs": [
+    "R2M exact-build-revision consolidated raster geometry candidates",
+    "R2GI candidate-bound governed human review findings carrying the same exact build revision",
+    "immutable SourceVersion/Page/EvidenceRegion/Transform provenance"
+  ],
+  "proposal_rule": "BASE_R2M_CONSOLIDATED_GEOMETRY_PLUS_ONLY_R2GI_SUPPORTED_CONTINUITY_BRIDGES",
+  "proposal_coordinate_space": "EVIDENCE_REGION_NORMALIZED_0_1",
+  "allowed_human_decisions": [
+    "ACCEPT_EXACT_REGION_DOCUMENT_GEOMETRY",
+    "REJECT_REGION_DOCUMENT_GEOMETRY",
+    "DEFER_NEEDS_ADDITIONAL_SOURCE"
+  ],
+  "accepted_output_authority": "HUMAN_ACCEPTED_DOCUMENT_GEOMETRY",
+  "accepted_output_is_document_geometry": true,
+  "accepted_output_is_technical_identity": false,
+  "accepted_output_is_structural_identity": false,
+  "accepted_output_is_engineering_model_truth": false,
+  "canonical_write_authorized": false,
+  "technical_identity_authorized": false,
+  "structural_identity_authorized": false,
+  "engineering_authority_effect": "NONE",
+  "r2c_scene_adapter_authorized_only_when": "ALL_4_REGIONS_HAVE_ONE_CANDIDATE_BOUND_EXACT_BUILD_REVISION_ACCEPT_RECEIPT_AND_NO_CONFLICT",
+  "fail_closed_conditions": [
+    "R2GI is not READY_FOR_EXPLICIT_GEOMETRY_ACCEPTANCE_REVIEW",
+    "R2GI build_revision is missing or differs from the R2M build_revision",
+    "candidate_head_sha or build_revision provenance is altered or conflated",
+    "R2M artifact hash or provenance mismatch",
+    "proposal fingerprint mismatch",
+    "proposal primitive ids/endpoints/source-page coordinates differ from the exact generated proposal",
+    "missing geometry-acceptance receipt for any governed EvidenceRegion",
+    "duplicate candidate-bound geometry-acceptance receipt for one EvidenceRegion",
+    "REJECT_REGION_DOCUMENT_GEOMETRY in any governed EvidenceRegion",
+    "DEFER_NEEDS_ADDITIONAL_SOURCE in any governed EvidenceRegion",
+    "attempt to create technical identity, structural identity, canonical-write authority or engineering authority"
+  ],
+  "states": [
+    "BLOCKED_R2GI_NOT_READY",
+    "BLOCKED_GEOMETRY_ACCEPTANCE_REQUIRED",
+    "BLOCKED_GEOMETRY_REJECTED",
+    "BLOCKED_ADDITIONAL_SOURCE_REQUIRED",
+    "READY_FOR_R2C_DOCUMENT_GEOMETRY_SCENE_ADAPTER"
+  ],
+  "next_gate_when_complete": "R2C_DOCUMENT_GEOMETRY_SCENE_ADAPTER_REQUIRED",
+  "invariants": [
+    "candidate_head_sha identifies the reviewed candidate while build_revision identifies the exact artifact build; neither may substitute for the other",
+    "R2GM acceptance applies only to the exact fingerprinted region geometry proposal shown to the reviewer",
+    "R2GM may create governed document geometry but never technical or structural identity",
+    "R2GM never authorizes canonical writes or engineering authority",
+    "R2GM does not infer unsupported geometry and does not repair provenance",
+    "R2C remains a separate downstream adapter even after all four regions are accepted"
+  ]
+}

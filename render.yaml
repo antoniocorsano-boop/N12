@@ -4,14 +4,18 @@ services:
     runtime: python
     plan: free
     region: frankfurt
-    branch: work/etw-platform-extension-program-v1
+    branch: work/cew-b18-human-centred-acceptance-v2-render
     autoDeployTrigger: off
-    buildCommand: pip install -r requirements.txt
+    buildCommand: bash scripts/render_build_candidate.sh
     startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /readyz
     envVars:
       - key: CEW_RUNTIME_ROLE
         value: CANDIDATE_HVA
+      - key: CEW_R2HR_STRICT_RUNTIME
+        value: "1"
+      - key: CEW_OAR_G4_REQUIRE_PREBUILT_RASTER
+        value: "1"
       - key: CEW_AUTH_DISABLED_FOR_TEST
         value: "0"
       - key: CEW_ACCESS_PASSWORD

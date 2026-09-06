@@ -1,0 +1,52 @@
+name: Validate CEW Reference Review Assets
+
+on:
+  pull_request:
+    paths:
+      - 'knowledge/graphic_reference/derived_review_assets/**'
+      - 'scripts/build_cew_external_reference_review_assets.py'
+      - 'scripts/cew_external_graphic_reference_review_asset_hardening.py'
+      - 'scripts/validate_cew_external_graphic_reference_review_assets.py'
+      - 'scripts/cew_external_graphic_reference_review_workbench.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - '.github/workflows/validate-cew-reference-review-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-reference-review-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CEW runtime dependencies
+        run: pip install -r requirements.txt httpx
+      - name: Compile offline review asset modules
+        run: >-
+          python -m py_compile
+          scripts/cew_external_graphic_reference_review_asset_hardening.py
+          scripts/validate_cew_external_graphic_reference_review_assets.py
+          scripts/cew_professional_workbench_api.py
+      - name: Prove five review pages are local, verified and offline
+        working-directory: scripts
+        run: python validate_cew_external_graphic_reference_review_assets.py
+      - name: Validate authority and runtime wiring
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('knowledge/graphic_reference/derived_review_assets/manifest.json').read_text())
+          assert manifest['asset_count'] == 5
+          assert manifest['runtime_external_fetch_required'] is False
+          assert manifest['authority']['reading_aid_only'] is True
+          assert manifest['authority']['source_document_remains_authority'] is True
+          assert manifest['authority']['project_semantic_authority'] == 'NONE'
+          api = Path('scripts/cew_professional_workbench_api.py').read_text()
+          assert 'cew_external_graphic_reference_review_asset_hardening' in api
+          assert '_reference_review_asset_hardening.install(_reference_review)' in api
+          print('CEW_REFERENCE_REVIEW_OFFLINE_WIRING_PASS')
+          PY

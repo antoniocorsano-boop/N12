@@ -1,0 +1,55 @@
+{
+  "schema": "CEW_EXTERNAL_REFERENCE_REVIEW_DECISIONS_v1",
+  "status": "TEMPLATE_NO_DECISIONS",
+  "acquisition_receipt_fingerprint": "sha256:9840d9a32f2be57abacc4d7de65654bb4def1824b2707a947af5f10d29b281d2",
+  "review_queue_ref": "knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_REVIEW_QUEUE_v1.json",
+  "decisions": [],
+  "decision_contract": {
+    "allowed_states": [
+      "ACCEPT_REFERENCE_EVIDENCE",
+      "REJECT_REFERENCE_EVIDENCE",
+      "DEFER"
+    ],
+    "terminal_states": [
+      "ACCEPT_REFERENCE_EVIDENCE",
+      "REJECT_REFERENCE_EVIDENCE"
+    ],
+    "nonterminal_states": [
+      "DEFER"
+    ],
+    "defer_is_terminal": false,
+    "append_only_followup_after_defer_allowed": true,
+    "followup_after_terminal_forbidden": true,
+    "pack_requires_terminal_decision_for_every_review_item": true,
+    "acceptance_requires": [
+      "decision_id",
+      "review_item_id",
+      "source_id",
+      "source_sha256",
+      "page_index",
+      "page_text_sha256",
+      "page_feature_sha256",
+      "meaning",
+      "scope",
+      "primitive_families",
+      "reviewer",
+      "rationale",
+      "reviewed_at"
+    ],
+    "optional_pattern_constraints": [
+      "aspect_buckets",
+      "area_buckets",
+      "filled",
+      "counterexample_refs"
+    ],
+    "discovery_query_may_supply_meaning": false,
+    "automatic_acceptance_forbidden": true
+  },
+  "authority": {
+    "library_entries_created": false,
+    "project_semantic_authority": "NONE",
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}

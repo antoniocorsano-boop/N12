@@ -1,0 +1,101 @@
+{
+  "schema": "CEW_OBJECT_ACQUISITION_CONTRACT_v1",
+  "status": "OA0_FOUNDATION_IMPLEMENTED_OA1_CONTRACT_READY",
+  "authority": {
+    "candidate_authority": "WORKING_OBJECT_EVIDENCE_ONLY",
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "human_decision_required": true
+  },
+  "process_priority": [
+    "DOCUMENT_ACQUISITION",
+    "OBJECT_TYPE_RECOGNITION",
+    "PROTOTYPE_AND_FAMILY_LEARNING",
+    "FIND_SIMILAR_OBJECTS",
+    "GUIDED_HUMAN_VISUAL_VALIDATION",
+    "CANONICAL_CAD_OBJECT",
+    "STRUCTURAL_IDENTITY",
+    "PROJECT_MATERIAL_READY"
+  ],
+  "invariants": [
+    "DOCUMENT_GEOMETRY_NE_TECHNICAL_CANDIDATE_NE_STRUCTURAL_IDENTITY",
+    "SOURCE_IS_EVIDENCE_AUTHORITY",
+    "CANONICAL_CAD_IS_OPERATIONAL_NOT_EVIDENCE",
+    "SCREEN_COORDINATES_ARE_NOT_CANONICAL_GEOMETRY",
+    "VISUAL_PROXIMITY_DOES_NOT_CREATE_IDENTITY",
+    "PROPOSAL_NE_ACCEPTANCE",
+    "NO_STRUCTURAL_IDENTITY_WITHOUT_HUMAN_CONFIRMATION_AND_PROVENANCE",
+    "DOWNSTREAM_MODELLING_MUST_NOT_REPAIR_ACQUISITION_GAPS"
+  ],
+  "object_types": [
+    "COLUMN",
+    "BEAM",
+    "BEAM_SECTION",
+    "SLAB",
+    "FOUNDATION_BEAM",
+    "FOUNDATION_NODE",
+    "LONGITUDINAL_REINFORCEMENT",
+    "STIRRUP",
+    "GRID_AXIS",
+    "DIMENSION",
+    "CALLOUT",
+    "STRUCTURAL_NODE",
+    "TECHNICAL_TEXT"
+  ],
+  "candidate_states": [
+    "DETECTED",
+    "CANDIDATE",
+    "AMBIGUOUS",
+    "BLOCKED",
+    "HUMAN_CONFIRMED",
+    "REJECTED"
+  ],
+  "promotion_policy": {
+    "eligible_candidate_state": "HUMAN_CONFIRMED",
+    "required_provenance": [
+      "source_version_id",
+      "page_id",
+      "evidence_region_id",
+      "evidence_fingerprint"
+    ],
+    "required_review": [
+      "decision_id",
+      "reviewer_assertion",
+      "candidate_fingerprint",
+      "evidence_fingerprint"
+    ],
+    "canonical_write_requires_runtime_authority": true,
+    "structural_identity_is_separate_gate": true
+  },
+  "similarity_signals": [
+    "CAD_TOPOLOGY",
+    "SHAPE",
+    "DIMENSION_RATIO",
+    "ABSOLUTE_DIMENSION",
+    "ORIENTATION",
+    "ASSOCIATED_TEXT",
+    "SPATIAL_RELATIONS",
+    "STOREY_CONTEXT",
+    "NEARBY_FAMILY_CONTEXT",
+    "VERTICAL_PERSISTENCE",
+    "VISUAL_EMBEDDING",
+    "PROVENANCE_COMPATIBILITY"
+  ],
+  "gates": [
+    "OA-G1_SOURCE_READY",
+    "OA-G2_OBJECT_ACQUIRED",
+    "OA-G3_OBJECT_CLASSIFIED",
+    "OA-G4_HUMAN_VERIFIED",
+    "OA-G5_STRUCTURAL_IDENTITY",
+    "PROJECT_MATERIAL_READY"
+  ],
+  "pilot": {
+    "id": "OAR-PILOT-G4-COLUMNS",
+    "object_type": "COLUMN",
+    "source_scope": "TAV-05S / G4",
+    "mode": "READ_ONLY_CANDIDATE_AND_REVIEW",
+    "may_assert_human_validation": false,
+    "may_assert_structural_identity": false,
+    "may_write_canonical_engineering_state": false
+  }
+}

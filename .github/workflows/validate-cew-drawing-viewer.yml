@@ -35,7 +35,7 @@ jobs:
         run: |
           python - <<'PY'
           import app
-          routes={r.path for r in app.app.routes}
+          routes={getattr(r,'path',None) for r in app.app.routes}
           assert '/drawings/{source_id}' in routes
           assert '/api/drawing/render/{source_id}' in routes
           r=app.drawing_card('TAV-05A')
