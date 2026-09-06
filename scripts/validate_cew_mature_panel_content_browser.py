@@ -136,7 +136,7 @@ def main() -> None:
             assert page.locator("#detail .pill").nth(0).inner_text().strip() == "Gruppo lineare"
             assert page.locator("#detail .pill").nth(1).inner_text().strip() == "Forma compatta"
             assert page.locator("#detail .pill").nth(2).inner_text().strip() == "Area grande"
-            assert page.locator("#cew-inspector-meta h4").inner_text().strip() == "Gruppo selezionato"
+            assert page.locator("#cew-inspector-meta h4").inner_text().strip().upper() == "GRUPPO SELEZIONATO"
             assert page.locator("#cew-inspector-meta").get_by_text("BBox", exact=True).count() == 0
             assert page.locator("#cew-provenance-meta").get_by_text("Riquadro normalizzato", exact=True).count() == 1
 
