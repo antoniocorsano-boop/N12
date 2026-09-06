@@ -24,6 +24,7 @@ import cew_oar_g4_assisted_workbench as _oar_g4_assisted
 import cew_external_graphic_reference_review_workbench as _reference_review
 import cew_external_graphic_reference_review_hardening as _reference_review_hardening
 import cew_external_graphic_reference_review_asset_hardening as _reference_review_asset_hardening
+import cew_professional_document_workbench as _professional_document_workbench
 import cew_document_discovery_async_preview as _document_discovery_async_preview
 import cew_document_discovery_workbench as _document_discovery
 
@@ -86,9 +87,10 @@ def build_router(source_workspace):
     router.include_router(_oar_g4.build_router())
     router.include_router(_oar_g4_assisted.build_router())
     router.include_router(_reference_review.build_router())
-    # Mount the async/bounded adapter first so its HTML route shadows the
-    # historical synchronous Preview button. Existing session/learning API
-    # routes remain provided by the preserved Document Discovery router below.
+    # The professional document shell shadows only the Document Discovery HTML
+    # route. Async preview/session APIs remain provided by the validated adapter
+    # and historical Document Discovery routers mounted immediately afterward.
+    router.include_router(_professional_document_workbench.build_router())
     router.include_router(_document_discovery_async_preview.build_router())
     router.include_router(_document_discovery.build_router(source_workspace))
     return router
