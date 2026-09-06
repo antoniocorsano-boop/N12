@@ -15,6 +15,7 @@ def main() -> None:
     spec_path = Path("../analysis/cew/CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_ARCHITECTURE_v2.md")
     contract = json.loads(contract_path.read_text(encoding="utf-8"))
     spec = spec_path.read_text(encoding="utf-8")
+    spec_lower = spec.lower()
 
     assert contract["schema"] == "CEW_DOCUMENT_WORKBENCH_PANEL_CONTRACT_v2"
     assert contract["architecture_id"] == "CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_V2"
@@ -103,14 +104,22 @@ def main() -> None:
     assert "nessuna classificazione automatica" in html
     assert "Preview analizzabile, ma training bloccato" in html
 
-    # The canonical spec records the same topology and machine-readable contract.
-    assert "### Activity rail" in spec
-    assert "### Primary Sidebar" in spec
-    assert "### Auxiliary Sidebar" in spec
-    assert "cew.documentDiscovery.workbench.v2" in spec
-    assert "CEW_DOCUMENT_WORKBENCH_PANEL_CONTRACT_v2.json" in spec
-    assert "Microsoft VS Code — Agents Window layout" in spec
-    assert "OpenHands Agent Canvas" in spec
+    # The prose spec must preserve the same semantic topology without coupling
+    # CI to cosmetic Markdown heading levels or exact capitalization.
+    for concept in (
+        "activity_rail",
+        "primary_sidebar",
+        "flexible_editor_canvas",
+        "auxiliary_sidebar",
+        "status_bar",
+    ):
+        assert concept in spec_lower, concept
+    assert "cew.documentdiscovery.workbench.v2" in spec_lower
+    assert "cew_document_workbench_panel_contract_v2.json" in spec_lower
+    assert "microsoft vs code" in spec_lower and "agents window layout" in spec_lower
+    assert "openhands agent canvas" in spec_lower
+    assert "browser materialization gate" in spec_lower
+    assert "ui_materialization_fail" in spec_lower
 
     composition = Path("cew_professional_workbench_api.py").read_text(encoding="utf-8")
     professional_mount = "router.include_router(_professional_document_workbench.build_router())"
