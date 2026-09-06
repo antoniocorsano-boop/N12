@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'work/cew-new-project-preacquisition-v1'
+      - 'work/cew-document-discovery-human-view-v1'
     paths:
       - 'requirements.txt'
       - 'scripts/cew_document_discovery.py'
@@ -19,6 +20,7 @@ on:
       - 'scripts/cew_document_discovery_preview_trust.py'
       - 'scripts/validate_cew_document_discovery_workbench.py'
       - 'scripts/validate_cew_document_discovery_async_preview.py'
+      - 'scripts/validate_cew_document_discovery_human_view.py'
       - 'scripts/validate_cew_raster_evidence_engine.py'
       - 'scripts/validate_cew_raster_signal_recovery.py'
       - 'scripts/validate_cew_signal_recovery_degradation.py'
@@ -29,6 +31,7 @@ on:
       - 'scripts/cew_professional_workbench_api.py'
       - 'automation/CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2.json'
       - 'analysis/cew/CEW_RASTER_EVIDENCE_ENGINE_ARCHITECTURE_v2.md'
+      - 'analysis/cew/CEW_DOCUMENT_DISCOVERY_RUNTIME_HVA_RECEIPT_v1.json'
       - '.github/workflows/validate-cew-document-discovery-workbench.yml'
   pull_request:
     paths:
@@ -46,6 +49,7 @@ on:
       - 'scripts/cew_document_discovery_preview_trust.py'
       - 'scripts/validate_cew_document_discovery_workbench.py'
       - 'scripts/validate_cew_document_discovery_async_preview.py'
+      - 'scripts/validate_cew_document_discovery_human_view.py'
       - 'scripts/validate_cew_raster_evidence_engine.py'
       - 'scripts/validate_cew_raster_signal_recovery.py'
       - 'scripts/validate_cew_signal_recovery_degradation.py'
@@ -56,6 +60,7 @@ on:
       - 'scripts/cew_professional_workbench_api.py'
       - 'automation/CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2.json'
       - 'analysis/cew/CEW_RASTER_EVIDENCE_ENGINE_ARCHITECTURE_v2.md'
+      - 'analysis/cew/CEW_DOCUMENT_DISCOVERY_RUNTIME_HVA_RECEIPT_v1.json'
       - '.github/workflows/validate-cew-document-discovery-workbench.yml'
   workflow_dispatch:
 
@@ -88,6 +93,7 @@ jobs:
           scripts/cew_document_discovery_preview_trust.py
           scripts/validate_cew_document_discovery_workbench.py
           scripts/validate_cew_document_discovery_async_preview.py
+          scripts/validate_cew_document_discovery_human_view.py
           scripts/validate_cew_raster_evidence_engine.py
           scripts/validate_cew_raster_signal_recovery.py
           scripts/validate_cew_signal_recovery_degradation.py
@@ -102,6 +108,9 @@ jobs:
       - name: Validate async bounded preview and resource-fallback extraction
         working-directory: scripts
         run: python validate_cew_document_discovery_async_preview.py
+      - name: Validate human orientation zoom pan and page cluster selection
+        working-directory: scripts
+        run: python validate_cew_document_discovery_human_view.py
       - name: Validate Raster Evidence Engine v2 deterministic corpus
         working-directory: scripts
         run: python validate_cew_raster_evidence_engine.py
@@ -170,6 +179,11 @@ jobs:
           assert 'raster tiled evidence' in async_adapter
           assert 'cew_document_discovery_preview_safe_jobs as preview_jobs' in async_adapter
           assert 'PROCESS_ISOLATED_CACHED' in async_adapter
+          assert 'preview-rotate-left' in async_adapter
+          assert 'preview-rotate-right' in async_adapter
+          assert 'preview-zoom-in' in async_adapter
+          assert 'cluster-hotspot' in async_adapter
+          assert 'enableDragPan' in async_adapter
           assert 'PROCESS_ISOLATED_SUBPROCESS' in jobs
           assert 'subprocess.run(' in jobs
           assert 'RASTER_SAFE_MODE' in jobs

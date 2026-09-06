@@ -1,0 +1,65 @@
+{
+  "schema": "CEW_DOCUMENT_DISCOVERY_RUNTIME_HVA_RECEIPT_v1",
+  "status": "RUNTIME_HVA_PASS",
+  "validated_runtime_revision": "320755e66a7263f1842f73dc14fb9a0ea8ccd7f8",
+  "runtime_provider": "RENDER",
+  "render_service": "cew-hva-candidate",
+  "render_deploy_id": "dep-daegp9id0e5s738em970",
+  "runtime_instance": "srv-da8u4u9srm7s73ak3q9g-4mgnw",
+  "hva": {
+    "project_id": "HVA-DISCOVERY-PREVIEW-001",
+    "source_filename": "tavola 6.pdf",
+    "job_id": "DPJ-85894c92f27b45c8aeb29402",
+    "session_id": "DISC-c6ee3fc11f04234f2e90dffb",
+    "page_count": 1,
+    "primitive_candidate_count": 2,
+    "graphic_cluster_count": 2,
+    "coverage_ratio": 1.0,
+    "terminal_state": "READY",
+    "signal_recovery_trigger": "BLANK_CORROBORATION_INSUFFICIENT",
+    "signal_recovery_executed": true,
+    "page_artifact_http_status": 200,
+    "page_visually_observable": true,
+    "automatic_semantic_meaning": false
+  },
+  "runtime_evidence": {
+    "preview_post_http_status": 202,
+    "job_poll_http_status": 200,
+    "session_http_status": 200,
+    "readyz_stable_http_status": 200,
+    "web_process_restart_observed": false,
+    "http_502_observed": false
+  },
+  "validated_capabilities": {
+    "HVA_DISCOVERY_502": "CLOSED",
+    "WEB_PROCESS_SURVIVAL": "PASS",
+    "PAGE_ARTIFACT_DELIVERY": "PASS",
+    "RASTER_SIGNAL_RECOVERY": "PASS",
+    "PRIMITIVE_DISCOVERY": "PASS",
+    "GRAPHIC_CLUSTERING": "PASS",
+    "PAGE_VISUAL_FIDELITY": "PASS"
+  },
+  "authority": {
+    "preview_registration_state": "UNREGISTERED_PREVIEW",
+    "training_authorized": false,
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "automatic_semantic_authority": "NONE",
+    "engineering_authority_effect": "NONE"
+  },
+  "frozen_checkpoint_branch": "checkpoint/cew-document-discovery-hva-pass-320755e",
+  "next_slice": {
+    "branch": "work/cew-document-discovery-human-view-v1",
+    "scope": [
+      "PAGE_ORIENTATION_FOR_HUMAN_READING",
+      "ZOOM_AND_PAN_FOR_TECHNICAL_DRAWING_INSPECTION",
+      "VISIBLE_CLUSTER_SELECTION_ON_PAGE_GEOMETRY"
+    ],
+    "must_preserve": [
+      "UNREGISTERED_PREVIEW_TRAINING_BLOCK",
+      "NO_AUTOMATIC_SEMANTIC_LABELS",
+      "CANONICAL_WRITE_BLOCK",
+      "SOURCE_DOCUMENT_AS_EVIDENTIARY_AUTHORITY"
+    ]
+  }
+}
