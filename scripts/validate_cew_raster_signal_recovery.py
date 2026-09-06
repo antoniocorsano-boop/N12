@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pymupdf
 
+import cew_document_discovery_preview_jobs as jobs
 import cew_document_discovery_preview_trust as trust
 import cew_document_discovery_pdfium_signal_recovery as recovery
 
@@ -78,7 +79,37 @@ def _zero_report() -> dict:
     }
 
 
+def _insufficient_witness_report() -> dict:
+    report = _zero_report()
+    report["quality_gate"]["status"] = "INCONCLUSIVE"
+    report["quality_gate"]["reasons"] = ["BLANK_CORROBORATION_INSUFFICIENT"]
+    report["pages"][0]["blank_corroboration"] = {
+        "state": "INSUFFICIENT",
+        "blank_confirmed": False,
+    }
+    return report
+
+
+def _contradicted_witness_report() -> dict:
+    report = _zero_report()
+    report["quality_gate"]["status"] = "INCONCLUSIVE"
+    report["quality_gate"]["reasons"] = ["BLANK_CORROBORATION_CONTRADICTED"]
+    report["pages"][0]["blank_corroboration"] = {
+        "state": "CONTENT_PRESENT",
+        "blank_confirmed": False,
+    }
+    return report
+
+
 def main() -> None:
+    assert jobs._signal_recovery_trigger(_insufficient_witness_report()) == "BLANK_CORROBORATION_INSUFFICIENT"
+    assert jobs._needs_signal_recovery(_insufficient_witness_report()) is True
+    assert jobs._signal_recovery_trigger(_contradicted_witness_report()) == "BLANK_CORROBORATION_CONTRADICTED"
+    confirmed_blank = _zero_report()
+    confirmed_blank["quality_gate"]["blank_pages_observed"] = [0]
+    confirmed_blank["pages"][0]["blank_corroboration"] = {"state": "CONFIRMED_BLANK", "blank_confirmed": True}
+    assert jobs._needs_signal_recovery(confirmed_blank) is False
+
     faint = _faint_technical_pdf()
     first = recovery.preacquire_preview_pdf(
         faint,
@@ -141,7 +172,7 @@ def main() -> None:
     assert reading_aid["preview_page_reading_aid_policy"] == "CONTRAST_PRESERVING_DECLARED_TRANSFORM"
 
     worker = Path("cew_document_discovery_preview_worker.py").read_text(encoding="utf-8")
-    jobs = Path("cew_document_discovery_preview_jobs.py").read_text(encoding="utf-8")
+    jobs_source = Path("cew_document_discovery_preview_jobs.py").read_text(encoding="utf-8")
     trust_source = Path("cew_document_discovery_preview_trust.py").read_text(encoding="utf-8")
     assert 'RASTER_SIGNAL_RECOVERY_MODE = "RASTER_SIGNAL_RECOVERY"' in worker
     assert "cew_document_discovery_pdfium_signal_recovery" in worker
@@ -149,16 +180,18 @@ def main() -> None:
     assert "_inherit_trust_evidence" in worker
     assert 'if key not in report and key in prior' in worker
     assert "preview_trust.attach_trust_evidence" in worker
-    assert 'RASTER_SIGNAL_RECOVERY_MODE = "RASTER_SIGNAL_RECOVERY"' in jobs
-    assert "_needs_signal_recovery" in jobs
-    assert "BLANK_CORROBORATION_CONTRADICTED" in jobs
-    assert "PREVIEW_SIGNAL_RECOVERY_TIMEOUT_SECONDS" in jobs
-    assert "DOCUMENT_DISCOVERY_SIGNAL_RECOVERY_DEGRADED" in jobs
+    assert 'RASTER_SIGNAL_RECOVERY_MODE = "RASTER_SIGNAL_RECOVERY"' in jobs_source
+    assert "_signal_recovery_trigger" in jobs_source
+    assert "BLANK_CORROBORATION_CONTRADICTED" in jobs_source
+    assert "BLANK_CORROBORATION_INSUFFICIENT" in jobs_source
+    assert "PREVIEW_SIGNAL_RECOVERY_TIMEOUT_SECONDS" in jobs_source
+    assert "DOCUMENT_DISCOVERY_SIGNAL_RECOVERY_DEGRADED" in jobs_source
     assert "get_image_info()" in trust_source
     assert "get_images(full=True)" not in trust_source
 
     print("CEW_PDFIUM_SIGNAL_RECOVERY_PASS")
     print("independent_renderer=PDFIUM faint_line_recovery=PASS deterministic_replay=PASS")
+    print("insufficient_blank_witness_trigger=PASS confirmed_blank_excluded=PASS")
     print("cropbox_media_probe=PASS recovery_artifact=PDFIUM_JPEG")
     print("displayed_image_witness=PASS baseline_evidence_preservation=GOVERNED")
     print("semantic_authority=NONE canonical_write_authorized=false")
