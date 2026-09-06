@@ -49,6 +49,23 @@ _REQUIRED_BASE_MARKERS = (
     '/workbench/assets/{asset_path:path}',
 )
 
+_DOCUMENT_RENDER_TARGET_COMPAT_SCRIPT = r'''<script id="cew-document-render-target-compat">
+(function(){
+  'use strict';
+  // The inherited Document Discovery render() still writes operational status
+  // into #status. The professional navigator replaces the legacy sidebar, so
+  // preserve that non-visual render target instead of letting a later session
+  // reload fail after a runtime reconstruction.
+  if(!document.getElementById('status')){
+    const status=document.createElement('div');
+    status.id='status';
+    status.hidden=true;
+    status.setAttribute('aria-hidden','true');
+    document.body.appendChild(status);
+  }
+})();
+</script>'''
+
 
 def _assert_base_contract() -> None:
     base_path = Path(_base.__file__).resolve()
@@ -58,7 +75,26 @@ def _assert_base_contract() -> None:
         raise RuntimeError("CEW_PROFESSIONAL_WORKBENCH_BASE_CONTRACT_DRIFT:" + "|".join(missing))
 
 
+def _install_document_render_target_compat() -> None:
+    """Keep inherited Document Discovery render targets alive after shell composition."""
+    if getattr(_professional_document_workbench, "_cew_render_target_compat_installed", False):
+        return
+    original_patched_page = _professional_document_workbench._patched_page
+
+    def patched_page_with_render_target_compat() -> str:
+        html = original_patched_page()
+        if 'id="cew-document-render-target-compat"' in html:
+            return html
+        if "</body>" not in html:
+            raise RuntimeError("CEW_DOCUMENT_RENDER_TARGET_COMPAT_BODY_MARKER_MISSING")
+        return html.replace("</body>", _DOCUMENT_RENDER_TARGET_COMPAT_SCRIPT + "</body>", 1)
+
+    _professional_document_workbench._patched_page = patched_page_with_render_target_compat
+    _professional_document_workbench._cew_render_target_compat_installed = True
+
+
 _assert_base_contract()
+_install_document_render_target_compat()
 _reference_review_hardening.install(_reference_review)
 _reference_review_asset_hardening.install(_reference_review)
 
