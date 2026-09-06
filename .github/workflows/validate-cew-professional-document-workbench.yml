@@ -6,21 +6,25 @@ on:
       - 'work/cew-professional-document-workbench-v1'
     paths:
       - 'scripts/cew_professional_document_workbench.py'
+      - 'scripts/cew_professional_document_workbench_mature_panels.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
       - 'scripts/validate_cew_professional_document_workbench_browser.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/cew_document_discovery_async_preview.py'
       - 'analysis/cew/CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_ARCHITECTURE_v2.md'
+      - 'analysis/cew/CEW_PANEL_MATURITY_REFERENCE_v1.md'
       - 'automation/CEW_DOCUMENT_WORKBENCH_PANEL_CONTRACT_v2.json'
       - '.github/workflows/validate-cew-professional-document-workbench.yml'
   pull_request:
     paths:
       - 'scripts/cew_professional_document_workbench.py'
+      - 'scripts/cew_professional_document_workbench_mature_panels.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
       - 'scripts/validate_cew_professional_document_workbench_browser.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/cew_document_discovery_async_preview.py'
       - 'analysis/cew/CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_ARCHITECTURE_v2.md'
+      - 'analysis/cew/CEW_PANEL_MATURITY_REFERENCE_v1.md'
       - 'automation/CEW_DOCUMENT_WORKBENCH_PANEL_CONTRACT_v2.json'
       - '.github/workflows/validate-cew-professional-document-workbench.yml'
   workflow_dispatch:
@@ -45,6 +49,7 @@ jobs:
         run: >-
           python -m py_compile
           scripts/cew_professional_document_workbench.py
+          scripts/cew_professional_document_workbench_mature_panels.py
           scripts/validate_cew_professional_document_workbench.py
           scripts/validate_cew_professional_document_workbench_browser.py
           scripts/cew_professional_workbench_api.py
