@@ -7,8 +7,10 @@ on:
     paths:
       - 'scripts/cew_professional_document_workbench.py'
       - 'scripts/cew_professional_document_workbench_mature_panels.py'
+      - 'scripts/cew_professional_document_workbench_mature_content.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
       - 'scripts/validate_cew_professional_document_workbench_browser.py'
+      - 'scripts/validate_cew_mature_panel_content_browser.py'
       - 'scripts/validate_cew_preview_runtime_recovery_browser.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/cew_document_discovery_async_preview.py'
@@ -20,8 +22,10 @@ on:
     paths:
       - 'scripts/cew_professional_document_workbench.py'
       - 'scripts/cew_professional_document_workbench_mature_panels.py'
+      - 'scripts/cew_professional_document_workbench_mature_content.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
       - 'scripts/validate_cew_professional_document_workbench_browser.py'
+      - 'scripts/validate_cew_mature_panel_content_browser.py'
       - 'scripts/validate_cew_preview_runtime_recovery_browser.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/cew_document_discovery_async_preview.py'
@@ -52,8 +56,10 @@ jobs:
           python -m py_compile
           scripts/cew_professional_document_workbench.py
           scripts/cew_professional_document_workbench_mature_panels.py
+          scripts/cew_professional_document_workbench_mature_content.py
           scripts/validate_cew_professional_document_workbench.py
           scripts/validate_cew_professional_document_workbench_browser.py
+          scripts/validate_cew_mature_panel_content_browser.py
           scripts/validate_cew_preview_runtime_recovery_browser.py
           scripts/cew_professional_workbench_api.py
           scripts/cew_document_discovery_async_preview.py
@@ -63,6 +69,9 @@ jobs:
       - name: Execute generated workbench in Chromium
         working-directory: scripts
         run: python validate_cew_professional_document_workbench_browser.py
+      - name: Validate HVA-refined panel content in Chromium
+        working-directory: scripts
+        run: python validate_cew_mature_panel_content_browser.py
       - name: Validate preview recovery across runtime restart
         working-directory: scripts
         run: python validate_cew_preview_runtime_recovery_browser.py
