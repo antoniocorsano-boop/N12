@@ -2,8 +2,9 @@
 """Browser/runtime contract for CEW Professional Document Workbench v2.
 
 This test starts the real FastAPI application, opens the mounted Document
-Discovery route in Chromium, and validates the DOM that a user actually gets.
-Static source markers alone are deliberately insufficient.
+Discovery route in Chromium, and validates the DOM and mature-panel interaction
+state that a user actually gets. Static source markers alone are deliberately
+insufficient.
 """
 from __future__ import annotations
 
@@ -92,6 +93,7 @@ def main() -> None:
             headers = {k.lower(): v for k, v in response.headers.items()}
             assert headers.get("x-cew-document-workbench") == "PROFESSIONAL_V2", headers
             assert headers.get("x-cew-panel-architecture") == "ACTIVITY_PRIMARY_EDITOR_AUXILIARY_STATUS", headers
+            assert headers.get("x-cew-panel-quality") == "MATURE_V1", headers
 
             # Startup errors are checked before DOM assertions so a broken script
             # cannot be mistaken for a layout-marker failure.
@@ -113,14 +115,21 @@ def main() -> None:
             )
             missing = [selector for selector in required if page.locator(selector).count() != 1]
             assert not missing, f"CEW_BROWSER_DOM_MISSING: {missing}"
+            assert page.locator('body[data-cew-panel-quality="mature-v1"]').count() == 1
 
             # The title/provider must actually be composed into the mature top bar.
             assert page.locator("header .cew-title-main").count() == 1
             assert page.locator("header #provider").count() == 1
-            # innerText reflects CSS text-transform:uppercase on the rendered header.
             assert page.locator("#cew-primary-title").inner_text().strip().upper() == "CLUSTER"
             assert page.locator("#cew-inspector-head").is_visible()
             assert page.locator("#cew-inspector-tabs").is_visible()
+
+            # Activity Rail exposes stable current state and compact iconography.
+            cluster_view = page.locator('#cew-activity-rail button[data-nav="clusters"]')
+            assert cluster_view.get_attribute("aria-pressed") == "true"
+            assert cluster_view.inner_text().strip() == "◎"
+            assert cluster_view.get_attribute("aria-controls") == "cew-nav-clusters"
+            assert "Alt+3" in (cluster_view.get_attribute("title") or "")
 
             # The document editor is the flexible central surface.
             editor = page.locator("#cew-canvas-shell").bounding_box()
@@ -131,27 +140,73 @@ def main() -> None:
             assert 220 <= left["width"] <= 500, left
             assert 260 <= right["width"] <= 560, right
 
-            # Primary sidebar collapse/restore is available from the persistent rail.
-            initial_editor_width = editor["width"]
-            cluster_view = page.locator('#cew-activity-rail button[data-nav="clusters"]')
-            cluster_view.click()
+            # Accessible panel/sash state is materialized, not inferred by source markers.
+            assert page.locator("#cew-toggle-primary").get_attribute("aria-expanded") == "true"
+            assert page.locator("#cew-toggle-aux").get_attribute("aria-expanded") == "true"
+            for sash_id, min_value, max_value in (
+                ("#cew-left-sash", "220", "500"),
+                ("#cew-right-sash", "260", "560"),
+            ):
+                sash = page.locator(sash_id)
+                assert sash.get_attribute("aria-orientation") == "vertical"
+                assert sash.get_attribute("aria-valuemin") == min_value
+                assert sash.get_attribute("aria-valuemax") == max_value
+                assert int(sash.get_attribute("aria-valuenow") or "0") > 0
+
+            tabs = page.locator("#cew-inspector-tabs")
+            assert tabs.get_attribute("role") == "tablist"
+            props_tab = page.locator('#cew-inspector-tabs button[data-inspector="properties"]')
+            assert props_tab.get_attribute("role") == "tab"
+            assert props_tab.get_attribute("aria-selected") == "true"
+
+            # The active-view title is owned by the sidebar header only; body duplicate is hidden.
+            duplicate_title = page.locator("#cew-nav-clusters > .cew-sidebar-title:first-child")
+            if duplicate_title.count():
+                assert duplicate_title.is_hidden()
+
+            # Mature activity shortcuts switch the view without changing topology.
+            page.keyboard.press("Alt+4")
+            page.wait_for_timeout(80)
+            assert page.locator("#cew-primary-title").inner_text().strip().upper() == "DA VERIFICARE"
+            verify_panel = page.locator("#cew-nav-verify")
+            assert verify_panel.is_visible()
+            verify_text = verify_panel.inner_text()
+            assert "Nessuna regione grafica acquisita" in verify_text
+            assert "NESSUNA_REGIONE_GRAFICA_ACQUISITA" not in verify_text
+            assert page.locator('#cew-activity-rail button[data-nav="verify"]').get_attribute("aria-pressed") == "true"
+
+            # Primary sidebar collapse/restore expands the central editor.
+            initial_editor_width = page.locator("#cew-canvas-shell").bounding_box()["width"]
+            verify_view = page.locator('#cew-activity-rail button[data-nav="verify"]')
+            verify_view.click()
             page.wait_for_timeout(50)
             assert page.locator("body.cew-primary-collapsed").count() == 1
             collapsed_editor = page.locator("#cew-canvas-shell").bounding_box()
             assert collapsed_editor and collapsed_editor["width"] > initial_editor_width
-            cluster_view.click()
+            assert page.locator("#cew-toggle-primary").get_attribute("aria-expanded") == "false"
+            verify_view.click()
             page.wait_for_timeout(50)
             assert page.locator("body.cew-primary-collapsed").count() == 0
+            assert page.locator("#cew-toggle-primary").get_attribute("aria-expanded") == "true"
 
-            # Auxiliary inspector collapse persists; decision remains unavailable.
-            page.locator("#cew-hide-aux").click()
-            page.wait_for_timeout(50)
+            # Ctrl+J provides mature right-sidebar keyboard parity and persists state.
+            page.keyboard.press("Control+J")
+            page.wait_for_timeout(80)
             assert page.locator("body.cew-aux-collapsed").count() == 1
+            assert page.locator("#cew-toggle-aux").get_attribute("aria-expanded") == "false"
             stored = page.evaluate(
                 "JSON.parse(localStorage.getItem('cew.documentDiscovery.workbench.v2'))"
             )
             assert stored["rightVisible"] is False, stored
+            page.keyboard.press("Control+J")
+            page.wait_for_timeout(80)
+            assert page.locator("body.cew-aux-collapsed").count() == 0
+            assert page.locator("#cew-toggle-aux").get_attribute("aria-expanded") == "true"
+
+            # Decision remains unavailable while teaching is blocked.
             assert page.locator("#cew-decision-tab").is_hidden()
+            assert not page_errors, f"CEW_BROWSER_PAGE_ERRORS_LATE: {page_errors}"
+            assert not console_errors, f"CEW_BROWSER_CONSOLE_ERRORS_LATE: {console_errors}"
 
             browser.close()
     finally:
@@ -162,9 +217,10 @@ def main() -> None:
             proc.kill()
             proc.wait(timeout=3)
 
-    print("CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_BROWSER_PASS")
-    print("mounted_route=PROFESSIONAL_V2 startup_javascript=PASS canonical_panel_dom=MATERIALIZED")
-    print("primary_sidebar=COLLAPSE_RESTORE_PASS auxiliary_sidebar=COLLAPSE_PERSIST_PASS")
+    print("CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_BROWSER_MATURE_PANELS_PASS")
+    print("mounted_route=PROFESSIONAL_V2 panel_quality=MATURE_V1 canonical_panel_dom=MATERIALIZED")
+    print("primary_sidebar=COLLAPSE_RESTORE_PASS auxiliary_sidebar=CTRL_J_PERSIST_PASS")
+    print("panel_copy=HUMAN_READABLE single_title=PASS accessibility_state=PASS")
 
 
 if __name__ == "__main__":
