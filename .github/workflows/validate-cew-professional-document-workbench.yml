@@ -9,6 +9,8 @@ on:
       - 'scripts/validate_cew_professional_document_workbench.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/cew_document_discovery_async_preview.py'
+      - 'analysis/cew/CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_ARCHITECTURE_v2.md'
+      - 'automation/CEW_DOCUMENT_WORKBENCH_PANEL_CONTRACT_v2.json'
       - '.github/workflows/validate-cew-professional-document-workbench.yml'
   pull_request:
     paths:
@@ -16,6 +18,8 @@ on:
       - 'scripts/validate_cew_professional_document_workbench.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/cew_document_discovery_async_preview.py'
+      - 'analysis/cew/CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_ARCHITECTURE_v2.md'
+      - 'automation/CEW_DOCUMENT_WORKBENCH_PANEL_CONTRACT_v2.json'
       - '.github/workflows/validate-cew-professional-document-workbench.yml'
   workflow_dispatch:
 
@@ -39,6 +43,6 @@ jobs:
           scripts/validate_cew_professional_document_workbench.py
           scripts/cew_professional_workbench_api.py
           scripts/cew_document_discovery_async_preview.py
-      - name: Validate mature document workbench layout and authority boundary
+      - name: Validate canonical panel workbench and authority boundary
         working-directory: scripts
         run: python validate_cew_professional_document_workbench.py
