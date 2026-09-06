@@ -184,7 +184,18 @@ def run_scenario(browser, base: str, loss_at: str) -> None:
     )
     page.locator("#preview").click()
 
-    page.wait_for_function("() => document.querySelector('#intake-message')?.textContent.includes('Analisi completata')", timeout=30000)
+    try:
+        page.wait_for_function("() => document.querySelector('#intake-message')?.textContent.includes('Analisi completata')", timeout=30000)
+    except Exception:
+        message = page.locator("#intake-message").inner_text()
+        file_count = page.locator("#file").evaluate("el => el.files.length")
+        print(
+            "CEW_PREVIEW_RUNTIME_RECOVERY_DIAGNOSTIC "
+            f"loss_at={loss_at} counters={counters} message={message!r} "
+            f"file_count={file_count} page_errors={page_errors!r} console_errors={console_errors!r}",
+            flush=True,
+        )
+        raise
     assert counters["enqueue"] == 2, counters
     if loss_at == "job":
         assert counters["job1_poll"] >= 2, counters
