@@ -16,6 +16,7 @@ def main() -> None:
         "cew-professional-document-script",
         "cew-activity-rail",
         "cew-primary-content",
+        "cew-canvas-shell",
         "cew-nav-pages",
         "cew-nav-primitives",
         "cew-nav-clusters",
@@ -32,10 +33,13 @@ def main() -> None:
     missing = [marker for marker in required if marker not in html]
     assert not missing, missing
 
-    # Mature workbench contract: sidebars + dominant viewport + anchored tools + status bar.
+    # Mature workbench contract: sidebars + dominant viewport + truly anchored tools + status bar.
     assert "grid-template-columns:var(--cew-left) minmax(360px,1fr) var(--cew-right)" in html
-    assert "#preview-view-controls{position:sticky!important" in html
+    assert ".cew-canvas-shell{position:relative" in html
+    assert "#preview-view-controls{position:absolute!important" in html
+    assert "position:sticky!important" not in html
     assert "flex-direction:column!important" in html
+    assert "if(shell&&bar&&bar.parentElement!==shell)shell.appendChild(bar)" in html
     assert "body.cew-professional-document #viewer" in html
     assert "wheel" in html and "setPreviewZoom(next)" in html
 
@@ -44,10 +48,14 @@ def main() -> None:
     assert "body.cew-professional-document .right>label" in html
     assert "Significato</dt><dd>NON ASSEGNATO" in html
 
-    # A successful execution with zero graphic evidence is warning/review-required, not green success.
-    assert "pc===0&&cc===0&&el.classList.contains('ok')" in html
+    # A successful execution with zero graphic evidence is intercepted at the
+    # message boundary itself, so a later async success message cannot turn it green.
+    assert "const baseProfessionalIntakeMessage=intakeMessage" in html
+    assert "intakeMessage=function(text,kind='')" in html
+    assert "kind==='ok'&&state&&pc===0&&cc===0" in html
     assert "nessuna regione grafica acquisita · verifica necessaria" in html
-    assert "intake-status meta warn" in html
+    assert "'warn'" in html
+    assert "intake-status.warn" in html
 
     # Authority headers belong to the HTML route response, while semantic/training
     # declarations remain visible in the rendered workbench.
@@ -71,8 +79,8 @@ def main() -> None:
 
     print("CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_V1_PASS")
     print("layout=PRIMARY_SIDEBAR+DOMINANT_CANVAS+CONTEXTUAL_INSPECTOR+STATUS_BAR")
-    print("viewport_tools=ANCHORED_MINIMAL wheel_zoom=ENABLED drag_pan=INHERITED")
-    print("zero_graphic_result=WARNING_REVIEW_REQUIRED")
+    print("viewport_tools=ABSOLUTE_CANVAS_ANCHORED wheel_zoom=ENABLED drag_pan=INHERITED")
+    print("zero_graphic_result=WARNING_REVIEW_REQUIRED_AT_MESSAGE_BOUNDARY")
     print("training=CONTEXTUAL_ONLY canonical_write_authorized=false semantic_authority=NONE")
 
 
