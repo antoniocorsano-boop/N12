@@ -206,7 +206,18 @@ def run_scenario(browser, base: str, loss_at: str) -> None:
     assert "Errore CEW" not in message, message
     assert page.locator("#file").evaluate("el => el.files.length") == 1
     assert not page_errors, page_errors
-    assert not console_errors, console_errors
+    # Chromium reports the deliberately simulated 502/404 responses as network
+    # console errors even when application recovery succeeds. Those are expected
+    # transport evidence, not JavaScript/runtime failures.
+    unexpected_console_errors = [
+        text
+        for text in console_errors
+        if not (
+            text.startswith("Failed to load resource:")
+            and ("status of 502" in text or "status of 404" in text)
+        )
+    ]
+    assert not unexpected_console_errors, unexpected_console_errors
     context.close()
 
 
