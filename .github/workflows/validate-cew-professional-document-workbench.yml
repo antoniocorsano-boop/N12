@@ -7,6 +7,7 @@ on:
     paths:
       - 'scripts/cew_professional_document_workbench.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
+      - 'scripts/validate_cew_professional_document_workbench_browser.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/cew_document_discovery_async_preview.py'
       - 'analysis/cew/CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_ARCHITECTURE_v2.md'
@@ -16,6 +17,7 @@ on:
     paths:
       - 'scripts/cew_professional_document_workbench.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
+      - 'scripts/validate_cew_professional_document_workbench_browser.py'
       - 'scripts/cew_professional_workbench_api.py'
       - 'scripts/cew_document_discovery_async_preview.py'
       - 'analysis/cew/CEW_PROFESSIONAL_DOCUMENT_WORKBENCH_ARCHITECTURE_v2.md'
@@ -34,15 +36,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install CEW runtime dependencies
-        run: pip install -r requirements.txt
+      - name: Install CEW runtime dependencies and browser harness
+        run: |
+          pip install -r requirements.txt
+          pip install 'playwright>=1.55,<2'
+          python -m playwright install --with-deps chromium
       - name: Compile professional document workbench
         run: >-
           python -m py_compile
           scripts/cew_professional_document_workbench.py
           scripts/validate_cew_professional_document_workbench.py
+          scripts/validate_cew_professional_document_workbench_browser.py
           scripts/cew_professional_workbench_api.py
           scripts/cew_document_discovery_async_preview.py
       - name: Validate canonical panel workbench and authority boundary
         working-directory: scripts
         run: python validate_cew_professional_document_workbench.py
+      - name: Execute generated workbench in Chromium
+        working-directory: scripts
+        run: python validate_cew_professional_document_workbench_browser.py
