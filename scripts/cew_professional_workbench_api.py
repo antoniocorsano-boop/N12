@@ -26,6 +26,8 @@ import cew_external_graphic_reference_review_hardening as _reference_review_hard
 import cew_external_graphic_reference_review_asset_hardening as _reference_review_asset_hardening
 import cew_professional_document_workbench_mature_panels as _professional_document_workbench
 import cew_professional_document_workbench_mature_content as _professional_document_content
+import cew_professional_document_workbench_governed_async as _professional_document_governed_async
+import cew_document_discovery_governed_async as _document_discovery_governed_async
 import cew_document_discovery_async_preview as _document_discovery_async_preview
 import cew_document_discovery_workbench as _document_discovery
 
@@ -124,12 +126,16 @@ def build_router(source_workspace):
     router.include_router(_oar_g4.build_router())
     router.include_router(_oar_g4_assisted.build_router())
     router.include_router(_reference_review.build_router())
-    # The HVA-refined content route shadows only the Document Discovery HTML
-    # surface and delegates to the already validated MATURE_V1 shell. The mature
-    # route remains mounted immediately after as a fail-closed compatibility
-    # fallback; async preview/session APIs and historical routes remain unchanged.
+    # The governed-async HVA route shadows only the Document Discovery HTML
+    # surface and redirects the governed-source action to the bounded subprocess
+    # job boundary. The HVA-refined and mature shell routes remain mounted as
+    # compatibility fallbacks. Governed async API/page-artifact routes are
+    # mounted before preview and historical routes so large governed PDFs never
+    # fall back to in-process parsing/rendering during normal use.
+    router.include_router(_professional_document_governed_async.build_router())
     router.include_router(_professional_document_content.build_router())
     router.include_router(_professional_document_workbench.build_router())
+    router.include_router(_document_discovery_governed_async.build_router(source_workspace))
     router.include_router(_document_discovery_async_preview.build_router())
     router.include_router(_document_discovery.build_router(source_workspace))
     return router
