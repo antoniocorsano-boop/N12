@@ -127,7 +127,21 @@ def main() -> None:
             assert legacy_calls["count"] == 0, legacy_calls
             assert "HTTP 502" not in page.locator("#intake-message").inner_text()
             assert not page_errors, page_errors
-            assert not console_errors, console_errors
+
+            # Chromium reports the intentionally injected transient 502 as a
+            # console network error even when application-level recovery works.
+            # That message is evidence that the negative control actually fired,
+            # not a workbench failure. Keep every other console error blocking.
+            expected_502 = [
+                text for text in console_errors
+                if "Failed to load resource" in text and "502" in text
+            ]
+            unexpected_console_errors = [
+                text for text in console_errors
+                if text not in expected_502
+            ]
+            assert expected_502, console_errors
+            assert not unexpected_console_errors, unexpected_console_errors
             browser.close()
     finally:
         proc.terminate()
@@ -139,7 +153,7 @@ def main() -> None:
 
     print("CEW_GOVERNED_ASYNC_BROWSER_PASS")
     print("governed_action=ASYNC_BOUNDED legacy_sync_route=NOT_CALLED")
-    print("transient_http_502=AUTOMATIC_RETRY terminal_error=DOMAIN_REASON")
+    print("transient_http_502=AUTOMATIC_RETRY expected_browser_network_noise=ACCOUNTED")
 
 
 if __name__ == "__main__":
