@@ -90,9 +90,6 @@ def main() -> None:
                 svg,
             )
             page.wait_for_function("document.getElementById('page').naturalWidth > 0")
-            # Match the real governed/PDF viewer lifecycle: the inspection stage is
-            # what owns page-relative overlays.  Without it a synthetic test can
-            # populate the layout model but cannot materialize clickable units.
             page.evaluate("ensureInspectionStage(); renderPageGeometry(false)")
             page.wait_for_function("document.getElementById('page-stage') !== null")
             page.evaluate("window.CEWLayoutLearning.refresh()")
@@ -103,7 +100,6 @@ def main() -> None:
             assert before["confirmed"] is False, before
             assert page.locator("#cew-layout-confirm").is_visible()
 
-            # Real visible confirmation control.
             page.locator("#cew-layout-confirm").click()
             page.wait_for_function("window.CEWLayoutPhaseGate.state().confirmed === true")
             assert "struttura confermata" in page.locator("#cew-layout-state").inner_text().lower()
@@ -114,13 +110,24 @@ def main() -> None:
             )
             assert "riquadri viola" in page.locator("#cew-layout-feedback").inner_text().lower()
 
-            # Real pointer interaction on the reading unit; no direct JS selectUnit call.
             page.wait_for_function("document.querySelectorAll('#cew-layout-overlay .cew-layout-unit').length >= 3")
             page.wait_for_function("() => document.querySelector('#cew-layout-overlay .cew-layout-unit')?.dataset.cewUnitLabel === 'U1'")
             first_unit = page.locator("#cew-layout-overlay .cew-layout-unit").first
             assert first_unit.get_attribute("data-cew-unit-label") == "U1"
             first_unit.click()
-            page.wait_for_function("window.CEWLayoutPhaseGate.state().activeUnit !== null")
+            time.sleep(0.15)
+            click_state = page.evaluate(
+                """() => ({
+                  gate: window.CEWLayoutPhaseGate.state(),
+                  learningUnits: window.CEWLayoutLearning.units().map(u => u.id),
+                  activeDom: document.querySelector('#cew-layout-overlay .cew-layout-unit.active')?.dataset.layoutUnit || null,
+                  firstDom: document.querySelector('#cew-layout-overlay .cew-layout-unit')?.dataset.layoutUnit || null,
+                  firstWired: document.querySelector('#cew-layout-overlay .cew-layout-unit')?.dataset.cewPhasePointerWired || null,
+                  feedback: document.getElementById('cew-layout-feedback')?.textContent || '',
+                  summary: document.getElementById('cew-local-summary')?.textContent || ''
+                })"""
+            )
+            assert click_state["gate"]["activeUnit"] is not None, click_state
             page.wait_for_function("() => (document.getElementById('cew-layout-feedback')?.textContent || '').toLowerCase().includes('unità u1 selezionata')")
             local = page.evaluate("window.CEWLayoutPhaseGate.state()")
             assert local["activeUnit"] == "LU-1", local
