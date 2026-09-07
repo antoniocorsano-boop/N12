@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Chromium gate for real layout confirmation, unit selection and semantic lock."""
+"""Chromium gate for context isolation, layout selection and semantic lock."""
 from __future__ import annotations
 
 import os
@@ -69,8 +69,47 @@ def main() -> None:
             assert headers.get("x-cew-local-unit-analysis") == "BROWSER_GRAPHIC_FRAGMENTS_V1", headers
             assert headers.get("x-cew-semantic-gate") == "LOCAL_BACKEND_CANDIDATE_REQUIRED_V1", headers
             assert page.locator('body[data-cew-layout-phase-gate="v3"]').count() == 1
+            assert page.locator('body[data-cew-document-context-guard="v1"]').count() == 1
             assert page.locator("#cew-layout-structure-tab").count() == 1
             assert page.locator("#cew-decision-tab").is_hidden()
+
+            # Browser-local layout memory created without a project identity is unsafe
+            # and must not survive a new workbench load.
+            page.evaluate(
+                """() => {
+                  localStorage.setItem('cew.layoutPrototype.v1:NO_PROJECT:TAV-05A','STALE');
+                  localStorage.setItem('cew.layoutConfirmed.v1:NO_PROJECT:TAV-05A:0','CONFIRMED');
+                }"""
+            )
+            page.reload(wait_until="networkidle")
+            assert page.evaluate("localStorage.getItem('cew.layoutPrototype.v1:NO_PROJECT:TAV-05A')") is None
+            assert page.evaluate("localStorage.getItem('cew.layoutConfirmed.v1:NO_PROJECT:TAV-05A:0')") is None
+
+            # A professional deep link binds the visible intake context explicitly.
+            deep = browser.new_page(viewport={"width": 1200, "height": 800})
+            deep_errors: list[str] = []
+            deep.on("pageerror", lambda exc: deep_errors.append(str(exc)))
+            deep.goto(
+                f"{base}/workbench/document-discovery?project=N12&source=TAV-06A",
+                wait_until="networkidle",
+            )
+            deep.wait_for_function("document.getElementById('source').options.length > 1")
+            deep.wait_for_function("document.body.dataset.cewDeepLinkReady === 'true'")
+            assert deep.locator("#project").input_value() == "N12"
+            assert deep.locator("#source").input_value() == "TAV-06A"
+            guard = deep.evaluate("window.CEWDocumentContextGuard.state()")
+            assert guard["deepLinkReady"] is True, guard
+
+            # Missing project identity fails closed and clears any misleading active view.
+            deep.locator("#project").fill("")
+            deep.locator("#analyze").click()
+            deep.wait_for_function(
+                "() => (document.getElementById('intake-message')?.textContent || '').includes('ID progetto')"
+            )
+            assert "ID progetto" in deep.locator("#intake-message").inner_text()
+            assert deep.locator("#viewer-placeholder").is_visible()
+            assert not deep_errors, deep_errors
+            deep.close()
 
             svg = """<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800'>
             <rect width='1200' height='800' fill='white'/>
@@ -149,7 +188,8 @@ def main() -> None:
             proc.kill()
             proc.wait(timeout=3)
 
-    print("CEW_LAYOUT_PHASE_GATE_BROWSER_V3_PASS")
+    print("CEW_LAYOUT_PHASE_GATE_BROWSER_V4_PASS")
+    print("context_guard=PASS no_project_memory=PURGED deep_link=PASS incomplete_context=FAIL_CLOSED")
     print("real_stage=PASS real_confirm_click=PASS explicit_unit_labels=PASS real_unit_click=PASS visible_feedback=PASS local_unit_analysis=PASS")
     print("semantic_gate=LOCAL_BACKEND_CANDIDATE_REQUIRED canonical_write=false")
 
