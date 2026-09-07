@@ -98,6 +98,8 @@ def main() -> None:
             page.wait_for_function("document.querySelectorAll('#cew-layout-overlay .cew-layout-unit').length >= 4")
 
             first_unit = page.locator("#cew-layout-overlay .cew-layout-unit").first
+            bbox = first_unit.bounding_box()
+            assert bbox is not None
             first_unit.click()
             page.wait_for_function("window.CEWLayoutPhaseGate.state().activeUnit !== null")
             page.wait_for_function("!document.getElementById('cew-visual-search').hidden")
@@ -106,8 +108,6 @@ def main() -> None:
 
             page.locator("#cew-reference-start").click()
             page.wait_for_function("window.CEWVisualReferenceSearch.state().mode === 'SELECTING'")
-            bbox = first_unit.bounding_box()
-            assert bbox is not None
             x1 = bbox["x"] + bbox["width"] * 0.08
             x2 = bbox["x"] + bbox["width"] * 0.92
             y1 = bbox["y"] + bbox["height"] * 0.04
