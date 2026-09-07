@@ -80,8 +80,8 @@ function decorateUnits(){
   const bs=unitButtons();bs.forEach((b,i)=>{const label=humanUnitLabel(b.dataset.layoutUnit,i);b.dataset.cewUnitLabel=label;b.title=`Unità di lettura ${label} · clicca per analizzare questa zona`;b.setAttribute('aria-label',`Seleziona unità di lettura ${label}`)});return bs;
 }
 function confirmedGuidance(){
-  const bs=decorateUnits();if(!bs.length)return 'Struttura confermata. Le unità di lettura non sono ancora visibili.';
-  const labels=bs.map((b,i)=>b.dataset.cewUnitLabel||humanUnitLabel(b.dataset.layoutUnit,i));return `Struttura confermata. Le unità sono i riquadri viola ${labels[0]}–${labels[labels.length-1]}; clicca una unità per avviare l’analisi locale.`;
+  decorateUnits();const us=units();if(!us.length)return 'Struttura confermata. Nessuna unità di lettura disponibile.';
+  const labels=us.map((u,i)=>humanUnitLabel(u.id,i));return `Struttura confermata. Le unità sono i riquadri viola ${labels[0]}–${labels[labels.length-1]}; clicca una unità per avviare l’analisi locale.`;
 }
 
 function showStructure(){
