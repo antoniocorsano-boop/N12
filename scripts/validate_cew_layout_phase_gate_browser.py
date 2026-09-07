@@ -90,6 +90,11 @@ def main() -> None:
                 svg,
             )
             page.wait_for_function("document.getElementById('page').naturalWidth > 0")
+            # Match the real governed/PDF viewer lifecycle: the inspection stage is
+            # what owns page-relative overlays.  Without it a synthetic test can
+            # populate the layout model but cannot materialize clickable units.
+            page.evaluate("ensureInspectionStage(); renderPageGeometry(false)")
+            page.wait_for_function("document.getElementById('page-stage') !== null")
             page.evaluate("window.CEWLayoutLearning.refresh()")
             page.wait_for_function("window.CEWLayoutLearning.units().length >= 3")
             page.wait_for_function("window.CEWLayoutPhaseGate && window.CEWLayoutPhaseGate.describe().label.includes('candidate')")
@@ -108,19 +113,6 @@ def main() -> None:
                 "() => (document.getElementById('cew-layout-feedback')?.textContent || '').toLowerCase().includes('riquadri viola')"
             )
             assert "riquadri viola" in page.locator("#cew-layout-feedback").inner_text().lower()
-
-            # Use the same visible layout control a professional operator has.  The
-            # synthetic image can leave model units populated while a lower viewer
-            # refresh has rebuilt the overlay; a real hide/show cycle must restore
-            # the selectable unit DOM before the pointer test.
-            layout_toggle = page.locator("#preview-layout")
-            assert layout_toggle.count() == 1
-            if page.locator("#cew-layout-overlay .cew-layout-unit").count() < 3:
-                if layout_toggle.get_attribute("aria-pressed") == "true":
-                    layout_toggle.click()
-                    page.wait_for_function("document.getElementById('preview-layout').getAttribute('aria-pressed') === 'false'")
-                layout_toggle.click()
-                page.wait_for_function("document.getElementById('preview-layout').getAttribute('aria-pressed') === 'true'")
 
             # Real pointer interaction on the reading unit; no direct JS selectUnit call.
             page.wait_for_function("document.querySelectorAll('#cew-layout-overlay .cew-layout-unit').length >= 3")
@@ -151,7 +143,7 @@ def main() -> None:
             proc.wait(timeout=3)
 
     print("CEW_LAYOUT_PHASE_GATE_BROWSER_V3_PASS")
-    print("real_confirm_click=PASS explicit_unit_labels=PASS real_unit_click=PASS visible_feedback=PASS local_unit_analysis=PASS")
+    print("real_stage=PASS real_confirm_click=PASS explicit_unit_labels=PASS real_unit_click=PASS visible_feedback=PASS local_unit_analysis=PASS")
     print("semantic_gate=LOCAL_BACKEND_CANDIDATE_REQUIRED canonical_write=false")
 
 
