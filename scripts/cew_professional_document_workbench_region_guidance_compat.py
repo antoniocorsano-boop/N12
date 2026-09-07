@@ -67,10 +67,14 @@ function selectFromPointer(e){
 }
 document.addEventListener('pointerup',selectFromPointer,true);
 const observer=new MutationObserver(records=>{
-  if(records.some(r=>r.target?.id==='cew-layout-overlay'||r.target?.closest?.('#cew-layout-overlay')||[...r.addedNodes].some(n=>n?.id==='cew-layout-overlay'||n?.querySelector?.('.cew-layout-unit'))))requestAnimationFrame(decorate);
+  const relevant=records.some(r=>
+    (r.type==='attributes'&&r.target===document.body&&r.attributeName==='data-cew-layout-phase')||
+    r.target?.id==='cew-layout-overlay'||r.target?.closest?.('#cew-layout-overlay')||
+    [...r.addedNodes].some(n=>n?.id==='cew-layout-overlay'||n?.querySelector?.('.cew-layout-unit'))
+  );
+  if(relevant)requestAnimationFrame(decorate);
 });
-observer.observe(document.body,{subtree:true,childList:true});
-window.addEventListener('cew-layout-confirmed',decorate);
+observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['data-cew-layout-phase']});
 requestAnimationFrame(decorate);
 window.CEWLayoutUnitSelection={decorate,select:id=>window.CEWLayoutPhaseGate?.selectUnit?.(id)};
 })();
