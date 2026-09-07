@@ -77,7 +77,13 @@ function describe(){
   return {label:`${us.length} unità di lettura candidate`,reading:'da verificare',repeat:'da verificare',kind:'MIXED'};
 }
 function decorateUnits(){
-  const bs=unitButtons();bs.forEach((b,i)=>{const label=humanUnitLabel(b.dataset.layoutUnit,i);b.dataset.cewUnitLabel=label;b.title=`Unità di lettura ${label} · clicca per analizzare questa zona`;b.setAttribute('aria-label',`Seleziona unità di lettura ${label}`)});return bs;
+  const bs=unitButtons();bs.forEach((b,i)=>{
+    const label=humanUnitLabel(b.dataset.layoutUnit,i);b.dataset.cewUnitLabel=label;b.title=`Unità di lettura ${label} · clicca per analizzare questa zona`;b.setAttribute('aria-label',`Seleziona unità di lettura ${label}`);
+    if(b.dataset.cewPhasePointerWired!=='1'){
+      b.dataset.cewPhasePointerWired='1';
+      b.addEventListener('pointerdown',e=>{e.stopPropagation();if(gate.confirmed)selectUnit(b.dataset.layoutUnit)});
+    }
+  });return bs;
 }
 function confirmedGuidance(){
   decorateUnits();const us=units();if(!us.length)return 'Struttura confermata. Nessuna unità di lettura disponibile.';
