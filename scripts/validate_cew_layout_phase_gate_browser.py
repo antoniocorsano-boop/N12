@@ -109,6 +109,19 @@ def main() -> None:
             )
             assert "riquadri viola" in page.locator("#cew-layout-feedback").inner_text().lower()
 
+            # Use the same visible layout control a professional operator has.  The
+            # synthetic image can leave model units populated while a lower viewer
+            # refresh has rebuilt the overlay; a real hide/show cycle must restore
+            # the selectable unit DOM before the pointer test.
+            layout_toggle = page.locator("#preview-layout")
+            assert layout_toggle.count() == 1
+            if page.locator("#cew-layout-overlay .cew-layout-unit").count() < 3:
+                if layout_toggle.get_attribute("aria-pressed") == "true":
+                    layout_toggle.click()
+                    page.wait_for_function("document.getElementById('preview-layout').getAttribute('aria-pressed') === 'false'")
+                layout_toggle.click()
+                page.wait_for_function("document.getElementById('preview-layout').getAttribute('aria-pressed') === 'true'")
+
             # Real pointer interaction on the reading unit; no direct JS selectUnit call.
             page.wait_for_function("document.querySelectorAll('#cew-layout-overlay .cew-layout-unit').length >= 3")
             page.wait_for_function("() => document.querySelector('#cew-layout-overlay .cew-layout-unit')?.dataset.cewUnitLabel === 'U1'")
