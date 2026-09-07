@@ -97,21 +97,36 @@ def main() -> None:
             page.wait_for_function("window.CEWLayoutPhaseGate.state().confirmed === true")
             page.wait_for_function("document.querySelectorAll('#cew-layout-overlay .cew-layout-unit').length >= 4")
 
+            # Unit-selection click behavior is separately gated end-to-end by the
+            # phase-gate browser test. Here we still click the real overlay, but
+            # derive drag coordinates from the canonical normalized unit geometry
+            # rather than a transient overlay DOM box that can be reflowed by focus.
             first_unit = page.locator("#cew-layout-overlay .cew-layout-unit").first
-            bbox = first_unit.bounding_box()
-            assert bbox is not None
             first_unit.click()
             page.wait_for_function("window.CEWLayoutPhaseGate.state().activeUnit !== null")
             page.wait_for_function("!document.getElementById('cew-visual-search').hidden")
             assert page.locator("#cew-local-overlay").evaluate("el => getComputedStyle(el).display") == "none"
             assert page.locator("#cew-decision-tab").is_hidden()
 
+            stage_box = page.locator("#page-stage").bounding_box()
+            assert stage_box is not None
+            active = page.evaluate(
+                """() => {
+                  const id=window.CEWLayoutPhaseGate.state().activeUnit;
+                  const u=window.CEWLayoutLearning.units().find(x=>x.id===id);
+                  if(!u)return null;
+                  return {id:u.id,x:Number(u.x),y:Number(u.y),w:Number(u.w),h:Number(u.h)};
+                }"""
+            )
+            assert active is not None, active
+            assert active["w"] > 0 and active["h"] > 0, active
+
             page.locator("#cew-reference-start").click()
             page.wait_for_function("window.CEWVisualReferenceSearch.state().mode === 'SELECTING'")
-            x1 = bbox["x"] + bbox["width"] * 0.08
-            x2 = bbox["x"] + bbox["width"] * 0.92
-            y1 = bbox["y"] + bbox["height"] * 0.04
-            y2 = bbox["y"] + bbox["height"] * 0.28
+            x1 = stage_box["x"] + (active["x"] + active["w"] * 0.08) * stage_box["width"]
+            x2 = stage_box["x"] + (active["x"] + active["w"] * 0.92) * stage_box["width"]
+            y1 = stage_box["y"] + (active["y"] + active["h"] * 0.04) * stage_box["height"]
+            y2 = stage_box["y"] + (active["y"] + active["h"] * 0.28) * stage_box["height"]
             page.mouse.move(x1, y1)
             page.mouse.down()
             page.mouse.move(x2, y2, steps=8)
@@ -140,7 +155,7 @@ def main() -> None:
             proc.wait(timeout=3)
 
     print("CEW_VISUAL_REFERENCE_SEARCH_BROWSER_V1_PASS")
-    print("reference_rectangle=REAL_DRAG explicit_search=PASS repeated_units=PASS review_results=PASS")
+    print("reference_rectangle=REAL_DRAG normalized_unit_geometry=PASS explicit_search=PASS repeated_units=PASS review_results=PASS")
     print("raw_components=HIDDEN_BY_DEFAULT semantic_authority=NONE canonical_write=false")
 
 
