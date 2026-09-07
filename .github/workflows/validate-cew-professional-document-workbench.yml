@@ -12,6 +12,7 @@ on:
       - 'scripts/cew_professional_document_workbench_governed_async.py'
       - 'scripts/cew_professional_document_workbench_region_guidance.py'
       - 'scripts/cew_professional_document_workbench_layout_learning.py'
+      - 'scripts/cew_professional_document_workbench_layout_phase_gate.py'
       - 'scripts/cew_document_discovery_governed_jobs.py'
       - 'scripts/cew_document_discovery_governed_async.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
@@ -19,6 +20,7 @@ on:
       - 'scripts/validate_cew_mature_panel_content_browser.py'
       - 'scripts/validate_cew_region_guidance_browser.py'
       - 'scripts/validate_cew_layout_learning_browser.py'
+      - 'scripts/validate_cew_layout_phase_gate_browser.py'
       - 'scripts/validate_cew_governed_async_boundary.py'
       - 'scripts/validate_cew_governed_async_browser.py'
       - 'scripts/validate_cew_preview_runtime_recovery_browser.py'
@@ -36,6 +38,7 @@ on:
       - 'scripts/cew_professional_document_workbench_governed_async.py'
       - 'scripts/cew_professional_document_workbench_region_guidance.py'
       - 'scripts/cew_professional_document_workbench_layout_learning.py'
+      - 'scripts/cew_professional_document_workbench_layout_phase_gate.py'
       - 'scripts/cew_document_discovery_governed_jobs.py'
       - 'scripts/cew_document_discovery_governed_async.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
@@ -43,6 +46,7 @@ on:
       - 'scripts/validate_cew_mature_panel_content_browser.py'
       - 'scripts/validate_cew_region_guidance_browser.py'
       - 'scripts/validate_cew_layout_learning_browser.py'
+      - 'scripts/validate_cew_layout_phase_gate_browser.py'
       - 'scripts/validate_cew_governed_async_boundary.py'
       - 'scripts/validate_cew_governed_async_browser.py'
       - 'scripts/validate_cew_preview_runtime_recovery_browser.py'
@@ -79,6 +83,7 @@ jobs:
           scripts/cew_professional_document_workbench_governed_async.py
           scripts/cew_professional_document_workbench_region_guidance.py
           scripts/cew_professional_document_workbench_layout_learning.py
+          scripts/cew_professional_document_workbench_layout_phase_gate.py
           scripts/cew_document_discovery_governed_jobs.py
           scripts/cew_document_discovery_governed_async.py
           scripts/validate_cew_professional_document_workbench.py
@@ -86,6 +91,7 @@ jobs:
           scripts/validate_cew_mature_panel_content_browser.py
           scripts/validate_cew_region_guidance_browser.py
           scripts/validate_cew_layout_learning_browser.py
+          scripts/validate_cew_layout_phase_gate_browser.py
           scripts/validate_cew_governed_async_boundary.py
           scripts/validate_cew_governed_async_browser.py
           scripts/validate_cew_preview_runtime_recovery_browser.py
@@ -106,6 +112,9 @@ jobs:
       - name: Validate layout hypotheses and teach-one relation
         working-directory: scripts
         run: python validate_cew_layout_learning_browser.py
+      - name: Validate layout confirmation before semantics
+        working-directory: scripts
+        run: python validate_cew_layout_phase_gate_browser.py
       - name: Validate governed source process boundary
         working-directory: scripts
         run: python validate_cew_governed_async_boundary.py
