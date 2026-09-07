@@ -89,7 +89,7 @@ function startReference(){
   setStatus(`Disegna un rettangolo stretto attorno al riferimento dentro ${unitLabel(p.activeUnit)}.`);
 }
 
-function pointerNorm(e){const s=stage(),r=s?.getBoundingClientRect();if(!r||!r.width||!r.height)return null;return {x:clamp((e.clientX-r.left)/r.width,0,1),y:clamp((e.clientY-r.top)/r.height,0,1)}}
+function pointerNorm(e){const img=image(),r=img?.getBoundingClientRect();if(!r||r.width<2||r.height<2)return null;return {x:clamp((e.clientX-r.left)/r.width,0,1),y:clamp((e.clientY-r.top)/r.height,0,1)}}
 function insideUnit(p,u){return p&&u&&p.x>=u.x&&p.x<=u.x+u.w&&p.y>=u.y&&p.y<=u.y+u.h}
 function clampToUnit(p,u){return {x:clamp(p.x,u.x,u.x+u.w),y:clamp(p.y,u.y,u.y+u.h)}}
 function boxFrom(a,b){return {x:Math.min(a.x,b.x),y:Math.min(a.y,b.y),w:Math.abs(b.x-a.x),h:Math.abs(b.y-a.y)}}
