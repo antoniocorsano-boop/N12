@@ -64,6 +64,21 @@ _DOCUMENT_RENDER_TARGET_COMPAT_SCRIPT = r'''<script id="cew-document-render-targ
     status.setAttribute('aria-hidden','true');
     document.body.appendChild(status);
   }
+
+  // Selectable document overlays own pointer-down. The viewer pan handler lives
+  // higher in the DOM tree and must never capture a pointer that starts on a
+  // reading unit, otherwise the visible click can highlight the unit without
+  // reaching the phase-gate selection logic.
+  const guardSelectableOverlays=()=>{
+    for(const unit of document.querySelectorAll('.cew-layout-unit')){
+      if(unit.dataset.cewPanGuard==='1')continue;
+      unit.dataset.cewPanGuard='1';
+      unit.addEventListener('pointerdown',event=>event.stopPropagation());
+    }
+  };
+  guardSelectableOverlays();
+  const panGuardObserver=new MutationObserver(guardSelectableOverlays);
+  panGuardObserver.observe(document.body,{childList:true,subtree:true});
 })();
 </script>'''
 
