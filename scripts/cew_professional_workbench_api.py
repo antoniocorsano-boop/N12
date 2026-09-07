@@ -27,6 +27,7 @@ import cew_external_graphic_reference_review_asset_hardening as _reference_revie
 import cew_professional_document_workbench_mature_panels as _professional_document_workbench
 import cew_professional_document_workbench_mature_content as _professional_document_content
 import cew_professional_document_workbench_governed_async as _professional_document_governed_async
+import cew_professional_document_workbench_region_guidance as _professional_document_region_guidance
 import cew_document_discovery_governed_async as _document_discovery_governed_async
 import cew_document_discovery_async_preview as _document_discovery_async_preview
 import cew_document_discovery_workbench as _document_discovery
@@ -126,12 +127,12 @@ def build_router(source_workspace):
     router.include_router(_oar_g4.build_router())
     router.include_router(_oar_g4_assisted.build_router())
     router.include_router(_reference_review.build_router())
-    # The governed-async HVA route shadows only the Document Discovery HTML
-    # surface and redirects the governed-source action to the bounded subprocess
-    # job boundary. The HVA-refined and mature shell routes remain mounted as
-    # compatibility fallbacks. Governed async API/page-artifact routes are
-    # mounted before preview and historical routes so large governed PDFs never
-    # fall back to in-process parsing/rendering during normal use.
+    # Region guidance shadows only the Document Discovery HTML surface. It
+    # proposes semantic-free layout regions and allows one corrective human ROI;
+    # all acquisition, provenance, teaching and canonical-write boundaries stay
+    # delegated to the already validated governed/preview API layers.
+    router.include_router(_professional_document_region_guidance.build_router())
+    # Governed async and mature routes remain mounted as compatibility fallbacks.
     router.include_router(_professional_document_governed_async.build_router())
     router.include_router(_professional_document_content.build_router())
     router.include_router(_professional_document_workbench.build_router())
