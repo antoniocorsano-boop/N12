@@ -93,8 +93,9 @@ def main() -> None:
             count = page.evaluate("window.CEWRegionGuidance.regions().length")
             assert count >= 2, count
 
-            # Let the image-load refresh scheduled by the production client
-            # settle before simulating the first operator click.
+            # Let the production image-load refresh settle, then simulate the
+            # operator accepting one system proposal. The durable observable is
+            # the focused working-area state, not a transient CSS class.
             page.wait_for_timeout(250)
             page.evaluate(
                 """() => {
@@ -106,7 +107,7 @@ def main() -> None:
                 "document.querySelectorAll('#cew-region-overlay .cew-region-proposal').length >= 2"
             )
             page.wait_for_function(
-                "document.querySelectorAll('#cew-region-overlay .cew-region-proposal.active').length === 1"
+                "document.getElementById('cew-region-pill') && document.getElementById('cew-region-pill').textContent.startsWith('Area di lavoro')"
             )
             assert page.locator("#cew-region-overlay .cew-region-proposal").count() >= 2
 
