@@ -103,6 +103,7 @@ def main() -> None:
             page.wait_for_function("!document.getElementById('cew-visual-search').hidden")
             assert page.locator("#cew-local-overlay").evaluate("el => getComputedStyle(el).display") == "none"
             assert page.locator("#cew-decision-tab").is_hidden()
+            page.wait_for_timeout(450)
 
             image_box = page.locator("#page").bounding_box()
             assert image_box is not None
@@ -123,11 +124,23 @@ def main() -> None:
             x2 = image_box["x"] + (active["x"] + active["w"] * 0.92) * image_box["width"]
             y1 = image_box["y"] + (active["y"] + active["h"] * 0.04) * image_box["height"]
             y2 = image_box["y"] + (active["y"] + active["h"] * 0.28) * image_box["height"]
+            hit_before = page.evaluate("([x,y]) => { const e=document.elementFromPoint(x,y); return e?`${e.id}|${e.className}`:null }", [x1, y1])
             page.mouse.move(x1, y1)
             page.mouse.down()
             page.mouse.move(x2, y2, steps=8)
             page.mouse.up()
-            page.wait_for_function("window.CEWVisualReferenceSearch.state().mode === 'REFERENCE_READY'")
+            page.wait_for_timeout(180)
+            drag_state = page.evaluate(
+                """() => ({
+                  visual: window.CEWVisualReferenceSearch.state(),
+                  status: document.getElementById('cew-visual-status')?.textContent || '',
+                  selectorClass: document.getElementById('cew-visual-select-layer')?.className || '',
+                  selectorPointer: getComputedStyle(document.getElementById('cew-visual-select-layer')).pointerEvents,
+                  image: (()=>{const r=document.getElementById('page').getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}})(),
+                  stage: (()=>{const r=document.getElementById('page-stage').getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}})()
+                })"""
+            )
+            assert drag_state["visual"]["mode"] == "REFERENCE_READY", {"hit": hit_before, "coords": [x1, y1, x2, y2], "active": active, **drag_state}
             assert page.locator(".cew-visual-ref-box").count() == 1
             assert page.locator("#cew-reference-search").is_visible()
 
