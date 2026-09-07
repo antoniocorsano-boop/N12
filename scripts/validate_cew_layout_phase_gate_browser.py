@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Chromium gate for real layout confirmation, local analysis and semantic lock."""
+"""Chromium gate for real layout confirmation, unit selection and semantic lock."""
 from __future__ import annotations
 
 import os
@@ -65,6 +65,7 @@ def main() -> None:
             assert response is not None and response.status == 200
             headers = {k.lower(): v for k, v in response.headers.items()}
             assert headers.get("x-cew-layout-phase-gate") == "LAYOUT_CONFIRM_BEFORE_SEMANTICS_V2", headers
+            assert headers.get("x-cew-layout-unit-selection") == "EXPLICIT_POINTER_UI_BRIDGE_V1", headers
             assert headers.get("x-cew-local-unit-analysis") == "BROWSER_GRAPHIC_FRAGMENTS_V1", headers
             assert headers.get("x-cew-semantic-gate") == "LOCAL_BACKEND_CANDIDATE_REQUIRED_V1", headers
             assert page.locator('body[data-cew-layout-phase-gate="v2"]').count() == 1
@@ -97,20 +98,25 @@ def main() -> None:
             assert before["confirmed"] is False, before
             assert page.locator("#cew-layout-confirm").is_visible()
 
-            # This deliberately uses the actual UI control rather than the JS API.
+            # Real visible confirmation control.
             page.locator("#cew-layout-confirm").click()
             page.wait_for_function("window.CEWLayoutPhaseGate.state().confirmed === true")
             assert "struttura confermata" in page.locator("#cew-layout-state").inner_text().lower()
             assert page.locator("#cew-layout-confirm").is_hidden()
             assert page.locator("#cew-layout-reset").is_visible()
-            assert "seleziona una unità" in page.locator("#cew-layout-feedback").inner_text().lower()
+            assert "riquadri viola" in page.locator("#cew-layout-feedback").inner_text().lower()
 
-            units = page.evaluate("window.CEWLayoutLearning.units()")
-            assert len(units) >= 3, units
-            page.evaluate("id => window.CEWLayoutPhaseGate.selectUnit(id)", units[0]["id"])
+            # Real pointer interaction on the reading unit; no direct JS selectUnit call.
+            first_unit = page.locator("#cew-layout-overlay .cew-layout-unit").first
+            page.wait_for_function("document.querySelectorAll('#cew-layout-overlay .cew-layout-unit').length >= 3")
+            assert first_unit.get_attribute("data-cew-unit-label") == "U1"
+            first_unit.click()
             page.wait_for_function("window.CEWLayoutPhaseGate.state().activeUnit !== null")
             local = page.evaluate("window.CEWLayoutPhaseGate.state()")
+            assert local["activeUnit"] == "LU-1", local
             assert local["localCandidateCount"] >= 1, local
+            assert "unità u1 selezionata" in page.locator("#cew-layout-feedback").inner_text().lower()
+            assert "unità lu-1" in page.locator("#cew-local-summary").inner_text().lower()
             assert local["semanticReady"] is False, local
             assert page.locator("#cew-decision-tab").is_hidden()
             assert "semantica resta bloccata" in page.locator("#cew-local-block").inner_text().lower()
@@ -127,7 +133,7 @@ def main() -> None:
             proc.wait(timeout=3)
 
     print("CEW_LAYOUT_PHASE_GATE_BROWSER_V2_PASS")
-    print("real_confirm_click=PASS visible_feedback=PASS local_unit_analysis=PASS")
+    print("real_confirm_click=PASS real_unit_click=PASS visible_feedback=PASS local_unit_analysis=PASS")
     print("semantic_gate=LOCAL_BACKEND_CANDIDATE_REQUIRED canonical_write=false")
 
 
