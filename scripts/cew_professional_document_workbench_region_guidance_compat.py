@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Compatibility route headers for region-guided Document Discovery."""
+"""Compatibility route headers for layout-guided Document Discovery."""
 from __future__ import annotations
 
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
-import cew_professional_document_workbench_region_guidance as region_guidance
+import cew_professional_document_workbench_layout_learning as layout_learning
 
 
 def build_router() -> APIRouter:
@@ -14,7 +14,7 @@ def build_router() -> APIRouter:
     @router.get("/workbench/document-discovery", response_class=HTMLResponse)
     def region_guided_compat_page():
         return HTMLResponse(
-            region_guidance._patched_page(),
+            layout_learning._patched_page(),
             headers={
                 "Cache-Control": "no-store",
                 "X-CEW-Canonical-Write": "false",
@@ -25,8 +25,11 @@ def build_router() -> APIRouter:
                 "X-CEW-Panel-Content": "HVA_REFINED_V1",
                 "X-CEW-Governed-Analysis": "ASYNC_BOUNDED_RECONSTRUCT_V1",
                 "X-CEW-Preview-Runtime-Recovery": "BROWSER_RECONSTRUCT_V1",
-                "X-CEW-Region-Guidance": "AUTO_LAYOUT_PLUS_HUMAN_ROI_V1",
+                "X-CEW-Region-Guidance": "LAYOUT_PRIMITIVES_V1",
                 "X-CEW-Region-Semantic-Authority": "NONE",
+                "X-CEW-Layout-Learning": "HYPOTHESIS_PLUS_TEACH_ONE_RELATION_V1",
+                "X-CEW-Layout-Semantic-Authority": "NONE",
+                "X-CEW-Layout-Prototype-Persistence": "LOCAL_NON_CANONICAL_V1",
             },
         )
 
