@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
-import cew_professional_document_workbench_layout_learning as layout_learning
+import cew_professional_document_workbench_layout_phase_gate as layout_phase_gate
 
 
 def build_router() -> APIRouter:
@@ -14,7 +14,7 @@ def build_router() -> APIRouter:
     @router.get("/workbench/document-discovery", response_class=HTMLResponse)
     def region_guided_compat_page():
         return HTMLResponse(
-            layout_learning._patched_page(),
+            layout_phase_gate._patched_page(),
             headers={
                 "Cache-Control": "no-store",
                 "X-CEW-Canonical-Write": "false",
@@ -30,6 +30,9 @@ def build_router() -> APIRouter:
                 "X-CEW-Layout-Learning": "HYPOTHESIS_PLUS_TEACH_ONE_RELATION_V1",
                 "X-CEW-Layout-Semantic-Authority": "NONE",
                 "X-CEW-Layout-Prototype-Persistence": "LOCAL_NON_CANONICAL_V1",
+                "X-CEW-Layout-Phase-Gate": "LAYOUT_CONFIRM_BEFORE_SEMANTICS_V1",
+                "X-CEW-Local-Unit-Analysis": "BROWSER_GRAPHIC_FRAGMENTS_V1",
+                "X-CEW-Semantic-Gate": "LOCAL_BACKEND_CANDIDATE_REQUIRED_V1",
             },
         )
 
