@@ -50,7 +50,7 @@ function syncOperatorView(){
     const label=unitLabel(s.activeUnit),count=Number(s.localCandidateCount||0);
     setText('cew-local-summary',`Unità ${label} attiva. Vista locale pulita; ${count} segnali grafici grezzi restano disponibili solo come diagnostica.`);
     const block=ce('cew-local-block');
-    if(block&&!s.semanticReady){block.hidden=false;block.textContent='Nessun candidato locale affidabile è stato ancora riconosciuto. CEW non trasforma i componenti grafici grezzi in oggetti e non apre la semantica.'}
+    if(block&&!s.semanticReady){block.hidden=false;block.textContent='La semantica resta bloccata: nessun candidato locale affidabile è stato ancora riconosciuto. CEW non trasforma i componenti grafici grezzi in oggetti.'}
     const fb=ce('cew-layout-feedback');if(fb){fb.hidden=false;fb.textContent=`Unità ${label} selezionata. La tavola resta pulita; usa la diagnostica solo se serve a verificare il motore.`}
     if(evidence)evidence.textContent=`${label} · vista locale`;
   }else if(evidence&&savedEvidence){
