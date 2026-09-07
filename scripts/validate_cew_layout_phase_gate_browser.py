@@ -104,14 +104,23 @@ def main() -> None:
             assert "struttura confermata" in page.locator("#cew-layout-state").inner_text().lower()
             assert page.locator("#cew-layout-confirm").is_hidden()
             assert page.locator("#cew-layout-reset").is_visible()
+            page.wait_for_function(
+                "() => (document.getElementById('cew-layout-feedback')?.textContent || '').toLowerCase().includes('riquadri viola')"
+            )
             assert "riquadri viola" in page.locator("#cew-layout-feedback").inner_text().lower()
 
             # Real pointer interaction on the reading unit; no direct JS selectUnit call.
-            first_unit = page.locator("#cew-layout-overlay .cew-layout-unit").first
             page.wait_for_function("document.querySelectorAll('#cew-layout-overlay .cew-layout-unit').length >= 3")
+            page.wait_for_function(
+                "() => document.querySelector('#cew-layout-overlay .cew-layout-unit')?.dataset.cewUnitLabel === 'U1'"
+            )
+            first_unit = page.locator("#cew-layout-overlay .cew-layout-unit").first
             assert first_unit.get_attribute("data-cew-unit-label") == "U1"
             first_unit.click()
             page.wait_for_function("window.CEWLayoutPhaseGate.state().activeUnit !== null")
+            page.wait_for_function(
+                "() => (document.getElementById('cew-layout-feedback')?.textContent || '').toLowerCase().includes('unità u1 selezionata')"
+            )
             local = page.evaluate("window.CEWLayoutPhaseGate.state()")
             assert local["activeUnit"] == "LU-1", local
             assert local["localCandidateCount"] >= 1, local
