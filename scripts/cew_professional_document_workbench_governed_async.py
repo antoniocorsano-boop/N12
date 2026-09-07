@@ -28,6 +28,13 @@ document.body.dataset.cewGovernedAnalysis='async-bounded-reconstruct-v1';
 
 const sleepGoverned=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
+function expiredSession(response){
+  try{
+    const path=new URL(response.url,window.location.href).pathname;
+    return response.redirected&&path==='/login';
+  }catch(_){return false}
+}
+
 async function governedFetch(url,options={},allowNotFound=false){
   let delay=500;
   for(let attempt=0;attempt<=MAX_TRANSIENT_RETRIES;attempt++){
@@ -38,6 +45,9 @@ async function governedFetch(url,options={},allowNotFound=false){
       if(attempt>=MAX_TRANSIENT_RETRIES)throw Error('Runtime CEW non raggiungibile dopo i tentativi di recupero.');
       intakeMessage('Servizio temporaneamente non disponibile. Recupero automatico in corso…','busy');
       await sleepGoverned(delay);delay=Math.min(2500,Math.round(delay*1.35));continue;
+    }
+    if(expiredSession(response)){
+      throw Error('Sessione CEW scaduta. Accedi di nuovo e ripeti Analizza fonte.');
     }
     if(TRANSIENT_HTTP.has(response.status)){
       if(attempt>=MAX_TRANSIENT_RETRIES)throw Error(`Runtime CEW ancora indisponibile · HTTP ${response.status}.`);
@@ -54,10 +64,13 @@ async function enqueueGoverned(project,source){
   const {response}=await governedFetch('/api/workbench/document-discovery/analyze-governed-async',{
     method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:project,source_id:source})
   });
-  return responseJson(response);
+  const queued=await responseJson(response);
+  if(!queued?.job_id)throw Error('Avvio analisi non valido: identificativo lavoro assente. Riprova dopo aver verificato l’accesso CEW.');
+  return queued;
 }
 
 async function pollGoverned(jobId){
+  if(!jobId)throw Error('Analisi non avviata: identificativo lavoro assente.');
   for(let attempt=0;attempt<240;attempt++){
     await sleepGoverned(750);
     const result=await governedFetch(`/api/workbench/document-discovery/governed-job/${encodeURIComponent(jobId)}`,{},true);
