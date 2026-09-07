@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Browser gate for CEW non-semantic automatic regions plus corrective ROI."""
+"""Browser gate for CEW non-semantic region primitives plus corrective ROI."""
 from __future__ import annotations
 
 import os
@@ -64,8 +64,9 @@ def main() -> None:
             response = page.goto(f"{base}/workbench/document-discovery", wait_until="networkidle")
             assert response is not None and response.status == 200
             headers = {k.lower(): v for k, v in response.headers.items()}
-            assert headers.get("x-cew-region-guidance") == "AUTO_LAYOUT_PLUS_HUMAN_ROI_V1", headers
+            assert headers.get("x-cew-region-guidance") == "LAYOUT_PRIMITIVES_V1", headers
             assert headers.get("x-cew-region-semantic-authority") == "NONE", headers
+            assert headers.get("x-cew-layout-learning") == "HYPOTHESIS_PLUS_TEACH_ONE_RELATION_V1", headers
             assert page.locator('body[data-cew-region-guidance="v1"]').count() == 1
             assert page.locator("#preview-regions").count() == 1
             assert page.locator("#preview-roi").count() == 1
@@ -96,9 +97,6 @@ def main() -> None:
             assert all(0 < r["w"] <= 1 and 0 < r["h"] <= 1 for r in regions), regions
             assert max(r["w"] * r["h"] for r in regions) <= 0.72, regions
 
-            # The production layer owns visual overlays, one-click focus, and a
-            # manual corrective ROI. Gate their presence/semantics while the
-            # deterministic region-model result above proves the actual split.
             region_source = page.locator("#cew-region-guidance-script").text_content() or ""
             for marker in (
                 "function renderRegions()",
@@ -128,7 +126,7 @@ def main() -> None:
             proc.wait(timeout=3)
 
     print("CEW_REGION_GUIDANCE_BROWSER_V1_PASS")
-    print("automatic_regions=NON_SEMANTIC_WHITESPACE_LAYOUT corrective_roi=ON_DEMAND")
+    print("region_primitives=NON_SEMANTIC corrective_roi=ON_DEMAND layout_learning=SEPARATE_LAYER")
     print("semantic_authority=NONE canonical_write=false session_expiry=FAIL_CLOSED")
 
 
