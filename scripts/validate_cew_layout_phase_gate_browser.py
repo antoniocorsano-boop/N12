@@ -64,11 +64,11 @@ def main() -> None:
             response = page.goto(f"{base}/workbench/document-discovery", wait_until="networkidle")
             assert response is not None and response.status == 200
             headers = {k.lower(): v for k, v in response.headers.items()}
-            assert headers.get("x-cew-layout-phase-gate") == "LAYOUT_CONFIRM_BEFORE_SEMANTICS_V2", headers
-            assert headers.get("x-cew-layout-unit-selection") == "EXPLICIT_POINTER_UI_BRIDGE_V1", headers
+            assert headers.get("x-cew-layout-phase-gate") == "LAYOUT_CONFIRM_BEFORE_SEMANTICS_V3", headers
+            assert headers.get("x-cew-layout-unit-selection") == "PHASE_GATE_POINTER_V2", headers
             assert headers.get("x-cew-local-unit-analysis") == "BROWSER_GRAPHIC_FRAGMENTS_V1", headers
             assert headers.get("x-cew-semantic-gate") == "LOCAL_BACKEND_CANDIDATE_REQUIRED_V1", headers
-            assert page.locator('body[data-cew-layout-phase-gate="v2"]').count() == 1
+            assert page.locator('body[data-cew-layout-phase-gate="v3"]').count() == 1
             assert page.locator("#cew-layout-structure-tab").count() == 1
             assert page.locator("#cew-decision-tab").is_hidden()
 
@@ -111,21 +111,17 @@ def main() -> None:
 
             # Real pointer interaction on the reading unit; no direct JS selectUnit call.
             page.wait_for_function("document.querySelectorAll('#cew-layout-overlay .cew-layout-unit').length >= 3")
-            page.wait_for_function(
-                "() => document.querySelector('#cew-layout-overlay .cew-layout-unit')?.dataset.cewUnitLabel === 'U1'"
-            )
+            page.wait_for_function("() => document.querySelector('#cew-layout-overlay .cew-layout-unit')?.dataset.cewUnitLabel === 'U1'")
             first_unit = page.locator("#cew-layout-overlay .cew-layout-unit").first
             assert first_unit.get_attribute("data-cew-unit-label") == "U1"
             first_unit.click()
             page.wait_for_function("window.CEWLayoutPhaseGate.state().activeUnit !== null")
-            page.wait_for_function(
-                "() => (document.getElementById('cew-layout-feedback')?.textContent || '').toLowerCase().includes('unità u1 selezionata')"
-            )
+            page.wait_for_function("() => (document.getElementById('cew-layout-feedback')?.textContent || '').toLowerCase().includes('unità u1 selezionata')")
             local = page.evaluate("window.CEWLayoutPhaseGate.state()")
             assert local["activeUnit"] == "LU-1", local
             assert local["localCandidateCount"] >= 1, local
             assert "unità u1 selezionata" in page.locator("#cew-layout-feedback").inner_text().lower()
-            assert "unità lu-1" in page.locator("#cew-local-summary").inner_text().lower()
+            assert "unità u1" in page.locator("#cew-local-summary").inner_text().lower()
             assert local["semanticReady"] is False, local
             assert page.locator("#cew-decision-tab").is_hidden()
             assert "semantica resta bloccata" in page.locator("#cew-local-block").inner_text().lower()
@@ -141,8 +137,8 @@ def main() -> None:
             proc.kill()
             proc.wait(timeout=3)
 
-    print("CEW_LAYOUT_PHASE_GATE_BROWSER_V2_PASS")
-    print("real_confirm_click=PASS real_unit_click=PASS visible_feedback=PASS local_unit_analysis=PASS")
+    print("CEW_LAYOUT_PHASE_GATE_BROWSER_V3_PASS")
+    print("real_confirm_click=PASS explicit_unit_labels=PASS real_unit_click=PASS visible_feedback=PASS local_unit_analysis=PASS")
     print("semantic_gate=LOCAL_BACKEND_CANDIDATE_REQUIRED canonical_write=false")
 
 
