@@ -28,6 +28,7 @@ import cew_professional_document_workbench_mature_panels as _professional_docume
 import cew_professional_document_workbench_mature_content as _professional_document_content
 import cew_professional_document_workbench_governed_async as _professional_document_governed_async
 import cew_professional_document_workbench_region_guidance as _professional_document_region_guidance
+import cew_professional_document_workbench_region_guidance_compat as _professional_document_region_guidance_compat
 import cew_document_discovery_governed_async as _document_discovery_governed_async
 import cew_document_discovery_async_preview as _document_discovery_async_preview
 import cew_document_discovery_workbench as _document_discovery
@@ -56,10 +57,6 @@ _REQUIRED_BASE_MARKERS = (
 _DOCUMENT_RENDER_TARGET_COMPAT_SCRIPT = r'''<script id="cew-document-render-target-compat">
 (function(){
   'use strict';
-  // The inherited Document Discovery render() still writes operational status
-  // into #status. The professional navigator replaces the legacy sidebar, so
-  // preserve that non-visual render target instead of letting a later session
-  // reload fail after a runtime reconstruction.
   if(!document.getElementById('status')){
     const status=document.createElement('div');
     status.id='status';
@@ -80,7 +77,6 @@ def _assert_base_contract() -> None:
 
 
 def _install_document_render_target_compat() -> None:
-    """Keep inherited Document Discovery render targets alive after shell composition."""
     if getattr(_professional_document_workbench, "_cew_render_target_compat_installed", False):
         return
     original_patched_page = _professional_document_workbench._patched_page
@@ -104,19 +100,16 @@ _reference_review_asset_hardening.install(_reference_review)
 
 
 def _sync_runtime_stores() -> None:
-    """Keep legacy writable runtime-store overrides effective through the wrapper."""
     _base.R2HR_RUNTIME_STORE = R2HR_RUNTIME_STORE
     _base.R2GM_RUNTIME_STORE = R2GM_RUNTIME_STORE
 
 
 def _runtime_r2gi_report():
-    """Compatibility delegate for governed R2GI runtime consumers and validators."""
     _sync_runtime_stores()
     return _base._runtime_r2gi_report()
 
 
 def _runtime_r2gm_report():
-    """Compatibility delegate for governed R2GM runtime consumers and validators."""
     _sync_runtime_stores()
     return _base._runtime_r2gm_report()
 
@@ -127,12 +120,10 @@ def build_router(source_workspace):
     router.include_router(_oar_g4.build_router())
     router.include_router(_oar_g4_assisted.build_router())
     router.include_router(_reference_review.build_router())
-    # Region guidance shadows only the Document Discovery HTML surface. It
-    # proposes semantic-free layout regions and allows one corrective human ROI;
-    # all acquisition, provenance, teaching and canonical-write boundaries stay
-    # delegated to the already validated governed/preview API layers.
+    # First route owns the live HTML response and preserves all accepted MATURE_V1
+    # headers while adding semantic-free region guidance markers.
+    router.include_router(_professional_document_region_guidance_compat.build_router())
     router.include_router(_professional_document_region_guidance.build_router())
-    # Governed async and mature routes remain mounted as compatibility fallbacks.
     router.include_router(_professional_document_governed_async.build_router())
     router.include_router(_professional_document_content.build_router())
     router.include_router(_professional_document_workbench.build_router())
