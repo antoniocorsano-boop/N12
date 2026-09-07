@@ -30,7 +30,7 @@ def build_router() -> APIRouter:
                 "X-CEW-Layout-Learning": "HYPOTHESIS_PLUS_TEACH_ONE_RELATION_V1",
                 "X-CEW-Layout-Semantic-Authority": "NONE",
                 "X-CEW-Layout-Prototype-Persistence": "LOCAL_NON_CANONICAL_V1",
-                "X-CEW-Layout-Phase-Gate": "LAYOUT_CONFIRM_BEFORE_SEMANTICS_V1",
+                "X-CEW-Layout-Phase-Gate": "LAYOUT_CONFIRM_BEFORE_SEMANTICS_V2",
                 "X-CEW-Local-Unit-Analysis": "BROWSER_GRAPHIC_FRAGMENTS_V1",
                 "X-CEW-Semantic-Gate": "LOCAL_BACKEND_CANDIDATE_REQUIRED_V1",
             },
