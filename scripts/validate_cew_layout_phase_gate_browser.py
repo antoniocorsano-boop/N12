@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Chromium gate for layout confirmation before semantics and local unit analysis."""
+"""Chromium gate for real layout confirmation, local analysis and semantic lock."""
 from __future__ import annotations
 
 import os
@@ -29,7 +29,7 @@ def wait_for_app(url: str, proc: subprocess.Popen[str]) -> None:
             output = proc.stdout.read() if proc.stdout else ""
             raise AssertionError(f"CEW_LAYOUT_PHASE_GATE_APP_EXITED\n{output}")
         try:
-            with urlopen(url, timeout=1) as response:  # noqa: S310 - loopback test server
+            with urlopen(url, timeout=1) as response:  # noqa: S310
                 if response.status == 200:
                     return
         except (HTTPError, URLError, TimeoutError):
@@ -64,10 +64,10 @@ def main() -> None:
             response = page.goto(f"{base}/workbench/document-discovery", wait_until="networkidle")
             assert response is not None and response.status == 200
             headers = {k.lower(): v for k, v in response.headers.items()}
-            assert headers.get("x-cew-layout-phase-gate") == "LAYOUT_CONFIRM_BEFORE_SEMANTICS_V1", headers
+            assert headers.get("x-cew-layout-phase-gate") == "LAYOUT_CONFIRM_BEFORE_SEMANTICS_V2", headers
             assert headers.get("x-cew-local-unit-analysis") == "BROWSER_GRAPHIC_FRAGMENTS_V1", headers
             assert headers.get("x-cew-semantic-gate") == "LOCAL_BACKEND_CANDIDATE_REQUIRED_V1", headers
-            assert page.locator('body[data-cew-layout-phase-gate="v1"]').count() == 1
+            assert page.locator('body[data-cew-layout-phase-gate="v2"]').count() == 1
             assert page.locator("#cew-layout-structure-tab").count() == 1
             assert page.locator("#cew-decision-tab").is_hidden()
 
@@ -92,13 +92,19 @@ def main() -> None:
             page.evaluate("window.CEWLayoutLearning.refresh()")
             page.wait_for_function("window.CEWLayoutLearning.units().length >= 3")
             page.wait_for_function("window.CEWLayoutPhaseGate && window.CEWLayoutPhaseGate.describe().label.includes('candidate')")
+            assert "colonne di lettura candidate" in page.locator("#cew-layout-proposal").inner_text().lower()
             before = page.evaluate("window.CEWLayoutPhaseGate.state()")
             assert before["confirmed"] is False, before
-            assert before["semanticReady"] is False, before
+            assert page.locator("#cew-layout-confirm").is_visible()
 
-            page.evaluate("window.CEWLayoutPhaseGate.confirm()")
-            after = page.evaluate("window.CEWLayoutPhaseGate.state()")
-            assert after["confirmed"] is True, after
+            # This deliberately uses the actual UI control rather than the JS API.
+            page.locator("#cew-layout-confirm").click()
+            page.wait_for_function("window.CEWLayoutPhaseGate.state().confirmed === true")
+            assert "struttura confermata" in page.locator("#cew-layout-state").inner_text().lower()
+            assert page.locator("#cew-layout-confirm").is_hidden()
+            assert page.locator("#cew-layout-reset").is_visible()
+            assert "seleziona una unità" in page.locator("#cew-layout-feedback").inner_text().lower()
+
             units = page.evaluate("window.CEWLayoutLearning.units()")
             assert len(units) >= 3, units
             page.evaluate("id => window.CEWLayoutPhaseGate.selectUnit(id)", units[0]["id"])
@@ -107,18 +113,8 @@ def main() -> None:
             assert local["localCandidateCount"] >= 1, local
             assert local["semanticReady"] is False, local
             assert page.locator("#cew-decision-tab").is_hidden()
-            assert "semantica resta bloccata" in (page.locator("#cew-local-analysis").inner_text().lower())
+            assert "semantica resta bloccata" in page.locator("#cew-local-block").inner_text().lower()
 
-            script = page.locator("#cew-layout-phase-gate-script").text_content() or ""
-            for marker in (
-                "LAYOUT_UNCONFIRMED",
-                "LOCAL_BACKEND_CANDIDATE_REQUIRED_V1",
-            ):
-                # Runtime markers are represented by equivalent state/header semantics.
-                if marker == "LAYOUT_UNCONFIRMED":
-                    assert "data-cew-layout-phase" not in script or "unconfirmed" in script
-                else:
-                    assert "semanticReady" in script
             assert not page_errors, page_errors
             assert not console_errors, console_errors
             browser.close()
@@ -130,8 +126,8 @@ def main() -> None:
             proc.kill()
             proc.wait(timeout=3)
 
-    print("CEW_LAYOUT_PHASE_GATE_BROWSER_V1_PASS")
-    print("layout_confirm_before_semantics=PASS local_unit_analysis=PASS")
+    print("CEW_LAYOUT_PHASE_GATE_BROWSER_V2_PASS")
+    print("real_confirm_click=PASS visible_feedback=PASS local_unit_analysis=PASS")
     print("semantic_gate=LOCAL_BACKEND_CANDIDATE_REQUIRED canonical_write=false")
 
 
