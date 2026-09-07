@@ -89,10 +89,24 @@ def main() -> None:
             )
             page.wait_for_function("document.getElementById('page').naturalWidth > 0")
             page.evaluate("window.CEWRegionGuidance.refresh()")
-            page.wait_for_timeout(150)
+            page.wait_for_function("window.CEWRegionGuidance.regions().length >= 2")
             count = page.evaluate("window.CEWRegionGuidance.regions().length")
             assert count >= 2, count
+
+            # Focusing one system proposal is a real operator action and also
+            # forces the overlay to be rendered after any inherited viewer DOM
+            # relayout caused by the synthetic image load.
+            page.evaluate(
+                """() => {
+                  const regions=window.CEWRegionGuidance.regions();
+                  window.CEWRegionGuidance.focus(regions[0].id);
+                }"""
+            )
+            page.wait_for_function(
+                "document.querySelectorAll('#cew-region-overlay .cew-region-proposal').length >= 2"
+            )
             assert page.locator("#cew-region-overlay .cew-region-proposal").count() >= 2
+            assert page.locator("#cew-region-overlay .cew-region-proposal.active").count() == 1
 
             page.locator("#preview-roi").click()
             assert page.locator("#preview-roi").get_attribute("aria-pressed") == "true"
