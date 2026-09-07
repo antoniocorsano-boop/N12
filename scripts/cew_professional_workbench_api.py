@@ -65,20 +65,24 @@ _DOCUMENT_RENDER_TARGET_COMPAT_SCRIPT = r'''<script id="cew-document-render-targ
     document.body.appendChild(status);
   }
 
-  // Selectable document overlays own pointer-down. The viewer pan handler lives
-  // higher in the DOM tree and must never capture a pointer that starts on a
-  // reading unit, otherwise the visible click can highlight the unit without
-  // reaching the phase-gate selection logic.
-  const guardSelectableOverlays=()=>{
-    for(const unit of document.querySelectorAll('.cew-layout-unit')){
-      if(unit.dataset.cewPanGuard==='1')continue;
-      unit.dataset.cewPanGuard='1';
-      unit.addEventListener('pointerdown',event=>event.stopPropagation());
+  // Reading units are selectable editor objects, not pan handles. Intercept the
+  // initial pointer in document capture phase, before the viewer can call
+  // setPointerCapture(), and hand the unit directly to the phase gate.
+  document.addEventListener('pointerdown',event=>{
+    if(event.button!==0)return;
+    const unit=event.target.closest?.('#cew-layout-overlay .cew-layout-unit');
+    if(!unit)return;
+    const phaseGate=window.CEWLayoutPhaseGate;
+    if(!phaseGate?.state?.().confirmed)return;
+    event.preventDefault();
+    event.stopPropagation();
+    const selected=phaseGate.selectUnit?.(unit.dataset.layoutUnit);
+    if(selected){
+      for(const button of document.querySelectorAll('#cew-layout-overlay .cew-layout-unit')){
+        button.classList.toggle('active',button.dataset.layoutUnit===unit.dataset.layoutUnit);
+      }
     }
-  };
-  guardSelectableOverlays();
-  const panGuardObserver=new MutationObserver(guardSelectableOverlays);
-  panGuardObserver.observe(document.body,{childList:true,subtree:true});
+  },true);
 })();
 </script>'''
 
