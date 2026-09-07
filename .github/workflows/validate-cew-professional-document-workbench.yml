@@ -24,7 +24,7 @@ on:
       - 'scripts/validate_cew_region_guidance_browser.py'
       - 'scripts/validate_cew_layout_learning_browser.py'
       - 'scripts/validate_cew_layout_phase_gate_browser.py'
-      - 'scripts/validate_cew_operator_clean_local_view_browser.py'
+      - 'scripts/validate_cew_operator_view_browser.py'
       - 'scripts/validate_cew_visual_reference_search_browser.py'
       - 'scripts/validate_cew_governed_async_boundary.py'
       - 'scripts/validate_cew_governed_async_browser.py'
@@ -55,7 +55,7 @@ on:
       - 'scripts/validate_cew_region_guidance_browser.py'
       - 'scripts/validate_cew_layout_learning_browser.py'
       - 'scripts/validate_cew_layout_phase_gate_browser.py'
-      - 'scripts/validate_cew_operator_clean_local_view_browser.py'
+      - 'scripts/validate_cew_operator_view_browser.py'
       - 'scripts/validate_cew_visual_reference_search_browser.py'
       - 'scripts/validate_cew_governed_async_boundary.py'
       - 'scripts/validate_cew_governed_async_browser.py'
@@ -105,7 +105,7 @@ jobs:
           scripts/validate_cew_region_guidance_browser.py
           scripts/validate_cew_layout_learning_browser.py
           scripts/validate_cew_layout_phase_gate_browser.py
-          scripts/validate_cew_operator_clean_local_view_browser.py
+          scripts/validate_cew_operator_view_browser.py
           scripts/validate_cew_visual_reference_search_browser.py
           scripts/validate_cew_governed_async_boundary.py
           scripts/validate_cew_governed_async_browser.py
@@ -132,7 +132,7 @@ jobs:
         run: python validate_cew_layout_phase_gate_browser.py
       - name: Validate operator-clean local review
         working-directory: scripts
-        run: python validate_cew_operator_clean_local_view_browser.py
+        run: python validate_cew_operator_view_browser.py
       - name: Validate reference-first visual similarity review
         working-directory: scripts
         run: python validate_cew_visual_reference_search_browser.py
