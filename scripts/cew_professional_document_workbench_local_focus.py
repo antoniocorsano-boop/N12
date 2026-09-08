@@ -69,10 +69,12 @@ function clamp(n,min,max){return Math.min(max,Math.max(min,Number(n)||0))}
 function units(){return window.CEWLayoutLearning?.units?.()||[]}
 function phase(){return window.CEWLayoutPhaseGate?.state?.()||{confirmed:false,activeUnit:null}}
 function unitById(id){return units().find(u=>u.id===id)||null}
-function unitButton(id){return [...document.querySelectorAll('#cew-layout-overlay .cew-layout-unit')].find(b=>b.dataset.layoutUnit===id)||null}
+function unitButtons(){return [...document.querySelectorAll('#cew-layout-overlay .cew-layout-unit')]}
+function unitButton(id){return unitButtons().find(b=>b.dataset.layoutUnit===id)||null}
 function label(id){const n=(String(id||'').match(/(\d+)$/)||[])[1]||'?';return `U${n}`}
 function raf2(fn){requestAnimationFrame(()=>requestAnimationFrame(fn))}
-function clearTitles(){for(const b of document.querySelectorAll('#cew-layout-overlay .cew-layout-unit'))b.removeAttribute('title')}
+function clearTitles(){for(const b of unitButtons())if(b.hasAttribute('title'))b.removeAttribute('title')}
+function markActive(id){for(const b of unitButtons())b.classList.toggle('active',b.dataset.layoutUnit===id)}
 function clearReviewTarget(){for(const b of document.querySelectorAll('#cew-layout-overlay .cew-layout-unit.cew-review-target'))b.classList.remove('cew-review-target');focusState.reviewUnitId=null;document.body.dataset.cewMatchReview='false'}
 function setModePill(text=''){let pill=ce('cew-local-focus-mode');const meta=document.querySelector('.cew-editor-meta');if(!pill&&meta){pill=document.createElement('span');pill.id='cew-local-focus-mode';meta.insertBefore(pill,meta.firstChild)}if(pill){pill.hidden=!text;pill.textContent=text}}
 function maxScroll(el,axis){return axis==='x'?Math.max(0,el.scrollWidth-el.clientWidth):Math.max(0,el.scrollHeight-el.clientHeight)}
@@ -94,7 +96,7 @@ function focusUnit(id,opts={}){
   const u=unitById(id),viewer=ce('viewer'),img=ce('page');if(!u||!viewer||!img||img.hidden)return false;
   const token=++focusState.token;
   focusState.unitId=id;
-  clearReviewTarget();
+  clearReviewTarget();markActive(id);
   if(opts.review){const b=unitButton(id);if(b)b.classList.add('cew-review-target');focusState.reviewUnitId=id;document.body.dataset.cewMatchReview='true'}
   document.body.dataset.cewShowLocalDiagnostics='false';
   document.body.dataset.cewLocalFocus='pending';
@@ -102,8 +104,7 @@ function focusUnit(id,opts={}){
   resetViewToOverview();
   raf2(()=>{
     if(token!==focusState.token)return;
-    document.body.dataset.cewLocalFocus='active';
-    clearTitles();
+    markActive(id);document.body.dataset.cewLocalFocus='active';clearTitles();
     const b=unitButton(id),vr=viewer.getBoundingClientRect(),br=b?.getBoundingClientRect();if(!b||!br||br.width<2||br.height<2)return;
     const column=Number(u.h)>=Number(u.w)*1.45;
     const targetPixels=column?vr.width*.72:vr.height*.68;
@@ -112,6 +113,7 @@ function focusUnit(id,opts={}){
     try{setPreviewZoom(factor)}catch(_){return}
     raf2(()=>{
       if(token!==focusState.token)return;
+      markActive(id);clearTitles();
       const vr2=viewer.getBoundingClientRect(),br2=b.getBoundingClientRect(),ir=img.getBoundingClientRect();
       const desiredX=vr2.left+vr2.width*.49;
       viewer.scrollLeft=clamp(viewer.scrollLeft+(br2.left+br2.width/2-desiredX),0,maxScroll(viewer,'x'));
@@ -148,7 +150,7 @@ function wireResultRows(){
     if(row.dataset.cewFocusWired==='1')continue;row.dataset.cewFocusWired='1';row.style.cursor='pointer';row.title='Apri questa corrispondenza nella vista di lavoro';
     row.addEventListener('click',e=>{
       if(e.target?.matches?.('input'))return;
-      e.preventDefault();
+      e.preventDefault();e.stopPropagation();
       const m=(row.textContent||'').match(/U(\d+)/),id=m?`LU-${m[1]}`:null,match=id?s.matches.find(x=>x.unitId===id):null;if(!id||!match)return;
       focusUnit(id,{review:true,targetY:Number(match.rect?.y||0)+Number(match.rect?.h||0)/2});
       const back=ce('cew-reference-return');if(back)back.hidden=false;
@@ -161,15 +163,23 @@ function wrapPhaseGate(){
   const api=window.CEWLayoutPhaseGate;if(!api||api.__cewLocalFocusWrapped)return;api.__cewLocalFocusWrapped=true;
   if(typeof api.selectUnit==='function'){
     const original=api.selectUnit.bind(api);
-    api.selectUnit=id=>{const result=original(id);queueMicrotask(()=>focusUnit(id));return result};
+    api.selectUnit=id=>{const result=original(id);if(result)queueMicrotask(()=>focusUnit(id));return result};
   }
 }
 
 function install(){wrapPhaseGate();ensureReturnButton();clearTitles();wireResultRows()}
 
-// If the operator returned to an overview and immediately asks for a reference,
-// restore a readable working view first, then enter rectangle selection.
+// Capture real ReadingUnit clicks before the older generic full-unit fit runs.
+// The phase-gate pointerup has already selected the unit; this click turns the
+// selected column into a readable working viewport and suppresses the old fit.
 document.addEventListener('click',e=>{
+  const unit=e.target?.closest?.('#cew-layout-overlay .cew-layout-unit');
+  if(unit&&phase().confirmed){
+    e.preventDefault();e.stopImmediatePropagation();
+    const id=unit.dataset.layoutUnit,p=phase();
+    if(p.activeUnit!==id)window.CEWLayoutPhaseGate?.selectUnit?.(id);else focusUnit(id);
+    return;
+  }
   const id=e.target?.id;
   if((id==='preview-overview'||id==='preview-width')&&!focusState.internalViewChange){leaveLocalFocus();return}
   if(id==='cew-layout-reset'||id==='cew-layout-alternative'){leaveLocalFocus();return}
@@ -181,8 +191,8 @@ document.addEventListener('click',e=>{
   }
 },true);
 
-const observer=new MutationObserver(()=>requestAnimationFrame(()=>{install();wireResultRows()}));
-observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['data-cew-layout-phase','data-cew-visual-reference-capture']});
+const observer=new MutationObserver(()=>requestAnimationFrame(()=>{install();wireResultRows();clearTitles()}));
+observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['data-cew-layout-phase','data-cew-visual-reference-capture','title']});
 install();
 window.CEWLocalFocus={focus:focusUnit,active:focusActive,leave:leaveLocalFocus,state:()=>({...focusState,mode:document.body.dataset.cewLocalFocus||'none',matchReview:document.body.dataset.cewMatchReview==='true'})};
 })();
