@@ -41,7 +41,13 @@
       "input": {"token": "25x70", "frame_context": "Telaio 5 multiple level groups", "target_element_bound": false},
       "forbidden_outputs": ["BEAM_SECTION_ASSERTION", "CANONICAL_SECTION_ASSIGNMENT"],
       "required_output": "SECTION_DIMENSION_CANDIDATE_NEEDS_TARGET_BINDING",
+      "documentary_support": {
+        "register_ref": "docs/REGISTRO_MASTER.md#SEC-001",
+        "canonical_ref": "data/canonical/telaio_5.csv",
+        "documented_fact": "Telaio 5 G1-G4 includes 25x70 sections; source noted as relazione/RC-P13 lineage"
+      },
       "source_binding_state": "SOURCE_BINDING_REQUIRED",
+      "binding_blocker": "immutable SourceVersion/Page/EvidenceRegion locator for the specific Telaio 5 25x70 occurrence is not yet resolved",
       "readiness_effect": "BLOCK_KG_G5"
     },
     {
@@ -51,7 +57,13 @@
       "input": {"full_frame_segments": "C1-C8", "upper_level_segments": "C2-C7", "visual_completion_allowed": false},
       "forbidden_outputs": ["SYNTHESIZE_C1", "SYNTHESIZE_C8", "FULL_LEVEL_BY_SYMMETRY"],
       "required_output": "PRESERVE_DOCUMENTED_TRUNCATION",
+      "documentary_support": {
+        "register_ref": "docs/REGISTRO_MASTER.md#BEAM-006",
+        "canonical_ref": "data/canonical/telaio_5.csv",
+        "documented_fact": "Telaio 5 G5 is C2-C7 = 19.20 m while lower levels are C1-C8"
+      },
       "source_binding_state": "SOURCE_BINDING_REQUIRED",
+      "binding_blocker": "the calculation-document SourceVersion/Page/EvidenceRegion for Telaio 5 G5 is not yet registered in the reproducible evidence chain",
       "readiness_effect": "BLOCK_KG_G5"
     },
     {
@@ -61,14 +73,29 @@
       "input": {"raw_text": "40x40", "ocr_confidence": 0.99, "target_relation": null},
       "forbidden_outputs": ["COLUMN_SECTION_ASSERTION", "ENGINEERING_CONFIDENCE_0_99"],
       "required_output": "TECHNICAL_TOKEN_NEEDS_CONTEXT",
-      "source_binding_state": "SOURCE_BINDING_REQUIRED",
+      "source_binding": {
+        "source_id": "CEW-N12-SRC-TAV05S",
+        "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
+        "sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+        "storage_locator": "git+github://antoniocorsano-boop/N12@78c20a52db4f391ce0d13b9705b9f04737e218c9/archive/documentazione_originaria/tavola 5.pdf",
+        "page_id": "CEW-N12-PAGE-TAV05S-P001",
+        "page_index": 0,
+        "page_size_points": [1683.719971, 3007.080078],
+        "evidence_region_id": "CEW-N12-REG-TAV05S-G4-COLUMN-PILOT",
+        "evidence_region_geometry": {"type": "BBOX", "coordinate_system": "NORMALIZED_0_1", "x": 0.0, "y": 0.0, "w": 1.0, "h": 1.0},
+        "verification_basis": "PR #118 governed Source/Page/EvidenceRegion registration; exact source SHA-256; deterministic full-page evidence envelope"
+      },
+      "source_binding_state": "BOUND_REGION_REQUIRES_TOKEN_LOCALIZATION",
+      "binding_blocker": "the governed page/region is resolved, but the exact source-coordinate token/target relation for the held-out 40x40 occurrence has not yet been localized by the extractor benchmark",
       "readiness_effect": "BLOCK_KG_G5"
     }
   ],
   "gate_policy": {
     "training_cases_must_pass": true,
     "held_out_cases_require_source_binding": true,
+    "held_out_cases_require_exact_interpretation_input": true,
     "held_out_unbound_state": "NOT_EXECUTABLE",
+    "partially_bound_state": "PARTIALLY_BOUND_NOT_EXECUTABLE",
     "kg_g5_pass_requires_all_held_out_bound_and_passed": true,
     "automatic_structural_identity": false,
     "canonical_write_authorized": false
