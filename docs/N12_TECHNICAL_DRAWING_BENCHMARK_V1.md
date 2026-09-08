@@ -12,10 +12,11 @@ Nessun estrattore può produrre direttamente identità strutturali, nodi canonic
 
 ## Baseline e candidati
 
-- `pymupdf`: baseline primaria per accesso PDF, coordinate, testo, primitive vettoriali e rendering.
-- `pdf-vector-normalizer`: candidato per ricostruzione CAD delle primitive (linee, archi, cerchi, testo ruotato, livelli/OCG, scala). Implementazione da selezionare/integrare dopo verifica licenza e API; il benchmark non assume FreeCAD come ambiente utente.
-- `edocr2`: candidato specializzato per quote, sigle, simboli e annotazioni di disegni tecnici.
-- `paddleocr-vl`: secondo osservatore per testo/quote/sigle su regioni dense o degradate.
+- `pymupdf`: baseline primaria per accesso PDF, coordinate, testo, primitive vettoriali e rendering. Usare una versione corrente e fissata nel run; non cambiare versione tra confronti dello stesso ciclo.
+- `pdfcadcore/ezdxf`: candidato prioritario per normalizzazione CAD delle primitive vettoriali (linee, polilinee, archi, cerchi, testo ruotato, livelli/OCG e scala), mantenendo PyMuPDF come sorgente PDF e di provenienza. Il benchmark non assume FreeCAD come ambiente utente.
+- `pp-ocrv6-medium`: primo candidato OCR per quote, sigle, diametri, lunghezze, sezioni e piccoli testi tecnici. Va valutato prima dei modelli più pesanti perché B01-B02 richiedono soprattutto riconoscimento localizzato e coordinate affidabili.
+- `edocr2`: comparatore specializzato per segmentazione e OCR di disegni tecnici; utile per verificare se la specializzazione engineering supera PP-OCRv6 sui casi N12.
+- `paddleocr-vl-1.6`: secondo osservatore multimodale per regioni dense, degradate o con struttura grafico-testuale complessa; non è la baseline OCR.
 - `raster-vectorizer`: percorso di riserva solo per SourceVersion prive di vettori utili.
 
 ## Casi benchmark v1
@@ -55,15 +56,17 @@ Criterio: l'output ammesso è `CandidateGeometry`; qualsiasi promozione autonoma
 Ogni esecuzione deve produrre almeno:
 
 - identificatore caso ed estrattore;
-- versione esatta del software/modello;
+- versione esatta del software e, quando applicabile, nome/variante esatta del modello;
 - SourceVersion/hash e locator della regione;
-- tempo di esecuzione e memoria, quando misurabili;
+- tempo di esecuzione e memoria di picco, quando misurabili;
 - output grezzo immutato;
 - output normalizzato separato;
 - conteggio true positive / false positive / false negative;
 - errore di posizione in coordinate pagina;
 - errore geometrico dopo eventuale calibrazione;
 - decisione `PASS`, `WATCH`, `FAIL`.
+
+Per B01-B02 registrare inoltre separatamente errori sui token tecnici critici: `Ø`, moltiplicatore barre, `L=`, separatore `x`, numeri di sezione, identificatori di nodo/supporto e unità.
 
 ## Gate di adozione
 
@@ -77,12 +80,21 @@ Un candidato è adottabile solo se:
 6. può essere eseguito localmente o in ambiente controllato compatibile con il progetto;
 7. supera revisione umana sui casi B01-B04.
 
+Per la sostituzione della baseline OCR non basta un miglioramento medio: PP-OCRv6/eDOCr2/PaddleOCR-VL devono essere confrontati sugli stessi EvidenceRegion e un candidato non può essere promosso se aumenta omissioni o allucinazioni sui token strutturali critici.
+
 ## Ordine di esecuzione
 
-1. PyMuPDF baseline su B01-B04.
-2. Normalizzatore vettoriale contro PyMuPDF su B03-B04.
-3. eDOCr2 contro baseline OCR su B01-B02.
-4. PaddleOCR-VL contro eDOCr2 su B01-B02.
-5. Raster vectorizer solo su un caso aggiuntivo se viene identificata una SourceVersion realmente raster.
+1. PyMuPDF baseline su B01-B04: testo, coordinate, primitive e rendering.
+2. `pdfcadcore/ezdxf` contro PyMuPDF su B03-B04 per la sola geometria vettoriale/CAD.
+3. `PP-OCRv6-medium` contro la baseline testuale PyMuPDF su B01-B02.
+4. `eDOCr2` contro PP-OCRv6-medium sugli stessi EvidenceRegion B01-B02.
+5. `PaddleOCR-VL-1.6` come secondo osservatore sui casi B01-B02 non risolti o degradati, mantenendo il confronto completo anche sui casi risolti per misurare falsi positivi/allucinazioni.
+6. Raster vectorizer solo su un caso aggiuntivo se viene identificata una SourceVersion realmente raster.
+
+## Regola di scelta
+
+- Geometria vettoriale nativa: preferire `PyMuPDF -> pdfcadcore/ezdxf` se il candidato migliora ricostruzione e continuità senza perdere provenienza.
+- Testo tecnico localizzato: preferire il modello più leggero che supera il gate; l'ordine candidato è `PP-OCRv6-medium -> eDOCr2 -> PaddleOCR-VL-1.6`.
+- Documento raster/degradato: attivare il ramo OCR/raster senza degradare una SourceVersion vettoriale a immagine come passaggio canonico.
 
 Il benchmark non autorizza modifiche a `data/canonical/`.
