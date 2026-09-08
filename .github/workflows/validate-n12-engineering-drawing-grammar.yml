@@ -6,7 +6,9 @@ on:
       - "analysis/cew/N12_ENGINEERING_DRAWING_GRAMMAR_v1.md"
       - "automation/N12_ENGINEERING_DRAWING_GRAMMAR_CONTRACT_v1.json"
       - "automation/validate_n12_engineering_drawing_grammar.py"
+      - "automation/validate_n12_calculation_source_materialization.py"
       - "data/benchmark/n12_engineering_grammar_regression_v1.json"
+      - "data/benchmark/n12_telaio5_source_recovery_v1.json"
       - ".github/workflows/validate-n12-engineering-drawing-grammar.yml"
   workflow_dispatch:
 
@@ -23,3 +25,5 @@ jobs:
           python-version: "3.12"
       - name: Validate governed engineering drawing grammar
         run: python automation/validate_n12_engineering_drawing_grammar.py
+      - name: Validate calculation-source materialization gate
+        run: python automation/validate_n12_calculation_source_materialization.py
