@@ -88,7 +88,7 @@ def main() -> None:
                 svg,
             )
             page.wait_for_function("document.getElementById('page').naturalWidth > 0")
-            page.evaluate("ensureInspectionStage(); renderPageGeometry(false); window.CEWLayoutLearning.refresh()")
+            page.evaluate("ensureInspectionStage(); renderPageGeometry(false); window.CEWLayoutLearning.refresh(true)")
             page.wait_for_function("window.CEWLayoutLearning.units().length >= 3")
             page.locator("#cew-layout-confirm").click()
             page.wait_for_function("window.CEWLayoutPhaseGate.state().confirmed === true")
