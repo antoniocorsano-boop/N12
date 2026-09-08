@@ -1,6 +1,13 @@
 name: Localize N12 TAV-05S 40x40
 
 on:
+  push:
+    branches:
+      - 'work/n12-engineering-drawing-grammar-v1'
+    paths:
+      - 'scripts/localize_n12_tav05s_40x40.py'
+      - '.github/workflows/localize-n12-tav05s-40x40.yml'
+      - 'data/benchmark/n12_engineering_grammar_regression_v1.json'
   pull_request:
     paths:
       - 'scripts/localize_n12_tav05s_40x40.py'
