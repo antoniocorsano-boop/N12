@@ -27,6 +27,8 @@ import cew_external_graphic_reference_review_asset_hardening as _reference_revie
 import cew_professional_document_workbench_mature_panels as _professional_document_workbench
 import cew_professional_document_workbench_mature_content as _professional_document_content
 import cew_professional_document_workbench_governed_async as _professional_document_governed_async
+import cew_professional_document_workbench_region_guidance as _professional_document_region_guidance
+import cew_professional_document_workbench_region_guidance_compat as _professional_document_region_guidance_compat
 import cew_document_discovery_governed_async as _document_discovery_governed_async
 import cew_document_discovery_async_preview as _document_discovery_async_preview
 import cew_document_discovery_workbench as _document_discovery
@@ -55,17 +57,163 @@ _REQUIRED_BASE_MARKERS = (
 _DOCUMENT_RENDER_TARGET_COMPAT_SCRIPT = r'''<script id="cew-document-render-target-compat">
 (function(){
   'use strict';
-  // The inherited Document Discovery render() still writes operational status
-  // into #status. The professional navigator replaces the legacy sidebar, so
-  // preserve that non-visual render target instead of letting a later session
-  // reload fail after a runtime reconstruction.
-  if(!document.getElementById('status')){
+  const ce=id=>document.getElementById(id);
+  document.body.dataset.cewDocumentContextGuard='v1';
+
+  if(!ce('status')){
     const status=document.createElement('div');
     status.id='status';
     status.hidden=true;
     status.setAttribute('aria-hidden','true');
     document.body.appendChild(status);
   }
+
+  function purgeUnsafeNoProjectMemory(){
+    try{
+      const prefixes=['cew.layoutPrototype.v1:NO_PROJECT:','cew.layoutConfirmed.v1:NO_PROJECT:'];
+      for(let i=localStorage.length-1;i>=0;i--){
+        const key=localStorage.key(i)||'';
+        if(prefixes.some(prefix=>key.startsWith(prefix)))localStorage.removeItem(key);
+      }
+    }catch(_){}
+  }
+
+  function ensureContextBadge(){
+    const meta=document.querySelector('.cew-editor-meta');
+    if(!meta)return null;
+    let badge=ce('cew-active-context');
+    if(!badge){
+      badge=document.createElement('span');
+      badge.id='cew-active-context';
+      badge.className='cew-editor-pill optional';
+      badge.hidden=true;
+      badge.title='Identità della sessione documentale attiva';
+      meta.appendChild(badge);
+    }
+    return badge;
+  }
+
+  function sessionContext(){
+    try{
+      if(typeof state==='undefined'||!state?.project_id)return null;
+      return {project:String(state.project_id||''),source:String(state.source_id||''),version:String(state.source_version_id||'')};
+    }catch(_){return null}
+  }
+
+  function updateContextBadge(){
+    const badge=ensureContextBadge(),ctx=sessionContext();
+    if(!badge)return;
+    badge.hidden=!ctx;
+    if(ctx)badge.textContent=`Progetto ${ctx.project} · ${ctx.source||'PDF locale'}`;
+  }
+
+  function clearTransientVisualState(){
+    for(const id of ['cew-region-overlay','cew-layout-overlay','cew-local-overlay'])ce(id)?.remove();
+    for(const id of ['cew-region-pill','cew-layout-pill'])ce(id)?.remove();
+    try{window.CEWLayoutPhaseGate?.reset?.()}catch(_){}
+    document.body.dataset.cewSemanticReady='false';
+  }
+
+  function invalidateActiveSession(reason='Contesto modificato. Avvia di nuovo Analizza fonte.'){
+    try{
+      if(typeof state!=='undefined')state=null;
+      if(typeof session!=='undefined')session=null;
+      if(typeof clusterId!=='undefined')clusterId=null;
+      if(typeof candidateId!=='undefined')candidateId=null;
+      if(typeof resetViewer==='function')resetViewer();
+    }catch(_){}
+    ce('clusters')?.replaceChildren();
+    const title=ce('title');if(title)title.textContent='Nessun gruppo selezionato';
+    ce('detail')?.replaceChildren();
+    clearTransientVisualState();
+    const badge=ensureContextBadge();if(badge)badge.hidden=true;
+    try{if(typeof intakeMessage==='function')intakeMessage(reason,'error')}catch(_){}
+  }
+
+  function currentFormContext(){
+    return {project:ce('project')?.value?.trim()||'',source:ce('source')?.value||''};
+  }
+
+  function enforceContextMatch(){
+    const ctx=sessionContext();if(!ctx){updateContextBadge();return}
+    const form=currentFormContext();
+    if(form.project!==ctx.project||form.source!==ctx.source){
+      invalidateActiveSession('Il progetto o la fonte sono cambiati. La sessione precedente è stata chiusa: esegui Analizza fonte nel nuovo contesto.');
+      return;
+    }
+    updateContextBadge();
+  }
+
+  function refreshTransientLayers(){
+    setTimeout(()=>{
+      try{window.CEWRegionGuidance?.refresh?.()}catch(_){}
+      try{window.CEWLayoutLearning?.refresh?.()}catch(_){}
+    },0);
+  }
+
+  function applyDeepLink(){
+    const params=new URLSearchParams(window.location.search),project=params.get('project'),source=params.get('source');
+    const projectInput=ce('project'),sourceSelect=ce('source');
+    if(project&&projectInput&&projectInput.value!==project)projectInput.value=project;
+    if(source&&sourceSelect&&[...sourceSelect.options].some(option=>option.value===source)&&sourceSelect.value!==source){
+      sourceSelect.value=source;
+    }
+    const applied=(!project||projectInput?.value===project)&&(!source||sourceSelect?.value===source);
+    document.body.dataset.cewDeepLinkReady=applied?'true':'false';
+    return applied;
+  }
+
+  purgeUnsafeNoProjectMemory();
+  applyDeepLink();
+  for(const delay of [100,300,800,1500])setTimeout(()=>{if(applyDeepLink())refreshTransientLayers()},delay);
+  const sourceSelect=ce('source');
+  if(sourceSelect){
+    const sourceObserver=new MutationObserver(()=>{if(applyDeepLink())refreshTransientLayers()});
+    sourceObserver.observe(sourceSelect,{childList:true});
+  }
+
+  ce('project')?.addEventListener('input',()=>{enforceContextMatch();refreshTransientLayers()});
+  ce('source')?.addEventListener('change',()=>{enforceContextMatch();refreshTransientLayers()});
+
+  // Fail closed when an intake context is incomplete. The original handler also
+  // validates these fields, but capture-phase blocking prevents stale session
+  // content from remaining visible after an incomplete-context click.
+  document.addEventListener('click',event=>{
+    const analyze=event.target.closest?.('#analyze');if(!analyze)return;
+    const form=currentFormContext();
+    if(form.project&&form.source)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    const message=!form.project?'Inserisci l’ID progetto prima di analizzare la fonte.':'Seleziona una fonte governata prima di avviare l’analisi.';
+    invalidateActiveSession(message);
+    (!form.project?ce('project'):ce('source'))?.focus();
+  },true);
+
+  // Reading units are selectable editor objects, not pan handles. Intercept the
+  // initial pointer in document capture phase, before the viewer can call
+  // setPointerCapture(), and hand the unit directly to the phase gate.
+  document.addEventListener('pointerdown',event=>{
+    if(event.button!==0)return;
+    const unit=event.target.closest?.('#cew-layout-overlay .cew-layout-unit');
+    if(!unit)return;
+    const phaseGate=window.CEWLayoutPhaseGate;
+    if(!phaseGate?.state?.().confirmed)return;
+    event.preventDefault();
+    event.stopPropagation();
+    const selected=phaseGate.selectUnit?.(unit.dataset.layoutUnit);
+    if(selected){
+      for(const button of document.querySelectorAll('#cew-layout-overlay .cew-layout-unit')){
+        button.classList.toggle('active',button.dataset.layoutUnit===unit.dataset.layoutUnit);
+      }
+    }
+  },true);
+
+  const contextTimer=setInterval(enforceContextMatch,350);
+  window.addEventListener('pagehide',()=>clearInterval(contextTimer),{once:true});
+  window.CEWDocumentContextGuard={
+    state:()=>({form:currentFormContext(),session:sessionContext(),deepLinkReady:document.body.dataset.cewDeepLinkReady==='true'}),
+    applyDeepLink,
+    invalidate:invalidateActiveSession
+  };
 })();
 </script>'''
 
@@ -79,7 +227,6 @@ def _assert_base_contract() -> None:
 
 
 def _install_document_render_target_compat() -> None:
-    """Keep inherited Document Discovery render targets alive after shell composition."""
     if getattr(_professional_document_workbench, "_cew_render_target_compat_installed", False):
         return
     original_patched_page = _professional_document_workbench._patched_page
@@ -103,19 +250,16 @@ _reference_review_asset_hardening.install(_reference_review)
 
 
 def _sync_runtime_stores() -> None:
-    """Keep legacy writable runtime-store overrides effective through the wrapper."""
     _base.R2HR_RUNTIME_STORE = R2HR_RUNTIME_STORE
     _base.R2GM_RUNTIME_STORE = R2GM_RUNTIME_STORE
 
 
 def _runtime_r2gi_report():
-    """Compatibility delegate for governed R2GI runtime consumers and validators."""
     _sync_runtime_stores()
     return _base._runtime_r2gi_report()
 
 
 def _runtime_r2gm_report():
-    """Compatibility delegate for governed R2GM runtime consumers and validators."""
     _sync_runtime_stores()
     return _base._runtime_r2gm_report()
 
@@ -126,12 +270,10 @@ def build_router(source_workspace):
     router.include_router(_oar_g4.build_router())
     router.include_router(_oar_g4_assisted.build_router())
     router.include_router(_reference_review.build_router())
-    # The governed-async HVA route shadows only the Document Discovery HTML
-    # surface and redirects the governed-source action to the bounded subprocess
-    # job boundary. The HVA-refined and mature shell routes remain mounted as
-    # compatibility fallbacks. Governed async API/page-artifact routes are
-    # mounted before preview and historical routes so large governed PDFs never
-    # fall back to in-process parsing/rendering during normal use.
+    # First route owns the live HTML response and preserves all accepted MATURE_V1
+    # headers while adding semantic-free region guidance markers.
+    router.include_router(_professional_document_region_guidance_compat.build_router())
+    router.include_router(_professional_document_region_guidance.build_router())
     router.include_router(_professional_document_governed_async.build_router())
     router.include_router(_professional_document_content.build_router())
     router.include_router(_professional_document_workbench.build_router())

@@ -4,16 +4,29 @@ on:
   push:
     branches:
       - 'work/cew-professional-document-workbench-v1'
+      - 'work/cew-region-guided-discovery-v1'
     paths:
       - 'scripts/cew_professional_document_workbench.py'
       - 'scripts/cew_professional_document_workbench_mature_panels.py'
       - 'scripts/cew_professional_document_workbench_mature_content.py'
       - 'scripts/cew_professional_document_workbench_governed_async.py'
+      - 'scripts/cew_professional_document_workbench_region_guidance.py'
+      - 'scripts/cew_professional_document_workbench_region_guidance_compat.py'
+      - 'scripts/cew_professional_document_workbench_layout_learning.py'
+      - 'scripts/cew_professional_document_workbench_layout_phase_gate.py'
+      - 'scripts/cew_professional_document_workbench_operator_view.py'
+      - 'scripts/cew_professional_document_workbench_visual_reference_search.py'
+      - 'scripts/cew_professional_document_workbench_visual_reference_capture.py'
       - 'scripts/cew_document_discovery_governed_jobs.py'
       - 'scripts/cew_document_discovery_governed_async.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
       - 'scripts/validate_cew_professional_document_workbench_browser.py'
       - 'scripts/validate_cew_mature_panel_content_browser.py'
+      - 'scripts/validate_cew_region_guidance_browser.py'
+      - 'scripts/validate_cew_layout_learning_browser.py'
+      - 'scripts/validate_cew_layout_phase_gate_browser.py'
+      - 'scripts/validate_cew_operator_view_browser.py'
+      - 'scripts/validate_cew_visual_reference_search_browser.py'
       - 'scripts/validate_cew_governed_async_boundary.py'
       - 'scripts/validate_cew_governed_async_browser.py'
       - 'scripts/validate_cew_preview_runtime_recovery_browser.py'
@@ -29,11 +42,23 @@ on:
       - 'scripts/cew_professional_document_workbench_mature_panels.py'
       - 'scripts/cew_professional_document_workbench_mature_content.py'
       - 'scripts/cew_professional_document_workbench_governed_async.py'
+      - 'scripts/cew_professional_document_workbench_region_guidance.py'
+      - 'scripts/cew_professional_document_workbench_region_guidance_compat.py'
+      - 'scripts/cew_professional_document_workbench_layout_learning.py'
+      - 'scripts/cew_professional_document_workbench_layout_phase_gate.py'
+      - 'scripts/cew_professional_document_workbench_operator_view.py'
+      - 'scripts/cew_professional_document_workbench_visual_reference_search.py'
+      - 'scripts/cew_professional_document_workbench_visual_reference_capture.py'
       - 'scripts/cew_document_discovery_governed_jobs.py'
       - 'scripts/cew_document_discovery_governed_async.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
       - 'scripts/validate_cew_professional_document_workbench_browser.py'
       - 'scripts/validate_cew_mature_panel_content_browser.py'
+      - 'scripts/validate_cew_region_guidance_browser.py'
+      - 'scripts/validate_cew_layout_learning_browser.py'
+      - 'scripts/validate_cew_layout_phase_gate_browser.py'
+      - 'scripts/validate_cew_operator_view_browser.py'
+      - 'scripts/validate_cew_visual_reference_search_browser.py'
       - 'scripts/validate_cew_governed_async_boundary.py'
       - 'scripts/validate_cew_governed_async_browser.py'
       - 'scripts/validate_cew_preview_runtime_recovery_browser.py'
@@ -68,11 +93,23 @@ jobs:
           scripts/cew_professional_document_workbench_mature_panels.py
           scripts/cew_professional_document_workbench_mature_content.py
           scripts/cew_professional_document_workbench_governed_async.py
+          scripts/cew_professional_document_workbench_region_guidance.py
+          scripts/cew_professional_document_workbench_region_guidance_compat.py
+          scripts/cew_professional_document_workbench_layout_learning.py
+          scripts/cew_professional_document_workbench_layout_phase_gate.py
+          scripts/cew_professional_document_workbench_operator_view.py
+          scripts/cew_professional_document_workbench_visual_reference_search.py
+          scripts/cew_professional_document_workbench_visual_reference_capture.py
           scripts/cew_document_discovery_governed_jobs.py
           scripts/cew_document_discovery_governed_async.py
           scripts/validate_cew_professional_document_workbench.py
           scripts/validate_cew_professional_document_workbench_browser.py
           scripts/validate_cew_mature_panel_content_browser.py
+          scripts/validate_cew_region_guidance_browser.py
+          scripts/validate_cew_layout_learning_browser.py
+          scripts/validate_cew_layout_phase_gate_browser.py
+          scripts/validate_cew_operator_view_browser.py
+          scripts/validate_cew_visual_reference_search_browser.py
           scripts/validate_cew_governed_async_boundary.py
           scripts/validate_cew_governed_async_browser.py
           scripts/validate_cew_preview_runtime_recovery_browser.py
@@ -87,6 +124,21 @@ jobs:
       - name: Validate HVA-refined panel content in Chromium
         working-directory: scripts
         run: python validate_cew_mature_panel_content_browser.py
+      - name: Validate non-semantic region primitives and corrective ROI
+        working-directory: scripts
+        run: python validate_cew_region_guidance_browser.py
+      - name: Validate layout hypotheses and teach-one relation
+        working-directory: scripts
+        run: python validate_cew_layout_learning_browser.py
+      - name: Validate layout confirmation before semantics
+        working-directory: scripts
+        run: python validate_cew_layout_phase_gate_browser.py
+      - name: Validate operator-clean local review
+        working-directory: scripts
+        run: python validate_cew_operator_view_browser.py
+      - name: Validate reference-first visual similarity review
+        working-directory: scripts
+        run: python validate_cew_visual_reference_search_browser.py
       - name: Validate governed source process boundary
         working-directory: scripts
         run: python validate_cew_governed_async_boundary.py
