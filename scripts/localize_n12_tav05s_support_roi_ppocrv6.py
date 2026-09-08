@@ -3,6 +3,7 @@ import csv
 import hashlib
 import io
 import json
+import math
 import re
 import subprocess
 import sys
@@ -21,9 +22,9 @@ GEOMETRY_COMMIT = "a65951b634fd3183223139a6fd1226e4586fec14"
 REG_PATH = "data/canonical/STOREY_SUPPORT_XY_REGISTRATION_v1.csv"
 SUPPORT_PATH = "data/canonical/VERTICAL_SUPPORT_LINES_CURRENT_v1.csv"
 OUT = ROOT / "artifacts" / "n12_tav05s_support_roi_ppocrv6_locator.json"
-TARGET = "40x40"
 DPI = 300
 ROI_HALF = 480
+PAIR_MAX_CENTER_DISTANCE = 220.0
 
 
 def fail(msg: str) -> None:
@@ -59,7 +60,6 @@ def result_dict(res):
 
 
 def inverse_affine(x, y, row):
-    # x = a*u + b*v + c ; y = d*u + e*v + f
     a = float(row["metric_x_from_u"])
     b = float(row["metric_x_from_v"])
     c = float(row["metric_x_offset"])
@@ -86,6 +86,35 @@ def iou(a, b):
         return 0.0
     union = (ax1-ax0)*(ay1-ay0) + (bx1-bx0)*(by1-by0) - inter
     return inter / union if union else 0.0
+
+
+def orientation(box):
+    x0, y0, x1, y1 = box
+    w = max(1.0, x1 - x0)
+    h = max(1.0, y1 - y0)
+    if w / h >= 1.20:
+        return "HORIZONTAL_LIKE"
+    if h / w >= 1.20:
+        return "VERTICAL_LIKE"
+    return "SQUARE_LIKE"
+
+
+def center(box):
+    x0, y0, x1, y1 = box
+    return ((x0+x1)/2.0, (y0+y1)/2.0)
+
+
+def add_coordinate_forms(rec, img, scale):
+    x0, y0, x1, y1 = rec["bbox_render_300dpi"]
+    rec["bbox_normalized_0_1"] = [
+        round(x0/img.width, 9), round(y0/img.height, 9),
+        round(x1/img.width, 9), round(y1/img.height, 9),
+    ]
+    rec["bbox_pdf_points"] = [
+        round(x0/scale, 6), round(y0/scale, 6),
+        round(x1/scale, 6), round(y1/scale, 6),
+    ]
+    rec["bbox_orientation"] = orientation(rec["bbox_render_300dpi"])
 
 
 def main() -> int:
@@ -119,14 +148,14 @@ def main() -> int:
         device="cpu",
     )
 
-    raw_hits = []
+    all_40 = []
+    exact_40x40 = []
     roi_register = []
     for support in supports:
         sid = support["support_id"]
         x = float(support["x_global_m"])
         y = float(support["y_global_m"])
         u, v = inverse_affine(x, y, reg)
-        # CEW EWS-3.1 verified adapter from ROT90_CCW frame to native portrait DZI/render.
         cx = img.width - v
         cy = u
         if not (0 <= cx <= img.width and 0 <= cy <= img.height):
@@ -151,48 +180,67 @@ def main() -> int:
             boxes = rd.get("rec_boxes", []) or []
             for i, text in enumerate(texts):
                 norm = normalize(text)
-                if norm != TARGET:
-                    continue
-                if i >= len(boxes):
+                if norm not in {"40", "40x40"} or i >= len(boxes):
                     continue
                 vals = boxes[i].tolist() if hasattr(boxes[i], "tolist") else list(boxes[i])
                 if len(vals) != 4:
                     continue
                 bx0, by0, bx1, by1 = [float(z) for z in vals]
-                global_box = [bx0+x0, by0+y0, bx1+x0, by1+y0]
-                raw_hits.append({
+                rec = {
                     "support_roi_id": sid,
                     "raw_text": str(text),
                     "normalized_text": norm,
                     "confidence": float(scores[i]) if i < len(scores) else None,
-                    "bbox_render_300dpi": [round(z, 3) for z in global_box],
+                    "bbox_render_300dpi": [round(bx0+x0, 3), round(by0+y0, 3), round(bx1+x0, 3), round(by1+y0, 3)],
+                }
+                add_coordinate_forms(rec, img, scale)
+                (exact_40x40 if norm == "40x40" else all_40).append(rec)
+
+    # Deduplicate repeated OCR of the same mark caused by overlapping support ROIs.
+    all_40.sort(key=lambda r: (r["bbox_render_300dpi"][1], r["bbox_render_300dpi"][0], -(r["confidence"] or 0)))
+    unique_40 = []
+    for rec in all_40:
+        if any(iou(rec["bbox_render_300dpi"], old["bbox_render_300dpi"]) > 0.5 for old in unique_40):
+            continue
+        unique_40.append(rec)
+
+    # Build only relation candidates. Two 40 tokens must come from the same governed support ROI,
+    # be spatially close, and have different bbox orientation classes. This does NOT bind them
+    # to the support symbol and does NOT assert a 40x40 structural section.
+    pair_candidates = []
+    by_roi = {}
+    for rec in unique_40:
+        by_roi.setdefault(rec["support_roi_id"], []).append(rec)
+    for sid, tokens in by_roi.items():
+        for i in range(len(tokens)):
+            for j in range(i+1, len(tokens)):
+                a, b = tokens[i], tokens[j]
+                oa, ob = a["bbox_orientation"], b["bbox_orientation"]
+                if {oa, ob} != {"HORIZONTAL_LIKE", "VERTICAL_LIKE"}:
+                    continue
+                ca, cb = center(a["bbox_render_300dpi"]), center(b["bbox_render_300dpi"])
+                dist = math.hypot(ca[0]-cb[0], ca[1]-cb[1])
+                if dist > PAIR_MAX_CENTER_DISTANCE:
+                    continue
+                pair_candidates.append({
+                    "pair_id": f"PAIR-{sid}-{i}-{j}",
+                    "support_roi_id": sid,
+                    "normalized_dimension_pair": [40, 40],
+                    "relation": "ORTHOGONAL_DIMENSION_TOKEN_PAIR_CANDIDATE",
+                    "center_distance_300dpi_px": round(dist, 3),
+                    "token_a": a,
+                    "token_b": b,
+                    "pair_confidence_min_ocr_only": min(a["confidence"] or 0.0, b["confidence"] or 0.0),
+                    "target_relation": None,
+                    "engineering_semantics": "SECTION_DIMENSION_CANDIDATE_NEEDS_TARGET_BINDING",
+                    "structural_section_assertion": False,
                 })
 
-    raw_hits.sort(key=lambda r: (r["bbox_render_300dpi"][1], r["bbox_render_300dpi"][0], -(r["confidence"] or 0)))
-    unique = []
-    for rec in raw_hits:
-        if any(iou(rec["bbox_render_300dpi"], old["bbox_render_300dpi"]) > 0.5 for old in unique):
-            continue
-        unique.append(rec)
-
-    for idx, rec in enumerate(unique):
-        x0, y0, x1, y1 = rec["bbox_render_300dpi"]
-        rec["hit_index"] = idx
-        rec["bbox_normalized_0_1"] = [
-            round(x0/img.width, 9), round(y0/img.height, 9),
-            round(x1/img.width, 9), round(y1/img.height, 9),
-        ]
-        rec["bbox_pdf_points"] = [
-            round(x0/scale, 6), round(y0/scale, 6),
-            round(x1/scale, 6), round(y1/scale, 6),
-        ]
-
-    selected = None
-    if unique:
-        selected = sorted(unique, key=lambda r: (-(r["confidence"] or 0), r["bbox_render_300dpi"][1], r["bbox_render_300dpi"][0]))[0]
+    pair_candidates.sort(key=lambda p: (-p["pair_confidence_min_ocr_only"], p["center_distance_300dpi_px"], p["support_roi_id"]))
+    selected_pair = pair_candidates[0] if pair_candidates else None
 
     result = {
-        "schema": "N12_TAV05S_SUPPORT_ROI_PPOCRV6_LOCATOR_v1",
+        "schema": "N12_TAV05S_SUPPORT_ROI_PPOCRV6_LOCATOR_v2",
         "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
         "source_commit": SOURCE_COMMIT,
         "source_sha256": digest,
@@ -208,23 +256,26 @@ def main() -> int:
         "render_size": [img.width, img.height],
         "ocr_engine": "PaddleOCR",
         "ocr_model": "PP-OCRv6-medium-default",
-        "target": TARGET,
-        "hit_count": len(unique),
-        "hits": unique,
-        "selected_token_observation": selected,
-        "selected_token_semantics": "TECHNICAL_TOKEN_OBSERVATION_ONLY",
-        "target_relation": None,
+        "exact_40x40_hit_count": len(exact_40x40),
+        "exact_40x40_hits": exact_40x40,
+        "numeric_40_token_count": len(unique_40),
+        "numeric_40_tokens": unique_40,
+        "dimension_pair_candidate_count": len(pair_candidates),
+        "dimension_pair_candidates": pair_candidates,
+        "selected_dimension_pair_candidate": selected_pair,
+        "selected_candidate_semantics": "SECTION_DIMENSION_CANDIDATE_NEEDS_TARGET_BINDING" if selected_pair else None,
         "engineering_confidence_from_ocr_forbidden": True,
+        "automatic_target_binding_forbidden": True,
         "structural_identity_authorized": False,
         "canonical_write_authorized": False,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result, ensure_ascii=False, indent=2))
-    if not unique:
-        print("N12_TAV05S_SUPPORT_ROI_40X40_PPOCRV6_NOT_FOUND")
+    if not selected_pair:
+        print("N12_TAV05S_40_40_DIMENSION_PAIR_NOT_RECOVERED")
         return 2
-    print(f"N12_TAV05S_SUPPORT_ROI_40X40_PPOCRV6_FOUND count={len(unique)}")
+    print("N12_TAV05S_40_40_DIMENSION_PAIR_CANDIDATE_RECOVERED")
     return 0
 
 
