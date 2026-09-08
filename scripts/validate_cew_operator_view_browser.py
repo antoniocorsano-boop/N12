@@ -70,13 +70,16 @@ def main() -> None:
             assert headers.get("x-cew-local-focus-navigation") == "COLUMN_WIDTH_FIT_VERTICAL_SCROLL_V1", headers
             assert page.locator('body[data-cew-operator-view="clean-local-v1"]').count() == 1
 
+            # This gate validates the working viewport, not automatic layout discovery.
+            # Seed the same public human-taught LayoutPrototype already covered by the
+            # dedicated layout-learning gate, so failure here is about local usability.
             svg = """<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800'>
             <rect width='1200' height='800' fill='white'/>
-            <g fill='none' stroke='black' stroke-width='8'>
-              <path d='M40 120 L150 70 L260 120'/><path d='M50 330 L250 330'/><path d='M50 430 L220 430'/><path d='M70 540 L240 510'/>
-              <path d='M330 120 L440 70 L550 120'/><path d='M340 330 L540 330'/><path d='M340 430 L510 430'/><path d='M360 540 L530 510'/>
-              <path d='M620 120 L730 70 L840 120'/><path d='M630 330 L830 330'/><path d='M630 430 L800 430'/><path d='M650 540 L820 510'/>
-              <path d='M910 120 L1020 70 L1130 120'/><path d='M920 330 L1120 330'/><path d='M920 430 L1090 430'/><path d='M940 540 L1110 510'/>
+            <g fill='black'>
+              <rect x='40' y='60' width='220' height='120'/><rect x='50' y='300' width='200' height='22'/><rect x='50' y='420' width='200' height='22'/><rect x='50' y='540' width='200' height='22'/>
+              <rect x='330' y='60' width='220' height='120'/><rect x='340' y='300' width='200' height='22'/><rect x='340' y='420' width='200' height='22'/><rect x='340' y='540' width='200' height='22'/>
+              <rect x='620' y='60' width='220' height='120'/><rect x='630' y='300' width='200' height='22'/><rect x='630' y='420' width='200' height='22'/><rect x='630' y='540' width='200' height='22'/>
+              <rect x='910' y='60' width='220' height='120'/><rect x='920' y='300' width='200' height='22'/><rect x='920' y='420' width='200' height='22'/><rect x='920' y='540' width='200' height='22'/>
             </g></svg>"""
             page.evaluate(
                 """svg => {
@@ -88,7 +91,14 @@ def main() -> None:
                 svg,
             )
             page.wait_for_function("document.getElementById('page').naturalWidth > 0")
-            page.evaluate("ensureInspectionStage(); renderPageGeometry(false); window.CEWLayoutLearning.refresh(true)")
+            page.evaluate("ensureInspectionStage(); renderPageGeometry(false)")
+            prototype = page.evaluate(
+                """() => window.CEWLayoutLearning.teach(
+                  {x:0.03,y:0.06,w:0.19,h:0.18},
+                  {x:0.03,y:0.34,w:0.19,h:0.39}
+                )"""
+            )
+            assert prototype["semantic_authority"] == "NONE", prototype
             page.wait_for_function("window.CEWLayoutLearning.units().length >= 3")
             page.locator("#cew-layout-confirm").click()
             page.wait_for_function("window.CEWLayoutPhaseGate.state().confirmed === true")
