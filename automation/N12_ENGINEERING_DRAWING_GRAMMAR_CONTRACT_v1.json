@@ -1,0 +1,45 @@
+{
+  "schema": "N12_ENGINEERING_DRAWING_GRAMMAR_CONTRACT_v1",
+  "authority": {
+    "grammar_output": "STRUCTURAL_HYPOTHESIS_CANDIDATE",
+    "human_review_required": true,
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "engineering_authority_effect": "NONE"
+  },
+  "pipeline": [
+    "SourceVersion",
+    "Page",
+    "EvidenceRegion",
+    "GraphicPrimitive_or_TechnicalToken",
+    "TechnicalRelation",
+    "StructuralHypothesis",
+    "HumanReview"
+  ],
+  "invariants": [
+    "RECTANGLE_DOES_NOT_IMPLY_COLUMN",
+    "DIMENSION_REQUIRES_RELATION",
+    "REBAR_CALLOUT_REQUIRES_TARGET_BINDING",
+    "SECTION_SIZE_REQUIRES_CONTEXTUAL_BINDING",
+    "TOPOLOGY_OUTRANKS_VISUAL_PROXIMITY_FOR_IDENTITY",
+    "PROTOTYPE_DOES_NOT_IMPLY_TRUTH",
+    "CROSS_VIEW_CONFLICT_FAILS_CLOSED",
+    "OCR_CONFIDENCE_IS_NOT_ENGINEERING_CONFIDENCE",
+    "SOURCE_REMAINS_EVIDENTIARY_AUTHORITY"
+  ],
+  "knowledge_provenance_classes": [
+    "PROJECT_LEARNED",
+    "VERIFIED_REFERENCE",
+    "METHOD_RULE",
+    "HUMAN_TAUGHT_PROJECT_RULE"
+  ],
+  "readiness_gates": [
+    "KG-G1_EVIDENCE_SEMANTICS_PASS",
+    "KG-G2_TECHNICAL_GRAMMAR_PASS",
+    "KG-G3_STRUCTURAL_RELATION_PASS",
+    "KG-G4_KNOWLEDGE_PROVENANCE_PASS",
+    "KG-G5_HELD_OUT_N12_INTERPRETATION_PASS"
+  ],
+  "current_state": "FOUNDATION_DEFINED_IMPLEMENTATION_REQUIRED"
+}
