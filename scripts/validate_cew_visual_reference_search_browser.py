@@ -65,6 +65,7 @@ def main() -> None:
             assert response is not None and response.status == 200
             headers = {k.lower(): v for k, v in response.headers.items()}
             assert headers.get("x-cew-visual-reference-search") == "REFERENCE_FIRST_REVIEW_V1", headers
+            assert headers.get("x-cew-visual-reference-capture") == "TOOLBAR_YIELD_V1", headers
             assert headers.get("x-cew-visual-similarity") == "DETERMINISTIC_LAYOUT_AWARE_V1", headers
             assert headers.get("x-cew-visual-search-result-action") == "REVIEW_ONLY_V1", headers
             assert headers.get("x-cew-visual-search-semantic-authority") == "NONE", headers
@@ -103,10 +104,7 @@ def main() -> None:
             page.wait_for_function("!document.getElementById('cew-visual-search').hidden")
             assert page.locator("#cew-local-overlay").evaluate("el => getComputedStyle(el).display") == "none"
             assert page.locator("#cew-decision-tab").is_hidden()
-            page.wait_for_timeout(450)
 
-            image_box = page.locator("#page").bounding_box()
-            assert image_box is not None
             active = page.evaluate(
                 """() => {
                   const id=window.CEWLayoutPhaseGate.state().activeUnit;
@@ -120,11 +118,21 @@ def main() -> None:
 
             page.locator("#cew-reference-start").click()
             page.wait_for_function("window.CEWVisualReferenceSearch.state().mode === 'SELECTING'")
+            page.wait_for_function("document.body.dataset.cewVisualReferenceCapture === 'active'")
+            page.wait_for_function("getComputedStyle(document.getElementById('preview-view-controls')).pointerEvents === 'none'")
+            page.wait_for_timeout(120)
+
+            # Coordinates must be sampled after entering selection mode. The active
+            # unit may finish a focus/zoom transition after the preceding click; a
+            # real operator always draws against the current rendered page position.
+            image_box = page.locator("#page").bounding_box()
+            assert image_box is not None
             x1 = image_box["x"] + (active["x"] + active["w"] * 0.08) * image_box["width"]
             x2 = image_box["x"] + (active["x"] + active["w"] * 0.92) * image_box["width"]
             y1 = image_box["y"] + (active["y"] + active["h"] * 0.04) * image_box["height"]
             y2 = image_box["y"] + (active["y"] + active["h"] * 0.28) * image_box["height"]
             hit_before = page.evaluate("([x,y]) => { const e=document.elementFromPoint(x,y); return e?`${e.id}|${e.className}`:null }", [x1, y1])
+            assert hit_before and hit_before.startswith("cew-visual-select-layer|"), hit_before
             page.mouse.move(x1, y1)
             page.mouse.down()
             page.mouse.move(x2, y2, steps=8)
@@ -134,8 +142,10 @@ def main() -> None:
                 """() => ({
                   visual: window.CEWVisualReferenceSearch.state(),
                   status: document.getElementById('cew-visual-status')?.textContent || '',
+                  capture: document.body.dataset.cewVisualReferenceCapture || '',
                   selectorClass: document.getElementById('cew-visual-select-layer')?.className || '',
                   selectorPointer: getComputedStyle(document.getElementById('cew-visual-select-layer')).pointerEvents,
+                  toolbarPointer: getComputedStyle(document.getElementById('preview-view-controls')).pointerEvents,
                   image: (()=>{const r=document.getElementById('page').getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}})(),
                   stage: (()=>{const r=document.getElementById('page-stage').getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}})()
                 })"""
@@ -143,6 +153,7 @@ def main() -> None:
             assert drag_state["visual"]["mode"] == "REFERENCE_READY", {"hit": hit_before, "coords": [x1, y1, x2, y2], "active": active, **drag_state}
             assert page.locator(".cew-visual-ref-box").count() == 1
             assert page.locator("#cew-reference-search").is_visible()
+            page.wait_for_function("document.body.dataset.cewVisualReferenceCapture === 'idle'")
 
             page.locator("#cew-reference-search").click()
             page.wait_for_function("window.CEWVisualReferenceSearch.state().mode === 'RESULTS'")
@@ -164,7 +175,7 @@ def main() -> None:
             proc.wait(timeout=3)
 
     print("CEW_VISUAL_REFERENCE_SEARCH_BROWSER_V1_PASS")
-    print("reference_rectangle=REAL_DRAG document_image_coordinates=PASS explicit_search=PASS repeated_units=PASS review_results=PASS")
+    print("reference_rectangle=REAL_DRAG toolbar_yield=PASS current_document_coordinates=PASS explicit_search=PASS repeated_units=PASS review_results=PASS")
     print("raw_components=HIDDEN_BY_DEFAULT semantic_authority=NONE canonical_write=false")
 
 
