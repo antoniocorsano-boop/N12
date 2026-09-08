@@ -19,6 +19,9 @@ body.cew-professional-document[data-cew-local-focus="active"] #cew-region-overla
 body.cew-professional-document[data-cew-local-focus="active"] #cew-local-overlay{
   display:none!important;
 }
+body.cew-professional-document[data-cew-local-focus="active"][data-cew-show-local-diagnostics="true"] #cew-local-overlay{
+  display:block!important;
+}
 body.cew-professional-document[data-cew-local-focus="active"] #cew-layout-overlay .cew-layout-unit{
   display:none!important;
 }
