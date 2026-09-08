@@ -16,6 +16,7 @@ on:
       - 'scripts/cew_professional_document_workbench_layout_phase_gate.py'
       - 'scripts/cew_professional_document_workbench_operator_view.py'
       - 'scripts/cew_professional_document_workbench_visual_reference_search.py'
+      - 'scripts/cew_professional_document_workbench_visual_reference_capture.py'
       - 'scripts/cew_document_discovery_governed_jobs.py'
       - 'scripts/cew_document_discovery_governed_async.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
@@ -47,6 +48,7 @@ on:
       - 'scripts/cew_professional_document_workbench_layout_phase_gate.py'
       - 'scripts/cew_professional_document_workbench_operator_view.py'
       - 'scripts/cew_professional_document_workbench_visual_reference_search.py'
+      - 'scripts/cew_professional_document_workbench_visual_reference_capture.py'
       - 'scripts/cew_document_discovery_governed_jobs.py'
       - 'scripts/cew_document_discovery_governed_async.py'
       - 'scripts/validate_cew_professional_document_workbench.py'
@@ -97,6 +99,7 @@ jobs:
           scripts/cew_professional_document_workbench_layout_phase_gate.py
           scripts/cew_professional_document_workbench_operator_view.py
           scripts/cew_professional_document_workbench_visual_reference_search.py
+          scripts/cew_professional_document_workbench_visual_reference_capture.py
           scripts/cew_document_discovery_governed_jobs.py
           scripts/cew_document_discovery_governed_async.py
           scripts/validate_cew_professional_document_workbench.py
