@@ -79,6 +79,17 @@
     "v17_handoff_file_id": "file_0000000022d0820abe934d790610a2d3",
     "source_image_file_ids_recovered": false
   },
+  "google_drive_audit": {
+    "queries": [
+      "Ariano_Irpino_Consolidato_v16_Telaio5_RC_P13",
+      "Consolidato v16",
+      "Ariano Irpino",
+      "Telaio 5"
+    ],
+    "exact_package_match_recovered": false,
+    "relevant_n12_consolidated_or_source_image_recovered": false,
+    "result": "NO_RELEVANT_N12_SOURCE_PACKAGE_FOUND_IN_CONNECTED_DRIVE"
+  },
   "repository_memory_pointer": {
     "source_id": "SRC-T5-PLAN-USER",
     "historical_chat_file_pointer": "chat:file_00000000116481f49d5ce25af6aff36d",
@@ -104,6 +115,7 @@
     "v15_two_source_uploads_proven": true,
     "v16_three_source_uploads_proven": true,
     "exact_day_file_library_search_completed": true,
+    "connected_drive_search_completed": true,
     "v14_or_standalone_source_image_recovered": false,
     "rc_p10_rc_p13_pixel_bytes_recovered": false,
     "plan_image_historical_pointer_recovered": true,
