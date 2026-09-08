@@ -71,27 +71,18 @@ def main() -> None:
             assert page.locator('body[data-cew-operator-view="clean-local-v1"]').count() == 1
 
             # This gate validates the working viewport only. Layout discovery and
-            # teach-one propagation have their own browser gates, so seed four
-            # deterministic full-height ReadingUnits rather than re-testing
-            # whitespace segmentation here.
-            svg = """<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800'>
-            <rect width='1200' height='800' fill='white'/>
-            <g fill='none' stroke='black' stroke-width='8'>
-              <path d='M40 120 L150 70 L260 120'/><path d='M50 330 L250 330'/><path d='M50 430 L220 430'/><path d='M70 540 L240 510'/>
-              <path d='M330 120 L440 70 L550 120'/><path d='M340 330 L540 330'/><path d='M340 430 L510 430'/><path d='M360 540 L530 510'/>
-              <path d='M620 120 L730 70 L840 120'/><path d='M630 330 L830 330'/><path d='M630 430 L800 430'/><path d='M650 540 L820 510'/>
-              <path d='M910 120 L1020 70 L1130 120'/><path d='M920 330 L1120 330'/><path d='M920 430 L1090 430'/><path d='M940 540 L1110 510'/>
-            </g></svg>"""
+            # teach-one propagation have their own browser gates. Use a tiny raster
+            # fixture solely to give the viewer deterministic intrinsic dimensions,
+            # then seed four full-height ReadingUnits.
             page.evaluate(
-                """svg => {
+                """() => {
                   const img=document.getElementById('page');
                   document.getElementById('viewer-placeholder').hidden=true;
                   img.hidden=false;
-                  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
-                }""",
-                svg,
+                  img.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl4b7sAAAAASUVORK5CYII=';
+                }"""
             )
-            page.wait_for_function("document.getElementById('page').naturalWidth > 0")
+            page.wait_for_function("document.getElementById('page').naturalWidth === 1")
             page.evaluate("ensureInspectionStage(); renderPageGeometry(false)")
             page.evaluate(
                 """() => {
