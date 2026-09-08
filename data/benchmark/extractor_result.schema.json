@@ -19,6 +19,10 @@
     "case_id": {"type": "string"},
     "extractor": {"type": "string"},
     "extractor_version": {"type": "string"},
+    "model_variant": {"type": ["string", "null"]},
+    "task_category": {
+      "enum": ["PDF_BASELINE", "VECTOR_NORMALIZATION", "TECHNICAL_OCR", "MULTIMODAL_OCR", "RASTER_VECTORIZATION"]
+    },
     "run_id": {"type": "string"},
     "source": {
       "type": "object",
@@ -57,7 +61,12 @@
         "false_negative": {"type": "integer", "minimum": 0},
         "position_error_page_units": {"type": ["number", "null"], "minimum": 0},
         "geometry_error": {"type": ["number", "null"], "minimum": 0},
-        "runtime_seconds": {"type": ["number", "null"], "minimum": 0}
+        "runtime_seconds": {"type": ["number", "null"], "minimum": 0},
+        "peak_memory_mb": {"type": ["number", "null"], "minimum": 0},
+        "technical_token_errors": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        }
       }
     },
     "decision": {"enum": ["PASS", "WATCH", "FAIL"]},
