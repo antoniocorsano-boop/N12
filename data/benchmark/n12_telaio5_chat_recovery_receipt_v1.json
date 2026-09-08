@@ -1,0 +1,74 @@
+{
+  "schema": "N12_TELAIO5_CHAT_RECOVERY_RECEIPT_v1",
+  "purpose": "Record what can be recovered from prior N12 conversations about the original calculation-report images without treating conversation summaries as substitutes for source bytes.",
+  "audit_date": "2026-09-09",
+  "authority": {
+    "state": "CONVERSATION_TRACE_ONLY",
+    "may_create_source_version": false,
+    "may_create_evidence_region": false,
+    "may_promote_engineering_fact": false,
+    "canonical_write_authorized": false
+  },
+  "recovered_sequence": [
+    {
+      "stage": "v8",
+      "conversation_file_id": "file_000000001f988246b73f5b9732ce5450",
+      "evidence": "12 photographs of the original calculation report were converted into a canonical source register with page identification and DOC provenance",
+      "consolidated_name": "Ariano_Irpino_Consolidato_v8_Relazione_Calcolo.zip",
+      "original_bytes_recovered": false
+    },
+    {
+      "stage": "v13",
+      "conversation_file_id": "file_000000004e28824688d3881eced1c4c7",
+      "evidence": "Telaio 5 first structured reading; RC-P10 identified as next page needed for levels/segment numbering and RC-P13 as load/section page context",
+      "consolidated_name": "Ariano_Irpino_Consolidato_v13_Telaio5.zip",
+      "original_bytes_recovered": false
+    },
+    {
+      "stage": "v15",
+      "conversation_file_id": "file_000000002b8881f49bb9d92c17418605",
+      "evidence": "two enlargements just provided in chat were used directly to reconcile G5/G4/G3/G2/G1 segment cardinality and C1-C8 geometry",
+      "consolidated_name": "Ariano_Irpino_Consolidato_v15_Telaio5_Riconciliazione.zip",
+      "original_bytes_recovered": false
+    },
+    {
+      "stage": "v16",
+      "conversation_file_id": "file_000000005e74820a8f7b19cfe06e43d5",
+      "evidence": "three images just provided were used to close RC-P13 and localize 25x70 / 140x20 section-load patterns for G3, G2 and G1",
+      "consolidated_name": "Ariano_Irpino_Consolidato_v16_Telaio5_RC_P13.zip",
+      "original_bytes_recovered": false
+    },
+    {
+      "stage": "v17",
+      "conversation_file_id": "file_0000000022d0820abe934d790610a2d3",
+      "evidence": "new plan-type/frame images were used to close G5 C2-C7 = 19.20 m and document the S-S'-T-U-V-Z-A'-B'-C' plan path",
+      "consolidated_name": "Ariano_Irpino_Consolidato_v17_Telaio5_G5_Pianta.zip",
+      "original_bytes_recovered": false
+    }
+  ],
+  "repository_memory_pointer": {
+    "source_id": "SRC-T5-PLAN-USER",
+    "historical_chat_file_pointer": "chat:file_00000000116481f49d5ce25af6aff36d",
+    "known_original_dimensions_px": [1152, 1536],
+    "known_sha256": "6961c6f0d16f51a98488726cce770687f3baf162cfd0581e342014883d38c041",
+    "repo_derivative": "evidence/derived/telaio5_plan_trace_v1.svg",
+    "status": "POINTER_AND_DIGEST_RECOVERED_ORIGINAL_PIXEL_BYTES_NOT_IN_GIT"
+  },
+  "conclusions": {
+    "calculation_report_images_transited_in_chat": true,
+    "rc_p10_rc_p13_pixel_bytes_recovered": false,
+    "plan_image_historical_pointer_recovered": true,
+    "consolidated_zip_names_recovered": true,
+    "consolidated_zip_bytes_recovered": false,
+    "held_out_authority_effect": "NONE"
+  },
+  "next_recovery_targets": [
+    "original chat-upload bytes corresponding to the two v15 enlargements",
+    "original chat-upload bytes corresponding to the three v16 RC-P13 images",
+    "Ariano_Irpino_Consolidato_v8_Relazione_Calcolo.zip if any historical attachment store still exposes it",
+    "Ariano_Irpino_Consolidato_v15_Telaio5_Riconciliazione.zip if any historical attachment store still exposes it",
+    "Ariano_Irpino_Consolidato_v16_Telaio5_RC_P13.zip if any historical attachment store still exposes it",
+    "Ariano_Irpino_Consolidato_v17_Telaio5_G5_Pianta.zip if any historical attachment store still exposes it"
+  ],
+  "fail_closed_rule": "Conversation summaries, remembered file names, historical file IDs, derived traces and consolidated descriptions are provenance/recovery pointers only. They cannot substitute original bytes for SourceVersion creation or held-out interpretation execution."
+}
