@@ -1,0 +1,60 @@
+{
+  "schema": "N12_TELAIO5_SOURCE_RECOVERY_v1",
+  "purpose": "Track recovery of the original calculation-document evidence needed to execute held-out cases HO-RC-001 and HO-RC-002 without substituting secondary consolidations for SourceVersion bytes.",
+  "authority": {
+    "state": "RECOVERY_METADATA_ONLY",
+    "may_create_source_version": false,
+    "may_create_evidence_region": false,
+    "may_promote_engineering_fact": false,
+    "canonical_write_authorized": false
+  },
+  "historical_evidence_trace": {
+    "document_family": "original calculation report photographs",
+    "known_page_labels": ["RC-P10", "RC-P13"],
+    "historical_workflow": [
+      "v13 Telaio 5 structured reading",
+      "v15 geometric reconciliation",
+      "v16 RC-P13 three-image reread",
+      "v17 G5 closure and plan anchoring"
+    ],
+    "recovered_documentary_facts": {
+      "frame_id": "T5",
+      "axis_label_chain": "S-S'-T-U-V-Z-A'-B'-C'",
+      "lower_level_span_signature_m": [4.70, 4.05, 1.20, 5.80, 2.90, 1.20, 4.05, 4.70],
+      "g5_documented_segments": "C2-C7",
+      "g5_length_m": 19.20,
+      "g5_absent_segments": ["C1", "C8"],
+      "g3_group": "17-25",
+      "g2_group": "26-34",
+      "g1_group": "35-43",
+      "g3_g2_section_pattern": {
+        "C1-C2": "25x70",
+        "C3-C5": "140x20",
+        "C6": "25x70",
+        "C7-C8": "25x70"
+      }
+    },
+    "trace_quality": "DOCUMENTARY_FACTS_RECOVERED_FROM_PRIOR_GOVERNED_ANALYSIS_BUT_ORIGINAL_IMAGE_BYTES_NOT_MATERIALIZED_IN_CURRENT_REPOSITORY"
+  },
+  "repository_audit": {
+    "frozen_originals_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+    "frozen_originals_tree": "387030fd952a13ea116a7916005117e7db46584e",
+    "result": "CALCULATION_REPORT_IMAGES_NOT_PRESENT_IN_FROZEN_ORIGINAL_DRAWING_TREE",
+    "note": "The frozen archive contains the original drawing PDFs but no file whose path identifies the calculation report or RC-P10/RC-P13 photographs."
+  },
+  "held_out_cases": {
+    "HO-RC-001": {
+      "fact_available": true,
+      "source_bytes_available": false,
+      "required_recovery": "materialize original calculation-report image/page containing Telaio 5 section occurrence 25x70, compute immutable digest, register SourceVersion/Page/EvidenceRegion, then localize the exact occurrence",
+      "state": "SOURCE_BYTES_RECOVERY_REQUIRED"
+    },
+    "HO-RC-002": {
+      "fact_available": true,
+      "source_bytes_available": false,
+      "required_recovery": "materialize original calculation-report image/page proving G5 1-7 = C2-C7 with C1/C8 absent, compute immutable digest, register SourceVersion/Page/EvidenceRegion, then localize the truncation evidence",
+      "state": "SOURCE_BYTES_RECOVERY_REQUIRED"
+    }
+  },
+  "fail_closed_rule": "Do not use v13-v17 summaries, canonical CSVs, chat transcripts, or derived reports as substitutes for the original calculation-report SourceVersion in held-out interpretation execution."
+}
