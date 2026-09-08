@@ -34,6 +34,12 @@ REQUIRED_GATES = {
     "KG-G5_HELD_OUT_N12_INTERPRETATION_PASS",
 }
 
+HELD_OUT_BINDING_STATES = {
+    "SOURCE_BINDING_REQUIRED",
+    "BOUND_REGION_REQUIRES_TOKEN_LOCALIZATION",
+    "SOURCE_BOUND_READY_FOR_INTERPRETATION",
+}
+
 
 def fail(message: str) -> None:
     print(f"N12_ENGINEERING_DRAWING_GRAMMAR_FAIL: {message}")
@@ -120,10 +126,37 @@ def evaluate_training_case(case):
     return actual
 
 
-def evaluate_held_out_governance(case):
+def validate_source_binding(case):
     state = case["source_binding_state"]
+    if state not in HELD_OUT_BINDING_STATES:
+        fail(f"{case['case_id']} has unsupported held-out binding state: {state}")
+
     if state == "SOURCE_BINDING_REQUIRED":
+        if "binding_blocker" not in case:
+            fail(f"{case['case_id']} must record why source binding is blocked")
         return "NOT_EXECUTABLE"
+
+    binding = case.get("source_binding", {})
+    required_binding = {
+        "source_version_id",
+        "sha256",
+        "page_id",
+        "page_index",
+        "evidence_region_id",
+        "verification_basis",
+    }
+    missing = required_binding - set(binding)
+    if missing:
+        fail(f"{case['case_id']} partial/bound source binding missing: {sorted(missing)}")
+    sha = binding.get("sha256", "")
+    if len(sha) != 64 or any(ch not in "0123456789abcdefABCDEF" for ch in sha):
+        fail(f"{case['case_id']} has invalid source SHA-256")
+
+    if state == "BOUND_REGION_REQUIRES_TOKEN_LOCALIZATION":
+        if "binding_blocker" not in case:
+            fail(f"{case['case_id']} partial binding must record remaining localization blocker")
+        return "PARTIALLY_BOUND_NOT_EXECUTABLE"
+
     return "BOUND_READY_FOR_INTERPRETATION_TEST"
 
 
@@ -142,7 +175,7 @@ def validate_corpus(corpus):
             ids.add(case["case_id"])
 
     training_results = {case["case_id"]: evaluate_training_case(case) for case in training}
-    held_out_results = {case["case_id"]: evaluate_held_out_governance(case) for case in held_out}
+    held_out_results = {case["case_id"]: validate_source_binding(case) for case in held_out}
 
     policy = corpus.get("gate_policy", {})
     if policy.get("automatic_structural_identity") is not False:
@@ -151,9 +184,11 @@ def validate_corpus(corpus):
         fail("corpus policy permits canonical write")
     if policy.get("kg_g5_pass_requires_all_held_out_bound_and_passed") is not True:
         fail("KG-G5 must require all held-out cases bound and passed")
+    if policy.get("held_out_cases_require_exact_interpretation_input") is not True:
+        fail("held-out cases must require exact interpretation input")
 
-    all_held_out_bound = all(v != "NOT_EXECUTABLE" for v in held_out_results.values())
-    kg_g5 = "PASS" if all_held_out_bound else "BLOCKED_SOURCE_BINDING_REQUIRED"
+    all_held_out_executable = all(v == "BOUND_READY_FOR_INTERPRETATION_TEST" for v in held_out_results.values())
+    kg_g5 = "READY_FOR_INTERPRETATION_EXECUTION" if all_held_out_executable else "BLOCKED_INCOMPLETE_HELD_OUT_BINDING"
 
     return training_results, held_out_results, kg_g5
 
