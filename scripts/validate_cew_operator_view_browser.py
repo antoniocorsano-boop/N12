@@ -66,6 +66,8 @@ def main() -> None:
             headers = {k.lower(): v for k, v in response.headers.items()}
             assert headers.get("x-cew-operator-view") == "CLEAN_LOCAL_REVIEW_V1", headers
             assert headers.get("x-cew-local-primitive-visibility") == "DIAGNOSTIC_OPT_IN_V1", headers
+            assert headers.get("x-cew-local-unit-focus") == "READING_UNIT_WORKING_VIEW_V1", headers
+            assert headers.get("x-cew-local-focus-navigation") == "COLUMN_WIDTH_FIT_VERTICAL_SCROLL_V1", headers
             assert page.locator('body[data-cew-operator-view="clean-local-v1"]').count() == 1
 
             svg = """<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800'>
@@ -92,12 +94,40 @@ def main() -> None:
             page.wait_for_function("window.CEWLayoutPhaseGate.state().confirmed === true")
             page.locator("#cew-layout-overlay .cew-layout-unit").first.click()
             page.wait_for_function("window.CEWLayoutPhaseGate.state().activeUnit !== null")
+            page.wait_for_function("document.body.dataset.cewLocalFocus === 'active'")
+            page.wait_for_timeout(180)
             page.evaluate("window.CEWOperatorView.sync()")
+            page.wait_for_timeout(80)
 
-            assert "vista locale pulita" in page.locator("#cew-local-summary").inner_text().lower()
+            summary = page.locator("#cew-local-summary").inner_text().lower()
+            assert "vista" in summary and ("lavoro" in summary or "locale" in summary), summary
             assert "non sono" in page.locator("#cew-local-diagnostics-note").inner_text().lower()
             assert "u1" in page.locator("#cew-editor-evidence").inner_text().lower()
             assert page.locator("#cew-local-diagnostics-toggle").is_visible()
+
+            geometry = page.evaluate(
+                """() => {
+                  const viewer=document.getElementById('viewer');
+                  const vr=viewer.getBoundingClientRect();
+                  const active=document.querySelector('#cew-layout-overlay .cew-layout-unit.active');
+                  const ar=active.getBoundingClientRect();
+                  return {
+                    viewerWidth:vr.width,
+                    activeWidth:ar.width,
+                    scrollHeight:viewer.scrollHeight,
+                    clientHeight:viewer.clientHeight,
+                    hiddenOthers:[...document.querySelectorAll('#cew-layout-overlay .cew-layout-unit:not(.active)')].every(x=>getComputedStyle(x).display==='none'),
+                    activeTitle:active.getAttribute('title'),
+                    clusterOverlay:getComputedStyle(document.getElementById('cluster-overlay')).display
+                  };
+                }"""
+            )
+            assert geometry["activeWidth"] >= geometry["viewerWidth"] * 0.55, geometry
+            assert geometry["scrollHeight"] > geometry["clientHeight"] * 1.25, geometry
+            assert geometry["hiddenOthers"], geometry
+            assert geometry["activeTitle"] is None, geometry
+            assert geometry["clusterOverlay"] == "none", geometry
+
             overlay = page.locator("#cew-local-overlay")
             assert overlay.count() == 1
             assert overlay.evaluate("el => getComputedStyle(el).display") == "none"
@@ -121,7 +151,7 @@ def main() -> None:
             proc.wait(timeout=3)
 
     print("CEW_OPERATOR_CLEAN_LOCAL_VIEW_PASS")
-    print("raw_fragments=DIAGNOSTIC_ONLY default_visible=false active_unit=PRIMARY")
+    print("reading_unit=WIDTH_FIT_VERTICAL_SCROLL raw_fragments=DIAGNOSTIC_ONLY default_visible=false active_unit=PRIMARY")
     print("semantic_authority=NONE canonical_write=false")
 
 
