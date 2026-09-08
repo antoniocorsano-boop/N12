@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW_B18_DUAL_WORKSPACE_HVA_CONTRACT_v1",
+  "status": "IMPLEMENTED_CANDIDATE_HVA_PENDING",
+  "scope": "CEW_B1_HUMAN_CENTRED_ACCEPTANCE_ONLY",
+  "route": "/evidence/dual-workspace?task=ERW-N12-001",
+  "human_hva_state": "REQUIRED_NOT_SATISFIED",
+  "accessibility_gate_state": "REQUIRED_NOT_SATISFIED",
+  "production_promotion_authorized": false,
+  "canonical_write_authorized": false,
+  "engineering_authority_effect": "NONE",
+  "invariants": [
+    "SOURCE_PANEL_PRIMARY_AUTHORITY_REMAINS_VERIFIED_SOURCE",
+    "TECHNICAL_PANEL_IS_READ_ONLY_PROJECTION",
+    "GEOMETRY_DOES_NOT_CREATE_IDENTITY",
+    "NO_STRUCTURAL_GEOMETRY_WITHOUT_TRACEABLE_PERSISTED_DATA",
+    "ND_OR_UNREADABLE_IS_NOT_INFERRED",
+    "PROPOSAL_EDIT_IS_SESSION_ONLY_NON_CANONICAL",
+    "SOURCE_REGION_TO_TECHNICAL_OBJECT_LINK_MUST_BE_PROVENANCE_BACKED"
+  ],
+  "uncertainty_states": [
+    "OPEN",
+    "IN_REVIEW",
+    "RESOLVED",
+    "NOT_RESOLVABLE_FROM_CURRENT_SOURCES"
+  ],
+  "hva_task": {
+    "task_id": "UX-DUAL-01",
+    "participant_prompt_it": "Confronta la regione verificata della tavola con la lettura tecnica disponibile. Controlla quale dato è documentato, quali informazioni restano ND e registra una proposta solo se la fonte la giustifica. Se non è leggibile, non completarla per analogia.",
+    "start_path": "/evidence/dual-workspace?task=ERW-N12-001",
+    "professional_goal": "COMPARE_SOURCE_AND_TECHNICAL_REPRESENTATION_WITHOUT_AUTHORITY_CONFUSION",
+    "success_criteria": [
+      "participant_can_move_between_verified_region_and_full_drawing",
+      "participant_can_reach_the_provenance_chain_for_the_technical_reading",
+      "participant_distinguishes_document_region_geometry_from_structural_geometry",
+      "participant_recognizes_length_1040_as_documented_and_quantity_diameter_as_unreadable_ND",
+      "participant_can_record_or_decline_a_proposal_without_canonical_write",
+      "participant_does_not_infer_missing_quantity_or_diameter"
+    ],
+    "blocking_failures": [
+      "SOURCE_DERIVED_AUTHORITY_CONFUSION",
+      "REGION_GEOMETRY_MISREAD_AS_STRUCTURAL_IDENTITY",
+      "ND_SILENTLY_COMPLETED",
+      "PROPOSAL_MISREAD_AS_CANONICAL_WRITE",
+      "PROVENANCE_CHAIN_NOT_REACHABLE",
+      "FALSE_SUCCESS"
+    ]
+  },
+  "required_real_data_chain": {
+    "task_id": "ERW-N12-001",
+    "source_id": "TAV-05A",
+    "source_version_id": "CEW-N12-SRC-TAV05A-V17DEC414",
+    "page_id": "CEW-N12-PAGE-TAV05A-P001",
+    "transform_id": "CEW-N12-XFORM-TAV05A-P001",
+    "evidence_region_id": "CEW-N12-REG-G01-R06",
+    "observation_id": "CEW-N12-OBS-G01-R06-LENGTH",
+    "documented_literal": "length=1040; quantity=UNREADABLE; diameter=UNREADABLE",
+    "structural_geometry_state": "OPEN/ND"
+  }
+}

@@ -1,0 +1,59 @@
+rules:
+  - id: cew-oar-canonical-write-escalation
+    message: CEW OAR governance/runtime surfaces must not authorize canonical writes.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - automation/**
+        - netlify/functions/**
+        - sql/**
+    pattern-regex: '(?i)canonical_write_authorized[^\n]{0,24}\btrue\b'
+
+  - id: cew-oar-structural-identity-escalation
+    message: CEW OAR governance/runtime surfaces must not authorize structural identity at this gate.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - automation/**
+        - netlify/functions/**
+        - sql/**
+    pattern-regex: '(?i)structural_identity_authorized[^\n]{0,24}\btrue\b'
+
+  - id: cew-oar-human-classification-escalation
+    message: OAR geometry localization must not become OAR human classification confirmation.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - automation/**
+        - netlify/functions/**
+        - sql/**
+    pattern-regex: '(?i)oar_human_confirmation[^\n]{0,24}\btrue\b'
+
+  - id: cew-audit-history-direct-update
+    message: CEW audit history is append-only; direct UPDATE of cew_human_receipt_audit is forbidden.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - netlify/functions/**
+        - scripts/**
+        - sql/**
+      exclude:
+        - scripts/validate_*.py
+    pattern-regex: '(?i)\bupdate\s+(?:public\.)?cew_human_receipt_audit\b'
+
+  - id: cew-audit-history-direct-delete
+    message: CEW audit history is append-only; direct DELETE from cew_human_receipt_audit is forbidden.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - netlify/functions/**
+        - scripts/**
+        - sql/**
+      exclude:
+        - scripts/validate_*.py
+    pattern-regex: '(?i)\bdelete\s+from\s+(?:public\.)?cew_human_receipt_audit\b'

@@ -6,9 +6,10 @@ import json
 import os
 import re
 from pathlib import Path
-from urllib import error, request
+from urllib import error, parse, request
 
 SAFE_DECISION_ID = re.compile(r"^[A-Za-z0-9._-]+$")
+MAX_GOVERNED_READ_RECEIPTS = 500
 
 
 def _raw(receipt: dict) -> str:
@@ -36,7 +37,7 @@ def _persist_file(receipt: dict, store: Path, digest: str) -> dict:
     decision_id = str(receipt["decision_id"])
     store = store.resolve()
     store.mkdir(parents=True, exist_ok=True)
-    target = store / f"{decision_id}.json"
+    target = store / ("receipt-" + hashlib.sha256(decision_id.encode("utf-8")).hexdigest() + ".json")
     pretty = json.dumps(receipt, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
     try:
         with target.open("x", encoding="utf-8") as f:
@@ -199,3 +200,175 @@ def persist_runtime_receipt(receipt: dict, store: Path) -> dict:
     if backend == "UNCONFIGURED_PRODUCTION":
         raise ValueError("production audit backend is not configured")
     return _persist_file(receipt, store, digest)
+
+
+def _receipt_json_object(value) -> dict:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str):
+        try:
+            payload = json.loads(value)
+        except json.JSONDecodeError as exc:
+            raise ValueError("runtime audit receipt_json is invalid") from exc
+        if isinstance(payload, dict):
+            return payload
+    raise ValueError("runtime audit receipt_json must be an object")
+
+
+def _load_file_receipts(store: Path, receipt_type: str, max_receipts: int) -> list[dict]:
+    root = store.resolve()
+    if not root.exists():
+        return []
+    if not root.is_dir():
+        raise ValueError("runtime audit store is not a directory")
+    receipts: list[dict] = []
+    for path in sorted(root.glob("*.json")):
+        if len(receipts) >= max_receipts:
+            raise ValueError("runtime audit governed receipt read limit exceeded")
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ValueError("runtime audit receipt file is invalid") from exc
+        if not isinstance(payload, dict):
+            raise ValueError("runtime audit receipt file must contain an object")
+        if payload.get("receipt_type") == receipt_type:
+            receipts.append(payload)
+    return receipts
+
+
+def _load_neon_receipts(receipt_type: str, max_receipts: int) -> list[dict]:
+    try:
+        import psycopg
+    except Exception as exc:
+        raise ValueError("Neon audit driver unavailable") from exc
+    sql = """
+        SELECT receipt_json
+        FROM public.cew_human_receipt_audit
+        WHERE receipt_json->>'receipt_type' = %s
+        ORDER BY submitted_at ASC NULLS LAST, decision_id ASC
+        LIMIT %s
+    """
+    try:
+        with psycopg.connect(os.environ["CEW_AUDIT_NEON_DATABASE_URL"], connect_timeout=10) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, (receipt_type, max_receipts + 1))
+                rows = cur.fetchall()
+    except Exception as exc:
+        raise ValueError("Neon audit governed receipt read failed") from exc
+    if len(rows) > max_receipts:
+        raise ValueError("runtime audit governed receipt read limit exceeded")
+    return [_receipt_json_object(row[0]) for row in rows]
+
+
+def _load_supabase_receipts(receipt_type: str, max_receipts: int) -> list[dict]:
+    base = os.environ["CEW_AUDIT_SUPABASE_URL"].rstrip("/")
+    key = os.environ["CEW_AUDIT_SUPABASE_SERVICE_ROLE_KEY"]
+    table = os.getenv("CEW_AUDIT_TABLE", "cew_human_receipt_audit")
+    query = parse.urlencode(
+        {
+            "select": "receipt_json",
+            "receipt_json->>receipt_type": f"eq.{receipt_type}",
+            "order": "submitted_at.asc.nullslast,decision_id.asc",
+            "limit": str(max_receipts + 1),
+        }
+    )
+    req = request.Request(
+        f"{base}/rest/v1/{table}?{query}",
+        method="GET",
+        headers={
+            "apikey": key,
+            "Authorization": f"Bearer {key}",
+            "Accept": "application/json",
+        },
+    )
+    try:
+        with request.urlopen(req, timeout=12) as resp:
+            if resp.status != 200:
+                raise ValueError(f"unexpected Supabase audit read status: {resp.status}")
+            rows = json.loads(resp.read().decode("utf-8"))
+    except error.HTTPError as exc:
+        raise ValueError(f"Supabase audit governed receipt read failed: HTTP {exc.code}") from exc
+    except (error.URLError, json.JSONDecodeError) as exc:
+        raise ValueError("Supabase audit governed receipt read unavailable") from exc
+    if not isinstance(rows, list):
+        raise ValueError("Supabase audit governed receipt read must return a list")
+    if len(rows) > max_receipts:
+        raise ValueError("runtime audit governed receipt read limit exceeded")
+    receipts: list[dict] = []
+    for row in rows:
+        if not isinstance(row, dict) or "receipt_json" not in row:
+            raise ValueError("Supabase audit governed receipt row is invalid")
+        receipts.append(_receipt_json_object(row["receipt_json"]))
+    return receipts
+
+
+def _load_https_receipts(receipt_type: str, max_receipts: int) -> list[dict]:
+    endpoint = os.environ["CEW_AUDIT_HTTPS_URL"].strip()
+    secret = os.environ["CEW_AUDIT_SHARED_SECRET"]
+    separator = "&" if "?" in endpoint else "?"
+    query = parse.urlencode({"receipt_type": receipt_type, "limit": str(max_receipts + 1)})
+    req = request.Request(
+        f"{endpoint}{separator}{query}",
+        method="GET",
+        headers={
+            "Authorization": f"Bearer {secret}",
+            "Accept": "application/json",
+        },
+    )
+    try:
+        with request.urlopen(req, timeout=12) as resp:
+            if resp.status != 200:
+                raise ValueError(f"unexpected Netlify audit read status: {resp.status}")
+            payload = json.loads(resp.read().decode("utf-8"))
+    except error.HTTPError as exc:
+        raise ValueError(f"Netlify audit governed receipt read failed: HTTP {exc.code}") from exc
+    except (error.URLError, json.JSONDecodeError) as exc:
+        raise ValueError("Netlify audit governed receipt read unavailable") from exc
+    rows = payload.get("receipts") if isinstance(payload, dict) else payload
+    if not isinstance(rows, list):
+        raise ValueError("Netlify audit governed receipt read must return receipts")
+    if len(rows) > max_receipts:
+        raise ValueError("runtime audit governed receipt read limit exceeded")
+    receipts: list[dict] = []
+    for row in rows:
+        if isinstance(row, dict) and "receipt_json" in row:
+            row = row["receipt_json"]
+        receipts.append(_receipt_json_object(row))
+    return receipts
+
+
+def load_runtime_receipts(receipt_type: str, store: Path, *, max_receipts: int = MAX_GOVERNED_READ_RECEIPTS) -> dict:
+    """Read append-only runtime receipts for a governed downstream gate.
+
+    This is deliberately read-only. It does not grant canonical-write, geometry,
+    structural, promotion, or engineering authority. Every backend advertised as
+    production-ready by app.py has an explicit governed read-back path here;
+    transport/schema failures remain fail-closed.
+    """
+    if not isinstance(receipt_type, str) or not receipt_type.strip() or len(receipt_type) > 200:
+        raise ValueError("runtime audit receipt_type is invalid")
+    if not isinstance(max_receipts, int) or max_receipts < 1 or max_receipts > MAX_GOVERNED_READ_RECEIPTS:
+        raise ValueError("runtime audit max_receipts is invalid")
+    receipt_type = receipt_type.strip()
+    backend = backend_status()
+    if backend == "FILESYSTEM_APPEND_ONLY":
+        receipts = _load_file_receipts(store, receipt_type, max_receipts)
+    elif backend == "NEON_APPEND_ONLY":
+        receipts = _load_neon_receipts(receipt_type, max_receipts)
+    elif backend == "SUPABASE_APPEND_ONLY":
+        receipts = _load_supabase_receipts(receipt_type, max_receipts)
+    elif backend == "NETLIFY_AUDIT_HTTPS":
+        receipts = _load_https_receipts(receipt_type, max_receipts)
+    elif backend == "UNCONFIGURED_PRODUCTION":
+        raise ValueError("production audit backend is not configured")
+    else:
+        raise ValueError(f"governed receipt read unsupported for audit backend: {backend}")
+    return {
+        "audit_backend": backend,
+        "receipt_type": receipt_type,
+        "receipt_count": len(receipts),
+        "receipts": receipts,
+        "authority": "RUNTIME_AUDIT_READ_ONLY",
+        "canonical_write": False,
+        "engineering_authority_effect": "NONE",
+    }

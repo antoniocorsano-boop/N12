@@ -1,0 +1,25 @@
+name: Validate CEW Professional Gap Review
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/cew_professional_gap_review.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - 'scripts/cew_professional_workbench_api_base.py'
+      - 'scripts/validate_cew_professional_gap_review.py'
+      - 'scripts/build_cew_human_gap_review_receipts.py'
+      - 'scripts/render_build_candidate.sh'
+      - 'automation/CEW_PWB005_R2HR_HUMAN_GAP_REVIEW_RECEIPT_SCHEMA_v1.json'
+      - '.github/workflows/validate-cew-professional-gap-review.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-professional-gap-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate in-system professional gap review
+        run: python scripts/validate_cew_professional_gap_review.py

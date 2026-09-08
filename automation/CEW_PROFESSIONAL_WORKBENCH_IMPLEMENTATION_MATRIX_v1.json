@@ -1,0 +1,221 @@
+{
+  "schema_version": "1.8",
+  "matrix_id": "CEW_PROFESSIONAL_WORKBENCH_IMPLEMENTATION_MATRIX_v1",
+  "audit_document": "docs/AUDIT/CEW_PROFESSIONAL_EVIDENCE_WORKBENCH_AUDIT_v1.md",
+  "r1_findings": "docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_PWB005_R1_FINDINGS_v1.md",
+  "r1a_findings": "docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_PWB005_R1A_FINDINGS_v1.md",
+  "reuse_map": "docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_REUSE_MAP_v1.md",
+  "scene_contract": "automation/CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRACT_v1.json",
+  "verified_candidate": "ddfd5826893702c3fc1299cde38c81bd7530b47a",
+  "client_integration_verified_candidate": "9296d82a02ce1d4e2e171f64c937e828094cca2d",
+  "r2hr_runtime_verified_candidate": "f3ac68223984f0bcfd7692e7fabedf789b889b94",
+  "r2gi_runtime_verified_candidate": "a2fff01d5829c1bc76c4e5e60ed63793472427df",
+  "r2gm_ci_verified_candidate": "a2fff01d5829c1bc76c4e5e60ed63793472427df",
+  "r2hr_in_system_review_state": "INTEGRATED_AUDIT_ONLY_HUMAN_RECEIPT_REQUIRED",
+  "r2gi_in_system_state": "INTEGRATED_GOVERNED_INGEST_REAL_HUMAN_RECEIPTS_REQUIRED",
+  "r2gm_in_system_state": "INTEGRATED_EXPLICIT_DOCUMENT_GEOMETRY_ACCEPTANCE_HUMAN_RECEIPTS_REQUIRED",
+  "status": "CLIENT_R2HR_R2GI_R2GM_INTEGRATED_PWB005_BLOCKED",
+  "professional_workbench_readiness": "REWORK_REQUIRED",
+  "hva_execution_authorized": false,
+  "b1_promotion_authorized": false,
+  "canonical_write_authorized": false,
+  "status_vocabulary": ["IMPLEMENTED", "PARTIAL", "AVAILABLE_NOT_INTEGRATED", "NOT_IMPLEMENTED"],
+  "requirements": [
+    {
+      "id": "PWB-001",
+      "name": "Verified source authority preserved",
+      "priority": "INVARIANT",
+      "status": "IMPLEMENTED",
+      "evidence": ["docs/ACCEPTANCE/CEW_B18_DUAL_WORKSPACE_CONTRACT_v1.md", "scripts/cew_professional_workbench_projection.py", "automation/CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRACT_v1.json", "scripts/cew_professional_workbench_client.py"]
+    },
+    {
+      "id": "PWB-002",
+      "name": "Non-canonical working edits",
+      "priority": "INVARIANT",
+      "status": "IMPLEMENTED",
+      "evidence": ["scripts/cew_professional_workbench_core.py", "scripts/cew_professional_workbench_client.py", "scripts/validate_cew_professional_workbench_core.py", "scripts/validate_cew_professional_workbench_client.py"]
+    },
+    {
+      "id": "PWB-003",
+      "name": "Continuous zoom pan rotate with keyboard alternatives",
+      "priority": "P0",
+      "status": "PARTIAL",
+      "evidence": ["scripts/cew_evidence_viewer_interaction.py", "scripts/build_cew_source_viewer.py", "scripts/build_cew_managed_f3_assets.py", "scripts/cew_professional_workbench_client.py"],
+      "gap": "The professional client now consumes governed F3 DZI assets with zoom, pan, rotate, fit and keyboard alternatives. Live managed-runtime browser validation and professional HVA remain pending."
+    },
+    {
+      "id": "PWB-004",
+      "name": "Drawing-first visual hierarchy",
+      "priority": "P0",
+      "status": "IMPLEMENTED",
+      "evidence": ["scripts/cew_professional_workbench_client.py", "scripts/cew_project_home.py", "docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_UX_WIREFRAMES_STATE_MAPS_v1.md"],
+      "gap": "Implemented in the browser candidate; professional HVA is still blocked by the remaining entry-gate requirements."
+    },
+    {
+      "id": "PWB-005",
+      "name": "True technical vector representation from governed document geometry",
+      "priority": "P0_BLOCKER",
+      "status": "PARTIAL",
+      "evidence": [
+        ".github/workflows/dual-vector-agreement.yml",
+        "scripts/cew_dual_vector_agreement.py",
+        "scripts/build_cew_document_geometry_artifacts.py",
+        "scripts/validate_cew_document_geometry_artifacts.py",
+        "scripts/validate_cew_document_geometry_scene_adapter.py",
+        "scripts/build_cew_evidence_region_content_diagnostic.py",
+        "scripts/validate_cew_evidence_region_content_diagnostic.py",
+        "scripts/build_cew_evidence_region_mapping_root_cause.py",
+        "scripts/validate_cew_evidence_region_mapping_root_cause.py",
+        "scripts/build_cew_human_gap_review_receipts.py",
+        "scripts/cew_professional_gap_review.py",
+        "scripts/validate_cew_professional_gap_review.py",
+        ".github/workflows/validate-cew-professional-gap-review.yml",
+        "scripts/cew_r2hr_governed_ingest.py",
+        "scripts/validate_cew_r2hr_governed_ingest.py",
+        ".github/workflows/validate-cew-r2gi-governed-ingest.yml",
+        "automation/CEW_PWB005_R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE_CONTRACT_v1.json",
+        "scripts/cew_r2gm_geometry_acceptance.py",
+        "scripts/validate_cew_r2gm_geometry_acceptance.py",
+        ".github/workflows/validate-cew-r2gm-geometry-acceptance.yml",
+        "docs/PLAN/CEW_PWB005_R1_EVIDENCE_REGION_CONTENT_DIAGNOSTIC_PLAN_v1.md",
+        "docs/PLAN/CEW_PWB005_R1A_REGION_MAPPING_ROOT_CAUSE_PLAN_v1.md",
+        "docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_PWB005_R1_FINDINGS_v1.md",
+        "docs/AUDIT/CEW_PROFESSIONAL_WORKBENCH_PWB005_R1A_FINDINGS_v1.md"
+      ],
+      "finding": {
+        "governed_regions": 4,
+        "dual_vector_comparable_regions": 0,
+        "published_document_primitives": 0,
+        "raster_regions": ["CEW-N12-REG-G01-R06", "CEW-N12-REG-G05-R04", "CEW-N12-REG-G07-R07", "CEW-N12-REG-T6A-G03"],
+        "region_mapping_error_regions": [],
+        "r1a_root_cause": "FLOATING_POINT_CONTAINMENT_TOLERANCE",
+        "canonical_provenance_repair_required": false,
+        "containment_method": "SOURCE_PAGE_EDGE_TOLERANCE",
+        "containment_tolerance_pt": 0.01,
+        "r2hr_region_coverage": "4/4",
+        "r2hr_gap_hypothesis_total": 10,
+        "r2hr_review_in_system": true,
+        "r2hr_json_download_required": false,
+        "r2hr_receipt_persistence": "APPEND_ONLY_RUNTIME_AUDIT",
+        "r2hr_receipt_is_geometry_acceptance": false,
+        "r2gi_governed_ingest_integrated": true,
+        "r2gi_review_findings_are_geometry": false,
+        "r2gi_candidate_build_revision_separated": true,
+        "r2gm_explicit_geometry_acceptance_integrated": true,
+        "r2gm_candidate_build_revision_separated": true,
+        "r2gm_real_human_acceptance_receipt_asserted": false,
+        "r2gm_acceptance_is_technical_identity": false,
+        "r2gm_acceptance_is_structural_identity": false,
+        "r2gm_next_gate_when_4_of_4_accepted": "R2C_DOCUMENT_GEOMETRY_SCENE_ADAPTER_REQUIRED",
+        "r2c_scene_adapter_implemented": false
+      },
+      "gap": "R2HR, R2GI and R2GM are now integrated in-system and governance-tested. R2GI preserves candidate_head_sha and build_revision as distinct governed provenance identities; R2GM requires a separate explicit human decision on the exact fingerprinted region proposal before it can become HUMAN_ACCEPTED_DOCUMENT_GEOMETRY. No real professional R2HR or R2GM project receipt is asserted by this implementation state, synthetic CI receipts are not project truth, and R2C document-geometry scene adaptation remains unimplemented. The four governed EvidenceRegions remain raster-derived rather than native PDF vector/text geometry. Therefore PWB-005 remains PARTIAL and a professional HVA blocker."
+    },
+    {
+      "id": "PWB-006",
+      "name": "Selectable technical objects and hit testing",
+      "priority": "P0_BLOCKER",
+      "status": "IMPLEMENTED",
+      "evidence": ["scripts/build_cew_erw_synced_workspace.py", "scripts/cew_professional_workbench_core.py", "scripts/cew_professional_workbench_projection.py", "scripts/cew_professional_workbench_client.py", "scripts/validate_cew_professional_workbench_client.py"],
+      "gap": "The professional client renders line objects as keyboard- and pointer-selectable SVG objects with stable scene ids and an object inspector."
+    },
+    {
+      "id": "PWB-007",
+      "name": "Object-anchored editable recognized text and values",
+      "priority": "P0_BLOCKER",
+      "status": "PARTIAL",
+      "evidence": ["scripts/cew_professional_workbench_core.py", "scripts/cew_professional_workbench_client.py", "scripts/validate_cew_professional_workbench_core.py"],
+      "gap": "The client exposes object-anchored non-canonical WorkingEdit UI for recognized text/dimension/candidate families, but the current real scene does not yet provide the required governed recognized objects for an end-to-end professional editing task."
+    },
+    {
+      "id": "PWB-008",
+      "name": "Provenance-backed source-to-technical registration transform",
+      "priority": "P0_BLOCKER",
+      "status": "PARTIAL",
+      "evidence": ["automation/CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRACT_v1.json", "scripts/cew_professional_workbench_core.py", "scripts/cew_professional_workbench_projection.py", "scripts/cew_professional_workbench_client.py"],
+      "gap": "RegistrationTransform contract, runtime state and fail-closed validation are integrated; no VERIFIED real-project Source-to-Technical transform exists."
+    },
+    {
+      "id": "PWB-009",
+      "name": "Synchronized split navigation guarded by valid registration",
+      "priority": "P0_BLOCKER",
+      "status": "PARTIAL",
+      "evidence": ["scripts/build_cew_erw_synced_workspace.py", "scripts/cew_professional_workbench_core.py", "scripts/cew_professional_workbench_client.py"],
+      "gap": "Split and explicit evidence-link semantic synchronization are integrated. Spatial lock correctly remains unavailable until a VERIFIED revision-matched registration exists."
+    },
+    {
+      "id": "PWB-010",
+      "name": "Overlay comparison mode with opacity/alignment controls",
+      "priority": "P0_BLOCKER",
+      "status": "PARTIAL",
+      "evidence": ["scripts/cew_professional_workbench_core.py", "scripts/cew_professional_workbench_client.py"],
+      "gap": "The professional client exposes Overlay as visibly unavailable and the kernel rejects unsafe requests. Registered overlay rendering, opacity and alignment controls remain pending."
+    },
+    {
+      "id": "PWB-011",
+      "name": "Layer-capable technical scene",
+      "priority": "P1",
+      "status": "PARTIAL",
+      "evidence": ["automation/CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRACT_v1.json", "scripts/cew_professional_workbench_projection.py", "scripts/cew_professional_workbench_client.py"],
+      "gap": "The client integrates layer controls for document geometry, governed structural objects, session issues and future working edits. Full real document/text/edit layer composition remains incomplete."
+    },
+    {
+      "id": "PWB-012",
+      "name": "Graphically anchored ReadingIssue workflow",
+      "priority": "P0_BLOCKER",
+      "status": "PARTIAL",
+      "evidence": ["scripts/cew_professional_workbench_core.py", "scripts/cew_professional_workbench_client.py", "docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_INTERACTION_ARCHITECTURE_v1.md"],
+      "gap": "The browser can create non-canonical ReadingIssue previews anchored to a selected technical object or governed source region and render graphical session markers. Durable issue list, resolution and governed handoff workflow remain pending."
+    },
+    {
+      "id": "PWB-013",
+      "name": "Progressive disclosure Work -> Evidence -> Provenance",
+      "priority": "P0",
+      "status": "IMPLEMENTED",
+      "evidence": ["scripts/cew_professional_workbench_client.py", "scripts/cew_professional_workbench_api.py", "scripts/validate_cew_professional_workbench_client.py", "docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_UX_WIREFRAMES_STATE_MAPS_v1.md"],
+      "gap": "The browser candidate presents Work first, Evidence and Provenance as disclosure layers, and removes internal task ids from primary Workbench chrome."
+    },
+    {
+      "id": "PWB-014",
+      "name": "Multiresolution or tiled large-drawing rendering architecture",
+      "priority": "P1",
+      "status": "PARTIAL",
+      "evidence": ["scripts/build_cew_source_viewer.py", "scripts/build_cew_managed_f3_assets.py", "scripts/cew_managed_f3_assets.py", "scripts/cew_professional_workbench_api.py", "scripts/cew_professional_workbench_client.py", "render.yaml"],
+      "gap": "Four-source exact-revision DZI build/serving and professional client consumption are integrated. Live Render asset smoke on the new client candidate remains required."
+    },
+    {
+      "id": "PWB-015",
+      "name": "Dedicated maintainable workbench client/state architecture",
+      "priority": "P0_ARCH",
+      "status": "PARTIAL",
+      "evidence": ["scripts/cew_professional_workbench_core.py", "scripts/cew_professional_workbench_projection.py", "scripts/cew_professional_workbench_api.py", "scripts/cew_professional_workbench_client.py", "scripts/validate_cew_professional_workbench_client.py"],
+      "gap": "A dedicated browser client now consumes the deterministic kernel/projection/API boundary. Further typed client/state modularization and maintainability hardening are required before final professional acceptance."
+    },
+    {
+      "id": "PWB-016",
+      "name": "Desktop-first engineering layout with tablet/narrow review modes",
+      "priority": "P1",
+      "status": "PARTIAL",
+      "evidence": ["docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_UX_WIREFRAMES_STATE_MAPS_v1.md", "scripts/cew_professional_workbench_client.py"],
+      "gap": "Desktop split layout and narrow source/technical switching are implemented in the candidate; manual tablet/narrow professional validation remains pending."
+    },
+    {
+      "id": "PWB-017",
+      "name": "Saved/reusable professional view state",
+      "priority": "P2",
+      "status": "PARTIAL",
+      "evidence": ["automation/CEW_PROFESSIONAL_WORKBENCH_SCENE_CONTRACT_v1.json", "scripts/cew_professional_workbench_core.py", "scripts/cew_professional_workbench_api.py"],
+      "gap": "Revision-bound ViewSnapshot exists through the kernel/API; persistence/reload UX and durable storage remain pending."
+    },
+    {
+      "id": "PWB-018",
+      "name": "Professional engineering-task HVA protocol",
+      "priority": "P0_BLOCKER",
+      "status": "PARTIAL",
+      "evidence": ["docs/DESIGN/CEW_PROFESSIONAL_WORKBENCH_HVA_PROTOCOL_v1.md", "automation/CEW_B18_DUAL_WORKSPACE_HVA_CONTRACT_v1.json"],
+      "gap": "Professional HVA protocol is versioned but intentionally blocked until all entry requirements are satisfied on an immutable candidate."
+    }
+  ],
+  "blocking_requirement_ids": ["PWB-005", "PWB-007", "PWB-008", "PWB-009", "PWB-010", "PWB-012", "PWB-015", "PWB-018"],
+  "required_design_deliverables": ["PROFESSIONAL_WORKBENCH_PRODUCT_CONTRACT", "INTERACTION_ARCHITECTURE", "TECHNICAL_PROJECTION_MODEL", "RENDERING_ARCHITECTURE", "UX_WIREFRAMES_AND_STATE_MAPS", "PROFESSIONAL_HVA_PROTOCOL"]
+}

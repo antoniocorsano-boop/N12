@@ -120,25 +120,30 @@ def main() -> int:
 
     current = state.get("current_product_work_item", {})
     if current.get("id") == "CEW-B1-SOURCE-EVIDENCE-JOURNEY":
-        if current.get("state") == "RESIDUAL":
+        current_state = str(current.get("state") or "")
+        if current_state == "RESIDUAL":
             if "PENDING" not in smoke_status:
                 errors.append("B1 RESIDUAL must retain an explicit pending production-smoke state")
             if latest_b1 is not True:
                 errors.append("B1 production residual after deployment must record latest_b1_source_evidence_deployed=true")
             if not runtime.get("production_source_commit"):
                 errors.append("B1 production residual after deployment must record production_source_commit")
-        elif current.get("state") == "IN_PROGRESS":
-            if current.get("current_slice") != "B1.1":
-                errors.append("extended B1 IN_PROGRESS must identify current_slice B1.1")
+        elif current_state.startswith("IN_PROGRESS"):
+            if current.get("current_slice") != "B1.8":
+                errors.append("extended B1 current product state must identify B1.8")
             if current.get("slice_plan") != "automation/CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN_v1.json":
                 errors.append("extended B1 must bind the document/drawing agent plan")
-            if runtime.get("latest_b11_document_drawing_deployed") is not False:
-                errors.append("B1.1 branch work must not be recorded as deployed before promotion")
-        elif current.get("state") == "COMPLETE" and not smoke_status.startswith("B1_PRODUCTION_SMOKE_PASS"):
+            if current.get("human_acceptance_contract") != "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json":
+                errors.append("B1.8 must bind Human Acceptance v2 contract")
+            if "HUMAN_ACCEPTANCE_V2_NOT_EXECUTED" not in current.get("promotion_blockers", []):
+                errors.append("B1.8 implementation must retain human HVA blocker")
+            if runtime.get("latest_extended_b1_document_drawing_deployed") is not False:
+                errors.append("extended B1 candidate must not be recorded as Production deployed before accepted promotion sequence")
+        elif current_state == "COMPLETE" and not smoke_status.startswith("B1_PRODUCTION_SMOKE_PASS"):
             errors.append("B1 COMPLETE requires B1_PRODUCTION_SMOKE_PASS")
 
     lowered = STATE.read_text(encoding="utf-8").lower()
-    stale_fragments = ["netlify", "pending_vercel", "vercel_preview_pending", "created_pending_first_code_deploy"]
+    stale_fragments = ["pending_vercel", "vercel_preview_pending", "created_pending_first_code_deploy"]
     for fragment in stale_fragments:
         if fragment in lowered:
             errors.append(f"stale runtime fragment remains in CEW CURRENT state: {fragment}")
@@ -176,6 +181,7 @@ def main() -> int:
     print("CEW_PRODUCT_STATE_RECONCILIATION = PASS")
     print(f"CURRENT_PRODUCT_WORK_ITEM = {current.get('id')}")
     print(f"CURRENT_PRODUCT_SLICE = {current.get('current_slice')}")
+    print(f"CURRENT_PRODUCT_STATE = {current.get('state')}")
     print("N12_ENGINEERING_AUTHORITY = knowledge/CURRENT_STATE.json")
     print("PRODUCTION_RUNTIME = VERCEL_FASTAPI + NEON_APPEND_ONLY")
     print(f"PRODUCTION_SMOKE_STATE = {smoke_status}")

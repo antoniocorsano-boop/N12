@@ -1,0 +1,84 @@
+{
+  "schema": "CEW_DINOV3_PROVIDER_CONTRACT_v1",
+  "provider_id": "DINOV3_FROZEN_FEATURES",
+  "implementation_state": "IMPLEMENTED_NOT_PROVISIONED",
+  "purpose": "Provide frozen DINOv3 visual embeddings for immutable CEW image regions without granting semantic, CAD, structural or engineering authority.",
+  "official_source": {
+    "repository": "https://github.com/facebookresearch/dinov3",
+    "repository_commit_required": true,
+    "local_repository_required": true,
+    "runtime_network_fetch_allowed": false,
+    "weights_acquisition": "USER_PROVISIONED_UNDER_OFFICIAL_DINOV3_TERMS",
+    "weights_path_required": true,
+    "weights_sha256_required": true
+  },
+  "model": {
+    "allowed_model_names": [
+      "dinov3_vits16"
+    ],
+    "default_model_name": "dinov3_vits16",
+    "pretraining": "LVD-1689M",
+    "feature_output": "x_norm_clstoken",
+    "frozen_backbone_required": true,
+    "training_allowed": false
+  },
+  "preprocessing": {
+    "resize": [256, 256],
+    "color_mode": "RGB",
+    "mean": [0.485, 0.456, 0.406],
+    "std": [0.229, 0.224, 0.225],
+    "antialias": true
+  },
+  "execution": {
+    "web_worker_dependency": false,
+    "optional_requirements": "requirements-dinov3.txt",
+    "lazy_torch_import": true,
+    "cpu_supported": true,
+    "gpu_optional": true,
+    "default_device": "cpu"
+  },
+  "required_environment": [
+    "CEW_DINOV3_REPO_DIR",
+    "CEW_DINOV3_REPO_COMMIT",
+    "CEW_DINOV3_WEIGHTS_PATH",
+    "CEW_DINOV3_WEIGHTS_SHA256"
+  ],
+  "embedding_binding": {
+    "source_version_id_required": true,
+    "source_sha256_required": true,
+    "page_id_required": true,
+    "page_index_required": true,
+    "coordinate_system_required": true,
+    "bbox_required": true,
+    "region_image_sha256_required": true,
+    "candidate_id_required": true,
+    "provider_revision_fingerprint_required": true
+  },
+  "cache": {
+    "schema": "CEW_VISUAL_EMBEDDING_CACHE_ENTRY_v1",
+    "content_addressed": true,
+    "cache_key_inputs": [
+      "provider_revision_fingerprint",
+      "source_version_id",
+      "source_sha256",
+      "page_id",
+      "page_index",
+      "coordinate_system",
+      "bbox",
+      "region_image_sha256",
+      "candidate_id"
+    ],
+    "semantic_authority": "NONE",
+    "canonical_write_authorized": false
+  },
+  "authority": {
+    "project_semantic_authority": "NONE",
+    "oar_human_confirmation": false,
+    "oar_classification_confirmed": false,
+    "f2_registry_written": false,
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "engineering_authority_effect": "NONE",
+    "human_project_validation_required": true
+  }
+}

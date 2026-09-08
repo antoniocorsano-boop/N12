@@ -1,0 +1,5 @@
+# Optional CEW visual-foundation worker only. Do not install in the normal web runtime.
+torch>=2.1,<3
+torchvision>=0.16,<1
+Pillow>=10,<13
+numpy>=1.26,<3

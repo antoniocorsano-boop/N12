@@ -1,0 +1,117 @@
+{
+  "schema": "CEW_OAR_ASSISTED_LOCALIZATION_ADOPTION_v1",
+  "program": "CEW_OBJECT_ACQUISITION_RECOGNITION",
+  "pilot_id": "OAR-PILOT-G4-COLUMNS",
+  "target_surface": "TAV-05S",
+  "status": "POC_NON_PROMOTING",
+  "goal": "Use the existing CEW object/prototype/family model to let a human teach one correct project-local example, search the verified page for similar occurrences, and review candidates visually; deep zoom and editable rectangles remain the interaction surface while local contour snap is retained only as fallback.",
+  "adopted_components": {
+    "viewer": {
+      "name": "OpenSeadragon",
+      "version": "6.1.0",
+      "license": "BSD-3-Clause",
+      "role": "DEEP_ZOOM_PAN_ROTATE_MOBILE_NAVIGATION",
+      "runtime_delivery": "SELF_HOSTED_BUILD_MATERIALIZED"
+    },
+    "annotation": {
+      "name": "@annotorious/openseadragon",
+      "version": "3.8.10",
+      "license": "BSD-3-Clause",
+      "role": "DRAW_EDIT_MOVE_RESIZE_RECTANGLE_HUMAN_REVIEW",
+      "runtime_delivery": "SELF_HOSTED_BUILD_MATERIALIZED"
+    },
+    "deep_zoom": {
+      "name": "sharp",
+      "version": "0.35.4",
+      "license": "Apache-2.0",
+      "role": "BUILD_ONLY_DZI_TILE_PYRAMID_FROM_GOVERNED_300DPI_DERIVED_ASSET",
+      "system_vips_cli_required": false,
+      "runtime_required": false
+    },
+    "snap_geometry": {
+      "name": "OpenCV",
+      "version": "4.12.0.88",
+      "license": "Apache-2.0",
+      "role": "BUILD_ONLY_REGION_PROPOSALS_AND_FALLBACK_LOCAL_SNAP",
+      "runtime_required": false
+    }
+  },
+  "interaction_contract": {
+    "default_mode": "PAN_ZOOM",
+    "primary_localization_mode": "DRAW_OR_ADJUST_EXAMPLE_THEN_FIND_SIMILAR",
+    "primary_actions": ["TEACH_THIS_IS", "FIND_SIMILAR", "REVIEW_SIMILAR_GROUP"],
+    "prototype_is_project_local_training_example": true,
+    "prototype_is_not_oar_classification": true,
+    "similar_search_auto_assigns_support_identity": false,
+    "similar_search_auto_confirms_family": false,
+    "snap_role": "FALLBACK_LOCAL_BOX_AID",
+    "snap_is_proposal_only": true,
+    "annotation_is_editable_before_receipt": true,
+    "manual_freehand_bbox_required": false,
+    "existing_receipt_endpoint_reused": "/api/workbench/oar/g4-regions/receipt",
+    "confirmation_action": "CONFIRM_GEOMETRY",
+    "family_prior_may_rank_snap_candidates": true,
+    "family_prior_may_establish_classification": false,
+    "fallback_surface_preserved": "/workbench/oar/g4-regions"
+  },
+  "prototype_search_contract": {
+    "domain_primitives_reused": ["ObjectPrototype", "ObjectFamily", "ObjectSignature", "EvidenceProvenance"],
+    "training_receipt_type": "CEW_OAR_PROTOTYPE_TEACH_RECEIPT_v1",
+    "search_scope": "VERIFIED_PAGE_WIDE",
+    "search_method": "PROJECT_LOCAL_HUMAN_PROTOTYPE_GEOMETRIC_SIMILARITY_V1",
+    "ranking_signals": [
+      "candidate_size_vs_human_example",
+      "candidate_aspect_ratio_vs_human_example",
+      "rectangularity",
+      "long_axis_suppressed_envelope_preference"
+    ],
+    "tap_distance_used": false,
+    "candidate_support_identity": "UNASSIGNED_UNTIL_SEPARATE_HUMAN_BINDING",
+    "expected_family_count_is_prior_only": true,
+    "human_group_review_required": true,
+    "canonical_promotion": "DISABLED"
+  },
+  "snap_contract": {
+    "source": "BUILD_DERIVED_RASTER_GEOMETRY_ONLY",
+    "candidate_geometry_authority": "INTERACTION_AID_ONLY",
+    "role": "FALLBACK_ONLY",
+    "ranking_signals": [
+      "tap_distance",
+      "candidate_aspect_ratio_vs_family_prior",
+      "rectangularity",
+      "axis_suppressed_envelope_preference"
+    ],
+    "human_can": ["ACCEPT_AS_WORKING_BOX", "MOVE", "RESIZE", "TRY_NEXT_CANDIDATE", "REJECT"],
+    "human_confirmation_required": true
+  },
+  "evidence_boundary": {
+    "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
+    "page_id": "CEW-N12-PAGE-TAV05S-P001",
+    "derived_asset_id": "CEW-N12-ASSET-TAV05S-P001-OAR-300DPI",
+    "page_transform_id": "CEW-N12-XFORM-TAV05S-P001-OAR",
+    "derived_asset_sha256": "6344abae8d390ef799812c808427431e684a61cca6bb5792de331b2b9d2b6252",
+    "derived_asset_dimensions_px": [7016, 12530],
+    "deep_zoom_tiles_are_authority": false,
+    "snap_candidates_are_authority": false,
+    "prototype_search_candidates_are_authority": false
+  },
+  "authority": {
+    "oar_human_confirmation": false,
+    "oar_classification_confirmed": false,
+    "f2_registry_written": false,
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "engineering_authority_effect": "NONE"
+  },
+  "promotion_gate": {
+    "requires_mobile_hva": true,
+    "requires_exact_coordinate_roundtrip": true,
+    "requires_prototype_search_never_auto_assigns_identity": true,
+    "requires_prototype_search_never_auto_confirms_family": true,
+    "requires_snap_never_auto_confirms": true,
+    "requires_fallback_surface_preserved": true,
+    "requires_self_hosted_runtime_assets": true,
+    "requires_render_build_without_system_vips_cli": true,
+    "decision": "BLOCKED_UNTIL_POC_VALIDATED"
+  }
+}

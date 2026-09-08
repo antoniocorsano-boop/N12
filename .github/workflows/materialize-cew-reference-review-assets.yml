@@ -1,0 +1,72 @@
+name: Materialize CEW Reference Review Assets
+
+on:
+  push:
+    branches:
+      - work/cew-new-project-preacquisition-v1
+    paths:
+      - 'scripts/build_cew_external_reference_review_assets.py'
+      - 'knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_ACQUISITION_RECEIPT_v1.json'
+      - 'knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_REVIEW_QUEUE_v1.json'
+      - '.github/workflows/materialize-cew-reference-review-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CEW runtime dependencies
+        run: pip install -r requirements.txt
+      - name: Compile materializer
+        run: python -m py_compile scripts/build_cew_external_reference_review_assets.py
+      - name: Materialize exact-page reading aids
+        working-directory: scripts
+        run: python build_cew_external_reference_review_assets.py
+      - name: Validate manifest and authority boundary
+        run: |
+          python - <<'PY'
+          import base64, hashlib, json
+          from pathlib import Path
+          root = Path('knowledge/graphic_reference/derived_review_assets')
+          manifest = json.loads((root/'manifest.json').read_text())
+          assert manifest['schema'] == 'CEW_EXTERNAL_REFERENCE_REVIEW_ASSET_MANIFEST_v1'
+          assert manifest['asset_count'] == 5
+          assert manifest['runtime_external_fetch_required'] is False
+          assert manifest['source_bytes_committed_to_repo'] is False
+          assert manifest['derived_page_assets_committed_to_repo'] is True
+          assert manifest['authority']['reading_aid_only'] is True
+          assert manifest['authority']['project_semantic_authority'] == 'NONE'
+          seen = set()
+          for row in manifest['assets']:
+              assert row['review_item_id'] not in seen
+              seen.add(row['review_item_id'])
+              path = Path(row['asset_path'])
+              raw = base64.b64decode(path.read_text().strip(), validate=True)
+              assert hashlib.sha256(raw).hexdigest() == row['image_sha256']
+              assert len(raw) == row['image_byte_count']
+              assert raw.startswith(b'\xff\xd8')
+              assert row['authority']['reading_aid_only'] is True
+              assert row['authority']['project_semantic_authority'] == 'NONE'
+          print('CEW_EXTERNAL_REFERENCE_REVIEW_ASSET_MANIFEST_PASS')
+          PY
+      - name: Commit materialized reading aids when changed
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f knowledge/graphic_reference/derived_review_assets
+          if git diff --cached --quiet; then
+            echo 'CEW_EXTERNAL_REFERENCE_REVIEW_ASSETS_UNCHANGED'
+            exit 0
+          fi
+          git commit -m 'build(cew): materialize verified reference review pages'
+          git push origin HEAD:${{ github.ref_name }}

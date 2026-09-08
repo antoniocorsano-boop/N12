@@ -36,7 +36,7 @@ jobs:
         run: |
           python - <<'PY'
           import app
-          registered={r.path for r in app.app.routes}
+          registered={getattr(r,'path',None) for r in app.app.routes}
           assert '/drawings/{source_id}/map' in registered
           r=app.drawing_document_map('TAV-05A')
           assert r.status_code==200

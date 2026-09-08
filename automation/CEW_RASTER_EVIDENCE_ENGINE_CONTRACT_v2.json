@@ -1,0 +1,234 @@
+{
+  "schema": "CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2",
+  "status": "GOVERNED_IMPLEMENTATION_IN_PROGRESS",
+  "purpose": "Provide deterministic, source-bound, resource-bounded raster observation of technical PDF pages when vector preview is empty or unavailable, without granting semantic, structural or engineering authority.",
+  "position_in_process": [
+    "DOCUMENT_INTAKE",
+    "IMMUTABLE_SOURCE_REGISTRATION_OR_UNREGISTERED_PREVIEW",
+    "PAGE_PREFLIGHT",
+    "RASTER_EVIDENCE_ACQUISITION",
+    "NON_SEMANTIC_GRAPHIC_REGION_DISCOVERY",
+    "GRAPHIC_PRIMITIVE_CANDIDATES",
+    "NON_SEMANTIC_CLUSTERING",
+    "HUMAN_TRIAGE"
+  ],
+  "separation_of_concerns": {
+    "raster_capture": "OBSERVES_PAGE_PIXELS_ONLY",
+    "signal_detection": "DERIVES_NON_SEMANTIC_SIGNAL_ONLY",
+    "region_building": "DERIVES_GEOMETRIC_REGIONS_ONLY",
+    "candidate_adaptation": "CREATES_GRAPHIC_PRIMITIVE_CANDIDATES_WITHOUT_MEANING",
+    "clustering": "GROUPS_BY_NON_SEMANTIC_GEOMETRY_ONLY",
+    "semantic_classification": "NOT_AUTHORIZED"
+  },
+  "execution_boundary": {
+    "process_isolated": true,
+    "web_process_owns_job_and_session_state": true,
+    "worker_memory_ceiling_required": true,
+    "worker_timeout_required": true,
+    "runtime_network_fetch_allowed": false,
+    "third_party_cv_or_ml_required": false,
+    "baseline_renderer": "MUPDF",
+    "independent_signal_recovery_renderer": "PDFIUM"
+  },
+  "web_process_pdf_boundary": {
+    "unregistered_preview_pdf_parse_in_web_forbidden": true,
+    "unregistered_preview_pdf_render_in_web_forbidden": true,
+    "web_enqueue_validation": "BYTE_ENVELOPE_ONLY",
+    "page_inspection_artifact_render_boundary": "PROCESS_ISOLATED_WORKER",
+    "web_page_delivery": "CACHED_VERIFIED_JPEG_BYTES_ONLY",
+    "page_artifact_sha256_required": true,
+    "page_artifact_size_bound_required": true
+  },
+  "raster_plan": {
+    "schema": "CEW_RASTER_PLAN_v2",
+    "strategy": "TILED_FULL_COVERAGE",
+    "deterministic": true,
+    "page_geometry_bound": true,
+    "fixed_global_max_dimension_strategy_forbidden": true,
+    "tile_memory_bounded": true,
+    "tile_overlap_required": true,
+    "plan_fingerprint_required": true,
+    "scale_degradation_must_be_declared": true
+  },
+  "observation_layers": [
+    "PAGE_OVERVIEW",
+    "EVIDENCE_TILES",
+    "RAW_RASTER_SIGNAL",
+    "DETECTION_MASK",
+    "DERIVED_GRAPHIC_REGION"
+  ],
+  "signal_policy": {
+    "single_global_dark_ratio_gate_forbidden": true,
+    "background_estimation": "LOCAL_DETERMINISTIC",
+    "threshold_must_be_reported": true,
+    "thin_line_preservation_required": true,
+    "horizontal_and_vertical_continuity_are_evidence": true,
+    "detection_mask_may_expand_signal": true,
+    "declared_geometry_must_reference_original_raster_coordinates": true
+  },
+  "recovery_policy": {
+    "baseline_raster_and_adaptive_recovery_are_separate_process_stages": true,
+    "adaptive_recovery_trigger": "BLANK_CORROBORATION_CONTRADICTED_OR_INSUFFICIENT_WITH_ZERO_CANDIDATES",
+    "adaptive_recovery_renderer": "PDFIUM_INDEPENDENT_FROM_MUPDF_BASELINE",
+    "adaptive_recovery_has_independent_timeout_budget": true,
+    "baseline_blank_witness_may_be_inherited": true,
+    "successful_recovery_page_artifact_must_come_from_recovery_renderer": true,
+    "adaptive_recovery_timeout_must_preserve_baseline_evidence_session": true,
+    "adaptive_recovery_timeout_terminal_state": "INCONCLUSIVE",
+    "adaptive_recovery_timeout_must_not_become_failed_if_baseline_evidence_is_complete": true,
+    "cropbox_mediabox_disagreement_must_be_explicit": true,
+    "mediabox_recovery_is_reading_aid_only": true,
+    "mediabox_recovery_terminal_state": "INCONCLUSIVE_UNTIL_HUMAN_GOVERNANCE"
+  },
+  "region_policy": {
+    "fixed_grid_cells_must_not_be_final_candidates": true,
+    "adjacent_signal_must_be_aggregated": true,
+    "cross_tile_boundary_reconciliation_required": true,
+    "candidate_identity_must_not_depend_on_tile_processing_order": true,
+    "semantic_meaning": null,
+    "semantic_authority": "NONE"
+  },
+  "coverage": {
+    "planned_area_required": true,
+    "processed_area_required": true,
+    "coverage_ratio_required": true,
+    "tiles_planned_required": true,
+    "tiles_completed_required": true,
+    "tiles_failed_required": true,
+    "ready_requires_required_coverage": true,
+    "partial_observation_must_be_visible": true
+  },
+  "blank_corroboration": {
+    "zero_candidates_never_proves_blank": true,
+    "independent_witness_required": true,
+    "independent_witness_channels": [
+      "TEXT_BLOCK_PRESENCE",
+      "DISPLAYED_IMAGE_PRESENCE",
+      "BOUNDED_OVERVIEW_RASTER_VARIATION"
+    ],
+    "embedded_image_witness": "DISPLAYED_IMAGES_ONLY_NOT_RESOURCE_REFERENCES",
+    "extreme_aspect_ratio_may_not_be_declared_blank_from_global_overview_alone": true,
+    "corroborated_content_with_zero_candidates": "INCONCLUSIVE",
+    "insufficient_blank_witness": "INCONCLUSIVE",
+    "confirmed_blank_requires_complete_coverage": true
+  },
+  "terminal_states": {
+    "READY": "Required observation coverage completed and the result is evidentially sufficient, including a demonstrated blank page.",
+    "INCONCLUSIVE": "Page observation completed wholly or partly but evidence is insufficient to derive reliable graphic candidates, including optional recovery that timed out after baseline evidence completed or MediaBox recovery that disagrees with the declared visible CropBox.",
+    "FAILED": "Acquisition or baseline analysis could not complete inside the governed execution envelope."
+  },
+  "blank_vs_inconclusive": {
+    "page_blank_observed_allowed": true,
+    "blank_requires_complete_observation": true,
+    "blank_requires_independent_corroboration": true,
+    "signal_present_and_zero_candidates": "INCONCLUSIVE",
+    "independent_content_present_and_zero_candidates": "INCONCLUSIVE",
+    "zero_candidates_alone_never_proves_blank": true
+  },
+  "candidate_provenance": {
+    "baseline_required_fields": [
+      "source_sha256",
+      "source_version_id",
+      "page_index",
+      "coordinate_system",
+      "bbox",
+      "raster_plan_id",
+      "supporting_tile_ids",
+      "detector",
+      "extractor_version",
+      "signal_metrics",
+      "aggregation_method"
+    ],
+    "independent_recovery_required_fields": [
+      "source_sha256",
+      "source_version_id",
+      "page_index",
+      "coordinate_system",
+      "bbox",
+      "detector",
+      "extractor_version",
+      "render_engine",
+      "render_scope",
+      "statistics"
+    ],
+    "reconstructible_from_source_page": true
+  },
+  "determinism": {
+    "same_source_same_engine_same_plan_same_candidate_ids": true,
+    "same_source_same_engine_same_plan_same_report_fingerprint": true,
+    "tile_processing_order_must_not_change_identity": true
+  },
+  "trust_surface": {
+    "page_visible_for_ready": true,
+    "page_visible_for_inconclusive": true,
+    "coverage_visible": true,
+    "raster_mode_visible": true,
+    "candidate_overlay_visible_when_present": true,
+    "automatic_semantic_labels_visible_as_none": true,
+    "training_blocker_visible": true,
+    "canonical_write_blocker_visible": true,
+    "generic_confidence_percentage_forbidden": true,
+    "page_render_boundary_visible_or_auditable": true,
+    "blank_corroboration_state_visible_or_auditable": true,
+    "signal_recovery_outcome_visible_or_auditable": true,
+    "render_engine_visible_or_auditable": true,
+    "cropbox_mediabox_state_visible_or_auditable": true
+  },
+  "quality_invariants": {
+    "R1_FULL_OBSERVATION": "READY is forbidden when required coverage has not completed.",
+    "R2_NO_SILENT_EMPTY": "Signal present with zero candidates yields INCONCLUSIVE.",
+    "R3_BLANK_MUST_BE_DEMONSTRATED": "Blank is valid only after complete observation with no significant raster signal.",
+    "R4_RESOURCE_BOUNDED": "Every raster operation is tile, memory and timeout bounded.",
+    "R5_WEB_PROCESS_SURVIVAL": "Raster worker failure must not terminate the web process.",
+    "R6_DETERMINISM": "Repeated execution over the same source and engine version is fingerprint stable.",
+    "R7_SOURCE_BINDING": "Every candidate is reconstructible from SourceVersion/Page coordinates.",
+    "R8_ZERO_SEMANTIC_AUTHORITY": "Raster evidence never assigns structural identity or project truth.",
+    "R9_HUMAN_VISIBLE_UNCERTAINTY": "Incomplete or inconclusive analysis is explicit in the UI.",
+    "R10_NO_HIDDEN_FALLBACK": "VECTOR, RASTER_FALLBACK, TILED, PARTIAL and INCONCLUSIVE modes are externally observable.",
+    "R11_NO_WEB_PDF_EXECUTION_FOR_USER_PREVIEW": "The web process may byte-check and enqueue an unregistered user PDF but may not open, parse or rasterize it with PyMuPDF.",
+    "R12_BLANK_REQUIRES_INDEPENDENT_CORROBORATION": "Zero candidates may become PAGE_BLANK_OBSERVED only when complete coverage and an independent blank witness agree; contradiction or insufficient witness yields INCONCLUSIVE.",
+    "R13_PAGE_INSPECTION_ARTIFACT_REQUIRED": "READY and INCONCLUSIVE preview sessions must expose a bounded, integrity-checked page artifact produced inside the isolated worker.",
+    "R14_RECOVERY_CANNOT_DESTROY_BASELINE_EVIDENCE": "Adaptive signal recovery is a separate optional bounded stage; timeout or nonzero exit after baseline raster evidence completed must yield an INCONCLUSIVE session retaining that baseline evidence, not FAILED with evidence loss.",
+    "R15_RECOVERY_RENDERER_INDEPENDENCE": "After an empty MuPDF baseline whose blank witness is contradicted or insufficient, signal recovery must use an independently implemented PDF renderer rather than retuning the same MuPDF pixel stream.",
+    "R16_DISPLAYED_IMAGE_WITNESS_ONLY": "Referenced-but-not-displayed PDF image resources must not be counted as independent evidence that page content is visible.",
+    "R17_PAGE_BOX_DISAGREEMENT_FAIL_CLOSED": "If signal is recovered only after widening the visible CropBox to the MediaBox, the result remains INCONCLUSIVE and is exposed only as a reading aid until human governance resolves the page-box discrepancy.",
+    "R18_INSUFFICIENT_WITNESS_ESCALATES_TO_INDEPENDENT_RECOVERY": "A zero-candidate baseline with BLANK_CORROBORATION_INSUFFICIENT must invoke the independent renderer before terminating INCONCLUSIVE; a confirmed blank must not invoke recovery."
+  },
+  "acceptance_gate": {
+    "http_502_count": 0,
+    "web_process_survives": true,
+    "required_page_coverage_ratio": 1.0,
+    "failed_tiles": 0,
+    "deterministic_replay_required": true,
+    "technical_thin_line_fixture_detected": true,
+    "elongated_page_fixture_detected": true,
+    "blank_page_fixture_distinguished": true,
+    "blank_independent_corroboration_required": true,
+    "displayed_image_witness_required": true,
+    "independent_recovery_renderer": "PDFIUM",
+    "cropbox_media_probe_required": true,
+    "insufficient_blank_witness_invokes_independent_recovery": true,
+    "confirmed_blank_skips_independent_recovery": true,
+    "adaptive_recovery_timeout_preserves_baseline_session": true,
+    "unregistered_preview_web_pdf_parse_count": 0,
+    "unregistered_preview_web_pdf_render_count": 0,
+    "page_inspection_artifact_boundary": "PROCESS_ISOLATED_WORKER",
+    "page_inspection_artifact_integrity_verified": true,
+    "tavola_6_signal_detected": true,
+    "tavola_6_graphic_regions_gt": 0,
+    "tavola_6_graphic_clusters_gt": 0,
+    "page_visible": true,
+    "automatic_semantic_labels": 0,
+    "training_enabled": false,
+    "canonical_write_authorized": false
+  },
+  "authority": {
+    "project_semantic_authority": "NONE",
+    "oar_human_confirmation": false,
+    "oar_classification_confirmed": false,
+    "f2_registry_written": false,
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}

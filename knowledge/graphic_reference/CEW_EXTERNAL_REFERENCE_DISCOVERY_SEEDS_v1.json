@@ -1,0 +1,59 @@
+{
+  "schema": "CEW_EXTERNAL_REFERENCE_DISCOVERY_SEEDS_v1",
+  "status": "DISCOVERED_PENDING_BINARY_ACQUISITION",
+  "discovery_date": "2026-09-02",
+  "purpose": "Seed official/public technical references that can inform graphic-convention proposals after exact-byte acquisition and fingerprinting. Discovery alone creates no library entry and no project authority.",
+  "sources": [
+    {
+      "source_id": "GREF-SRC-AEC-GRAPHICS-2023",
+      "title": "A/E/C Graphics Standard: Release 2.2 — ERDC/ITL SR-23-1",
+      "publisher": "U.S. Army Engineer Research and Development Center / CAD-BIM Technology Center",
+      "source_url": "https://erdc-library.erdc.dren.mil/bitstream/11681/47452/1/ERDC-ITL%20SR-23-1.pdf",
+      "media_type_expected": "application/pdf",
+      "reference_scope": ["CAD_GRAPHIC_CONVENTIONS", "SYMBOL_DESCRIPTIONS", "SYMBOL_IDENTIFIERS", "DRAWING_INDICATORS"],
+      "evidence_queries": ["4.2 Symbols", "Symbol Descriptions", "Symbol Identifiers", "Weld symbols"],
+      "usage_note": "Official ERDC technical report. CEW records metadata, fingerprints and derived non-substitutive features only; no redistribution right is inferred.",
+      "discovery_authority": "REFERENCE_DISCOVERY_ONLY"
+    },
+    {
+      "source_id": "GREF-SRC-SMITHSONIAN-CAD-2024",
+      "title": "Smithsonian OPDC CAD Guidelines — November 2024",
+      "publisher": "Smithsonian Office of Planning, Design, and Construction",
+      "source_url": "https://www.sifacilities.si.edu/sites/default/files/Files/OPDC_CAD_Guidelines_Nov2024.pdf",
+      "media_type_expected": "application/pdf",
+      "reference_scope": ["CAD_STANDARD_SYMBOLS", "GRAPHIC_CONVENTIONS", "SHEET_LAYOUT", "DRAWING_NUMBERING"],
+      "evidence_queries": ["CAD Guidelines", "graphic symbols", "symbols", "drawing numbering"],
+      "usage_note": "Official Smithsonian technical reference. CEW records metadata, fingerprints and derived non-substitutive features only; no redistribution right is inferred.",
+      "discovery_authority": "REFERENCE_DISCOVERY_ONLY"
+    },
+    {
+      "source_id": "GREF-SRC-NPS-CAD-STANDARDS",
+      "title": "Denver Service Center CAD Standards",
+      "publisher": "U.S. National Park Service — Denver Service Center",
+      "source_url": "https://www.nps.gov/dscw/upload/dsc_cad_standards-af.pdf",
+      "media_type_expected": "application/pdf",
+      "reference_scope": ["CAD_DRAWING_MANAGEMENT", "DISCIPLINE_CONVENTIONS", "DRAWING_STANDARDS"],
+      "evidence_queries": ["Drawing Management", "symbols", "structural", "legend"],
+      "usage_note": "Official/publicly accessible government technical reference. CEW records metadata, fingerprints and derived non-substitutive features only; no redistribution right is inferred.",
+      "discovery_authority": "REFERENCE_DISCOVERY_ONLY"
+    },
+    {
+      "source_id": "GREF-SRC-USACE-TOPO-2007",
+      "title": "Topographic Surveying — EM 1110-1-1005",
+      "publisher": "U.S. Army Corps of Engineers",
+      "source_url": "https://www.publications.usace.army.mil/portals/76/publications/engineermanuals/em_1110-1-1005.pdf",
+      "media_type_expected": "application/pdf",
+      "reference_scope": ["AEC_CADD_SYMBOLOGY", "SURVEY_MAPPING_SYMBOLOGY", "MODEL_AND_SHEET_FILE_CONVENTIONS"],
+      "evidence_queries": ["Figure 11-10", "symbology listing", "Model file contains", "columns, walls, windows"],
+      "usage_note": "Official USACE publication. CEW records metadata, fingerprints and derived non-substitutive features only; no redistribution right is inferred.",
+      "discovery_authority": "REFERENCE_DISCOVERY_ONLY"
+    }
+  ],
+  "authority": {
+    "library_entries_created": false,
+    "project_semantic_authority": "NONE",
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}

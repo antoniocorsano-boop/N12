@@ -187,8 +187,10 @@ def main() -> int:
     home_html = project_home.build_project_home(state, issues, list(tasks.values()), terminology, lifecycle)
     if "/sources" not in home_html:
         errors.append("Project Home -> Source Hub navigation missing")
-    if "/evidence/review?task=" not in home_html:
-        errors.append("Project Home -> Evidence Workspace action missing")
+    if "/workbench?task=" not in home_html:
+        errors.append("Project Home -> professional Workbench action missing")
+    if "/evidence/review?task=" in home_html:
+        errors.append("Project Home primary review action bypasses professional Workbench")
 
     if errors:
         return fail(errors)
@@ -201,6 +203,7 @@ def main() -> int:
     print("SOURCE_CHAIN = IMMUTABLE_PDF -> SOURCEVERSION -> PAGE -> TRANSFORM -> EVIDENCEREGION")
     print("SOURCE_RENDER = MICRO/MESO/MACRO")
     print("SOURCE_SHA256 = FAIL_CLOSED")
+    print("PROJECT_HOME_REVIEW_ROUTE = PROFESSIONAL_WORKBENCH")
     print("NATURAL_LANGUAGE = EXPLICIT_TOKENS_ONLY_RAW_PRESERVED")
     print("DIRECTIONAL_COLLAPSE = FORBIDDEN")
     print("CANONICAL_WRITE = FORBIDDEN")

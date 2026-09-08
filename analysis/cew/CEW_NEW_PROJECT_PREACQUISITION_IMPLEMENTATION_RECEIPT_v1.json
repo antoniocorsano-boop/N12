@@ -1,0 +1,136 @@
+{
+  "schema": "CEW_NEW_PROJECT_PREACQUISITION_IMPLEMENTATION_RECEIPT_v1",
+  "status": "IMPLEMENTED_CI_VALIDATED",
+  "analysis_ref": "analysis/cew/CEW_NEW_PROJECT_PREACQUISITION_ANALYSIS_v1.md",
+  "contract_ref": "automation/CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1.json",
+  "engine_ref": "scripts/cew_new_project_preacquisition.py",
+  "validator_ref": "scripts/validate_cew_new_project_preacquisition.py",
+  "library_index_ref": "knowledge/graphic_reference/CEW_GRAPHIC_REFERENCE_LIBRARY_INDEX_v1.json",
+  "external_reference_acquisition_ref": "knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_ACQUISITION_RECEIPT_v1.json",
+  "reference_review_queue_ref": "knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_REVIEW_QUEUE_v1.json",
+  "reference_review_workspace_ref": "scripts/cew_external_graphic_reference_review_workbench.py",
+  "reference_pack_builder_ref": "scripts/cew_external_graphic_reference_pack.py",
+  "validated_engine_revision": "a2af49c3579aed726bd0ec4a48410f1bcc01bcf4",
+  "validated_integrated_revision": "dd70619ba58dd10e04885de817e1b02d09ff1df5",
+  "validation_workflow": "Validate CEW New Project Pre-Acquisition",
+  "validation_run_id": 33683747251,
+  "validation_result": "PASS",
+  "validation_evidence": {
+    "page_count": 2,
+    "primitive_candidate_count": 25,
+    "graphic_cluster_count": 5,
+    "zero_semantic_prior": true,
+    "stable_candidate_identity": true,
+    "stable_cluster_identity": true,
+    "library_absence_nonfatal": true,
+    "library_matches_proposal_only": true,
+    "human_triage_queue": "READY",
+    "automatic_structural_labels": false,
+    "external_reference_review_workspace_gate": "PASS",
+    "external_reference_pack_gate": "PASS",
+    "defer_nonterminal_gate": "PASS",
+    "defer_then_terminal_gate": "PASS",
+    "decision_after_terminal_blocked_gate": "PASS",
+    "professional_workbench_client_gate": "PASS",
+    "object_acquisition_gate": "PASS",
+    "oar_assisted_localization_gate": "PASS",
+    "b1_human_acceptance_v2_gate": "PASS",
+    "r2gi_governed_review_ingest_gate": "PASS",
+    "r2gm_explicit_geometry_acceptance_gate": "PASS",
+    "free_review_gate": "PASS"
+  },
+  "external_reference_acquisition": {
+    "status": "PARTIAL_VERIFIED",
+    "live_workflow_run_id": 33681074474,
+    "live_workflow_head_sha": "2587898047e55df96e9850a2dbf71d759a27de1e",
+    "artifact_id": 9866265153,
+    "artifact_zip_sha256": "cc671f9ea5bb55ec7486f14579fd2c38e2fcfa388230cd28ad82075e85592a1e",
+    "receipt_fingerprint": "sha256:9840d9a32f2be57abacc4d7de65654bb4def1824b2707a947af5f10d29b281d2",
+    "verified_source_count": 2,
+    "verified_sources": [
+      {
+        "source_id": "GREF-SRC-NPS-CAD-STANDARDS",
+        "source_sha256": "aa3e3e082d976ec3cf183a977be14ee29594a5b4aa950b605c191359361bec2d",
+        "page_count": 157
+      },
+      {
+        "source_id": "GREF-SRC-USACE-TOPO-2007",
+        "source_sha256": "c28c1ee9a483d5e94515b518e03a1c11a2afafed9029de928651ad0f40871792",
+        "page_count": 498
+      }
+    ],
+    "discovered_not_acquired": [
+      "GREF-SRC-AEC-GRAPHICS-2023",
+      "GREF-SRC-SMITHSONIAN-CAD-2024"
+    ],
+    "library_entries_created": false,
+    "library_promotion_authorized": false
+  },
+  "external_reference_review_workspace": {
+    "status": "IMPLEMENTED_CI_VALIDATED_AWAITING_REAL_HUMAN_REVIEW",
+    "route": "/workbench/reference-review",
+    "review_item_count": 5,
+    "review_states": [
+      "ACCEPT_REFERENCE_EVIDENCE",
+      "REJECT_REFERENCE_EVIDENCE",
+      "DEFER"
+    ],
+    "terminal_states": [
+      "ACCEPT_REFERENCE_EVIDENCE",
+      "REJECT_REFERENCE_EVIDENCE"
+    ],
+    "nonterminal_states": [
+      "DEFER"
+    ],
+    "defer_is_terminal": false,
+    "source_render_requires_exact_source_sha256": true,
+    "page_render_requires_text_and_feature_fingerprint": true,
+    "decision_receipts_append_only": true,
+    "append_only_followup_after_defer_allowed": true,
+    "repeated_consecutive_defer_rejected": true,
+    "one_terminal_decision_per_review_item": true,
+    "followup_after_terminal_forbidden": true,
+    "discovery_query_may_supply_meaning": false,
+    "acceptance_requires_explicit_meaning_scope_reviewer_rationale_and_primitive_families": true,
+    "pack_candidate_requires_terminal_decision_for_every_review_item": true,
+    "required_terminal_decision_count": 5,
+    "pack_candidate_tier": "EXTERNAL_REFERENCE",
+    "runtime_pack_candidate_only": true,
+    "real_human_review_completed": false,
+    "repository_library_index_written": false,
+    "project_semantic_authority": "NONE"
+  },
+  "implemented_slice": [
+    "ARBITRARY_PDF_PREFLIGHT",
+    "PAGE_MODALITY_CLASSIFICATION",
+    "SOURCE_BOUND_GRAPHIC_PRIMITIVE_DISCOVERY",
+    "DETERMINISTIC_NON_SEMANTIC_CLUSTERING",
+    "OPTIONAL_GOVERNED_LIBRARY_MATCH_PROPOSALS",
+    "HUMAN_TRIAGE_QUEUE",
+    "GOVERNED_EXTERNAL_REFERENCE_DISCOVERY",
+    "EXACT_BYTE_REFERENCE_ACQUISITION",
+    "REFERENCE_PAGE_QUERY_FINGERPRINTING",
+    "HUMAN_REFERENCE_SOURCE_REVIEW_QUEUE",
+    "HUMAN_REFERENCE_REVIEW_WORKSPACE",
+    "APPEND_ONLY_REFERENCE_REVIEW_DECISIONS",
+    "NONTERMINAL_DEFER_REVIEW_LIFECYCLE",
+    "HUMAN_REVIEWED_EXTERNAL_REFERENCE_PACK_BUILDER"
+  ],
+  "explicitly_not_implemented_yet": [
+    "POPULATED_EXTERNAL_REFERENCE_LIBRARY",
+    "PRODUCTION_DOCUMENT_DISCOVERY_UI",
+    "RASTER_OCR_PIPELINE",
+    "VISUAL_EMBEDDING_CLUSTERING",
+    "CROSS_DOCUMENT_CLUSTER_MERGE",
+    "PROJECT_LOCAL_HUMAN_CLUSTER_REVIEW_PERSISTENCE",
+    "AUTOMATIC_OBJECT_PROMOTION"
+  ],
+  "library_readiness": "LIBRARY_NOT_CONFIGURED",
+  "authority": {
+    "semantic_authority": "NONE_UNTIL_PROJECT_HUMAN_VALIDATION",
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "engineering_authority_effect": "NONE"
+  },
+  "next": "Run a real human visual review of the five exact acquired reference pages through /workbench/reference-review. DEFER remains unresolved and must later receive ACCEPT_REFERENCE_EVIDENCE or REJECT_REFERENCE_EVIDENCE. Only after all five items have terminal decisions may a reviewed EXTERNAL_REFERENCE pack candidate be built; repository library promotion remains a separate governed step."
+}

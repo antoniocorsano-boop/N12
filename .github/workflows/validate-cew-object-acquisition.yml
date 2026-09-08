@@ -1,0 +1,181 @@
+name: Validate CEW Object Acquisition
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_OBJECT_ACQUISITION_CONTRACT_v1.json'
+      - 'automation/CEW_OAR_G4_COLUMN_PILOT_INPUT_v1.json'
+      - 'automation/CEW_OAR_G4_COLUMN_REGION_BINDING_v1.json'
+      - 'automation/CEW_OAR_G4_SUPABASE_PROVISIONING_v1.json'
+      - 'scripts/cew_object_acquisition.py'
+      - 'scripts/cew_object_workbench.py'
+      - 'scripts/cew_oar_g4_column_pilot.py'
+      - 'scripts/cew_oar_g4_audit_history.py'
+      - 'scripts/cew_oar_g4_atomic_store.py'
+      - 'scripts/cew_oar_g4_revision_head.py'
+      - 'scripts/cew_oar_g4_region_binding.py'
+      - 'scripts/cew_oar_g4_region_workbench.py'
+      - 'scripts/cew_oar_g4_region_workbench_base.py'
+      - 'scripts/cew_oar_g4_source_resolver.py'
+      - 'scripts/build_cew_oar_g4_runtime_asset.py'
+      - 'scripts/render_build_candidate.sh'
+      - 'scripts/cew_source_evidence_workspace.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - 'scripts/cew_professional_workbench_api_base.py'
+      - 'scripts/validate_cew_object_acquisition.py'
+      - 'scripts/validate_cew_oar_g4_column_pilot.py'
+      - 'scripts/validate_cew_oar_g4_audit_history.py'
+      - 'scripts/validate_cew_oar_g4_atomic_store.py'
+      - 'scripts/validate_cew_oar_g4_commit_ack.py'
+      - 'scripts/validate_cew_oar_g4_revision_head.py'
+      - 'scripts/validate_cew_oar_g4_region_binding.py'
+      - 'scripts/validate_cew_oar_g4_region_workbench.py'
+      - 'scripts/validate_cew_oar_g4_region_runtime.py'
+      - 'scripts/validate_cew_oar_g4_display_asset.py'
+      - 'netlify/functions/cew-audit.mjs'
+      - 'netlify/functions/cew-oar-replay.mjs'
+      - 'sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql'
+      - 'sql/CEW_OAR_G4_DISPLAY_ASSET_BINDING_v1.sql'
+      - 'data/canonical/tavole_originali_remote_index_v1.csv'
+      - 'data/canonical/CEW_DERIVED_ASSET_REGISTRY_v1.csv'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_PROMOTION_ENGINE_PATCH_v1.csv'
+      - 'requirements.txt'
+      - 'render.yaml'
+      - 'docs/architecture/CEW_OBJECT_ACQUISITION_AND_PROJECT_MATERIAL_PLAN_v1.md'
+      - '.github/workflows/validate-cew-object-acquisition.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-oar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compile OAR modules
+        run: >-
+          python -m py_compile
+          scripts/cew_object_acquisition.py
+          scripts/cew_object_workbench.py
+          scripts/cew_oar_g4_column_pilot.py
+          scripts/cew_oar_g4_audit_history.py
+          scripts/cew_oar_g4_atomic_store.py
+          scripts/cew_oar_g4_revision_head.py
+          scripts/cew_oar_g4_region_binding.py
+          scripts/cew_oar_g4_region_workbench.py
+          scripts/cew_oar_g4_region_workbench_base.py
+          scripts/cew_oar_g4_source_resolver.py
+          scripts/build_cew_oar_g4_runtime_asset.py
+          scripts/cew_professional_workbench_api.py
+          scripts/cew_professional_workbench_api_base.py
+          scripts/validate_cew_object_acquisition.py
+          scripts/validate_cew_oar_g4_column_pilot.py
+          scripts/validate_cew_oar_g4_audit_history.py
+          scripts/validate_cew_oar_g4_atomic_store.py
+          scripts/validate_cew_oar_g4_commit_ack.py
+          scripts/validate_cew_oar_g4_revision_head.py
+          scripts/validate_cew_oar_g4_region_binding.py
+          scripts/validate_cew_oar_g4_region_workbench.py
+          scripts/validate_cew_oar_g4_region_runtime.py
+          scripts/validate_cew_oar_g4_display_asset.py
+      - name: Validate Netlify replay module syntax
+        run: node --check netlify/functions/cew-oar-replay.mjs
+      - name: Validate fail-closed OAR semantics
+        working-directory: scripts
+        run: python validate_cew_object_acquisition.py
+      - name: Validate real G4 column pilot
+        working-directory: scripts
+        run: python validate_cew_oar_g4_column_pilot.py
+      - name: Validate server-MVCC OAR audit-history snapshot and reduction
+        working-directory: scripts
+        run: python validate_cew_oar_g4_audit_history.py
+      - name: Validate Arena-style atomic revision persistence
+        working-directory: scripts
+        run: python validate_cew_oar_g4_atomic_store.py
+      - name: Validate cross-backend legacy revision-head replay
+        working-directory: scripts
+        run: python validate_cew_oar_g4_revision_head.py
+      - name: Validate governed G4 region localization
+        working-directory: scripts
+        run: python validate_cew_oar_g4_region_binding.py
+      - name: Validate displayed-asset provenance parity
+        working-directory: scripts
+        run: python validate_cew_oar_g4_display_asset.py
+      - name: Validate authenticated G4 region Workbench wiring
+        working-directory: scripts
+        run: python validate_cew_oar_g4_region_workbench.py
+      - name: Install runtime and smoke-test dependencies
+        run: pip install -r requirements.txt httpx2
+      - name: Validate committed-write acknowledgement boundary
+        working-directory: scripts
+        run: python validate_cew_oar_g4_commit_ack.py
+      - name: Execute real G4 localization runtime smoke
+        working-directory: scripts
+        run: python validate_cew_oar_g4_region_runtime.py
+      - name: Validate Render prebuilt-raster deployment boundary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          resolver = Path('scripts/cew_oar_g4_source_resolver.py').read_text()
+          builder = Path('scripts/render_build_candidate.sh').read_text()
+          blueprint = Path('render.yaml').read_text()
+          assert 'python scripts/build_cew_oar_g4_runtime_asset.py' in builder
+          assert 'CEW_OAR_G4_REQUIRE_PREBUILT_RASTER' in blueprint
+          assert 'OAR_G4_PREBUILT_RENDER_REQUIRED' in resolver
+          assert 'if BUILD_RASTER.is_file()' in resolver
+          assert 'return _materialize_registered_raster(RUNTIME_RASTER)' in resolver
+          print('CEW_OAR_G4_RENDER_PREBUILT_RASTER_CONTRACT_PASS')
+          print('render_first_request_rasterization=false')
+          print('registered_display_asset_unchanged=true')
+          PY
+      - name: Validate atomic write and MVCC read SQL authority boundaries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          sql = Path('sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql').read_text()
+          patch = Path('sql/CEW_OAR_G4_DISPLAY_ASSET_BINDING_v1.sql').read_text()
+          assert 'pg_advisory_xact_lock' in sql
+          assert 'OAR_REGION_REVISION_CONFLICT' in sql
+          assert 'cew_oar_replay_region_head_v1' in sql
+          assert 'cew_oar_read_region_receipts_v1' in sql
+          assert 'one MVCC' in sql or 'MVCC' in sql
+          assert "'RUNTIME_AUDIT_ONLY'" in sql
+          assert 'canonical_write' in sql and 'false' in sql
+          assert 'GEOMETRY_CONFIRMED' in sql
+          assert 'CEW-N12-ASSET-TAV05S-P001-OAR-300DPI' in patch
+          assert 'create or replace function public.cew_oar_validate_g4_receipt_v1' in patch.lower()
+          print('CEW_OAR_ATOMIC_WRITE_MVCC_READ_SQL_CONTRACT_PASS')
+          PY
+      - name: Validate OAR contract is fail-closed
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          contract = json.loads(Path('automation/CEW_OBJECT_ACQUISITION_CONTRACT_v1.json').read_text())
+          pilot = json.loads(Path('automation/CEW_OAR_G4_COLUMN_PILOT_INPUT_v1.json').read_text())
+          binding = json.loads(Path('automation/CEW_OAR_G4_COLUMN_REGION_BINDING_v1.json').read_text())
+          contract_asset = binding['document']['derived_asset_id']
+          assert contract['authority']['canonical_write_authorized'] is False
+          assert contract['authority']['structural_identity_authorized'] is False
+          assert contract['promotion_policy']['structural_identity_is_separate_gate'] is True
+          assert contract['pilot']['may_write_canonical_engineering_state'] is False
+          assert pilot['semantic_audit']['identity_count'] == 34
+          assert pilot['semantic_audit']['decision'] == 'PASS'
+          assert pilot['cew_binding']['evidence_region_binding'] == 'MISSING_PER_OBJECT'
+          assert pilot['authority']['human_confirmation'] is False
+          assert pilot['authority']['canonical_write_authorized'] is False
+          assert len(binding['objects']) == 34
+          assert binding['document']['coordinate_system'] == 'NORMALIZED_0_1'
+          assert contract_asset == 'CEW-N12-ASSET-TAV05S-P001-OAR-300DPI'
+          assert binding['workflow']['interaction_surface'] == 'FULL_VERIFIED_PAGE'
+          assert binding['workflow']['oar_classification_authority'] == 'SEPARATE_REVIEW_REQUIRED'
+          assert binding['workflow']['canonical_write_authorized'] is False
+          print('CEW_OBJECT_ACQUISITION_CONTRACT_PASS')
+          PY

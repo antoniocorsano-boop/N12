@@ -1,0 +1,119 @@
+name: Validate CEW R2GM Explicit Geometry Acceptance
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_PWB005_R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE_CONTRACT_v1.json'
+      - 'automation/CEW_PROFESSIONAL_WORKBENCH_IMPLEMENTATION_MATRIX_v1.json'
+      - 'scripts/validate_cew_professional_workbench_audit.py'
+      - 'scripts/cew_r2gm_geometry_acceptance.py'
+      - 'scripts/validate_cew_r2gm_geometry_acceptance.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - 'scripts/cew_runtime_audit_store.py'
+      - 'scripts/cew_r2hr_governed_ingest.py'
+      - 'scripts/validate_cew_r2hr_governed_ingest.py'
+      - 'scripts/cew_professional_gap_review.py'
+      - 'scripts/build_cew_human_gap_review_receipts.py'
+      - 'scripts/build_cew_raster_gap_review_view.py'
+      - 'scripts/build_cew_raster_bridge_review_layer.py'
+      - 'scripts/build_cew_raster_support_negative_controls.py'
+      - 'scripts/build_cew_raster_support_continuity.py'
+      - 'scripts/build_cew_raster_geometry_topology.py'
+      - 'scripts/build_cew_raster_geometry_consolidation.py'
+      - 'scripts/build_cew_raster_geometry_quality.py'
+      - 'scripts/build_cew_raster_geometry_candidates.py'
+      - '.github/workflows/validate-cew-r2gm-geometry-acceptance.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-r2gm-explicit-geometry-acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+
+      - name: Assert immutable candidate checkout
+        env:
+          CEW_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          ACTUAL="$(git rev-parse HEAD)"
+          test "$ACTUAL" = "$CEW_EXPECTED_HEAD_SHA"
+          echo "R2GM_CANDIDATE_CHECKOUT = $ACTUAL"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install runtime dependencies
+        run: pip install -r requirements.txt
+
+      - name: Syntax
+        run: |
+          python -m py_compile \
+            scripts/cew_r2gm_geometry_acceptance.py \
+            scripts/validate_cew_r2gm_geometry_acceptance.py \
+            scripts/cew_r2hr_governed_ingest.py \
+            scripts/validate_cew_r2hr_governed_ingest.py \
+            scripts/cew_professional_gap_review.py \
+            scripts/cew_professional_workbench_api.py \
+            scripts/validate_cew_professional_workbench_audit.py
+
+      - name: Rebuild exact-revision R2 through R2HR chain
+        env:
+          CEW_REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python scripts/build_cew_document_geometry_artifacts.py
+          python scripts/validate_cew_document_geometry_artifacts.py
+          python scripts/build_cew_evidence_region_content_diagnostic.py
+          python scripts/validate_cew_evidence_region_content_diagnostic.py
+          python scripts/build_cew_evidence_region_mapping_root_cause.py
+          python scripts/validate_cew_evidence_region_mapping_root_cause.py
+          python scripts/build_cew_raster_geometry_candidates.py
+          python scripts/validate_cew_raster_geometry_candidates.py
+          python scripts/build_cew_raster_geometry_quality.py
+          python scripts/validate_cew_raster_geometry_quality.py
+          python scripts/build_cew_raster_geometry_consolidation.py
+          python scripts/validate_cew_raster_geometry_consolidation.py
+          python scripts/build_cew_raster_geometry_topology.py
+          python scripts/validate_cew_raster_geometry_topology.py
+          python scripts/build_cew_raster_support_continuity.py
+          python scripts/validate_cew_raster_support_continuity.py
+          python scripts/build_cew_raster_support_negative_controls.py
+          python scripts/validate_cew_raster_support_negative_controls.py
+          python scripts/build_cew_raster_bridge_review_layer.py
+          python scripts/validate_cew_raster_bridge_review_layer.py
+          python scripts/build_cew_raster_gap_review_view.py
+          python scripts/validate_cew_raster_gap_review_view.py
+          python scripts/build_cew_human_gap_review_receipts.py
+          python scripts/validate_cew_human_gap_review_receipts.py
+
+      - name: Validate R2GI prerequisite remains non-geometric
+        env:
+          CEW_REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python scripts/validate_cew_r2hr_governed_ingest.py
+
+      - name: Validate explicit R2GM geometry-acceptance boundary
+        env:
+          CEW_REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python scripts/validate_cew_r2gm_geometry_acceptance.py
+
+      - name: Validate workbench reconciliation
+        run: python scripts/validate_cew_professional_workbench_audit.py
+
+      - name: Assert authority boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          contract = json.loads(Path('automation/CEW_PWB005_R2GM_EXPLICIT_GEOMETRY_ACCEPTANCE_CONTRACT_v1.json').read_text(encoding='utf-8'))
+          assert contract['canonical_write_authorized'] is False
+          assert contract['technical_identity_authorized'] is False
+          assert contract['structural_identity_authorized'] is False
+          assert contract['engineering_authority_effect'] == 'NONE'
+          assert contract['next_gate_when_complete'] == 'R2C_DOCUMENT_GEOMETRY_SCENE_ADAPTER_REQUIRED'
+          print('R2GM_AUTHORITY_BOUNDARY = PASS')
+          print('R2GM_CANONICAL_WRITE_AUTHORIZED = false')
+          print('R2GM_ENGINEERING_AUTHORITY_EFFECT = NONE')
+          PY

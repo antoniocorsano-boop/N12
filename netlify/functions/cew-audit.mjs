@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { getDatabase } from "@netlify/database";
+import { replayOarHead, validateOarReceiptGovernance } from "./cew-oar-replay.mjs";
 
 const SAFE_DECISION_ID = /^[A-Za-z0-9._-]+$/;
 const REQUIRED = new Set([
@@ -12,6 +13,9 @@ const REQUIRED = new Set([
   "canonical_write",
   "submitted_at",
 ]);
+const MAX_GOVERNED_READ_RECEIPTS = 500;
+const MAX_GOVERNED_READ_PROBE = MAX_GOVERNED_READ_RECEIPTS + 1;
+const OAR_RECEIPT_TYPE = "CEW_OAR_REGION_GEOMETRY_RECEIPT_v1";
 
 function stable(value) {
   if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`;
@@ -31,21 +35,298 @@ function response(status, body) {
   });
 }
 
-export default async (req) => {
-  const secret = process.env.CEW_AUDIT_SHARED_SECRET || "";
-  const auth = req.headers.get("authorization") || "";
-  if (!secret || auth !== `Bearer ${secret}`) {
-    return response(401, { state: "AUDIT_REJECTED", reason: "UNAUTHORIZED" });
+function rowsOf(result) {
+  if (Array.isArray(result)) return result;
+  if (Array.isArray(result?.rows)) return result.rows;
+  return [];
+}
+
+async function governedRead(req, db) {
+  const url = new URL(req.url);
+  const receiptType = String(url.searchParams.get("receipt_type") || "").trim();
+  const rawLimit = Number.parseInt(url.searchParams.get("limit") || String(MAX_GOVERNED_READ_RECEIPTS), 10);
+  const rawOffset = Number.parseInt(url.searchParams.get("offset") || "0", 10);
+  const oarMvccSnapshot = url.searchParams.get("snapshot") === "oar_mvcc";
+  if (!receiptType || receiptType.length > 200) {
+    return response(422, { state: "AUDIT_READ_REJECTED", reason: "RECEIPT_TYPE_INVALID" });
   }
 
-  let payload;
   try {
-    payload = await req.json();
-  } catch {
-    return response(400, { state: "AUDIT_REJECTED", reason: "INVALID_JSON" });
+    if (oarMvccSnapshot) {
+      if (receiptType !== OAR_RECEIPT_TYPE) {
+        return response(422, { state: "AUDIT_READ_REJECTED", reason: "OAR_MVCC_SNAPSHOT_RECEIPT_TYPE_INVALID" });
+      }
+      const result = await db.sql`
+        SELECT receipt_json
+        FROM cew_human_receipt_audit
+        WHERE receipt_json->>'receipt_type' = ${receiptType}
+        ORDER BY submitted_at ASC NULLS LAST, decision_id ASC
+      `;
+      const rows = rowsOf(result);
+      return response(200, {
+        state: "AUDIT_READ_OK",
+        receipts: rows.map((row) => row.receipt_json),
+        snapshot: "SERVER_MVCC_SINGLE_QUERY",
+        receipt_count: rows.length,
+        authority: "RUNTIME_AUDIT_READ_ONLY",
+        canonical_write: false,
+        engineering_authority_effect: "NONE",
+      });
+    }
+
+    if (!Number.isInteger(rawLimit) || rawLimit < 1 || rawLimit > MAX_GOVERNED_READ_PROBE) {
+      return response(422, { state: "AUDIT_READ_REJECTED", reason: "READ_LIMIT_INVALID" });
+    }
+    if (!Number.isInteger(rawOffset) || rawOffset < 0) {
+      return response(422, { state: "AUDIT_READ_REJECTED", reason: "READ_OFFSET_INVALID" });
+    }
+    const result = await db.sql`
+      SELECT receipt_json
+      FROM cew_human_receipt_audit
+      WHERE receipt_json->>'receipt_type' = ${receiptType}
+      ORDER BY submitted_at ASC NULLS LAST, decision_id ASC
+      LIMIT ${rawLimit}
+      OFFSET ${rawOffset}
+    `;
+    const rows = rowsOf(result);
+    const overflowProbe = rawLimit === MAX_GOVERNED_READ_PROBE;
+    if (overflowProbe && rows.length > MAX_GOVERNED_READ_RECEIPTS) {
+      return response(409, {
+        state: "AUDIT_READ_REJECTED",
+        reason: "GOVERNED_READ_LIMIT_EXCEEDED",
+        limit: MAX_GOVERNED_READ_RECEIPTS,
+        authority: "RUNTIME_AUDIT_READ_ONLY",
+        canonical_write: false,
+        engineering_authority_effect: "NONE",
+      });
+    }
+    return response(200, {
+      state: "AUDIT_READ_OK",
+      receipts: rows.map((row) => row.receipt_json),
+      offset: rawOffset,
+      limit: Math.min(rawLimit, MAX_GOVERNED_READ_RECEIPTS),
+      overflow_probe: overflowProbe,
+      snapshot: "LEGACY_OFFSET",
+      authority: "RUNTIME_AUDIT_READ_ONLY",
+      canonical_write: false,
+      engineering_authority_effect: "NONE",
+    });
+  } catch (err) {
+    console.error("CEW_AUDIT_DB_READ_ERROR", err);
+    return response(503, { state: "AUDIT_READ_REJECTED", reason: "AUDIT_DATABASE_UNAVAILABLE" });
   }
+}
+
+async function atomicOarAppend(payload, db) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload) || payload.oar_atomic_transition !== true) {
+    return null;
+  }
+  const receipt = payload.receipt_json;
+  if (!receipt || typeof receipt !== "object" || Array.isArray(receipt) || receipt.receipt_type !== OAR_RECEIPT_TYPE) {
+    return response(422, { state: "AUDIT_REJECTED", reason: "OAR_ATOMIC_RECEIPT_REQUIRED" });
+  }
+  const decisionId = String(receipt.decision_id || "");
+  const bindingId = String(receipt.binding_id || "").trim();
+  const supportId = String(receipt.support_id || "").trim();
+  const expected = String(receipt.base_proposal_decision_id || "").trim();
+  const action = String(receipt.action || "");
+  if (!SAFE_DECISION_ID.test(decisionId) || !bindingId || !supportId || !expected || !["PROPOSE_GEOMETRY", "CONFIRM_GEOMETRY"].includes(action)) {
+    return response(422, { state: "AUDIT_REJECTED", reason: "OAR_ATOMIC_CONTRACT_VIOLATION" });
+  }
+  try {
+    validateOarReceiptGovernance(receipt, bindingId, supportId);
+  } catch (err) {
+    return response(422, {
+      state: "AUDIT_REJECTED",
+      reason: String(err?.code || err?.message || "OAR_REGION_GOVERNANCE_VALIDATION_FAILED"),
+    });
+  }
+
+  try {
+    await db.sql`CREATE EXTENSION IF NOT EXISTS pgcrypto`;
+    await db.sql`
+      CREATE TABLE IF NOT EXISTS cew_oar_region_revision_heads (
+        binding_id text NOT NULL,
+        support_id text NOT NULL,
+        current_proposal_decision_id text,
+        state text NOT NULL CHECK (state IN ('UNBOUND','PROPOSED','GEOMETRY_CONFIRMED')),
+        updated_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+        PRIMARY KEY (binding_id, support_id)
+      )
+    `;
+
+    const legacyResult = await db.sql`
+      SELECT receipt_json
+      FROM cew_human_receipt_audit
+      WHERE receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+      ORDER BY (receipt_json->>'timestamp')::timestamptz ASC, decision_id ASC
+    `;
+    const allOarReceipts = rowsOf(legacyResult).map((row) => row.receipt_json);
+    let legacyHead;
+    try {
+      legacyHead = replayOarHead(allOarReceipts, bindingId, supportId);
+    } catch (err) {
+      console.error("CEW_OAR_LEGACY_HEAD_REPLAY_ERROR", err);
+      return response(409, { state: "AUDIT_REJECTED", reason: "OAR_REGION_LEGACY_HEAD_REPLAY_FAILED" });
+    }
+
+    const globalReceiptCount = legacyHead.snapshot_receipt_count;
+    const initialAnchor = `CEW_OAR_UNBOUND_REVISION:${supportId}`;
+    const receiptBboxJson = JSON.stringify(receipt.bbox);
+    const result = await db.sql`
+      WITH anchored_proposal AS (
+        SELECT a.receipt_json
+        FROM cew_human_receipt_audit a
+        WHERE a.decision_id = ${expected}
+          AND a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+          AND a.receipt_json->>'binding_id' = ${bindingId}
+          AND a.receipt_json->>'support_id' = ${supportId}
+          AND a.receipt_json->>'action' = 'PROPOSE_GEOMETRY'
+        LIMIT 1
+      ),
+      confirmation_guard AS (
+        SELECT CASE
+          WHEN ${action} <> 'CONFIRM_GEOMETRY' THEN 'OK'
+          WHEN NOT EXISTS (SELECT 1 FROM anchored_proposal) THEN 'OAR_REGION_ANCHORED_PROPOSAL_NOT_FOUND'
+          WHEN EXISTS (
+            SELECT 1 FROM anchored_proposal p
+            WHERE p.receipt_json->'bbox' = ${receiptBboxJson}::jsonb
+          ) THEN 'OK'
+          ELSE 'OAR_REGION_CONFIRMATION_BBOX_MISMATCH'
+        END AS reason
+      ),
+      updated_existing AS (
+        UPDATE cew_oar_region_revision_heads h
+        SET current_proposal_decision_id = CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN ${decisionId} ELSE h.current_proposal_decision_id END,
+            state = CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN 'PROPOSED' ELSE 'GEOMETRY_CONFIRMED' END,
+            updated_at = clock_timestamp()
+        WHERE h.binding_id = ${bindingId}
+          AND h.support_id = ${supportId}
+          AND h.current_proposal_decision_id = ${expected}
+          AND h.state = 'PROPOSED'
+          AND (SELECT reason FROM confirmation_guard) = 'OK'
+          AND (
+            SELECT count(*) FROM cew_human_receipt_audit a
+            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+          ) = ${globalReceiptCount}
+          AND (
+            SELECT count(*) FROM cew_human_receipt_audit a
+            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+              AND a.receipt_json->>'binding_id' = ${bindingId}
+              AND a.receipt_json->>'support_id' = ${supportId}
+          ) = ${legacyHead.receipt_count}
+        RETURNING h.binding_id
+      ),
+      seeded_transition AS (
+        INSERT INTO cew_oar_region_revision_heads
+          (binding_id, support_id, current_proposal_decision_id, state, updated_at)
+        SELECT ${bindingId}, ${supportId},
+               CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN ${decisionId} ELSE ${legacyHead.current_proposal_decision_id} END,
+               CASE WHEN ${action} = 'PROPOSE_GEOMETRY' THEN 'PROPOSED' ELSE 'GEOMETRY_CONFIRMED' END,
+               clock_timestamp()
+        WHERE ${legacyHead.state} = 'PROPOSED'
+          AND ${expected} = ${legacyHead.current_proposal_decision_id}
+          AND (SELECT reason FROM confirmation_guard) = 'OK'
+          AND (
+            SELECT count(*) FROM cew_human_receipt_audit a
+            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+          ) = ${globalReceiptCount}
+          AND (
+            SELECT count(*) FROM cew_human_receipt_audit a
+            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+              AND a.receipt_json->>'binding_id' = ${bindingId}
+              AND a.receipt_json->>'support_id' = ${supportId}
+          ) = ${legacyHead.receipt_count}
+          AND NOT EXISTS (
+            SELECT 1 FROM cew_oar_region_revision_heads h
+            WHERE h.binding_id=${bindingId} AND h.support_id=${supportId}
+          )
+        ON CONFLICT (binding_id, support_id) DO NOTHING
+        RETURNING binding_id
+      ),
+      inserted_initial AS (
+        INSERT INTO cew_oar_region_revision_heads
+          (binding_id, support_id, current_proposal_decision_id, state, updated_at)
+        SELECT ${bindingId}, ${supportId}, ${decisionId}, 'PROPOSED', clock_timestamp()
+        WHERE ${action} = 'PROPOSE_GEOMETRY'
+          AND ${expected} = ${initialAnchor}
+          AND ${legacyHead.state} = 'UNBOUND'
+          AND ${legacyHead.receipt_count} = 0
+          AND (
+            SELECT count(*) FROM cew_human_receipt_audit a
+            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+          ) = ${globalReceiptCount}
+          AND NOT EXISTS (
+            SELECT 1 FROM cew_human_receipt_audit a
+            WHERE a.receipt_json->>'receipt_type' = ${OAR_RECEIPT_TYPE}
+              AND a.receipt_json->>'binding_id' = ${bindingId}
+              AND a.receipt_json->>'support_id' = ${supportId}
+          )
+          AND NOT EXISTS (
+            SELECT 1 FROM cew_oar_region_revision_heads h
+            WHERE h.binding_id=${bindingId} AND h.support_id=${supportId}
+          )
+        ON CONFLICT (binding_id, support_id) DO NOTHING
+        RETURNING binding_id
+      ),
+      transition AS (
+        SELECT binding_id FROM updated_existing
+        UNION ALL SELECT binding_id FROM seeded_transition
+        UNION ALL SELECT binding_id FROM inserted_initial
+      ),
+      committed AS (
+        SELECT jsonb_set(${JSON.stringify(receipt)}::jsonb, '{timestamp}', to_jsonb(clock_timestamp()::text), true) AS receipt_json
+        FROM transition
+        LIMIT 1
+      ),
+      stored AS (
+        INSERT INTO cew_human_receipt_audit
+          (decision_id, task_id, residual_id, receipt_sha256, receipt_json, authority, canonical_write, submitted_at)
+        SELECT ${decisionId}, receipt_json->>'task_id', receipt_json->>'residual_id',
+               encode(digest(convert_to(receipt_json::text, 'UTF8'), 'sha256'), 'hex'),
+               receipt_json, 'RUNTIME_AUDIT_ONLY', false, (receipt_json->>'timestamp')::timestamptz
+        FROM committed
+        RETURNING receipt_json, receipt_sha256
+      )
+      SELECT receipt_json, receipt_sha256, NULL::text AS rejection_reason FROM stored
+      UNION ALL
+      SELECT NULL::jsonb, NULL::text, reason
+      FROM confirmation_guard
+      WHERE reason <> 'OK'
+        AND NOT EXISTS (SELECT 1 FROM stored)
+      LIMIT 1
+    `;
+    const rows = rowsOf(result);
+    if (rows.length === 1 && rows[0].rejection_reason) {
+      return response(409, { state: "AUDIT_REJECTED", reason: rows[0].rejection_reason });
+    }
+    if (rows.length !== 1) {
+      return response(409, { state: "AUDIT_REJECTED", reason: "OAR_REGION_REVISION_CONFLICT" });
+    }
+    return response(201, {
+      state: "AUDIT_STORED",
+      receipt_json: rows[0].receipt_json,
+      runtime_receipt_id: decisionId,
+      sha256: rows[0].receipt_sha256,
+      atomic_revision: true,
+      authority: "RUNTIME_AUDIT_ONLY",
+      canonical_write: false,
+    });
+  } catch (err) {
+    if (err?.code === "23505" || String(err?.message || "").toLowerCase().includes("duplicate")) {
+      return response(409, { state: "AUDIT_REJECTED", reason: "DUPLICATE_DECISION_ID" });
+    }
+    console.error("CEW_OAR_ATOMIC_DB_ERROR", err);
+    return response(503, { state: "AUDIT_REJECTED", reason: "AUDIT_DATABASE_UNAVAILABLE" });
+  }
+}
+
+async function appendReceipt(payload, db) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     return response(400, { state: "AUDIT_REJECTED", reason: "JSON_OBJECT_REQUIRED" });
+  }
+  if (payload.receipt_json?.receipt_type === OAR_RECEIPT_TYPE) {
+    return response(422, { state: "AUDIT_REJECTED", reason: "OAR_ATOMIC_TRANSITION_REQUIRED" });
   }
   const keys = Object.keys(payload);
   if (keys.length !== REQUIRED.size || keys.some((k) => !REQUIRED.has(k))) {
@@ -66,7 +347,6 @@ export default async (req) => {
     return response(422, { state: "AUDIT_REJECTED", reason: "DECISION_ID_MISMATCH" });
   }
 
-  const db = getDatabase();
   try {
     await db.sql`
       INSERT INTO cew_human_receipt_audit
@@ -89,9 +369,31 @@ export default async (req) => {
     authority: "RUNTIME_AUDIT_ONLY",
     canonical_write: false,
   });
+}
+
+export default async (req) => {
+  const secret = process.env.CEW_AUDIT_SHARED_SECRET || "";
+  const auth = req.headers.get("authorization") || "";
+  if (!secret || auth !== `Bearer ${secret}`) {
+    return response(401, { state: "AUDIT_REJECTED", reason: "UNAUTHORIZED" });
+  }
+
+  const db = getDatabase();
+  if (req.method === "GET") return governedRead(req, db);
+  if (req.method === "POST") {
+    let payload;
+    try {
+      payload = await req.json();
+    } catch {
+      return response(400, { state: "AUDIT_REJECTED", reason: "INVALID_JSON" });
+    }
+    const atomic = await atomicOarAppend(payload, db);
+    if (atomic) return atomic;
+    return appendReceipt(payload, db);
+  }
+  return response(405, { state: "AUDIT_REJECTED", reason: "METHOD_NOT_ALLOWED" });
 };
 
 export const config = {
   path: "/api/cew-audit",
-  method: "POST",
 };

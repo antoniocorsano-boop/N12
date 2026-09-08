@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "plan_id": "CEW_B1_DOCUMENT_DRAWING_AGENT_PLAN",
   "program_goal": "CEW-GOAL-01",
-  "status": "EXECUTION_ACTIVE_BLOCKED_HUMAN_ACCEPTANCE_V2",
+  "status": "EXECUTION_ACTIVE_B18_IMPLEMENTED_HVA_PENDING",
   "updated": "2026-08-28",
   "development_model": "docs/PROGRAM/CEW_CODE_DEVELOPMENT_MODEL_v2.md",
   "human_centred_model": "docs/PROGRAM/CEW_HUMAN_CENTRED_GOVUK_MODEL_v2.md",
@@ -87,7 +87,7 @@
     {
       "id": "B1.8",
       "owner": "HUMAN_FACTORS_AGENT",
-      "state": "IN_PROGRESS_DESIGN_REQUIRED",
+      "state": "IMPLEMENTED_CANDIDATE_HVA_PENDING",
       "depends_on": ["B1.1", "B1.2", "B1.3", "B1.4", "B1.5", "B1.6"],
       "supersedes_interaction_of": "B1.7",
       "goal": "Implement and execute Human-Centred Acceptance v2 with participant, observation, reviewer and receipt layers separated.",
@@ -99,9 +99,23 @@
         "revision-bound HVA receipt",
         "same-revision Production smoke receipt"
       ],
+      "implementation": {
+        "route": "/acceptance/b1",
+        "reviewer_mode": "#review",
+        "participant_telemetry_visible": false,
+        "participant_release_decision_visible": false,
+        "receipt_server_persistence": false,
+        "canonical_write_authorized": false
+      },
       "gates": ["HUMAN_FACTORS_GATE", "HVA_GATE", "ACCESSIBILITY_GATE", "PRODUCTION_SMOKE"],
+      "gate_state": {
+        "IMPLEMENTATION": "CANDIDATE",
+        "HVA_GATE": "REQUIRED_NOT_SATISFIED",
+        "ACCESSIBILITY_GATE": "REQUIRED_NOT_SATISFIED",
+        "PRODUCTION_SMOKE": "REQUIRED_AFTER_HVA_ON_ACCEPTED_REVISION"
+      },
       "contract": "automation/CEW_B1_HUMAN_ACCEPTANCE_CONTRACT_v2.json",
-      "promotion_rule": "B1 can be promoted only after no non-compensable blocker remains and the accepted immutable revision passes required Production smoke."
+      "promotion_rule": "B1 can be promoted only after no non-compensable blocker remains, accessibility acceptance is complete and the accepted immutable revision passes required Production smoke."
     }
   ],
   "non_compensable_human_blockers": [
@@ -121,6 +135,7 @@
     "Do not mark a task successful if the user reaches the wrong document or believes a derived aid is primary authority.",
     "Do not treat the B1.7 v1 instrument PASS as HVA PASS after the observed participant-surface defect.",
     "Do not let the participant self-approve the release or operate receipt governance.",
+    "Do not infer HVA from B1.8 implementation or automated validation.",
     "Do not use acceptance evidence from a different immutable revision to satisfy B1 promotion."
   ]
 }

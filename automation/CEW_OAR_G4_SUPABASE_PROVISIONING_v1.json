@@ -1,0 +1,29 @@
+{
+  "schema": "CEW_OAR_G4_SUPABASE_PROVISIONING_v1",
+  "procedure_id": "PROCEDURE-CEW-OAR-SUPABASE-001",
+  "scope": "OAR-PILOT-G4-COLUMNS",
+  "ordered_sql": [
+    "automation/CEW_USER_WEB_PILOT_SUPABASE_v1.sql",
+    "sql/CEW_OAR_G4_ATOMIC_APPEND_v1.sql",
+    "sql/CEW_OAR_G4_DISPLAY_ASSET_BINDING_v1.sql"
+  ],
+  "required_runtime_contract": {
+    "receipt_type": "CEW_OAR_REGION_GEOMETRY_RECEIPT_v1",
+    "derived_asset_id": "CEW-N12-ASSET-TAV05S-P001-OAR-300DPI",
+    "page_transform_id": "CEW-N12-XFORM-TAV05S-P001-OAR",
+    "render_sha256": "6344abae8d390ef799812c808427431e684a61cca6bb5792de331b2b9d2b6252",
+    "append_rpc": "cew_oar_append_region_receipt_v1",
+    "snapshot_rpc": "cew_oar_read_region_receipts_v1",
+    "validator_function": "cew_oar_validate_g4_receipt_v1",
+    "confirmation_geometry_guard": "ATOMIC_ANCHORED_PROPOSAL_BBOX_MATCH_REQUIRED"
+  },
+  "rerun_policy": "RERUN_SAFE_WITH_CURRENT_OAR_RECEIPTS: the base atomic migration installs the current OAR DerivedAsset + PageTransform + bbox governance predicate before replay/backfill; the final display-asset SQL idempotently reaffirms that predicate and installs the effective atomic confirmation guard.",
+  "activation_rule": "OAR writes remain fail-closed until every ordered SQL artifact has been applied in order, the validator predicate binds the OAR-specific DerivedAsset and PageTransform shown by the Workbench, and CONFIRM_GEOMETRY compares its bbox to the immutable anchored proposal under the support advisory lock before audit append or revision-head mutation.",
+  "authority": {
+    "runtime_audit_only": true,
+    "oar_human_confirmation": false,
+    "structural_identity_authorized": false,
+    "canonical_write_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}

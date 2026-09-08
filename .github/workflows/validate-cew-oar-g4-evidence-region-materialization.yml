@@ -1,0 +1,45 @@
+name: Validate CEW OAR G4 EvidenceRegion Materialization
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/cew_oar_g4_evidence_region_materialization.py'
+      - 'scripts/validate_cew_oar_g4_evidence_region_materialization.py'
+      - 'scripts/cew_oar_g4_region_workbench.py'
+      - 'scripts/cew_oar_g4_region_binding.py'
+      - 'scripts/cew_evidence_region_candidate.py'
+      - 'automation/CEW_OAR_G4_COLUMN_REGION_BINDING_v1.json'
+      - 'automation/CEW_EVIDENCE_REGION_CANDIDATE_MODEL_v1.json'
+      - 'data/canonical/CEW_PAGE_REGISTRY_v1.csv'
+      - '.github/workflows/validate-cew-oar-g4-evidence-region-materialization.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-g4-evidence-region-materialization:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile governed materialization modules
+        run: |
+          python -m py_compile scripts/cew_evidence_region_candidate.py
+          python -m py_compile scripts/cew_oar_g4_region_binding.py
+          python -m py_compile scripts/cew_oar_g4_evidence_region_materialization.py
+          python -m py_compile scripts/validate_cew_oar_g4_evidence_region_materialization.py
+      - name: Validate confirmed geometry to EvidenceRegionCandidate boundary
+        working-directory: scripts
+        run: python validate_cew_oar_g4_evidence_region_materialization.py
+      - name: Declare authority boundary
+        run: |
+          echo 'Geometry confirmed required: true'
+          echo 'Candidate is EvidenceRegion: false'
+          echo 'OAR classification confirmed: false'
+          echo 'F2 registry written: false'
+          echo 'Observation auto-create: false'
+          echo 'Structural identity authorized: false'
+          echo 'Canonical write authorized: false'

@@ -1,0 +1,58 @@
+name: Acquire CEW External Graphic Reference Seeds
+
+on:
+  push:
+    branches:
+      - 'work/cew-new-project-preacquisition-v1'
+    paths:
+      - 'knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_DISCOVERY_SEEDS_v1.json'
+      - 'scripts/cew_external_graphic_reference_acquisition.py'
+      - '.github/workflows/acquire-cew-external-graphic-reference-seeds.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acquire-reference-seeds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PDF acquisition dependency
+        run: pip install 'PyMuPDF==1.26.4'
+      - name: Compile governed external reference acquirer
+        run: python -m py_compile scripts/cew_external_graphic_reference_acquisition.py
+      - name: Acquire exact external reference bytes and emit receipt
+        run: |
+          python scripts/cew_external_graphic_reference_acquisition.py \
+            --seeds knowledge/graphic_reference/CEW_EXTERNAL_REFERENCE_DISCOVERY_SEEDS_v1.json \
+            --output /tmp/cew_external_graphic_reference_acquisition_receipt.json
+      - name: Validate receipt is non-promoting
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          receipt = json.loads(Path('/tmp/cew_external_graphic_reference_acquisition_receipt.json').read_text())
+          assert receipt['status'] in {'PASS', 'PARTIAL', 'FAILED'}
+          assert receipt['library_promotion_authorized'] is False
+          assert receipt['authority']['reference_acquisition_only'] is True
+          assert receipt['authority']['library_entries_created'] is False
+          assert receipt['authority']['project_semantic_authority'] == 'NONE'
+          assert receipt['authority']['canonical_write_authorized'] is False
+          assert receipt['authority']['structural_identity_authorized'] is False
+          for source in receipt['sources']:
+              assert len(source['source_sha256']) == 64
+              assert source['source_bytes_redistributed'] is False
+          print(f"CEW_EXTERNAL_REFERENCE_LIVE_RECEIPT_PASS status={receipt['status']} acquired={receipt['acquired_source_count']} failed={receipt['failed_source_count']}")
+          PY
+      - name: Upload acquisition receipt only
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-external-graphic-reference-acquisition-receipt
+          path: /tmp/cew_external_graphic_reference_acquisition_receipt.json
+          if-no-files-found: error
+          retention-days: 30

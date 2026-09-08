@@ -1,0 +1,223 @@
+name: Validate CEW Document Discovery Workbench
+
+on:
+  push:
+    branches:
+      - 'work/cew-new-project-preacquisition-v1'
+      - 'work/cew-document-discovery-human-view-v1'
+    paths:
+      - 'requirements.txt'
+      - 'scripts/cew_document_discovery.py'
+      - 'scripts/cew_document_discovery_workbench.py'
+      - 'scripts/cew_document_discovery_async_preview.py'
+      - 'scripts/cew_document_discovery_preview_engine.py'
+      - 'scripts/cew_document_discovery_raster_preview_engine.py'
+      - 'scripts/cew_document_discovery_raster_signal_recovery.py'
+      - 'scripts/cew_document_discovery_pdfium_signal_recovery.py'
+      - 'scripts/cew_document_discovery_preview_jobs.py'
+      - 'scripts/cew_document_discovery_preview_safe_jobs.py'
+      - 'scripts/cew_document_discovery_preview_worker.py'
+      - 'scripts/cew_document_discovery_preview_trust.py'
+      - 'scripts/validate_cew_document_discovery_workbench.py'
+      - 'scripts/validate_cew_document_discovery_async_preview.py'
+      - 'scripts/validate_cew_document_discovery_human_view.py'
+      - 'scripts/validate_cew_raster_evidence_engine.py'
+      - 'scripts/validate_cew_raster_signal_recovery.py'
+      - 'scripts/validate_cew_signal_recovery_degradation.py'
+      - 'scripts/validate_cew_preview_trust_boundary.py'
+      - 'scripts/cew_new_project_preacquisition.py'
+      - 'scripts/cew_visual_learning.py'
+      - 'scripts/cew_dinov3_provider.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - 'automation/CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2.json'
+      - 'analysis/cew/CEW_RASTER_EVIDENCE_ENGINE_ARCHITECTURE_v2.md'
+      - 'analysis/cew/CEW_DOCUMENT_DISCOVERY_RUNTIME_HVA_RECEIPT_v1.json'
+      - '.github/workflows/validate-cew-document-discovery-workbench.yml'
+  pull_request:
+    paths:
+      - 'requirements.txt'
+      - 'scripts/cew_document_discovery.py'
+      - 'scripts/cew_document_discovery_workbench.py'
+      - 'scripts/cew_document_discovery_async_preview.py'
+      - 'scripts/cew_document_discovery_preview_engine.py'
+      - 'scripts/cew_document_discovery_raster_preview_engine.py'
+      - 'scripts/cew_document_discovery_raster_signal_recovery.py'
+      - 'scripts/cew_document_discovery_pdfium_signal_recovery.py'
+      - 'scripts/cew_document_discovery_preview_jobs.py'
+      - 'scripts/cew_document_discovery_preview_safe_jobs.py'
+      - 'scripts/cew_document_discovery_preview_worker.py'
+      - 'scripts/cew_document_discovery_preview_trust.py'
+      - 'scripts/validate_cew_document_discovery_workbench.py'
+      - 'scripts/validate_cew_document_discovery_async_preview.py'
+      - 'scripts/validate_cew_document_discovery_human_view.py'
+      - 'scripts/validate_cew_raster_evidence_engine.py'
+      - 'scripts/validate_cew_raster_signal_recovery.py'
+      - 'scripts/validate_cew_signal_recovery_degradation.py'
+      - 'scripts/validate_cew_preview_trust_boundary.py'
+      - 'scripts/cew_new_project_preacquisition.py'
+      - 'scripts/cew_visual_learning.py'
+      - 'scripts/cew_dinov3_provider.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - 'automation/CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2.json'
+      - 'analysis/cew/CEW_RASTER_EVIDENCE_ENGINE_ARCHITECTURE_v2.md'
+      - 'analysis/cew/CEW_DOCUMENT_DISCOVERY_RUNTIME_HVA_RECEIPT_v1.json'
+      - '.github/workflows/validate-cew-document-discovery-workbench.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-document-discovery-workbench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CEW runtime dependencies
+        run: pip install -r requirements.txt
+      - name: Compile Document Discovery modules
+        run: >-
+          python -m py_compile
+          scripts/cew_document_discovery.py
+          scripts/cew_document_discovery_workbench.py
+          scripts/cew_document_discovery_async_preview.py
+          scripts/cew_document_discovery_preview_engine.py
+          scripts/cew_document_discovery_raster_preview_engine.py
+          scripts/cew_document_discovery_raster_signal_recovery.py
+          scripts/cew_document_discovery_pdfium_signal_recovery.py
+          scripts/cew_document_discovery_preview_jobs.py
+          scripts/cew_document_discovery_preview_safe_jobs.py
+          scripts/cew_document_discovery_preview_worker.py
+          scripts/cew_document_discovery_preview_trust.py
+          scripts/validate_cew_document_discovery_workbench.py
+          scripts/validate_cew_document_discovery_async_preview.py
+          scripts/validate_cew_document_discovery_human_view.py
+          scripts/validate_cew_raster_evidence_engine.py
+          scripts/validate_cew_raster_signal_recovery.py
+          scripts/validate_cew_signal_recovery_degradation.py
+          scripts/validate_cew_preview_trust_boundary.py
+          scripts/cew_new_project_preacquisition.py
+          scripts/cew_visual_learning.py
+          scripts/cew_dinov3_provider.py
+          scripts/cew_professional_workbench_api.py
+      - name: Validate Document Discovery governance and interaction
+        working-directory: scripts
+        run: python validate_cew_document_discovery_workbench.py
+      - name: Validate async bounded preview and resource-fallback extraction
+        working-directory: scripts
+        run: python validate_cew_document_discovery_async_preview.py
+      - name: Validate human orientation zoom pan and page cluster selection
+        working-directory: scripts
+        run: python validate_cew_document_discovery_human_view.py
+      - name: Validate Raster Evidence Engine v2 deterministic corpus
+        working-directory: scripts
+        run: python validate_cew_raster_evidence_engine.py
+      - name: Validate independent PDFium faint-line and page-box recovery
+        working-directory: scripts
+        run: python validate_cew_raster_signal_recovery.py
+      - name: Validate recovery timeout preserves baseline evidence
+        working-directory: scripts
+        run: python validate_cew_signal_recovery_degradation.py
+      - name: Validate isolated page rendering and blank corroboration
+        working-directory: scripts
+        run: python validate_cew_preview_trust_boundary.py
+      - name: Verify web runtime remains free of DINOv3 ML dependencies
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('requirements.txt').read_text(encoding='utf-8').lower()
+          forbidden = ('torch', 'torchvision', 'transformers')
+          found = [name for name in forbidden if name in text]
+          assert not found, found
+          print('CEW_DOCUMENT_DISCOVERY_WEB_RUNTIME_ML_DEPENDENCIES_ABSENT_PASS')
+          PY
+      - name: Verify additive Workbench mount, authority and raster evidence contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          composition = Path('scripts/cew_professional_workbench_api.py').read_text(encoding='utf-8')
+          workspace = Path('scripts/cew_document_discovery_workbench.py').read_text(encoding='utf-8')
+          async_adapter = Path('scripts/cew_document_discovery_async_preview.py').read_text(encoding='utf-8')
+          jobs = Path('scripts/cew_document_discovery_preview_jobs.py').read_text(encoding='utf-8')
+          safe_jobs = Path('scripts/cew_document_discovery_preview_safe_jobs.py').read_text(encoding='utf-8')
+          worker = Path('scripts/cew_document_discovery_preview_worker.py').read_text(encoding='utf-8')
+          trust = Path('scripts/cew_document_discovery_preview_trust.py').read_text(encoding='utf-8')
+          raster = Path('scripts/cew_document_discovery_raster_preview_engine.py').read_text(encoding='utf-8')
+          recovery = Path('scripts/cew_document_discovery_pdfium_signal_recovery.py').read_text(encoding='utf-8')
+          requirements = Path('requirements.txt').read_text(encoding='utf-8')
+          contract = json.loads(Path('automation/CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2.json').read_text(encoding='utf-8'))
+          assert contract['schema'] == 'CEW_RASTER_EVIDENCE_ENGINE_CONTRACT_v2'
+          assert contract['quality_invariants']['R2_NO_SILENT_EMPTY']
+          assert contract['quality_invariants']['R14_RECOVERY_CANNOT_DESTROY_BASELINE_EVIDENCE']
+          assert contract['recovery_policy']['adaptive_recovery_timeout_terminal_state'] == 'INCONCLUSIVE'
+          assert contract['authority']['canonical_write_authorized'] is False
+          assert 'import cew_document_discovery_async_preview as _document_discovery_async_preview' in composition
+          assert 'import cew_document_discovery_workbench as _document_discovery' in composition
+          async_mount = 'router.include_router(_document_discovery_async_preview.build_router())'
+          legacy_mount = 'router.include_router(_document_discovery.build_router(source_workspace))'
+          assert async_mount in composition
+          assert legacy_mount in composition
+          assert composition.index(async_mount) < composition.index(legacy_mount)
+          assert 'X-CEW-Canonical-Write' in workspace
+          assert 'X-CEW-Engineering-Authority-Effect' in workspace
+          assert 'Preview analizzabile, ma training bloccato' in workspace
+          assert 'Significato automatico: <b>nessuno</b>' in workspace
+          assert 'id="viewer-placeholder"' in workspace
+          assert '<img id="page" alt="Pagina documento" hidden>' in workspace
+          assert "q('viewer-placeholder').hidden=true" in workspace
+          assert "q('page').hidden=true" in workspace
+          assert 'Provider: caricamento stato' in workspace
+          assert 'DINOv3:' in workspace
+          assert 'nessuna classificazione automatica' in workspace
+          assert 'analyze-preview-async' in async_adapter
+          assert 'preview-job/{job_id}' in async_adapter
+          assert 'X-CEW-Preview-Execution' in async_adapter
+          assert 'INCONCLUSIVE' in async_adapter
+          assert 'raster tiled evidence' in async_adapter
+          assert 'cew_document_discovery_preview_safe_jobs as preview_jobs' in async_adapter
+          assert 'PROCESS_ISOLATED_CACHED' in async_adapter
+          assert 'preview-rotate-left' in async_adapter
+          assert 'preview-rotate-right' in async_adapter
+          assert 'preview-zoom-in' in async_adapter
+          assert 'cluster-hotspot' in async_adapter
+          assert 'enableDragPan' in async_adapter
+          assert 'PROCESS_ISOLATED_SUBPROCESS' in jobs
+          assert 'subprocess.run(' in jobs
+          assert 'RASTER_SAFE_MODE' in jobs
+          assert 'RASTER_SIGNAL_RECOVERY_MODE' in jobs
+          assert 'PREVIEW_SIGNAL_RECOVERY_TIMEOUT_SECONDS' in jobs
+          assert 'DOCUMENT_DISCOVERY_SIGNAL_RECOVERY_DEGRADED' in jobs
+          assert 'PREVIEW_WORKER_MEMORY_MB' in jobs
+          assert 'state="INCONCLUSIVE"' in jobs
+          assert 'discovery._validate_pdf(payload)' not in safe_jobs
+          assert '_validate_upload_envelope(payload)' in safe_jobs
+          assert 'PREVIEW_SIGNAL_RECOVERY_TIMEOUT_SECONDS' in safe_jobs
+          assert 'resource.RLIMIT_AS' in worker
+          assert 'cew_document_discovery_preview_engine' in worker
+          assert 'cew_document_discovery_raster_preview_engine' in worker
+          assert 'cew_document_discovery_pdfium_signal_recovery' in worker
+          assert 'PRIOR_REPORT_FILENAME' in worker
+          assert '_inherit_trust_evidence' in worker
+          assert 'preview_trust.attach_trust_evidence' in worker
+          assert 'if key not in report and key in prior' in worker
+          assert 'CONFIRMED_BLANK' in trust
+          assert 'BLANK_CORROBORATION_CONTRADICTED' in trust
+          assert 'BOUNDED_CONTRAST_PRESERVING_READING_AID' in trust
+          assert 'PROCESS_ISOLATED_WORKER' in trust
+          assert 'get_image_info()' in trust
+          assert 'get_images(full=True)' not in trust
+          assert 'TILED_FULL_COVERAGE' in raster
+          assert 'PYMUPDF_RASTER_CONNECTED_REGION_TILED_V2' in raster
+          assert 'PAGE_BLANK_OBSERVED' in raster
+          assert 'INCONCLUSIVE_RASTER_DETECTION' in raster
+          assert 'PDFIUM_INDEPENDENT_RASTER_SIGNAL_RECOVERY_V1' in recovery
+          assert 'PDFIUM_RASTER_ADAPTIVE_SIGNAL_RECOVERY_V1' in recovery
+          assert 'MEDIA_BOX_RECOVERY' in recovery
+          assert 'INDEPENDENT_PDFIUM_BOUNDED_READING_AID' in recovery
+          assert 'semantic_authority' in recovery
+          assert 'pypdfium2==5.13.0' in requirements
+          print('CEW_DOCUMENT_DISCOVERY_RASTER_EVIDENCE_V2_CONTRACT_PASS')
+          PY

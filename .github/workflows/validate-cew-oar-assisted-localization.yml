@@ -1,0 +1,117 @@
+name: Validate CEW OAR Assisted Localization
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_OAR_ASSISTED_LOCALIZATION_ADOPTION_v1.json'
+      - 'scripts/cew_oar_g4_snap_worker.py'
+      - 'scripts/cew_oar_g4_deepzoom_worker.cjs'
+      - 'scripts/build_cew_oar_g4_assisted_assets.py'
+      - 'scripts/cew_oar_g4_assisted_workbench.py'
+      - 'scripts/cew_oar_g4_prototype_search.py'
+      - 'scripts/cew_oar_g4_region_workbench.py'
+      - 'scripts/cew_oar_g4_atomic_store.py'
+      - 'scripts/validate_cew_oar_g4_assisted_localization.py'
+      - 'scripts/cew_professional_workbench_api.py'
+      - 'scripts/render_build_candidate.sh'
+      - '.github/workflows/validate-cew-oar-assisted-localization.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-assisted-localization:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install CEW runtime test dependencies
+        run: pip install -r requirements.txt httpx
+      - name: Compile assisted-localization modules
+        run: >-
+          python -m py_compile
+          scripts/cew_oar_g4_snap_worker.py
+          scripts/build_cew_oar_g4_assisted_assets.py
+          scripts/cew_oar_g4_assisted_workbench.py
+          scripts/cew_oar_g4_prototype_search.py
+          scripts/cew_oar_g4_region_workbench.py
+          scripts/cew_oar_g4_atomic_store.py
+          scripts/validate_cew_oar_g4_assisted_localization.py
+          scripts/cew_professional_workbench_api.py
+      - name: Validate Sharp worker syntax
+        run: node --check scripts/cew_oar_g4_deepzoom_worker.cjs
+      - name: Validate adoption contract is non-promoting and prototype-led
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('automation/CEW_OAR_ASSISTED_LOCALIZATION_ADOPTION_v1.json').read_text())
+          assert data['status'] == 'POC_NON_PROMOTING'
+          assert data['adopted_components']['viewer']['version'] == '6.1.0'
+          assert data['adopted_components']['viewer']['license'] == 'BSD-3-Clause'
+          assert data['adopted_components']['annotation']['version'] == '3.8.10'
+          assert data['adopted_components']['annotation']['license'] == 'BSD-3-Clause'
+          assert data['adopted_components']['deep_zoom']['name'] == 'sharp'
+          assert data['adopted_components']['deep_zoom']['version'] == '0.35.4'
+          assert data['adopted_components']['deep_zoom']['license'] == 'Apache-2.0'
+          assert data['adopted_components']['deep_zoom']['system_vips_cli_required'] is False
+          interaction = data['interaction_contract']
+          assert interaction['primary_localization_mode'] == 'DRAW_OR_ADJUST_EXAMPLE_THEN_FIND_SIMILAR'
+          assert interaction['primary_actions'] == ['TEACH_THIS_IS', 'FIND_SIMILAR', 'REVIEW_SIMILAR_GROUP']
+          assert interaction['similar_search_auto_assigns_support_identity'] is False
+          assert interaction['similar_search_auto_confirms_family'] is False
+          assert interaction['snap_role'] == 'FALLBACK_LOCAL_BOX_AID'
+          assert interaction['snap_is_proposal_only'] is True
+          assert interaction['family_prior_may_establish_classification'] is False
+          assert data['prototype_search_contract']['tap_distance_used'] is False
+          assert data['prototype_search_contract']['human_group_review_required'] is True
+          assert data['authority']['canonical_write_authorized'] is False
+          assert data['authority']['structural_identity_authorized'] is False
+          print('CEW_OAR_ASSISTED_ADOPTION_CONTRACT_PASS')
+          PY
+      - name: Materialize governed G4 display raster
+        working-directory: scripts
+        run: python build_cew_oar_g4_runtime_asset.py
+      - name: Build Deep Zoom and snap assets with unusable system vips CLI
+        working-directory: scripts
+        run: |
+          mkdir -p "$RUNNER_TEMP/cew-no-system-vips"
+          cat > "$RUNNER_TEMP/cew-no-system-vips/vips" <<'SH'
+          #!/usr/bin/env sh
+          echo 'CEW_TEST_SYSTEM_VIPS_MUST_NOT_BE_CALLED' >&2
+          exit 99
+          SH
+          chmod +x "$RUNNER_TEMP/cew-no-system-vips/vips"
+          PATH="$RUNNER_TEMP/cew-no-system-vips:$PATH" python build_cew_oar_g4_assisted_assets.py
+      - name: Validate assisted localization end to end
+        working-directory: scripts
+        run: python validate_cew_oar_g4_assisted_localization.py
+      - name: Validate Render build wiring
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          build = Path('scripts/render_build_candidate.sh').read_text()
+          builder = Path('scripts/build_cew_oar_g4_assisted_assets.py').read_text()
+          api = Path('scripts/cew_professional_workbench_api.py').read_text()
+          assisted = Path('scripts/cew_oar_g4_assisted_workbench.py').read_text()
+          prototype = Path('scripts/cew_oar_g4_prototype_search.py').read_text()
+          atomic = Path('scripts/cew_oar_g4_atomic_store.py').read_text()
+          assert 'python scripts/build_cew_oar_g4_runtime_asset.py' in build
+          assert 'python scripts/build_cew_oar_g4_assisted_assets.py' in build
+          assert 'SHARP_SPEC = "sharp@0.35.4"' in builder
+          assert '"vips", "dzsave"' not in builder
+          assert 'CREATE TABLE' not in atomic
+          assert 'cew_oar_region_revision_heads' not in atomic
+          assert 'pg_advisory_xact_lock' in atomic
+          assert 'import cew_oar_g4_assisted_workbench as _oar_g4_assisted' in api
+          assert 'router.include_router(_oar_g4_assisted.build_router())' in api
+          assert 'import cew_oar_g4_prototype_search as prototype_search' in assisted
+          assert 'CEW_OAR_PROTOTYPE_TEACH_RECEIPT_v1' in prototype
+          print('CEW_OAR_ASSISTED_RENDER_WIRING_PASS')
+          PY
