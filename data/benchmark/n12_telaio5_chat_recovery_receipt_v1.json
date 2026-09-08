@@ -58,17 +58,22 @@
     }
   ],
   "file_library_audit": {
-    "date_scope": "2026-08-16..2026-08-17",
+    "date_scope": "2026-08-16",
     "semantic_queries": [
       "Ariano_Irpino_Consolidato_v15_Telaio5_Riconciliazione RC-P10 Telaio 5",
       "Ariano_Irpino_Consolidato_v16_Telaio5_RC_P13 RC-P13 25x70 140x20",
       "due ingrandimenti Telaio 5",
       "tre immagini RC-P13",
       "3945 1743 4642 RC-P13",
-      "25x70 140x20 RC-P13"
+      "25x70 140x20 RC-P13",
+      "v14 Telaio 5",
+      "RC-P10 pagina geometria",
+      "RC-P13 pagina carichi"
     ],
-    "empty_query_day_enumeration_performed": true,
+    "empty_query_exact_day_enumeration_performed": true,
     "result": "HANDOFF_TEXTS_RECOVERED_BUT_SOURCE_IMAGES_NOT_EXPOSED_AS_STANDALONE_FILE_LIBRARY_OBJECTS",
+    "chronology_gap_observation": "File Library exposes v13 at 19:13:49Z, then v15 at 19:20:07Z, then v16 at 19:23:52Z. No v14 handoff or standalone source-image object was returned by exact-day enumeration or targeted semantic searches.",
+    "v13_handoff_file_id": "file_000000004e28824688d3881eced1c4c7",
     "v15_handoff_file_id": "file_000000002b8881f49bb9d92c17418605",
     "v16_handoff_file_id": "file_000000005e74820a8f7b19cfe06e43d5",
     "v17_handoff_file_id": "file_0000000022d0820abe934d790610a2d3",
@@ -82,10 +87,24 @@
     "repo_derivative": "evidence/derived/telaio5_plan_trace_v1.svg",
     "status": "POINTER_AND_DIGEST_RECOVERED_ORIGINAL_PIXEL_BYTES_NOT_IN_GIT"
   },
+  "working_recovery_hypotheses": [
+    {
+      "hypothesis": "The two v15 enlargements and three v16 RC-P13 images were inline chat attachments or crops rather than standalone File Library objects.",
+      "status": "SUPPORTED_BY_INDEXING_BEHAVIOR_NOT_PROVEN",
+      "authority_effect": "NONE"
+    },
+    {
+      "hypothesis": "The v15/v16 images may be enlargements or crops derived from the 12 calculation-report photographs already processed at v8 rather than five independent primary photographs.",
+      "status": "PLAUSIBLE_NOT_PROVEN",
+      "authority_effect": "NONE"
+    }
+  ],
   "conclusions": {
     "calculation_report_images_transited_in_chat": true,
     "v15_two_source_uploads_proven": true,
     "v16_three_source_uploads_proven": true,
+    "exact_day_file_library_search_completed": true,
+    "v14_or_standalone_source_image_recovered": false,
     "rc_p10_rc_p13_pixel_bytes_recovered": false,
     "plan_image_historical_pointer_recovered": true,
     "consolidated_zip_names_recovered": true,
@@ -93,8 +112,9 @@
     "held_out_authority_effect": "NONE"
   },
   "next_recovery_targets": [
-    "historical attachment records in the v15 source-upload window immediately before 2026-08-16T19:20:07Z",
-    "historical attachment records in the v16 source-upload window after v15 and immediately before 2026-08-16T19:23:52Z",
+    "historical inline attachment records in the v15 upload window immediately before 2026-08-16T19:20:07Z",
+    "historical inline attachment records in the v16 upload window after v15 and immediately before 2026-08-16T19:23:52Z",
+    "original v8 calculation-report photograph set, because v15/v16 may be derived enlargements/crops of that set",
     "original chat-upload bytes corresponding to the two v15 enlargements",
     "original chat-upload bytes corresponding to the three v16 RC-P13 images",
     "Ariano_Irpino_Consolidato_v8_Relazione_Calcolo.zip if any historical attachment store still exposes it",
