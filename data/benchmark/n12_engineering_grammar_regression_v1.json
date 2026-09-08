@@ -70,8 +70,14 @@
       "case_id": "HO-RC-003",
       "name": "OCR high confidence without engineering relation",
       "rule_refs": ["G-RC-002", "G-RC-008"],
-      "input": {"raw_text": "40x40", "ocr_confidence": 0.99, "target_relation": null},
-      "forbidden_outputs": ["COLUMN_SECTION_ASSERTION", "ENGINEERING_CONFIDENCE_0_99"],
+      "input": {
+        "raw_text": "40",
+        "normalized_text": "40",
+        "ocr_confidence": 0.9999834895133972,
+        "target_relation": null,
+        "interpretation_note": "The source does not expose a native 40x40 string. PP-OCRv6 independently localized numeric 40 tokens; this held-out case tests that OCR confidence alone cannot create engineering confidence or a section assertion."
+      },
+      "forbidden_outputs": ["COLUMN_SECTION_ASSERTION", "ENGINEERING_CONFIDENCE_0_99", "STRUCTURAL_IDENTITY"],
       "required_output": "TECHNICAL_TOKEN_NEEDS_CONTEXT",
       "source_binding": {
         "source_id": "CEW-N12-SRC-TAV05S",
@@ -83,11 +89,26 @@
         "page_size_points": [1683.719971, 3007.080078],
         "evidence_region_id": "CEW-N12-REG-TAV05S-G4-COLUMN-PILOT",
         "evidence_region_geometry": {"type": "BBOX", "coordinate_system": "NORMALIZED_0_1", "x": 0.0, "y": 0.0, "w": 1.0, "h": 1.0},
-        "verification_basis": "PR #118 governed Source/Page/EvidenceRegion registration; exact source SHA-256; deterministic full-page evidence envelope"
+        "token_locator": {
+          "extractor": "PaddleOCR",
+          "model": "PP-OCRv6-medium-default",
+          "paddleocr_version": "3.7.0",
+          "paddlepaddle_version": "3.2.0",
+          "render_dpi": 300,
+          "render_size_px": [7016, 12530],
+          "bbox_render_300dpi": [6039.0, 3984.0, 6112.0, 4031.0],
+          "bbox_normalized_0_1": [0.860746864, 0.317956903, 0.871151653, 0.321707901],
+          "bbox_pdf_points": [1449.36, 956.16, 1466.88, 967.44],
+          "ocr_confidence": 0.9999834895133972,
+          "workflow_run_id": 34278849293,
+          "artifact_id": 10076938824,
+          "full_page_exact_40x40_hit_count": 0,
+          "native_text_40x40_hit_count": 0
+        },
+        "verification_basis": "Immutable SourceVersion SHA-256 verified before 300 dpi rendering; PP-OCRv6 run 34278849293 produced the exact token bbox. PyMuPDF native text produced no 40x40 hit, so OCR remains an observation channel only."
       },
-      "source_binding_state": "BOUND_REGION_REQUIRES_TOKEN_LOCALIZATION",
-      "binding_blocker": "the governed page/region is resolved, but the exact source-coordinate token/target relation for the held-out 40x40 occurrence has not yet been localized by the extractor benchmark",
-      "readiness_effect": "BLOCK_KG_G5"
+      "source_binding_state": "SOURCE_BOUND_READY_FOR_INTERPRETATION",
+      "readiness_effect": "HELD_OUT_INTERPRETATION_EXECUTABLE"
     }
   ],
   "gate_policy": {
