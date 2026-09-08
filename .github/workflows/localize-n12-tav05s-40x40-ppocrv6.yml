@@ -7,6 +7,10 @@ on:
     paths:
       - 'scripts/localize_n12_tav05s_40x40_ppocrv6.py'
       - '.github/workflows/localize-n12-tav05s-40x40-ppocrv6.yml'
+  pull_request:
+    paths:
+      - 'scripts/localize_n12_tav05s_40x40_ppocrv6.py'
+      - '.github/workflows/localize-n12-tav05s-40x40-ppocrv6.yml'
   workflow_dispatch:
 
 permissions:
