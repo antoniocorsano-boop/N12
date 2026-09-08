@@ -74,6 +74,7 @@ def main() -> int:
                 "word_no": int(word_no),
             })
 
+    state = "NATIVE_TEXT_FOUND" if hits else "NATIVE_TEXT_NOT_FOUND_OCR_FALLBACK_REQUIRED"
     result = {
         "schema": "N12_TAV05S_NATIVE_TOKEN_LOCATOR_v1",
         "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
@@ -86,6 +87,7 @@ def main() -> int:
         "extractor": "PyMuPDF-native-text",
         "extractor_version": fitz.VersionBind,
         "target": TARGET,
+        "state": state,
         "hit_count": len(hits),
         "hits": hits,
         "semantic_authority": "NONE",
@@ -97,8 +99,8 @@ def main() -> int:
     OUT.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result, ensure_ascii=False, indent=2))
     if not hits:
-        print("N12_TAV05S_40X40_NATIVE_TEXT_NOT_FOUND")
-        return 2
+        print("N12_TAV05S_40X40_NATIVE_TEXT_NOT_FOUND_OCR_FALLBACK_REQUIRED")
+        return 0
     print(f"N12_TAV05S_40X40_NATIVE_TEXT_FOUND count={len(hits)}")
     return 0
 
