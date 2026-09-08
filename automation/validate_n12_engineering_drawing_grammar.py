@@ -157,7 +157,45 @@ def validate_source_binding(case):
             fail(f"{case['case_id']} partial binding must record remaining localization blocker")
         return "PARTIALLY_BOUND_NOT_EXECUTABLE"
 
-    return "BOUND_READY_FOR_INTERPRETATION_TEST"
+    return "SOURCE_BOUND_READY"
+
+
+def evaluate_held_out_interpretation(case):
+    binding_state = validate_source_binding(case)
+    if binding_state != "SOURCE_BOUND_READY":
+        return binding_state
+
+    cid = case["case_id"]
+    inp = case["input"]
+    expected = case["required_output"]
+
+    if cid == "HO-RC-003":
+        binding = case.get("source_binding", {})
+        locator = binding.get("token_locator", {})
+        required_locator = {
+            "extractor", "model", "render_dpi", "bbox_render_300dpi",
+            "bbox_normalized_0_1", "bbox_pdf_points", "ocr_confidence",
+            "workflow_run_id",
+        }
+        missing = required_locator - set(locator)
+        if missing:
+            fail(f"{cid} source-bound token locator missing: {sorted(missing)}")
+        if locator.get("ocr_confidence") != inp.get("ocr_confidence"):
+            fail(f"{cid} OCR confidence diverges between input and locator")
+        if not isinstance(inp.get("ocr_confidence"), (int, float)) or inp["ocr_confidence"] < 0.99:
+            fail(f"{cid} no longer tests high OCR confidence")
+        # The governing interpretation: OCR confidence is recognition evidence only.
+        # Without a target relation, the token must remain contextual/technical evidence,
+        # never an engineering section assertion or a structural identity.
+        actual = "TECHNICAL_TOKEN_NEEDS_CONTEXT" if inp.get("target_relation") is None else "TECHNICAL_TOKEN_WITH_TARGET_RELATION_CANDIDATE"
+    else:
+        fail(f"held-out evaluator missing for source-bound case {cid}")
+
+    if actual != expected:
+        fail(f"held-out case {cid}: expected {expected}, got {actual}")
+    if actual in set(case.get("forbidden_outputs", [])):
+        fail(f"held-out case {cid} produced forbidden output {actual}")
+    return f"HELD_OUT_INTERPRETATION_PASS:{actual}"
 
 
 def validate_corpus(corpus):
@@ -175,7 +213,7 @@ def validate_corpus(corpus):
             ids.add(case["case_id"])
 
     training_results = {case["case_id"]: evaluate_training_case(case) for case in training}
-    held_out_results = {case["case_id"]: validate_source_binding(case) for case in held_out}
+    held_out_results = {case["case_id"]: evaluate_held_out_interpretation(case) for case in held_out}
 
     policy = corpus.get("gate_policy", {})
     if policy.get("automatic_structural_identity") is not False:
@@ -187,8 +225,8 @@ def validate_corpus(corpus):
     if policy.get("held_out_cases_require_exact_interpretation_input") is not True:
         fail("held-out cases must require exact interpretation input")
 
-    all_held_out_executable = all(v == "BOUND_READY_FOR_INTERPRETATION_TEST" for v in held_out_results.values())
-    kg_g5 = "READY_FOR_INTERPRETATION_EXECUTION" if all_held_out_executable else "BLOCKED_INCOMPLETE_HELD_OUT_BINDING"
+    all_passed = all(v.startswith("HELD_OUT_INTERPRETATION_PASS:") for v in held_out_results.values())
+    kg_g5 = "PASS" if all_passed else "BLOCKED_INCOMPLETE_HELD_OUT_BINDING_OR_EXECUTION"
 
     return training_results, held_out_results, kg_g5
 
