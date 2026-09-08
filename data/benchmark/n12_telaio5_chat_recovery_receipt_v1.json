@@ -13,6 +13,7 @@
     {
       "stage": "v8",
       "conversation_file_id": "file_000000001f988246b73f5b9732ce5450",
+      "handoff_created_at_utc": "2026-08-16T18:56:09Z",
       "evidence": "12 photographs of the original calculation report were converted into a canonical source register with page identification and DOC provenance",
       "consolidated_name": "Ariano_Irpino_Consolidato_v8_Relazione_Calcolo.zip",
       "original_bytes_recovered": false
@@ -20,6 +21,7 @@
     {
       "stage": "v13",
       "conversation_file_id": "file_000000004e28824688d3881eced1c4c7",
+      "handoff_created_at_utc": "2026-08-16T19:13:49Z",
       "evidence": "Telaio 5 first structured reading; RC-P10 identified as next page needed for levels/segment numbering and RC-P13 as load/section page context",
       "consolidated_name": "Ariano_Irpino_Consolidato_v13_Telaio5.zip",
       "original_bytes_recovered": false
@@ -27,25 +29,51 @@
     {
       "stage": "v15",
       "conversation_file_id": "file_000000002b8881f49bb9d92c17418605",
-      "evidence": "two enlargements just provided in chat were used directly to reconcile G5/G4/G3/G2/G1 segment cardinality and C1-C8 geometry",
+      "handoff_created_at_utc": "2026-08-16T19:20:07Z",
+      "source_upload_window": "IMMEDIATELY_BEFORE_2026-08-16T19:20:07Z",
+      "source_upload_cardinality": 2,
+      "source_upload_description": "two enlargements just provided in chat",
+      "evidence": "the two enlargements were used directly to reconcile G5/G4/G3/G2/G1 segment cardinality and C1-C8 geometry; the 17-34 aggregate was revoked and split into G3 17-25 and G2 26-34",
       "consolidated_name": "Ariano_Irpino_Consolidato_v15_Telaio5_Riconciliazione.zip",
       "original_bytes_recovered": false
     },
     {
       "stage": "v16",
       "conversation_file_id": "file_000000005e74820a8f7b19cfe06e43d5",
-      "evidence": "three images just provided were used to close RC-P13 and localize 25x70 / 140x20 section-load patterns for G3, G2 and G1",
+      "handoff_created_at_utc": "2026-08-16T19:23:52Z",
+      "source_upload_window": "AFTER_V15_AND_IMMEDIATELY_BEFORE_2026-08-16T19:23:52Z",
+      "source_upload_cardinality": 3,
+      "source_upload_description": "three images used to close RC-P13",
+      "evidence": "the three images localized the 25x70 / 140x20 section-load pattern for G3, G2 and G1; G3 and G2 C3-C5 were resolved as 140x20 / 1743 kg/m and C1-C2/C6/C7-C8 as 25x70 with their documented loads",
       "consolidated_name": "Ariano_Irpino_Consolidato_v16_Telaio5_RC_P13.zip",
       "original_bytes_recovered": false
     },
     {
       "stage": "v17",
       "conversation_file_id": "file_0000000022d0820abe934d790610a2d3",
+      "handoff_created_at_utc": "2026-08-16T19:30:49Z",
       "evidence": "new plan-type/frame images were used to close G5 C2-C7 = 19.20 m and document the S-S'-T-U-V-Z-A'-B'-C' plan path",
       "consolidated_name": "Ariano_Irpino_Consolidato_v17_Telaio5_G5_Pianta.zip",
       "original_bytes_recovered": false
     }
   ],
+  "file_library_audit": {
+    "date_scope": "2026-08-16..2026-08-17",
+    "semantic_queries": [
+      "Ariano_Irpino_Consolidato_v15_Telaio5_Riconciliazione RC-P10 Telaio 5",
+      "Ariano_Irpino_Consolidato_v16_Telaio5_RC_P13 RC-P13 25x70 140x20",
+      "due ingrandimenti Telaio 5",
+      "tre immagini RC-P13",
+      "3945 1743 4642 RC-P13",
+      "25x70 140x20 RC-P13"
+    ],
+    "empty_query_day_enumeration_performed": true,
+    "result": "HANDOFF_TEXTS_RECOVERED_BUT_SOURCE_IMAGES_NOT_EXPOSED_AS_STANDALONE_FILE_LIBRARY_OBJECTS",
+    "v15_handoff_file_id": "file_000000002b8881f49bb9d92c17418605",
+    "v16_handoff_file_id": "file_000000005e74820a8f7b19cfe06e43d5",
+    "v17_handoff_file_id": "file_0000000022d0820abe934d790610a2d3",
+    "source_image_file_ids_recovered": false
+  },
   "repository_memory_pointer": {
     "source_id": "SRC-T5-PLAN-USER",
     "historical_chat_file_pointer": "chat:file_00000000116481f49d5ce25af6aff36d",
@@ -56,6 +84,8 @@
   },
   "conclusions": {
     "calculation_report_images_transited_in_chat": true,
+    "v15_two_source_uploads_proven": true,
+    "v16_three_source_uploads_proven": true,
     "rc_p10_rc_p13_pixel_bytes_recovered": false,
     "plan_image_historical_pointer_recovered": true,
     "consolidated_zip_names_recovered": true,
@@ -63,6 +93,8 @@
     "held_out_authority_effect": "NONE"
   },
   "next_recovery_targets": [
+    "historical attachment records in the v15 source-upload window immediately before 2026-08-16T19:20:07Z",
+    "historical attachment records in the v16 source-upload window after v15 and immediately before 2026-08-16T19:23:52Z",
     "original chat-upload bytes corresponding to the two v15 enlargements",
     "original chat-upload bytes corresponding to the three v16 RC-P13 images",
     "Ariano_Irpino_Consolidato_v8_Relazione_Calcolo.zip if any historical attachment store still exposes it",
@@ -70,5 +102,5 @@
     "Ariano_Irpino_Consolidato_v16_Telaio5_RC_P13.zip if any historical attachment store still exposes it",
     "Ariano_Irpino_Consolidato_v17_Telaio5_G5_Pianta.zip if any historical attachment store still exposes it"
   ],
-  "fail_closed_rule": "Conversation summaries, remembered file names, historical file IDs, derived traces and consolidated descriptions are provenance/recovery pointers only. They cannot substitute original bytes for SourceVersion creation or held-out interpretation execution."
+  "fail_closed_rule": "Conversation summaries, remembered file names, historical file IDs, upload cardinality/timestamps, derived traces and consolidated descriptions are provenance/recovery pointers only. They cannot substitute original bytes for SourceVersion creation or held-out interpretation execution."
 }
