@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
-import cew_professional_document_workbench_visual_reference_capture as visual_reference_capture
+import cew_professional_document_workbench_local_focus as local_focus
 
 
 def build_router() -> APIRouter:
@@ -14,7 +14,7 @@ def build_router() -> APIRouter:
     @router.get("/workbench/document-discovery", response_class=HTMLResponse)
     def region_guided_compat_page():
         return HTMLResponse(
-            visual_reference_capture._patched_page(),
+            local_focus._patched_page(),
             headers={
                 "Cache-Control": "no-store",
                 "X-CEW-Canonical-Write": "false",
@@ -37,6 +37,9 @@ def build_router() -> APIRouter:
                 "X-CEW-Operator-View": "CLEAN_LOCAL_REVIEW_V1",
                 "X-CEW-Visual-Reference-Search": "REFERENCE_FIRST_REVIEW_V1",
                 "X-CEW-Visual-Reference-Capture": "TOOLBAR_YIELD_V1",
+                "X-CEW-Local-Unit-Focus": "READING_UNIT_WORKING_VIEW_V1",
+                "X-CEW-Local-Focus-Navigation": "COLUMN_WIDTH_FIT_VERTICAL_SCROLL_V1",
+                "X-CEW-Visual-Result-Navigation": "RESULT_FOCUS_REVIEW_V1",
                 "X-CEW-Visual-Similarity": "DETERMINISTIC_LAYOUT_AWARE_V1",
                 "X-CEW-Visual-Search-Result-Action": "REVIEW_ONLY_V1",
                 "X-CEW-Visual-Search-Semantic-Authority": "NONE",
