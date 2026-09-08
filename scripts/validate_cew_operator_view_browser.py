@@ -72,8 +72,8 @@ def main() -> None:
 
             # This gate validates the working viewport only. Layout discovery and
             # teach-one propagation have their own browser gates, so seed four
-            # deterministic full-height ReadingUnits through the public runtime
-            # surface and DOM rather than re-testing whitespace segmentation here.
+            # deterministic full-height ReadingUnits rather than re-testing
+            # whitespace segmentation here.
             svg = """<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800'>
             <rect width='1200' height='800' fill='white'/>
             <g fill='none' stroke='black' stroke-width='8'>
@@ -117,11 +117,14 @@ def main() -> None:
             assert page.locator("#cew-layout-overlay .cew-layout-unit").count() == 4
             page.locator("#cew-layout-confirm").click()
             page.wait_for_function("window.CEWLayoutPhaseGate.state().confirmed === true")
-            selected = page.evaluate("window.CEWLayoutPhaseGate.selectUnit('LU-1')")
-            assert selected is True
+
+            # HVA-critical gesture: click the visible ReadingUnit itself. The old
+            # implementation kept the whole sheet miniature; the new layer must
+            # intercept that real click and open a readable working viewport.
+            page.locator("#cew-layout-overlay .cew-layout-unit").first.click()
             page.wait_for_function("window.CEWLayoutPhaseGate.state().activeUnit === 'LU-1'")
             page.wait_for_function("document.body.dataset.cewLocalFocus === 'active'")
-            page.wait_for_timeout(180)
+            page.wait_for_timeout(220)
             page.evaluate("window.CEWOperatorView.sync()")
             page.wait_for_timeout(80)
 
@@ -177,7 +180,7 @@ def main() -> None:
             proc.wait(timeout=3)
 
     print("CEW_OPERATOR_CLEAN_LOCAL_VIEW_PASS")
-    print("reading_unit=WIDTH_FIT_VERTICAL_SCROLL raw_fragments=DIAGNOSTIC_ONLY default_visible=false active_unit=PRIMARY")
+    print("reading_unit=REAL_CLICK_WIDTH_FIT_VERTICAL_SCROLL raw_fragments=DIAGNOSTIC_ONLY default_visible=false active_unit=PRIMARY")
     print("semantic_authority=NONE canonical_write=false")
 
 
