@@ -1,0 +1,42 @@
+{
+  "schema": "N12_C6_ARCH_STRUCT_CROSSCHECK_v3",
+  "date": "2026-09-09",
+  "scope": "Telaio 5 / C6 = Z-A' / architectural-structural registered cross-check",
+  "drive_assets": {
+    "architectural_300dpi": "1TgeikxhsHTiyYSivJWvrj3w6C2ujsnkR",
+    "architectural_audit_v2": "1tk5-GiL5W1tZZ0_LTfBvVR07lFPXDbH5",
+    "structural_preview_150dpi": "1slmwFprH-Sc5B9fY2LbMiBDSyBeUeIG4",
+    "crosscheck_v3": "1DnOTWszb4rzhhhzzlThCv8ujKMfUfqVc",
+    "registered_overlays_v1": "15dQOKG8s5eojAkjxAk5nSTaI1c0e-FTX"
+  },
+  "registered_pairs": [
+    {"architectural":"TAV-02","structural":"TAV-02S","good_matches":209,"ransac_inliers":166,"state":"REGISTERED_STRONG"},
+    {"architectural":"TAV-03","structural":"TAV-03S","good_matches":148,"ransac_inliers":124,"state":"REGISTERED_STRONG"},
+    {"architectural":"TAV-04","structural":"TAV-04S","good_matches":155,"ransac_inliers":128,"state":"REGISTERED_STRONG"}
+  ],
+  "findings": {
+    "special_zone": "The stair/core sector is spatially coincident with a structurally non-ordinary zone across TAV-02S, TAV-03S and TAV-04S, with inclined/offset members and short 1.20 m features.",
+    "cross_level": "The special geometry repeats in G1-G3 and changes at G4/TAV-05S.",
+    "c6_status": "RIF_STRONG_SPECIAL_ZONE",
+    "c6_numeric_line_load": "ND"
+  },
+  "tav05_candidate_caution": {
+    "C6": "Z-A'",
+    "metric_candidate": "N001-N008",
+    "candidate_length_m": 1.376,
+    "target_length_m": 1.20,
+    "status": "CANDIDATO_METRICO_SOLO",
+    "rule": "Do not promote N001-N008 to canonical C6 until direct graphical/letter binding is proven."
+  },
+  "next_gate": {
+    "id": "ARCH-C6-03",
+    "required": [
+      "bind Z and A' directly on structural source",
+      "identify incident stair/landing/edge elements",
+      "determine slab/landing spanning direction",
+      "classify distributed line load versus nodal reaction transfer"
+    ],
+    "state": "OPEN"
+  },
+  "authority": {"model_use_authorized": false, "canonical_write_authorized": false}
+}
