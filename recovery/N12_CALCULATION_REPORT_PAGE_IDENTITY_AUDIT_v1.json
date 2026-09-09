@@ -1,0 +1,27 @@
+{
+  "schema": "N12_CALCULATION_REPORT_PAGE_IDENTITY_AUDIT_v1",
+  "date": "2026-09-09",
+  "verified_historical_and_visual": ["RC-P02", "RC-P10", "RC-P13"],
+  "visible_labels_requiring_historical_reconciliation": ["4", "7", "11", "12", "14", "15"],
+  "sequence_content_candidates": ["RC-P03_CANDIDATE"],
+  "page_identity_open_groups": ["DG-NOTES", "DG-FRAME-A", "DG-FRAME-B", "DG-PLAN-TIPO-TELAI", "DG-PLAN-TIPO-TERRAZZO"],
+  "deduplication_findings": {
+    "DG-RCP10_member_count": 5,
+    "DG-RCP13_member_count": 5,
+    "DG-PLAN-COPERTURA_member_count": 4,
+    "DG-PLAN-TIPO-TELAI_member_count": 6,
+    "feature_matching_method": "ORB local-feature matching used only to establish duplicate/crop relationships; not used to assign technical semantics or historical page identity"
+  },
+  "rules": {
+    "visible_number_alone_does_not_create_historical_RC_identity": true,
+    "historical_RC_identity_requires_prior_governed_binding_or_independent_reconciliation": true,
+    "feature_matching_may_deduplicate_photographs_but_not_assign_page_semantics": true,
+    "original_bytes_immutable": true,
+    "promotion_authorized": false
+  },
+  "supersession": {
+    "N12_CALCULATION_REPORT_PHOTO_REGISTER_v2.csv": "row-level SHA-256 inventory remains valid; page-identity fields are superseded by v3 group identity states where v2 was too strong",
+    "N12_CALCULATION_REPORT_DOCUMENT_GROUPS_v3.csv": "authoritative current document grouping and page-identity state"
+  },
+  "authority_effect": "CATALOG_REFINEMENT_ONLY"
+}
