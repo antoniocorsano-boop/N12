@@ -1,5 +1,5 @@
 {
-  "schema": "N12_TELAIO5_G1_C6_RESOLUTION_v1",
+  "schema": "N12_TELAIO5_G1_C6_RESOLUTION_v2",
   "date": "2026-09-09",
   "source_group": "N12-CALC-RELATION-RC-P13",
   "source_views_reviewed": [
@@ -8,13 +8,20 @@
     "1788939776381.jpg",
     "1788939776617.jpg"
   ],
+  "human_correction": {
+    "state": "ACCEPTED_AND_TRACEABLE",
+    "previous_reading": "37-38-39-40",
+    "corrected_reading": "38-39-40-41",
+    "effect": "the 1743 kg/m group covers C4-C6; C3 (37-38) becomes the unresolved segment"
+  },
   "topology": {
     "G1_nodes": "35-36-37-38-39-40-41-42-43",
-    "C6_segment": "40-41"
+    "C3_segment": "37-38",
+    "C4_C6_node_group": "38-39-40-41"
   },
-  "directly_bound": [
+  "directly_or_human_validated_bound": [
     {"segments":"C1-C2","nodes":"35-36-37","value_kg_m":3952,"state":"RIF_HIGH"},
-    {"segments":"C3-C5","nodes":"38-39-40","value_kg_m":1743,"state":"RIF_HIGH"},
+    {"segments":"C4-C6","nodes":"38-39-40-41","value_kg_m":1743,"state":"RIF_HUMAN_VALIDATED"},
     {"segments":"C7-C8","nodes":"41-42-43","value_kg_m":3368,"state":"RIF_HIGH"}
   ],
   "unbound_documentary_values": [
@@ -22,13 +29,14 @@
     {"value_kg_m":3767,"components_kg_m":[437,1650,1680],"arithmetic_check":3767,"state":"DOC_UNBOUND"}
   ],
   "resolution": {
-    "G1_C6": "ND",
-    "reason": "No legible TRATTO/node label binds either 4537 or 3767 kg/m to segment 40-41 in the recovered RC-P13 views.",
-    "forbidden_action": "Do not choose a value from adjacency, symmetry, expected tributary width, or prior consolidation alone."
+    "G1_C6": "1743 kg/m via corrected group 38-39-40-41",
+    "G1_C3": "ND",
+    "reason": "After the user-validated correction, C6 belongs to the 38-39-40-41 group. The unresolved gap is C3 = 37-38; neither 4537 nor 3767 is yet bound to it by a legible source label.",
+    "forbidden_action": "Do not assign 4537 or 3767 to C3 without independent source binding."
   },
   "authority": {
     "model_use_authorized": false,
     "canonical_write_authorized": false,
-    "human_review_required_for_resolution": true
+    "human_review_required_for_unresolved_C3": true
   }
 }
