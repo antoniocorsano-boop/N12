@@ -1,0 +1,73 @@
+{
+  "schema": "N12_SOURCE_RECOVERY_STATE_v1",
+  "date": "2026-09-09",
+  "scope": "Historical calculation-report source recovery, especially RC-P10 and RC-P13",
+  "state": {
+    "repository_binary_persistence_mechanism_proven": true,
+    "chat_source_binary_ingestion_gap_proven": true,
+    "rc_p13_repository_reference_proven": true,
+    "historical_12_photo_recovery_queue_proven": true,
+    "rc_p10_original_bytes_recovered": false,
+    "rc_p13_original_bytes_recovered": false,
+    "rc_p10_rc_p13_never_saved": "NOT_PROVEN"
+  },
+  "direct_findings": {
+    "original_relation_page2": {
+      "source_reference": "USER_UPLOAD_ORIGINAL_CALCULATION_RELATION_PAGE_2_2026-08-22",
+      "format": "PNG",
+      "width_px": 1305,
+      "height_px": 1740,
+      "sha256": "8728e4d09d5dd3b9c5ce34a5a75bd52dd889e9c55d28991d2b6a35dabdb1a66b",
+      "binary_state": "CONVERSATION_PROVIDED_PENDING_REPOSITORY_BINARY_INGESTION"
+    },
+    "m1f_external_evidence": {
+      "task_id": "M1F-EXT-005",
+      "status": "READY_ON_NEW_SOURCE",
+      "preferred_route": "Recover the previously photographed 12 calculation pages or the complete historical calculation dossier"
+    },
+    "m1f_pr": {
+      "pr": 39,
+      "merged": true,
+      "base": "work/m0-global-model",
+      "merge_commit": "c486f30c92c48f0a87279b00a1ddbeb6c570f5d6"
+    },
+    "fpep_source_identity": {
+      "pr": 22,
+      "merged": true,
+      "source_type": "REPOSITORY_IMMUTABLE_BINARY"
+    },
+    "fpep_hires": {
+      "pr": 23,
+      "merged": true,
+      "input_source": "archive/originali-alta-risoluzione repository binary",
+      "pr_head_actions_artifacts": 0
+    },
+    "fpep_export": {
+      "pr": 24,
+      "merged": true,
+      "pr_head_actions_artifacts": 0
+    },
+    "github_releases": {
+      "count": 0,
+      "consolidated_zip_release_path_found": false
+    }
+  },
+  "already_excluded_as_rc_p10_rc_p13_container": [
+    "n12-hires-structural-sources artifact",
+    "n12-hires-tav04arch artifact",
+    "storey-source-renders-v1 artifact",
+    "archive/originali-alta-risoluzione recursive tree by identifiable source path",
+    "FPEP P02/P03 PR-head workflow artifacts",
+    "GitHub Releases"
+  ],
+  "authority_boundary": {
+    "derived_transcriptions_may_replace_source_bytes": false,
+    "canonical_telaio5_data_may_replace_source_bytes": false,
+    "kg_g5_unlock_authorized": false
+  },
+  "next_high_value_search": [
+    "Historical chat attachment/object identifiers for the 12 photographed calculation pages",
+    "Any still-live Actions run not tied to FPEP P02/P03 whose job name indicates upload, snapshot, source, evidence, recovery or archive",
+    "External immutable storage locator if one was recorded outside Git"
+  ]
+}
