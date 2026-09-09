@@ -1,0 +1,49 @@
+name: N12 Render Structural Plans Preview
+
+on:
+  push:
+    branches:
+      - recovery/source-evidence-forensic-audit-v1
+    paths:
+      - .github/workflows/n12-render-structural-plans-preview.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+      - name: Materialize structural PDFs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/pdf out/preview
+          git fetch origin archive/originali-alta-risoluzione:refs/remotes/origin/archive/originali-alta-risoluzione
+          git show 'origin/archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola2-2.pdf' > out/pdf/TAV-02S.pdf
+          git show 'origin/archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola3-2.pdf' > out/pdf/TAV-03S.pdf
+          git show 'origin/archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola4-2.pdf' > out/pdf/TAV-04S.pdf
+          git show 'origin/archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola 5.pdf' > out/pdf/TAV-05S.pdf
+          sha256sum out/pdf/*.pdf > out/SHA256SUMS.txt
+      - name: Fast preview render
+        shell: bash
+        run: |
+          set -euo pipefail
+          for pdf in out/pdf/TAV-0*S.pdf; do
+            base=$(basename "$pdf" .pdf)
+            mkdir -p "out/preview/$base"
+            pdftoppm -jpeg -r 150 -jpegopt quality=88 "$pdf" "out/preview/$base/page"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: n12-structural-tav02s-tav05s-preview-150dpi
+          path: out/
+          if-no-files-found: error
+          retention-days: 30
