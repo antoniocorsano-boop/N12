@@ -19,6 +19,14 @@
     "repository_manifest_status": "REGISTERED",
     "repository_binary_ingestion": "NOT_REQUIRED_FOR_REDUNDANCY_GATE_WHILE_IMMUTABLE_DRIVE_COPY_AND_HASHED_BUNDLE_EXIST"
   },
+  "catalog_backups": {
+    "inventory_csv_drive_id": "10V_3hPhabXb2QWnBdTzJsKPXV6TvwTNe",
+    "visual_classification_csv_drive_id": "1UzrZXVCMQ-yPaiLK9fTyLjqMO_oyvCTq",
+    "photo_register_csv_drive_id": "1z7MKxhGQtRsxr79bKL4aPJhYo71jVZ2g",
+    "duplicate_groups_csv_drive_id": "1dbYd4tV3Dyu8xR5JhrNFPRBYCWdZl2P1",
+    "calculation_report_register_json_drive_id": "1HlaiOX9mA_i2eFj7rpe8GWbYSreb_oGv",
+    "status": "PERSISTED_REDUNDANT_METADATA"
+  },
   "identified_primary_sources": [
     {
       "historical_id": "RC-P10",
@@ -41,6 +49,13 @@
       "source_chain_registered": true
     }
   ],
+  "duplicate_photo_groups": {
+    "rule": "Multiple photographs of the same sheet are corroborating views of one documentary source and must never be counted as independent facts.",
+    "high_confidence_groups": 10,
+    "medium_confidence_groups": 2,
+    "group_ids": ["DG-01","DG-02","DG-03","DG-04","DG-05","DG-06","DG-07","DG-08","DG-09","DG-10","DG-11","DG-12"],
+    "full_membership_register": "Drive file 1dbYd4tV3Dyu8xR5JhrNFPRBYCWdZl2P1"
+  },
   "authority": {
     "original_zip_is_primary_recovery_container": true,
     "individual_jpg_hashes_required_before_ingestion": true,
@@ -52,12 +67,15 @@
     "source_bytes_must_be_persisted_before_interpretive_promotion": true,
     "every_derived_asset_must_reference_source_sha256": true,
     "transient_chat_attachment_is_not_a_persistent_source": true,
-    "minimum_redundancy": "hashed immutable source bundle plus independent persistent backup plus repository manifest"
+    "minimum_redundancy": "hashed immutable source bundle plus independent persistent backup plus repository manifest",
+    "unknown_page_identity_must_remain_unassigned": true,
+    "duplicate_photos_must_not_duplicate_documentary_facts": true
   },
   "state_transition": {
     "RC_P10_ORIGINAL_BYTES_RECOVERED": true,
     "RC_P13_ORIGINAL_BYTES_RECOVERED": true,
     "KG_SR1_CALCULATION_SOURCE_BYTES_MATERIALIZED": "PASS_RECOVERED_HASHED_REDUNDANTLY_PERSISTED",
-    "next": "execute HO-RC-001 and HO-RC-002 against governed EvidenceRegions; continue page-level classification of remaining photographs"
+    "KG_G5_HELD_OUT_N12_INTERPRETATION": "PASS",
+    "next": "complete page-level identification of remaining photographs and build canonical calculation-report document graph without altering originals"
   }
 }
