@@ -1,0 +1,28 @@
+name: Validate N12 Calculation Report Catalog
+
+on:
+  push:
+    branches:
+      - recovery/source-evidence-forensic-audit-v1
+    paths:
+      - "recovery/N12_CALCULATION_REPORT_DOCUMENT_GROUPS_v3.csv"
+      - "recovery/N12_CALCULATION_REPORT_PAGE_IDENTITY_AUDIT_v1.json"
+      - "recovery/N12_CALCULATION_REPORT_PAGE_IDENTITY_GATE_v1.json"
+      - "recovery/N12_CALCULATION_REPORT_PHOTO_REGISTER_v2.csv"
+      - "automation/validate_n12_calculation_report_page_identity.py"
+      - ".github/workflows/validate-n12-calculation-report-catalog.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate calculation report page identity gate
+        run: python automation/validate_n12_calculation_report_page_identity.py
