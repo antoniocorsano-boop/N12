@@ -26,7 +26,9 @@
     "page_identity_audit_v1_drive_id": "1RWTbh31yslUmeTJ8imer-axy6m3mbY7e",
     "catalog_bundle_2026_09_09_drive_id": "18_5c8-rK7mjY8WwpgsMUKF2PZ0R-iLxh",
     "catalog_bundle_sha256": "889c4f9dc0b297bb39015936aef3e8d0e1736cf76f61763b985f3632b8eea5b2",
-    "status": "PERSISTED_REDUNDANT_METADATA_CURRENT_V3"
+    "source_bound_knowledge_bundle_drive_id": "1Yeu8RUEu9m3KbelJxalq7-ntOAlPqMQt",
+    "source_bound_knowledge_bundle_sha256": "ab5c91a10b3381ca20e2b7bb4ebb968101b7174f9c4ba9815a2bbcd9e55a13c1",
+    "status": "PERSISTED_REDUNDANT_METADATA_AND_SOURCE_BOUND_KNOWLEDGE"
   },
   "current_repository_catalog": {
     "row_level_hash_register": "recovery/N12_CALCULATION_REPORT_PHOTO_REGISTER_v2.csv",
@@ -36,14 +38,25 @@
     "page_identity_validator": "automation/validate_n12_calculation_report_page_identity.py",
     "page_identity_workflow_run": 34351849111,
     "page_identity_workflow_state": "SUCCESS",
+    "structural_fact_register": "recovery/knowledge/N12_STRUCTURAL_FACT_REGISTER_v1.json",
+    "structural_fact_regions": "recovery/knowledge/N12_EVIDENCE_REGIONS_RCP02_RCP10_RCP13_v1.json",
+    "structural_fact_validator": "automation/validate_n12_structural_fact_register.py",
     "all_43_photos_assigned_to_documentary_groups": true,
     "verified_historical_and_visual_page_ids": ["RC-P02", "RC-P10", "RC-P13"],
     "visible_labels_pending_historical_reconciliation": ["4", "7", "11", "12", "14", "15"],
     "sequence_content_candidates": ["RC-P03_CANDIDATE"],
+    "source_bound_structural_fact_count": 12,
+    "source_bound_fact_states": ["DOC", "RIF"],
     "minimum_independent_supports_for_RC_identity": 2,
     "feature_matching_authority": "DUPLICATE_RELATION_ONLY"
   },
   "identified_primary_sources": [
+    {
+      "historical_id": "RC-P02",
+      "filename": "1788939776853.jpg",
+      "source_chain_role": "STRUCTURAL_SYSTEM_METHOD_GEOTECH_MATERIALS",
+      "source_chain_registered": true
+    },
     {
       "historical_id": "RC-P10",
       "filename": "1788939776899.jpg",
@@ -71,7 +84,10 @@
     "minimum_redundancy": "hashed immutable source bundle plus independent persistent backup plus repository manifest",
     "unknown_page_identity_must_remain_unassigned": true,
     "visible_number_alone_does_not_create_historical_RC_identity": true,
-    "duplicate_photos_must_not_duplicate_documentary_facts": true
+    "duplicate_photos_must_not_duplicate_documentary_facts": true,
+    "DOC_requires_direct_governed_observation": true,
+    "RIF_requires_independent_support": true,
+    "ambiguous_numeric_values_must_remain_ND_until_localized": true
   },
   "state_transition": {
     "RC_P10_ORIGINAL_BYTES_RECOVERED": true,
@@ -79,6 +95,7 @@
     "KG_SR1_CALCULATION_SOURCE_BYTES_MATERIALIZED": "PASS_RECOVERED_HASHED_REDUNDANTLY_PERSISTED",
     "KG_G5_HELD_OUT_N12_INTERPRETATION": "PASS",
     "CALCULATION_REPORT_PAGE_IDENTITY_GATE": "PASS_FAIL_CLOSED",
-    "next": "reconcile remaining visible labels only when a second independent historical support is recovered; meanwhile bind verified documentary units to N12 knowledge assertions"
+    "SOURCE_BOUND_STRUCTURAL_KNOWLEDGE": "FOUNDATION_REGISTERED_12_FACTS",
+    "next": "localize and verify remaining calculation-report numerical loads, extend source-bound facts to other verified/documentary groups, and cross-bind to canonical N12 model without authorizing canonical write"
   }
 }
