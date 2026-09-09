@@ -1,0 +1,19 @@
+{
+  "schema": "N12_TELAIO5_C6_SPECIAL_CONDITION_v2",
+  "date": "2026-09-09",
+  "target": {"frame":"Telaio 5","segment":"C6","node_pair":"Z-A'","length_m":1.20},
+  "evidence": [
+    {"dimension":"SOURCE_LITERAL","source":"RC-P10 / Telaio 5","finding":"C6 corresponds to node pair Z-A' in the eight-span path.","state":"DOC/RIF"},
+    {"dimension":"PLAN_TOPOLOGY","source":"Pianta piano tipo / pianta copertura photographs","files":["1788939776314.jpg","1788939776294.jpg","1788939776258.jpg"],"finding":"Z-A' lies on/adjacent to the stair opening boundary; the stair is explicitly marked close to this node pair.","state":"RIF_STRONG"},
+    {"dimension":"CROSS_LEVEL_REPETITION","source":"RC-P13 handwritten load groups","finding":"C6 is omitted from explicit TRATTO groups at G1, G2 and G3 while surrounding spans are named.","state":"DOC_PATTERN"},
+    {"dimension":"DISCRIMINANT","finding":"C3=T-U is also 1.20 m but is included in explicit central load groups; short span length alone does not explain the C6 omission.","state":"RIF_STRONG"},
+    {"dimension":"AUTHOR_GRAMMAR","finding":"Repeated omission at the same topological position is a special-condition signal under the recovered drafting grammar.","state":"RIF_STRONG"}
+  ],
+  "interpretation": {"statement":"C6 = Z-A' is a special stair/opening-edge structural condition and must not inherit ordinary adjacent floor-load recipes automatically.","state":"RIF_STRONG","numeric_load_state":"ND"},
+  "counterfactual_checks": [
+    {"hypothesis":"omission caused by 1.20 m span length","result":"REJECTED","reason":"C3 is also 1.20 m and is explicitly included in ordinary central load groups."},
+    {"hypothesis":"ordinary residual inheritance from adjacent TRAVERSO default","result":"REJECTED_FOR_NOW","reason":"Dual-load-case grammar and repeated stair-edge omission make residual assignment unsafe."}
+  ],
+  "open_questions": ["Does C6 carry only beam self-weight, or also stair/landing/slab-edge load?","Is C6 calculated in a separate scale e balconi section/page?","Why does G4 no longer show the same omission pattern?"],
+  "authority": {"model_use_authorized":false,"canonical_write_authorized":false,"human_review_required_for_numeric_load":true}
+}
