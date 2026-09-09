@@ -1,0 +1,12 @@
+{
+  "schema": "N12_TELAIO5_LOAD_TOPOLOGY_BINDINGS_v1",
+  "authority": {"binding_class":"RIF","model_use_authorized":false,"canonical_write_authorized":false},
+  "bindings": [
+    {"binding_id":"N12-LB-001","numeric_id":"N12-NL-001","value":4642,"unit":"kg/m","visible_node_context":"gruppi 17-...-25 e 26-...-34","topology_binding":"G3 (17-25) + G2 (26-34)","binding_state":"RIF","confidence":"MEDIUM_HIGH","support":"RC-P13 numeric observation + RC-P10 node-level layout + data/canonical/telaio_5.csv","model_use_authorized":"NO"},
+    {"binding_id":"N12-LB-002","numeric_id":"N12-NL-002","value":3945,"unit":"kg/m","visible_node_context":"17-18-19;23-24-25;26-27-28;32-33-34","topology_binding":"subsets of G3 (17-25) and G2 (26-34)","binding_state":"RIF","confidence":"HIGH","support":"RC-P13 + RC-P10 + canonical Telaio 5 node groups","model_use_authorized":"NO"},
+    {"binding_id":"N12-LB-003","numeric_id":"N12-NL-003","value":1743,"unit":"kg/m","visible_node_context":"19-20-21-22;28-29-30-31;38-39-40","topology_binding":"subsets of G3 (17-25), G2 (26-34), G1 (35-43)","binding_state":"RIF","confidence":"HIGH","support":"RC-P13 + RC-P10 + canonical Telaio 5 node groups","model_use_authorized":"NO"},
+    {"binding_id":"N12-LB-004","numeric_id":"N12-NL-004","value":3952,"unit":"kg/m","visible_node_context":"35-36-37","topology_binding":"subset of G1 (35-43)","binding_state":"RIF","confidence":"HIGH","support":"RC-P13 + RC-P10 + canonical Telaio 5 node groups","model_use_authorized":"NO"},
+    {"binding_id":"N12-LB-005","numeric_id":"N12-NL-005","value":3368,"unit":"kg/m","visible_node_context":"41-42-43","topology_binding":"subset of G1 (35-43)","binding_state":"RIF","confidence":"HIGH","support":"RC-P13 + RC-P10 + canonical Telaio 5 node groups","model_use_authorized":"NO"}
+  ],
+  "rule": "Numeric value remains DOC in RC-P13; association to G-level/node family is RIF derived from cross-source topology. No load-case or finite-element assignment is authorized."
+}
