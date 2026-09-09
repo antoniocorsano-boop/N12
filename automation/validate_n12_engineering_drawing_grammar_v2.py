@@ -77,8 +77,12 @@ def held_out(case):
     cid, inp = case["case_id"], case["input"]
 
     if cid == "HO-RC-001":
-        if b.get("source_version_id") != "N12-CALC-RELATION-RC-P13-V7E2560FE": fail("HO-RC-001 wrong source")
+        if b.get("source_group_id") != "N12-CALC-RELATION-RC-P13": fail("HO-RC-001 wrong source group")
+        if b.get("source_version_id") != "N12-CALC-RELATION-RC-P13-V899F5236": fail("HO-RC-001 wrong source member")
+        if b.get("sha256") != "899f5236111e8c9689fafdf1e45c2be6660ce6675056e4293fde7187411b3753": fail("HO-RC-001 wrong source digest")
         if b.get("evidence_region_id") != "N12-CALC-RELATION-RC-P13-25X70-CANDIDATE": fail("HO-RC-001 wrong region")
+        ident = b.get("identity_support", {})
+        if ident.get("sha256") != "5ca7a2683b9a47c9da110c57b1f074d66b7c76d4dc0c6e48f8090ca32ff3c970": fail("HO-RC-001 missing corrected page-identity support")
         actual = "SECTION_DIMENSION_CANDIDATE_NEEDS_TARGET_BINDING" if inp.get("token") == "25x70" and inp.get("target_element_bound") is False else "SECTION_REVIEW_CANDIDATE"
 
     elif cid == "HO-RC-002":
