@@ -39,21 +39,27 @@
         "token": "25x70",
         "frame_context": "Telaio 5 multiple level groups",
         "target_element_bound": false,
-        "interpretation_note": "Recovered RC-P13 region contains historical 0.25 x 0.70 calculation rows, but the region alone does not bind the section to one specific beam or frame segment."
+        "interpretation_note": "Corrected RC-P13 SourceGroup contains historical 0.25 x 0.70 calculation rows. The bound detail photograph supports the dimension candidate but does not bind it to one specific beam or frame segment."
       },
       "forbidden_outputs": ["BEAM_SECTION_ASSERTION", "CANONICAL_SECTION_ASSIGNMENT", "STRUCTURAL_IDENTITY"],
       "required_output": "SECTION_DIMENSION_CANDIDATE_NEEDS_TARGET_BINDING",
       "source_binding": {
         "source_id": "N12-CALC-RELATION-RC-P13",
-        "source_version_id": "N12-CALC-RELATION-RC-P13-V7E2560FE",
-        "sha256": "7e2560fea42bbd05a8d633576af2352ea079b2565362b876fbc35bd793ede911",
-        "original_filename": "1788939776582.jpg",
+        "source_group_id": "N12-CALC-RELATION-RC-P13",
+        "source_version_id": "N12-CALC-RELATION-RC-P13-V899F5236",
+        "sha256": "899f5236111e8c9689fafdf1e45c2be6660ce6675056e4293fde7187411b3753",
+        "original_filename": "1788939776361.jpg",
         "page_id": "N12-CALC-RELATION-RC-P13-PAGE-001",
         "page_index": 0,
         "page_size_px": [1440, 1080],
         "evidence_region_id": "N12-CALC-RELATION-RC-P13-25X70-CANDIDATE",
-        "evidence_region_geometry": {"type": "BBOX", "coordinate_system": "PIXEL_TOP_LEFT", "bbox": [110, 160, 650, 520]},
-        "verification_basis": "Recovered original JPEG bytes; page number 13 and historical section/load calculation content visually verified; region explicitly preserves target-binding uncertainty."
+        "evidence_region_geometry": {"type": "BBOX", "coordinate_system": "PIXEL_TOP_LEFT", "bbox": [80, 420, 720, 820]},
+        "identity_support": {
+          "filename": "1788939776381.jpg",
+          "sha256": "5ca7a2683b9a47c9da110c57b1f074d66b7c76d4dc0c6e48f8090ca32ff3c970",
+          "basis": "visible page label 13 and Telaio 5"
+        },
+        "verification_basis": "Recovered original JPEG bytes in corrected multi-photo RC-P13 SourceGroup; detail view contains 0.25 x 0.70 calculation rows, while independent page-identity view establishes page 13/Telaio 5. Duplicate views are not counted as independent documentary evidence."
       },
       "source_binding_state": "SOURCE_BOUND_READY_FOR_INTERPRETATION",
       "readiness_effect": "HELD_OUT_INTERPRETATION_EXECUTABLE"
