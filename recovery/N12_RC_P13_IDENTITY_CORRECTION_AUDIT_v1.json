@@ -1,0 +1,26 @@
+{
+  "schema": "N12_RC_P13_IDENTITY_CORRECTION_AUDIT_v1",
+  "correction_date": "2026-09-09",
+  "previous_incorrect_representative": {
+    "filename": "1788939776582.jpg",
+    "sha256": "7e2560fea42bbd05a8d633576af2352ea079b2565362b876fbc35bd793ede911"
+  },
+  "correct_rc_p13_source_group": [
+    "1788939776336.jpg",
+    "1788939776361.jpg",
+    "1788939776381.jpg",
+    "1788939776617.jpg"
+  ],
+  "page_identity_proof": {
+    "filename": "1788939776381.jpg",
+    "sha256": "5ca7a2683b9a47c9da110c57b1f074d66b7c76d4dc0c6e48f8090ca32ff3c970",
+    "visible_evidence": "handwritten page label 13 and Telaio 5"
+  },
+  "full_page_support": {
+    "filename": "1788939776617.jpg",
+    "sha256": "5c4634df4f570ae99f85b5c0ad7008baacffdbc19362916525fe47e700593b4c"
+  },
+  "effect": "All RC-P13 bindings must use the corrected SourceGroup/member SourceVersions. The previous V7E2560FE binding is deprecated.",
+  "canonical_fact_changes": "NONE_AUTOMATIC",
+  "canonical_write_authorized": false
+}
