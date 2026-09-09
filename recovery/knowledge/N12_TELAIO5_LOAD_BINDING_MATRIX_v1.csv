@@ -1,0 +1,16 @@
+level,segments,value_kg_m,state,basis
+G4,C1-C3,3760,RIF_HIGH,explicit node/segment group
+G4,C4,1743,RIF_HIGH,explicit 11-12
+G4,C5-C8,3760,RIF_HIGH,explicit node/segment group
+G3,C1-C2,3945,RIF_HIGH,explicit nodes 17-18-19
+G3,C3-C5,1743,RIF_HIGH,explicit nodes 19-20-21-22
+G3,C6,4642,RIF_CANDIDATE,general TRAVERSO residual; not explicit
+G3,C7-C8,3945,RIF_HIGH,explicit nodes 23-24-25
+G2,C1-C2,3945,RIF_HIGH,explicit nodes 26-27-28
+G2,C3-C5,1743,RIF_HIGH,explicit nodes 28-29-30-31
+G2,C6,4642,RIF_CANDIDATE,general TRAVERSO residual; not explicit
+G2,C7-C8,3945,RIF_HIGH,explicit nodes 32-33-34
+G1,C1-C2,3952,RIF_HIGH,explicit nodes 35-36-37
+G1,C3-C5,1743,RIF_HIGH,explicit nodes 38-39-40
+G1,C6,,ND,4537/3767 both DOC but unbound
+G1,C7-C8,3368,RIF_HIGH,explicit nodes 41-42-43
