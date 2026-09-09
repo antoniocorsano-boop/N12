@@ -1,0 +1,22 @@
+{
+  "schema": "N12_STAIRS_AND_BALCONIES_LOAD_SOURCE_v1",
+  "date": "2026-09-09",
+  "source": {
+    "filename": "1788939776774.jpg",
+    "visible_page": "4",
+    "section": "Scale e balconi"
+  },
+  "documentary_observations": [
+    {"item":"peso proprio","value":400,"unit":"kg/m2","state":"DOC"},
+    {"item":"sovraccarico","value":400,"unit":"kg/m2","state":"DOC"},
+    {"item":"totale carico","value":800,"unit":"kg/m2","state":"DOC"},
+    {"item":"scosse sussultorie / struttura a sbalzo","expression":"1.4 x 800","value":1120,"unit":"kg/m2","state":"DOC"}
+  ],
+  "interpretation": {
+    "statement":"The calculation report treats stairs and balconies as a separate load category from ordinary floor recipes.",
+    "state":"RIF_STRONG",
+    "effect_on_C6":"Supports, but does not prove, that stair-edge span C6 may require a separate load recipe rather than ordinary slab inheritance."
+  },
+  "forbidden": ["assign 800 or 1120 directly to C6 without tributary/binding evidence"],
+  "authority": {"model_use_authorized":false,"canonical_write_authorized":false}
+}
