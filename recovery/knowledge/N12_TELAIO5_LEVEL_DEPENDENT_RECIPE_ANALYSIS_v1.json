@@ -1,0 +1,20 @@
+{
+  "schema": "N12_TELAIO5_LEVEL_DEPENDENT_RECIPE_ANALYSIS_v1",
+  "date": "2026-09-09",
+  "observed_recipes": [
+    {"scope":"G4 side groups","sussultorie_components":[437,1485,1680,518],"sussultorie_total":4120,"ondulatorie_components":[437,1125,1680,518],"ondulatorie_total":3760,"candidate_special_component":"518 ≈ 432 x 1.20, consistent with cornice/cornicione recipe"},
+    {"scope":"G3/G2 side groups","sussultorie_components":[437,1485,1680,1040],"sussultorie_total":4642,"ondulatorie_components":[437,1125,1680,703],"ondulatorie_total":3945,"candidate_special_component":"1040 = 800 x 1.30; 703 ≈ 540 x 1.30, consistent with balcony/load-edge recipe"},
+    {"scope":"G1 left/right side groups","left_pair":[4537,3952],"right_pair":[3767,3368],"note":"No 1040/703 balcony term appears in these two G1 recipes."}
+  ],
+  "interpretation": {
+    "statement":"The author changes the load recipe by level and local façade/stair condition. G4 is not governed by the same side-load recipe as G3/G2; therefore G4 inclusion of C6 cannot be used to infer ordinary-load behavior at G1-G3.",
+    "state":"RIF_STRONG"
+  },
+  "effect_on_C6": {
+    "G1_G3":"C6 remains ND; repeated omission remains meaningful.",
+    "G4":"C6 is included in a different level-specific group and does not contradict the lower-level omission pattern.",
+    "numeric_load_authorized":false
+  },
+  "open_checks":["confirm 518 as cornicione term from source page","confirm 1040/703 as paired balcony terms from source page","map G4 to the physical storey/roof condition in canonical level registry"],
+  "authority":{"canonical_write_authorized":false,"model_use_authorized":false}
+}
