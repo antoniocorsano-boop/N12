@@ -1,5 +1,5 @@
 {
-  "schema": "N12_TELAIO5_G1_C6_RESOLUTION_v1",
+  "schema": "N12_TELAIO5_G1_C6_RESOLUTION_v3",
   "date": "2026-09-09",
   "source_group": "N12-CALC-RELATION-RC-P13",
   "source_views_reviewed": [
@@ -17,18 +17,25 @@
     {"segments":"C3-C5","nodes":"38-39-40","value_kg_m":1743,"state":"RIF_HIGH"},
     {"segments":"C7-C8","nodes":"41-42-43","value_kg_m":3368,"state":"RIF_HIGH"}
   ],
-  "unbound_documentary_values": [
-    {"value_kg_m":4537,"components_kg_m":[437,2420,1680],"arithmetic_check":4537,"state":"DOC_UNBOUND"},
+  "historical_reconciliation": {
+    "recovered_source_value": 4537,
+    "recovered_source_state": "DOC_UNBOUND_AT_IMAGE_ONLY_LEVEL",
+    "v13_support": "group 35-43 total 4537 kg/m",
+    "v16_support": "G1 C6 = 25x70 / 4537 kg/m",
+    "result": "4537 kg/m bound to G1-C6",
+    "binding_state": "RIF_HISTORICAL_RECONCILED"
+  },
+  "remaining_unbound_documentary_values": [
     {"value_kg_m":3767,"components_kg_m":[437,1650,1680],"arithmetic_check":3767,"state":"DOC_UNBOUND"}
   ],
   "resolution": {
-    "G1_C6": "ND",
-    "reason": "No legible TRATTO/node label binds either 4537 or 3767 kg/m to segment 40-41 in the recovered RC-P13 views.",
-    "forbidden_action": "Do not choose a value from adjacency, symmetry, expected tributary width, or prior consolidation alone."
+    "G1_C6": "4537 kg/m",
+    "reason": "The recovered RC-P13 views contain the 4537 kg/m total; v13 ties 4537 to the G1 node group 35-43; v16, after C1-C8 reconciliation, explicitly assigns 4537 kg/m to C6. This is a governed historical reconciliation, not a direct local label read from the recovered photo alone.",
+    "forbidden_action": "Do not use 3767 kg/m for G1-C6 without a new independent binding."
   },
   "authority": {
     "model_use_authorized": false,
     "canonical_write_authorized": false,
-    "human_review_required_for_resolution": true
+    "human_review_required_for_model_promotion": true
   }
 }
