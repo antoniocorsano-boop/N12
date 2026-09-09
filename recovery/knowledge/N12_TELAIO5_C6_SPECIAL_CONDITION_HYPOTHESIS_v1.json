@@ -1,0 +1,18 @@
+{
+  "schema":"N12_TELAIO5_C6_SPECIAL_CONDITION_HYPOTHESIS_v1",
+  "date":"2026-09-09",
+  "topology":{"C6":"Z-A' / corresponding node pairs 22-23, 31-32, 40-41"},
+  "observations":[
+    "G3 C6 is omitted from explicit TRATTO groups while C1-C5 and C7-C8 are covered.",
+    "G2 C6 is omitted in the same topological position.",
+    "G1 C6 is omitted in the same topological position.",
+    "The plan places Z-A' adjacent to the stair/opening zone.",
+    "The calculation report contains a separate Scale e balconi load section."
+  ],
+  "hypothesis":"C6 may be a deliberately special-loaded or separately treated segment associated with the stair/opening zone, rather than a simple clerical omission.",
+  "counterevidence":"At G4 the corresponding span is included in an ordinary explicit group, so the special condition may be level-dependent.",
+  "state":"RIF_CANDIDATE",
+  "required_next_evidence":["plan tributary/load path check","stair/landing support relation","search for node groups 22-23 / 31-32 / 40-41 in adjacent calculation pages"],
+  "model_use_authorized":false,
+  "canonical_write_authorized":false
+}
