@@ -1,0 +1,27 @@
+{
+  "schema": "N12_MANUAL_ANALYSIS_ASSET_REGISTRY_v1",
+  "assets": [
+    {
+      "name": "N12_MANUAL_CALCULATION_GRAMMAR_v2.zip",
+      "sha256": "df508d949e4f28d561cf4c42267b09e005d53cfe558d1d83d3de04c530666e0f",
+      "drive_id": "1RFg2VBF_IEfnb6R7mfUsCX2XAo7phuGN"
+    },
+    {
+      "name": "N12_MANUAL_ENGINEERING_DECODER_v1.zip",
+      "sha256": "17c4d79edfddac1c2ecd53ecb7b2b6deb226f2cd59f53a24a4cf25b6d4bb1f79",
+      "drive_id": "1asvcMBfmQ6rwJc7bgV6rF_k1xCSlqGNO"
+    },
+    {
+      "name": "N12_CALCULATION_AUTHOR_SIGNATURE_v1.zip",
+      "sha256": "69cd4443338555f4a366c746fc308d477983b31d55674d0ad20aa9ec2e473ad3",
+      "drive_id": "16QykRDrqbW5cRq30p9bduIqi3nXbvCvk"
+    },
+    {
+      "name": "N12_HANDWRITTEN_INTERPRETATION_SYSTEM_v1.zip",
+      "sha256": "86efe77885c38d09df4c068c03785eb7afcfc0fe8a7ce527e55342a53eff8161",
+      "drive_id": "1sfMXTpGQUOR8f_mVwq_VqqFSyPvHoO_E"
+    }
+  ],
+  "status": "PERSISTED_ON_DRIVE_WITH_LOCAL_HASH_REGISTRY",
+  "note": "Drive IDs confirm persistent upload; SHA-256 values are the hashes of the local bytes used for upload."
+}
