@@ -1,0 +1,42 @@
+{
+  "schema": "N12_C6_ARCHITECTURAL_PLAN_VISUAL_AUDIT_v2",
+  "render_provenance": {
+    "workflow_run_id": 34395128912,
+    "artifact_id": 10121202892,
+    "artifact_name": "n12-architectural-tav01-tav04-preview-150dpi",
+    "artifact_digest": "sha256:67ba54e2d7f21f043de59a923f1ab1564e15f6f6df6a3fbe55ecc426297fdca9",
+    "source_branch": "archive/originali-alta-risoluzione",
+    "render_dpi": 150
+  },
+  "source_identity": [
+    {"id":"TAV-01","title_block":"pianta interrato","class":"architettonica","state":"DOC"},
+    {"id":"TAV-02","title_block":"piano terra","class":"architettonica","state":"DOC"},
+    {"id":"TAV-03","title_block":"piano tipo","class":"architettonica","state":"DOC"},
+    {"id":"TAV-04","title_block":"piano attico","class":"architettonica","state":"DOC"}
+  ],
+  "visual_findings": [
+    {"source":"TAV-01","finding":"Scala presente nel nucleo centrale; il piano interrato ha distribuzione molto diversa dai livelli abitativi.","state":"DOC_VISUAL"},
+    {"source":"TAV-02","finding":"Al piano terra la scala è inserita nel nodo distributivo centrale, con spazi e corridoi adiacenti non equivalenti a un campo ordinario di solaio.","state":"DOC_VISUAL"},
+    {"source":"TAV-03","finding":"Il piano tipo mantiene la scala nel nucleo centrale fra le due ali; la configurazione locale è sostanzialmente coerente con il piano terra ma più regolare.","state":"DOC_VISUAL"},
+    {"source":"TAV-04","finding":"Il piano attico conserva la scala ma modifica nettamente contorno e spazi adiacenti; corpo ridotto e ampie superfici terrazzate/copertura perimetrali.","state":"DOC_VISUAL"}
+  ],
+  "cross_discipline_interpretation": {
+    "c6_statement": "Le piante architettoniche confermano che la zona centrale della scala è una condizione spaziale speciale e che la configurazione cambia ai livelli superiori.",
+    "state": "RIF_STRONG_FOR_SPECIAL_ZONE",
+    "forbidden_inference": "Non mappare automaticamente TAV-04 architettonica a G4 strutturale; il crosswalk canonico disponibile mappa G1-G5 alle carpenterie S.",
+    "numeric_c6_load": "ND"
+  },
+  "canonical_structural_crosswalk": {
+    "G1":"TAV-02S",
+    "G2":"TAV-03S",
+    "G3":"TAV-04S",
+    "G4":"TAV-05S",
+    "G5":"TAV-06S"
+  },
+  "next_gate": {
+    "id":"ARCH-C6-02",
+    "requirement":"Creare relazione spaziale evidence-backed fra nucleo scala delle tavole architettoniche e segmento strutturale Z-A' nelle carpenterie corrispondenti, senza fondere identità disciplinari.",
+    "state":"OPEN"
+  },
+  "authority": {"model_use_authorized":false,"canonical_write_authorized":false}
+}
