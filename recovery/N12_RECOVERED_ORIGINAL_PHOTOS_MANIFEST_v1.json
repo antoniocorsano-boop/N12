@@ -13,10 +13,11 @@
     "bundle_name": "N12_RECOVERY_CANONICAL_2026-09-09.zip",
     "bundle_sha256": "4afcb3adaec87813fa888d5ccea5d5ffad60df92e9a8b98d00a524d950a61a64",
     "contains": ["43 original JPG bytes", "individual SHA-256 inventory", "recovery manifest", "preservation README"],
-    "google_drive_file_id": "1OsVXN7PwEKBCOU379qU1YAcF5lGhiyvG",
-    "google_drive_status": "UPLOADED_REDUNDANT_COPY",
+    "google_drive_file_id": "1DfIzuJykFIiQJ-P9Cb1FwBfjlhbv5JL3",
+    "google_drive_upload_verified": true,
+    "google_drive_locator": "https://drive.google.com/file/d/1DfIzuJykFIiQJ-P9Cb1FwBfjlhbv5JL3/view",
     "repository_manifest_status": "REGISTERED",
-    "binary_repository_ingestion": "PENDING_DEDICATED_BINARY_UPLOAD_PATH"
+    "repository_binary_ingestion": "NOT_REQUIRED_FOR_REDUNDANCY_GATE_WHILE_IMMUTABLE_DRIVE_COPY_AND_HASHED_BUNDLE_EXIST"
   },
   "identified_primary_sources": [
     {
@@ -26,7 +27,8 @@
       "byte_size": 154618,
       "dimensions": [1440,1080],
       "identification_state": "IDENTIFIED_FROM_PAGE_MARK_AND_TECHNICAL_CONTENT",
-      "source_version_ready": true
+      "source_version_id": "N12-CALC-RELATION-RC-P10-V3DC4528D",
+      "source_chain_registered": true
     },
     {
       "historical_id": "RC-P13",
@@ -35,7 +37,8 @@
       "byte_size": 159716,
       "dimensions": [1440,1080],
       "identification_state": "IDENTIFIED_FROM_PAGE_MARK_AND_TECHNICAL_CONTENT",
-      "source_version_ready": true
+      "source_version_id": "N12-CALC-RELATION-RC-P13-V7E2560FE",
+      "source_chain_registered": true
     }
   ],
   "authority": {
@@ -49,12 +52,12 @@
     "source_bytes_must_be_persisted_before_interpretive_promotion": true,
     "every_derived_asset_must_reference_source_sha256": true,
     "transient_chat_attachment_is_not_a_persistent_source": true,
-    "minimum_redundancy": "immutable source archive plus independent backup plus repository manifest"
+    "minimum_redundancy": "hashed immutable source bundle plus independent persistent backup plus repository manifest"
   },
   "state_transition": {
     "RC_P10_ORIGINAL_BYTES_RECOVERED": true,
     "RC_P13_ORIGINAL_BYTES_RECOVERED": true,
-    "KG_SR1_CALCULATION_SOURCE_BYTES_MATERIALIZED": "RECOVERED_AND_REDUNDANTLY_BACKED_UP_PENDING_REPOSITORY_BINARY_INGESTION",
-    "next": "register SourceVersion/Page for RC-P10 and RC-P13, localize governed EvidenceRegions, execute HO-RC-001 and HO-RC-002; classify all 43 photos without altering originals"
+    "KG_SR1_CALCULATION_SOURCE_BYTES_MATERIALIZED": "PASS_RECOVERED_HASHED_REDUNDANTLY_PERSISTED",
+    "next": "execute HO-RC-001 and HO-RC-002 against governed EvidenceRegions; continue page-level classification of remaining photographs"
   }
 }
