@@ -1,0 +1,138 @@
+{
+  "schema": "N12_CALCULATION_AUTHOR_SIGNATURE_v1",
+  "created_at": "2026-09-09T14:22:52.018039+00:00",
+  "source_pages": [
+    {
+      "visible_page": "11",
+      "file": "1788939776658.jpg",
+      "title": "Telaio I-L-M-N-P-Q-R e Telaio A-B-C-D"
+    },
+    {
+      "visible_page": "12",
+      "file": "1788939776639.jpg",
+      "title": "Calcolo carichi telai"
+    },
+    {
+      "visible_page": "14",
+      "file": "1788939776599.jpg",
+      "title": "Telaio H-R-C e altri telai"
+    }
+  ],
+  "signature_rules": [
+    {
+      "id": "AS-01",
+      "name": "DUAL_SEISMIC_CASE_COLUMNS",
+      "evidence": "Page 11 explicitly labels left calculations 'sussultorie' and right calculations 'ondulatorie'. Pages 12 and 14 preserve the same paired-column arithmetic.",
+      "status": "DOC+RIF_STRONG"
+    },
+    {
+      "id": "AS-02",
+      "name": "FLOOR_LOAD_COEFFICIENT_PAIR",
+      "evidence": "Solaio terms repeatedly use 550 kg/m² on the left and 417 kg/m² on the right for the same tributary width.",
+      "status": "DOC_PATTERN"
+    },
+    {
+      "id": "AS-03",
+      "name": "SELF_WEIGHT_RECIPE",
+      "evidence": "Peso proprio is consistently section_width × section_height × 2500 kg/m³.",
+      "status": "DOC_PATTERN"
+    },
+    {
+      "id": "AS-04",
+      "name": "TRAVERSO_THEN_TRATTO",
+      "evidence": "A broader TRAVERSO node group is often followed by one or more TRATTO rows that refine subsets of the same traverso.",
+      "status": "DOC_PATTERN"
+    },
+    {
+      "id": "AS-05",
+      "name": "RECIPE_REUSE_WITHOUT_FULL_REWRITE",
+      "evidence": "Identical formulas/totals recur on different node groups and levels; later groups may rely on already established recipe structure.",
+      "status": "RIF_STRONG"
+    },
+    {
+      "id": "AS-06",
+      "name": "INVARIANT_PLUS_VARIABLE_COMPONENTS",
+      "evidence": "Paired sussultorie/ondulatorie rows retain invariant components (self-weight, tamponamento, cornice) while only selected variable terms change.",
+      "status": "DOC_PATTERN"
+    },
+    {
+      "id": "AS-07",
+      "name": "MANUAL_ROUNDING_TOLERANCE",
+      "evidence": "Examples include 417×2.50=1043, 417×4.40=1835, and 540×1.30=703, showing rounding/truncation near ±1 kg/m.",
+      "status": "DOC_PATTERN"
+    },
+    {
+      "id": "AS-08",
+      "name": "VISIBLE_CORRECTION_BEHAVIOR",
+      "evidence": "Page 12 contains handwritten correction/annotation including the word 'ERRORE'; the author may preserve the initial calculation and append a correction rather than erase the source.",
+      "status": "DOC_PATTERN"
+    },
+    {
+      "id": "AS-09",
+      "name": "MISSING_REFERENCE_IS_NOT_FREE_ASSIGNMENT",
+      "evidence": "A missing TRATTO label can only be reconstructed when arithmetic fingerprint, row alignment, node topology and repeated author convention converge.",
+      "status": "GOVERNANCE"
+    }
+  ],
+  "component_vocabulary": [
+    "peso proprio",
+    "peso solaio",
+    "peso tamponamento",
+    "peso balcone",
+    "peso cornicione",
+    "sovraccarico"
+  ],
+  "recurring_constants": [
+    {
+      "value": 2500,
+      "unit": "kg/m3",
+      "role": "concrete density in self-weight formulas"
+    },
+    {
+      "value": 550,
+      "unit": "kg/m2",
+      "role": "sussultorie floor-load coefficient"
+    },
+    {
+      "value": 417,
+      "unit": "kg/m2",
+      "role": "ondulatorie floor-load coefficient"
+    },
+    {
+      "value": 840,
+      "unit": "source-specific",
+      "role": "tamponamento recipe term"
+    },
+    {
+      "value": 800,
+      "unit": "source-specific",
+      "role": "balcony-related recipe term"
+    },
+    {
+      "value": 540,
+      "unit": "source-specific",
+      "role": "alternate balcony/load recipe term"
+    },
+    {
+      "value": 432,
+      "unit": "source-specific",
+      "role": "cornice/cornicione recipe term"
+    }
+  ],
+  "error_model": {
+    "classes": [
+      "ROUNDING_OR_TRUNCATION",
+      "ARITHMETIC_ERROR",
+      "REFERENCE_OMISSION",
+      "LABEL_SHIFT",
+      "OVERRIDDEN_CALCULATION",
+      "AUTHOR_MARKED_ERROR"
+    ],
+    "rule": "Never overwrite the literal source. Store source expression, computed expression, delta, and engineering interpretation separately."
+  },
+  "authority": {
+    "model_use_authorized": false,
+    "canonical_write_authorized": false,
+    "human_review_required": true
+  }
+}
