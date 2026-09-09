@@ -30,6 +30,26 @@
     "source_bound_knowledge_bundle_sha256": "ab5c91a10b3381ca20e2b7bb4ebb968101b7174f9c4ba9815a2bbcd9e55a13c1",
     "status": "PERSISTED_REDUNDANT_METADATA_AND_SOURCE_BOUND_KNOWLEDGE"
   },
+  "latest_package_backups": {
+    "rc_p13_corrected_binding": {
+      "file_name": "N12_RC_P13_CORRECTED_BINDING_v1.zip",
+      "sha256": "97ef31b8a291fef0550d88683f8a437f0dc79ee40bae7aa804b109650671be97",
+      "google_drive_file_id": "1JNoxbn5b8vk3gaFOf5C_35hqjcRLU9w9",
+      "drive_upload_verified": true
+    },
+    "telaio5_load_components": {
+      "file_name": "N12_TELAIO5_LOAD_COMPONENTS_v1.zip",
+      "sha256": "c2a816531e969f76f84cea2972e35d8a2470ff1bf2d5c9b61056f56fc977466c",
+      "google_drive_file_id": "1KDz5t_kIG_brgMUpFxjBeDEK4hYjCmog",
+      "drive_upload_verified": true
+    },
+    "calculation_report_catalog_v4": {
+      "file_name": "N12_CALCULATION_REPORT_CATALOG_v4.zip",
+      "sha256": "9be8a2bc55b0875099d5a1d6fcfd979ab36f4f66e4ef40232f42aeb9fc5ae3af",
+      "google_drive_file_id": "1LSYW5Xh5KolFMIGhT7hCpdzjaA-_FwVy",
+      "drive_upload_verified": true
+    }
+  },
   "current_repository_catalog": {
     "row_level_hash_register": "recovery/N12_CALCULATION_REPORT_PHOTO_REGISTER_v2.csv",
     "authoritative_document_groups": "recovery/N12_CALCULATION_REPORT_DOCUMENT_GROUPS_v3.csv",
@@ -66,9 +86,12 @@
     },
     {
       "historical_id": "RC-P13",
-      "filename": "1788939776582.jpg",
-      "sha256": "7e2560fea42bbd05a8d633576af2352ea079b2565362b876fbc35bd793ede911",
-      "source_version_id": "N12-CALC-RELATION-RC-P13-V7E2560FE",
+      "source_group_id": "N12-CALC-RELATION-RC-P13",
+      "page_identity_member": "1788939776381.jpg",
+      "full_page_member": "1788939776617.jpg",
+      "detail_members": ["1788939776336.jpg", "1788939776361.jpg"],
+      "deprecated_false_member": "1788939776582.jpg",
+      "identity_state": "SOURCE_GROUP_CORRECTED_AFTER_DIRECT_VISUAL_REVIEW",
       "source_chain_registered": true
     }
   ],
@@ -96,6 +119,7 @@
     "KG_G5_HELD_OUT_N12_INTERPRETATION": "PASS",
     "CALCULATION_REPORT_PAGE_IDENTITY_GATE": "PASS_FAIL_CLOSED",
     "SOURCE_BOUND_STRUCTURAL_KNOWLEDGE": "FOUNDATION_REGISTERED_12_FACTS",
-    "next": "localize and verify remaining calculation-report numerical loads, extend source-bound facts to other verified/documentary groups, and cross-bind to canonical N12 model without authorizing canonical write"
+    "LATEST_DERIVED_PACKAGES_PERSISTENCE": "PASS_DRIVE_PLUS_SHA256_PLUS_REPOSITORY_MANIFEST",
+    "next": "continue segment-level load binding and unresolved G1-C6 investigation without authorizing canonical write"
   }
 }
