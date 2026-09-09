@@ -1,0 +1,141 @@
+{
+  "schema": "N12_CALCULATION_REPORT_DOCUMENT_GRAPH_v1",
+  "source_bundle_sha256": "4afcb3adaec87813fa888d5ccea5d5ffad60df92e9a8b98d00a524d950a61a64",
+  "photo_count": 43,
+  "policy": {
+    "original_bytes_immutable": true,
+    "multiple_photos_of_same_sheet_are_not_independent_facts": true,
+    "unknown_page_identity_remains_unassigned": true,
+    "technical_labels_are_descriptive_until_source_bound": true,
+    "canonical_write_authorized": false
+  },
+  "document_groups": [
+    {
+      "group_id": "DG-01",
+      "members": ["1788939776457.jpg", "1788939776676.jpg", "1788939776899.jpg"],
+      "document_family": "FRAME_DIAGRAM",
+      "identified_content": "Telaio 5; axis chain S-S'-T-U-V-Z-A'-B'-C'; lower-level bay signature visible",
+      "historical_binding": "RC-P10",
+      "representative": "1788939776899.jpg",
+      "confidence": "HIGH"
+    },
+    {
+      "group_id": "DG-02",
+      "members": ["1788939776477.jpg", "1788939776690.jpg", "1788939776944.jpg"],
+      "document_family": "FRAME_DIAGRAM",
+      "identified_content": "Telaio 4; multi-level frame geometry and node numbering",
+      "historical_binding": null,
+      "representative": "1788939776477.jpg",
+      "confidence": "HIGH"
+    },
+    {
+      "group_id": "DG-03",
+      "members": ["1788939776496.jpg", "1788939776705.jpg", "1788939776969.jpg"],
+      "document_family": "FRAME_DIAGRAM",
+      "identified_content": "sheet containing Telaio 1 and Telaio 3 diagrams",
+      "historical_binding": null,
+      "representative": "1788939776496.jpg",
+      "confidence": "HIGH"
+    },
+    {
+      "group_id": "DG-04",
+      "members": ["1788939776512.jpg", "1788939776721.jpg", "1788939776994.jpg"],
+      "document_family": "FRAME_DIAGRAM",
+      "identified_content": "Telaio I-L-M-N-O-P-Q-R; multi-level frame geometry and bay dimensions",
+      "historical_binding": null,
+      "representative": "1788939776512.jpg",
+      "confidence": "HIGH"
+    },
+    {
+      "group_id": "DG-05",
+      "members": ["1788939776529.jpg", "1788939776737.jpg", "1788939777016.jpg"],
+      "document_family": "PLAN_OR_FRAME_LAYOUT",
+      "identified_content": "Pianta piano copertura; node/axis layout and stair marker",
+      "historical_binding": null,
+      "representative": "1788939776529.jpg",
+      "confidence": "HIGH"
+    },
+    {
+      "group_id": "DG-06",
+      "members": ["1788939776548.jpg", "1788939776754.jpg", "1788939777040.jpg"],
+      "document_family": "PLAN_OR_FRAME_LAYOUT",
+      "identified_content": "Pianta piano tipo - Telai; frame paths highlighted over building layout",
+      "historical_binding": "CROSS_VIEW_PLAN_SUPPORT",
+      "representative": "1788939776548.jpg",
+      "confidence": "HIGH"
+    },
+    {
+      "group_id": "DG-07",
+      "members": ["1788939776774.jpg", "1788939777060.jpg"],
+      "document_family": "CALCULATION_SHEET",
+      "identified_content": "historical calculation/material-data sheet",
+      "historical_binding": null,
+      "representative": "1788939776774.jpg",
+      "confidence": "HIGH"
+    },
+    {
+      "group_id": "DG-08",
+      "members": ["1788939776798.jpg", "1788939777081.jpg"],
+      "document_family": "TEXTUAL_REPORT_PAGE",
+      "identified_content": "typed/handwritten report page",
+      "historical_binding": null,
+      "representative": "1788939776798.jpg",
+      "confidence": "HIGH"
+    },
+    {
+      "group_id": "DG-09",
+      "members": ["1788939776823.jpg", "1788939777109.jpg"],
+      "document_family": "CALCULATION_TABLE",
+      "identified_content": "calculation table with highlighted values",
+      "historical_binding": null,
+      "representative": "1788939776823.jpg",
+      "confidence": "HIGH"
+    },
+    {
+      "group_id": "DG-10",
+      "members": ["1788939776853.jpg", "1788939777138.jpg"],
+      "document_family": "TEXTUAL_REPORT_PAGE",
+      "identified_content": "dense handwritten report/calculation page",
+      "historical_binding": null,
+      "representative": "1788939776853.jpg",
+      "confidence": "HIGH"
+    },
+    {
+      "group_id": "DG-11",
+      "members": ["1788939776294.jpg", "1788939776314.jpg"],
+      "document_family": "PLAN_OR_FRAME_LAYOUT",
+      "identified_content": "same highlighted layout, different crop",
+      "historical_binding": null,
+      "representative": "1788939776314.jpg",
+      "confidence": "MEDIUM"
+    },
+    {
+      "group_id": "DG-12",
+      "members": ["1788939776336.jpg", "1788939776361.jpg"],
+      "document_family": "CALCULATION_SHEET",
+      "identified_content": "strongly overlapping calculation content; exact same-page identity still to verify",
+      "historical_binding": null,
+      "representative": "1788939776361.jpg",
+      "confidence": "MEDIUM"
+    }
+  ],
+  "verified_primary_pages": {
+    "RC-P10": {
+      "representative": "1788939776899.jpg",
+      "source_version_id": "N12-CALC-RELATION-RC-P10-V3DC4528D",
+      "evidence_region": "N12-CALC-RELATION-RC-P10-G5-TRUNCATION"
+    },
+    "RC-P13": {
+      "representative": "1788939776582.jpg",
+      "source_version_id": "N12-CALC-RELATION-RC-P13-V7E2560FE",
+      "evidence_region": "N12-CALC-RELATION-RC-P13-25X70-CANDIDATE"
+    }
+  },
+  "metadata_backups": {
+    "inventory_drive_id": "10V_3hPhabXb2QWnBdTzJsKPXV6TvwTNe",
+    "visual_classification_drive_id": "1UzrZXVCMQ-yPaiLK9fTyLjqMO_oyvCTq",
+    "photo_register_drive_id": "1z7MKxhGQtRsxr79bKL4aPJhYo71jVZ2g",
+    "duplicate_groups_drive_id": "1dbYd4tV3Dyu8xR5JhrNFPRBYCWdZl2P1",
+    "register_json_drive_id": "1HlaiOX9mA_i2eFj7rpe8GWbYSreb_oGv"
+  }
+}
