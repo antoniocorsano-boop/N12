@@ -1,0 +1,43 @@
+{
+  "schema": "N12_MANUAL_FRAME_CALCULATION_GRAMMAR_v1",
+  "created_at": "2026-09-09T13:58:33.893219+00:00",
+  "purpose": "Infer the drafting logic of the handwritten Telaio 5 load sheet without silently correcting the source.",
+  "rules": [
+    {
+      "rule_id": "MFG-01",
+      "name": "TRAVERSO_DEFAULT",
+      "description": "A heading TRAVERSO followed by a load build-up establishes a default line-load recipe for the node group unless later TRATTO entries override parts of it.",
+      "status": "HYPOTHESIS_STRONGLY_SUPPORTED"
+    },
+    {
+      "rule_id": "MFG-02",
+      "name": "TRATTO_OVERRIDE",
+      "description": "A TRATTO entry naming a node sequence applies to the consecutive segments spanned by those nodes and overrides the broader TRAVERSO default for those segments.",
+      "status": "SUPPORTED"
+    },
+    {
+      "rule_id": "MFG-03",
+      "name": "NODE_SEQUENCE_TO_SEGMENTS",
+      "description": "n listed nodes define n-1 consecutive beam segments. Example 37-38-39-40 = segments 37-38, 38-39, 39-40.",
+      "status": "GEOMETRIC_IDENTITY"
+    },
+    {
+      "rule_id": "MFG-04",
+      "name": "RESIDUAL_ASSIGNMENT",
+      "description": "If specific TRATTO overrides cover all but one or more segments, an earlier TRAVERSO default may apply to the uncovered residual segments, provided no later correction supersedes that default.",
+      "status": "RIF_RULE"
+    },
+    {
+      "rule_id": "MFG-05",
+      "name": "MANUAL_CORRECTION_CHAIN",
+      "description": "When the author writes a second build-up immediately after a first, accompanied by a corrective note, the second build-up is a candidate revision of the first rather than an additional independent load case.",
+      "status": "RIF_RULE"
+    },
+    {
+      "rule_id": "MFG-06",
+      "name": "DO_NOT_SILENTLY_FIX",
+      "description": "Arithmetic, labeling, omission, and drafting errors remain visible as source facts. A corrected engineering reading must be stored as an interpretation with rationale, never as a replacement of the historical text.",
+      "status": "GOVERNANCE"
+    }
+  ]
+}
