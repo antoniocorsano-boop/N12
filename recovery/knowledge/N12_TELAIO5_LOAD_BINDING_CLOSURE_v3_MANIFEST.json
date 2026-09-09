@@ -1,0 +1,26 @@
+{
+  "schema": "N12_TELAIO5_LOAD_BINDING_CLOSURE_v3_MANIFEST",
+  "date": "2026-09-09",
+  "bundle_name": "N12_TELAIO5_LOAD_BINDING_CLOSURE_v3.zip",
+  "bundle_sha256": "28388a7e4264e8fea9c7e8d3d68ed933bd6898e744c6f7b0b5cf42250d3d0ec9",
+  "current_binding_state": {
+    "G1_C6_kg_m": 4537,
+    "G1_C6_state": "RIF_HISTORICAL_RECONCILED",
+    "remaining_unbound_value_kg_m": 3767
+  },
+  "supports": [
+    "Recovered RC-P13 source group contains 4537 kg/m total",
+    "Historical v13 associates 4537 kg/m with G1 group 35-43",
+    "Historical v16 explicitly assigns G1 C6 = 25x70 / 4537 kg/m"
+  ],
+  "drive_persistence": {
+    "verified_v3_copy": false,
+    "invalid_mislabeled_drive_file_id": "1hJrMm5k8WQf3rQYogYQZMALHU2iBbP-d",
+    "invalid_file_renamed": "INVALID_DO_NOT_USE__N12_TELAIO5_LOAD_BINDING_v2_bytes_mislabeled_v3.zip",
+    "note": "Do not treat the mislabeled Drive object as v3 evidence. Persist a new v3 object only from bytes whose SHA-256 equals the bundle_sha256 above."
+  },
+  "authority": {
+    "model_use_authorized": false,
+    "canonical_write_authorized": false
+  }
+}
