@@ -27,6 +27,26 @@
     "calculation_report_register_json_drive_id": "1HlaiOX9mA_i2eFj7rpe8GWbYSreb_oGv",
     "status": "PERSISTED_REDUNDANT_METADATA"
   },
+  "current_repository_catalog": {
+    "row_level_hash_register": "recovery/N12_CALCULATION_REPORT_PHOTO_REGISTER_v2.csv",
+    "authoritative_document_groups": "recovery/N12_CALCULATION_REPORT_DOCUMENT_GROUPS_v3.csv",
+    "page_identity_audit": "recovery/N12_CALCULATION_REPORT_PAGE_IDENTITY_AUDIT_v1.json",
+    "all_43_photos_assigned_to_documentary_groups": true,
+    "verified_historical_and_visual_page_ids": ["RC-P02", "RC-P10", "RC-P13"],
+    "visible_labels_pending_historical_reconciliation": ["4", "7", "11", "12", "14", "15"],
+    "sequence_content_candidates": ["RC-P03_CANDIDATE"],
+    "feature_matching_deduplication": {
+      "method": "ORB local-feature matching",
+      "authority": "DUPLICATE_RELATION_ONLY",
+      "semantic_promotion_authorized": false,
+      "notable_results": {
+        "RC-P10_member_photos": 5,
+        "RC-P13_member_photos": 5,
+        "Pianta_piano_copertura_member_photos": 4,
+        "Pianta_piano_tipo_telai_member_photos": 6
+      }
+    }
+  },
   "identified_primary_sources": [
     {
       "historical_id": "RC-P10",
@@ -34,7 +54,7 @@
       "sha256": "3dc4528d3258d39827b245bc74ccff750ede140a0b2655a60c03241910451414",
       "byte_size": 154618,
       "dimensions": [1440,1080],
-      "identification_state": "IDENTIFIED_FROM_PAGE_MARK_AND_TECHNICAL_CONTENT",
+      "identification_state": "IDENTIFIED_FROM_HISTORICAL_ROLE_AND_TECHNICAL_CONTENT",
       "source_version_id": "N12-CALC-RELATION-RC-P10-V3DC4528D",
       "source_chain_registered": true
     },
@@ -44,18 +64,11 @@
       "sha256": "7e2560fea42bbd05a8d633576af2352ea079b2565362b876fbc35bd793ede911",
       "byte_size": 159716,
       "dimensions": [1440,1080],
-      "identification_state": "IDENTIFIED_FROM_PAGE_MARK_AND_TECHNICAL_CONTENT",
+      "identification_state": "IDENTIFIED_FROM_HISTORICAL_ROLE_AND_TECHNICAL_CONTENT",
       "source_version_id": "N12-CALC-RELATION-RC-P13-V7E2560FE",
       "source_chain_registered": true
     }
   ],
-  "duplicate_photo_groups": {
-    "rule": "Multiple photographs of the same sheet are corroborating views of one documentary source and must never be counted as independent facts.",
-    "high_confidence_groups": 10,
-    "medium_confidence_groups": 2,
-    "group_ids": ["DG-01","DG-02","DG-03","DG-04","DG-05","DG-06","DG-07","DG-08","DG-09","DG-10","DG-11","DG-12"],
-    "full_membership_register": "Drive file 1dbYd4tV3Dyu8xR5JhrNFPRBYCWdZl2P1"
-  },
   "authority": {
     "original_zip_is_primary_recovery_container": true,
     "individual_jpg_hashes_required_before_ingestion": true,
@@ -69,6 +82,7 @@
     "transient_chat_attachment_is_not_a_persistent_source": true,
     "minimum_redundancy": "hashed immutable source bundle plus independent persistent backup plus repository manifest",
     "unknown_page_identity_must_remain_unassigned": true,
+    "visible_number_alone_does_not_create_historical_RC_identity": true,
     "duplicate_photos_must_not_duplicate_documentary_facts": true
   },
   "state_transition": {
@@ -76,6 +90,6 @@
     "RC_P13_ORIGINAL_BYTES_RECOVERED": true,
     "KG_SR1_CALCULATION_SOURCE_BYTES_MATERIALIZED": "PASS_RECOVERED_HASHED_REDUNDANTLY_PERSISTED",
     "KG_G5_HELD_OUT_N12_INTERPRETATION": "PASS",
-    "next": "complete page-level identification of remaining photographs and build canonical calculation-report document graph without altering originals"
+    "next": "reconcile remaining visible page labels with historical governed evidence and bind each documentary unit to N12 knowledge assertions without altering originals"
   }
 }
