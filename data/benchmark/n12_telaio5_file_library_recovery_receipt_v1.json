@@ -1,0 +1,59 @@
+{
+  "schema": "N12_TELAIO5_FILE_LIBRARY_RECOVERY_RECEIPT_v1",
+  "audit_date": "2026-09-09",
+  "scope": "Recover original calculation-report image bytes or recoverable consolidated archives for RC-P10/RC-P13/Telaio 5 from the user File Library.",
+  "result": "TRACE_ONLY_NO_ORIGINAL_BYTES_RECOVERED",
+  "confirmed_traces": [
+    {
+      "stage": "v8",
+      "evidence": "Text trace states that 12 photographs of the original calculation report were inventoried with page identification and DOC provenance.",
+      "file_library_object": "Ripresa analisi fondazioni.txt",
+      "created_at": "2026-08-16T18:56:09Z",
+      "original_bytes_present": false,
+      "archive_bytes_present": false
+    },
+    {
+      "stage": "v16",
+      "evidence": "Text trace states that three images were used to close RC-P13, resolving G3/G2/G1 section and load patterns.",
+      "file_library_object": "Ripresa analisi fondazioni.txt",
+      "created_at": "2026-08-16T19:23:52Z",
+      "original_bytes_present": false,
+      "archive_bytes_present": false
+    },
+    {
+      "stage": "v17",
+      "evidence": "Text trace states that new images were used to close G5 as C2-C7 = 19.20 m and anchor the Telaio 5 plan chain.",
+      "file_library_object": "Ripresa analisi fondazioni.txt",
+      "created_at": "2026-08-16T19:30:49Z",
+      "original_bytes_present": false,
+      "archive_bytes_present": false
+    }
+  ],
+  "searches_performed": [
+    "RC-P13 + relazione di calcolo + fotografia originale Telaio 5",
+    "RC-P10 + relazione di calcolo + fotografia originale Telaio 5",
+    "Telaio 5 + relazione calcolo + immagini originali",
+    "3945 1743 4642 25x70 140x20 image",
+    "800x1.30 1040 540x1.30 703 image",
+    "1-7 C2-C7 19.20 photo calculation",
+    "all File Library uploads from 2026-08-16 through 2026-08-17"
+  ],
+  "negative_findings": {
+    "rc_p13_image_file": "NOT_RECOVERED",
+    "rc_p10_image_file": "NOT_RECOVERED",
+    "t5_plan_anchor_image_file": "NOT_RECOVERED",
+    "v8_consolidated_zip": "NOT_RECOVERED_AS_FILE_OBJECT",
+    "v16_consolidated_zip": "NOT_RECOVERED_AS_FILE_OBJECT",
+    "v17_consolidated_zip": "NOT_RECOVERED_AS_FILE_OBJECT"
+  },
+  "authority": {
+    "trace_confirmation_only": true,
+    "may_create_source_version": false,
+    "may_create_page": false,
+    "may_create_evidence_region": false,
+    "may_mark_held_out_case_executable": false,
+    "canonical_write_authorized": false
+  },
+  "next_required_event": "Original RC-P10/RC-P13/Telaio 5 image bytes must be re-materialized from an external original copy or re-uploaded source. On arrival, compute SHA-256 immediately and register immutable SourceVersion/Page/EvidenceRegion before interpretation.",
+  "fail_closed": true
+}

@@ -1,0 +1,101 @@
+{
+  "schema": "N12_TELAIO5_SOURCE_RECOVERY_v1",
+  "purpose": "Track recovery and materialization of original calculation-document evidence required by held-out cases HO-RC-001 and HO-RC-002.",
+  "authority": {
+    "state": "RECOVERED_SOURCE_METADATA",
+    "may_create_source_version": false,
+    "may_create_evidence_region": false,
+    "may_promote_engineering_fact": false,
+    "canonical_write_authorized": false
+  },
+  "historical_evidence_trace": {
+    "document_family": "original calculation report photographs",
+    "known_page_labels": ["RC-P10", "RC-P13"],
+    "historical_workflow": [
+      "v8 original calculation report: 12 photographs inventoried as DOC",
+      "v13 Telaio 5 structured reading",
+      "v15 geometric reconciliation",
+      "v16 RC-P13 three-image reread",
+      "v17 G5 closure and plan anchoring"
+    ],
+    "recovery_2026_09_09": {
+      "original_package": "Cew foto originali.zip",
+      "package_photo_count": 43,
+      "original_image_bytes_recovered": true,
+      "rc_p10_recovered": true,
+      "rc_p13_recovered": true,
+      "rc_p13_identity_correction": "RC-P13 is a multi-photo SourceGroup. Prior representative 1788939776582.jpg was removed after page-level visual audit.",
+      "redundant_persistence": "canonical recovery ZIP uploaded to Google Drive and repository manifests/source chains registered",
+      "authority_effect": "SOURCE_MATERIALIZATION_ONLY"
+    }
+  },
+  "repository_audit": {
+    "historical_frozen_originals_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+    "historical_result": "CALCULATION_REPORT_IMAGES_NOT_PRESENT_IN_FROZEN_ORIGINAL_DRAWING_TREE",
+    "current_recovery_result": "RC_P10_AND_RC_P13_ORIGINAL_BYTES_RECOVERED_OUTSIDE_HISTORICAL_FROZEN_TREE_AND_GOVERNED_BY_SHA256"
+  },
+  "required_source_slots": [
+    {
+      "slot_id": "CALC-RC-P13-T5-SECTIONS",
+      "expected_content": "original RC-P13 Telaio 5 section/load calculations including 25x70 and 140x20",
+      "required_for": ["HO-RC-001"],
+      "bytes_state": "PRESENT",
+      "source_group_id": "N12-CALC-RELATION-RC-P13",
+      "original_filename": "1788939776361.jpg",
+      "sha256": "899f5236111e8c9689fafdf1e45c2be6660ce6675056e4293fde7187411b3753",
+      "source_version_id": "N12-CALC-RELATION-RC-P13-V899F5236",
+      "page_id": "N12-CALC-RELATION-RC-P13-PAGE-001",
+      "evidence_region_id": "N12-CALC-RELATION-RC-P13-25X70-CANDIDATE",
+      "identity_support_filename": "1788939776381.jpg",
+      "identity_support_sha256": "5ca7a2683b9a47c9da110c57b1f074d66b7c76d4dc0c6e48f8090ca32ff3c970",
+      "state": "READY_FOR_HELD_OUT_LOCALIZATION"
+    },
+    {
+      "slot_id": "CALC-RC-P10-T5-GEOMETRY",
+      "expected_content": "original calculation-report photograph/page showing Telaio 5 geometric levels/segment numbering used to resolve G5 truncation",
+      "required_for": ["HO-RC-002"],
+      "bytes_state": "PRESENT",
+      "original_filename": "1788939776899.jpg",
+      "sha256": "3dc4528d3258d39827b245bc74ccff750ede140a0b2655a60c03241910451414",
+      "source_version_id": "N12-CALC-RELATION-RC-P10-V3DC4528D",
+      "page_id": "N12-CALC-RELATION-RC-P10-PAGE-001",
+      "evidence_region_id": "N12-CALC-RELATION-RC-P10-G5-TRUNCATION",
+      "state": "READY_FOR_HELD_OUT_LOCALIZATION"
+    },
+    {
+      "slot_id": "CALC-T5-PLAN-ANCHOR",
+      "expected_content": "original plan-type/frame photograph used to document S-S'-T-U-V-Z-A'-B'-C'",
+      "required_for": ["CROSS_VIEW_SUPPORT"],
+      "bytes_state": "MISSING",
+      "sha256": null,
+      "source_version_id": null,
+      "page_id": null,
+      "evidence_region_id": null,
+      "state": "NOT_REQUIRED_FOR_CURRENT_KG_G5_HELD_OUT_CASES"
+    }
+  ],
+  "materialization_gate": {
+    "gate_id": "KG-SR1_CALCULATION_SOURCE_BYTES_MATERIALIZED",
+    "pass_condition": "Every source slot required by a held-out case has original bytes, SHA-256, immutable SourceVersion identity and reproducible Page/EvidenceRegion binding.",
+    "current_state": "READY_FOR_HELD_OUT_LOCALIZATION",
+    "held_out_required_slots_materialized": true,
+    "canonical_write_authorized": false
+  },
+  "held_out_cases": {
+    "HO-RC-001": {
+      "fact_available": true,
+      "source_bytes_available": true,
+      "required_source_slot": "CALC-RC-P13-T5-SECTIONS",
+      "source_binding_state": "SOURCE_BOUND_READY_FOR_INTERPRETATION",
+      "state": "READY"
+    },
+    "HO-RC-002": {
+      "fact_available": true,
+      "source_bytes_available": true,
+      "required_source_slot": "CALC-RC-P10-T5-GEOMETRY",
+      "source_binding_state": "SOURCE_BOUND_READY_FOR_INTERPRETATION",
+      "state": "READY"
+    }
+  },
+  "fail_closed_rule": "Recovered original source bytes are authoritative evidence inputs; duplicate photographs of one document do not count as independent documentary evidence; historical summaries, canonical CSVs, chat transcripts and derived reports remain derivative and cannot substitute for the recovered SourceVersion/Page/EvidenceRegion chain."
+}

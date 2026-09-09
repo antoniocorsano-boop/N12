@@ -1,0 +1,43 @@
+name: Localize N12 TAV-05S 40x40 PP-OCRv6
+
+on:
+  push:
+    branches:
+      - 'work/n12-engineering-drawing-grammar-v1'
+    paths:
+      - 'scripts/localize_n12_tav05s_40x40_ppocrv6.py'
+      - '.github/workflows/localize-n12-tav05s-40x40-ppocrv6.yml'
+  pull_request:
+    paths:
+      - 'scripts/localize_n12_tav05s_40x40_ppocrv6.py'
+      - '.github/workflows/localize-n12-tav05s-40x40-ppocrv6.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  localize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned OCR stack
+        run: |
+          python -m pip install --disable-pip-version-check PyMuPDF==1.26.7 Pillow numpy
+          python -m pip install --disable-pip-version-check paddlepaddle==3.2.0 -i https://www.paddlepaddle.org.cn/packages/stable/cpu/
+          python -m pip install --disable-pip-version-check paddleocr==3.7.0
+      - name: Localize 40x40 with PP-OCRv6 medium
+        run: python scripts/localize_n12_tav05s_40x40_ppocrv6.py
+      - name: Upload locator evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: n12-tav05s-40x40-ppocrv6-locator
+          path: artifacts/n12_tav05s_40x40_ppocrv6_locator.json
+          if-no-files-found: warn

@@ -1,0 +1,40 @@
+name: Localize N12 TAV-05S 40x40
+
+on:
+  push:
+    branches:
+      - 'work/n12-engineering-drawing-grammar-v1'
+    paths:
+      - 'scripts/localize_n12_tav05s_40x40.py'
+      - '.github/workflows/localize-n12-tav05s-40x40.yml'
+      - 'data/benchmark/n12_engineering_grammar_regression_v1.json'
+  pull_request:
+    paths:
+      - 'scripts/localize_n12_tav05s_40x40.py'
+      - '.github/workflows/localize-n12-tav05s-40x40.yml'
+      - 'data/benchmark/n12_engineering_grammar_regression_v1.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  localize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned PDF extractor
+        run: python -m pip install --disable-pip-version-check PyMuPDF==1.26.7
+      - name: Localize native text token
+        run: python scripts/localize_n12_tav05s_40x40.py
+      - name: Upload locator evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: n12-tav05s-40x40-native-text-locator
+          path: artifacts/n12_tav05s_40x40_native_text_locator.json
+          if-no-files-found: error

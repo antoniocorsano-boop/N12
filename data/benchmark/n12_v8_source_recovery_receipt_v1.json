@@ -1,0 +1,56 @@
+{
+  "schema": "N12_V8_SOURCE_RECOVERY_RECEIPT_v1",
+  "audit_date": "2026-09-09",
+  "purpose": "Record the recovery status of the original 12 calculation-report photographs used to create v8 without substituting handoff text for source bytes.",
+  "authority": {
+    "state": "TRACE_ONLY_SOURCE_BYTES_NOT_RECOVERED",
+    "may_create_source_version": false,
+    "may_create_evidence_region": false,
+    "canonical_write_authorized": false
+  },
+  "v8_handoff": {
+    "file_library_id": "file_000000001f988246b73f5b9732ce5450",
+    "created_at_utc": "2026-08-16T18:56:09Z",
+    "asserted_source_count": 12,
+    "asserted_source_kind": "photographs of original calculation report",
+    "asserted_artifacts_created": [
+      "source register with page identification and DOC provenance",
+      "preliminary frame abacus",
+      "documentary metric signatures",
+      "preliminary load/section abacus",
+      "reconciliation matrix",
+      "canonical state v8"
+    ],
+    "consolidated_name": "Ariano_Irpino_Consolidato_v8_Relazione_Calcolo.zip"
+  },
+  "recovery_searches": {
+    "file_library_exact_day": "2026-08-16",
+    "queries": [
+      "Ariano_Irpino_Consolidato_v8_Relazione_Calcolo 12 fotografie relazione calcolo",
+      "RC-P10 RC-P13 relazione calcolo immagini",
+      "REGISTRO FONTI 12 fotografie RC-P10 RC-P13",
+      "STATO CANONICO v8 relazione calcolo fonti fotografie",
+      "3945 1743 4642 image",
+      "4.70 4.05 1.20 5.80 2.90 image"
+    ],
+    "file_library_result": "V8_HANDOFF_RECOVERED_SOURCE_IMAGES_AND_V8_SOURCE_REGISTER_NOT_EXPOSED_AS_STANDALONE_OBJECTS",
+    "github_query": "REGISTRO_FONTI RC-P10 RC-P13 v8 Relazione Calcolo",
+    "github_result": "NO_MATCHING_MATERIALIZED_V8_SOURCE_REGISTER_OR_CALCULATION_REPORT_IMAGE"
+  },
+  "known_downstream_trace": {
+    "rc_p10_role": "geometry/level and segment numbering source for Telaio 5",
+    "rc_p13_role": "load/section page used later to resolve 25x70 and 140x20 distributions",
+    "v15_source_count": 2,
+    "v16_source_count": 3,
+    "relationship_to_v8_photographs": "PLAUSIBLE_DERIVED_ENLARGEMENTS_OR_CROPS_NOT_PROVEN"
+  },
+  "conclusion": {
+    "v8_12_photographs_historically_proven": true,
+    "v8_source_register_historically_proven": true,
+    "v8_source_register_bytes_recovered": false,
+    "v8_photo_bytes_recovered": false,
+    "recovery_target": "historical inline chat attachment records immediately preceding 2026-08-16T18:56:09Z",
+    "kg_g5_effect": "NONE_UNTIL_PIXEL_BYTES_ARE_MATERIALIZED"
+  },
+  "fail_closed_rule": "The v8 handoff proves prior analysis and source cardinality but cannot substitute for the original photographs or their source register when creating SourceVersion/Page/EvidenceRegion objects."
+}

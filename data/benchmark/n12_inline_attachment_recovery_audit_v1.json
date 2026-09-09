@@ -1,0 +1,67 @@
+{
+  "schema": "N12_INLINE_ATTACHMENT_RECOVERY_AUDIT_v1",
+  "audit_date": "2026-09-09",
+  "scope": "Historical N12 calculation-report attachments used in v8, v15 and v16",
+  "authority": {
+    "may_create_source_version": false,
+    "may_create_evidence_region": false,
+    "canonical_write_authorized": false,
+    "engineering_authority_effect": "NONE"
+  },
+  "historically_proven_uploads": [
+    {
+      "stage": "v8",
+      "handoff_created_at_utc": "2026-08-16T18:56:09Z",
+      "count": 12,
+      "description": "photographs of the original calculation report",
+      "derived_outputs_proven": ["Registro fonti", "abaco preliminare telai", "firme metriche", "primo abaco carichi/sezioni", "matrice di riconciliazione", "Stato Canonico v8"]
+    },
+    {
+      "stage": "v15",
+      "handoff_created_at_utc": "2026-08-16T19:20:07Z",
+      "count": 2,
+      "description": "two enlargements used for Telaio 5 geometric reconciliation"
+    },
+    {
+      "stage": "v16",
+      "handoff_created_at_utc": "2026-08-16T19:23:52Z",
+      "count": 3,
+      "description": "three images used to close RC-P13 load/section interpretation"
+    }
+  ],
+  "searches_executed": {
+    "file_library_exact_day_enumeration": "2026-08-16",
+    "file_library_exact_package_names": true,
+    "file_library_semantic_text_queries": true,
+    "file_library_semantic_visual_queries": true,
+    "repository_default_branch_search": true,
+    "repository_historical_branch_and_memory_audit": true,
+    "repository_commit_history_audit": true,
+    "connected_google_drive_search": true,
+    "prior_conversation_context_search": true
+  },
+  "results": {
+    "v8_handoff_recovered": true,
+    "v15_handoff_recovered": true,
+    "v16_handoff_recovered": true,
+    "v8_register_sources_bytes_recovered": false,
+    "v8_12_image_bytes_recovered": false,
+    "v15_2_image_bytes_recovered": false,
+    "v16_3_image_bytes_recovered": false,
+    "standalone_file_library_image_objects_recovered": false,
+    "consolidated_zip_bytes_recovered": false,
+    "drive_package_recovered": false,
+    "repository_image_blob_recovered": false
+  },
+  "interpretation": {
+    "inline_attachment_hypothesis": "SUPPORTED_BY_INDEXING_BEHAVIOR_NOT_PROVEN",
+    "v15_v16_may_be_crops_of_v8_set": "PLAUSIBLE_NOT_PROVEN",
+    "source_bytes_state": "NOT_MATERIALIZED_IN_CURRENT_ACCESSIBLE_STORES"
+  },
+  "known_documentary_payload_for_future_matching": {
+    "RC-P10": ["Telaio 5 geometry", "levels G1-G5", "groups 1-7 8-16 17-25 26-34 35-43", "C1-C8", "4.70 4.05 1.20 5.80 2.90 1.20 4.05 4.70"],
+    "RC-P13": ["25x70", "140x20", "3945 kg/m", "1743 kg/m", "4642 kg/m", "3952 kg/m", "4537 kg/m", "3368 kg/m", "800x1.30", "540x1.30"]
+  },
+  "fail_closed_rule": "Historical summaries and derived data prove that source images were used, but cannot substitute for original image bytes when creating a SourceVersion or executing held-out interpretation gates.",
+  "next_authorized_action": "If original images are re-uploaded or become accessible through a historical attachment store, hash them immediately, compare against known documentary payload, register SourceVersion/Page/EvidenceRegion, then execute HO-RC-001 and HO-RC-002."
+}
