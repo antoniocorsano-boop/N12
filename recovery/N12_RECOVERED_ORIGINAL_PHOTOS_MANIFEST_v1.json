@@ -1,0 +1,59 @@
+{
+  "schema": "N12_RECOVERED_ORIGINAL_PHOTOS_MANIFEST_v1",
+  "recovery_date": "2026-09-09",
+  "package": {
+    "name": "Cew foto originali.zip",
+    "sha256": "ffcc8ca40b30e31e2643bd16caa1f66dfe737285f2d8fe5f5bb55c4b6720ad7e",
+    "byte_size": 7281693,
+    "jpg_count": 43,
+    "image_dimensions": "1440x1080",
+    "status": "ORIGINAL_BYTES_RECOVERED_USER_UPLOAD"
+  },
+  "identified_primary_sources": [
+    {
+      "historical_id": "RC-P10",
+      "filename": "1788939776899.jpg",
+      "sha256": "3dc4528d3258d39827b245bc74ccff750ede140a0b2655a60c03241910451414",
+      "byte_size": 154618,
+      "dimensions": [1440,1080],
+      "visual_basis": [
+        "page number 10 visible at upper right",
+        "Telaio 5 label visible",
+        "path S-S'-T-U-V-Z-A'-B'-C' visible",
+        "node numbering through 43 visible",
+        "bay signature 4.70-4.05-1.20-5.80-2.90-1.20-4.05-4.70 visible"
+      ],
+      "identification_state": "IDENTIFIED_FROM_PAGE_MARK_AND_TECHNICAL_CONTENT",
+      "source_version_ready": true
+    },
+    {
+      "historical_id": "RC-P13",
+      "filename": "1788939776582.jpg",
+      "sha256": "7e2560fea42bbd05a8d633576af2352ea079b2565362b876fbc35bd793ede911",
+      "byte_size": 159716,
+      "dimensions": [1440,1080],
+      "visual_basis": [
+        "page number 13 visible at upper right",
+        "frame load calculations visible",
+        "25x70 beam self-weight expression visible",
+        "1.40x0.20 beam self-weight expression visible",
+        "historical frame/load-distribution context matches RC-P13_v16 references"
+      ],
+      "identification_state": "IDENTIFIED_FROM_PAGE_MARK_AND_TECHNICAL_CONTENT",
+      "source_version_ready": true
+    }
+  ],
+  "authority": {
+    "original_zip_is_primary_recovery_container": true,
+    "individual_jpg_hashes_required_before_ingestion": true,
+    "derived_historical_transcriptions_do_not_replace_images": true,
+    "canonical_structural_write_authorized": false,
+    "engineering_authority_effect": "NONE"
+  },
+  "state_transition": {
+    "RC_P10_ORIGINAL_BYTES_RECOVERED": true,
+    "RC_P13_ORIGINAL_BYTES_RECOVERED": true,
+    "KG_SR1_CALCULATION_SOURCE_BYTES_MATERIALIZED": "PARTIAL_PASS_RC_P10_RC_P13_RECOVERED",
+    "next": "persist immutable binary objects, register SourceVersion/Page, localize governed EvidenceRegions, then execute HO-RC-001 and HO-RC-002"
+  }
+}
