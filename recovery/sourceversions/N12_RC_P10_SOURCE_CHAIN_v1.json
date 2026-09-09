@@ -1,0 +1,42 @@
+{
+  "schema": "N12_RECOVERED_SOURCE_CHAIN_v1",
+  "source_id": "N12-CALC-RELATION-RC-P10",
+  "source_version_id": "N12-CALC-RELATION-RC-P10-V3DC4528D",
+  "role": "RC-P10",
+  "original_filename": "1788939776899.jpg",
+  "media_type": "image/jpeg",
+  "byte_size": 154618,
+  "sha256": "3dc4528d3258d39827b245bc74ccff750ede140a0b2655a60c03241910451414",
+  "image_size_px": {"width": 1440, "height": 1080},
+  "source_authority": "PRIMARY_SOURCE_BYTES",
+  "identification": {
+    "state": "VISUALLY_VERIFIED",
+    "basis": [
+      "page number 10 visible",
+      "Telaio 5 visible",
+      "frame path and bay geometry consistent with historical RC-P10 usage"
+    ]
+  },
+  "page": {
+    "page_id": "N12-CALC-RELATION-RC-P10-PAGE-001",
+    "page_index": 0,
+    "coordinate_space": "PIXEL_TOP_LEFT",
+    "width": 1440,
+    "height": 1080
+  },
+  "evidence_regions": [
+    {
+      "evidence_region_id": "N12-CALC-RELATION-RC-P10-FULL",
+      "region_type": "FULL_IMAGE",
+      "bbox_px": [0, 0, 1440, 1080],
+      "bbox_normalized": [0.0, 0.0, 1.0, 1.0],
+      "status": "READY_FOR_TECHNICAL_LOCALIZATION"
+    }
+  ],
+  "preservation": {
+    "original_bytes_immutable": true,
+    "derivatives_must_reference_sha256": true,
+    "chat_attachment_is_not_persistent_authority": true,
+    "canonical_write_authorized": false
+  }
+}
