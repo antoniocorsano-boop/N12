@@ -31,6 +31,19 @@
       "bbox_px": [0, 0, 1440, 1080],
       "bbox_normalized": [0.0, 0.0, 1.0, 1.0],
       "status": "READY_FOR_TECHNICAL_LOCALIZATION"
+    },
+    {
+      "evidence_region_id": "N12-CALC-RELATION-RC-P10-G5-TRUNCATION",
+      "region_type": "TECHNICAL_COMPARISON_REGION",
+      "bbox_px": [140, 170, 1030, 430],
+      "bbox_normalized": [0.0972222222, 0.1574074074, 0.7152777778, 0.3981481481],
+      "contains": [
+        "upper Telaio 5 level truncated relative to lower level",
+        "upper-level node sequence 1-7",
+        "adjacent lower-level extension for comparison"
+      ],
+      "interpretation_boundary": "Region proves graphical truncation pattern only; mapping to C2-C7 remains a governed technical interpretation checked against frame topology and historical register.",
+      "status": "READY_FOR_HELD_OUT_INTERPRETATION"
     }
   ],
   "preservation": {
