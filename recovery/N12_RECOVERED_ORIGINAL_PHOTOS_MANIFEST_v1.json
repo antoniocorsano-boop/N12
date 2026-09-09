@@ -12,49 +12,42 @@
   "redundant_preservation": {
     "bundle_name": "N12_RECOVERY_CANONICAL_2026-09-09.zip",
     "bundle_sha256": "4afcb3adaec87813fa888d5ccea5d5ffad60df92e9a8b98d00a524d950a61a64",
-    "contains": ["43 original JPG bytes", "individual SHA-256 inventory", "recovery manifest", "preservation README"],
     "google_drive_file_id": "1DfIzuJykFIiQJ-P9Cb1FwBfjlhbv5JL3",
     "google_drive_upload_verified": true,
-    "google_drive_locator": "https://drive.google.com/file/d/1DfIzuJykFIiQJ-P9Cb1FwBfjlhbv5JL3/view",
-    "repository_manifest_status": "REGISTERED",
-    "repository_binary_ingestion": "NOT_REQUIRED_FOR_REDUNDANCY_GATE_WHILE_IMMUTABLE_DRIVE_COPY_AND_HASHED_BUNDLE_EXIST"
+    "repository_manifest_status": "REGISTERED"
   },
   "catalog_backups": {
     "inventory_csv_drive_id": "10V_3hPhabXb2QWnBdTzJsKPXV6TvwTNe",
     "visual_classification_csv_drive_id": "1UzrZXVCMQ-yPaiLK9fTyLjqMO_oyvCTq",
-    "photo_register_csv_drive_id": "1z7MKxhGQtRsxr79bKL4aPJhYo71jVZ2g",
-    "duplicate_groups_csv_drive_id": "1dbYd4tV3Dyu8xR5JhrNFPRBYCWdZl2P1",
-    "calculation_report_register_json_drive_id": "1HlaiOX9mA_i2eFj7rpe8GWbYSreb_oGv",
-    "status": "PERSISTED_REDUNDANT_METADATA"
+    "photo_register_v1_drive_id": "1z7MKxhGQtRsxr79bKL4aPJhYo71jVZ2g",
+    "duplicate_groups_v1_drive_id": "1dbYd4tV3Dyu8xR5JhrNFPRBYCWdZl2P1",
+    "calculation_report_register_v1_drive_id": "1HlaiOX9mA_i2eFj7rpe8GWbYSreb_oGv",
+    "document_groups_v3_drive_id": "1V30Af9xZEHQpHUVhky36nZMB7m-jbQiy",
+    "page_identity_audit_v1_drive_id": "1RWTbh31yslUmeTJ8imer-axy6m3mbY7e",
+    "catalog_bundle_2026_09_09_drive_id": "18_5c8-rK7mjY8WwpgsMUKF2PZ0R-iLxh",
+    "catalog_bundle_sha256": "889c4f9dc0b297bb39015936aef3e8d0e1736cf76f61763b985f3632b8eea5b2",
+    "status": "PERSISTED_REDUNDANT_METADATA_CURRENT_V3"
   },
   "current_repository_catalog": {
     "row_level_hash_register": "recovery/N12_CALCULATION_REPORT_PHOTO_REGISTER_v2.csv",
     "authoritative_document_groups": "recovery/N12_CALCULATION_REPORT_DOCUMENT_GROUPS_v3.csv",
     "page_identity_audit": "recovery/N12_CALCULATION_REPORT_PAGE_IDENTITY_AUDIT_v1.json",
+    "page_identity_gate": "recovery/N12_CALCULATION_REPORT_PAGE_IDENTITY_GATE_v1.json",
+    "page_identity_validator": "automation/validate_n12_calculation_report_page_identity.py",
+    "page_identity_workflow_run": 34351849111,
+    "page_identity_workflow_state": "SUCCESS",
     "all_43_photos_assigned_to_documentary_groups": true,
     "verified_historical_and_visual_page_ids": ["RC-P02", "RC-P10", "RC-P13"],
     "visible_labels_pending_historical_reconciliation": ["4", "7", "11", "12", "14", "15"],
     "sequence_content_candidates": ["RC-P03_CANDIDATE"],
-    "feature_matching_deduplication": {
-      "method": "ORB local-feature matching",
-      "authority": "DUPLICATE_RELATION_ONLY",
-      "semantic_promotion_authorized": false,
-      "notable_results": {
-        "RC-P10_member_photos": 5,
-        "RC-P13_member_photos": 5,
-        "Pianta_piano_copertura_member_photos": 4,
-        "Pianta_piano_tipo_telai_member_photos": 6
-      }
-    }
+    "minimum_independent_supports_for_RC_identity": 2,
+    "feature_matching_authority": "DUPLICATE_RELATION_ONLY"
   },
   "identified_primary_sources": [
     {
       "historical_id": "RC-P10",
       "filename": "1788939776899.jpg",
       "sha256": "3dc4528d3258d39827b245bc74ccff750ede140a0b2655a60c03241910451414",
-      "byte_size": 154618,
-      "dimensions": [1440,1080],
-      "identification_state": "IDENTIFIED_FROM_HISTORICAL_ROLE_AND_TECHNICAL_CONTENT",
       "source_version_id": "N12-CALC-RELATION-RC-P10-V3DC4528D",
       "source_chain_registered": true
     },
@@ -62,16 +55,11 @@
       "historical_id": "RC-P13",
       "filename": "1788939776582.jpg",
       "sha256": "7e2560fea42bbd05a8d633576af2352ea079b2565362b876fbc35bd793ede911",
-      "byte_size": 159716,
-      "dimensions": [1440,1080],
-      "identification_state": "IDENTIFIED_FROM_HISTORICAL_ROLE_AND_TECHNICAL_CONTENT",
       "source_version_id": "N12-CALC-RELATION-RC-P13-V7E2560FE",
       "source_chain_registered": true
     }
   ],
   "authority": {
-    "original_zip_is_primary_recovery_container": true,
-    "individual_jpg_hashes_required_before_ingestion": true,
     "derived_historical_transcriptions_do_not_replace_images": true,
     "canonical_structural_write_authorized": false,
     "engineering_authority_effect": "NONE"
@@ -90,6 +78,7 @@
     "RC_P13_ORIGINAL_BYTES_RECOVERED": true,
     "KG_SR1_CALCULATION_SOURCE_BYTES_MATERIALIZED": "PASS_RECOVERED_HASHED_REDUNDANTLY_PERSISTED",
     "KG_G5_HELD_OUT_N12_INTERPRETATION": "PASS",
-    "next": "reconcile remaining visible page labels with historical governed evidence and bind each documentary unit to N12 knowledge assertions without altering originals"
+    "CALCULATION_REPORT_PAGE_IDENTITY_GATE": "PASS_FAIL_CLOSED",
+    "next": "reconcile remaining visible labels only when a second independent historical support is recovered; meanwhile bind verified documentary units to N12 knowledge assertions"
   }
 }
