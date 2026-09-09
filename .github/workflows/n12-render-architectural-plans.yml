@@ -1,0 +1,57 @@
+name: N12 Render Architectural Plans
+
+on:
+  push:
+    branches:
+      - recovery/source-evidence-forensic-audit-v1
+    paths:
+      - .github/workflows/n12-render-architectural-plans.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout recovery branch with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install renderer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+
+      - name: Materialize canonical architectural PDFs from archive branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/pdf out/render
+          git fetch origin archive/originali-alta-risoluzione:refs/remotes/origin/archive/originali-alta-risoluzione
+          git show 'origin/archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1.pdf' > out/pdf/TAV-01.pdf
+          git show 'origin/archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola2.pdf' > out/pdf/TAV-02.pdf
+          git show 'origin/archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola 3.pdf' > out/pdf/TAV-03.pdf
+          git show 'origin/archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola 4.pdf' > out/pdf/TAV-04.pdf
+          sha256sum out/pdf/*.pdf | tee out/SHA256SUMS.txt
+
+      - name: Render every PDF page at 300 dpi
+        shell: bash
+        run: |
+          set -euo pipefail
+          for pdf in out/pdf/TAV-*.pdf; do
+            base=$(basename "$pdf" .pdf)
+            mkdir -p "out/render/$base"
+            pdftoppm -png -r 300 "$pdf" "out/render/$base/page"
+          done
+          find out/render -type f -name '*.png' -print | sort
+
+      - name: Upload governed render bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: n12-architectural-tav01-tav04-300dpi
+          path: out/
+          if-no-files-found: error
+          retention-days: 30
