@@ -9,6 +9,15 @@
     "image_dimensions": "1440x1080",
     "status": "ORIGINAL_BYTES_RECOVERED_USER_UPLOAD"
   },
+  "redundant_preservation": {
+    "bundle_name": "N12_RECOVERY_CANONICAL_2026-09-09.zip",
+    "bundle_sha256": "4afcb3adaec87813fa888d5ccea5d5ffad60df92e9a8b98d00a524d950a61a64",
+    "contains": ["43 original JPG bytes", "individual SHA-256 inventory", "recovery manifest", "preservation README"],
+    "google_drive_file_id": "1OsVXN7PwEKBCOU379qU1YAcF5lGhiyvG",
+    "google_drive_status": "UPLOADED_REDUNDANT_COPY",
+    "repository_manifest_status": "REGISTERED",
+    "binary_repository_ingestion": "PENDING_DEDICATED_BINARY_UPLOAD_PATH"
+  },
   "identified_primary_sources": [
     {
       "historical_id": "RC-P10",
@@ -16,13 +25,6 @@
       "sha256": "3dc4528d3258d39827b245bc74ccff750ede140a0b2655a60c03241910451414",
       "byte_size": 154618,
       "dimensions": [1440,1080],
-      "visual_basis": [
-        "page number 10 visible at upper right",
-        "Telaio 5 label visible",
-        "path S-S'-T-U-V-Z-A'-B'-C' visible",
-        "node numbering through 43 visible",
-        "bay signature 4.70-4.05-1.20-5.80-2.90-1.20-4.05-4.70 visible"
-      ],
       "identification_state": "IDENTIFIED_FROM_PAGE_MARK_AND_TECHNICAL_CONTENT",
       "source_version_ready": true
     },
@@ -32,13 +34,6 @@
       "sha256": "7e2560fea42bbd05a8d633576af2352ea079b2565362b876fbc35bd793ede911",
       "byte_size": 159716,
       "dimensions": [1440,1080],
-      "visual_basis": [
-        "page number 13 visible at upper right",
-        "frame load calculations visible",
-        "25x70 beam self-weight expression visible",
-        "1.40x0.20 beam self-weight expression visible",
-        "historical frame/load-distribution context matches RC-P13_v16 references"
-      ],
       "identification_state": "IDENTIFIED_FROM_PAGE_MARK_AND_TECHNICAL_CONTENT",
       "source_version_ready": true
     }
@@ -50,10 +45,16 @@
     "canonical_structural_write_authorized": false,
     "engineering_authority_effect": "NONE"
   },
+  "permanent_rule": {
+    "source_bytes_must_be_persisted_before_interpretive_promotion": true,
+    "every_derived_asset_must_reference_source_sha256": true,
+    "transient_chat_attachment_is_not_a_persistent_source": true,
+    "minimum_redundancy": "immutable source archive plus independent backup plus repository manifest"
+  },
   "state_transition": {
     "RC_P10_ORIGINAL_BYTES_RECOVERED": true,
     "RC_P13_ORIGINAL_BYTES_RECOVERED": true,
-    "KG_SR1_CALCULATION_SOURCE_BYTES_MATERIALIZED": "PARTIAL_PASS_RC_P10_RC_P13_RECOVERED",
-    "next": "persist immutable binary objects, register SourceVersion/Page, localize governed EvidenceRegions, then execute HO-RC-001 and HO-RC-002"
+    "KG_SR1_CALCULATION_SOURCE_BYTES_MATERIALIZED": "RECOVERED_AND_REDUNDANTLY_BACKED_UP_PENDING_REPOSITORY_BINARY_INGESTION",
+    "next": "register SourceVersion/Page for RC-P10 and RC-P13, localize governed EvidenceRegions, execute HO-RC-001 and HO-RC-002; classify all 43 photos without altering originals"
   }
 }
