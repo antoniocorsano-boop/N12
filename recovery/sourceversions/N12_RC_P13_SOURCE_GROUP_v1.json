@@ -1,0 +1,28 @@
+{
+  "schema": "N12_SOURCE_GROUP_v1",
+  "source_group_id": "N12-CALC-RELATION-RC-P13",
+  "document_identity": "RC-P13",
+  "identity_state": "VERIFIED_HISTORICAL_AND_VISUAL",
+  "document_title": "Telaio 5 — calcolo carichi/sezioni",
+  "members": [
+    {"filename":"1788939776381.jpg","sha256":"5ca7a2683b9a47c9da110c57b1f074d66b7c76d4dc0c6e48f8090ca32ff3c970","byte_size":166753,"role":"PAGE_IDENTITY_VIEW"},
+    {"filename":"1788939776617.jpg","sha256":"5c4634df4f570ae99f85b5c0ad7008baacffdbc19362916525fe47e700593b4c","byte_size":184367,"role":"FULL_PAGE_VIEW"},
+    {"filename":"1788939776336.jpg","sha256":"65501054c19a1f5e8c5fa5cd62bd3ff4de825db7c2a53709a98b3a21f10aea50","byte_size":162516,"role":"DETAIL_LOAD_VIEW"},
+    {"filename":"1788939776361.jpg","sha256":"899f5236111e8c9689fafdf1e45c2be6660ce6675056e4293fde7187411b3753","byte_size":179848,"role":"DETAIL_SECTION_LOAD_VIEW"}
+  ],
+  "identity_basis": [
+    "1788939776381.jpg visibly shows page label 13 and Telaio 5",
+    "1788939776617.jpg is a full-page photograph of the same Telaio 5 calculation sheet",
+    "1788939776336.jpg and 1788939776361.jpg are detail photographs of the same sheet"
+  ],
+  "removed_false_member": {
+    "filename":"1788939776582.jpg",
+    "sha256":"7e2560fea42bbd05a8d633576af2352ea079b2565362b876fbc35bd793ede911",
+    "reason":"content belongs to other frame-load calculations and does not establish RC-P13/Telaio 5 identity"
+  },
+  "authority": {
+    "original_bytes_immutable": true,
+    "duplicate_views_do_not_count_as_independent_documentary_evidence": true,
+    "canonical_write_authorized": false
+  }
+}
