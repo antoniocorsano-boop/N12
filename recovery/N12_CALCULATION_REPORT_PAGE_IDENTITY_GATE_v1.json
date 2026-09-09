@@ -1,0 +1,47 @@
+{
+  "schema": "N12_CALCULATION_REPORT_PAGE_IDENTITY_GATE_v1",
+  "purpose": "Prevent visible page numbers, OCR labels, crop similarity or sequence assumptions from becoming historical RC-Pxx identities without independent corroboration.",
+  "promotion_policy": {
+    "minimum_independent_supports": 2,
+    "visible_label_counts_as_support": true,
+    "historical_governed_reference_counts_as_support": true,
+    "technical_content_match_counts_as_support_only_if_independently_governed": true,
+    "duplicate_photo_or_crop_counts_as_independent_support": false,
+    "feature_matching_counts_as_identity_support": false,
+    "sequence_inference_counts_as_identity_support": false,
+    "ocr_label_alone_counts_as_identity": false
+  },
+  "verified_identities": [
+    {
+      "page_id": "RC-P02",
+      "supports": ["VISIBLE_PAGE_LABEL_2", "PRIOR_FPEP_ORIGINAL_RELATION_PAGE2_CONTENT_MATCH"],
+      "state": "VERIFIED_HISTORICAL_AND_VISUAL"
+    },
+    {
+      "page_id": "RC-P10",
+      "supports": ["HISTORICAL_RC_P10_TELAIO5_ROLE", "RECOVERED_TELAIO5_GEOMETRY_CONTENT_MATCH"],
+      "state": "VERIFIED_HISTORICAL_AND_VISUAL"
+    },
+    {
+      "page_id": "RC-P13",
+      "supports": ["HISTORICAL_RC_P13_V16_REFERENCE", "VISIBLE_PAGE_LABEL_13_AND_RECOVERED_CONTENT_MATCH"],
+      "state": "VERIFIED_HISTORICAL_AND_VISUAL"
+    }
+  ],
+  "blocked_visible_labels": [
+    {"visible_label": "4", "state": "VISIBLE_LABEL_NEEDS_HISTORICAL_RECONCILIATION"},
+    {"visible_label": "7", "state": "VISIBLE_LABEL_NEEDS_HISTORICAL_RECONCILIATION"},
+    {"visible_label": "11", "state": "VISIBLE_LABEL_NEEDS_HISTORICAL_RECONCILIATION"},
+    {"visible_label": "12", "state": "VISIBLE_LABEL_NEEDS_HISTORICAL_RECONCILIATION"},
+    {"visible_label": "14", "state": "VISIBLE_LABEL_NEEDS_HISTORICAL_RECONCILIATION"},
+    {"visible_label": "15", "state": "VISIBLE_LABEL_NEEDS_HISTORICAL_RECONCILIATION"}
+  ],
+  "candidate_identities": [
+    {"candidate": "RC-P03", "state": "SEQUENCE_AND_CONTENT_CANDIDATE_NOT_VERIFIED"}
+  ],
+  "authority": {
+    "canonical_structural_write_authorized": false,
+    "page_identity_autopromotion_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}
