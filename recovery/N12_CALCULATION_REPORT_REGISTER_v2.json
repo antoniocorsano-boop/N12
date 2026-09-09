@@ -1,0 +1,63 @@
+{
+  "schema": "N12_CALCULATION_REPORT_REGISTER_v2",
+  "date": "2026-09-09",
+  "source_bundle": {
+    "photo_count": 43,
+    "original_bundle_sha256": "4afcb3adaec87813fa888d5ccea5d5ffad60df92e9a8b98d00a524d950a61a64",
+    "persistent_drive_file_id": "1DfIzuJykFIiQJ-P9Cb1FwBfjlhbv5JL3"
+  },
+  "registers": {
+    "photo_register": "recovery/N12_CALCULATION_REPORT_PHOTO_REGISTER_v2.csv",
+    "document_groups": "recovery/N12_CALCULATION_REPORT_DOCUMENT_GROUPS_v2.csv",
+    "source_manifest": "recovery/N12_RECOVERED_ORIGINAL_PHOTOS_MANIFEST_v1.json"
+  },
+  "catalog_progress": {
+    "photos_assigned_to_document_groups": 43,
+    "photos_total": 43,
+    "unassigned_photos": [],
+    "verified_historical_page_identities": [
+      "RC-P02",
+      "RC-P04",
+      "RC-P10",
+      "RC-P11",
+      "RC-P12",
+      "RC-P13",
+      "RC-P14",
+      "RC-P15"
+    ],
+    "candidate_page_identities": ["RC-P03_CANDIDATE"],
+    "verified_frontespiece": true
+  },
+  "important_document_groups": {
+    "RC-P10": {
+      "member_photos": 5,
+      "role": "Telaio 5 — schema geometrico",
+      "technical_scope": ["nodi 1-43", "campate", "livelli", "G5 truncation"]
+    },
+    "RC-P13": {
+      "member_photos": 5,
+      "role": "Telaio 5 — calcolo carichi/sezioni",
+      "technical_scope": ["25x70", "140x20", "carichi lineari", "tratti numerati"]
+    },
+    "RC-P02": {
+      "member_photos": 2,
+      "role": "Calcoli di stabilità delle strutture",
+      "technical_scope": ["sistema strutturale", "Kani", "fondazioni", "terreno", "materiali"]
+    },
+    "RC-P04": {
+      "member_photos": 2,
+      "role": "Analisi carichi",
+      "technical_scope": ["solaio sottotetto", "tamponatura", "scale", "balconi", "travi"]
+    }
+  },
+  "rules": {
+    "photo_is_not_document_unit": true,
+    "duplicate_crops_do_not_count_as_independent_evidence": true,
+    "page_numbers_require_visible_or_historically_governed_support": true,
+    "original_bytes_immutable": true,
+    "derived_content_must_reference_source_sha256": true,
+    "promotion_authorized": false
+  },
+  "authority_effect": "DOCUMENTARY_CATALOG_ONLY",
+  "next": "complete page identity for PAGE_TO_VERIFY groups and bind each documentary unit to N12 knowledge assertions without changing original bytes"
+}
