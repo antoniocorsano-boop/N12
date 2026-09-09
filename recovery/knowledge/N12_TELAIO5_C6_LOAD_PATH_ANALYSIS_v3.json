@@ -1,0 +1,67 @@
+{
+  "schema": "N12_TELAIO5_C6_LOAD_PATH_ANALYSIS_v3",
+  "created_at": "2026-09-09",
+  "target": {
+    "frame": "Telaio 5",
+    "segment": "C6",
+    "node_pair": "Z-A'",
+    "length_m": 1.20
+  },
+  "plan_geometry": {
+    "stair_opening_primary_edge": "V-Z",
+    "c6_relation": "Z-A' is immediately adjacent to the stair/opening edge but is not itself the primary V-Z edge",
+    "source_views": ["1788939776314.jpg", "1788939776294.jpg", "1788939776258.jpg"],
+    "state": "RIF_STRONG"
+  },
+  "load_sheet_pattern": {
+    "G3_C6": "omitted from explicit TRATTO groups",
+    "G2_C6": "omitted from explicit TRATTO groups",
+    "G1_C6": "omitted from explicit TRATTO groups",
+    "G4_C6": "not omitted in the same way",
+    "interpretation": "repeated omission at G1-G3 is systematic and level-dependent",
+    "state": "DOC_PATTERN"
+  },
+  "hypotheses": [
+    {
+      "id": "C6-H1",
+      "statement": "C6 belongs to a local stair/landing transition zone for which the ordinary floor tributary-load recipe is not used.",
+      "state": "RIF_STRONG_FOR_SPECIAL_CONDITION__NUMERIC_ND"
+    },
+    {
+      "id": "C6-H2",
+      "statement": "C6 receives a separately calculated stair or landing reaction/load.",
+      "state": "RIF_CANDIDATE"
+    },
+    {
+      "id": "C6-H3",
+      "statement": "C6 carries only beam self-weight and/or a limited local edge load rather than a normal slab tributary load.",
+      "state": "RIF_CANDIDATE"
+    },
+    {
+      "id": "C6-H4",
+      "statement": "The omission is a clerical drafting error repeated at three levels.",
+      "state": "LOWER_PROBABILITY_CANDIDATE"
+    }
+  ],
+  "rejected_shortcuts": [
+    "do not inherit 4642/3945 by residual logic",
+    "do not assign 4537/3767 from neighboring rows",
+    "do not assign 800/1120 from Scale e balconi without a node/tributary relation",
+    "do not infer zero load merely because a TRATTO label is absent"
+  ],
+  "current_resolution": {
+    "structural_condition": "SPECIAL_LOCAL_CONDITION_RIF_STRONG",
+    "numeric_line_load": "ND",
+    "model_assignment_authorized": false
+  },
+  "next_required_evidence": [
+    "identify the exact Scale e balconi page and its structural target",
+    "resolve slab/landing spanning direction around V-Z-A'",
+    "search adjacent frame calculations for the same Z-A' transition geometry",
+    "check whether node Z or A' receives a concentrated stair/landing reaction rather than distributed line load"
+  ],
+  "preservation": {
+    "drive_file_id": "1q0qaf0wCneOWUrcacI11cA8UnKs45DqI",
+    "bundle_sha256": "338fe48c66e76b108f4020737667048ebef247f933082813592196f1167736b9"
+  }
+}
