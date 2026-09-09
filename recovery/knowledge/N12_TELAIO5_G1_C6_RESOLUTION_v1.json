@@ -1,41 +1,29 @@
 {
-  "schema": "N12_TELAIO5_G1_C6_RESOLUTION_v3",
+  "schema": "N12_TELAIO5_G1_C6_RESOLUTION_v4",
   "date": "2026-09-09",
   "source_group": "N12-CALC-RELATION-RC-P13",
-  "source_views_reviewed": [
-    "1788939776336.jpg",
-    "1788939776361.jpg",
-    "1788939776381.jpg",
-    "1788939776617.jpg"
-  ],
   "topology": {
     "G1_nodes": "35-36-37-38-39-40-41-42-43",
     "C6_segment": "40-41"
   },
-  "directly_bound": [
-    {"segments":"C1-C2","nodes":"35-36-37","value_kg_m":3952,"state":"RIF_HIGH"},
-    {"segments":"C3-C5","nodes":"38-39-40","value_kg_m":1743,"state":"RIF_HIGH"},
-    {"segments":"C7-C8","nodes":"41-42-43","value_kg_m":3368,"state":"RIF_HIGH"}
-  ],
-  "historical_reconciliation": {
-    "recovered_source_value": 4537,
-    "recovered_source_state": "DOC_UNBOUND_AT_IMAGE_ONLY_LEVEL",
-    "v13_support": "group 35-43 total 4537 kg/m",
-    "v16_support": "G1 C6 = 25x70 / 4537 kg/m",
-    "result": "4537 kg/m bound to G1-C6",
-    "binding_state": "RIF_HISTORICAL_RECONCILED"
+  "author_grammar_reconstruction": {
+    "C1_C2": {"nodes":"35-36-37","sussultorie_kg_m":4537,"ondulatorie_kg_m":3952},
+    "C3_C5": {"nodes":"37-38-39-40","sussultorie_kg_m":2075,"ondulatorie_kg_m":1743},
+    "C7_C8": {"nodes":"41-42-43","sussultorie_kg_m":3767,"ondulatorie_kg_m":3368}
   },
-  "remaining_unbound_documentary_values": [
-    {"value_kg_m":3767,"components_kg_m":[437,1650,1680],"arithmetic_check":3767,"state":"DOC_UNBOUND"}
-  ],
+  "deprecated_historical_reconciliation": {
+    "previous_result": "G1-C6 = 4537 kg/m",
+    "state": "DEPRECATED_BY_AUTHOR_GRAMMAR_ANALYSIS",
+    "reason": "4537 is the sussultorie counterpart of 3952 for the explicit node group 35-36-37 (C1-C2); 3767 is the sussultorie counterpart of 3368 for 41-42-43 (C7-C8). Neither value is an independent C6 load."
+  },
   "resolution": {
-    "G1_C6": "4537 kg/m",
-    "reason": "The recovered RC-P13 views contain the 4537 kg/m total; v13 ties 4537 to the G1 node group 35-43; v16, after C1-C8 reconciliation, explicitly assigns 4537 kg/m to C6. This is a governed historical reconciliation, not a direct local label read from the recovered photo alone.",
-    "forbidden_action": "Do not use 3767 kg/m for G1-C6 without a new independent binding."
+    "G1_C6": "ND",
+    "reason": "No explicit TRATTO group currently binds segment 40-41. Under the dual sussultorie/ondulatorie author grammar, the previously competing values 4537 and 3767 belong to other explicit node groups.",
+    "next_evidence": "plan geometry, adjacent-frame special-condition logic, or another source that explicitly addresses 40-41"
   },
   "authority": {
     "model_use_authorized": false,
     "canonical_write_authorized": false,
-    "human_review_required_for_model_promotion": true
+    "human_review_required_for_resolution": true
   }
 }
