@@ -24,6 +24,7 @@
       "original_image_bytes_recovered": true,
       "rc_p10_recovered": true,
       "rc_p13_recovered": true,
+      "rc_p13_identity_correction": "RC-P13 is a multi-photo SourceGroup. Prior representative 1788939776582.jpg was removed after page-level visual audit.",
       "redundant_persistence": "canonical recovery ZIP uploaded to Google Drive and repository manifests/source chains registered",
       "authority_effect": "SOURCE_MATERIALIZATION_ONLY"
     }
@@ -36,14 +37,17 @@
   "required_source_slots": [
     {
       "slot_id": "CALC-RC-P13-T5-SECTIONS",
-      "expected_content": "original RC-P13 photograph/page showing Telaio 5 section/load groups including 25x70 and 140x20",
+      "expected_content": "original RC-P13 Telaio 5 section/load calculations including 25x70 and 140x20",
       "required_for": ["HO-RC-001"],
       "bytes_state": "PRESENT",
-      "original_filename": "1788939776582.jpg",
-      "sha256": "7e2560fea42bbd05a8d633576af2352ea079b2565362b876fbc35bd793ede911",
-      "source_version_id": "N12-CALC-RELATION-RC-P13-V7E2560FE",
+      "source_group_id": "N12-CALC-RELATION-RC-P13",
+      "original_filename": "1788939776361.jpg",
+      "sha256": "899f5236111e8c9689fafdf1e45c2be6660ce6675056e4293fde7187411b3753",
+      "source_version_id": "N12-CALC-RELATION-RC-P13-V899F5236",
       "page_id": "N12-CALC-RELATION-RC-P13-PAGE-001",
       "evidence_region_id": "N12-CALC-RELATION-RC-P13-25X70-CANDIDATE",
+      "identity_support_filename": "1788939776381.jpg",
+      "identity_support_sha256": "5ca7a2683b9a47c9da110c57b1f074d66b7c76d4dc0c6e48f8090ca32ff3c970",
       "state": "READY_FOR_HELD_OUT_LOCALIZATION"
     },
     {
@@ -93,5 +97,5 @@
       "state": "READY"
     }
   },
-  "fail_closed_rule": "Recovered original source bytes are authoritative evidence inputs; historical summaries, canonical CSVs, chat transcripts and derived reports remain derivative and cannot substitute for the recovered SourceVersion/Page/EvidenceRegion chain."
+  "fail_closed_rule": "Recovered original source bytes are authoritative evidence inputs; duplicate photographs of one document do not count as independent documentary evidence; historical summaries, canonical CSVs, chat transcripts and derived reports remain derivative and cannot substitute for the recovered SourceVersion/Page/EvidenceRegion chain."
 }
