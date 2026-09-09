@@ -21,178 +21,78 @@ Extraction output never becomes structural truth directly.
 - engineering authority effect: NONE;
 - contradictory evidence fails closed and remains visible.
 
-## 1. Evidence primitives
+## Core interpretation rules
 
-The grammar consumes only source-bound primitives with page coordinates and extractor provenance.
+1. `G-RC-001`: rectangle is not automatically a column.
+2. `G-RC-002`: dimension text requires a governed dimension relation.
+3. `G-RC-003`: reinforcement callout requires target binding.
+4. `G-RC-004`: section size requires contextual binding.
+5. `G-RC-005`: topology outranks visual proximity for identity.
+6. `G-RC-006`: repeated conventions may create prototypes, not truth.
+7. `G-RC-007`: cross-view agreement strengthens; conflict blocks.
+8. `G-RC-008`: OCR confidence is not engineering confidence.
+9. `G-RC-009`: historical drafting conventions remain hypotheses until verified.
+10. `G-RC-010`: original SourceVersion/Page/EvidenceRegion remains evidentiary authority after reconstruction.
 
-### Graphic primitives
+## Knowledge provenance
 
-- LINE / POLYLINE / CURVE / RECTANGULAR_ENVELOPE
-- TEXT_RUN / TEXT_BOX
-- ARROW_OR_LEADER_CANDIDATE
-- DIMENSION_LINE_CANDIDATE
-- EXTENSION_LINE_CANDIDATE
-- HATCH_OR_FILL_CANDIDATE
-- AXIS_OR_GRIDLINE_CANDIDATE
-- CLOSED_SECTION_CONTOUR_CANDIDATE
-- REBAR_STROKE_CANDIDATE
-- STIRRUP_CONTOUR_CANDIDATE
+Promotion-relevant rules must declare one of:
 
-Primitive names are descriptive, not semantic truth.
+- `PROJECT_LEARNED`
+- `VERIFIED_REFERENCE`
+- `METHOD_RULE`
+- `HUMAN_TAUGHT_PROJECT_RULE`
 
-## 2. Technical tokens
+## Held-out N12 validation after source recovery
 
-Tokens are normalized without discarding the source string.
+On 2026-09-09 the original calculation-report photographs were recovered from `Cew foto originali.zip` and preserved with individual SHA-256 plus redundant archive.
 
-Candidate classes:
+Recovered primary sources:
 
-- numeric dimension: `25`, `70`, `3.20`, `970`;
-- diameter/rebar: `Ø14`, `Φ14`, OCR-normalized variants;
-- multiplicity: `2Ø14`, `10Φ14`;
-- spacing: `Ø8/15`, `staffe Ø8 passo 15`;
-- section dimensions: `25x70`, `40x40`, `80x20`;
-- length: `L=970`, equivalent source notation retained;
-- grid/frame labels: numeric/alphabetic/alphanumeric identifiers;
-- elevation/level tokens;
-- element/detail references.
+- `RC-P10` -> `1788939776899.jpg` -> SHA-256 `3dc4528d3258d39827b245bc74ccff750ede140a0b2655a60c03241910451414`
+- `RC-P13` -> `1788939776582.jpg` -> SHA-256 `7e2560fea42bbd05a8d633576af2352ea079b2565362b876fbc35bd793ede911`
 
-Every normalized token preserves:
+Governed source bindings:
 
-`raw_text, normalized_text, bbox, page_id, source_version_id, extractor, extractor_version, confidence`.
+- `HO-RC-001` -> `N12-CALC-RELATION-RC-P13-V7E2560FE` -> `N12-CALC-RELATION-RC-P13-PAGE-001` -> `N12-CALC-RELATION-RC-P13-25X70-CANDIDATE`
+- `HO-RC-002` -> `N12-CALC-RELATION-RC-P10-V3DC4528D` -> `N12-CALC-RELATION-RC-P10-PAGE-001` -> `N12-CALC-RELATION-RC-P10-G5-TRUNCATION`
+- `HO-RC-003` remains bound to immutable TAV-05S plus PP-OCRv6 token evidence.
 
-## 3. Relations
+Authoritative held-out corpus: `data/benchmark/n12_engineering_grammar_regression_v2.json`.
 
-No technical meaning is assigned from token shape alone. Candidate relations are explicit objects:
+Executable validator: `automation/validate_n12_engineering_drawing_grammar_v2.py`.
 
-- `NEAR`
-- `ALIGNED_WITH`
-- `BETWEEN_EXTENSION_LINES`
-- `LEADER_POINTS_TO`
-- `INSIDE_CONTOUR`
-- `CROSSES`
-- `PARALLEL_TO`
-- `PERPENDICULAR_TO`
-- `REPEATS_WITH`
-- `BELONGS_TO_DETAIL_REGION`
-- `CONTINUES_ACROSS`
-- `CORRESPONDS_ACROSS_VIEWS`
+Validated fail-closed outputs:
 
-Each relation records evidence and alternative interpretations.
+- `HO-RC-001` -> `SECTION_DIMENSION_CANDIDATE_NEEDS_TARGET_BINDING`
+- `HO-RC-002` -> `PRESERVE_DOCUMENTED_TRUNCATION`
+- `HO-RC-003` -> `TECHNICAL_TOKEN_NEEDS_CONTEXT`
 
-## 4. Interpretation rules
+GitHub Actions result:
 
-### G-RC-001 — rectangle is not automatically a column
+`KG-G5_HELD_OUT_N12_INTERPRETATION_PASS = PASS`
 
-A rectangular closed contour alone cannot assign `COLUMN`. It may represent a column footprint, beam section, detail frame, opening, annotation box, foundation element or another object. Structural type requires contextual evidence and/or explicit human teaching.
+This PASS means the grammar correctly preserves uncertainty and non-promotion semantics on the three governed held-out N12 cases. It does not authorize autonomous structural interpretation, structural identity, canonical geometry/model writes, engineering decisions or professional authority.
 
-This rule preserves a correction learned during N12 development, where superficially similar rectangles could represent beam sections rather than columns.
+## Integration with technical-PDF benchmark
 
-### G-RC-002 — dimension text requires a dimension relation
-
-A number close to an element is not an element dimension unless the system can establish a compatible relation to dimension/extension geometry or another governed reference.
-
-### G-RC-003 — reinforcement callout requires target binding
-
-A token such as `2Ø14 L=970` is initially a `REBAR_CALLOUT_CANDIDATE`. Promotion to a reinforcement assertion requires a governed target relation to a bar/group/detail plus compatible local geometry.
-
-### G-RC-004 — section size requires contextual binding
-
-A token such as `25x70` may become `SECTION_DIMENSION_CANDIDATE`, but cannot be assigned to a beam/column until its target element/detail is resolved.
-
-### G-RC-005 — topology outranks visual proximity for identity
-
-Visual proximity or similarity alone cannot establish structural identity. Identity hypotheses must be checked against topology, alignment, repeated framing logic, cross-view correspondence and project evidence.
-
-### G-RC-006 — repeated conventions can create a prototype, not truth
-
-Repeated graphic patterns may create a project-local prototype/family candidate. They do not automatically establish semantic or structural identity.
-
-### G-RC-007 — cross-view agreement strengthens, conflict blocks
-
-Agreement between plan, frame/elevation, section/detail and calculation documentation strengthens a hypothesis. Material disagreement creates an explicit contradiction requiring review; the system must not silently reconcile it.
-
-### G-RC-008 — OCR confidence is not engineering confidence
-
-OCR confidence measures recognition quality only. Engineering confidence must be separately derived from source quality, geometric relation, contextual consistency, cross-view agreement and human validation state.
-
-### G-RC-009 — drawing-era conventions are hypotheses
-
-Historical drafting conventions may guide candidate generation but cannot be assumed universal. Project-local evidence and verified references take precedence.
-
-### G-RC-010 — source authority is retained after technical reconstruction
-
-A CAD/technical reconstruction remains a derived operational representation. The original governed SourceVersion/Page/EvidenceRegion remains the evidentiary authority.
-
-## 5. Structural hypothesis object
-
-Minimum proposal contract:
-
-```json
-{
-  "hypothesis_id": "...",
-  "hypothesis_type": "BEAM|COLUMN|SLAB|FOUNDATION|REBAR|GRID|DIMENSION|OTHER",
-  "source_bindings": [],
-  "supporting_tokens": [],
-  "supporting_primitives": [],
-  "relations": [],
-  "cross_view_support": [],
-  "contradictions": [],
-  "knowledge_rules": [],
-  "project_prototype_refs": [],
-  "engineering_confidence": null,
-  "human_review_required": true,
-  "structural_identity_authorized": false,
-  "canonical_write_authorized": false,
-  "authority_effect": "NONE"
-}
-```
-
-`engineering_confidence` must not be a renamed OCR/detector score.
-
-## 6. Knowledge provenance
-
-Every rule must declare one of:
-
-- `PROJECT_LEARNED`: learned from explicit N12 evidence/correction;
-- `VERIFIED_REFERENCE`: external technical/scientific source acquired and fingerprinted;
-- `METHOD_RULE`: CEW governance/method rule;
-- `HUMAN_TAUGHT_PROJECT_RULE`: explicit project-local teaching.
-
-Rules without provenance may be used for exploration only and cannot participate in promotion gates.
-
-## 7. N12 regression cases
-
-Initial regression corpus must include at least:
-
-1. **Rectangle ambiguity** — prevent rectangle -> column shortcut; include the known beam-section correction.
-2. **G4/TAV-05S support families** — use the governed 34-support / five-family context only as expected project context, not automatic classification authority.
-3. **Beam reinforcement callout** — bind diameter/multiplicity/length tokens to the correct graphical target before any reinforcement assertion.
-4. **Foundation correspondence** — metric coincidence alone cannot establish identity; require an independent discriminant.
-5. **Frame/topology correspondence** — prefer governed connectivity/alignment over visual proximity.
-
-Regression cases used to author a rule are training cases. Readiness requires separate held-out N12 cases not used to create the rule.
-
-## 8. Integration with technical-PDF benchmark
-
-PR #131 extractor benchmark remains upstream.
+PR #131 remains upstream for extractor evaluation.
 
 Recommended pipeline:
 
-- PyMuPDF: PDF/source/provenance baseline and first native vector/text extraction;
-- pdfcadcore/ezdxf branch: vector/CAD-oriented reconstruction candidate;
-- PP-OCRv6-medium: primary technical-token OCR candidate;
-- eDOCr2: engineering-drawing OCR comparator;
-- PaddleOCR-VL-1.6: expensive fallback/semantic comparator where justified;
-- this grammar: interpretation layer consuming extractor outputs without granting them authority.
+- PyMuPDF for source/provenance baseline and native PDF geometry/text;
+- pdfcadcore/ezdxf-oriented reconstruction as vector/CAD candidate;
+- PP-OCRv6-medium as primary technical-token OCR candidate;
+- eDOCr2 as engineering-drawing OCR comparator;
+- PaddleOCR-VL where a more expensive semantic fallback is justified;
+- this grammar as the non-promoting interpretation layer.
 
-The benchmark should therefore measure not only character/token accuracy but **downstream relation recoverability**: whether extracted geometry and text are sufficient to reconstruct the correct technical relation.
+The benchmark should measure not only token accuracy but downstream relation recoverability.
 
-## 9. Readiness gates
+## Preservation rule
 
-- `KG-G1 EVIDENCE_SEMANTICS_PASS`: all inputs source-bound and reproducible.
-- `KG-G2 TECHNICAL_GRAMMAR_PASS`: token/primitive/relation rules replay deterministically.
-- `KG-G3 STRUCTURAL_RELATION_PASS`: hypotheses preserve topology and contradictions.
-- `KG-G4 KNOWLEDGE_PROVENANCE_PASS`: every promotion-relevant rule has governed provenance.
-- `KG-G5 HELD_OUT_N12_INTERPRETATION_PASS`: unseen N12 cases interpreted correctly enough for professional review without hidden manual reconstruction.
+No transient chat attachment may become promotion-relevant evidence before:
 
-Until KG-G5 passes, CEW remains a governed engineering interpretation assistant, not an autonomous structural interpreter.
+`original bytes -> SHA-256 -> redundant persistent archive -> SourceVersion -> Page -> EvidenceRegion`
+
+Derived text, OCR, CSVs, historical handoffs, chat summaries and generated reports cannot replace original source bytes.
