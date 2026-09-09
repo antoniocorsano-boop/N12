@@ -1,0 +1,18 @@
+{
+  "schema": "N12_TELAIO5_G1_SEGMENT_CORRECTION_RETRACTION_v1",
+  "date": "2026-09-09",
+  "status": "RETRACTED_HUMAN_CORRECTION",
+  "withdrawn_statement": "The group previously corrected to 38-39-40-41 was withdrawn by the user.",
+  "restored_state": {
+    "G1_C3_C5": "1743 kg/m on nodes 38-39-40",
+    "G1_C6": "ND",
+    "G1_C7_C8": "3368 kg/m on nodes 41-42-43",
+    "unbound_values": [4537, 3767]
+  },
+  "governance": {
+    "retracted_statement_must_not_participate_in_future_gates": true,
+    "historical_trace_retained": true,
+    "canonical_write_authorized": false,
+    "model_use_authorized": false
+  }
+}
