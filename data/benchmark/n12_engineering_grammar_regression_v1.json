@@ -1,124 +1,15 @@
 {
   "schema": "N12_ENGINEERING_GRAMMAR_REGRESSION_v1",
-  "purpose": "Separate rule-authoring cases from held-out interpretation cases and gate engineering interpretation fail-closed.",
+  "purpose": "Compatibility corpus retained for historical regression only. Authoritative held-out execution moved to v2 after source recovery.",
   "training_cases": [
-    {
-      "case_id": "TR-RC-001",
-      "name": "rectangle ambiguity",
-      "rule_refs": ["G-RC-001"],
-      "evidence_class": "PROJECT_LEARNED",
-      "input": {"primitive": "RECTANGULAR_ENVELOPE", "context": "isolated graphic rectangle"},
-      "forbidden_outputs": ["COLUMN", "BEAM", "STRUCTURAL_IDENTITY"],
-      "required_output": "AMBIGUOUS_TECHNICAL_OBJECT_CANDIDATE",
-      "source_binding_state": "KNOWN_PROJECT_CORRECTION"
-    },
-    {
-      "case_id": "TR-RC-002",
-      "name": "reinforcement callout target binding",
-      "rule_refs": ["G-RC-003", "G-RC-008"],
-      "evidence_class": "PROJECT_LEARNED",
-      "input": {"raw_text": "2Ø14 L=970", "target_relation": null},
-      "forbidden_outputs": ["REBAR_ASSERTION", "CANONICAL_ARMATURE"],
-      "required_output": "REBAR_CALLOUT_CANDIDATE",
-      "source_binding_state": "KNOWN_PROJECT_EVIDENCE"
-    },
-    {
-      "case_id": "TR-RC-003",
-      "name": "metric coincidence does not establish identity",
-      "rule_refs": ["G-RC-005", "G-RC-007"],
-      "evidence_class": "PROJECT_LEARNED",
-      "input": {"metric_signature_a": "6.25+4.65", "metric_signature_b": "6.25+4.65", "independent_discriminant": false},
-      "forbidden_outputs": ["SAME_STRUCTURAL_ELEMENT", "STRUCTURAL_IDENTITY"],
-      "required_output": "IDENTITY_HYPOTHESIS_NEEDS_SECOND_DISCRIMINANT",
-      "source_binding_state": "KNOWN_PROJECT_EVIDENCE"
-    }
+    {"case_id":"TR-RC-001","name":"rectangle ambiguity","rule_refs":["G-RC-001"],"evidence_class":"PROJECT_LEARNED","input":{"primitive":"RECTANGULAR_ENVELOPE","context":"isolated graphic rectangle"},"forbidden_outputs":["COLUMN","BEAM","STRUCTURAL_IDENTITY"],"required_output":"AMBIGUOUS_TECHNICAL_OBJECT_CANDIDATE","source_binding_state":"KNOWN_PROJECT_CORRECTION"},
+    {"case_id":"TR-RC-002","name":"reinforcement callout target binding","rule_refs":["G-RC-003","G-RC-008"],"evidence_class":"PROJECT_LEARNED","input":{"raw_text":"2Ø14 L=970","target_relation":null},"forbidden_outputs":["REBAR_ASSERTION","CANONICAL_ARMATURE"],"required_output":"REBAR_CALLOUT_CANDIDATE","source_binding_state":"KNOWN_PROJECT_EVIDENCE"},
+    {"case_id":"TR-RC-003","name":"metric coincidence does not establish identity","rule_refs":["G-RC-005","G-RC-007"],"evidence_class":"PROJECT_LEARNED","input":{"metric_signature_a":"6.25+4.65","metric_signature_b":"6.25+4.65","independent_discriminant":false},"forbidden_outputs":["SAME_STRUCTURAL_ELEMENT","STRUCTURAL_IDENTITY"],"required_output":"IDENTITY_HYPOTHESIS_NEEDS_SECOND_DISCRIMINANT","source_binding_state":"KNOWN_PROJECT_EVIDENCE"}
   ],
   "held_out_cases": [
-    {
-      "case_id": "HO-RC-001",
-      "name": "section size repeated across frame levels",
-      "rule_refs": ["G-RC-004", "G-RC-007"],
-      "input": {"token": "25x70", "frame_context": "Telaio 5 multiple level groups", "target_element_bound": false},
-      "forbidden_outputs": ["BEAM_SECTION_ASSERTION", "CANONICAL_SECTION_ASSIGNMENT"],
-      "required_output": "SECTION_DIMENSION_CANDIDATE_NEEDS_TARGET_BINDING",
-      "documentary_support": {
-        "register_ref": "docs/REGISTRO_MASTER.md#SEC-001",
-        "canonical_ref": "data/canonical/telaio_5.csv",
-        "documented_fact": "Telaio 5 G1-G4 includes 25x70 sections; source noted as relazione/RC-P13 lineage"
-      },
-      "source_binding_state": "SOURCE_BINDING_REQUIRED",
-      "binding_blocker": "immutable SourceVersion/Page/EvidenceRegion locator for the specific Telaio 5 25x70 occurrence is not yet resolved",
-      "readiness_effect": "BLOCK_KG_G5"
-    },
-    {
-      "case_id": "HO-RC-002",
-      "name": "truncated upper frame level",
-      "rule_refs": ["G-RC-005", "G-RC-007"],
-      "input": {"full_frame_segments": "C1-C8", "upper_level_segments": "C2-C7", "visual_completion_allowed": false},
-      "forbidden_outputs": ["SYNTHESIZE_C1", "SYNTHESIZE_C8", "FULL_LEVEL_BY_SYMMETRY"],
-      "required_output": "PRESERVE_DOCUMENTED_TRUNCATION",
-      "documentary_support": {
-        "register_ref": "docs/REGISTRO_MASTER.md#BEAM-006",
-        "canonical_ref": "data/canonical/telaio_5.csv",
-        "documented_fact": "Telaio 5 G5 is C2-C7 = 19.20 m while lower levels are C1-C8"
-      },
-      "source_binding_state": "SOURCE_BINDING_REQUIRED",
-      "binding_blocker": "the calculation-document SourceVersion/Page/EvidenceRegion for Telaio 5 G5 is not yet registered in the reproducible evidence chain",
-      "readiness_effect": "BLOCK_KG_G5"
-    },
-    {
-      "case_id": "HO-RC-003",
-      "name": "OCR high confidence without engineering relation",
-      "rule_refs": ["G-RC-002", "G-RC-008"],
-      "input": {
-        "raw_text": "40",
-        "normalized_text": "40",
-        "ocr_confidence": 0.9999834895133972,
-        "target_relation": null,
-        "interpretation_note": "The source does not expose a native 40x40 string. PP-OCRv6 independently localized numeric 40 tokens; this held-out case tests that OCR confidence alone cannot create engineering confidence or a section assertion."
-      },
-      "forbidden_outputs": ["COLUMN_SECTION_ASSERTION", "ENGINEERING_CONFIDENCE_0_99", "STRUCTURAL_IDENTITY"],
-      "required_output": "TECHNICAL_TOKEN_NEEDS_CONTEXT",
-      "source_binding": {
-        "source_id": "CEW-N12-SRC-TAV05S",
-        "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
-        "sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
-        "storage_locator": "git+github://antoniocorsano-boop/N12@78c20a52db4f391ce0d13b9705b9f04737e218c9/archive/documentazione_originaria/tavola 5.pdf",
-        "page_id": "CEW-N12-PAGE-TAV05S-P001",
-        "page_index": 0,
-        "page_size_points": [1683.719971, 3007.080078],
-        "evidence_region_id": "CEW-N12-REG-TAV05S-G4-COLUMN-PILOT",
-        "evidence_region_geometry": {"type": "BBOX", "coordinate_system": "NORMALIZED_0_1", "x": 0.0, "y": 0.0, "w": 1.0, "h": 1.0},
-        "token_locator": {
-          "extractor": "PaddleOCR",
-          "model": "PP-OCRv6-medium-default",
-          "paddleocr_version": "3.7.0",
-          "paddlepaddle_version": "3.2.0",
-          "render_dpi": 300,
-          "render_size_px": [7016, 12530],
-          "bbox_render_300dpi": [6039.0, 3984.0, 6112.0, 4031.0],
-          "bbox_normalized_0_1": [0.860746864, 0.317956903, 0.871151653, 0.321707901],
-          "bbox_pdf_points": [1449.36, 956.16, 1466.88, 967.44],
-          "ocr_confidence": 0.9999834895133972,
-          "workflow_run_id": 34278849293,
-          "artifact_id": 10076938824,
-          "full_page_exact_40x40_hit_count": 0,
-          "native_text_40x40_hit_count": 0
-        },
-        "verification_basis": "Immutable SourceVersion SHA-256 verified before 300 dpi rendering; PP-OCRv6 run 34278849293 produced the exact token bbox. PyMuPDF native text produced no 40x40 hit, so OCR remains an observation channel only."
-      },
-      "source_binding_state": "SOURCE_BOUND_READY_FOR_INTERPRETATION",
-      "readiness_effect": "HELD_OUT_INTERPRETATION_EXECUTABLE"
-    }
+    {"case_id":"HO-RC-001","name":"section size repeated across frame levels","rule_refs":["G-RC-004","G-RC-007"],"input":{"token":"25x70","frame_context":"Telaio 5 multiple level groups","target_element_bound":false},"forbidden_outputs":["BEAM_SECTION_ASSERTION","CANONICAL_SECTION_ASSIGNMENT"],"required_output":"SECTION_DIMENSION_CANDIDATE_NEEDS_TARGET_BINDING","source_binding_state":"SOURCE_BINDING_REQUIRED","binding_blocker":"Compatibility corpus intentionally left pre-recovery; use v2 for authoritative source-bound execution.","readiness_effect":"COMPATIBILITY_ONLY"},
+    {"case_id":"HO-RC-002","name":"truncated upper frame level","rule_refs":["G-RC-005","G-RC-007"],"input":{"full_frame_segments":"C1-C8","upper_level_segments":"C2-C7","visual_completion_allowed":false},"forbidden_outputs":["SYNTHESIZE_C1","SYNTHESIZE_C8","FULL_LEVEL_BY_SYMMETRY"],"required_output":"PRESERVE_DOCUMENTED_TRUNCATION","source_binding_state":"SOURCE_BINDING_REQUIRED","binding_blocker":"Compatibility corpus intentionally left pre-recovery; use v2 for authoritative source-bound execution.","readiness_effect":"COMPATIBILITY_ONLY"},
+    {"case_id":"HO-RC-003","name":"OCR high confidence without engineering relation","rule_refs":["G-RC-002","G-RC-008"],"input":{"raw_text":"40","normalized_text":"40","ocr_confidence":0.9999834895133972,"target_relation":null},"forbidden_outputs":["COLUMN_SECTION_ASSERTION","ENGINEERING_CONFIDENCE_0_99","STRUCTURAL_IDENTITY"],"required_output":"TECHNICAL_TOKEN_NEEDS_CONTEXT","source_binding":{"source_version_id":"CEW-N12-SRC-TAV05S-V2143DBCF","sha256":"2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580","page_id":"CEW-N12-PAGE-TAV05S-P001","page_index":0,"evidence_region_id":"CEW-N12-REG-TAV05S-G4-COLUMN-PILOT","verification_basis":"Compatibility binding retained from prior validated run.","token_locator":{"extractor":"PaddleOCR","model":"PP-OCRv6-medium-default","render_dpi":300,"bbox_render_300dpi":[6039.0,3984.0,6112.0,4031.0],"bbox_normalized_0_1":[0.860746864,0.317956903,0.871151653,0.321707901],"bbox_pdf_points":[1449.36,956.16,1466.88,967.44],"ocr_confidence":0.9999834895133972,"workflow_run_id":34278849293}},"source_binding_state":"SOURCE_BOUND_READY_FOR_INTERPRETATION","readiness_effect":"COMPATIBILITY_ONLY"}
   ],
-  "gate_policy": {
-    "training_cases_must_pass": true,
-    "held_out_cases_require_source_binding": true,
-    "held_out_cases_require_exact_interpretation_input": true,
-    "held_out_unbound_state": "NOT_EXECUTABLE",
-    "partially_bound_state": "PARTIALLY_BOUND_NOT_EXECUTABLE",
-    "kg_g5_pass_requires_all_held_out_bound_and_passed": true,
-    "automatic_structural_identity": false,
-    "canonical_write_authorized": false
-  }
+  "gate_policy":{"training_cases_must_pass":true,"held_out_cases_require_source_binding":true,"held_out_cases_require_exact_interpretation_input":true,"held_out_unbound_state":"NOT_EXECUTABLE","partially_bound_state":"PARTIALLY_BOUND_NOT_EXECUTABLE","kg_g5_pass_requires_all_held_out_bound_and_passed":true,"automatic_structural_identity":false,"canonical_write_authorized":false}
 }
