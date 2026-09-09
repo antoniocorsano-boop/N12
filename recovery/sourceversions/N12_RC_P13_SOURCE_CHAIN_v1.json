@@ -31,6 +31,19 @@
       "bbox_px": [0, 0, 1440, 1080],
       "bbox_normalized": [0.0, 0.0, 1.0, 1.0],
       "status": "READY_FOR_TECHNICAL_LOCALIZATION"
+    },
+    {
+      "evidence_region_id": "N12-CALC-RELATION-RC-P13-25X70-CANDIDATE",
+      "region_type": "SECTION_AND_LOAD_CALCULATION_REGION",
+      "bbox_px": [110, 160, 650, 520],
+      "bbox_normalized": [0.0763888889, 0.1481481481, 0.4513888889, 0.4814814815],
+      "contains": [
+        "historical calculation rows with 0.25 x 0.70 section dimensions",
+        "associated line-load arithmetic",
+        "multiple nearby occurrences requiring target binding before assignment"
+      ],
+      "interpretation_boundary": "The region supports a 25x70 section-dimension candidate. It does not by itself assign that section to a specific beam or frame segment.",
+      "status": "READY_FOR_HELD_OUT_INTERPRETATION"
     }
   ],
   "preservation": {
