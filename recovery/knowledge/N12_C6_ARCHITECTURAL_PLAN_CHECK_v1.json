@@ -1,0 +1,35 @@
+{
+  "schema": "N12_C6_ARCHITECTURAL_PLAN_CHECK_v1",
+  "date": "2026-09-09",
+  "scope": "Telaio 5 / C6 = Z-A' / architectural cross-check",
+  "architectural_primary_sources": [
+    {"id":"TAV-01","file":"tavola1.pdf","class":"architettonica","status":"DOC","sha256":"b10831de7f5977e2714215d56aec2ab4c377cc7ee7077670f2355c8c3d37c4a2"},
+    {"id":"TAV-02","file":"tavola2.pdf","class":"architettonica","status":"DOC","sha256":"8cbc16fd096269ca0115f3654385286d4eb86fe8d27b2fd0b8dfd4eef701a88a"},
+    {"id":"TAV-03","file":"tavola 3.pdf","class":"architettonica","status":"DOC","sha256":"85393502ba44d28b68bebcc7516619fec1e581bb75cd559ea2b01b91c404f1a1"},
+    {"id":"TAV-04","file":"tavola 4.pdf","class":"architettonica","status":"DOC","sha256":"87972049435ea9bac6df76b62da67de097a1299f55dadbcb0dcf65526a3f0948"}
+  ],
+  "current_crosscheck": {
+    "structural_plan_observation": "The recovered structural-plan photographs show the stair opening primary edge at V-Z; C6 = Z-A' is the short adjacent transition segment, not the main stair-opening edge.",
+    "state": "RIF_STRONG",
+    "architectural_visual_crossfloor_status": "PENDING_DIRECT_RENDER_COMPARE",
+    "reason": "Original architectural PDFs are present and hash-governed in the archive, but direct page rendering of their binary blobs is not yet materialized in the current recovery branch. No architectural claim is promoted from registry metadata alone."
+  },
+  "c6_state": {
+    "special_local_condition": "RIF_CANDIDATE",
+    "numeric_line_load": "ND",
+    "forbidden": [
+      "assign stair load to C6 without architectural/structural load-path evidence",
+      "inherit adjacent TRATTO recipe by residual logic",
+      "treat source registry presence as visual proof"
+    ]
+  },
+  "next_gate": {
+    "id": "ARCH-C6-01",
+    "required": "Render and visually compare TAV-01, TAV-02, TAV-03, TAV-04 around the stair zone; bind stair/landing geometry to V-Z-A' and determine whether C6 receives slab, landing, stair reaction, edge-only load, or no standard tributary floor load.",
+    "promotion_condition": "At least two independent visual/geometric supports plus no contradiction with RC-P10/RC-P13 author grammar."
+  },
+  "authority": {
+    "model_use_authorized": false,
+    "canonical_write_authorized": false
+  }
+}
