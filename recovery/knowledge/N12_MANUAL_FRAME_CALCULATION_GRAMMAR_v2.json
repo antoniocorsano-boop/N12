@@ -1,0 +1,12 @@
+{
+  "schema": "N12_MANUAL_FRAME_CALCULATION_GRAMMAR_v2",
+  "source_logic": {"sussultorie_kg_m2": 550, "ondulatorie_kg_m2": 417, "ondulatorie_formula": "350+200/3", "source": "Analisi dei carichi, pagina 2"},
+  "rules": [
+    {"id":"MFG2-01","name":"PARALLEL_LOAD_CASE_COLUMNS","description":"Nel foglio del Telaio 5 i calcoli allineati rappresentano due casi: sussultorie 550 kg/m² e ondulatorie 417 kg/m².","status":"STRONGLY_SUPPORTED"},
+    {"id":"MFG2-02","name":"SHARED_TRATTO_LABEL_BY_ROW","description":"La dicitura TRATTO può governare entrambi i totali allineati della stessa riga, uno per ciascun caso di carico.","status":"STRONGLY_SUPPORTED"},
+    {"id":"MFG2-03","name":"RECIPE_REUSE","description":"Una ricetta di carico può essere calcolata una volta e riutilizzata nei gruppi successivi senza essere riscritta integralmente.","status":"SUPPORTED"},
+    {"id":"MFG2-04","name":"NODE_SEQUENCE_TO_SEGMENTS","description":"n nodi consecutivi individuano n-1 campate.","status":"GEOMETRIC_IDENTITY"},
+    {"id":"MFG2-05","name":"UNMENTIONED_SEGMENT_REMAINS_OPEN","description":"Una campata non ricompresa in alcun TRATTO esplicito resta ND e non riceve automaticamente un valore per residuo.","status":"GOVERNANCE"},
+    {"id":"MFG2-06","name":"MANUAL_ERROR_AS_OBJECT","description":"Omissioni, errori aritmetici o di trascrizione restano oggetti espliciti da verificare e non vengono corretti in silenzio.","status":"GOVERNANCE"}
+  ]
+}
