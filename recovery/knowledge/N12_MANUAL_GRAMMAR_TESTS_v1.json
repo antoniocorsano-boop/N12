@@ -1,0 +1,50 @@
+[
+  {
+    "test_id": "MFG-T-G4",
+    "level": "G4",
+    "default_total_kg_m": 4120,
+    "explicit_overrides": [
+      {"nodes": "8-9-10-11", "segments": "C1-C3", "value_kg_m": 3760},
+      {"nodes": "11-12", "segments": "C4", "value_kg_m": 1743},
+      {"nodes": "12-13-14-15-16", "segments": "C5-C8", "value_kg_m": 3760}
+    ],
+    "residual_segments": [],
+    "interpretation": "The general 4120 default is fully displaced by explicit TRATTO overrides and therefore need not appear in the final span assignment.",
+    "result": "PASS_STRONG_SUPPORT_FOR_DEFAULT_OVERRIDE_GRAMMAR"
+  },
+  {
+    "test_id": "MFG-T-G3G2",
+    "level": "G3/G2",
+    "default_total_kg_m": 4642,
+    "explicit_overrides": [
+      {"nodes": "17-18-19 / 26-27-28", "segments": "C1-C2", "value_kg_m": 3945},
+      {"nodes": "19-20-21-22 / 28-29-30-31", "segments": "C3-C5", "value_kg_m": 1743},
+      {"nodes": "23-24-25 / 32-33-34", "segments": "C7-C8", "value_kg_m": 3945}
+    ],
+    "residual_segments": ["C6"],
+    "interpretation": "C6 is the only residual segment; 4642 is therefore a strong default-residual candidate for C6.",
+    "result": "PASS_RIF_CANDIDATE_C6_4642"
+  },
+  {
+    "test_id": "MFG-T-G1",
+    "level": "G1",
+    "first_default_total_kg_m": 4537,
+    "second_default_total_kg_m": 3767,
+    "explicit_overrides": [
+      {"nodes": "35-36-37", "segments": "C1-C2", "value_kg_m": 3952},
+      {"nodes": "37-38-39-40", "segments": "C3-C5", "value_kg_m": 1743},
+      {"nodes": "41-42-43", "segments": "C7-C8", "value_kg_m": 3368}
+    ],
+    "residual_segments": ["C6"],
+    "corrective_note_visible": "Probable handwritten note 'Non c'è balcone' adjacent to the first 4537 build-up",
+    "arithmetic_relation": {
+      "4537": "437 + 550*4.40 + 1680",
+      "3767": "437 + 550*3.00 + 1680",
+      "difference_kg_m": 770,
+      "difference_explained_by": "550*(4.40-3.00)"
+    },
+    "interpretation": "The drafting sequence is more consistent with 4537 as an initial/default calculation subsequently revised to 3767 after recognizing a different tributary width/no-balcony condition. Because C6 is the only residual span, 3767 becomes the leading C6 candidate; 4537 becomes POSSIBLY_SUPERSEDED rather than independently assigned.",
+    "result": "NEW_HYPOTHESIS_C6_3767__4537_POSSIBLY_SUPERSEDED",
+    "promotion_authorized": false
+  }
+]
