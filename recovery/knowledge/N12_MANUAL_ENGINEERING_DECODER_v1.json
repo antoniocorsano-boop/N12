@@ -1,0 +1,21 @@
+{
+  "schema":"N12_MANUAL_ENGINEERING_DECODER_v1",
+  "principle":"Treat the handwritten sheet as a constrained engineering language, not as OCR text.",
+  "layers":[
+    {"layer":"L0_SOURCE_LITERAL","meaning":"what is visibly written, including mistakes and omissions"},
+    {"layer":"L1_ARITHMETIC","meaning":"component sums, dimensional consistency, rounding residuals"},
+    {"layer":"L2_AUTHOR_GRAMMAR","meaning":"repeated layout, dual seismic cases, recipe reuse, shared labels"},
+    {"layer":"L3_TOPOLOGY","meaning":"node sequence -> spans; plan/frame cross-binding"},
+    {"layer":"L4_ENGINEERING_INTERPRETATION","meaning":"candidate meaning of unreadable/missing references"},
+    {"layer":"L5_PROMOTION","meaning":"human-reviewed fact eligible for model candidate; never automatic"}
+  ],
+  "decoder_rules":[
+    {"id":"DEC-01","rule":"Solve unreadable coefficients from total minus known invariant components, then compare against known author constants 550, 417, 800, ~540, 432, 840."},
+    {"id":"DEC-02","rule":"Pair two calculations when invariant components and tributary width match while seismic-variable coefficients change according to the author's sussultorie/ondulatorie convention."},
+    {"id":"DEC-03","rule":"Use page alignment as evidence only after arithmetic fingerprints agree."},
+    {"id":"DEC-04","rule":"A missing TRATTO reference can be inferred only if topology, recipe fingerprint, and author-layout convention converge; otherwise keep ND."},
+    {"id":"DEC-05","rule":"Never overwrite a literal source error. Store SOURCE_VALUE, EXPECTED_VALUE, DELTA, and interpretation separately."},
+    {"id":"DEC-06","rule":"Small arithmetic residuals <=1 kg/m are ROUNDING_OR_MANUAL_VARIANCE candidates; larger residuals require explicit anomaly review."},
+    {"id":"DEC-07","rule":"Repeated omissions at the same topological position across levels are evidence of a special structural condition, not automatically clerical omission."}
+  ]
+}
