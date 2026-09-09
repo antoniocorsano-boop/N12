@@ -1,0 +1,19 @@
+{
+  "schema": "N12_TELAIO5_LOAD_COMPONENTS_v1",
+  "source_group": "N12-CALC-RELATION-RC-P13",
+  "model_use_authorized": false,
+  "component_sets": [
+    {"level_scope":"G4","node_group_visible":"8-9-10-11;12-13-14-15-16","documented_total_kg_m":3760,"components":[{"label":"peso_proprio","expression":"0.25*0.70*2500","value_kg_m":437},{"label":"peso_solaio","expression":"417*2.70","value_kg_m":1125},{"label":"peso_tamponatura","expression":"840*2.50*0.80","value_kg_m":1680},{"label":"peso_cornicione","expression":"432*1.20","value_kg_m":518}],"sum_check":"PASS"},
+    {"level_scope":"G4","node_group_visible":"11-12","documented_total_kg_m":1743,"components":[{"label":"peso_proprio","expression":"1.40*0.20*2500","value_kg_m":700},{"label":"peso_solaio","expression":"417*2.50","value_kg_m":1043}],"sum_check":"PASS"},
+    {"level_scope":"G3/G2","node_group_visible":"17-18-19;23-24-25;26-27-28;32-33-34","documented_total_kg_m":3945,"components":[{"label":"peso_proprio","expression":"0.25*0.70*2500","value_kg_m":437},{"label":"peso_solaio","expression":"417*2.70","value_kg_m":1125},{"label":"peso_tamponatura","expression":"840*2.50*0.80","value_kg_m":1680},{"label":"componente_540x1.30","expression":"540*1.30","value_kg_m":703,"label_state":"TO_VERIFY"}],"sum_check":"PASS"},
+    {"level_scope":"G3/G2/G1","node_group_visible":"19-20-21-22;28-29-30-31;38-39-40","documented_total_kg_m":1743,"components":[{"label":"peso_proprio","expression":"1.40*0.20*2500","value_kg_m":700},{"label":"peso_solaio","expression":"417*2.50","value_kg_m":1043}],"sum_check":"PASS"},
+    {"level_scope":"G1","node_group_visible":"35-36-37","documented_total_kg_m":3952,"components":[{"label":"peso_proprio","expression":"0.25*0.70*2500","value_kg_m":437},{"label":"peso_solaio","expression":"417*4.40","value_kg_m":1835},{"label":"peso_tamponatura","expression":"840*2.50*0.80","value_kg_m":1680}],"sum_check":"PASS"},
+    {"level_scope":"G1","node_group_visible":"41-42-43","documented_total_kg_m":3368,"components":[{"label":"peso_proprio","expression":"0.25*0.70*2500","value_kg_m":437},{"label":"peso_solaio","expression":"417*3.00","value_kg_m":1251},{"label":"peso_tamponatura","expression":"840*2.50*0.80","value_kg_m":1680}],"sum_check":"PASS"}
+  ],
+  "unbound_documentary_totals": [
+    {"value_kg_m":4642,"context":"TRAVERSO 17-...-25 e 26-...-34","state":"DOC_UNBOUND_GENERAL_TRAVERSE"},
+    {"value_kg_m":4537,"context":"zona TRAVERSO 35-...-43","state":"DOC_UNRESOLVED_SEGMENT"},
+    {"value_kg_m":3767,"context":"zona TRAVERSO 35-...-43","state":"DOC_UNRESOLVED_SEGMENT"}
+  ],
+  "rule": "Arithmetic agreement validates transcription consistency only. No total or component becomes a FEM/model load until the structural segment and load case are separately governed."
+}
