@@ -1,55 +1,14 @@
 {
   "schema": "N12_RECOVERED_SOURCE_CHAIN_v1",
+  "status": "DEPRECATED_SOURCE_IDENTITY_CORRECTION",
   "source_id": "N12-CALC-RELATION-RC-P13",
   "source_version_id": "N12-CALC-RELATION-RC-P13-V7E2560FE",
   "role": "RC-P13",
   "original_filename": "1788939776582.jpg",
-  "media_type": "image/jpeg",
-  "byte_size": 159716,
   "sha256": "7e2560fea42bbd05a8d633576af2352ea079b2565362b876fbc35bd793ede911",
-  "image_size_px": {"width": 1440, "height": 1080},
-  "source_authority": "PRIMARY_SOURCE_BYTES",
-  "identification": {
-    "state": "VISUALLY_VERIFIED",
-    "basis": [
-      "page number 13 visible",
-      "historical load/section calculation content visible",
-      "content consistent with RC-P13_v16 references"
-    ]
-  },
-  "page": {
-    "page_id": "N12-CALC-RELATION-RC-P13-PAGE-001",
-    "page_index": 0,
-    "coordinate_space": "PIXEL_TOP_LEFT",
-    "width": 1440,
-    "height": 1080
-  },
-  "evidence_regions": [
-    {
-      "evidence_region_id": "N12-CALC-RELATION-RC-P13-FULL",
-      "region_type": "FULL_IMAGE",
-      "bbox_px": [0, 0, 1440, 1080],
-      "bbox_normalized": [0.0, 0.0, 1.0, 1.0],
-      "status": "READY_FOR_TECHNICAL_LOCALIZATION"
-    },
-    {
-      "evidence_region_id": "N12-CALC-RELATION-RC-P13-25X70-CANDIDATE",
-      "region_type": "SECTION_AND_LOAD_CALCULATION_REGION",
-      "bbox_px": [110, 160, 650, 520],
-      "bbox_normalized": [0.0763888889, 0.1481481481, 0.4513888889, 0.4814814815],
-      "contains": [
-        "historical calculation rows with 0.25 x 0.70 section dimensions",
-        "associated line-load arithmetic",
-        "multiple nearby occurrences requiring target binding before assignment"
-      ],
-      "interpretation_boundary": "The region supports a 25x70 section-dimension candidate. It does not by itself assign that section to a specific beam or frame segment.",
-      "status": "READY_FOR_HELD_OUT_INTERPRETATION"
-    }
-  ],
-  "preservation": {
-    "original_bytes_immutable": true,
-    "derivatives_must_reference_sha256": true,
-    "chat_attachment_is_not_persistent_authority": true,
-    "canonical_write_authorized": false
-  }
+  "deprecated": true,
+  "deprecation_reason": "Subsequent page-level visual audit showed that this photograph contains load calculations for other frames and does not establish RC-P13/Telaio 5 identity.",
+  "replacement": "recovery/sourceversions/N12_RC_P13_SOURCE_GROUP_v1.json",
+  "replacement_group_id": "N12-CALC-RELATION-RC-P13",
+  "canonical_write_authorized": false
 }
