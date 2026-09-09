@@ -1,0 +1,26 @@
+[
+  {
+    "anomaly_id": "MFG-A-001",
+    "value_or_item": "4537 kg/m",
+    "source_status": "DOC",
+    "interpretive_status": "POSSIBLY_SUPERSEDED_DRAFT",
+    "reason": "Immediately followed by a second analogous calculation 3767 and a handwritten corrective note; both differ only in tributary width 4.40 vs 3.00.",
+    "needs": "plan/tributary-width cross-check or independent historical source"
+  },
+  {
+    "anomaly_id": "MFG-A-002",
+    "value_or_item": "4120 kg/m at G4",
+    "source_status": "DOC",
+    "interpretive_status": "DEFAULT_FULLY_OVERRIDDEN",
+    "reason": "All C1-C8 spans receive explicit TRATTO values 3760 or 1743.",
+    "needs": "none for grammar test; no model assignment"
+  },
+  {
+    "anomaly_id": "MFG-A-003",
+    "value_or_item": "4642 kg/m at G3/G2",
+    "source_status": "DOC",
+    "interpretive_status": "DEFAULT_RESIDUAL_C6_CANDIDATE",
+    "reason": "Specific overrides cover C1-C5 and C7-C8, leaving only C6.",
+    "needs": "plan/load-width or historical reconciliation"
+  }
+]
