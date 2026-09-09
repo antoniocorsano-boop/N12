@@ -11,6 +11,6 @@ G2,C3-C5,1743,RIF_HIGH,explicit nodes 28-29-30-31
 G2,C6,4642,RIF_CANDIDATE,general TRAVERSO residual; not explicit
 G2,C7-C8,3945,RIF_HIGH,explicit nodes 32-33-34
 G1,C1-C2,3952,RIF_HIGH,explicit nodes 35-36-37
-G1,C3-C5,1743,RIF_HIGH,explicit nodes 38-39-40
-G1,C6,,ND,4537/3767 both DOC but unbound
+G1,C3,,ND,37-38 remains unresolved after human correction of adjacent group
+G1,C4-C6,1743,RIF_HUMAN_VALIDATED,human correction: documented group is 38-39-40-41
 G1,C7-C8,3368,RIF_HIGH,explicit nodes 41-42-43
