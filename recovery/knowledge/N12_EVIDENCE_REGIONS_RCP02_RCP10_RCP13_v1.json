@@ -1,0 +1,26 @@
+{
+  "schema": "N12_EVIDENCE_REGIONS_v1",
+  "coordinate_system": "PIXEL_TOP_LEFT",
+  "image_size_px": [1440, 1080],
+  "regions": {
+    "RC-P02": [
+      {"id":"RCP02-STRUCTURAL-SYSTEM","bbox_px":[70,90,1380,420]},
+      {"id":"RCP02-FOUNDATION-SYSTEM","bbox_px":[70,150,1380,360]},
+      {"id":"RCP02-CALCULATION-METHOD","bbox_px":[80,300,1390,520]},
+      {"id":"RCP02-SEISMIC-ANALYSIS","bbox_px":[80,350,1390,650]},
+      {"id":"RCP02-GEOTECH","bbox_px":[80,690,1390,930]},
+      {"id":"RCP02-MATERIALS","bbox_px":[80,850,1390,1060]}
+    ],
+    "RC-P10": [
+      {"id":"RCP10-FRAME5-GEOMETRY","bbox_px":[100,80,1100,930]},
+      {"id":"RCP10-SPAN-SIGNATURE","bbox_px":[140,850,1120,1040]},
+      {"id":"N12-CALC-RELATION-RC-P10-G5-TRUNCATION","bbox_px":[140,170,1030,430]}
+    ],
+    "RC-P13": [
+      {"id":"N12-CALC-RELATION-RC-P13-25X70-CANDIDATE","bbox_px":[110,160,650,520]},
+      {"id":"RCP13-SECTION-140X20","bbox_px":[120,120,1380,850]},
+      {"id":"RCP13-LOAD-CALCULATIONS","bbox_px":[90,90,1390,1030]}
+    ]
+  },
+  "rule": "Regions are broad governed locators. They do not replace source images and do not by themselves authorize semantic assignment."
+}
