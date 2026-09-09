@@ -1,0 +1,10 @@
+{
+  "schema":"N12_SINGLE_LOAD_MATRIX_DEPRECATION_v1",
+  "date":"2026-09-09",
+  "deprecated_interpretation":"A single line-load value was previously selected per span from RC-P13.",
+  "reason":"The recovered Analysis of Loads page proves two distinct seismic load conventions: sussultorie = 550 kg/m² and ondulatorie = 417 kg/m² = 350 + 200/3. RC-P13 is laid out as paired calculations for these load cases.",
+  "superseded_files":["recovery/knowledge/N12_TELAIO5_LOAD_BINDING_MATRIX_v1.csv","recovery/knowledge/N12_TELAIO5_G1_C6_RESOLUTION_v1.json"],
+  "current_reference":"recovery/knowledge/N12_TELAIO5_DUAL_LOAD_CASE_MATRIX_v1.csv",
+  "open_segments":["G3-C6 22-23","G2-C6 31-32","G1-C6 40-41"],
+  "authority":{"canonical_write_authorized":false,"model_use_authorized":false}
+}
