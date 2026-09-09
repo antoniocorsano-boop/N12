@@ -1,0 +1,26 @@
+name: Validate N12 Structural Fact Register
+
+on:
+  push:
+    branches:
+      - recovery/source-evidence-forensic-audit-v1
+    paths:
+      - 'recovery/knowledge/N12_STRUCTURAL_FACT_REGISTER_v1.json'
+      - 'recovery/knowledge/N12_EVIDENCE_REGIONS_RCP02_RCP10_RCP13_v1.json'
+      - 'automation/validate_n12_structural_fact_register.py'
+      - '.github/workflows/validate-n12-structural-fact-register.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate source-bound structural fact register
+        run: python automation/validate_n12_structural_fact_register.py
