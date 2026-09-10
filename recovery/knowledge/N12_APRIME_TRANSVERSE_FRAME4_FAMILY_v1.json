@@ -1,0 +1,37 @@
+{
+  "schema":"N12_APRIME_TRANSVERSE_FRAME4_FAMILY_v1",
+  "date":"2026-09-10",
+  "sources":[
+    {"file":"1788939776477.jpg","role":"transverse frame geometry sheet"},
+    {"file":"1788939776599.jpg","role":"page 14 load calculations"},
+    {"file":"1788939776899.jpg","role":"RC-P10 Telaio 5 geometry"},
+    {"file":"1788939776548.jpg","role":"frame-plan sketch"}
+  ],
+  "transverse_family":{
+    "primary_reading":"V-G'-H'-J' = A'-L'-M'-N' ≈ T-D'-E'-F'",
+    "family_label":"Telaio 4 family",
+    "state":"DOC_VISUAL_STRONG",
+    "plan_spans_m":[2.10,3.45,4.70],
+    "note":"The first span carries a handwritten alternate/correction near 4.15 on the geometry sheet; preserve as source ambiguity."
+  },
+  "shared_joint":{
+    "joint":"A'",
+    "telaio5_internal_nodes":{"G3":23,"G2":32,"G1":41},
+    "vertical_member_in_RCP10":true,
+    "transverse_frame_membership":true,
+    "state":"RIF_STRONG_FROM_TWO_DOCUMENTS"
+  },
+  "page14_load_family":{
+    "heading":"Telaio T-D'-E'-F' e similare ...",
+    "interpretation":"By the geometry-sheet equivalence, this load family is relevant to A'-L'-M'-N' unless a later page states an exception.",
+    "state":"RIF_STRONG",
+    "reaction_at_Aprime":"NOT_DOCUMENTED_IN_RECOVERED_PAGE14"
+  },
+  "engineering_consequence":{
+    "statement":"A' is a true shared frame joint/column line. Any interaction between Telaio 5 and the transverse family must be treated as a shared-joint condition, not as a beam-beam crossing without support.",
+    "C6":"Z-A' is a real 1.20 m column-to-column bay in Telaio 5.",
+    "C6_load":"still unresolved; cannot be explained by absence of support at A'."
+  },
+  "retracted_models":["A' as non-column internal node","A' as unsupported beam-beam intersection","C6+C7 as one physical column bay split only for load discretization"],
+  "authority":{"canonical_write_authorized":false,"model_use_authorized":false}
+}
