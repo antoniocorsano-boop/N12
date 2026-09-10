@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-import csv, math, subprocess, tempfile, pathlib
+import csv, math, pathlib
 
-TARGET=[4.70,4.05,1.20,5.80,2.90,1.20,4.05,4.70]
-LETTERS=['S',"S'",'T','U','V','Z',"A'","B'","C'"]
-# Documentary plan grammar: C1-C3 form a near-straight run; C4 is the local oblique transition;
-# C5-C8 return to a near-straight run. Thresholds deliberately broad for hand-drawn/vector extraction noise.
-MAX_LEN_ERR=0.35
-STRAIGHT_TURN=20.0
-TRANSITION_MIN=10.0
-TRANSITION_MAX=80.0
+TARGET_FWD=[4.70,4.05,1.20,5.80,2.90,1.20,4.05,4.70]
+TARGET_REV=list(reversed(TARGET_FWD))
+STRAIGHT_TURN=25.0
+TRANSITION_MIN=5.0
+TRANSITION_MAX=90.0
+TOLERANCES=[0.35,0.50,0.75]
 
 def angle(a,b):
     return math.degrees(math.atan2(b[1]-a[1], b[0]-a[0]))
@@ -17,7 +15,7 @@ def turn(a,b):
     return abs((b-a+180)%360-180)
 
 def dist(a,b):
-    return math.hypot(b[0]-a[0],b[1]-a[1])/1000.0
+    return math.hypot(b[0]-a[0], b[1]-a[1])/1000.0
 
 def load_nodes(path):
     out={}
@@ -27,25 +25,22 @@ def load_nodes(path):
             out[row['nodo']] = (float(row['x_mm']),float(row['y_mm']))
     return out
 
-def main():
-    p=pathlib.Path('out/tav5_topology_nodes_57.csv')
-    nodes=load_nodes(p)
+def solve(nodes,target,tol):
     ids=list(nodes)
     neigh=[]
-    for i,L in enumerate(TARGET):
+    for L in target:
         d={a:[] for a in ids}
         for a in ids:
             for b in ids:
                 if a==b: continue
                 ll=dist(nodes[a],nodes[b])
-                if abs(ll-L)<=MAX_LEN_ERR:
+                if abs(ll-L)<=tol:
                     d[a].append((b,ll))
         neigh.append(d)
-
     sols=[]
     def dfs(path,lens,angs,k):
         if k==8:
-            score=sum(abs(l-TARGET[i]) for i,l in enumerate(lens))
+            score=sum(abs(l-target[i]) for i,l in enumerate(lens))
             sols.append((score,path[:],lens[:],angs[:]))
             return
         a=path[-1]
@@ -54,29 +49,32 @@ def main():
             ang=angle(nodes[a],nodes[b])
             if angs:
                 t=turn(angs[-1],ang)
-                # turns after C1 and C2: near straight
                 if k in (1,2) and t>STRAIGHT_TURN: continue
-                # turn entering C4: localized oblique transition
                 if k==3 and not (TRANSITION_MIN<=t<=TRANSITION_MAX): continue
-                # turn entering C5 can restore the long run, allow broad but not reversal
-                if k==4 and t>100: continue
-                # C5-C8: near straight
+                if k==4 and t>110: continue
                 if k in (5,6,7) and t>STRAIGHT_TURN: continue
             dfs(path+[b],lens+[ll],angs+[ang],k+1)
-
-    for s in ids:
-        dfs([s],[],[],0)
+    for s in ids: dfs([s],[],[],0)
     sols.sort(key=lambda x:x[0])
-    print('candidate_count',len(sols))
+    return sols
+
+def main():
+    nodes=load_nodes(pathlib.Path('out/tav5_topology_nodes_57.csv'))
+    rows=[]
+    for direction,target in [('FORWARD',TARGET_FWD),('REVERSED',TARGET_REV)]:
+        for tol in TOLERANCES:
+            sols=solve(nodes,target,tol)
+            print(direction,'tol',tol,'candidate_count',len(sols))
+            for rank,(score,path,lens,angs) in enumerate(sols[:20],1):
+                rows.append([direction,tol,rank,score,*path,*lens,*angs])
+            if sols:
+                score,path,lens,angs=sols[0]
+                print('best',direction,tol,score,' -> '.join(path))
+                print('lengths',','.join(f'{x:.3f}' for x in lens))
+                print('angles',','.join(f'{x:.1f}' for x in angs))
     with open('out/telaio5_signature_candidates.csv','w',newline='',encoding='utf-8') as f:
         w=csv.writer(f)
-        w.writerow(['rank','score_m']+LETTERS+[f'C{i+1}_m' for i in range(8)])
-        for rank,(score,path,lens,angs) in enumerate(sols[:100],1):
-            w.writerow([rank,f'{score:.4f}',*path,*[f'{x:.4f}' for x in lens]])
-    if sols:
-        score,path,lens,angs=sols[0]
-        print('best',score,' -> '.join(path))
-        print('lengths',','.join(f'{x:.3f}' for x in lens))
-        print('angles',','.join(f'{x:.1f}' for x in angs))
+        w.writerow(['direction','tolerance_m','rank','score_m','P1','P2','P3','P4','P5','P6','P7','P8','P9','L1','L2','L3','L4','L5','L6','L7','L8','A1','A2','A3','A4','A5','A6','A7','A8'])
+        w.writerows(rows)
 
 if __name__=='__main__': main()
