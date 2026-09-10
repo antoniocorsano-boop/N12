@@ -1,0 +1,39 @@
+name: N12 Extract TAV-05S Vector Geometry
+
+on:
+  push:
+    branches:
+      - recovery/source-evidence-forensic-audit-v1
+    paths:
+      - recovery/tools/extract_tav05s_vector_geometry.py
+      - .github/workflows/n12-extract-tav05s-vector.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install PyMuPDF
+        run: pip install pymupdf
+      - name: Materialize canonical TAV-05S PDF
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          git fetch origin archive/originali-alta-risoluzione:refs/remotes/origin/archive/originali-alta-risoluzione
+          git show 'origin/archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola 5.pdf' > out/TAV-05S.pdf
+          sha256sum out/TAV-05S.pdf | tee out/TAV-05S.sha256.txt
+      - name: Extract vector geometry and text
+        run: python recovery/tools/extract_tav05s_vector_geometry.py | tee out/vector-extraction.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: n12-tav05s-primary-vector-extraction
+          path: out/
+          if-no-files-found: error
+          retention-days: 30
