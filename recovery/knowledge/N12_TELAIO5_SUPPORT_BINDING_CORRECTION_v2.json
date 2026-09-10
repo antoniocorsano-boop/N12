@@ -1,36 +1,19 @@
 {
-  "schema": "N12_TELAIO5_SUPPORT_BINDING_CORRECTION_v2",
+  "schema": "N12_TELAIO5_SUPPORT_BINDING_CORRECTION_v3",
   "date": "2026-09-10",
-  "trigger": "direct high-resolution review of TAV-03S local region",
-  "previous_overstatement": {
-    "statement": "Z=22 and A'=22' were treated as a cross-level strong candidate",
-    "status": "RETRACTED"
-  },
-  "direct_observation": {
-    "sheet": "TAV-03S",
-    "finding": "Support label 22 is legible. A distinct adjacent rectangular support/element is visible, but its label is not legible as 22'.",
-    "state": "DOC_VISUAL"
-  },
-  "revised_binding": {
-    "Z": "22 candidate remains plausible",
-    "A_prime": "ADJACENT_DISTINCT_SUPPORT_UNRESOLVED",
-    "C6": "22 -> adjacent distinct support, exact label unresolved",
-    "state": "RIF_CANDIDATE",
-    "numeric_load": "ND"
-  },
-  "forbidden": [
-    "write 22' as a documentary label until directly legible",
-    "promote the prior 17..24 mapping to DOC",
-    "infer A' from numbering continuity alone"
+  "trigger": "historical consolidation review v15/v16",
+  "retracted_claims": [
+    "Z=22 as a carpenteria support binding",
+    "A'=22' as a carpenteria support binding",
+    "17-24 sequence interpreted as carpenteria support identifiers"
   ],
-  "next_required": [
-    "repeat high-resolution local crop on TAV-02S and TAV-04S",
-    "measure centers of the visible supports and compare the eight-span metric ratios",
-    "use plan-to-structural registration to project the letter-node path onto the carpenteria",
-    "identify whether the adjacent element is a pillar, wall/landing support, or beam-end feature"
-  ],
-  "authority": {
-    "canonical_write_authorized": false,
-    "model_use_authorized": false
-  }
+  "reason": "Historical evidence states that 17-25 / 26-34 / 35-43 are internal identifiers of the Telaio 5 calculation schema, not proven carpenteria node IDs.",
+  "restored_documentary_geometry": {
+    "G3": "17-18=C1;18-19=C2;19-20=C3;20-21=C4;21-22=C5;22-23=C6;23-24=C7;24-25=C8",
+    "G2": "26-27=C1;27-28=C2;28-29=C3;29-30=C4;30-31=C5;31-32=C6;32-33=C7;33-34=C8",
+    "G1": "35-36=C1;36-37=C2;37-38=C3;38-39=C4;39-40=C5;40-41=C6;41-42=C7;42-43=C8"
+  },
+  "A_prime_internal_nodes": {"G3":23,"G2":32,"G1":41},
+  "carpenteria_binding": "OPEN",
+  "authority": {"canonical_write_authorized": false, "model_use_authorized": false}
 }
