@@ -1,0 +1,12 @@
+{
+  "schema":"N12_TELAIO5_SUPPORT_BINDING_G1_G3_v1",
+  "date":"2026-09-10",
+  "scope":"Telaio 5 / binding letterale candidato su G1-G3 e confronto con G4",
+  "crosswalk":{"G1":"TAV-02S","G2":"TAV-03S","G3":"TAV-04S","G4":"TAV-05S"},
+  "candidate_binding_G1_G3":{"letters":["S","S'","T","U","V","Z","A'","B'","C'"],"supports":["17","18","19","20","21","22","22'","23","24"],"state":"RIF_STRONG_CROSSLEVEL","basis":["same structural band recurs on TAV-02S, TAV-03S, TAV-04S","numbered supports are consistent with documentary frame order","metric/turn signature matches recovered Telaio 5 plan materially better than old N025...N016 candidate","distinct primed support appears in the 22/22' transition zone"]},
+  "c6":{"letter_segment":"Z-A'","support_segment_candidate":"22-22'","state":"RIF_STRONG_CANDIDATE","numeric_load":"ND","note":"Dedicated evidence regions are still required before DOC promotion."},
+  "G4":{"source":"TAV-05S","state":"LEVEL_VARIANT","finding":"The central stair/transition geometry changes and the G1-G3 support-sequence pattern cannot be transferred mechanically to G4.","effect":"Treat G4 independently."},
+  "deprecated":{"candidate":"N025-N043-N051-N033-N049-N001-N008-N050-N016","state":"REJECTED_GLOBAL_GEOMETRY","c6_old_candidate":"N001-N008"},
+  "next_required":["create evidence regions for labels 17,18,19,20,21,22,22',23,24 on TAV-02S/TAV-03S/TAV-04S","measure span ratios against the documentary signature","inspect structural meaning of support 22' and whether it belongs to stair/landing framing","return to RC-P13 to test whether C6 omission is explained by the special support condition"],
+  "authority":{"canonical_write_authorized":false,"model_use_authorized":false}
+}
