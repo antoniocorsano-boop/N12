@@ -1,0 +1,34 @@
+{
+  "schema":"N12_TELAIO5_APRIME_VERTICAL_MEMBER_CORRECTION_v8",
+  "date":"2026-09-10",
+  "trigger":"high-contrast reinspection of RC-P10 plus transverse-frame geometry sheet",
+  "direct_evidence":{
+    "rcp10":"Vertical member is visibly present through internal nodes 23/32/41 = A' on G3/G2/G1.",
+    "transverse_frame_sheet":"A'-L'-M'-N' is explicitly grouped with the Telaio 4 family and treated as geometrically equivalent/similar to T-D'-E'-F'.",
+    "load_sheet_page14":"Page 14 contains load calculations for T-D'-E'-F' and similar frames."
+  },
+  "retractions":[
+    {"asset":"N12_TELAIO5_APRIME_DIRECT_EVIDENCE_v3","old_claim":"no vertical member at A'","status":"RETRACTED"},
+    {"asset":"N12_TELAIO5_APRIME_TRANSVERSE_INTERSECTION_v5","old_claim":"A' is beam-beam intersection without Telaio5 vertical member","status":"RETRACTED"},
+    {"asset":"N12_TELAIO5_APRIME_BEAM_INTERSECTION_v6","old_claim":"A' is not a column/support of Telaio 5","status":"RETRACTED"},
+    {"asset":"N12_TELAIO5_C6_INTENTIONAL_GAP_ANALYSIS_v7","old_claim":"C6 special because A' lacks a vertical support","status":"PARTIALLY_RETRACTED","preserve":"the repeated omission of C6 from neighboring load groups remains a valid documentary pattern"}
+  ],
+  "corrected_geometry":{
+    "G3":{"Z":22,"A_prime":23,"B_prime":24},
+    "G2":{"Z":31,"A_prime":32,"B_prime":33},
+    "G1":{"Z":40,"A_prime":41,"B_prime":42},
+    "C6":"Z-A' = 1.20 m = true column/support bay",
+    "C7":"A'-B' = 4.05 m = true adjacent bay"
+  },
+  "transverse_family":{
+    "family_name":"Telaio 4 family",
+    "members":["V-G'-H'-J'","A'-L'-M'-N'","T-D'-E'-F' (similar/equivalent)"],
+    "state":"DOC_VISUAL_STRONG",
+    "importance":"A' is a joint shared by Telaio 5 and a transverse frame family explicitly calculated in the relation."
+  },
+  "load_implication":{
+    "statement":"C6 omission can no longer be explained by absence of support at A'. It must be investigated through local tributary geometry and/or interaction with the transverse Telaio 4 family.",
+    "numeric_C6":"ND"
+  },
+  "authority":{"canonical_write_authorized":false,"model_use_authorized":false}
+}
