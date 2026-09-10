@@ -1,0 +1,11 @@
+{
+  "schema":"N12_TELAIO5_APRIME_TRANSVERSE_INTERSECTION_v5",
+  "created_at":"2026-09-10T08:25:00+00:00",
+  "sources":["Pianta piano tipo - Telai","RC-P10 Telaio 5","registered architectural-structural overlays TAV-02/TAV-03/TAV-04"],
+  "direct_geometry":{"stair_zone":"In the frame-plan sketch, the stair/opening rectangle is bounded by O-P-Z-V; Z is the lower-right corner.","A_prime_position":"A' lies 1.20 m to the right of Z on the V-Z-A'-B'-C' line.","crossing_line":"A' also lies on a transverse frame/alignment line continuing downward in the frame-plan sketch.","frame_elevation":"The Telaio 5 elevation does not draw a vertical member at A' (23/32/41), although vertical members are drawn at Z and B'."},
+  "interpretation":{"A_prime_role":"FRAME_AXIS_INTERSECTION_WITHOUT_TELAIO5_VERTICAL_MEMBER","state":"RIF_STRONG","meaning":"A' is a real geometric intersection/control point used by the structural layout and calculation model, but it is not a column/support of the Telaio 5 elevation."},
+  "load_discontinuity_hypothesis":{"statement":"The Z-A' 1.20 m subsegment is likely separated because A' marks the transition from the stair/opening-adjacent strip to the next floor field / transverse frame influence.","state":"RIF_CANDIDATE_STRONG","numeric_load":"ND"},
+  "important_consequence":{"statement":"C6 and C7 must not be treated as two independent physical column bays. They are calculation subsegments within the Z-B' beam line, split at A'.","geometry":"C6=1.20 m; C7=4.05 m; Z-B'=5.25 m"},
+  "next_test":["compare the tributary-width change on the two sides of A' in the architectural/structural overlay","identify whether A' coincides with landing edge, slab edge, beam intersection or change of slab spanning direction","check RC-P13 formulas for a recipe boundary at A'"],
+  "authority":{"canonical_write_authorized":false,"model_use_authorized":false}
+}
