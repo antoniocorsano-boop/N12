@@ -1,45 +1,19 @@
 {
-  "schema": "N12_TELAIO5_APRIME_NODE_REINTERPRETATION_v1",
+  "schema": "N12_TELAIO5_APRIME_NODE_REINTERPRETATION_v2",
   "date": "2026-09-10",
-  "trigger": "high-resolution symbolic review of TAV-02S/TAV-03S",
-  "observations": [
-    {
-      "item": "numbered rectangular/square symbols",
-      "finding": "These carry support/column identifiers such as 21, 22, 23, 24 and dimensions.",
-      "state": "DOC_VISUAL_PATTERN"
-    },
-    {
-      "item": "unnumbered 20x50 rectangles",
-      "finding": "The same unnumbered dimensioned rectangles recur along multiple beam lines and therefore behave as section/beam-section annotations rather than uniquely identifiable supports.",
-      "state": "RIF_STRONG_SYMBOLIC_PATTERN"
-    }
-  ],
-  "retractions": [
-    {
-      "old": "A' = 22'",
-      "state": "RETRACTED",
-      "reason": "No legible 22-prime label has been demonstrated."
-    },
-    {
-      "old": "A' = adjacent distinct support",
-      "state": "RETRACTED",
-      "reason": "The adjacent 20x50 rectangle is more consistent with a repeated beam-section annotation symbol than a numbered column/support."
-    }
-  ],
-  "new_hypothesis": {
-    "statement": "A' may be a non-column frame node: a beam/load/geometric transition point introduced in the calculation model between column/support lines.",
-    "state": "RIF_CANDIDATE_STRONG",
-    "c6_effect": "C6 = Z-A' may be a short beam sub-segment ending at a non-support transition node; this naturally explains why it can appear in the frame calculation while lacking a second numbered pillar in plan.",
-    "numeric_load": "ND"
+  "trigger": "recovery of historical v15 geometry",
+  "retraction": {
+    "old_hypothesis": "A' may be a non-column frame node inferred from carpenteria symbols",
+    "status": "RETRACTED_AS_UNSUPPORTED",
+    "reason": "The inference arose after conflating frame-internal node numbers with carpenteria support labels. Historical v15 already documents A' as the seventh node position of every full lower level: G3=23, G2=32, G1=41. Whether A' has a vertical member must be checked directly on RC-P10; carpenteria symbol interpretation cannot decide it."
   },
-  "tests_required": [
-    "inspect RC-P10 frame drawing to determine whether A' has a vertical member/column below it",
-    "project Z and A' from the frame-plan drawing onto TAV-02S/TAV-03S/TAV-04S",
-    "identify whether A' coincides with beam intersection, slab/stair edge, load discontinuity or section change",
-    "check whether C6 omission from TRATTO groups is caused by a point/reaction or separately handled local load"
-  ],
-  "authority": {
-    "canonical_write_authorized": false,
-    "model_use_authorized": false
-  }
+  "documented_facts": {
+    "frame_path": "S-S'-T-U-V-Z-A'-B'-C'",
+    "C6": "Z-A' = 1.20 m",
+    "A_prime_internal_node_by_level": {"G4":14,"G3":23,"G2":32,"G1":41},
+    "state": "DOC_GEOMETRY_FROM_V15"
+  },
+  "open_question": "Does RC-P10 draw a vertical member through the A' node line across G1-G4?",
+  "carpenteria_binding": "UNRESOLVED",
+  "authority": {"canonical_write_authorized": false, "model_use_authorized": false}
 }
