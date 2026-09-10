@@ -1,0 +1,58 @@
+{
+  "schema": "N12_TELAIO5_SUPPORT_EVIDENCE_REGIONS_G1_G3_v2",
+  "created_at": "2026-09-10T07:52:52.937838+00:00",
+  "source_renders": {
+    "G1": "TAV-02S_rot2.jpg",
+    "G2": "TAV-03S_rot2.jpg",
+    "G3": "TAV-04S_rot2.jpg"
+  },
+  "regions": [
+    {
+      "level": "G1",
+      "sheet": "TAV-02S",
+      "region_file": "TAV-02S_17_24_region.jpg",
+      "bbox_on_rotated_render_px": [800,1650,6000,3150],
+      "observation": "Sequenza locale di supporti numerati coerente con 17…24; nella zona centrale compaiono due supporti distinti 22 e 22′."
+    },
+    {
+      "level": "G2",
+      "sheet": "TAV-03S",
+      "region_file": "TAV-03S_17_24_region.jpg",
+      "bbox_on_rotated_render_px": [650,1600,5850,3150],
+      "observation": "Sequenza 17…24 leggibile con particolare chiarezza; 22 e 22′ sono supporti distinti e ravvicinati."
+    },
+    {
+      "level": "G3",
+      "sheet": "TAV-04S",
+      "region_file": "TAV-04S_17_24_region.jpg",
+      "bbox_on_rotated_render_px": [1500,1850,6250,3450],
+      "observation": "La stessa configurazione locale centrale ricorre; sono visibili i supporti numerati della fascia e la coppia ravvicinata 22/22′."
+    }
+  ],
+  "interpretation": {
+    "letter_support_candidate": {
+      "S": "17",
+      "S'": "18",
+      "T": "19",
+      "U": "20",
+      "V": "21",
+      "Z": "22",
+      "A'": "22'",
+      "B'": "23",
+      "C'": "24"
+    },
+    "state": "RIF_STRONG_CROSSLEVEL",
+    "c6_candidate": "22-22'",
+    "c6_structural_meaning": "short transition between two distinct adjacent supports in the stair/transition zone",
+    "numeric_load_state": "ND"
+  },
+  "drive_persistence": {
+    "zip_file_id": "12Z7lvR07Tyc1RXQPvnSavkU4RoNSDsiU",
+    "zip_sha256": "05c3555b60ab40154f4214956cd66f115ea50c16c03f858a24e8c5252d02a169"
+  },
+  "promotion_boundary": {
+    "support_binding_to_DOC": "PENDING_EXACT_METRIC_AND_LABEL_CENTER_CHECK",
+    "model_use_authorized": false,
+    "canonical_write_authorized": false
+  }
+}
