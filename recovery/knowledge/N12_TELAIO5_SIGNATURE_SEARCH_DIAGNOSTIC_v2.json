@@ -1,0 +1,15 @@
+{
+  "schema": "N12_TELAIO5_SIGNATURE_SEARCH_DIAGNOSTIC_v2",
+  "status": "NODES57_INSUFFICIENT_FOR_TELAIO5_FULL_SIGNATURE",
+  "tests": [
+    {"direction":"FORWARD","tolerance_m":0.35,"candidate_count":0},
+    {"direction":"FORWARD","tolerance_m":0.50,"candidate_count":0},
+    {"direction":"FORWARD","tolerance_m":0.75,"candidate_count":0},
+    {"direction":"REVERSED","tolerance_m":0.35,"candidate_count":0},
+    {"direction":"REVERSED","tolerance_m":0.50,"candidate_count":0},
+    {"direction":"REVERSED","tolerance_m":0.75,"candidate_count":0}
+  ],
+  "conclusion": "The historical 57-node subset cannot represent the full documentary Telaio 5 metric+turn signature under the tested tolerances. Do not force the frame onto this subset.",
+  "next_action": "Reconstruct only evidence-constrained coordinates for node IDs above N057 from tav5_topology_connections_v07, then rerun the geometric signature search on the expanded node universe.",
+  "authority": {"canonical_write_authorized":false,"model_use_authorized":false}
+}
