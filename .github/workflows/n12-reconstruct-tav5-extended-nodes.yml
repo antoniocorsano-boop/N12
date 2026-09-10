@@ -1,0 +1,37 @@
+name: N12 Reconstruct TAV5 Extended Nodes
+
+on:
+  push:
+    branches:
+      - recovery/source-evidence-forensic-audit-v1
+    paths:
+      - recovery/tools/reconstruct_tav5_extended_nodes.py
+      - .github/workflows/n12-reconstruct-tav5-extended-nodes.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reconstruct:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Materialize historical topology data
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          git fetch origin archive/originali-alta-risoluzione:refs/remotes/origin/archive/originali-alta-risoluzione
+          git show 'origin/archive/originali-alta-risoluzione:data/canonical/tav5_topology_nodes_57.csv' > out/tav5_topology_nodes_57.csv
+          git show 'origin/archive/originali-alta-risoluzione:data/canonical/tav5_topology_connections_v07.csv' > out/tav5_topology_connections_v07.csv
+      - name: Reconstruct evidence-constrained extended nodes
+        run: python recovery/tools/reconstruct_tav5_extended_nodes.py | tee out/reconstruct.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: n12-tav5-extended-node-reconstruction
+          path: out/
+          if-no-files-found: error
+          retention-days: 30
