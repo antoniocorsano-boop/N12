@@ -1,0 +1,44 @@
+{
+  "schema": "N12_TELAIO5_C6_INTENTIONAL_GAP_ANALYSIS_v7",
+  "created_at": "2026-09-10T08:33:55.063350+00:00",
+  "sources": [
+    "RC-P10 Telaio 5 geometry",
+    "RC-P13 load sheet / 1788939776617.jpg",
+    "Pianta piano tipo - Telai / plan_full_rot.jpg",
+    "N12_TELAIO5_APRIME_BEAM_INTERSECTION_v6"
+  ],
+  "geometry": {
+    "G3": {"central_group_end": "22=Z", "gap": "22-23=C6", "right_group_start": "23=A'"},
+    "G2": {"central_group_end": "31=Z", "gap": "31-32=C6", "right_group_start": "32=A'"},
+    "G1": {"central_group_end": "40=Z", "gap": "40-41=C6", "right_group_start": "41=A'"},
+    "A_prime_role": "beam-beam intersection node without Telaio 5 column"
+  },
+  "load_sheet_pattern": {
+    "central_family": "explicit TRATTO group terminates at Z",
+    "right_family": "explicit TRATTO group restarts at A'",
+    "missing_between": "C6 = Z-A' is systematically not included in either neighboring explicit family",
+    "state": "DOC_PATTERN"
+  },
+  "interpretation": {
+    "intentional_gap": "RIF_STRONG",
+    "statement": "C6 is most consistently interpreted as a deliberately separate load-transfer segment at the boundary between the stair/central field and the right-side field, not as an accidentally omitted ordinary span.",
+    "line_load_numeric": "ND/PARTIAL",
+    "point_reaction": "RIF_CANDIDATE_ONLY"
+  },
+  "mechanical_ranking": [
+    {"rank": 1, "hypothesis": "C6 has its own distributed-load recipe because Z-A' crosses a local tributary/load-transfer transition.", "state": "RIF_STRONG_CANDIDATE"},
+    {"rank": 2, "hypothesis": "A' receives an additional concentrated reaction from the transverse beam/frame line.", "state": "RIF_CANDIDATE", "evidence_limit": "No explicit nodal force at 23/32/41 has yet been identified on RC-P13."},
+    {"rank": 3, "hypothesis": "C6 omission is merely a repeated drafting error.", "state": "LOW_PROBABILITY"}
+  ],
+  "critical_observation": {
+    "statement": "The omission boundaries coincide with structural geometry: central load groups end exactly at Z and right-side load groups begin exactly at A'.",
+    "effect": "This converts the missing reference itself into structural evidence."
+  },
+  "next_checks": [
+    "derive C6 tributary geometry from architectural/structural overlay",
+    "inspect adjacent transverse beam line for reaction/load data",
+    "look for a unique RC-P13 recipe whose arithmetic is not assigned to the explicit neighboring groups",
+    "test G1-G3 consistency before any LoadCandidate promotion"
+  ],
+  "authority": {"canonical_write_authorized": false, "model_use_authorized": false}
+}
