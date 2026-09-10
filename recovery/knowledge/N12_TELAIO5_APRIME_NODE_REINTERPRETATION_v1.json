@@ -1,19 +1,26 @@
 {
-  "schema": "N12_TELAIO5_APRIME_NODE_REINTERPRETATION_v2",
+  "schema": "N12_TELAIO5_APRIME_NODE_REINTERPRETATION_v3",
   "date": "2026-09-10",
-  "trigger": "recovery of historical v15 geometry",
-  "retraction": {
-    "old_hypothesis": "A' may be a non-column frame node inferred from carpenteria symbols",
-    "status": "RETRACTED_AS_UNSUPPORTED",
-    "reason": "The inference arose after conflating frame-internal node numbers with carpenteria support labels. Historical v15 already documents A' as the seventh node position of every full lower level: G3=23, G2=32, G1=41. Whether A' has a vertical member must be checked directly on RC-P10; carpenteria symbol interpretation cannot decide it."
+  "source": "RC-P10 / 1788939776899.jpg",
+  "direct_visual_evidence": {
+    "G3": {"Z":22,"A_prime":23,"B_prime":24},
+    "G2": {"Z":31,"A_prime":32,"B_prime":33},
+    "G1": {"Z":40,"A_prime":41,"B_prime":42},
+    "observation": "Vertical members are visible through Z and B' node lines, while no vertical member is drawn through A' at 23/32/41.",
+    "state": "DOC_VISUAL_DIRECT"
   },
-  "documented_facts": {
-    "frame_path": "S-S'-T-U-V-Z-A'-B'-C'",
-    "C6": "Z-A' = 1.20 m",
-    "A_prime_internal_node_by_level": {"G4":14,"G3":23,"G2":32,"G1":41},
-    "state": "DOC_GEOMETRY_FROM_V15"
+  "interpretation": {
+    "A_prime": "NON_COLUMN_INTERNAL_FRAME_NODE",
+    "state": "RIF_STRONG",
+    "C6": "Z-A' = 1.20 m beam sub-segment",
+    "C7": "A'-B' = 4.05 m beam sub-segment",
+    "physical_Z_to_Bprime_span": "5.25 m subdivided at A' for calculation/load/geometry purposes"
   },
-  "open_question": "Does RC-P10 draw a vertical member through the A' node line across G1-G4?",
-  "carpenteria_binding": "UNRESOLVED",
+  "correction_history": [
+    "A'=22' carpenteria support hypothesis RETRACTED",
+    "A'=adjacent distinct support hypothesis RETRACTED",
+    "A'=non-column node is now restored on direct RC-P10 evidence, not carpenteria symbol inference"
+  ],
+  "load_implication": "Re-evaluate C6 as an internal load/discretization transition within Z-B', not as an ordinary column-to-column bay.",
   "authority": {"canonical_write_authorized": false, "model_use_authorized": false}
 }
