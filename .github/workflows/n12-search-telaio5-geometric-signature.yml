@@ -1,0 +1,36 @@
+name: N12 Search Telaio5 Geometric Signature
+
+on:
+  push:
+    branches:
+      - recovery/source-evidence-forensic-audit-v1
+    paths:
+      - recovery/tools/search_telaio5_geometric_signature.py
+      - .github/workflows/n12-search-telaio5-geometric-signature.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Materialize historical topology nodes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          git fetch origin archive/originali-alta-risoluzione:refs/remotes/origin/archive/originali-alta-risoluzione
+          git show 'origin/archive/originali-alta-risoluzione:data/canonical/tav5_topology_nodes_57.csv' > out/tav5_topology_nodes_57.csv
+      - name: Search metric and turn signature
+        run: python recovery/tools/search_telaio5_geometric_signature.py | tee out/search.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: n12-telaio5-geometric-signature-search
+          path: out/
+          if-no-files-found: error
+          retention-days: 30
