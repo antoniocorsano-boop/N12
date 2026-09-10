@@ -1,0 +1,46 @@
+{
+  "schema": "N12_TELAIO5_APRIME_BEAM_INTERSECTION_v6",
+  "created_at": "2026-09-10T08:30:00.166811+00:00",
+  "sources": [
+    "Pianta piano tipo - Telai / plan_full_rot.jpg",
+    "RC-P10 Telaio 5 / 1788939776899.jpg",
+    "N12_TELAIO5_APRIME_DIRECT_EVIDENCE_v3",
+    "N12_TELAIO5_APRIME_TRANSVERSE_INTERSECTION_v5"
+  ],
+  "direct_geometry": {
+    "stair_opening": "rectangle O-P-Z-V",
+    "Z": "lower-right corner of the stair/opening boundary",
+    "A_prime": "located 1.20 m to the right of Z, outside the stair opening",
+    "transverse_alignment": "a structural line passes through A' and continues toward L'-M'-N'",
+    "vertical_member_in_telaio5": "absent at A'; present at Z and B'"
+  },
+  "interpretation": {
+    "A_prime_role": "BEAM_BEAM_INTERSECTION_NODE_WITHOUT_COLUMN",
+    "state": "RIF_STRONG",
+    "meaning": "A' is most consistently read as an intersection of the Telaio 5 beam line with a transverse structural beam/frame line, not as a column and not as the stair-edge point itself."
+  },
+  "mechanical_hypothesis": {
+    "statement": "The Z-B' beam is subdivided at A' because the transverse structural line can introduce a concentrated reaction, compatibility condition, or local load-transfer change at that point.",
+    "state": "RIF_CANDIDATE_STRONG",
+    "consequences": [
+      "C6=Z-A'=1.20 m and C7=A'-B'=4.05 m are analysis subsegments of one physical beam line",
+      "A' may carry a nodal action from the transverse frame even though no vertical column exists there",
+      "distributed-load recipes on C6/C7 need not be identical if a local tributary/load-transfer boundary also occurs at A'"
+    ]
+  },
+  "alternatives": {
+    "stair_edge_at_A_prime": "REJECTED; stair edge terminates at Z in the recovered frame plan",
+    "A_prime_as_column": "REJECTED by RC-P10 elevation geometry",
+    "A_prime_as_pure_artificial_math_node": "WEAKENED; plan shows an actual transverse structural alignment through A'"
+  },
+  "next_checks": [
+    "identify the transverse frame passing through A' from the frame-plan labels",
+    "inspect its load calculation page for an end reaction or connection at A'",
+    "search RC-P13/adjacent calculation sheets for concentrated-force terms at node 23/32/41",
+    "determine whether C6 distributed load is ordinary while A' receives an additional nodal force"
+  ],
+  "authority": {
+    "canonical_write_authorized": false,
+    "model_use_authorized": false
+  }
+}
