@@ -1,0 +1,65 @@
+{
+  "schema": "CEW_OA1_GROUP_REVIEW_WORKBENCH_CONTRACT_v1",
+  "status": "IMPLEMENTED_CANDIDATE_NOT_PROMOTED",
+  "primary_interaction": [
+    "OPEN_GOVERNED_SOURCE",
+    "TEACH_ONE_EXAMPLE",
+    "FIND_SIMILAR",
+    "TRIAGE_GROUP",
+    "EXPLICIT_HUMAN_GROUP_REVIEW",
+    "FOCUS_EXCEPTIONS"
+  ],
+  "purpose": "Reduce repetitive candidate-by-candidate review while retaining explicit human authority and replayable provenance.",
+  "authority": {
+    "candidate_authority": "WORKING_OBJECT_EVIDENCE_ONLY",
+    "project_semantic_authority": "PROJECT_LOCAL_LEARNING_ONLY",
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "engineering_authority_effect": "NONE"
+  },
+  "group_review": {
+    "one_human_action_may_cover_many_candidates": true,
+    "child_learning_evidence_embedded_in_group_receipt": true,
+    "append_only_runtime_audit": true,
+    "stale_proposal_rejected": true,
+    "duplicate_candidate_rejected": true,
+    "already_reviewed_candidate_rejected": true,
+    "allowed_actions": [
+      "CONFIRM_GROUP",
+      "REJECT_GROUP",
+      "MARK_AMBIGUOUS"
+    ]
+  },
+  "triage": {
+    "automatic_classification": false,
+    "buckets": [
+      "LIKELY_MATCH",
+      "REVIEW",
+      "OUTLIER"
+    ],
+    "thresholds_are_review_prioritization_only": true,
+    "likely_match_min": 0.9,
+    "review_min": 0.75
+  },
+  "governance_boundaries": {
+    "r2hr_r2gi_r2gm_bypassed": false,
+    "group_review_satisfies_r2hr": false,
+    "group_review_satisfies_r2gm": false,
+    "group_review_satisfies_oa_g4": false,
+    "evidence_region_materialization_required_before_oa_g4": true,
+    "canonical_cad_creation_automatic": false,
+    "structural_identity_automatic": false
+  },
+  "required_provenance_per_child": [
+    "source_version_id",
+    "page_id",
+    "candidate_id",
+    "evidence_fingerprint",
+    "embedding_fingerprint",
+    "reviewer",
+    "timestamp"
+  ],
+  "route": "/workbench/acquisition",
+  "api_prefix": "/api/workbench/acquisition",
+  "next_increment_after_validated_group_review": "MATERIALIZE_GOVERNED_EVIDENCE_REGIONS_FOR_HUMAN_CONFIRMED_WORKING_CANDIDATES_WITHOUT_INFERRING_STRUCTURAL_IDENTITY"
+}
