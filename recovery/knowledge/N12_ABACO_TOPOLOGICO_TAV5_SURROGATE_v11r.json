@@ -1,0 +1,38 @@
+{
+  "schema": "N12_ABACO_TOPOLOGICO_TAV5_SURROGATE_v11r",
+  "status": "RECONSTRUCTED_SURROGATE_NOT_ORIGINAL",
+  "sources": [
+    "data/canonical/tav5_topology_nodes_57.csv",
+    "data/canonical/tav5_topology_connections_v07.csv",
+    "data/canonical/telaio5_tav5_candidate_matrix_v1.csv",
+    "data/canonical/telaio_5.csv",
+    "docs/REGISTRO_MASTER.md GEO-004/GEO-005"
+  ],
+  "candidate_path": {
+    "sequence": "S-S'-T-U-V-Z-A'-B'-C'",
+    "target_total_m": 28.6,
+    "candidate_total_m": 29.305,
+    "delta_total_m": 0.705,
+    "state": "NOT_PROMOTABLE_AS_COMPLETE_LITERAL_BINDING"
+  },
+  "c6": {
+    "letter_segment": "Z-A'",
+    "candidate_connection": "N001-N008",
+    "connection_record": "C001",
+    "target_m": 1.2,
+    "measured_m": 1.3763,
+    "delta_m": 0.1763,
+    "state": "RIF_CANDIDATE_NOT_VERIFIED"
+  },
+  "important_limit": "The connection registry includes node IDs above N057; the 57-node set is not assumed to be the full geometric universe.",
+  "drive_bundle": {
+    "file_name": "N12_ABACO_TOPOLOGICO_TAV5_SURROGATE_v11r.zip",
+    "drive_id": "1Q2-LLP5qg_7d-IWlbFznjvB9qBibdCBE",
+    "sha256": "b902f016f02ea2a7d41f8548c0c3bfecf0cffb501b74ca3b584534b534dd1ee7"
+  },
+  "authority": {
+    "original_v11_recovered": false,
+    "canonical_write_authorized": false,
+    "model_use_authorized": false
+  }
+}
