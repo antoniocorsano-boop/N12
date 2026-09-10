@@ -1,0 +1,30 @@
+{
+  "schema": "N12_TELAIO5_APRIME_DIRECT_EVIDENCE_v3",
+  "date": "2026-09-10",
+  "source": {
+    "document": "RC-P10 / Telaio 5",
+    "file": "1788939776899.jpg",
+    "evidence_region": "central-right frame area covering G3/G2/G1 nodes 21-24, 30-33, 39-42"
+  },
+  "documented_internal_geometry": {
+    "G3": {"V":21,"Z":22,"A_prime":23,"B_prime":24},
+    "G2": {"V":30,"Z":31,"A_prime":32,"B_prime":33},
+    "G1": {"V":39,"Z":40,"A_prime":41,"B_prime":42}
+  },
+  "visual_observation": {
+    "Z": "vertical member drawn through 22/31/40",
+    "A_prime": "no vertical member drawn through 23/32/41",
+    "B_prime": "vertical member drawn through 24/33/42",
+    "state": "DOC_VISUAL_DIRECT"
+  },
+  "interpretation": {
+    "A_prime": "NON_COLUMN_INTERNAL_FRAME_NODE",
+    "state": "RIF_STRONG",
+    "C6": "Z-A' = 1.20 m sub-segment",
+    "C7": "A'-B' = 4.05 m sub-segment",
+    "physical_Z_Bprime_span": "5.25 m",
+    "meaning": "A' discretizes a physical beam span for load/geometry calculation rather than representing a column support."
+  },
+  "open_load_question": "Determine which load discontinuity or local structural condition occurs at A' by re-reading RC-P13 and plan geometry.",
+  "authority": {"canonical_write_authorized": false, "model_use_authorized": false}
+}
