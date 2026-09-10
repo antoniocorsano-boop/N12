@@ -1,0 +1,10 @@
+{
+  "schema":"N12_TELAIO5_LOAD_LOGIC_RECONCILIATION_v3",
+  "date":"2026-09-10",
+  "source_logic":{"page11":"left=sussultorie; right=ondulatorie","page13":"TRAVERSO/TRATTO adds spatial specialization","page10":"A' is a non-column internal node"},
+  "geometry":{"G3_C6":"22-23","G2_C6":"31-32","G1_C6":"40-41","A_prime":"NON_COLUMN_INTERNAL_FRAME_NODE","Z_Bprime_physical_span_m":5.25},
+  "G3_G2":{"C1_C2":{"section":"25x70","sussultorie":4642,"ondulatorie":3945},"C3_C5":{"section":"140x20","sussultorie":2075,"ondulatorie":1743},"C6":{"section":"25x70_candidate","sussultorie":"4642_CANDIDATE_BY_GENERAL_TRAVERSO","ondulatorie":"ND"},"C7_C8":{"section":"25x70","sussultorie":4642,"ondulatorie":3945}},
+  "G1":{"C1_C2":{"section":"25x70","sussultorie":4537,"ondulatorie":3952},"C3_C5":{"section":"140x20","sussultorie":2075,"ondulatorie":1743},"C6":{"section":"25x70_candidate","sussultorie":"ND","ondulatorie":"ND"},"C7_C8":{"section":"25x70","sussultorie":3767,"ondulatorie":3368}},
+  "historical_v16":{"status":"PARTIALLY_SUPERSEDED_INTERPRETATION","retract":"single scalar load per campata when it collapses sussultorie/ondulatorie distinction"},
+  "authority":{"canonical_write_authorized":false,"model_use_authorized":false}
+}
