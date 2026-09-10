@@ -1,0 +1,48 @@
+{
+  "schema": "N12_TELAIO5_APRIME_PLAN_FRAME_RECONCILIATION_v4",
+  "created_at": "2026-09-10T08:22:16.360373+00:00",
+  "sources": {
+    "plan_frame": "Pianta piano tipo - Telai / recovered source",
+    "frame_scheme": "RC-P10 / Telaio 5 / 1788939776899.jpg"
+  },
+  "direct_observations": [
+    {
+      "source": "plan_frame",
+      "finding": "A' lies immediately to the right of Z along the horizontal V-Z-A'-B'-C' line, adjacent to the stair/opening zone.",
+      "state": "DOC_VISUAL"
+    },
+    {
+      "source": "frame_scheme",
+      "finding": "At the internal calculation nodes corresponding to A' (23/32/41), no vertical frame member is drawn; vertical members occur at Z (22/31/40) and B' (24/33/42).",
+      "state": "DOC_VISUAL"
+    }
+  ],
+  "reconciliation": {
+    "A_prime_role": "GEOMETRIC_LOAD_BREAK_NODE_NOT_VERTICAL_FRAME_SUPPORT",
+    "state": "RIF_STRONG",
+    "explanation": "A' is a real plan/frame node used to subdivide the Z-B' beam line, but it is not a vertical support in the Telaio 5 elevation scheme."
+  },
+  "geometry": {
+    "C6": "Z-A' = 1.20 m",
+    "C7": "A'-B' = 4.05 m",
+    "combined": "Z-B' = 5.25 m",
+    "interpretation": "A' splits one physical beam line into two calculation/load subsegments."
+  },
+  "load_implication": {
+    "C6": "likely local transition segment adjacent to stair/opening boundary",
+    "C7": "following ordinary/other tributary segment toward B'",
+    "key_hypothesis": "The 1.20 m split is introduced at the boundary between stair/opening-affected load influence and the adjacent floor field.",
+    "state": "RIF_CANDIDATE_STRONG",
+    "numeric_load": "ND"
+  },
+  "next_checks": [
+    "project A' onto architectural/structural overlay to test whether it coincides with stair landing/opening boundary",
+    "determine slab/landing spanning direction on the right side of Z",
+    "inspect whether RC-P13 uses a load recipe transition exactly at A'",
+    "test whether C6 receives only local/edge/landing load while C7 receives the ordinary right-side recipe"
+  ],
+  "authority": {
+    "canonical_write_authorized": false,
+    "model_use_authorized": false
+  }
+}
