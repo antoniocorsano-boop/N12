@@ -6,6 +6,7 @@ on:
       - recovery/source-evidence-forensic-audit-v1
     paths:
       - recovery/tools/search_telaio5_geometric_signature.py
+      - recovery/tools/reconstruct_tav5_extended_nodes.py
       - .github/workflows/n12-search-telaio5-geometric-signature.yml
   workflow_dispatch:
 
@@ -19,14 +20,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Materialize historical topology nodes
+      - name: Materialize historical topology data
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p out
           git fetch origin archive/originali-alta-risoluzione:refs/remotes/origin/archive/originali-alta-risoluzione
           git show 'origin/archive/originali-alta-risoluzione:data/canonical/tav5_topology_nodes_57.csv' > out/tav5_topology_nodes_57.csv
-      - name: Search metric and turn signature
+          git show 'origin/archive/originali-alta-risoluzione:data/canonical/tav5_topology_connections_v07.csv' > out/tav5_topology_connections_v07.csv
+      - name: Reconstruct evidence-constrained extended nodes
+        run: python recovery/tools/reconstruct_tav5_extended_nodes.py | tee out/reconstruct-for-search.log
+      - name: Search corrected metric and turn signature
         run: python recovery/tools/search_telaio5_geometric_signature.py | tee out/search.log
       - uses: actions/upload-artifact@v4
         with:
