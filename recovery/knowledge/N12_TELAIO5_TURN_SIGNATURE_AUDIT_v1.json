@@ -1,0 +1,22 @@
+{
+  "schema": "N12_TELAIO5_TURN_SIGNATURE_AUDIT_v1",
+  "status": "REJECTED_GLOBAL_GEOMETRY",
+  "documentary_plan_source": "Pianta piano tipo — Telai; recovered photographs including 1788939776548.jpg",
+  "documentary_shape": "Telaio 5 shows extended near-collinear runs, a localized oblique transition around U-V, and a subsequent near-collinear run through V-Z-A'-B'-C'.",
+  "historical_candidate": {
+    "name": "HYP_A_METRICA",
+    "node_sequence": ["N025","N043","N051","N033","N049","N001","N008","N050","N016"],
+    "turn_angles_deg": [-104.6,-113.8,-140.0,-155.9,120.2,-165.0,-142.6],
+    "total_candidate_m": 29.305,
+    "total_target_m": 28.60
+  },
+  "result": {
+    "reason": "The candidate changes direction strongly at essentially every internal node, incompatible with the documentary plan's long near-collinear runs. Metric similarity of individual spans is insufficient.",
+    "c6_effect": "N001-N008 is no longer a privileged Z-A' candidate solely because it is a short existing connection."
+  },
+  "governance": {
+    "old_candidate_status": "SUPERSEDED_REJECTED",
+    "canonical_write_authorized": false,
+    "model_use_authorized": false
+  }
+}
