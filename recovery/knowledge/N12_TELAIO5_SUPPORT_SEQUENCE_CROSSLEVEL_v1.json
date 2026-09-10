@@ -1,0 +1,79 @@
+{
+  "schema": "N12_TELAIO5_SUPPORT_SEQUENCE_CROSSLEVEL_v1",
+  "date": "2026-09-10",
+  "scope": "Telaio 5 / support-number sequence across G1-G3",
+  "canonical_level_crosswalk": {
+    "G1": "TAV-02S",
+    "G2": "TAV-03S",
+    "G3": "TAV-04S",
+    "G4": "TAV-05S"
+  },
+  "documentary_frame_signature": {
+    "letters": ["S", "S'", "T", "U", "V", "Z", "A'", "B'", "C'"],
+    "spans_m": [4.70, 4.05, 1.20, 5.80, 2.90, 1.20, 4.05, 4.70]
+  },
+  "cross_level_candidate": {
+    "support_sequence": ["17", "18", "19", "20", "21", "22", "22'", "23", "24"],
+    "letter_binding_candidate": {
+      "S": "17",
+      "S'": "18",
+      "T": "19",
+      "U": "20",
+      "V": "21",
+      "Z": "22",
+      "A'": "22'",
+      "B'": "23",
+      "C'": "24"
+    },
+    "c6_candidate": "22-22'",
+    "state": "RIF_STRONG_CROSSLEVEL_CANDIDATE"
+  },
+  "evidence": [
+    {
+      "source": "TAV-02S / G1",
+      "finding": "The same central frame band is visible with numbered supports and the characteristic short-oblique-long geometry around the stair nucleus.",
+      "state": "DOC_VISUAL_PATTERN"
+    },
+    {
+      "source": "TAV-03S / G2",
+      "finding": "The frame band is particularly legible and shows the ordered support numbering around 17-24 including a distinct primed support in the 22/22' transition zone.",
+      "state": "DOC_VISUAL_STRONG"
+    },
+    {
+      "source": "TAV-04S / G3",
+      "finding": "The same structural family and numbered support progression recur at the third floor in the corresponding stair-zone band.",
+      "state": "DOC_VISUAL_PATTERN"
+    },
+    {
+      "source": "RC-P10 / Telaio 5 and recovered plan photographs",
+      "finding": "The metric/turn signature S-S'-T-U-V-Z-A'-B'-C' matches the observed structural band far better than the previously proposed N025-N043-...-N016 path.",
+      "state": "RIF_STRONG"
+    }
+  ],
+  "rejected_previous_candidate": {
+    "candidate": "N025-N043-N051-N033-N049-N001-N008-N050-N016",
+    "state": "SUPERSEDED_REJECTED_GLOBAL_GEOMETRY",
+    "reason": "Its turn signature changes direction at nearly every node and is incompatible with the documentary frame shape; N001-N008 is no longer privileged as Z-A'."
+  },
+  "c6_interpretation": {
+    "candidate_letter_segment": "Z-A'",
+    "candidate_support_segment": "22-22'",
+    "special_condition": "RIF_STRONG",
+    "numeric_line_load": "ND",
+    "promotion_status": "NOT_YET_DOC",
+    "reason": "Cross-level visual and geometric convergence is strong, but exact support-label localization must be evidenced with dedicated regions before canonical promotion."
+  },
+  "next_gate": {
+    "id": "T5-C6-SUPPORT-BINDING-02",
+    "required": [
+      "localize support labels 17..24 and 22' with evidence regions on TAV-02S/TAV-03S/TAV-04S",
+      "verify segment lengths/ratios against the Telaio 5 metric signature",
+      "compare TAV-05S to determine how the 22-22' special transition changes at G4"
+    ],
+    "state": "OPEN"
+  },
+  "authority": {
+    "canonical_write_authorized": false,
+    "model_use_authorized": false
+  }
+}
