@@ -1,0 +1,27 @@
+name: Validate CEW RoleView Adapter
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/cew_roleview_adapter_v1.py'
+      - 'scripts/validate_cew_roleview_adapter_v1.py'
+      - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
+      - 'knowledge/CURRENT_STATE.json'
+      - 'automation/CEW_PROJECT_LIFECYCLE_MODEL_v1.json'
+      - '.github/workflows/validate-cew-roleview-adapter.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-cew-roleview-adapter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate adapter syntax
+        run: |
+          python -m py_compile scripts/cew_roleview_adapter_v1.py
+          python -m py_compile scripts/validate_cew_roleview_adapter_v1.py
+      - name: Validate RoleView semantics and canonical CEW projection
+        run: python scripts/validate_cew_roleview_adapter_v1.py
