@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "status": "PROPOSED_FOR_CEW_OS_00",
+  "principle": "CEW owns identity, evidence, provenance, epistemic state, generations, decisions and receipts; external components provide replaceable specialist engines.",
+  "ports": [
+    {"id":"document.parse","canonical_write":false,"providers":["docling-parse","PyMuPDF(optional)"],"output":"Observation[]"},
+    {"id":"document.render","canonical_write":false,"providers":["pypdfium2/PDFium"],"output":"DerivedRasterGeneration"},
+    {"id":"document.ocr_layout","canonical_write":false,"providers":["PaddleOCR"],"output":"Observation[]"},
+    {"id":"document.raster_geometry","canonical_write":false,"providers":["OpenCV"],"output":"GeometryObservation[]"},
+    {"id":"viewer.source","canonical_write":false,"providers":["OpenSeadragon"],"output":"HumanNavigationSurface"},
+    {"id":"viewer.structural3d","canonical_write":false,"providers":["Three.js"],"output":"HumanNavigationSurface"},
+    {"id":"interop.ifc","canonical_write":false,"providers":["IfcOpenShell"],"output":"VersionedIFCProjection"},
+    {"id":"analysis.fem","canonical_write":false,"providers":["Code_Aster","OpenSees(optional)"],"output":"SolverResultGeneration"},
+    {"id":"knowledge.graph","canonical_write":false,"providers":["NetworkX"],"output":"ValidationResult"},
+    {"id":"persistence.canonical","canonical_write":true,"providers":["PostgreSQL/PostGIS"],"output":"CanonicalGeneration","authority":"Only through CEW promotion contracts"},
+    {"id":"index.semantic","canonical_write":false,"providers":["pgvector"],"output":"SecondaryIndex"}
+  ]
+}
