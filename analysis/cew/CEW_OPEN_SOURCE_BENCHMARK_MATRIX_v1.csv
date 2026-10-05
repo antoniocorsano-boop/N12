@@ -1,0 +1,11 @@
+benchmark_id,stage,n12_fixture,providers,pass_criteria,status
+OSB-01,PDF extraction,one native vector/text N12 PDF,docling-parse + independent reader,Text/coordinates reproducible; source/page coordinates preserved; disagreements explicit,PLANNED
+OSB-02,PDF rendering,one N12 structural drawing,pypdfium2/PDFium,Deterministic dimensions; page transform recorded; dependency notices captured,PLANNED
+OSB-03,OCR/layout,one scanned/low-text N12 sheet,PaddleOCR,Regions/text retain coordinates and model version; no automatic canonical promotion,PLANNED
+OSB-04,Raster geometry,one N12 carpenteria sheet,OpenCV,Primitive candidates reproducible; no semantic authority; false positives measurable,PLANNED
+OSB-05,Source viewer,one HiRes N12 sheet,OpenSeadragon,EvidenceRegion opens at correct source coordinates; source identity preserved,PLANNED
+OSB-06,Canonical graph,N12 M0-G representative slice,PostgreSQL/PostGIS + NetworkX,Stable IDs; topology independent from proximity; provenance queryable,PLANNED
+OSB-07,3D viewer,N12 representative structural slice,Three.js,Select CEW entity -> evidence lineage; epistemic overlay; viewer cannot promote,PLANNED
+OSB-08,IFC round-trip,N12 representative structural slice,IfcOpenShell,CEW stable IDs survive export/import mapping; unsupported semantics reported,PLANNED
+OSB-09,FEM round-trip,N12 calculation-eligible slice,Code_Aster,CEW entity -> solver entity -> result -> same CEW entity; units/mapping/unsupported features receipted,PLANNED
+OSB-10,Independent FEM comparison,same eligible N12 slice,Code_Aster + OpenSees optional,Agreement/disagreement captured without rewriting evidence; solver assumptions explicit,PLANNED

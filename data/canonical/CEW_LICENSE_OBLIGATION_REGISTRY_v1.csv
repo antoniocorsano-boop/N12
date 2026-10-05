@@ -1,0 +1,14 @@
+provider,license_or_terms,class,core_allowed_v1,key_obligation_or_risk,cew_policy_v1,verification_source
+Docling Parse,MIT,PERMISSIVE_CORE,YES,Model licenses are separate from code license,Capture model/version/license in receipt,https://github.com/docling-project/docling-parse/blob/main/pyproject.toml
+pypdfium2,Apache-2.0/BSD-3-Clause plus PDFium/dependency notices,PERMISSIVE_CORE,YES,Ship applicable PDFium and dependency notices,Preserve BUILD_LICENSES-equivalent notices for distributed binaries,https://github.com/pypdfium2-team/pypdfium2
+PaddleOCR,Apache-2.0,PERMISSIVE_CORE,YES,Individual model/package terms must be checked,Capture exact model artifact and license,https://github.com/PaddlePaddle/PaddleOCR
+OpenCV >=4.5,Apache-2.0,PERMISSIVE_CORE,YES,Use version >=4.5 for Apache-2.0 baseline,Pin minimum version and record SBOM,https://opencv.org/license/
+OpenSeadragon,BSD-3-Clause,PERMISSIVE_CORE,YES,Retain notices,Normal notice/SBOM handling,https://github.com/openseadragon/openseadragon
+PostgreSQL,PostgreSQL License,PERMISSIVE_CORE,YES,Retain copyright/license text,Core candidate,https://www.postgresql.org/about/licence/
+pgvector,PostgreSQL License,PERMISSIVE_CORE,YES,Retain copyright/license text,Secondary index only,https://github.com/pgvector/pgvector/blob/master/LICENSE
+NetworkX,BSD-3-Clause,PERMISSIVE_CORE,YES,Retain notices,Core candidate,https://github.com/networkx/networkx/blob/main/LICENSE.txt
+Three.js,MIT,PERMISSIVE_CORE,YES,Retain copyright/license,Viewer candidate,https://github.com/mrdoob/three.js/blob/dev/LICENSE
+IfcOpenShell,LGPL-3.0-or-later components; repository also contains GPL components,COPYLEFT_ISOLATED,CONDITIONAL,Distribution/linking obligations require component-level review,Use adapter boundary and explicit component allowlist,https://github.com/IfcOpenShell/IfcOpenShell
+Code_Aster,GNU GPL,COPYLEFT_ISOLATED,CONDITIONAL,Copyleft obligations if distributed/combined,Prefer external process/container adapter; legal review before distribution,https://code-aster.org/en/product/main
+OpenSees,UC Regents noncommercial/internal terms; commercial incorporation by permission,RESTRICTED_OPTIONAL,NO,Commercial product incorporation needs separate permission/licensing,Keep optional and non-authoritative; do not require in distributable core,https://opensees.berkeley.edu/OpenSees/copyright.php
+PyMuPDF,AGPLv3 or commercial,RESTRICTED_OPTIONAL,NO,Networked/proprietary use can trigger source-disclosure obligations under AGPL route,Do not require in core; optional adapter only after deployment-model review,https://pymupdf.io/licensing
