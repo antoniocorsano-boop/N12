@@ -1,6 +1,6 @@
 # N12-BASELINE-AUDIT-01 — Baseline conoscitiva canonica v1
 
-**Stato:** AUDIT_EXECUTED — CANONICAL_ALIGNMENT_REQUIRED  
+**Stato:** PASS — BASELINE_FROZEN / M1E_RESIDUAL_EXECUTION  
 **Data:** 2026-10-09  
 **Base verificata:** `docs/n12-canonical-execution-plan-v1@fc7424ee43420d80ce20d5e6b3c9c752abc51809`  
 **Piano sovraordinato:** `docs/REFERENCE/N12_CANONICAL_EXECUTION_PLAN_v1.md`
@@ -112,28 +112,20 @@ In particolare:
 
 **Classificazione audit:** `DEPRECATO` come input canonico; conservazione obbligatoria per provenance/regression.
 
-## 5. Disallineamento rilevato nello stato macchina
+## 5. Disallineamento dello stato macchina — RISOLTO
 
-`knowledge/CURRENT_STATE.json` contiene ancora campi FPEP che descrivono:
+L'audit aveva rilevato che `knowledge/CURRENT_STATE.json` conservava campi FPEP storici (`READY_P00 / NOT_YET_PROMOTED`) non coerenti con i gate downstream già chiusi.
 
-- `fpep_status = READY_P00`;
-- `fpep_primary_geometry_status = NOT_YET_PROMOTED`;
-- next action che richiede ancora l'esecuzione P00–P12.
+Il riallineamento è stato applicato e protetto da regressione:
 
-Questi campi confliggono con artefatti downstream già presenti e più specifici:
+- `knowledge/CURRENT_STATE.json` è ora sul gate `M1-E/CALCULATION_MODEL_HANDOFF`;
+- FPEP è `RELEASED_PASS_WITH_WATCH`;
+- il modello fondazioni corrente è `FOUNDATION_STRUCTURAL_ASSEMBLY_COMPLETE_WITH_EXECUTION_WATCHES`;
+- la topologia corrente resta 38 supporti / 55 membri;
+- `KNOWLEDGE_MANIFEST.json` è riallineato al fronte M1E;
+- l'istruzione storica è conservata in `analysis/cew/N12_CURRENT_STATE_ALIGNMENT_REQUIRED_v1.json` come `STATE_DRIFT_RESOLVED` e **non deve essere riapplicata**.
 
-- `M1F_PRIMARY_GEOMETRY_GATE_v1.csv = PASS_WITH_WATCH`;
-- `M1F_FPEP_RELEASE_GATE_v1.csv = PASS_WITH_WATCH`, P00–P11 completati;
-- `M1F_FOUNDATION_GATE_v1.csv = FOUNDATION_STRUCTURAL_ASSEMBLY_COMPLETE_WITH_EXECUTION_WATCHES`;
-- `M1E_CALCULATION_MODEL_HANDOFF_v1.json` consuma già la topologia FPEP 38 supporti / 55 membri.
-
-### Decisione audit
-
-Il disallineamento è classificato:
-
-`STATE_DRIFT — CANONICAL_ALIGNMENT_REQUIRED`.
-
-Non autorizza a rieseguire FPEP. Il passo corretto è aggiornare lo stato/manifest derivato dai gate correnti secondo il protocollo di aggiornamento, preservando i watch.
+**Classificazione corrente:** `CLOSED — ANTI_RESTART_GUARDED`.
 
 ## 6. Veri blocker per CALCULATION_MODEL_READY
 
@@ -156,14 +148,14 @@ Mancano realmente:
 
 ### B02 — Carichi, masse e combinazioni numeriche
 
-La struttura semantica è chiusa, ma mancano i valori numerici necessari allo scenario di verifica corrente:
+La struttura semantica è chiusa. Il backlog numerico è ora finito e governato da:
 
-- Gk;
-- Qk;
-- masse;
-- parametri di combinazione/assessment.
+- `data/canonical/M1E_B02_LOAD_RESIDUAL_REGISTER_v1.csv` — 16 righe;
+- `data/canonical/M1E_B02_LOAD_GATE_v1.csv` — `RESIDUAL_SCOPE_BOUND_16_OPEN`.
 
-**Classificazione:** `MANCANTE — INPUT DI CALCOLO`.
+Nessun Gk, Qk, peso unitario, massa, eccentricità o fattore di combinazione viene introdotto dal backlog.
+
+**Classificazione:** `MANCANTE/VERIFICA — BACKLOG FINITO 16 RIGHE`.
 
 ### B04 — Quota numerica delle fondazioni
 
@@ -194,11 +186,14 @@ Mancano:
 
 ### B06 — Residui armature sovrastruttura
 
-Il gate M1-A è `PASS_WITH_WATCH`, ma non tutte le verifiche member-level sono eseguibili.
+Il gate M1-A è `PASS_WITH_WATCH`. Il residuo è ora finito e governato da:
 
-Residui già espliciti includono special features e binding locali non chiusi; non richiedono riapertura M0-G.
+- `data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_RESIDUAL_REGISTER_v1.csv` — 21 righe;
+- `data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_GATE_v1.csv` — `RESIDUAL_SCOPE_BOUND_21_OPEN`.
 
-**Classificazione:** `VERIFICA/MANCANTE — SOLO ELEMENTI INTERESSATI`.
+Le 21 righe sono separate in 11 attività mirate su fonti già governate e 10 casi che richiedono nuova evidenza oppure esclusione tracciabile dello scope.
+
+**Classificazione:** `VERIFICA/MANCANTE — BACKLOG FINITO 21 RIGHE`.
 
 ### B07 — Modello geotecnico corrente
 
@@ -219,6 +214,7 @@ I dati storici di pressione ammissibile non vengono convertiti automaticamente i
 - non ricostruire le 359 sezioni;
 - non riusare la vecchia topologia fondazioni 58 membri come autorità;
 - non rieseguire FPEP P00–P11;
+- non riapplicare lo `STATE_DRIFT` già risolto;
 - non trasformare GeoEngineAI in fonte canonica;
 - non lanciare una verifica strutturale corrente con materiali, carichi, Z o geotecnica inventati;
 - non colmare i 15 binding fondazione per analogia;
@@ -246,17 +242,18 @@ Vincolo:
 
 ## 9. Prossimo passo canonico derivato dall'audit
 
-La Fase 0 non richiede nuova modellazione globale. La sequenza corretta è:
+La **Fase 0 è chiusa**. Non richiede nuova modellazione globale né ulteriori riallineamenti di stato.
 
-1. **riallineare `CURRENT_STATE` ai gate già chiusi**, eliminando il falso residuo FPEP;
-2. congelare questa matrice audit come registro di Baseline v1;
-3. aprire work item separati solo per i sei blocker M1E reali;
-4. dare priorità ai blocker risolvibili da repository/fonti già presenti prima di richiedere nuove prove o rilievi;
-5. valutare GeoEngineAI soltanto come acceleratore per blocker pertinenti, soprattutto topografia/geotecnica/coordinate, senza trasferimento di autorità.
+Il lavoro corrente è esclusivamente `M1E-CALCULATION-MODEL-HANDOFF` sui sei blocker reali. La priorità operativa è:
+
+1. B06 tramite il registro finito da 21 righe, limitando l'attività interna alle 11 righe `EXISTING_GOVERNED_SOURCE_TARGETED`;
+2. B02 tramite il registro finito da 16 righe, senza assegnazioni numeriche non autorizzate;
+3. B04, B05, B01 e B07 soltanto secondo i requisiti di evidenza/decisione già registrati;
+4. GeoEngineAI solo come acceleratore specialistico subordinato all'autorità CEW.
 
 ## 10. Gate di uscita N12-BASELINE-AUDIT-01
 
-Stato corrente: `PASS_WITH_ALIGNMENT_REQUIRED`.
+Stato corrente: `PASS`.
 
 Completato:
 
@@ -264,8 +261,8 @@ Completato:
 - checkpoint `RIUSA` identificati e protetti da anti-restart;
 - artefatti `DEPRECATO` esclusi dall'autorità corrente;
 - sei blocker M1E identificati come sola lista di blocchi per `CALCULATION_MODEL_READY`;
-- istruzione di riallineamento persistita in `analysis/cew/N12_CURRENT_STATE_ALIGNMENT_REQUIRED_v1.json`.
+- `CURRENT_STATE` e `KNOWLEDGE_MANIFEST` riallineati a M1E;
+- registri finiti B02 e B06 collegati all'handoff e ai relativi gate;
+- istruzione di allineamento storica marcata `STATE_DRIFT_RESOLVED`.
 
-Residuo unico di governance:
-
-- applicare l'allineamento a `knowledge/CURRENT_STATE.json` con aggiornamento integrale e validazione del knowledge system. Finché ciò non avviene, **i gate di dominio prevalgono sul campo FPEP stantio e non è autorizzata alcuna riesecuzione P00–P11**.
+**Residui di Fase 0:** nessuno. Il lavoro successivo non deve riaprire l'audit, ma consumare esclusivamente i backlog M1E correnti.
