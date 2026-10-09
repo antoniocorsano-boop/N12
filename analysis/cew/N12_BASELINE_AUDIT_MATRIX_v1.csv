@@ -1,0 +1,20 @@
+audit_id,domain,artifact_or_scope,classification,current_state,evidence_state,can_reuse_without_rebuild,blocking_calculation_model_ready,next_action,authority_note
+N12-BA01-001,M0-G,Global geometry/topology,RIUSA,PASS_WITH_WATCH,CANONICAL,true,false,Protect frozen handoff; reopen only through M0G-REOPEN,629 analytical nodes / 359 ordinary members are current downstream basis
+N12-BA01-002,M1-S,Ordinary member sections,RIUSA,PASS_WITH_WATCH,CANONICAL,true,false,Preserve 5 evidence watches; no global section rebuild,359/359 usable sections; 0 ND
+N12-BA01-003,M1-M,Historical material evidence,RIUSA,PASS_WITH_WATCH,DOC,true,false,Carry historical R-prime 300 kg/cm2 and FeB38k as historical provenance only,Do not convert historical values into current assessment properties
+N12-BA01-004,M1-M,Current concrete strength + LC + FC,MANCANTE,ND,ND,false,true,Acquire/register current assessment evidence and professional LC/FC decision,Required by M1E-B01
+N12-BA01-005,M1-A,Reinforcement inventory and closed source bindings,RIUSA,PASS_WITH_WATCH,DOC/MIS/SUPPORTED,true,false,Preserve closed ordinary/group bindings and special-subsystem separation,No analogy or cross-storey promotion
+N12-BA01-006,M1-A,Affected member reinforcement residuals,VERIFICA,RESIDUAL,ND/INC/MIS,false,true,Resolve or explicitly exclude affected verification scopes only,Required by M1E-B06; do not reopen M0-G
+N12-BA01-007,M1-L,Semantic load paths + historical/as-built delta framework,RIUSA,PASS_WITH_WATCH,CANONICAL,true,false,Reuse schema and guards,No unsourced numeric loads are present
+N12-BA01-008,M1-L,Numeric loads masses combinations,MANCANTE,ND,ND,false,true,Acquire/derive from admitted evidence and assessment scenario,Required by M1E-B02
+N12-BA01-009,M1-F,FPEP primary foundation geometry,RIUSA,PASS_WITH_WATCH,CANONICAL,true,false,Do not rerun P00-P11; preserve metric watches,38 supports / 55 primary incidences released
+N12-BA01-010,M1-F,Successor foundation structural topology,RIUSA,FOUNDATION_STRUCTURAL_ASSEMBLY_COMPLETE_WITH_EXECUTION_WATCHES,CANONICAL,true,false,Use 55-member successor topology,Pre-P07 58-member topology is not current authority
+N12-BA01-011,M1-F,Legacy 58-member foundation topology,DEPRECATO,HISTORICAL_REGRESSION_ONLY,HISTORICAL,false,false,Keep only for regression/provenance,Forbidden as geometry authority
+N12-BA01-012,M1-F,Direct/support property bindings,RIUSA,39_DIRECT_PLUS_1_SUPPORTED,DOC/SUPPORTED,true,false,Carry exact evidence states,Supported binding must not be promoted to direct
+N12-BA01-013,M1-F,15 foundation section/reinforcement bindings,MANCANTE,ND_DOCUMENTARY_COVERAGE,ND,false,true,Find direct property evidence or investigate; otherwise exclude affected verification,Required by M1E-B05
+N12-BA01-014,M1-F,Foundation numeric Z,MANCANTE,ND,ND,false,true,Register direct G1-ground-foundation datum relation,Required by M1E-B04
+N12-BA01-015,M1-F,Current geotechnical model,MANCANTE,ND,ND,false,true,Acquire/register site stratigraphy groundwater strength stiffness/settlement parameters,Required by M1E-B07
+N12-BA01-016,M1-E,Calculation model handoff shell,RIUSA,RESIDUAL_NOT_CALCULATION_MODEL_READY,CANONICAL,true,false,Reuse identity mapping and admitted foundation XY solver projection,Shell is valid but numerical execution remains blocked
+N12-BA01-017,SYSTEM,knowledge/CURRENT_STATE.json,RIUSA,ALIGNED_TO_M1E,CANONICAL,true,false,Preserve M1E resume state and state-drift regression checks,READY_P00 / NOT_YET_PROMOTED drift was corrected on 2026-10-09; do not reapply obsolete alignment instruction
+N12-BA01-018,SYSTEM,Historical PT meshes/grids marked HISTORICAL_ONLY/SUPERSEDED/SUSPENDED,DEPRECATO,HISTORICAL_ONLY,HISTORICAL,false,false,Retain only for provenance/claim recovery,Must not regenerate current M0-G
+N12-BA01-019,EXTERNAL_ENGINE,GeoEngineAI,VERIFICA,CANDIDATE_SPECIALIST_ENGINE,DERIVED,false,false,Qualify only bounded adapters for CRS/DXF/spatial/DTM/geotechnical assistance,No GeoEngine output acquires CEW evidence authority automatically

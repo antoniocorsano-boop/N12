@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "knowledge" / "KNOWLEDGE_MANIFEST.json"
 STATE_PATH = ROOT / "knowledge" / "CURRENT_STATE.json"
 REGISTRY_PATH = ROOT / "knowledge" / "ARTIFACT_REGISTRY.csv"
+QUEUE_PATH = ROOT / "automation" / "N12_WORK_QUEUE_v1.json"
 
 ALLOWED_AUTHORITIES = {
     "SOURCE_PRIMARY", "SOURCE_REFERENCE", "OBSERVATION", "CLAIM_LEDGER",
@@ -230,6 +231,52 @@ def validate() -> tuple[list[str], list[str]]:
             errors.append("CURRENT_STATE geometry_master_status must be SUSPENDED while historical Master is blocked")
     else:
         errors.append("pt_geometry must declare either old_master or current_master")
+
+    # Regression gate: a completed FPEP / foundation-model queue must never be
+    # represented by CURRENT_STATE as READY_P00 or NOT_YET_PROMOTED.
+    if QUEUE_PATH.exists():
+        try:
+            queue = load_json(QUEUE_PATH)
+            queue_by_id = {item.get("id"): item for item in queue.get("items", [])}
+            fpep_wrapper = queue_by_id.get("M1F-PRIMARY-GEOMETRY-REVALIDATION")
+            foundation_model = queue_by_id.get("M1F-FOUNDATION-MODEL")
+            foundation_pipeline = state.get("foundation_primary_evidence_pipeline", {})
+            foundation_progress = state.get("foundation_progress", {})
+
+            if fpep_wrapper and fpep_wrapper.get("state") == "COMPLETE":
+                expected_release = f"RELEASED_{fpep_wrapper.get('completion_decision')}"
+                if foundation_pipeline.get("status") != expected_release:
+                    errors.append(
+                        "CURRENT_STATE FPEP pipeline status is stale: "
+                        f"expected {expected_release}, got {foundation_pipeline.get('status')}"
+                    )
+                if foundation_pipeline.get("current_subtask") not in {None, "COMPLETE"}:
+                    errors.append(
+                        "CURRENT_STATE FPEP current_subtask must be COMPLETE/null after wrapper completion"
+                    )
+                if foundation_progress.get("fpep_status") != expected_release:
+                    errors.append(
+                        "CURRENT_STATE foundation_progress.fpep_status is stale: "
+                        f"expected {expected_release}, got {foundation_progress.get('fpep_status')}"
+                    )
+                if foundation_progress.get("fpep_primary_geometry_status") != fpep_wrapper.get("completion_decision"):
+                    errors.append(
+                        "CURRENT_STATE foundation_progress.fpep_primary_geometry_status is stale: "
+                        f"expected {fpep_wrapper.get('completion_decision')}, "
+                        f"got {foundation_progress.get('fpep_primary_geometry_status')}"
+                    )
+
+            if foundation_model and foundation_model.get("state") == "COMPLETE":
+                if foundation_progress.get("current_model_gate") != "data/canonical/M1F_FOUNDATION_GATE_v1.csv":
+                    errors.append(
+                        "CURRENT_STATE must reference the promoted successor foundation model gate after M1F completion"
+                    )
+                if foundation_progress.get("current_model_status") != "FOUNDATION_STRUCTURAL_ASSEMBLY_COMPLETE_WITH_EXECUTION_WATCHES":
+                    errors.append(
+                        "CURRENT_STATE successor foundation model status is missing/stale after M1F completion"
+                    )
+        except Exception as exc:
+            errors.append(f"cannot validate CURRENT_STATE against M1 queue: {exc}")
 
     gate_path = state.get("blocking_gate")
     if gate_path:

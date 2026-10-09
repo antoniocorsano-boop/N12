@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import subprocess
 import sys
@@ -19,11 +20,14 @@ MANIFEST_PATH = ROOT / "knowledge" / "KNOWLEDGE_MANIFEST.json"
 DEFAULT_INPUT = ROOT / "automation" / "inbox" / "N12_AGENT_RESULT.json"
 RECEIPT_DIR = ROOT / "automation" / "receipts"
 FPEP_WRAPPER_ID = "M1F-PRIMARY-GEOMETRY-REVALIDATION"
+FOUNDATION_MODEL_ID = "M1F-FOUNDATION-MODEL"
 FPEP_QUEUE_PATH = ROOT / "automation" / "N12_FOUNDATION_WORK_QUEUE_v1.json"
 FPEP_RECEIPT_DIR = ROOT / "automation" / "receipts" / "foundation"
 FPEP_COMPLETION_ITEM = "FPEP-P12-RELEASE-AUDIT"
 FPEP_PRIMARY_GATE = ROOT / "data" / "canonical" / "M1F_PRIMARY_GEOMETRY_GATE_v1.csv"
 FPEP_RELEASE_GATE = ROOT / "data" / "canonical" / "M1F_FPEP_RELEASE_GATE_v1.csv"
+FOUNDATION_MODEL_GATE_REL = "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
+FOUNDATION_MODEL_GATE = ROOT / FOUNDATION_MODEL_GATE_REL
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -208,6 +212,72 @@ def validate_result(result: dict[str, Any]) -> tuple[list[str], list[str], dict[
     return errors, warnings, context
 
 
+def foundation_model_gate_snapshot() -> dict[str, Any]:
+    if not FOUNDATION_MODEL_GATE.exists():
+        raise ValueError(f"foundation model gate missing: {FOUNDATION_MODEL_GATE}")
+    with FOUNDATION_MODEL_GATE.open("r", encoding="utf-8-sig", newline="") as f:
+        rows = {row.get("check_id", "").strip(): row for row in csv.DictReader(f)}
+
+    required = ["M1F-MODEL-G01", "M1F-MODEL-G02", "M1F-MODEL-G03", "M1F-MODEL-FINAL"]
+    missing = [check_id for check_id in required if check_id not in rows]
+    if missing:
+        raise ValueError(f"foundation model gate missing required checks: {missing}")
+
+    def actual_int(check_id: str) -> int:
+        raw = rows[check_id].get("actual", "").strip()
+        try:
+            return int(raw)
+        except ValueError as exc:
+            raise ValueError(f"foundation model gate {check_id} actual is not an integer: {raw!r}") from exc
+
+    final_state = rows["M1F-MODEL-FINAL"].get("actual", "").strip()
+    if not final_state:
+        raise ValueError("foundation model final gate state is empty")
+
+    return {
+        "supports": actual_int("M1F-MODEL-G01"),
+        "members": actual_int("M1F-MODEL-G02"),
+        "components": actual_int("M1F-MODEL-G03"),
+        "status": final_state,
+    }
+
+
+def sync_domain_state_after_result(state: dict[str, Any], result: dict[str, Any]) -> None:
+    """Keep CURRENT_STATE aligned with promoted queue milestones."""
+    decision = result["decision"]
+    if decision not in {"PASS", "PASS_WITH_WATCH"}:
+        return
+
+    work_item_id = result["work_item_id"]
+    foundation_pipeline = state.setdefault("foundation_primary_evidence_pipeline", {})
+    foundation_progress = state.setdefault("foundation_progress", {})
+
+    if work_item_id == FPEP_WRAPPER_ID:
+        release_state = f"RELEASED_{decision}"
+        foundation_pipeline["status"] = release_state
+        foundation_pipeline["current_subtask"] = None
+        foundation_progress["fpep_status"] = release_state
+        foundation_progress["fpep_primary_geometry_status"] = decision
+        foundation_progress["next_action"] = (
+            "FPEP released. Consume P07/FPEP-promoted primary foundation geometry; "
+            "do not reuse the pre-P07 58-member topology as geometry authority."
+        )
+
+    if work_item_id == FOUNDATION_MODEL_ID:
+        promoted = foundation_model_gate_snapshot()
+        state["gate"] = "M1-E/CALCULATION_MODEL_HANDOFF"
+        foundation_progress["current_model_gate"] = FOUNDATION_MODEL_GATE_REL
+        foundation_progress["current_model_status"] = promoted["status"]
+        foundation_progress["current_supports"] = promoted["supports"]
+        foundation_progress["current_foundation_members"] = promoted["members"]
+        foundation_progress["current_connected_components"] = promoted["components"]
+        foundation_progress["legacy_topology_role"] = "REGRESSION_ONLY_SUPERSEDED_AS_GEOMETRY_AUTHORITY"
+        foundation_progress["next_action"] = (
+            "Foundation structural assembly is complete with execution watches. "
+            "Resolve M1E calculation-model blockers without reopening FPEP or M0-G."
+        )
+
+
 def update_state_for_result(
     state: dict[str, Any], queue: dict[str, Any], registry: dict[str, dict[str, str]], result: dict[str, Any], receipt_rel: str
 ) -> dict[str, Any] | None:
@@ -256,6 +326,8 @@ def update_state_for_result(
     automation["last_cycle_outcome"] = outcome_map[decision]
     state["updated_at"] = now.date().isoformat()
 
+    sync_domain_state_after_result(state, result)
+
     if decision == "CONFLICT":
         state["status"] = "CONFLICT_STOP"
     elif decision == "BLOCKED":
@@ -271,7 +343,7 @@ def update_state_for_result(
 
     next_action = state.setdefault("next_action", {})
     if next_item:
-        next_action["phase"] = "PER-STOREY-SECTIONS-AND-BEAM-TOPOLOGY"
+        next_action["phase"] = next_item.get("stage") or "STRUCTURAL_MODEL_COMPLETION"
         next_action["work_item"] = next_item.get("id")
         next_action["task"] = next_item.get("task")
         next_action["target_outputs"] = list(next_item.get("target_outputs", []))

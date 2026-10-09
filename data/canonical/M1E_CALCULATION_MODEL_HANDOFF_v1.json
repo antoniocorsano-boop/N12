@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "handoff_id": "N12_M1E_CALCULATION_MODEL_HANDOFF",
-  "date": "2026-08-24",
+  "date": "2026-10-09",
   "domain": "M1E_CALCULATION_MODEL_HANDOFF",
   "status": "RESIDUAL_NOT_CALCULATION_MODEL_READY",
   "calculation_model_ready": false,
@@ -12,7 +12,12 @@
     "sections": "data/canonical/M1S_SECTION_GATE_v1.csv",
     "materials": "data/canonical/M1M_MATERIAL_GATE_v1.csv",
     "reinforcement": "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv",
+    "reinforcement_residual_register": "data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_RESIDUAL_REGISTER_v1.csv",
+    "reinforcement_residual_gate": "data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_GATE_v1.csv",
     "loads": "data/canonical/M1L_LOAD_GATE_v1.csv",
+    "load_model": "data/canonical/M1L_LOAD_MODEL_CURRENT_v1.csv",
+    "load_residual_register": "data/canonical/M1E_B02_LOAD_RESIDUAL_REGISTER_v1.csv",
+    "load_residual_gate": "data/canonical/M1E_B02_LOAD_GATE_v1.csv",
     "foundation": "data/canonical/M1F_FOUNDATION_GATE_v1.csv",
     "foundation_xy_solver_projection": "data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json"
   },
@@ -68,10 +73,12 @@
       "id": "M1E-B02",
       "domain": "NUMERIC_LOADS_MASSES_AND_COMBINATIONS",
       "blocking": true,
-      "state": "ND",
-      "missing": ["numeric_Gk", "numeric_Qk", "numeric_masses", "assessment_combination_parameters"],
-      "reason": "M1-L intentionally contains zero unsourced numeric load rows.",
-      "closure_rule": "Complete documentary/current load inputs or explicitly admit assessment assumptions at a later gate; do not manufacture values here."
+      "state": "RESIDUAL_SCOPE_BOUND_16_OPEN",
+      "missing": ["16_governed_load_model_residuals"],
+      "residual_register": "data/canonical/M1E_B02_LOAD_RESIDUAL_REGISTER_v1.csv",
+      "residual_gate": "data/canonical/M1E_B02_LOAD_GATE_v1.csv",
+      "reason": "M1-L numeric continuation is now finite and governed: all sixteen M1L-LM rows retain their source provenance, numeric status, dependency and forbidden-inference guard. B02 introduces zero numerical Gk/Qk values, masses, eccentricities, unit weights or combination factors.",
+      "closure_rule": "Resolve each verification-relevant B02 row with traceable source evidence, an explicitly admitted current modeling/assessment rule where appropriate, or explicit exclusion of unsupported verification scope; downstream delta, mass and combination rows remain blocked until their upstream terms are traceable."
     },
     {
       "id": "M1E-B04",
@@ -95,10 +102,12 @@
       "id": "M1E-B06",
       "domain": "SUPERSTRUCTURE_REINFORCEMENT_RESIDUALS",
       "blocking": true,
-      "state": "PASS_WITH_WATCH_NOT_COMPLETE_FOR_ALL_MEMBER_CHECKS",
-      "missing": ["affected_member_reinforcement_residual_closure"],
-      "reason": "M1-A explicitly states that residual reinforcement claims remain mandatory before affected member checks or CALCULATION_MODEL_READY.",
-      "closure_rule": "Resolve or explicitly exclude affected verification scopes with traceable evidence; do not extrapolate reinforcement by analogy."
+      "state": "RESIDUAL_SCOPE_BOUND_21_OPEN",
+      "missing": ["21_governed_superstructure_reinforcement_residuals"],
+      "residual_register": "data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_RESIDUAL_REGISTER_v1.csv",
+      "residual_gate": "data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_GATE_v1.csv",
+      "reason": "M1-A residual reinforcement scope is finite and governed: 21 explicit rows carry object identity, evidence state, verification effect, closure action and forbidden inference. B06 remains blocking for affected checks and CALCULATION_MODEL_READY.",
+      "closure_rule": "Resolve each verification-relevant residual with traceable evidence or explicitly exclude its affected verification scope; do not extrapolate reinforcement by analogy or symmetry."
     },
     {
       "id": "M1E-B07",
@@ -114,11 +123,13 @@
     "Transfer frozen superstructure connectivity, rigid-zone semantics and usable member sections into a solver project shell.",
     "Transfer the 38-support / 55-member foundation topology with evidence states preserved.",
     "Use M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1 to place all 38 foundation supports numerically in XY while retaining per-support M0G coordinate provenance.",
+    "Use M1E_B02_LOAD_RESIDUAL_REGISTER_v1.csv as the sole finite backlog for numerical load/mass/combination continuation without treating any row as numerical authorization.",
     "Create an implementation checklist and element-identity mapping for EdiLus-EE and independent FEM without running a current-state numerical verification.",
     "Carry historical material/load/geotechnical values only as provenance or scenario metadata, not as current solver values."
   ],
   "not_authorized_now": [
     "Declare CALCULATION_MODEL_READY.",
+    "Assign current Gk, Qk, unit weights, masses, eccentricities or combination factors merely to complete B02.",
     "Write solver-projected foundation XY back into P07/FPEP primary geometry as an evidentiary promotion.",
     "Run or validate a current-state structural calculation using invented current material properties, loads, foundation elevation or soil parameters.",
     "Fill reinforcement or foundation property gaps by analogy.",
@@ -126,10 +137,10 @@
   ],
   "next_evidence_actions": [
     "Close current concrete assessment inputs and LC/FC.",
-    "Complete numerical load and mass inputs for the current assessment scenario.",
+    "Process M1E-B02 only through its 16-row governed register: recover direct historical numeric rows where available, resolve current evidence/binding inputs, explicitly adopt permitted assessment/model rules, and keep downstream delta/mass/combination rows dependent on traceable upstream closure.",
     "Resolve numeric ZF_COMMON from direct datum evidence.",
-    "Resolve the fifteen foundation property gaps and affected superstructure reinforcement residuals required for verification.",
+    "Resolve the fifteen foundation property gaps and the 21 governed superstructure reinforcement residuals required by affected verification scopes.",
     "Acquire/register current site-specific geotechnical evidence."
   ],
-  "final_statement": "The solver project shell now has an admitted 38/38 foundation XY placement rule while preserving P07 evidence provenance. CALCULATION_MODEL_READY remains false because six independent blocking domains are still open."
+  "final_statement": "The solver project shell preserves its admitted 38/38 foundation XY placement rule and P07 evidence provenance. M1E-B02 is now bounded to a 16-row governed load residual register and M1E-B06 to a 21-row governed reinforcement residual register; both remain open. CALCULATION_MODEL_READY remains false because six independent blocking domains are still open."
 }
