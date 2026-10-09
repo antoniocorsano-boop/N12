@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import subprocess
 import sys
@@ -26,7 +27,7 @@ FPEP_COMPLETION_ITEM = "FPEP-P12-RELEASE-AUDIT"
 FPEP_PRIMARY_GATE = ROOT / "data" / "canonical" / "M1F_PRIMARY_GEOMETRY_GATE_v1.csv"
 FPEP_RELEASE_GATE = ROOT / "data" / "canonical" / "M1F_FPEP_RELEASE_GATE_v1.csv"
 FOUNDATION_MODEL_GATE_REL = "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
-FOUNDATION_MODEL_COMPLETE_STATUS = "FOUNDATION_STRUCTURAL_ASSEMBLY_COMPLETE_WITH_EXECUTION_WATCHES"
+FOUNDATION_MODEL_GATE = ROOT / FOUNDATION_MODEL_GATE_REL
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -211,6 +212,36 @@ def validate_result(result: dict[str, Any]) -> tuple[list[str], list[str], dict[
     return errors, warnings, context
 
 
+def foundation_model_gate_snapshot() -> dict[str, Any]:
+    if not FOUNDATION_MODEL_GATE.exists():
+        raise ValueError(f"foundation model gate missing: {FOUNDATION_MODEL_GATE}")
+    with FOUNDATION_MODEL_GATE.open("r", encoding="utf-8-sig", newline="") as f:
+        rows = {row.get("check_id", "").strip(): row for row in csv.DictReader(f)}
+
+    required = ["M1F-MODEL-G01", "M1F-MODEL-G02", "M1F-MODEL-G03", "M1F-MODEL-FINAL"]
+    missing = [check_id for check_id in required if check_id not in rows]
+    if missing:
+        raise ValueError(f"foundation model gate missing required checks: {missing}")
+
+    def actual_int(check_id: str) -> int:
+        raw = rows[check_id].get("actual", "").strip()
+        try:
+            return int(raw)
+        except ValueError as exc:
+            raise ValueError(f"foundation model gate {check_id} actual is not an integer: {raw!r}") from exc
+
+    final_state = rows["M1F-MODEL-FINAL"].get("actual", "").strip()
+    if not final_state:
+        raise ValueError("foundation model final gate state is empty")
+
+    return {
+        "supports": actual_int("M1F-MODEL-G01"),
+        "members": actual_int("M1F-MODEL-G02"),
+        "components": actual_int("M1F-MODEL-G03"),
+        "status": final_state,
+    }
+
+
 def sync_domain_state_after_result(state: dict[str, Any], result: dict[str, Any]) -> None:
     """Keep CURRENT_STATE aligned with promoted queue milestones."""
     decision = result["decision"]
@@ -233,11 +264,13 @@ def sync_domain_state_after_result(state: dict[str, Any], result: dict[str, Any]
         )
 
     if work_item_id == FOUNDATION_MODEL_ID:
+        promoted = foundation_model_gate_snapshot()
+        state["gate"] = "M1-E/CALCULATION_MODEL_HANDOFF"
         foundation_progress["current_model_gate"] = FOUNDATION_MODEL_GATE_REL
-        foundation_progress["current_model_status"] = FOUNDATION_MODEL_COMPLETE_STATUS
-        foundation_progress["current_supports"] = 38
-        foundation_progress["current_foundation_members"] = 55
-        foundation_progress["current_connected_components"] = 1
+        foundation_progress["current_model_status"] = promoted["status"]
+        foundation_progress["current_supports"] = promoted["supports"]
+        foundation_progress["current_foundation_members"] = promoted["members"]
+        foundation_progress["current_connected_components"] = promoted["components"]
         foundation_progress["legacy_topology_role"] = "REGRESSION_ONLY_SUPERSEDED_AS_GEOMETRY_AUTHORITY"
         foundation_progress["next_action"] = (
             "Foundation structural assembly is complete with execution watches. "
@@ -310,7 +343,7 @@ def update_state_for_result(
 
     next_action = state.setdefault("next_action", {})
     if next_item:
-        next_action["phase"] = "PER-STOREY-SECTIONS-AND-BEAM-TOPOLOGY"
+        next_action["phase"] = next_item.get("stage") or "STRUCTURAL_MODEL_COMPLETION"
         next_action["work_item"] = next_item.get("id")
         next_action["task"] = next_item.get("task")
         next_action["target_outputs"] = list(next_item.get("target_outputs", []))
