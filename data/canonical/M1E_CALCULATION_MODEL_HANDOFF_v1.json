@@ -12,6 +12,8 @@
     "sections": "data/canonical/M1S_SECTION_GATE_v1.csv",
     "materials": "data/canonical/M1M_MATERIAL_GATE_v1.csv",
     "reinforcement": "data/canonical/M1A_REINFORCEMENT_GATE_v1.csv",
+    "reinforcement_residual_register": "data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_RESIDUAL_REGISTER_v1.csv",
+    "reinforcement_residual_gate": "data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_GATE_v1.csv",
     "loads": "data/canonical/M1L_LOAD_GATE_v1.csv",
     "foundation": "data/canonical/M1F_FOUNDATION_GATE_v1.csv",
     "foundation_xy_solver_projection": "data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json"
@@ -95,10 +97,12 @@
       "id": "M1E-B06",
       "domain": "SUPERSTRUCTURE_REINFORCEMENT_RESIDUALS",
       "blocking": true,
-      "state": "PASS_WITH_WATCH_NOT_COMPLETE_FOR_ALL_MEMBER_CHECKS",
-      "missing": ["affected_member_reinforcement_residual_closure"],
-      "reason": "M1-A explicitly states that residual reinforcement claims remain mandatory before affected member checks or CALCULATION_MODEL_READY.",
-      "closure_rule": "Resolve or explicitly exclude affected verification scopes with traceable evidence; do not extrapolate reinforcement by analogy."
+      "state": "RESIDUAL_SCOPE_BOUND_21_OPEN",
+      "missing": ["21_governed_superstructure_reinforcement_residuals"],
+      "residual_register": "data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_RESIDUAL_REGISTER_v1.csv",
+      "residual_gate": "data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_GATE_v1.csv",
+      "reason": "M1-A residual reinforcement scope is now finite and governed: 21 explicit rows carry object identity, evidence state, verification effect, closure action and forbidden inference. B06 remains blocking for affected checks and CALCULATION_MODEL_READY.",
+      "closure_rule": "Resolve each verification-relevant residual with traceable evidence or explicitly exclude its affected verification scope; do not extrapolate reinforcement by analogy or symmetry."
     },
     {
       "id": "M1E-B07",
@@ -128,8 +132,8 @@
     "Close current concrete assessment inputs and LC/FC.",
     "Complete numerical load and mass inputs for the current assessment scenario.",
     "Resolve numeric ZF_COMMON from direct datum evidence.",
-    "Resolve the fifteen foundation property gaps and affected superstructure reinforcement residuals required for verification.",
+    "Resolve the fifteen foundation property gaps and the 21 governed superstructure reinforcement residuals required by affected verification scopes.",
     "Acquire/register current site-specific geotechnical evidence."
   ],
-  "final_statement": "The solver project shell now has an admitted 38/38 foundation XY placement rule while preserving P07 evidence provenance. CALCULATION_MODEL_READY remains false because six independent blocking domains are still open."
+  "final_statement": "The solver project shell now has an admitted 38/38 foundation XY placement rule while preserving P07 evidence provenance. M1E-B06 is bounded to a 21-row governed residual register but remains open. CALCULATION_MODEL_READY remains false because six independent blocking domains are still open."
 }
