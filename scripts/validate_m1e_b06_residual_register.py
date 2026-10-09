@@ -125,8 +125,8 @@ def main() -> int:
         "stair_torrino": 3,
         "g5_roof_perimeter": 5,
         "slab_additions": 3,
-        "existing_source_targeted": 11,
-        "new_evidence_or_scope_exclusion": 10,
+        "existing_source_targeted": 9,
+        "new_evidence_or_scope_exclusion": 12,
         "g5_eave_end_reinforcement_residuals": 0,
     }
     for name, expected in expected_counts.items():
@@ -144,8 +144,8 @@ def main() -> int:
         "M1E-B06-G07": "YES",
         "M1E-B06-G08": "YES",
         "M1E-B06-G09": "NO",
-        "M1E-B06-G10": "11",
-        "M1E-B06-G11": "10",
+        "M1E-B06-G10": "9",
+        "M1E-B06-G11": "12",
         "M1E-B06-G12": "0",
         "M1E-B06-GATE": "RESIDUAL_SCOPE_BOUND_21_OPEN",
     }
@@ -182,7 +182,7 @@ def main() -> int:
         errors.append("M1E handoff status must remain RESIDUAL_NOT_CALCULATION_MODEL_READY while B06 is open")
 
     warnings.append(
-        "M1E-B06 remains open by design: process the 11 existing-source-targeted residuals only; the other 10 require new evidence or explicit scope exclusion."
+        "M1E-B06 remains open by design: process the 9 existing-source-targeted residuals only; the other 12 require new evidence or explicit scope exclusion."
     )
 
     return finish(errors, warnings, {
