@@ -44,6 +44,9 @@ jobs:
       - name: Validate knowledge architecture
         run: python scripts/validate_knowledge_system.py
 
+      - name: Verify foundation state sync derives promoted gate metrics
+        run: python scripts/test_n12_ingest_foundation_state_sync.py
+
       - name: Validate agent bootstrap
         run: python scripts/agent_bootstrap.py > /tmp/n12-agent-bootstrap.json
 
