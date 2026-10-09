@@ -36,6 +36,8 @@ on:
       - 'data/canonical/PT_MASTER_CURRENT.csv'
       - 'data/canonical/M1F_AD_HISTORICAL_MODEL_DELTA_AUDIT_v1.csv'
       - 'data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json'
+      - 'data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_RESIDUAL_REGISTER_v1.csv'
+      - 'data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_GATE_v1.csv'
       - 'scripts/validate_m1a_g5_eave_reinforcement.py'
       - 'scripts/validate_m1a_tav05a_group_transcription.py'
       - 'scripts/validate_m1a_stair_gronda_binding.py'
@@ -43,6 +45,7 @@ on:
       - 'scripts/validate_m1a_g5_column_reinforcement.py'
       - 'scripts/validate_m1a_column_carpentry_first_binding_v2.py'
       - 'scripts/validate_m1a_column_carpentry_first_binding_v3.py'
+      - 'scripts/validate_m1e_b06_residual_register.py'
       - '.github/workflows/validate-m1a-special.yml'
   pull_request:
     paths:
@@ -77,6 +80,8 @@ on:
       - 'data/canonical/PT_MASTER_CURRENT.csv'
       - 'data/canonical/M1F_AD_HISTORICAL_MODEL_DELTA_AUDIT_v1.csv'
       - 'data/canonical/STOREY_SUPPORT_CONTINUITY_G4_G5_TAV06S_v1.json'
+      - 'data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_RESIDUAL_REGISTER_v1.csv'
+      - 'data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_GATE_v1.csv'
       - 'scripts/validate_m1a_g5_eave_reinforcement.py'
       - 'scripts/validate_m1a_tav05a_group_transcription.py'
       - 'scripts/validate_m1a_stair_gronda_binding.py'
@@ -84,6 +89,7 @@ on:
       - 'scripts/validate_m1a_g5_column_reinforcement.py'
       - 'scripts/validate_m1a_column_carpentry_first_binding_v2.py'
       - 'scripts/validate_m1a_column_carpentry_first_binding_v3.py'
+      - 'scripts/validate_m1e_b06_residual_register.py'
       - '.github/workflows/validate-m1a-special.yml'
   workflow_dispatch:
 
@@ -119,3 +125,6 @@ jobs:
 
       - name: Validate carpenteria-first column reinforcement binding and IV reconciliation
         run: python scripts/validate_m1a_column_carpentry_first_binding_v3.py
+
+      - name: Validate M1E-B06 finite residual backlog
+        run: python scripts/validate_m1e_b06_residual_register.py
