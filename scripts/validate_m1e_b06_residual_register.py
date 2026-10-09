@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import sys
 from pathlib import Path
 
@@ -9,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 C = ROOT / "data" / "canonical"
 REGISTER = C / "M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_RESIDUAL_REGISTER_v1.csv"
 GATE = C / "M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_GATE_v1.csv"
+HANDOFF = C / "M1E_CALCULATION_MODEL_HANDOFF_v1.json"
 
 EXPECTED_IDS = {
     "B06-COL-G1-003",
@@ -59,7 +61,7 @@ def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
 
-    for path in [REGISTER, GATE]:
+    for path in [REGISTER, GATE, HANDOFF]:
         if not path.exists():
             errors.append(f"missing artifact: {path.relative_to(ROOT)}")
     if errors:
@@ -67,6 +69,7 @@ def main() -> int:
 
     rows = read(REGISTER)
     gate = read(GATE)
+    handoff = json.loads(HANDOFF.read_text(encoding="utf-8"))
 
     required = {
         "residual_id", "scope_type", "object_ids", "source_authority", "evidence_state",
@@ -155,6 +158,28 @@ def main() -> int:
     for concept in ["analogy", "symmetry"]:
         if concept not in forbidden_text:
             errors.append(f"B06 guard text no longer contains explicit {concept} prohibition")
+
+    authoritative = handoff.get("authoritative_inputs", {})
+    if authoritative.get("reinforcement_residual_register") != "data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_RESIDUAL_REGISTER_v1.csv":
+        errors.append("M1E handoff must reference the canonical B06 residual register")
+    if authoritative.get("reinforcement_residual_gate") != "data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_GATE_v1.csv":
+        errors.append("M1E handoff must reference the canonical B06 residual gate")
+    b06 = next((b for b in handoff.get("blocking_domains", []) if b.get("id") == "M1E-B06"), None)
+    if not b06:
+        errors.append("M1E handoff is missing blocking domain M1E-B06")
+    else:
+        if b06.get("blocking") is not True:
+            errors.append("M1E-B06 must remain blocking until evidence-backed closure")
+        if b06.get("state") != "RESIDUAL_SCOPE_BOUND_21_OPEN":
+            errors.append(f"M1E-B06 handoff state drifted: {b06.get('state')!r}")
+        if b06.get("residual_register") != "data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_RESIDUAL_REGISTER_v1.csv":
+            errors.append("M1E-B06 handoff residual_register mismatch")
+        if b06.get("residual_gate") != "data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_GATE_v1.csv":
+            errors.append("M1E-B06 handoff residual_gate mismatch")
+    if handoff.get("calculation_model_ready") is not False:
+        errors.append("M1E handoff must keep calculation_model_ready=false while B06 is open")
+    if handoff.get("status") != "RESIDUAL_NOT_CALCULATION_MODEL_READY":
+        errors.append("M1E handoff status must remain RESIDUAL_NOT_CALCULATION_MODEL_READY while B06 is open")
 
     warnings.append(
         "M1E-B06 remains open by design: process the 11 existing-source-targeted residuals only; the other 10 require new evidence or explicit scope exclusion."
