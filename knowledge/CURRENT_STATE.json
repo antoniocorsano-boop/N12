@@ -1,14 +1,14 @@
 {
   "schema_version": "1.0",
   "updated_at": "2026-10-09",
-  "gate": "M1-F/FOUNDATION_PRIMARY_EVIDENCE",
+  "gate": "M1-E/CALCULATION_MODEL_HANDOFF",
   "status": "IN_PROGRESS_WITH_AUTOMATED_PER_STOREY_CYCLE",
   "objective": "Complete the calculation-model inputs from the frozen M0-G geometry through sections, materials, reinforcement, loads, foundations and EdiLus/open-source FEM handoff while preserving source provenance and nonblocking residuals. FPEP primary foundation geometry revalidation and the successor foundation structural assembly are complete with watches; current work is restricted to the explicit M1E calculation-model blockers.",
   "geometry_master_status": "CURRENT",
   "geometry_master_path": "data/canonical/PT_MASTER_CURRENT.csv",
   "m0g_geometry_status": "FROZEN_PASS_WITH_WATCH_REVALIDATED_B055",
   "m0g_geometry_handoff": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
-  "blocking_gate": "automation/N12_FOUNDATION_PIPELINE_CONTRACT_v1.json",
+  "blocking_gate": "data/canonical/M1E_CALCULATION_MODEL_HANDOFF_v1.json",
   "automation": {
     "status": "ENABLED",
     "contract": "automation/N12_AUTOMATION_CONTRACT_v1.json",
@@ -133,7 +133,7 @@
     "next_action": "Foundation structural assembly is complete with execution watches. Resolve M1E calculation-model blockers without reopening FPEP or M0-G."
   },
   "next_action": {
-    "phase": "PER-STOREY-SECTIONS-AND-BEAM-TOPOLOGY",
+    "phase": "M1E-CALCULATION-MODEL-HANDOFF",
     "work_item": "M1E-CALCULATION-MODEL-HANDOFF",
     "task": "Resolve the explicit M1E calculation-model residuals from the frozen geometry plus validated sections, materials, reinforcement, loads and foundations. Do not reopen FPEP or M0-G without new direct evidence.",
     "target_outputs": [
