@@ -10,10 +10,10 @@
   "engineering": {
     "gate": "M1-F/FOUNDATION_PRIMARY_EVIDENCE",
     "status": "IN_PROGRESS_WITH_AUTOMATED_PER_STOREY_CYCLE",
-    "objective": "Complete the calculation-model inputs from the frozen M0-G geometry through sections, materials, reinforcement, loads, foundations and EdiLus/open-source FEM handoff while preserving source provenance and nonblocking residuals. Foundation geometry must now pass FPEP independent primary-source revalidation before M1-F analytical assembly.",
+    "objective": "Complete the calculation-model inputs from the frozen M0-G geometry through sections, materials, reinforcement, loads, foundations and EdiLus/open-source FEM handoff while preserving source provenance and nonblocking residuals. FPEP primary foundation geometry revalidation and the successor foundation structural assembly are complete with watches; current work is restricted to the explicit M1E calculation-model blockers.",
     "current_work_item": "M1E-CALCULATION-MODEL-HANDOFF",
-    "next_action": "Build the calculation-model handoff for EdiLus-EE and an independent FEM implementation from the frozen geometry plus validated sections, materials, reinforcement, loads and foundations.",
-    "completion_condition": "M1 completes only when FPEP releases primary foundation geometry, M1-F analytical foundation model is promoted with explicit provenance, and the final EdiLus/FEM handoff reaches CALCULATION_MODEL_READY."
+    "next_action": "Resolve the explicit M1E calculation-model residuals from the frozen geometry plus validated sections, materials, reinforcement, loads and foundations. Do not reopen FPEP or M0-G without new direct evidence.",
+    "completion_condition": "M1 completes only when the six explicit M1E blocking domains are resolved or formally excluded by an admitted modeling/verification rule and the final EdiLus/FEM handoff reaches CALCULATION_MODEL_READY."
   },
   "product": {
     "status": "CURRENT",
@@ -52,7 +52,7 @@
     "Unregistered artifacts are non-authoritative by default.",
     "No UI, agent result, IFC file or solver result becomes engineering authority by itself.",
     "DOC/MIS/RIF/INF/INC/ND and derived MOD/POST states must not be silently promoted.",
-    "PT geometry, common storey registration, M0-G global geometry/topology, M1-S sections, M1-M materials and existing M1-F topology/section/reinforcement work remain protected checkpoints. FPEP does not erase them: it independently revalidates foundation primary geometry and reopens only the smallest conflicting claim after direct primary evidence."
+    "PT geometry, common storey registration, M0-G global geometry/topology, M1-S sections, M1-M materials, FPEP primary foundation geometry and the successor M1-F 38/55 structural assembly remain protected checkpoints. Reopen only the smallest conflicting claim when supported by new direct primary evidence."
   ],
   "required_reads": {
     "orientation": [
@@ -75,7 +75,7 @@
   },
   "source_fingerprints": {
     "knowledge_manifest": "dd832a545d92bea94f6242c42130b360807b5c68cebf4a9db36ca771760ceb0a",
-    "current_state": "60a1956798598ccadaeb0c64fc34c081adcb6a3a5523036a42009349ce02cae0",
+    "current_state": "c89a4bfc058a79d1858f98acc43ef00930b09e5fb7fcc9652d03b03c3f9fd00e",
     "artifact_registry": "7d894ab3939de013d2b93a03076c6e4437c04a0e4044d37c081e8dde7af4db62",
     "product_state": "91aa336ca9e7306a3a1c511074701235e48b1d85cb7eac5030253179c6f3a6df"
   },
