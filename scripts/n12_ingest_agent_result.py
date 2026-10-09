@@ -19,11 +19,14 @@ MANIFEST_PATH = ROOT / "knowledge" / "KNOWLEDGE_MANIFEST.json"
 DEFAULT_INPUT = ROOT / "automation" / "inbox" / "N12_AGENT_RESULT.json"
 RECEIPT_DIR = ROOT / "automation" / "receipts"
 FPEP_WRAPPER_ID = "M1F-PRIMARY-GEOMETRY-REVALIDATION"
+FOUNDATION_MODEL_ID = "M1F-FOUNDATION-MODEL"
 FPEP_QUEUE_PATH = ROOT / "automation" / "N12_FOUNDATION_WORK_QUEUE_v1.json"
 FPEP_RECEIPT_DIR = ROOT / "automation" / "receipts" / "foundation"
 FPEP_COMPLETION_ITEM = "FPEP-P12-RELEASE-AUDIT"
 FPEP_PRIMARY_GATE = ROOT / "data" / "canonical" / "M1F_PRIMARY_GEOMETRY_GATE_v1.csv"
 FPEP_RELEASE_GATE = ROOT / "data" / "canonical" / "M1F_FPEP_RELEASE_GATE_v1.csv"
+FOUNDATION_MODEL_GATE_REL = "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
+FOUNDATION_MODEL_COMPLETE_STATUS = "FOUNDATION_STRUCTURAL_ASSEMBLY_COMPLETE_WITH_EXECUTION_WATCHES"
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -208,6 +211,40 @@ def validate_result(result: dict[str, Any]) -> tuple[list[str], list[str], dict[
     return errors, warnings, context
 
 
+def sync_domain_state_after_result(state: dict[str, Any], result: dict[str, Any]) -> None:
+    """Keep CURRENT_STATE aligned with promoted queue milestones."""
+    decision = result["decision"]
+    if decision not in {"PASS", "PASS_WITH_WATCH"}:
+        return
+
+    work_item_id = result["work_item_id"]
+    foundation_pipeline = state.setdefault("foundation_primary_evidence_pipeline", {})
+    foundation_progress = state.setdefault("foundation_progress", {})
+
+    if work_item_id == FPEP_WRAPPER_ID:
+        release_state = f"RELEASED_{decision}"
+        foundation_pipeline["status"] = release_state
+        foundation_pipeline["current_subtask"] = None
+        foundation_progress["fpep_status"] = release_state
+        foundation_progress["fpep_primary_geometry_status"] = decision
+        foundation_progress["next_action"] = (
+            "FPEP released. Consume P07/FPEP-promoted primary foundation geometry; "
+            "do not reuse the pre-P07 58-member topology as geometry authority."
+        )
+
+    if work_item_id == FOUNDATION_MODEL_ID:
+        foundation_progress["current_model_gate"] = FOUNDATION_MODEL_GATE_REL
+        foundation_progress["current_model_status"] = FOUNDATION_MODEL_COMPLETE_STATUS
+        foundation_progress["current_supports"] = 38
+        foundation_progress["current_foundation_members"] = 55
+        foundation_progress["current_connected_components"] = 1
+        foundation_progress["legacy_topology_role"] = "REGRESSION_ONLY_SUPERSEDED_AS_GEOMETRY_AUTHORITY"
+        foundation_progress["next_action"] = (
+            "Foundation structural assembly is complete with execution watches. "
+            "Resolve M1E calculation-model blockers without reopening FPEP or M0-G."
+        )
+
+
 def update_state_for_result(
     state: dict[str, Any], queue: dict[str, Any], registry: dict[str, dict[str, str]], result: dict[str, Any], receipt_rel: str
 ) -> dict[str, Any] | None:
@@ -255,6 +292,8 @@ def update_state_for_result(
     }
     automation["last_cycle_outcome"] = outcome_map[decision]
     state["updated_at"] = now.date().isoformat()
+
+    sync_domain_state_after_result(state, result)
 
     if decision == "CONFLICT":
         state["status"] = "CONFLICT_STOP"
