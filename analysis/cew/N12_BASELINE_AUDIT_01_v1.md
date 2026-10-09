@@ -256,10 +256,16 @@ La Fase 0 non richiede nuova modellazione globale. La sequenza corretta è:
 
 ## 10. Gate di uscita N12-BASELINE-AUDIT-01
 
-L'audit può essere considerato `PASS_WITH_ALIGNMENT_REQUIRED` quando:
+Stato corrente: `PASS_WITH_ALIGNMENT_REQUIRED`.
 
-- la matrice di classificazione è persistita;
-- i checkpoint `RIUSA` sono protetti da anti-restart;
-- gli artefatti `DEPRECATO` sono esclusi dall'autorità corrente;
-- i sei blocker M1E sono la sola lista di blocchi per `CALCULATION_MODEL_READY`;
-- `CURRENT_STATE` viene riallineato ai gate FPEP/M1F effettivi senza attenuare alcun watch.
+Completato:
+
+- matrice di classificazione persistita in `analysis/cew/N12_BASELINE_AUDIT_MATRIX_v1.csv`;
+- checkpoint `RIUSA` identificati e protetti da anti-restart;
+- artefatti `DEPRECATO` esclusi dall'autorità corrente;
+- sei blocker M1E identificati come sola lista di blocchi per `CALCULATION_MODEL_READY`;
+- istruzione di riallineamento persistita in `analysis/cew/N12_CURRENT_STATE_ALIGNMENT_REQUIRED_v1.json`.
+
+Residuo unico di governance:
+
+- applicare l'allineamento a `knowledge/CURRENT_STATE.json` con aggiornamento integrale e validazione del knowledge system. Finché ciò non avviene, **i gate di dominio prevalgono sul campo FPEP stantio e non è autorizzata alcuna riesecuzione P00–P11**.
