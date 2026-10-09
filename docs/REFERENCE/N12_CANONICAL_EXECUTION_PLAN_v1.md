@@ -42,47 +42,25 @@ Ogni passaggio è un gate. Il gate successivo si apre solo quando il precedente 
 
 ## 4. Fase 0 — Baseline conoscitiva canonica v1
 
-### Obiettivo
-
-Produrre una fotografia unica e verificabile di ciò che N12 sa già, senza modellazione nuova salvo quella necessaria a validare artefatti esistenti.
-
-### Input
-
-- tavole e relazioni originali;
-- fotografie e rilievi;
-- DXF e derivati storici;
-- registri e abachi;
-- dati canonici CEW;
-- modelli 2D/3D già prodotti;
-- esperimenti IFC/FEM già eseguiti;
-- gate report, receipt e decisioni precedenti.
-
-### Output minimo
-
-Una matrice unica con almeno:
-
-- entità/ambito;
-- proprietà o dato;
-- valore e unità, se disponibili;
-- fonte governata;
-- localizzatore nella fonte;
-- stato epistemico;
-- artefatto corrente che lo consuma;
-- stato `RIUSA / VERIFICA / DEPRECATO / MANCANTE`;
-- blocker reale;
-- prossimo gate pertinente.
-
 ### Stato
 
-`N12-BASELINE-AUDIT-01` è **PASS**. La baseline è congelata; non deve essere rieseguita senza una nuova evidenza che riapra un claim specifico.
+**CHIUSA — PASS.**
+
+L'audit `N12-BASELINE-AUDIT-01` ha classificato il patrimonio esistente e ha eliminato il falso residuo FPEP. Non autorizza nuova ricostruzione globale.
+
+### Output
+
+- `analysis/cew/N12_BASELINE_AUDIT_01_v1.md`;
+- `analysis/cew/N12_BASELINE_AUDIT_MATRIX_v1.csv`;
+- `analysis/cew/N12_POST_AUDIT_PRIORITY_v1.csv`.
 
 ## 5. Fase 1 — Modello geometrico parametrico
 
-### Obiettivo
+### Stato
 
-Materializzare una sola rappresentazione geometrica parametrica dell'esistente derivata dai dati governati.
+**RIUSA checkpoint qualificati.** M0-G e la geometria fondazioni FPEP non devono essere ricostruiti senza nuova evidenza primaria e procedura di reopen.
 
-### Requisiti
+### Requisiti permanenti
 
 - ID CEW stabili per ogni entità rappresentata;
 - livelli, assi, nodi, elementi e aperture derivati da fonti tracciate;
@@ -184,20 +162,17 @@ Una fase è chiusa solo quando:
 
 ## 12. Prossimo passo canonico
 
-**Work item corrente:** `M1E-CALCULATION-MODEL-HANDOFF`
+**Work item corrente:** `M1E-CALCULATION-MODEL-HANDOFF`.
 
-La Fase 0 è chiusa. Il sistema deve lavorare esclusivamente sui sei blocker M1E già registrati, senza riaprire M0-G, FPEP o la baseline globale.
+`N12-BASELINE-AUDIT-01` è chiuso e non deve essere rieseguito.
 
 Ordine operativo corrente:
 
-1. `M1E-B06` — consumare il registro finito da 21 righe; processare internamente solo le 11 righe `EXISTING_GOVERNED_SOURCE_TARGETED`, mentre le altre 10 richiedono nuova evidenza o esclusione tracciabile dello scope;
-2. `M1E-B02` — consumare il registro finito da 16 righe; nessun valore numerico è autorizzato finché non deriva da evidenza o da una regola/scenario esplicitamente ammesso;
-3. `M1E-B04` — acquisire il datum verticale fondazioni con evidenza diretta;
-4. `M1E-B05` — chiudere i 15 binding fondazione soltanto con evidenza diretta/indagine oppure escludere gli scope interessati;
-5. `M1E-B01` — registrare i dati correnti di materiale e determinare LC/FC nel gate professionale applicabile;
-6. `M1E-B07` — acquisire documentazione/indagini geotecniche correnti.
+1. `M1E-B06` — usare esclusivamente `M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_RESIDUAL_REGISTER_v1.csv`; processare le **9** righe `EXISTING_GOVERNED_SOURCE_TARGETED`; le altre **12** richiedono nuova evidenza oppure esclusione tracciabile dello scope;
+2. `M1E-B02` — usare esclusivamente il registro finito a 16 righe, senza introdurre Gk/Qk, masse, pesi unitari o fattori non tracciati;
+3. `M1E-B04`, `B05`, `B01`, `B07` — trattare solo mediante le evidenze/decisioni richieste dalla matrice post-audit.
 
-**Stop condition:** non dichiarare `CALCULATION_MODEL_READY` e non avviare una verifica strutturale corrente finché i sei blocker non sono risolti o formalmente esclusi da una regola di modellazione/verifica ammessa. Non riapplicare lo `STATE_DRIFT` già risolto.
+**Stop condition:** `CALCULATION_MODEL_READY` resta `false` finché i sei blocker M1E non sono risolti o formalmente esclusi secondo una regola ammessa. Non riaprire M0-G o FPEP senza nuova evidenza primaria.
 
 ## 13. Criterio di successo del programma
 
