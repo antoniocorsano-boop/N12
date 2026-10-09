@@ -1,0 +1,11 @@
+gate_id,check,expected,observed,status,severity,note
+M1E-B06-G01,residual_rows,21,21,PASS,HARD,"The B06 residual register contains 21 governed rows and none may disappear silently; future closure must update state rather than delete provenance."
+M1E-B06-G02,column_support_residuals,7,7,PASS,HARD,"G1 supports 3,a,b,c,d and G3 supports 9,16 remain the seven explicit column-binding residuals."
+M1E-B06-G03,g4_bar_detail_residuals,3,3,PASS,HARD,"T5A-G01-R06, T5A-G07-R07 and T5A-G05-R04 remain explicit readability/dimension residuals with their G4 member groups already identified."
+M1E-B06-G04,stair_torrino_binding_residuals,3,3,PASS,HARD,"Two recurring 20-21 stair-member candidates plus the torrino column-set binding remain special-subsystem residuals; no ordinary planar member is created by this gate."
+M1E-B06-G05,g5_roof_perimeter_residuals,5,5,PASS,HARD,"G5-B017, three distinct perimeter-edge callouts and the B036 unlabeled diagonal dimensions remain separately governed."
+M1E-B06-G06,slab_addition_residuals,3,3,PASS,HARD,"G4 cornice/slab scope, balcony slabs and G1 E03 remain explicit ND/special-addition scopes rather than receiving inferred reinforcement."
+M1E-B06-G07,all_rows_offer_traceable_closure_or_scope_exclusion,YES,YES,PASS,HARD,"Every residual has a closure action and an explicit verification-scope exclusion path when direct evidence cannot be recovered."
+M1E-B06-G08,no_analogy_promotion,YES,YES,PASS,HARD,"Every residual carries a forbidden-inference rule. No same-section, symmetry, neighboring-schedule or cross-storey analogy may promote missing reinforcement to documentary fact."
+M1E-B06-G09,b06_blocker_closed,NO,NO,PASS_WITH_WATCH,WATCH,"This gate bounds M1E-B06 but does not close it. Affected checks remain blocked until each relevant residual is resolved or explicitly excluded with traceability."
+M1E-B06-GATE,gate_state,RESIDUAL_SCOPE_BOUND_21_OPEN,RESIDUAL_SCOPE_BOUND_21_OPEN,PASS_WITH_WATCH,GATE,"B06 is now a finite governed backlog: 21 residuals, each tied to an object/scope, source authority, verification effect, closure class and forbidden inference. CALCULATION_MODEL_READY remains false."
