@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "audit_id": "N12-BASELINE-AUDIT-01",
+  "date": "2026-10-09",
+  "classification": "STATE_DRIFT_CANONICAL_ALIGNMENT_REQUIRED",
+  "source_state": {
+    "path": "knowledge/CURRENT_STATE.json",
+    "observed_gate": "M1-F/FOUNDATION_PRIMARY_EVIDENCE",
+    "observed_fpep_status": "READY_P00",
+    "observed_fpep_primary_geometry_status": "NOT_YET_PROMOTED"
+  },
+  "higher_specificity_evidence": [
+    {
+      "path": "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
+      "state": "PASS_WITH_WATCH"
+    },
+    {
+      "path": "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv",
+      "state": "PASS_WITH_WATCH",
+      "fact": "P00-P11 complete; FPEP released"
+    },
+    {
+      "path": "data/canonical/M1F_FOUNDATION_GATE_v1.csv",
+      "state": "FOUNDATION_STRUCTURAL_ASSEMBLY_COMPLETE_WITH_EXECUTION_WATCHES",
+      "fact": "38 supports / 55 primary members"
+    },
+    {
+      "path": "data/canonical/M1E_CALCULATION_MODEL_HANDOFF_v1.json",
+      "state": "RESIDUAL_NOT_CALCULATION_MODEL_READY",
+      "fact": "six independent blocking domains remain"
+    }
+  ],
+  "do_not_do": [
+    "do not rerun FPEP P00-P11",
+    "do not restore pre-P07 58-member topology as authority",
+    "do not reopen M0-G",
+    "do not weaken any PASS_WITH_WATCH residual"
+  ],
+  "required_alignment": {
+    "resume_work_item": "M1E-CALCULATION-MODEL-HANDOFF",
+    "resume_status": "RESIDUAL_NOT_CALCULATION_MODEL_READY",
+    "fpep_state": "RELEASED_PASS_WITH_WATCH",
+    "foundation_model_state": "FOUNDATION_STRUCTURAL_ASSEMBLY_COMPLETE_WITH_EXECUTION_WATCHES",
+    "calculation_model_ready": false,
+    "remaining_blockers": [
+      "M1E-B01 CURRENT_CONCRETE_AND_KNOWLEDGE_LEVEL",
+      "M1E-B02 NUMERIC_LOADS_MASSES_AND_COMBINATIONS",
+      "M1E-B04 FOUNDATION_NUMERIC_Z",
+      "M1E-B05 FOUNDATION_SECTION_AND_REINFORCEMENT_COVERAGE",
+      "M1E-B06 SUPERSTRUCTURE_REINFORCEMENT_RESIDUALS",
+      "M1E-B07 CURRENT_GEOTECHNICAL_MODEL"
+    ]
+  },
+  "mutation_policy": "Apply to knowledge/CURRENT_STATE.json only through the canonical update protocol, preserving full current content and running scripts/validate_knowledge_system.py. This file is an audit-derived alignment instruction, not a replacement state file."
+}
