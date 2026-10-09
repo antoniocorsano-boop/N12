@@ -39,6 +39,12 @@
       "title": "Linguaggio grafico storico per carpenterie in c.a. — 1975–1981",
       "status": "REFERENCE",
       "sha256": "67542cb715900c4601affdbe5e32870a43cc8d824856ca18b015ce26d8955137"
+    },
+    {
+      "path": "docs/REFERENCE/N12_CANONICAL_EXECUTION_PLAN_v1.md",
+      "title": "N12 — Piano canonico di esecuzione v1",
+      "status": "HUMAN_APPROVED — ACTIVE_REFERENCE",
+      "sha256": "78c3c7c715566ce519df41d91d102b9e1110d02658deaabcb5ecea1ea8ceec94"
     }
   ],
   "invariants": [
@@ -53,7 +59,8 @@
       "knowledge/CONTEXT_PACK_CURRENT.json",
       "docs/REFERENCE/CEW_OPEN_SOURCE_PLATFORM_BASELINE_v1.md",
       "docs/REFERENCE/CEW_PROJECT_MEMORY_FASTPATH_v1.md",
-      "docs/REFERENCE/HISTORICAL_DRAWING_LANGUAGE_1975_1981_v1.md"
+      "docs/REFERENCE/HISTORICAL_DRAWING_LANGUAGE_1975_1981_v1.md",
+      "docs/REFERENCE/N12_CANONICAL_EXECUTION_PLAN_v1.md"
     ],
     "engineering_mutation": [
       "knowledge/KNOWLEDGE_MANIFEST.json",
