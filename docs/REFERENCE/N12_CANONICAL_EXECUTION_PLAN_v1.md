@@ -72,9 +72,9 @@ Una matrice unica con almeno:
 - blocker reale;
 - prossimo gate pertinente.
 
-### Divieto
+### Stato
 
-Durante Fase 0 non si ricostruisce l'edificio da zero e non si produce un nuovo modello globale per sostituire artefatti esistenti prima dell'inventario.
+`N12-BASELINE-AUDIT-01` è **PASS**. La baseline è congelata; non deve essere rieseguita senza una nuova evidenza che riapra un claim specifico.
 
 ## 5. Fase 1 — Modello geometrico parametrico
 
@@ -184,20 +184,20 @@ Una fase è chiusa solo quando:
 
 ## 12. Prossimo passo canonico
 
-**Work item:** `N12-BASELINE-AUDIT-01`
+**Work item corrente:** `M1E-CALCULATION-MODEL-HANDOFF`
 
-**Obiettivo unico:** audit stretto del patrimonio N12 già prodotto per costruire la Baseline conoscitiva canonica v1.
+La Fase 0 è chiusa. Il sistema deve lavorare esclusivamente sui sei blocker M1E già registrati, senza riaprire M0-G, FPEP o la baseline globale.
 
-L'audit deve:
+Ordine operativo corrente:
 
-1. inventariare fonti, registri, modelli, dataset, ricevute e decisioni già presenti;
-2. eliminare i falsi residui già coperti da evidenza sufficiente;
-3. classificare gli artefatti `RIUSA / VERIFICA / DEPRECATO / MANCANTE`;
-4. mappare i veri buchi su `DOC/MIS/RIF/INF/INC/ND`;
-5. distinguere buchi risolvibili con fonti già presenti da buchi che richiedono rilievo, prova, indagine o decisione umana;
-6. produrre la sola lista di attività necessarie per chiudere Fase 0.
+1. `M1E-B06` — consumare il registro finito da 21 righe; processare internamente solo le 11 righe `EXISTING_GOVERNED_SOURCE_TARGETED`, mentre le altre 10 richiedono nuova evidenza o esclusione tracciabile dello scope;
+2. `M1E-B02` — consumare il registro finito da 16 righe; nessun valore numerico è autorizzato finché non deriva da evidenza o da una regola/scenario esplicitamente ammesso;
+3. `M1E-B04` — acquisire il datum verticale fondazioni con evidenza diretta;
+4. `M1E-B05` — chiudere i 15 binding fondazione soltanto con evidenza diretta/indagine oppure escludere gli scope interessati;
+5. `M1E-B01` — registrare i dati correnti di materiale e determinare LC/FC nel gate professionale applicabile;
+6. `M1E-B07` — acquisire documentazione/indagini geotecniche correnti.
 
-**Stop condition:** non iniziare nuova ricostruzione CAD/FEM globale prima della chiusura di `N12-BASELINE-AUDIT-01`.
+**Stop condition:** non dichiarare `CALCULATION_MODEL_READY` e non avviare una verifica strutturale corrente finché i sei blocker non sono risolti o formalmente esclusi da una regola di modellazione/verifica ammessa. Non riapplicare lo `STATE_DRIFT` già risolto.
 
 ## 13. Criterio di successo del programma
 
