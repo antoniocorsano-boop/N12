@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import sys
 from pathlib import Path
 
@@ -53,6 +54,7 @@ def main() -> int:
     source = read(SOURCE)
     rows = read(REGISTER)
     gate = read(GATE)
+    handoff = json.loads(HANDOFF.read_text(encoding="utf-8"))
 
     source_by = {r.get("load_id", "").strip(): r for r in source}
     if set(source_by) != EXPECTED_IDS:
@@ -104,12 +106,10 @@ def main() -> int:
         if r.get("canonical_source", "").strip() != "data/canonical/M1L_LOAD_MODEL_CURRENT_v1.csv":
             errors.append(f"{lid}: canonical_source must remain the M1-L current load model")
 
-        # B02 is a residual inventory only. It must not introduce numerical actions.
         for forbidden_field in ["numeric_value", "numeric_unit", "Gk", "Qk", "mass", "psi"]:
             if forbidden_field in r and r.get(forbidden_field, "").strip():
                 errors.append(f"{lid}: B02 register must not assign {forbidden_field}")
 
-    # Hard dependency guards copied from the canonical M1-L model semantics.
     by = {r.get("load_id", "").strip(): r for r in rows}
     if by.get("M1L-LM-001", {}).get("resolution_lane") != "EXISTING_PRIMARY_SOURCE_RECOVERY":
         errors.append("M1L-LM-001 must remain an existing-primary-source recovery task")
@@ -162,11 +162,32 @@ def main() -> int:
         if observed != expected:
             errors.append(f"{gid}: expected observed={expected!r}, got {observed!r}")
 
-    # Guard text must continue to prohibit the two most dangerous shortcuts.
     forbidden_text = " ".join(r.get("forbidden_inference", "") for r in rows).lower()
     for concept in ["historical", "unsourced"]:
         if concept not in forbidden_text:
             errors.append(f"B02 guard text no longer contains explicit {concept} prohibition")
+
+    authoritative = handoff.get("authoritative_inputs", {})
+    if authoritative.get("load_residual_register") != "data/canonical/M1E_B02_LOAD_RESIDUAL_REGISTER_v1.csv":
+        errors.append("M1E handoff must reference the canonical B02 residual register")
+    if authoritative.get("load_residual_gate") != "data/canonical/M1E_B02_LOAD_GATE_v1.csv":
+        errors.append("M1E handoff must reference the canonical B02 residual gate")
+    b02 = next((b for b in handoff.get("blocking_domains", []) if b.get("id") == "M1E-B02"), None)
+    if not b02:
+        errors.append("M1E handoff is missing blocking domain M1E-B02")
+    else:
+        if b02.get("blocking") is not True:
+            errors.append("M1E-B02 must remain blocking until evidence-backed closure")
+        if b02.get("state") != "RESIDUAL_SCOPE_BOUND_16_OPEN":
+            errors.append(f"M1E-B02 handoff state drifted: {b02.get('state')!r}")
+        if b02.get("residual_register") != "data/canonical/M1E_B02_LOAD_RESIDUAL_REGISTER_v1.csv":
+            errors.append("M1E-B02 handoff residual_register mismatch")
+        if b02.get("residual_gate") != "data/canonical/M1E_B02_LOAD_GATE_v1.csv":
+            errors.append("M1E-B02 handoff residual_gate mismatch")
+    if handoff.get("calculation_model_ready") is not False:
+        errors.append("M1E handoff must keep calculation_model_ready=false while B02 is open")
+    if handoff.get("status") != "RESIDUAL_NOT_CALCULATION_MODEL_READY":
+        errors.append("M1E handoff status must remain RESIDUAL_NOT_CALCULATION_MODEL_READY while B02 is open")
 
     warnings.append(
         "M1E-B02 remains open by design: the 16 M1-L residual rows are bounded, but zero current numerical load rows, masses or assessment combinations are authorized."
