@@ -95,8 +95,13 @@ jobs:
       - name: Fetch immutable source branch
         run: git fetch origin archive/originali-alta-risoluzione:refs/remotes/origin/archive/originali-alta-risoluzione
 
-      - name: Install PDF tools
-        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install bounded PDF renderer
+        run: python -m pip install --disable-pip-version-check pypdfium2==4.30.0 pillow
 
       - name: Extract bounded B06 primary sources
         shell: bash
@@ -107,18 +112,34 @@ jobs:
           git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola 6.pdf' > .source_tmp/TAV06A.pdf
           git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola 6-1.pdf' > .source_tmp/TAV06S.pdf
 
-      - name: Extract native raster review sources
-        shell: bash
+      - name: Render bounded review rasters at 200 dpi
         run: |
-          set -euo pipefail
-          for id in TAV05A TAV06A TAV06S; do
-            mkdir -p "/tmp/b06-evidence-pack/$id"
-            pdfimages -f 1 -l 1 -png ".source_tmp/$id.pdf" ".source_tmp/${id,,}"
-            largest="$(find .source_tmp -maxdepth 1 -type f -name "${id,,}-*.png" -printf '%s %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
-            test -n "$largest"
-            cp "$largest" "/tmp/b06-evidence-pack/$id/source.png"
-            sha256sum "/tmp/b06-evidence-pack/$id/source.png" > "/tmp/b06-evidence-pack/$id/source.sha256"
-          done
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          import pypdfium2 as pdfium
+
+          src_root = Path('.source_tmp')
+          out_root = Path('/tmp/b06-evidence-pack')
+          scale = 200.0 / 72.0
+          for source_id in ('TAV05A', 'TAV06A', 'TAV06S'):
+              pdf_path = src_root / f'{source_id}.pdf'
+              out_dir = out_root / source_id
+              out_dir.mkdir(parents=True, exist_ok=True)
+              pdf = pdfium.PdfDocument(str(pdf_path))
+              page = pdf[0]
+              bitmap = page.render(scale=scale)
+              image = bitmap.to_pil().convert('RGB')
+              png_path = out_dir / 'source_200dpi.png'
+              image.save(png_path, optimize=True)
+              digest = hashlib.sha256(png_path.read_bytes()).hexdigest()
+              (out_dir / 'manifest.txt').write_text(
+                  f'render_dpi=200\nsize_px={image.width}x{image.height}\nsha256={digest}\n',
+                  encoding='utf-8'
+              )
+              page.close()
+              pdf.close()
+          PY
 
       - name: Upload B06 evidence review pack
         uses: actions/upload-artifact@v4
