@@ -104,17 +104,14 @@ jobs:
           set -euo pipefail
           mkdir -p .source_tmp /tmp/b06-evidence-pack
           git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola 5-3.pdf' > .source_tmp/TAV05A.pdf
-          git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola3a-4a.pdf' > .source_tmp/TAV034A.pdf
-          git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola 5.pdf' > .source_tmp/TAV05S.pdf
           git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola 6.pdf' > .source_tmp/TAV06A.pdf
           git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola 6-1.pdf' > .source_tmp/TAV06S.pdf
-          git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola6-2.pdf' > .source_tmp/TAV06E.pdf
 
-      - name: Extract native raster and build overlapping tiles
+      - name: Extract native raster and build bounded overlapping tiles
         shell: bash
         run: |
           set -euo pipefail
-          for id in TAV05A TAV034A TAV05S TAV06A TAV06S TAV06E; do
+          for id in TAV05A TAV06A TAV06S; do
             mkdir -p "/tmp/b06-evidence-pack/$id"
             pdfimages -f 1 -l 1 -png ".source_tmp/$id.pdf" ".source_tmp/${id,,}"
             largest="$(find .source_tmp -maxdepth 1 -type f -name "${id,,}-*.png" -printf '%s %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
@@ -128,7 +125,11 @@ jobs:
           root = Path('/tmp/b06-evidence-pack')
           for source_dir in sorted(p for p in root.iterdir() if p.is_dir()):
               src = source_dir / 'page.png'
-              im = Image.open(src).convert('RGB')
+              with Image.open(src) as opened:
+                  im = opened.copy()
+              original_w, original_h = im.size
+              im.thumbnail((12000, 12000), Image.Resampling.LANCZOS)
+              im = im.convert('RGB')
               w, h = im.size
               ov = im.copy(); ov.thumbnail((2200, 2200))
               ov.save(source_dir / 'overview.jpg', quality=94)
@@ -140,7 +141,7 @@ jobs:
                       x1=min(w, int((c+1)*cw+overlap*cw)); y1=min(h, int((r+1)*ch+overlap*ch))
                       im.crop((x0,y0,x1,y1)).save(source_dir/f'r{r+1}_c{c+1}.jpg', quality=95)
               (source_dir/'manifest.txt').write_text(
-                  f'source_size_px={w}x{h}\nrows={rows}\ncols={cols}\noverlap={overlap}\nsource_raster=native_embedded\n',
+                  f'original_source_size_px={original_w}x{original_h}\nreview_size_px={w}x{h}\nrows={rows}\ncols={cols}\noverlap={overlap}\nsource_raster=native_embedded\n',
                   encoding='utf-8'
               )
               src.unlink()
