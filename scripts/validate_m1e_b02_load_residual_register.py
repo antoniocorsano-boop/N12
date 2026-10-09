@@ -16,10 +16,11 @@ HANDOFF = C / "M1E_CALCULATION_MODEL_HANDOFF_v1.json"
 EXPECTED_IDS = {f"M1L-LM-{i:03d}" for i in range(1, 17)}
 ALLOWED_PROVENANCE = {"DOC", "RIF", "ND"}
 ALLOWED_LANES = {
-    "EXISTING_PRIMARY_SOURCE_RECOVERY",
+    "NEW_PRIMARY_SOURCE_ACQUISITION_OR_SCOPE_EXCLUSION",
     "EXPLICIT_MODEL_PARAMETER_OR_EVIDENCE",
     "USE_CLASSIFICATION_AND_ADOPTED_ASSESSMENT_RULE",
     "EVIDENCE_BINDING_OR_SCOPE_EXCLUSION",
+    "NEW_EVIDENCE_OR_SCOPE_EXCLUSION",
     "DEPENDENT_DOWNSTREAM_AFTER_UPSTREAM_CLOSURE",
 }
 
@@ -100,7 +101,7 @@ def main() -> int:
         if r.get("resolution_lane", "").strip() not in ALLOWED_LANES:
             errors.append(f"{lid}: invalid resolution_lane={r.get('resolution_lane', '')!r}")
         if "OR_SCOPE_EXCLUSION" not in r.get("closure_class", "") and lid not in {
-            "M1L-LM-001", "M1L-LM-002", "M1L-LM-005", "M1L-LM-014", "M1L-LM-015", "M1L-LM-016"
+            "M1L-LM-002", "M1L-LM-005", "M1L-LM-014", "M1L-LM-015", "M1L-LM-016"
         }:
             errors.append(f"{lid}: evidence/binding residual must preserve explicit scope-exclusion path")
         if r.get("canonical_source", "").strip() != "data/canonical/M1L_LOAD_MODEL_CURRENT_v1.csv":
@@ -111,12 +112,14 @@ def main() -> int:
                 errors.append(f"{lid}: B02 register must not assign {forbidden_field}")
 
     by = {r.get("load_id", "").strip(): r for r in rows}
-    if by.get("M1L-LM-001", {}).get("resolution_lane") != "EXISTING_PRIMARY_SOURCE_RECOVERY":
-        errors.append("M1L-LM-001 must remain an existing-primary-source recovery task")
+    if by.get("M1L-LM-001", {}).get("resolution_lane") != "NEW_PRIMARY_SOURCE_ACQUISITION_OR_SCOPE_EXCLUSION":
+        errors.append("M1L-LM-001 must require new primary-source acquisition or historical-scope exclusion; RC-P13 is not materialized in the current repository/archive tree")
     if by.get("M1L-LM-002", {}).get("resolution_lane") != "EXPLICIT_MODEL_PARAMETER_OR_EVIDENCE":
         errors.append("M1L-LM-002 must remain an explicit model-parameter/evidence task")
     if by.get("M1L-LM-005", {}).get("resolution_lane") != "USE_CLASSIFICATION_AND_ADOPTED_ASSESSMENT_RULE":
         errors.append("M1L-LM-005 must remain a use-classification/adopted-rule task")
+    if by.get("M1L-LM-006", {}).get("resolution_lane") != "NEW_EVIDENCE_OR_SCOPE_EXCLUSION":
+        errors.append("M1L-LM-006 must require new evidence or scope exclusion because the canonical delta register closes the current repository search until new evidence enters")
     for lid in ["M1L-LM-014", "M1L-LM-015", "M1L-LM-016"]:
         if by.get(lid, {}).get("resolution_lane") != "DEPENDENT_DOWNSTREAM_AFTER_UPSTREAM_CLOSURE":
             errors.append(f"{lid} must remain downstream-dependent")
@@ -134,10 +137,11 @@ def main() -> int:
         "DOC": 6,
         "RIF": 4,
         "ND": 6,
-        "EXISTING_PRIMARY_SOURCE_RECOVERY": 1,
+        "NEW_PRIMARY_SOURCE_ACQUISITION_OR_SCOPE_EXCLUSION": 1,
         "EXPLICIT_MODEL_PARAMETER_OR_EVIDENCE": 1,
         "USE_CLASSIFICATION_AND_ADOPTED_ASSESSMENT_RULE": 1,
-        "EVIDENCE_BINDING_OR_SCOPE_EXCLUSION": 10,
+        "EVIDENCE_BINDING_OR_SCOPE_EXCLUSION": 9,
+        "NEW_EVIDENCE_OR_SCOPE_EXCLUSION": 1,
         "DEPENDENT_DOWNSTREAM_AFTER_UPSTREAM_CLOSURE": 3,
     }
     for key, expected in expected_counts.items():
@@ -155,6 +159,10 @@ def main() -> int:
         "M1E-B02-G06": "3",
         "M1E-B02-G07": "NO",
         "M1E-B02-G08": "NO",
+        "M1E-B02-G09": "0",
+        "M1E-B02-G10": "1",
+        "M1E-B02-G11": "1",
+        "M1E-B02-G12": "9",
         "M1E-B02-GATE": "RESIDUAL_SCOPE_BOUND_16_OPEN",
     }
     for gid, expected in expected_gate.items():
@@ -190,7 +198,7 @@ def main() -> int:
         errors.append("M1E handoff status must remain RESIDUAL_NOT_CALCULATION_MODEL_READY while B02 is open")
 
     warnings.append(
-        "M1E-B02 remains open by design: the 16 M1-L residual rows are bounded, but zero current numerical load rows, masses or assessment combinations are authorized."
+        "M1E-B02 remains open by design: RC-P13 requires new primary-source acquisition, PT numeric build-up requires new evidence, and zero current numerical load rows, masses or assessment combinations are authorized."
     )
 
     return finish(errors, warnings, {
@@ -198,6 +206,9 @@ def main() -> int:
         "doc_rows": provenance_counts["DOC"],
         "rif_rows": provenance_counts["RIF"],
         "nd_rows": provenance_counts["ND"],
+        "new_primary_source_rows": lane_counts["NEW_PRIMARY_SOURCE_ACQUISITION_OR_SCOPE_EXCLUSION"],
+        "new_evidence_rows": lane_counts["NEW_EVIDENCE_OR_SCOPE_EXCLUSION"],
+        "existing_binding_rows": lane_counts["EVIDENCE_BINDING_OR_SCOPE_EXCLUSION"],
         "downstream_dependent_rows": lane_counts["DEPENDENT_DOWNSTREAM_AFTER_UPSTREAM_CLOSURE"],
         "numeric_load_rows_ready": 0,
         "b02_closed": "NO",
