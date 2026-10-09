@@ -4,13 +4,18 @@ on:
   push:
     branches:
       - work/m0-global-model
+  pull_request:
+    paths:
+      - '.github/workflows/render-archived-structural-sources.yml'
+      - 'data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_RESIDUAL_REGISTER_v1.csv'
+      - 'data/canonical/M1E_B06_SUPERSTRUCTURE_REINFORCEMENT_GATE_v1.csv'
 
 permissions:
   contents: write
 
 jobs:
   render:
-    if: ${{ !contains(github.event.head_commit.message, '[render-source]') }}
+    if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '[render-source]') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout working branch
@@ -75,3 +80,73 @@ jobs:
             git commit -m "chore: render archived TAV02S and TAV07 [render-source]"
             git push origin HEAD:work/m0-global-model
           fi
+
+  b06-review-pack:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout review branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch immutable source branch
+        run: git fetch origin archive/originali-alta-risoluzione:refs/remotes/origin/archive/originali-alta-risoluzione
+
+      - name: Install PDF tools
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils python3-pil
+
+      - name: Extract bounded B06 primary sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .source_tmp /tmp/b06-evidence-pack
+          git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola 5-3.pdf' > .source_tmp/TAV05A.pdf
+          git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola3a-4a.pdf' > .source_tmp/TAV034A.pdf
+          git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola 5.pdf' > .source_tmp/TAV05S.pdf
+          git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola 6.pdf' > .source_tmp/TAV06A.pdf
+          git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola 6-1.pdf' > .source_tmp/TAV06S.pdf
+          git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola6-2.pdf' > .source_tmp/TAV06E.pdf
+
+      - name: Render 300 dpi overview and overlapping tiles
+        shell: bash
+        run: |
+          set -euo pipefail
+          for id in TAV05A TAV034A TAV05S TAV06A TAV06S TAV06E; do
+            mkdir -p "/tmp/b06-evidence-pack/$id"
+            pdftoppm -f 1 -l 1 -singlefile -r 300 -png ".source_tmp/$id.pdf" "/tmp/b06-evidence-pack/$id/page"
+          done
+          python3 - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+
+          root = Path('/tmp/b06-evidence-pack')
+          for source_dir in sorted(p for p in root.iterdir() if p.is_dir()):
+              src = source_dir / 'page.png'
+              im = Image.open(src).convert('RGB')
+              w, h = im.size
+              ov = im.copy(); ov.thumbnail((2200, 2200))
+              ov.save(source_dir / 'overview.jpg', quality=94)
+              rows, cols, overlap = 4, 4, 0.08
+              cw, ch = w / cols, h / rows
+              for r in range(rows):
+                  for c in range(cols):
+                      x0=max(0, int(c*cw-overlap*cw)); y0=max(0, int(r*ch-overlap*ch))
+                      x1=min(w, int((c+1)*cw+overlap*cw)); y1=min(h, int((r+1)*ch+overlap*ch))
+                      im.crop((x0,y0,x1,y1)).save(source_dir/f'r{r+1}_c{c+1}.jpg', quality=95)
+              (source_dir/'manifest.txt').write_text(
+                  f'source_size_px={w}x{h}\nrows={rows}\ncols={cols}\noverlap={overlap}\nrender_dpi=300\n',
+                  encoding='utf-8'
+              )
+              src.unlink()
+          PY
+
+      - name: Upload B06 evidence review pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: n12-b06-primary-evidence-pack
+          path: /tmp/b06-evidence-pack/
+          if-no-files-found: error
+          retention-days: 7
