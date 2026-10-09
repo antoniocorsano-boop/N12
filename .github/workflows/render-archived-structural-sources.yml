@@ -110,13 +110,16 @@ jobs:
           git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola 6-1.pdf' > .source_tmp/TAV06S.pdf
           git show refs/remotes/origin/archive/originali-alta-risoluzione:'archive/documentazione_originaria/tavola6-2.pdf' > .source_tmp/TAV06E.pdf
 
-      - name: Render 300 dpi overview and overlapping tiles
+      - name: Extract native raster and build overlapping tiles
         shell: bash
         run: |
           set -euo pipefail
           for id in TAV05A TAV034A TAV05S TAV06A TAV06S TAV06E; do
             mkdir -p "/tmp/b06-evidence-pack/$id"
-            pdftoppm -f 1 -l 1 -singlefile -r 300 -png ".source_tmp/$id.pdf" "/tmp/b06-evidence-pack/$id/page"
+            pdfimages -f 1 -l 1 -png ".source_tmp/$id.pdf" ".source_tmp/${id,,}"
+            largest="$(find .source_tmp -maxdepth 1 -type f -name "${id,,}-*.png" -printf '%s %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
+            test -n "$largest"
+            cp "$largest" "/tmp/b06-evidence-pack/$id/page.png"
           done
           python3 - <<'PY'
           from PIL import Image
@@ -137,7 +140,7 @@ jobs:
                       x1=min(w, int((c+1)*cw+overlap*cw)); y1=min(h, int((r+1)*ch+overlap*ch))
                       im.crop((x0,y0,x1,y1)).save(source_dir/f'r{r+1}_c{c+1}.jpg', quality=95)
               (source_dir/'manifest.txt').write_text(
-                  f'source_size_px={w}x{h}\nrows={rows}\ncols={cols}\noverlap={overlap}\nrender_dpi=300\n',
+                  f'source_size_px={w}x{h}\nrows={rows}\ncols={cols}\noverlap={overlap}\nsource_raster=native_embedded\n',
                   encoding='utf-8'
               )
               src.unlink()
