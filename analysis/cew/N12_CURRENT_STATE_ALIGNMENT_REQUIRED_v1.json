@@ -1,9 +1,9 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "audit_id": "N12-BASELINE-AUDIT-01",
   "date": "2026-10-09",
-  "classification": "STATE_DRIFT_CANONICAL_ALIGNMENT_REQUIRED",
-  "source_state": {
+  "classification": "STATE_DRIFT_RESOLVED",
+  "historical_source_state": {
     "path": "knowledge/CURRENT_STATE.json",
     "observed_gate": "M1-F/FOUNDATION_PRIMARY_EVIDENCE",
     "observed_fpep_status": "READY_P00",
@@ -30,13 +30,9 @@
       "fact": "six independent blocking domains remain"
     }
   ],
-  "do_not_do": [
-    "do not rerun FPEP P00-P11",
-    "do not restore pre-P07 58-member topology as authority",
-    "do not reopen M0-G",
-    "do not weaken any PASS_WITH_WATCH residual"
-  ],
-  "required_alignment": {
+  "applied_alignment": {
+    "state_path": "knowledge/CURRENT_STATE.json",
+    "current_gate": "M1-E/CALCULATION_MODEL_HANDOFF",
     "resume_work_item": "M1E-CALCULATION-MODEL-HANDOFF",
     "resume_status": "RESIDUAL_NOT_CALCULATION_MODEL_READY",
     "fpep_state": "RELEASED_PASS_WITH_WATCH",
@@ -51,5 +47,12 @@
       "M1E-B07 CURRENT_GEOTECHNICAL_MODEL"
     ]
   },
-  "mutation_policy": "Apply to knowledge/CURRENT_STATE.json only through the canonical update protocol, preserving full current content and running scripts/validate_knowledge_system.py. This file is an audit-derived alignment instruction, not a replacement state file."
+  "do_not_do": [
+    "do not reapply this historical alignment instruction",
+    "do not rerun FPEP P00-P11",
+    "do not restore pre-P07 58-member topology as authority",
+    "do not reopen M0-G",
+    "do not weaken any PASS_WITH_WATCH residual"
+  ],
+  "mutation_policy": "Alignment is applied. Future state changes must derive from current canonical gates/receipts and must not replay the historical READY_P00 instruction."
 }
