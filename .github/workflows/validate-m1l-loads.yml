@@ -11,8 +11,10 @@ on:
       - 'data/canonical/M1_SPECIAL_CONFIGURATION_LOADS_REGISTER_v1.csv'
       - 'data/canonical/M1A_G5_EAVE_CANTILEVER_ENDS_CURRENT_v1.csv'
       - 'data/canonical/M1F_GROUND_FLOOR_INTERFACE_CURRENT_v1.csv'
+      - 'analysis/cew/N12_M1E_B02_NTC_RULEPACK_*.csv'
       - 'scripts/validate_m1l_loads.py'
       - 'scripts/validate_m1e_b02_load_residual_register.py'
+      - 'scripts/validate_m1e_b02_ntc_rulepack_candidate.py'
       - '.github/workflows/validate-m1l-loads.yml'
   pull_request:
     paths:
@@ -22,8 +24,10 @@ on:
       - 'data/canonical/M1_SPECIAL_CONFIGURATION_LOADS_REGISTER_v1.csv'
       - 'data/canonical/M1A_G5_EAVE_CANTILEVER_ENDS_CURRENT_v1.csv'
       - 'data/canonical/M1F_GROUND_FLOOR_INTERFACE_CURRENT_v1.csv'
+      - 'analysis/cew/N12_M1E_B02_NTC_RULEPACK_*.csv'
       - 'scripts/validate_m1l_loads.py'
       - 'scripts/validate_m1e_b02_load_residual_register.py'
+      - 'scripts/validate_m1e_b02_ntc_rulepack_candidate.py'
       - '.github/workflows/validate-m1l-loads.yml'
   workflow_dispatch:
 
@@ -47,3 +51,6 @@ jobs:
 
       - name: Validate M1E-B02 finite load residual register
         run: python scripts/validate_m1e_b02_load_residual_register.py
+
+      - name: Validate M1E-B02 NTC candidate rulepack
+        run: python scripts/validate_m1e_b02_ntc_rulepack_candidate.py
