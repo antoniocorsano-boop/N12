@@ -1,0 +1,10 @@
+gate_id,metric,expected,observed,status,severity,note
+M1E-B02-G01,target_load_residual_rows,16,16,PASS,HARD,"The complete M1L-LM-001..016 identity set is bounded by the B02 register."
+M1E-B02-G02,doc_provenance_rows,6,6,PASS,HARD,"DOC remains limited to the six rows whose source model already carries documentary evidence for the stated geometry/existence domain; this does not imply numerical readiness."
+M1E-B02-G03,rif_provenance_rows,4,4,PASS,HARD,"Four rows remain RIF and cannot be promoted to DOC/MIS without direct evidence."
+M1E-B02-G04,nd_provenance_rows,6,6,PASS,HARD,"Six rows remain ND where current evidence does not yet establish required numerical/model inputs."
+M1E-B02-G05,numeric_load_rows_ready,0,0,PASS,HARD,"No current Gk, Qk, unit weight, mass, eccentricity or combination parameter is introduced by B02."
+M1E-B02-G06,downstream_dependent_rows,3,3,PASS,HARD,"Historical-vs-as-built delta, seismic mass and current combinations remain downstream of traceable upstream load closure."
+M1E-B02-G07,b02_closed,NO,NO,PASS_WITH_WATCH,WATCH,"B02 is finite but open; each verification-relevant residual still requires evidence, an explicitly admitted model rule/scenario, or scoped exclusion as applicable."
+M1E-B02-G08,calculation_model_ready,NO,NO,PASS_WITH_WATCH,WATCH,"CALCULATION_MODEL_READY remains blocked; the residual register is governance, not numerical load authorization."
+M1E-B02-GATE,gate_state,RESIDUAL_SCOPE_BOUND_16_OPEN,RESIDUAL_SCOPE_BOUND_16_OPEN,PASS_WITH_WATCH,GATE,"M1E-B02 is bounded to the sixteen canonical M1-L load-model rows with provenance and dependencies preserved; no numerical action, mass or assessment combination has been fabricated or authorized."
