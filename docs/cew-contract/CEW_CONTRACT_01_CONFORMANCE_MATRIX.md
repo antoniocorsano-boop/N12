@@ -6,14 +6,14 @@
 
 | ID | Test | Status | Criterion | Evidence |
 |---|---|---|---|---|
-| C01-T01 | Rappresentabilità N12 | NOT_RUN | I casi N12 richiesti dalla spec sono rappresentabili senza campi N12-specifici. | — |
-| C01-T02 | Provenienza completa | NOT_RUN | Un Result reale è risalibile fino alla Source originale attraverso tutta la catena CEW. | — |
-| C01-T03 | Conflict reale | NOT_RUN | Due proposizioni reali incompatibili possono coesistere senza scelta prematura. | — |
-| C01-T04 | Aggiornamento non distruttivo | NOT_RUN | Nuova evidenza crea nuovo stato senza riscrivere snapshot/run/risultati precedenti. | — |
-| C01-T05 | Identità strutturale | NOT_RUN | L'identità fisica resta stabile attraverso revisioni di proprietà; alias non sono ID primari. | — |
+| C01-T01 | Rappresentabilità N12 | REVIEW_REQUIRED | I casi N12 richiesti dalla spec sono rappresentabili senza campi N12-specifici. | `N12_SOURCE_SUFFICIENCY.md`: fonti secondarie disponibili, casi da materializzare. |
+| C01-T02 | Provenienza completa | BLOCKED_SOURCE | Un Result reale è risalibile fino alla Source originale attraverso tutta la catena CEW. | Fonti originali storiche inventariate ma non presenti/localizzabili nel repository corrente. |
+| C01-T03 | Conflict reale | BLOCKED_SOURCE | Due proposizioni reali incompatibili possono coesistere senza scelta prematura. | Nessun conflitto reale localizzato ancora dimostrato. |
+| C01-T04 | Aggiornamento non distruttivo | BLOCKED_SOURCE | Nuova evidenza crea nuovo stato senza riscrivere snapshot/run/risultati precedenti. | Nessuna sequenza storica completa localizzata ancora dimostrata. |
+| C01-T05 | Identità strutturale | REVIEW_REQUIRED | L'identità fisica resta stabile attraverso revisioni di proprietà; alias non sono ID primari. | `BEAM-004/006` e `telaio_5.csv` consentono il caso di fixture, da eseguire. |
 | C01-T06 | Indipendenza dallo strumento | NOT_RUN | Il nucleo logico non dipende da CAD, IFC, solver, database o serializzazione specifici. | — |
-| C01-T07 | Incertezza | NOT_RUN | ND, DOC conflittuale, misura con tolleranza, INF e Assumption di Scenario restano distinguibili. | — |
-| C01-T08 | Relationship incerta | NOT_RUN | Una Relationship può avere Evidence, stato epistemico, Conflict e Decision propri. | — |
+| C01-T07 | Incertezza | REVIEW_REQUIRED | ND, DOC conflittuale, misura con tolleranza, INF e Assumption di Scenario restano distinguibili. | `SEC-002`, `M0G-002`, `GEO-005` abilitano casi parziali. |
+| C01-T08 | Relationship incerta | BLOCKED_SOURCE | Una Relationship può avere Evidence, stato epistemico, Conflict e Decision propri. | Nessuna Relationship incerta localizzata ancora dimostrata. |
 | C01-T09 | Riproducibilità | NOT_RUN | ModelGeneration e SolverRun identificano univocamente snapshot/scenario/versioni/input/output. | — |
 | C01-T10 | Assurance | NOT_RUN | Una trasformazione reale attraversa input → output → Verification → Receipt anche in FAIL/REVIEW_REQUIRED. | — |
 | C01-T11 | Minima sufficienza | NOT_RUN | Ogni entità V1 è giustificata da almeno un caso reale; il superfluo è rinviato. | — |
