@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Dimostrare, su casi N12 reali e senza scegliere ancora database/serializzazione/CAD/IFC/solver, che il contratto logico CEW-CONTRACT-01 rappresenta correttamente provenienza, conoscenza, identità strutturale, conflitti, versionamento, scenari e assurance; in mancanza delle evidenze necessarie il gate deve fallire in modo esplicito e tracciato.
+**Goal:** Dimostrare, su casi N12 reali e senza scegliere ancora database, serializzazione, CAD, IFC o solver, che il contratto logico CEW-CONTRACT-01 rappresenta correttamente provenienza, conoscenza, identità strutturale, conflitti, versionamento, scenari e assurance; quando le evidenze non bastano, il gate deve fallire in modo esplicito e tracciato.
 
-**Architecture:** La specifica approvata resta normativa. La qualifica usa un pacchetto di evidenze Markdown separato dal patrimonio canonico N12: una matrice di conformità guida i casi RED→GREEN, ogni caso cita solo dati già presenti nel Registro Master/dataset o fonti originali effettivamente reperite, e nessun artefatto di qualifica modifica `docs/REGISTRO_MASTER.md` o `data/canonical/`. Il risultato finale è un report PASS/NOT_QUALIFIED con blocker verificabili; nessuna tecnologia di persistenza o solver viene promossa implicitamente.
+**Architecture:** La specifica approvata resta normativa. La qualifica usa un pacchetto di evidenze Markdown separato dal patrimonio canonico N12: una matrice di conformità guida casi RED→GREEN, ogni caso usa solo dati già presenti nel Registro Master/dataset o fonti originali effettivamente reperite, e nessun artefatto di qualifica modifica `docs/REGISTRO_MASTER.md` o `data/canonical/`. Il risultato finale è `PASS` oppure `NOT_QUALIFIED`, senza promozione implicita di alcuna tecnologia.
 
-**Tech Stack:** Markdown, Git, dati/documenti N12 esistenti; comandi di verifica con shell/Python standard library soltanto per controlli di struttura e coerenza testuale. Nessuna dipendenza runtime CEW introdotta.
+**Tech Stack:** Markdown, Git, documenti/dati N12 esistenti; shell/Python standard library solo per controlli di struttura e coerenza testuale. Nessuna dipendenza runtime CEW.
 
 **Spec:** `docs/superpowers/specs/2026-10-12-cew-contract-01-design.md`
 
@@ -14,20 +14,20 @@
 
 - Il contratto resta indipendente da database, JSON Schema, RDF, IFC, CAD e solver.
 - N12 è caso pilota, non modello concettuale.
-- Nessun valore `ND`, `INC` o `INF` viene promosso a `DOC` per completare un caso di test.
-- Nessun conflitto N12 viene inventato: se non esiste un caso reale sufficientemente documentato, il test resta `BLOCKED_SOURCE`.
-- Nessun SolverRun/Result viene simulato e presentato come risultato tecnico reale: se non è reperibile un artefatto N12 reale, il test end-to-end resta bloccato.
-- `docs/REGISTRO_MASTER.md` e `data/canonical/` non vengono modificati durante questa qualifica, salvo una separata decisione esplicita su una correzione fattuale.
-- Alias quali `T5`, `G3`, `TAV.5` non diventano tipi o identità primarie CEW.
-- Ogni PASS deve indicare evidenza e criterio; assenza di evidenza significa FAIL/BLOCKED, non assunzione.
+- Nessun `ND`, `INC` o `INF` viene promosso a `DOC` per far passare un test.
+- Nessun conflitto viene inventato: se manca un caso reale, lo stato è `BLOCKED_SOURCE`.
+- Nessun SolverRun/Result fittizio viene presentato come risultato tecnico reale: se manca un artefatto N12 reale, lo stato è `BLOCKED_INPUT`.
+- `docs/REGISTRO_MASTER.md` e `data/canonical/` non vengono modificati durante la qualifica, salvo separata decisione esplicita su una correzione fattuale.
+- Alias quali `T5`, `G3`, `TAV.5` non diventano tipi o identità CEW.
+- Ogni `PASS` deve indicare evidenza e criterio; assenza di evidenza significa `FAIL`/`BLOCKED_*`, non assunzione.
 
 ## Review Focus
 
-1. **Dati mancanti (`ND`)** — devono restare mancanti e non ricevere default impliciti; il caso `SEC-002`/`M0G-002` deve provarlo.
-2. **Stati misti (`DOC/INF`)** — `GEO-005` non deve essere appiattito a un unico stato più forte; il caso deve conservare la parte documentale e quella inferenziale.
-3. **Identità fisica vs alias/documenti** — lo stesso elemento deve mantenere un CEW object ID di riferimento anche quando è descritto da alias/telaio/livello differenti.
-4. **Conflitto irrisolto** — deve poter restare aperto senza forzare una CanonicalProperty; se manca un conflitto N12 reale, il gate deve dichiararlo come blocker.
-5. **Catena end-to-end** — non deve essere “completata” con un run fittizio; serve un artefatto N12 reale o lo stato `BLOCKED_INPUT`.
+1. **Dati mancanti (`ND`)** — devono restare mancanti, senza default impliciti.
+2. **Stati misti (`DOC/INF`)** — `GEO-005` non deve essere appiattito a uno stato più forte.
+3. **Identità fisica vs alias** — lo stesso elemento mantiene un object ID di riferimento anche se cambia rappresentazione/alias.
+4. **Conflitto irrisolto** — deve poter restare aperto senza forzare una CanonicalProperty.
+5. **Catena end-to-end** — non può essere completata con un run sintetico; serve un artefatto reale oppure `BLOCKED_INPUT`.
 
 ---
 
@@ -38,41 +38,44 @@
 - Create: `evidence/cew-contract-01/README.md`
 
 **Interfaces:**
-- Consumes: requisiti e test §§23–24 della spec CEW-CONTRACT-01.
-- Produces: elenco normativo dei test `C01-T01`…`C01-T11` con stato, criterio, evidenza richiesta e owner del caso; convenzioni del pacchetto `evidence/cew-contract-01/`.
+- Consumes: spec §§23–24.
+- Produces: undici test `C01-T01`…`C01-T11` e le regole del pacchetto evidenze.
 
-- [ ] **Step 1: Scrivere la matrice iniziale in stato RED**
+- [ ] **Step 1: Scrivere la matrice in stato RED**
 
-Creare undici righe corrispondenti a: rappresentabilità N12, provenienza completa, conflitto reale, aggiornamento non distruttivo, identità strutturale, indipendenza dallo strumento, incertezza, Relationship incerta, riproducibilità, assurance, minima sufficienza. Stato iniziale di ogni riga: `NOT_RUN`.
+Usare esattamente le colonne:
 
-- [ ] **Step 2: Verificare che nessun test parta già PASS**
+`| ID | Test | Status | Criterion | Evidence |`
 
-Run:
+con undici righe, una per ciascun test della spec, tutte inizialmente `NOT_RUN`.
+
+- [ ] **Step 2: Verificare RED**
+
 ```bash
 python - <<'PY'
 from pathlib import Path
+import re
 p=Path('docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md').read_text()
-assert p.count('C01-T') == 11
-assert '| PASS |' not in p
-assert p.count('NOT_RUN') == 11
+rows=re.findall(r'^\| (C01-T\d{2}) \| .*? \| (NOT_RUN|PASS|FAIL|BLOCKED_SOURCE|BLOCKED_INPUT|REVIEW_REQUIRED) \|', p, re.M)
+assert len(rows)==11, rows
+assert all(status=='NOT_RUN' for _,status in rows), rows
 print('matrix-red-ok')
 PY
 ```
 Expected: `matrix-red-ok`.
 
-- [ ] **Step 3: Scrivere il README del pacchetto evidenze**
+- [ ] **Step 3: Scrivere `evidence/cew-contract-01/README.md`**
 
 Definire stati ammessi `NOT_RUN | PASS | FAIL | BLOCKED_SOURCE | BLOCKED_INPUT | REVIEW_REQUIRED`, regola di citazione delle fonti N12 e divieto di inferire dati per far passare i test.
 
 - [ ] **Step 4: Verificare le convenzioni**
 
-Run:
 ```bash
 python - <<'PY'
 from pathlib import Path
 p=Path('evidence/cew-contract-01/README.md').read_text()
-for token in ['BLOCKED_SOURCE','BLOCKED_INPUT','REVIEW_REQUIRED','REGISTRO_MASTER.md']:
-    assert token in p, token
+for t in ['BLOCKED_SOURCE','BLOCKED_INPUT','REVIEW_REQUIRED','REGISTRO_MASTER.md']:
+    assert t in p, t
 print('evidence-rules-ok')
 PY
 ```
@@ -92,34 +95,31 @@ git commit -m "test: establish CEW contract conformance gate"
 - Modify: `docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md`
 
 **Interfaces:**
-- Consumes: `docs/REGISTRO_MASTER.md`, `docs/PROTOCOLLO_CANONICO.md`, `data/canonical/telaio_5.csv` e ogni fonte originale realmente reperibile nel repository/archivio accessibile.
-- Produces: inventario delle voci usabili come Source/Evidence e lista esplicita dei locator mancanti; nessun nuovo dato canonico.
+- Consumes: `docs/REGISTRO_MASTER.md`, `docs/PROTOCOLLO_CANONICO.md`, `data/canonical/telaio_5.csv` e ogni fonte originale realmente reperibile.
+- Produces: inventario delle Source/Evidence utilizzabili e lista esplicita dei locator mancanti.
 
-- [ ] **Step 1: Registrare le fonti candidate dal Registro Master**
+- [ ] **Step 1: Registrare almeno `GEO-004`, `GEO-005`, `BEAM-006`, `SEC-002`, `M0G-002`, `MAT-001`**
 
-Includere almeno `GEO-004`, `GEO-005`, `BEAM-006`, `SEC-002`, `M0G-002`, `MAT-001`, indicando per ciascuna: fonte dichiarata, presenza/reperibilità del file, localizzazione interna disponibile, stato epistemico e limiti.
+Per ciascuna voce: fonte dichiarata, file reperibile sì/no, localizzazione interna disponibile sì/no, stato epistemico, limiti.
 
-- [ ] **Step 2: Fallire chiuso sui locator assenti**
+- [ ] **Step 2: Marcare `UNRESOLVED_LOCATOR` quando pagina/riga/entità/file originale non è verificabile**
 
-Per ogni voce senza pagina/riga/entità/file originale verificabile, usare `UNRESOLVED_LOCATOR`; non costruire una Evidence localizzata fittizia.
+Non creare locator fittizi.
 
-- [ ] **Step 3: Verificare che i casi critici siano espliciti**
+- [ ] **Step 3: Verificare l’audit**
 
-Run:
 ```bash
 python - <<'PY'
 from pathlib import Path
 p=Path('evidence/cew-contract-01/N12_SOURCE_SUFFICIENCY.md').read_text()
-for token in ['GEO-004','GEO-005','BEAM-006','SEC-002','M0G-002','MAT-001','UNRESOLVED_LOCATOR']:
-    assert token in p, token
+for t in ['GEO-004','GEO-005','BEAM-006','SEC-002','M0G-002','MAT-001','UNRESOLVED_LOCATOR']:
+    assert t in p, t
 print('source-audit-ok')
 PY
 ```
 Expected: `source-audit-ok`.
 
-- [ ] **Step 4: Aggiornare solo i test che l’audit abilita**
-
-La matrice può passare da `NOT_RUN` a `REVIEW_REQUIRED`/`BLOCKED_SOURCE`; non assegnare `PASS` finché il caso corrispondente non è materializzato e verificato.
+- [ ] **Step 4: Aggiornare la matrice solo a `REVIEW_REQUIRED`/`BLOCKED_SOURCE` dove l’audit non consente ancora PASS**
 
 - [ ] **Step 5: Commit**
 
@@ -128,7 +128,7 @@ git add evidence/cew-contract-01/N12_SOURCE_SUFFICIENCY.md docs/cew-contract/CEW
 git commit -m "test: audit N12 source sufficiency for CEW contract"
 ```
 
-### Task 3: Casi epistemici N12 — DOC, ND e stato misto
+### Task 3: Qualifica del modello epistemico
 
 **Files:**
 - Create: `evidence/cew-contract-01/CASE_01_DOCUMENTED_PROPERTY.md`
@@ -137,24 +137,23 @@ git commit -m "test: audit N12 source sufficiency for CEW contract"
 - Modify: `docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md`
 
 **Interfaces:**
-- Consumes: `BEAM-006`/`data/canonical/telaio_5.csv`, `SEC-002` o `M0G-002`, `GEO-005` e l’audit fonti Task 2.
-- Produces: tre istanze logiche di riferimento che usano IDs CEW **solo come fixture di qualifica**, senza promuoverli nel Registro Master.
+- Consumes: `BEAM-006`/`telaio_5.csv`, `SEC-002` o `M0G-002`, `GEO-005`, Task 2.
+- Produces: tre casi logici di riferimento; gli ID CEW sono fixture di qualifica e non nuovi ID canonici N12.
 
-- [ ] **Step 1: Scrivere CASE_01 con catena conoscitiva completa fino a CanonicalProperty**
+- [ ] **Step 1: CASE_01 — catena documentata**
 
-Usare un dato effettivamente documentato solo se la Source/Evidence è localizzabile; altrimenti il caso termina a `BLOCKED_SOURCE`. La catena deve nominare `Source`, `Evidence`, `Observation`, `Claim`, `Decision`, `CanonicalProperty`, `StructuralObject`.
+Usare un dato `DOC` solo se Source/Evidence è localizzabile; altrimenti terminare con `BLOCKED_SOURCE`. La catena deve esplicitare `Source → Evidence → Observation → Claim → Decision → CanonicalProperty → StructuralObject`.
 
-- [ ] **Step 2: Scrivere CASE_02 dimostrando che `ND` non riceve un valore**
+- [ ] **Step 2: CASE_02 — nessuna promozione di `ND`**
 
-Usare `SEC-002` o `M0G-002`; l’esito atteso è una proprietà con stato `ND`/assenza esplicita e nessun valore numerico inventato.
+Usare `SEC-002` o `M0G-002`; mantenere assenza esplicita del valore e dichiarare che non esiste default.
 
-- [ ] **Step 3: Scrivere CASE_03 conservando `DOC/INF` di `GEO-005`**
+- [ ] **Step 3: CASE_03 — stato misto `GEO-005`**
 
-Separare ciò che è documentato (conteggi/artefatto storico) dalla deduzione controllata (sottoinsieme, non universo geometrico completo). Non trasformare `DOC/INF-controllata` in `DOC` semplice.
+Separare fatti documentali e deduzione controllata; non trasformare `DOC/INF-controllata` in `DOC` semplice.
 
-- [ ] **Step 4: Verificare i tre invarianti**
+- [ ] **Step 4: Verificare gli invarianti**
 
-Run:
 ```bash
 python - <<'PY'
 from pathlib import Path
@@ -163,118 +162,73 @@ c2=Path('evidence/cew-contract-01/CASE_02_NO_PROMOTION_OF_ND.md').read_text()
 c3=Path('evidence/cew-contract-01/CASE_03_MIXED_EPISTEMIC_STATE.md').read_text()
 for t in ['Source','Evidence','Observation','Claim','Decision','CanonicalProperty','StructuralObject']:
     assert t in c1, t
-assert 'ND' in c2 and 'default' in c2.lower()
-assert 'GEO-005' in c3 and 'DOC' in c3 and 'INF' in c3
+assert 'ND' in c2 and 'no default' in c2.lower()
+assert all(t in c3 for t in ['GEO-005','DOC','INF'])
 print('epistemic-cases-ok')
 PY
 ```
 Expected: `epistemic-cases-ok`.
 
-- [ ] **Step 5: Aggiornare la matrice soltanto con esiti dimostrati**
-
-Assegnare `PASS` solo ai requisiti effettivamente coperti; mantenere blocker per locator mancanti.
-
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Aggiornare la matrice solo con esiti dimostrati e commit**
 
 ```bash
 git add evidence/cew-contract-01/CASE_0*.md docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md
 git commit -m "test: qualify CEW epistemic invariants on N12"
 ```
 
-### Task 4: Identità strutturale, topologia e Relationship incerta
+### Task 4: Identità, Relationship, Conflict e storia non distruttiva
 
 **Files:**
 - Create: `evidence/cew-contract-01/CASE_04_STRUCTURAL_IDENTITY.md`
 - Create: `evidence/cew-contract-01/CASE_05_RELATIONSHIP_UNCERTAINTY.md`
-- Modify: `docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md`
-
-**Interfaces:**
-- Consumes: percorsi e livelli documentati di Telaio 5 (`BEAM-004`, `BEAM-006`, `telaio_5.csv`), topologia `GEO-004/GEO-005`, spec §§8–10.
-- Produces: mapping tra alias N12 e StructuralObject IDs di fixture; caso di Relationship con proprio stato epistemico/provenienza senza dipendere da nomi CAD/IFC/FEM.
-
-- [ ] **Step 1: Definire un mapping di identità che separi ID CEW e alias N12**
-
-Il caso deve mostrare che `T5`, `G5`, nodi/campate e nomi storici sono alias/provenienze, non identità primarie.
-
-- [ ] **Step 2: Dimostrare stabilità dell’ID al variare di una proprietà**
-
-Descrivere una revisione di proprietà dello stesso elemento senza cambiare il suo fixture object ID; non modificare il Registro Master.
-
-- [ ] **Step 3: Materializzare una Relationship incerta solo se sostenuta da evidenza N12**
-
-Se non esiste una relazione reale sufficientemente localizzabile, registrare `BLOCKED_SOURCE` invece di costruire un collegamento ipotetico.
-
-- [ ] **Step 4: Verificare assenza di tipi N12-specifici nel nucleo del caso**
-
-Run:
-```bash
-python - <<'PY'
-from pathlib import Path
-p=Path('evidence/cew-contract-01/CASE_04_STRUCTURAL_IDENTITY.md').read_text()
-for token in ['StructuralObject','alias','T5','G5']:
-    assert token in p, token
-assert 'type: T5' not in p and 'type: G5' not in p
-print('identity-case-ok')
-PY
-```
-Expected: `identity-case-ok`.
-
-- [ ] **Step 5: Aggiornare la matrice con PASS o blocker motivato**
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add evidence/cew-contract-01/CASE_04_STRUCTURAL_IDENTITY.md evidence/cew-contract-01/CASE_05_RELATIONSHIP_UNCERTAINTY.md docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md
-git commit -m "test: qualify CEW structural identity and relationships"
-```
-
-### Task 5: Conflict reale e aggiornamento non distruttivo
-
-**Files:**
 - Create: `evidence/cew-contract-01/CASE_06_REAL_CONFLICT.md`
 - Create: `evidence/cew-contract-01/CASE_07_NON_DESTRUCTIVE_UPDATE.md`
 - Modify: `docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md`
 
 **Interfaces:**
-- Consumes: fonti N12 effettivamente reperite; versioni/contraddizioni documentali reali se presenti.
-- Produces: un Conflict N12 tracciato e una sequenza old state → new evidence → Decision → new state, oppure blocker espliciti se gli input non esistono.
+- Consumes: `BEAM-004`, `BEAM-006`, `GEO-004/GEO-005`, fonti/versioni N12 realmente reperibili.
+- Produces: separazione ID/alias, Relationship con stato proprio, Conflict reale se disponibile, sequenza storica non distruttiva se disponibile.
 
-- [ ] **Step 1: Cercare un conflitto reale tra fonti N12**
+- [ ] **Step 1: CASE_04 — separare fixture object ID da alias `T5`, `G5`, nomi di nodi/campate**
 
-Accettare il caso solo se due proposizioni incompatibili possono essere ricondotte a fonti/evidenze reali. `GEO-005` da solo non vale come conflitto se rappresenta soltanto una deduzione controllata.
+Mostrare che una revisione di proprietà non cambia l’identità dell’elemento fisico.
 
-- [ ] **Step 2: Scrivere CASE_06 senza forzare la risoluzione**
+- [ ] **Step 2: CASE_05 — Relationship incerta**
 
-Il caso deve mostrare due Claim, le Evidence, `Conflict`, stato (`OPEN`/altro) e l’eventuale `Decision`. Se il conflitto non è reperibile: documento con esito `BLOCKED_SOURCE` e motivazione.
+Usare solo una relazione N12 sostenuta da evidenza localizzabile; altrimenti `BLOCKED_SOURCE`.
 
-- [ ] **Step 3: Scrivere CASE_07 usando una revisione reale, se disponibile**
+- [ ] **Step 3: CASE_06 — Conflict reale**
 
-Mostrare che lo stato precedente, lo snapshot logico precedente e i riferimenti storici restano intatti. Se non esiste una revisione reale verificabile, usare `BLOCKED_SOURCE`; non inventare una cronologia.
+Accettare il caso solo se esistono due proposizioni incompatibili da fonti reali; `GEO-005` da solo non costituisce automaticamente un conflitto. Se manca, `BLOCKED_SOURCE`.
 
-- [ ] **Step 4: Verificare che nessun blocker sia mascherato da PASS**
+- [ ] **Step 4: CASE_07 — aggiornamento non distruttivo**
 
-Run:
+Usare una revisione reale verificabile; dimostrare conservazione dello stato precedente. Se manca, `BLOCKED_SOURCE`.
+
+- [ ] **Step 5: Verificare identità e fail-closed**
+
 ```bash
 python - <<'PY'
 from pathlib import Path
-for f in ['CASE_06_REAL_CONFLICT.md','CASE_07_NON_DESTRUCTIVE_UPDATE.md']:
-    p=Path('evidence/cew-contract-01',f).read_text()
-    assert any(s in p for s in ['PASS','BLOCKED_SOURCE','REVIEW_REQUIRED']), f
-print('conflict-versioning-status-ok')
+p=Path('evidence/cew-contract-01/CASE_04_STRUCTURAL_IDENTITY.md').read_text()
+assert all(t in p for t in ['StructuralObject','alias','T5','G5'])
+assert 'type: T5' not in p and 'type: G5' not in p
+for f in ['CASE_05_RELATIONSHIP_UNCERTAINTY.md','CASE_06_REAL_CONFLICT.md','CASE_07_NON_DESTRUCTIVE_UPDATE.md']:
+    q=Path('evidence/cew-contract-01',f).read_text()
+    assert any(s in q for s in ['PASS','BLOCKED_SOURCE','REVIEW_REQUIRED']), f
+print('identity-conflict-versioning-ok')
 PY
 ```
-Expected: `conflict-versioning-status-ok`.
+Expected: `identity-conflict-versioning-ok`.
 
-- [ ] **Step 5: Aggiornare la matrice secondo l’esito reale**
-
-- [ ] **Step 6: Commit**
+- [ ] **Step 6: Aggiornare la matrice e commit**
 
 ```bash
-git add evidence/cew-contract-01/CASE_06_REAL_CONFLICT.md evidence/cew-contract-01/CASE_07_NON_DESTRUCTIVE_UPDATE.md docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md
-git commit -m "test: qualify CEW conflict and version history"
+git add evidence/cew-contract-01/CASE_04_STRUCTURAL_IDENTITY.md evidence/cew-contract-01/CASE_05_RELATIONSHIP_UNCERTAINTY.md evidence/cew-contract-01/CASE_06_REAL_CONFLICT.md evidence/cew-contract-01/CASE_07_NON_DESTRUCTIVE_UPDATE.md docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md
+git commit -m "test: qualify CEW identity conflicts and history"
 ```
 
-### Task 6: Snapshot, Scenario, ModelGeneration e assurance end-to-end
+### Task 5: Snapshot, Scenario e assurance end-to-end
 
 **Files:**
 - Create: `evidence/cew-contract-01/CASE_08_SNAPSHOT_SCENARIO.md`
@@ -282,28 +236,27 @@ git commit -m "test: qualify CEW conflict and version history"
 - Modify: `docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md`
 
 **Interfaces:**
-- Consumes: casi precedenti e un artefatto N12 reale di modello/analisi, se reperibile; spec §§11–20.
-- Produces: prova di rappresentabilità Snapshot/Scenario e, solo se esiste input reale sufficiente, catena `Result → SolverRun → ModelGeneration → CanonicalSnapshot → ... → Source`.
+- Consumes: casi già qualificati e un artefatto N12 reale di modello/analisi, se reperibile.
+- Produces: Snapshot/Scenario di fixture e, solo con input reale sufficiente, catena `Result → SolverRun → ModelGeneration → CanonicalSnapshot → … → Source`.
 
-- [ ] **Step 1: Costruire un CanonicalSnapshot logico di fixture esclusivamente da dati già qualificati**
+- [ ] **Step 1: Costruire un CanonicalSnapshot logico usando esclusivamente dati già qualificati**
 
-Lo snapshot deve elencare versioni/IDs di fixture e non creare nuovi valori canonici.
+Non creare nuovi valori canonici.
 
-- [ ] **Step 2: Definire uno Scenario con override esplicito su una incertezza reale**
+- [ ] **Step 2: Definire uno Scenario con override su una incertezza reale e Assumption esplicita**
 
-L’override deve puntare a una `Assumption`; il CanonicalSnapshot base resta immutato.
+Il CanonicalSnapshot base resta immutato.
 
-- [ ] **Step 3: Cercare un artefatto N12 reale che possa sostenere ModelGeneration/SolverRun/Result**
+- [ ] **Step 3: Cercare un artefatto N12 reale per ModelGeneration/SolverRun/Result**
 
-Sono accettabili solo artefatti realmente presenti e tracciabili. Se manca input sufficiente, CASE_09 deve essere `BLOCKED_INPUT`.
+Se manca un input sufficiente, CASE_09 è `BLOCKED_INPUT`.
 
-- [ ] **Step 4: Vietare esplicitamente run/result fittizi**
+- [ ] **Step 4: Inserire la guardia `NO_SYNTHETIC_ENGINEERING_RESULT`**
 
-CASE_09 deve contenere la frase normativa `NO_SYNTHETIC_ENGINEERING_RESULT` e spiegare perché il gate resta bloccato, oppure documentare il risultato reale e la sua provenienza.
+Il caso deve contenere esattamente questa stringa e spiegare perché non si accettano run/result fittizi.
 
-- [ ] **Step 5: Verificare la regola fail-closed**
+- [ ] **Step 5: Verificare fail-closed**
 
-Run:
 ```bash
 python - <<'PY'
 from pathlib import Path
@@ -315,118 +268,81 @@ PY
 ```
 Expected: `end-to-end-fail-closed-ok`.
 
-- [ ] **Step 6: Aggiornare la matrice**
+- [ ] **Step 6: Aggiornare la matrice e commit**
 
-`C01-T02`, `C01-T09`, `C01-T10` possono essere `PASS` solo con catena reale completa; altrimenti restano `BLOCKED_INPUT`/`REVIEW_REQUIRED`.
-
-- [ ] **Step 7: Commit**
+`C01-T02`, `C01-T09`, `C01-T10` possono essere `PASS` solo con catena reale completa.
 
 ```bash
 git add evidence/cew-contract-01/CASE_08_SNAPSHOT_SCENARIO.md evidence/cew-contract-01/CASE_09_END_TO_END_ASSURANCE.md docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md
 git commit -m "test: exercise CEW snapshot scenario and assurance chain"
 ```
 
-### Task 7: Audit di minima sufficienza e indipendenza tecnologica
+### Task 6: Minimalità, indipendenza tecnologica e gate finale
 
 **Files:**
 - Create: `docs/cew-contract/CEW_CONTRACT_01_MINIMALITY_AUDIT.md`
-- Modify: `docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md`
-
-**Interfaces:**
-- Consumes: tutte le entità della spec e tutti i casi Task 2–6.
-- Produces: mapping `entità → caso che la richiede`, elenco di entità non giustificate e audit di termini technology-specific.
-
-- [ ] **Step 1: Mappare ogni entità V1 ad almeno un caso reale o criterio indispensabile**
-
-Entità senza giustificazione devono essere proposte per rinvio, non mantenute per completezza estetica.
-
-- [ ] **Step 2: Auditare dipendenze specialistiche nel contratto**
-
-I nomi PostgreSQL, JSON Schema, IFC, OpenSees, EdiLus, CADCraft, build123d possono apparire solo in non-obiettivi/decisioni rinviate, non come requisito del modello logico.
-
-- [ ] **Step 3: Verificare presenza del mapping di tutte le entità centrali**
-
-Run:
-```bash
-python - <<'PY'
-from pathlib import Path
-p=Path('docs/cew-contract/CEW_CONTRACT_01_MINIMALITY_AUDIT.md').read_text()
-for token in ['Source','Evidence','Observation','Claim','Decision','CanonicalProperty','StructuralObject','Relationship','CanonicalSnapshot','Scenario','ModelGeneration','SolverRun','Result','Verification','Receipt']:
-    assert token in p, token
-print('minimality-audit-ok')
-PY
-```
-Expected: `minimality-audit-ok`.
-
-- [ ] **Step 4: Aggiornare `C01-T06` e `C01-T11`**
-
-Assegnare PASS solo se non emergono dipendenze tecnologiche nel nucleo e ogni entità è giustificata; altrimenti `FAIL` con finding specifici.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add docs/cew-contract/CEW_CONTRACT_01_MINIMALITY_AUDIT.md docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md
-git commit -m "test: audit CEW contract minimality and tool independence"
-```
-
-### Task 8: Gate finale CEW-CONTRACT-01
-
-**Files:**
 - Create: `docs/cew-contract/CEW_CONTRACT_01_QUALIFICATION_REPORT.md`
+- Modify: `docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md`
 - Modify only if PASS: `docs/superpowers/specs/2026-10-12-cew-contract-01-design.md`
 
 **Interfaces:**
-- Consumes: matrice finale e tutte le evidenze di qualifica.
-- Produces: decisione finale `PASS` oppure `NOT_QUALIFIED`, con blocker e prossimo passo canonico; eventuale aggiornamento dello stato della spec solo in caso PASS.
+- Consumes: tutte le entità della spec e tutti i casi Task 2–5.
+- Produces: mapping entità→caso, audit di indipendenza tecnologica e decisione finale `PASS`/`NOT_QUALIFIED`.
 
-- [ ] **Step 1: Calcolare l’esito senza eccezioni manuali**
+- [ ] **Step 1: Mappare ogni entità centrale ad almeno un caso**
 
-Regola: `PASS` solo se tutti gli 11 test obbligatori sono `PASS`. Qualunque `FAIL`, `BLOCKED_SOURCE`, `BLOCKED_INPUT`, `REVIEW_REQUIRED` o `NOT_RUN` produce `NOT_QUALIFIED`.
+Includere almeno: `Source`, `Evidence`, `Observation`, `Claim`, `Decision`, `CanonicalProperty`, `StructuralObject`, `Relationship`, `CanonicalSnapshot`, `Scenario`, `ModelGeneration`, `SolverRun`, `Result`, `Verification`, `Receipt`. Entità senza giustificazione vengono proposte per rinvio.
 
-- [ ] **Step 2: Scrivere il report con stato, evidenze e blocker**
+- [ ] **Step 2: Auditare indipendenza tecnologica**
 
-Il report deve distinguere: fatti dimostrati, test non dimostrati, limiti delle fonti N12, decisioni che restano rinviate e prossimo passo minimo.
+PostgreSQL, JSON Schema, IFC, OpenSees, EdiLus, CADCraft, build123d possono apparire solo come non-obiettivi/decisioni rinviate, non come requisito del nucleo.
 
-- [ ] **Step 3: Verificare coerenza matrice/report**
+- [ ] **Step 3: Aggiornare `C01-T06` e `C01-T11` in base all’audit**
 
-Run:
+- [ ] **Step 4: Calcolare l’esito finale leggendo esclusivamente la colonna Status**
+
 ```bash
 python - <<'PY'
 from pathlib import Path
+import re
 m=Path('docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md').read_text()
-r=Path('docs/cew-contract/CEW_CONTRACT_01_QUALIFICATION_REPORT.md').read_text()
-statuses=['FAIL','BLOCKED_SOURCE','BLOCKED_INPUT','REVIEW_REQUIRED','NOT_RUN']
-expected='NOT_QUALIFIED' if any(s in m for s in statuses) else 'PASS'
-assert f'**Gate:** {expected}' in r
-print('gate-consistency-ok', expected)
+rows=re.findall(r'^\| (C01-T\d{2}) \| .*? \| (NOT_RUN|PASS|FAIL|BLOCKED_SOURCE|BLOCKED_INPUT|REVIEW_REQUIRED) \|', m, re.M)
+assert len(rows)==11, rows
+expected='PASS' if all(status=='PASS' for _,status in rows) else 'NOT_QUALIFIED'
+Path('/tmp/cew_contract_gate.txt').write_text(expected)
+print('gate-status', expected)
 PY
 ```
-Expected: `gate-consistency-ok PASS` oppure `gate-consistency-ok NOT_QUALIFIED`, coerente con la matrice.
+Expected: `gate-status PASS` oppure `gate-status NOT_QUALIFIED`.
 
-- [ ] **Step 4: Aggiornare lo stato della spec soltanto se il gate è PASS**
+- [ ] **Step 5: Scrivere il report finale coerente con lo stato calcolato**
 
-Se `NOT_QUALIFIED`, lasciare la spec nello stato “specifica approvata, qualifica non conclusa” e registrare i blocker soltanto nel report. Se `PASS`, aggiornare lo stato a “qualified” e citare il report.
+Il report deve contenere `**Gate:** PASS` oppure `**Gate:** NOT_QUALIFIED`, distinguere fatti dimostrati, blocker, limiti delle fonti e prossimo passo minimo.
 
-- [ ] **Step 5: Eseguire la verifica finale dei file**
+- [ ] **Step 6: Verificare matrice/report**
 
-Run:
 ```bash
 python - <<'PY'
 from pathlib import Path
-required=[
+expected=Path('/tmp/cew_contract_gate.txt').read_text().strip()
+r=Path('docs/cew-contract/CEW_CONTRACT_01_QUALIFICATION_REPORT.md').read_text()
+assert f'**Gate:** {expected}' in r
+for f in [
 'docs/cew-contract/CEW_CONTRACT_01_CONFORMANCE_MATRIX.md',
 'docs/cew-contract/CEW_CONTRACT_01_MINIMALITY_AUDIT.md',
 'docs/cew-contract/CEW_CONTRACT_01_QUALIFICATION_REPORT.md',
-'evidence/cew-contract-01/N12_SOURCE_SUFFICIENCY.md',
-]
-for f in required:
+'evidence/cew-contract-01/N12_SOURCE_SUFFICIENCY.md']:
     assert Path(f).is_file(), f
-print('qualification-package-complete')
+print('qualification-package-ok', expected)
 PY
 ```
-Expected: `qualification-package-complete`.
+Expected: `qualification-package-ok PASS` oppure `qualification-package-ok NOT_QUALIFIED`.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Aggiornare lo stato della spec soltanto se PASS**
+
+Se `NOT_QUALIFIED`, la spec resta approvata ma non qualificata e i blocker vivono nel report. Se `PASS`, aggiornare lo stato a `qualified` e citare il report.
+
+- [ ] **Step 8: Commit**
 
 ```bash
 git add docs/cew-contract evidence/cew-contract-01 docs/superpowers/specs/2026-10-12-cew-contract-01-design.md
@@ -435,6 +351,6 @@ git commit -m "docs: conclude CEW-CONTRACT-01 qualification gate"
 
 ## Execution Notes
 
-- Questo piano **non** implementa ancora un database o un runtime CEW. È intenzionale: la spec ha rinviato serializzazione e persistenza, e il primo rischio da ridurre è la correttezza del contratto logico sui dati reali.
-- Un esito `NOT_QUALIFIED` è un risultato valido del piano se identifica precisamente le evidenze mancanti; non va “corretto” inventando fixture che sembrino dati reali.
-- Solo dopo `PASS` (o dopo una decisione esplicita sui blocker) si apre il piano successivo per la rappresentazione eseguibile del contratto e la comparazione delle tecnologie candidate.
+- Questo piano non implementa ancora database o runtime CEW: è intenzionale e coerente con la spec approvata.
+- `NOT_QUALIFIED` è un esito valido se individua precisamente fonti o artefatti mancanti; non va trasformato artificialmente in PASS.
+- Solo dopo PASS, o dopo una decisione esplicita sui blocker, si apre il piano successivo per la rappresentazione eseguibile del contratto e la comparazione delle tecnologie candidate.
