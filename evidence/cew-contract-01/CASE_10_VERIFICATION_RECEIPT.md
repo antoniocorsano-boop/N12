@@ -1,6 +1,7 @@
 # CASE 10 — Verification and Receipt
 
-**Status:** `PASS`.
+**Local evidence status:** `PASS` per il pattern Verification/Receipt.  
+**CEW gate consequence:** `C01-T10 = BLOCKED_INPUT` finché manca la catena reale completa fino a `SolverRun → Result`.
 
 ## Real transformation
 
@@ -47,6 +48,10 @@ Questo corrisponde a una Verification con esito sostanziale `REVIEW_REQUIRED`, n
 
 Il Receipt prova che il processo di review è tracciato e riproducibile. Non certifica la correttezza ingegneristica del dato né ne autorizza la promozione canonica.
 
+## Why this does not close C01-T10
+
+Il piano di qualifica approvato richiede che `C01-T10` possa essere `PASS` solo con la catena reale completa usata anche per `C01-T02` e `C01-T09`. Poiché `CASE_09_END_TO_END_ASSURANCE.md` è `BLOCKED_INPUT` sull'assenza di un SolverRun/Result autorizzato, questa receipt è **evidenza supplementare del pattern di assurance**, non sostituto di un risultato strutturale reale.
+
 ## Qualification conclusion
 
-Esiste una trasformazione N12 reale con input identificato, hash/versione contestuale, run/artifact, output, stato di Verification e Receipt; include proprio il caso non-PASS richiesto dal contratto. `C01-T10 = PASS`.
+Il sottocontratto Verification/Receipt è sostenuto da un caso N12 reale. Il test end-to-end `C01-T10` resta `BLOCKED_INPUT` fino al primo SolverRun/Result autorizzato e riproducibile.

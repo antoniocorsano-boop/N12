@@ -2,6 +2,8 @@
 
 **Status:** `BLOCKED_INPUT`.
 
+**Guard:** `NO_SYNTHETIC_ENGINEERING_RESULT`
+
 ## Required chain
 
 Il test richiede un artefatto N12 reale che permetta:
@@ -26,13 +28,21 @@ Sono disponibili registri Source/Evidence/Observation reali e handoff di geometr
 
 `CEW_PROJECT_STATE_CURRENT_v1.json` dichiara inoltre `R5 Solver Round Trip = PLANNED`.
 
-## Qualification decision
+## Fail-closed rule
 
-Non viene creato un SolverRun sintetico, non viene inventato un Result e non viene reinterpretato un gate geometrico come risultato FEM.
+`NO_SYNTHETIC_ENGINEERING_RESULT` significa:
+
+- non creare un SolverRun sintetico;
+- non inventare un Result;
+- non reinterpretare un gate geometrico, un handoff o una review receipt come risultato FEM;
+- non usare valori storici/ND come input corrente soltanto per completare il test.
+
+## Qualification decision
 
 La parte fino a ModelGeneration/handoff è rappresentabile; la prova reale di `SolverRun → Result` resta `BLOCKED_INPUT` fino all'esistenza di un run autorizzato e riproducibile.
 
 Conseguenze:
 
 - `C01-T02 Provenienza completa = BLOCKED_INPUT` per la catena fino a un Result tecnico;
-- `C01-T09 Riproducibilità = BLOCKED_INPUT` per la porzione SolverRun/Result.
+- `C01-T09 Riproducibilità = BLOCKED_INPUT` per la porzione SolverRun/Result;
+- `C01-T10 Assurance end-to-end = BLOCKED_INPUT`, anche se una Receipt reale di review dimostra separatamente il pattern input/output/guardrail.
