@@ -1,36 +1,60 @@
 # N12 — Source Sufficiency Audit for CEW-CONTRACT-01
 
-**Purpose:** verificare quali voci del patrimonio N12 possono già fungere da Source/Evidence localizzabile per la qualifica del contratto, senza inventare locator o promuovere dati secondari a fonte originale.
+**Purpose:** verificare quali sorgenti reali N12 sono disponibili alla qualifica del contratto senza inventare locator o promuovere derivati a fonte primaria.
 
-## Esito sintetico
+## Correzione di perimetro dell'audit
 
-Il repository contiene `docs/REGISTRO_MASTER.md`, `docs/PROTOCOLLO_CANONICO.md`, `archive/ARTEFATTI_STORICI.md` e `data/canonical/telaio_5.csv`. L'inventario storico dichiara l'esistenza di DXF/CSV e altri artefatti originali, ma tali file originali non sono presenti nell'albero corrente del repository. Di conseguenza, molte voci sono verificabili come **registrate/canoniche di secondo livello**, ma non ancora come Evidence localizzata sulla fonte originale.
+La prima passata aveva ispezionato soltanto la branch documentale della PR. Il workflow N12 corrente richiama però esplicitamente `work/m0-global-model`; questa branch operativa è quindi parte dell'archivio tecnico accessibile e va inclusa nell'audit.
 
-## Audit minimo richiesto
+Branch operativa ispezionata: `work/m0-global-model` @ `d806dcca72779b5a186defe557a7a9b739575a90`.
 
-| Registro ID | Fonte dichiarata | File reperibile nel repository corrente | Locator interno verificabile | Stato epistemico | Esito / limite |
-|---|---|---:|---:|---|---|
-| GEO-004 | `ABACO_TOPOLOGICO_TAV5_v11.csv` nel pacchetto DXF strutturale v25 | No; è solo inventariato in `archive/ARTEFATTI_STORICI.md` | No | `DOC-ARTEFATTO` | `UNRESOLVED_LOCATOR`: il file originale non è nel repository corrente. |
-| GEO-005 | registri storici + riferimenti a ID superiori a N057 | No, non come artefatti sorgente direttamente ispezionabili | No | `DOC/INF-controllata` | `UNRESOLVED_LOCATOR`: si conserva la distinzione tra fatto documentale e inferenza controllata, ma manca il locator sorgente. |
-| BEAM-006 | relazione di calcolo / v17; dato anche in `data/canonical/telaio_5.csv` | **Parziale**: il CSV canonico è presente; la relazione di calcolo originale non è presente | Sì sul dataset canonico (`T5,G5`), no sulla fonte originale | `DOC` | Il CSV è supporto canonico secondario; per la catena Source→Evidence originale resta `UNRESOLVED_LOCATOR`. |
-| SEC-002 | stato M0 v18 | No artefatto sorgente separato reperibile | No | `ND` | `UNRESOLVED_LOCATOR`; il valore deve restare assente, senza default. |
-| M0G-002 | livelli / quote Z definitive non congelate | Nessuna fonte che congeli il valore | Non applicabile | `ND` | Mancanza conoscitiva reale: nessuna Evidence da inventare. |
-| MAT-001 | calcestruzzo/acciaio da documentare/indagare | Nessuna fonte materiale/prova presente | Non applicabile | `ND` | Mancanza conoscitiva reale: nessun materiale canonico può essere assunto. |
+Questa scoperta **supersede** le precedenti conclusioni `BLOCKED_SOURCE` quando il dato richiesto è effettivamente presente nella branch operativa.
 
-## Fonti di secondo livello effettivamente disponibili
+## Fonti/evidenze ora verificate
 
-1. `docs/REGISTRO_MASTER.md` — registra ID, dato/stato, evidenza dichiarata e stato epistemico.
-2. `docs/PROTOCOLLO_CANONICO.md` — definisce gerarchia fonte→estrazione→riconciliazione→dato canonico e divieti di promozione implicita.
-3. `archive/ARTEFATTI_STORICI.md` — inventaria il pacchetto DXF strutturale v25 e conferma che gli artefatti originali devono restare immutabili.
-4. `data/canonical/telaio_5.csv` — dataset canonico corrente con il record `T5,G5,1-7,C2-C7,19.20,20x45,DOC,relazione_calcolo_v17`.
+### Source identity
 
-## Conseguenze per il gate
+`data/canonical/CEW_SOURCE_IDENTITY_REGISTRY_v1.csv` registra sorgenti primarie con:
 
-- La rappresentabilità concettuale può essere esercitata su fixture N12, ma resta `REVIEW_REQUIRED` finché tutti i casi obbligatori non sono materializzati.
-- La provenienza end-to-end fino alla **Source originale** è `BLOCKED_SOURCE` per i casi che dipendono da artefatti storici non presenti.
-- Un Conflict reale, una Relationship incerta e una revisione storica non possono essere dichiarati solo sulla base di assenza o inferenza: se non emergono fonti contraddittorie/localizzabili, restano `BLOCKED_SOURCE`.
-- I casi `ND` possono essere qualificati negativamente: il contratto deve saper conservare l'assenza senza completarla.
+- source/version ID;
+- SHA-256;
+- locator immutabile su commit di archivio;
+- Git blob SHA;
+- ruolo e authority.
+
+Sono verificati almeno `TAV-05A` e `TAV-06A`, entrambi `PRIMARY` e `READY`.
+
+### Evidence localizzata
+
+`CEW_EVIDENCE_REGION_REGISTRY_v1.csv` localizza regioni BBOX sulla pagina primaria; `CEW_OBSERVATION_REGISTRY_v1.csv` collega osservazioni a Source version ed Evidence region e conserva esplicitamente contenuti leggibili e `UNREADABLE`.
+
+### Relazioni/topologia
+
+`tav5_topology_connections_v07.csv` contiene connessioni nodo-nodo con stato `INF_DA_QUOTARE`. `telaio5_tav5_candidate_matrix_v1.csv` conserva alternative concorrenti per gli stessi segmenti metrici e decisioni di non-promozione/rifiuto parziale.
+
+### Conflict reale
+
+`M1A_G5_COLUMN_REINFORCEMENT_SOURCE_CONFLICT_v1.csv` registra un conflitto documentale reale su supporto 24 fra TAV-07A e TAV-06S, con decisione corrente e reopen rule.
+
+### Aggiornamento/versionamento
+
+`CANONICAL_REVALIDATION_LEDGER_v1.csv` conserva `old_value`, Observation, esito, `new_value`, validation state e decision note. In particolare `CLM-Q01-LOCAL-225` conserva 2.25 → 3.25 con stato `REOPENED` e revoca esplicita del valore precedente. Inoltre `PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv` è conservato separatamente da `PT_MASTER_CURRENT.csv`.
+
+### Assurance reale
+
+`N12_G4_HIRES_MACHINE_REVIEW_RECEIPT_v1.json` registra sorgente primaria, archive commit/blob, pagina, parametri di render, hash, run/artifact ID, findings, status e guardrail. È una ricevuta di revisione, **non** un'approvazione ingegneristica.
+
+## Input tuttora non disponibile
+
+Il progetto dichiara in `CEW_PROJECT_STATE_CURRENT_v1.json`:
+
+- `R5 Solver Round Trip = PLANNED`;
+- più calculation blockers aperti.
+
+`M1E_CALCULATION_MODEL_HANDOFF_v1.json` dichiara `calculation_model_ready=false` e vieta l'esecuzione di una verifica numerica corrente con dati inventati.
+
+Di conseguenza la qualifica di una catena reale `ModelGeneration → SolverRun → Result` resta `BLOCKED_INPUT`, non `BLOCKED_SOURCE`.
 
 ## Regola fail-closed
 
-`UNRESOLVED_LOCATOR` significa che la voce è nota attraverso il Registro Master/inventario, ma non è ancora possibile costruire una Evidence localizzata sulla fonte originale. Nessun locator viene sintetizzato.
+La presenza di dati più ricchi nella branch operativa non autorizza retroattivamente alcun PASS. Ogni stato viene aggiornato soltanto quando un caso concreto cita l'artefatto che soddisfa il criterio.

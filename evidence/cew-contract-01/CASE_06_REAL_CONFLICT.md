@@ -1,24 +1,33 @@
 # CASE 06 — Real Conflict
 
-**Target:** due proposizioni N12 realmente incompatibili sullo stesso oggetto/proprietà.  
-**Status:** `BLOCKED_SOURCE`
+**Case:** supporto 24 al livello G5, armatura/identità geometrica.  
+**Status:** `PASS`.
 
-## Search result within current repository
+## Real N12 conflict
 
-Il Registro Master contiene dati `DOC`, `ND` e `DOC/INF-controllata`, ma nell'albero corrente non è disponibile una coppia di fonti originali localizzabili che affermi valori incompatibili sullo stesso oggetto/proprietà.
+`data/canonical/M1A_G5_COLUMN_REINFORCEMENT_SOURCE_CONFLICT_v1.csv` registra `M1A-G5C-001`:
 
-`GEO-005` **non** viene trattato come Conflict: distingue un conteggio storico documentale da una deduzione sul fatto che esso non rappresenti necessariamente l'intero universo geometrico. Non sono due valori incompatibili della stessa proprietà.
+- **Source fact A — TAV-07A:** V-order 40×40 include supporto 24 con 4×14 longitudinali, 4×16 monconi e staffe φ6/15;
+- **Source fact B — TAV-06S:** la scansione completa della carpenteria di copertura documenta supporto 24 come `NOT_PRESENT_ON_ROOF_CARPENTRY`.
 
-## Required CEW representation when evidence becomes available
+Il record è classificato `DOC_SOURCE_CONFLICT`.
 
-Un Conflict reale dovrà conservare:
+## Decision without erasing either source
 
-- almeno due Claim incompatibili;
-- le Evidence/Source di ciascun Claim;
-- oggetto e proprietà contestata;
-- stato `OPEN`/`UNDER_REVIEW`/`RESOLVED`/`ACCEPTED_UNCERTAINTY`;
-- eventuale Decision, senza cancellare i Claim originari.
+La decisione corrente è:
+
+- escludere supporto 24 dal binding corrente dell'armatura G5;
+- preservare la riga TAV-07A come conflitto documentale;
+- non creare/estrudere un supporto G5-24;
+- riaprire la geometria solo se una nuova fonte primaria indipendente contraddice il risultato TAV-06S.
+
+## CEW mapping
+
+- `Claim A` e `Claim B` restano entrambi registrati;
+- `Conflict` è esplicito;
+- `Decision` non cancella nessuna Source fact;
+- `reopen_rule` rende la decisione revisionabile da nuova evidenza.
 
 ## Qualification conclusion
 
-Nessun Conflict viene inventato per far passare `C01-T03`. Esito `BLOCKED_SOURCE` finché non viene resa disponibile una coppia di fonti N12 realmente contraddittorie e localizzabili.
+Il contratto rappresenta un conflitto documentale reale senza scelta prematura o cancellazione della fonte perdente. `C01-T03 = PASS`.

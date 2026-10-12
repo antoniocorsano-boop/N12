@@ -1,24 +1,37 @@
 # CASE 07 — Non-Destructive Update
 
-**Target:** dimostrare su una revisione reale N12 che il nuovo stato non sovrascrive il precedente.  
-**Status:** `BLOCKED_SOURCE`
+**Case:** rivalidazione reale di geometria/dimensioni N12.  
+**Status:** `PASS`.
 
-## Available traces
+## Preserved old/new claim
 
-Il Registro Master cita versioni/consolidamenti storici (`v12`, `v16`, `v17`, `v18`, ecc.) e il protocollo vieta di sovrascrivere una correzione senza conservare provenienza e stato precedente. Tuttavia nel repository corrente non sono disponibili, per una stessa proprietà, due versioni storiche complete e localizzabili che permettano di ricostruire una sequenza `old state → new evidence → Decision → new state`.
+`data/canonical/CANONICAL_REVALIDATION_LEDGER_v1.csv`, record `CLM-Q01-LOCAL-225`, conserva nello stesso ledger:
 
-## Why blocked
+- `old_value = 2.25`;
+- Observation `OBS-Q01-030`;
+- `result = CONFLICT`;
+- `new_value = 3.25`;
+- `validation_state = REOPENED`;
+- decision note: rilettura del crop inferiore; 3.25 è il valore scritto e 2.25 viene revocato.
 
-Una dimostrazione reale richiede almeno:
+La vecchia proposizione non è cancellata: resta visibile come `old_value` e come storia della Decision.
 
-1. proprietà precedente identificabile;
-2. Evidence successiva;
-3. Decision di revisione;
-4. nuova CanonicalProperty;
-5. conservazione della proprietà precedente per lo snapshot storico.
+## Preserved snapshot
 
-Le sole etichette di versione nel Registro Master non bastano a ricostruire questa catena senza inferenze.
+Il repository conserva inoltre separatamente:
+
+- `PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv`;
+- `PT_MASTER_CURRENT.csv`;
+- `PT_MASTER_PROMOTION_AUDIT_v1.csv`.
+
+Il pre-snapshot mantiene lo stato precedente, mentre il master corrente incorpora gli sviluppi successivi. L'audit di promozione documenta la decisione di promuovere con residuali espliciti.
+
+## CEW mapping
+
+`old state → new Observation → Conflict/Decision → new state`, con stato precedente ancora consultabile e snapshot storico separato.
+
+Non esiste ancora un SolverRun reale associato al vecchio snapshot; quel requisito è verificato separatamente da `C01-T09` e non viene simulato qui.
 
 ## Qualification conclusion
 
-Il requisito è coerente con il protocollo N12 ma non ancora qualificato su una sequenza storica completa. Esito `BLOCKED_SOURCE` per `C01-T04`.
+Sul piano del patrimonio canonico e dello snapshot, N12 dimostra un aggiornamento non distruttivo reale. `C01-T04 = PASS`.
