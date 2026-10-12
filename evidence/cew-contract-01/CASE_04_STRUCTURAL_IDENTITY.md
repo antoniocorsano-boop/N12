@@ -15,9 +15,9 @@ Questi riferimenti descrivono la stessa porzione fisica attraverso viste/alias d
 
 - **StructuralObject:** `OBJ-FIX-BEAM-T5-G5-C2-C7`;
 - **alias:** `T5`, `G5`, `C2-C7`, `BEAM-006`;
-- `type: Beam`;
-- **non** `type: T5`;
-- **non** `type: G5`.
+- **tipo strutturale:** `Beam`;
+- `T5` è un alias storico, non un tipo CEW;
+- `G5` è un alias di livello, non un tipo CEW.
 
 Gli alias restano metadati/provenienze e non diventano l'identità primaria CEW.
 
