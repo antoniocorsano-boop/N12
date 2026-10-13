@@ -1,70 +1,19 @@
 {
-  "authority_boundary": {
-    "calculation_model_ready": false,
-    "result_entity_created": false,
-    "solver_authorized": false,
-    "solver_run": false,
-    "synthetic_solver_result": false
-  },
+  "authority_boundary": {"calculation_model_ready": false,"result_entity_created": false,"solver_authorized": false,"solver_run": false,"synthetic_solver_result": false},
   "authority_id": "N12_CEW_CONTRACT_01_A0",
-  "builder": {
-    "git_blob_sha": "4459fd0f519d8bb9425fa1490cc720a2edb0bd0a",
-    "path": "scripts/cew_structural_model_builder.py"
-  },
+  "builder": {"git_blob_sha": "4459fd0f519d8bb9425fa1490cc720a2edb0bd0a","path": "scripts/cew_structural_model_builder.py"},
   "candidate_allowlist": [
-    "qualification/cew-contract-01/n12/qualification.json",
-    "qualification/cew-contract-01/n12/conformance-matrix.csv",
-    "qualification/cew-contract-01/n12/evidence-index.json",
-    "qualification/cew-contract-01/n12/structural-type-minimality.csv",
-    "qualification/cew-contract-01/n12/source-sufficiency.md",
-    "qualification/cew-contract-01/n12/registration-uncertainty.json",
-    "qualification/cew-contract-01/n12/model-generation.json",
-    "qualification/cew-contract-01/n12/model-generation-receipt.json",
-    "qualification/cew-contract-01/n12/evidence/CASE_01_DOCUMENTED_PROPERTY.md",
-    "qualification/cew-contract-01/n12/evidence/CASE_02_NO_PROMOTION_OF_ND.md",
-    "qualification/cew-contract-01/n12/evidence/CASE_03_MIXED_EPISTEMIC_STATE.md",
-    "qualification/cew-contract-01/n12/evidence/CASE_04_STRUCTURAL_IDENTITY.md",
-    "qualification/cew-contract-01/n12/evidence/CASE_05_RELATIONSHIP_UNCERTAINTY.md",
-    "qualification/cew-contract-01/n12/evidence/CASE_06_REAL_CONFLICT.md",
-    "qualification/cew-contract-01/n12/evidence/CASE_07_NON_DESTRUCTIVE_UPDATE.md",
-    "qualification/cew-contract-01/n12/evidence/CASE_08_SNAPSHOT_SCENARIO.md",
-    "qualification/cew-contract-01/n12/evidence/CASE_09_END_TO_END_ASSURANCE.md",
-    "qualification/cew-contract-01/n12/evidence/CASE_10_VERIFICATION_RECEIPT.md",
-    "qualification/cew-contract-01/n12/evidence/CASE_11_REGISTRATION_UNCERTAINTY.md",
-    "qualification/cew-contract-01/n12/evidence/CASE_12_MODEL_GENERATION.md",
-    "qualification/cew-contract-01/n12/evidence/CASE_13_CORE_END_TO_END_ASSURANCE.md"
-  ],
+    "qualification/cew-contract-01/n12/qualification.json","qualification/cew-contract-01/n12/conformance-matrix.csv","qualification/cew-contract-01/n12/evidence-index.json","qualification/cew-contract-01/n12/structural-type-minimality.csv","qualification/cew-contract-01/n12/source-sufficiency.md","qualification/cew-contract-01/n12/registration-uncertainty.json","qualification/cew-contract-01/n12/model-generation.json","qualification/cew-contract-01/n12/model-generation-receipt.json",
+    "qualification/cew-contract-01/n12/evidence/CASE_01_DOCUMENTED_PROPERTY.md","qualification/cew-contract-01/n12/evidence/CASE_02_NO_PROMOTION_OF_ND.md","qualification/cew-contract-01/n12/evidence/CASE_03_MIXED_EPISTEMIC_STATE.md","qualification/cew-contract-01/n12/evidence/CASE_04_STRUCTURAL_IDENTITY.md","qualification/cew-contract-01/n12/evidence/CASE_05_RELATIONSHIP_UNCERTAINTY.md","qualification/cew-contract-01/n12/evidence/CASE_06_REAL_CONFLICT.md","qualification/cew-contract-01/n12/evidence/CASE_07_NON_DESTRUCTIVE_UPDATE.md","qualification/cew-contract-01/n12/evidence/CASE_08_SNAPSHOT_SCENARIO.md","qualification/cew-contract-01/n12/evidence/CASE_09_END_TO_END_ASSURANCE.md","qualification/cew-contract-01/n12/evidence/CASE_10_VERIFICATION_RECEIPT.md","qualification/cew-contract-01/n12/evidence/CASE_11_REGISTRATION_UNCERTAINTY.md","qualification/cew-contract-01/n12/evidence/CASE_12_MODEL_GENERATION.md","qualification/cew-contract-01/n12/evidence/CASE_13_CORE_END_TO_END_ASSURANCE.md"],
   "canonical_snapshot_id": "N12-FROZEN-INPUTSET@d806dcca72779b5a186defe557a7a9b739575a90",
   "inputs": [
-    {"path": "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json", "sha256": "e6ce185e5a439e952950f1c9877b6dd35c036dcf4cb837f74da34c34ebe543d8"},
-    {"path": "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv", "sha256": "98d309e0c1ae9159c73e0f9d173c139bfeaf9a8335948ead64e9207cad20bce8"},
-    {"path": "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv", "sha256": "ce10cf06c6f4a5805afdbb9bd78ffd0d3d79fe5f104e18720b47488a11ffa5d6"},
-    {"path": "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv", "sha256": "b174517f418335ca43a66305087a4f7ae87acc224c40e0bbd81ce7d18f3ddc45"},
-    {"path": "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv", "sha256": "aaf3636487618b39dd70c5a363626d2a6d78845ed913c32d6244f2b17c3e1ed0"},
-    {"path": "data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json", "sha256": "0e2da5eb31d5491ce1c56f27023cdd7635cfe080dc07f87ffb29f6dee938175d"}
-  ],
-  "invariants": ["I01","I02","I03","I04","I05","I06","I07","I08","I09","I10","I11","I12","I13","I14","I15","I16","I17"],
-  "limits": {
-    "max_aggregate_bytes": 67108864,
-    "max_blob_bytes": 8388608,
-    "max_blobs": 256,
-    "max_csv_rows": 250000,
-    "max_json_depth": 64
-  },
-  "model_generation_id": "N12-CEW-MG-001",
-  "operational_commit": "d806dcca72779b5a186defe557a7a9b739575a90",
-  "output": {
-    "generated_at": "2026-08-26T09:54:00.472520+00:00",
-    "generation_id_inside_artifact": "N12-CEW-CSM-v0",
-    "identity": "N12_CEW_CANONICAL_STRUCTURAL_MODEL_v0.json",
-    "sha256": "4e1c3f341093e9b60670099802bdee0c5fcdc174b12aedb63922f49301a965b2",
-    "size_bytes": 1068121
-  },
-  "registration": {
-    "source_git_blob_sha": "fa28cf034a03d98aaa8e8ac1deb1549ddef6d64a",
-    "source_path": "data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv",
-    "support_ids": ["1", "19"]
-  },
-  "schema_id": "CEW_FROZEN_QUALIFICATION_AUTHORITY",
-  "schema_version": 1
+    {"path":"data/canonical/M0G_GEOMETRY_HANDOFF_v1.json","sha256":"e6ce185e5a439e952950f1c9877b6dd35c036dcf4cb837f74da34c34ebe543d8"},{"path":"data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv","sha256":"98d309e0c1ae9159c73e0f9d173c139bfeaf9a8335948ead64e9207cad20bce8"},{"path":"data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv","sha256":"ce10cf06c6f4a5805afdbb9bd78ffd0d3d79fe5f104e18720b47488a11ffa5d6"},{"path":"data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv","sha256":"b174517f418335ca43a66305087a4f7ae87acc224c40e0bbd81ce7d18f3ddc45"},{"path":"data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv","sha256":"aaf3636487618b39dd70c5a363626d2a6d78845ed913c32d6244f2b17c3e1ed0"},{"path":"data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json","sha256":"0e2da5eb31d5491ce1c56f27023cdd7635cfe080dc07f87ffb29f6dee938175d"}],
+  "invariants":["I01","I02","I03","I04","I05","I06","I07","I08","I09","I10","I11","I12","I13","I14","I15","I16","I17"],
+  "limits":{"max_aggregate_bytes":67108864,"max_blob_bytes":8388608,"max_blobs":256,"max_csv_rows":250000,"max_json_depth":64},
+  "model_generation_id":"N12-CEW-MG-001","operational_commit":"d806dcca72779b5a186defe557a7a9b739575a90",
+  "output":{"generated_at":"2026-08-26T09:54:00.472520+00:00","generation_id_inside_artifact":"N12-CEW-CSM-v0","identity":"N12_CEW_CANONICAL_STRUCTURAL_MODEL_v0.json","sha256":"4e1c3f341093e9b60670099802bdee0c5fcdc174b12aedb63922f49301a965b2","size_bytes":1068121},
+  "registration":{"source_git_blob_sha":"fa28cf034a03d98aaa8e8ac1deb1549ddef6d64a","source_path":"data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv","support_ids":["1","19"],"examples":[
+    {"support_id":"1","property_ref":"PT support registration coordinate","unit":"px","observed":{"u":4096.63,"v":2823.61},"predicted":{"u":4100.03,"v":2822.89},"residual":{"du":3.4,"dv":-0.72,"scalar":3.47},"diagnostic_status":"PASS_DIAGNOSTIC","evidence_class":"DOC_METRIC_OR_AXIS","derived_bound":null},
+    {"support_id":"19","property_ref":"PT support registration coordinate","unit":"px","observed":{"u":2458.56,"v":4200.73},"predicted":{"u":2462.23,"v":4224.46},"residual":{"du":3.67,"dv":23.73,"scalar":24.01},"diagnostic_status":"WATCH","evidence_class":"MIS_AFFINE_WATCH","derived_bound":null}]},
+  "schema_id":"CEW_FROZEN_QUALIFICATION_AUTHORITY","schema_version":1
 }
