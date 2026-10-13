@@ -18,17 +18,18 @@ La decisione fondamentale è:
 
 Il modello di fiducia diventa:
 
-`Trusted Gate Core G + Trusted Authority A + Candidate H + Operational Authority O → Qualification Receipt R`
+`Trusted Control Plane B + Gate Core G + Frozen Authority A + Candidate H + Operational Authority O → Qualification Receipt R`
 
 con:
 
+- **B — Control Plane Base:** commit trusted della base/default branch da cui proviene il workflow che invoca G;
 - **G — Gate Core:** versione identificata e già qualificata del motore di verifica;
-- **A — Frozen Qualification Authority:** profilo trusted che definisce le autorità e gli invarianti applicabili alla qualifica;
+- **A — Frozen Qualification Authority:** profilo trusted che definisce autorità e invarianti applicabili;
 - **H — Candidate Head:** exact head della PR da qualificare, trattato esclusivamente come dato non fidato;
 - **O — Operational Authority:** commit ingegneristico congelato da cui provengono builder, input e fonti operative immutabili;
-- **R — Qualification Receipt:** risultato machine-readable della verifica, legato a G/A/H/O e, quando disponibile, attestato crittograficamente.
+- **R — Qualification Receipt:** risultato machine-readable della verifica, legato a B/G/A/H/O e, quando previsto, attestato crittograficamente.
 
-Il Candidate H può dichiarare evidenze e manifest, ma non può modificare G o A durante la propria valutazione.
+Il Candidate H può dichiarare evidenze e manifest, ma non può modificare B, G o A durante la propria valutazione.
 
 ---
 
@@ -63,10 +64,10 @@ La soluzione deve garantire che:
 
 1. la qualification sia valutata da un Gate Core già trusted;
 2. il Candidate H non possa eseguire codice nel control plane;
-3. G, A, H e O abbiano identità esplicite e verificabili;
+3. B, G, A, H e O abbiano identità esplicite e verificabili;
 4. il Candidate sia letto soltanto come insieme di oggetti Git/dati;
 5. il replay ModelGeneration continui a usare esclusivamente O;
-6. il risultato R sia riproducibile, machine-readable e attribuibile a G/A/H/O;
+6. il risultato R sia riproducibile, machine-readable e attribuibile a B/G/A/H/O;
 7. un difetto futuro del Gate Core produca una nuova versione G+1, non una catena indefinita di patch alla qualification corrente;
 8. CEW-CONTRACT-01 resti separato da CEW-FEM-01;
 9. il sistema resti utilizzabile con il repository N12 pubblico e con una toolchain a costo zero;
@@ -86,26 +87,33 @@ CEW-GATE-AUTHORITY-01 non autorizza:
 - promozione epistemica di dati ND/INF/WATCH;
 - migrazione obbligatoria del repository verso una organization;
 - creazione immediata di un repository separato per il Gate Core;
-- riscrittura retroattiva della storia della PR #147.
+- riscrittura retroattiva della storia della PR #147;
+- auto-merge.
 
 ---
 
 ## 5. Terminologia e autorità
 
-### 5.1 Gate Core — G
+### 5.1 Control Plane Base — B
 
-G è il programma che applica le regole CEW di qualifica. Deve essere identificato almeno da:
+B è il commit trusted della base/default branch che fornisce il workflow e seleziona G e A.
+
+B viene registrato in R perché una run `pull_request_target` opera nel contesto della base e non del Candidate.
+
+### 5.2 Gate Core — G
+
+G è il programma che applica le regole CEW di qualification. Deve essere identificato almeno da:
 
 - repository;
 - commit SHA completo;
 - digest dei file eseguibili rilevanti o manifest di build;
-- versione logica del Gate Core;
-- set di invarianti che dichiara di implementare;
+- versione logica;
+- set di invarianti implementati;
 - qualification receipt propria.
 
 Una qualification non può selezionare arbitrariamente la propria versione G.
 
-### 5.2 Frozen Qualification Authority — A
+### 5.3 Frozen Qualification Authority — A
 
 A contiene i valori trusted contro cui il Candidate viene verificato.
 
@@ -125,13 +133,18 @@ Per il pilot N12 comprende almeno:
 
 A non può essere modificata dalla stessa qualification PR che viene valutata.
 
-### 5.3 Candidate Head — H
+### 5.4 Candidate Head — H
 
-H è il commit SHA completo dell'exact PR head.
+H è identificato almeno da:
+
+- base repository;
+- PR number;
+- head repository;
+- exact head commit SHA completo.
 
 H è sempre considerato **untrusted input**, anche quando la PR proviene dal proprietario del repository.
 
-### 5.4 Operational Authority — O
+### 5.5 Operational Authority — O
 
 Per la qualification N12 corrente:
 
@@ -139,10 +152,11 @@ Per la qualification N12 corrente:
 
 O è la sorgente immutabile da cui il Gate Core materializza il builder storico, i sei input autorizzati e la registration source.
 
-### 5.5 Qualification Receipt — R
+### 5.6 Qualification Receipt — R
 
 R è il prodotto della decisione di G. Deve legare in modo esplicito:
 
+- B;
 - G;
 - A;
 - H;
@@ -160,7 +174,7 @@ R è il prodotto della decisione di G. Deve legare in modo esplicito:
 
 Sono trusted soltanto:
 
-- il workflow del control plane proveniente dalla base trusted;
+- il workflow proveniente da B;
 - Gate Core G già qualificato;
 - Frozen Authority A già promossa nel control plane;
 - gli oggetti Git del commit O identificati tramite SHA completo;
@@ -172,30 +186,28 @@ Sono sempre untrusted:
 
 - tutto ciò che proviene da H;
 - manifest, JSON, CSV e Markdown candidate;
-- file workflow presenti in H;
+- workflow presenti in H;
 - script Python/shell presenti in H;
 - package manifest presenti in H;
 - symlink/gitlink/submodule dichiarati da H;
 - path, glob, URI o riferimenti dichiarati da H;
-- nomi di file e metadata testuali provenienti da H.
+- nomi file e metadata testuali provenienti da H.
 
 ### 6.3 Regola centrale
 
 > Il trusted control plane può **leggere** H, ma non può **eseguire** H.
 
-Questa regola vale anche indirettamente: non devono essere eseguiti tool che caricano automaticamente configurazioni, plugin, hook o dipendenze provenienti dal working tree candidate.
+La regola vale anche indirettamente: non devono essere eseguiti tool che caricano automaticamente configurazioni, plugin, hook o dipendenze provenienti dal Candidate.
 
 ---
 
 ## 7. Threat model
 
-CEW-GATE-AUTHORITY-01 deve resistere almeno alle seguenti classi di errore o mutazione candidate.
-
 ### T01 — Control-plane replacement
 
-H tenta di cambiare il workflow o il Gate Core che lo giudica.
+H tenta di cambiare workflow, G o A.
 
-**Difesa:** il workflow e G provengono dalla base trusted/versione G selezionata fuori da H.
+**Difesa:** B/G/A provengono dal lato trusted e le loro identità sono registrate in R.
 
 ### T02 — Candidate code execution
 
@@ -205,15 +217,15 @@ H inserisce Python, shell, Makefile, package script, action locale o configurazi
 
 ### T03 — Path confusion/traversal
 
-H dichiara path assoluti, `..`, path Unicode ambigui, symlink o gitlink per uscire dalla superficie autorizzata.
+H dichiara path assoluti, `..`, path Unicode ambigui, symlink o gitlink.
 
-**Difesa:** allowlist di path normalizzati e verifica del tipo Git object; symlink e gitlink sono rifiutati nelle superfici qualificate salvo futura specifica esplicita.
+**Difesa:** allowlist di path normalizzati + verifica del tipo Git object; symlink/gitlink sono rifiutati nella superficie qualificata salvo futura specifica esplicita.
 
 ### T04 — Parser/resource abuse
 
 H fornisce JSON/CSV/Markdown eccessivamente grandi o strutture patologiche.
 
-**Difesa:** limiti di byte, righe, profondità e numero di record; parsing fail-closed.
+**Difesa:** limiti finiti di byte, righe, profondità e record; parsing fail-closed.
 
 ### T05 — Authority substitution
 
@@ -223,44 +235,48 @@ H tenta di sostituire O, builder, input, fonte registration o snapshot.
 
 ### T06 — Receipt confusion/replay
 
-Una receipt valida per un altro G/A/H/O viene riutilizzata.
+Una receipt valida per un altro B/G/A/H/O viene riutilizzata.
 
-**Difesa:** R incorpora tutti e quattro gli identificatori, bundle digest e versione dello schema; la verifica richiede match esatto.
+**Difesa:** R incorpora tutti gli identificatori, bundle digest e versione schema; la verifica richiede match esatto.
 
 ### T07 — Gate Core defect
 
 G contiene un bug logico.
 
-**Difesa:** ciclo di vita G → G+1, assurance separata del Gate Core, corpus di regressione e riqualifica solo delle qualification materialmente interessate.
+**Difesa:** ciclo G → G+1, assurance separata, corpus regressione e riqualification soltanto se l'impact analysis dimostra reachability sulla qualification interessata.
 
 ### T08 — GitHub workflow misconfiguration
 
-Il workflow trusted acquisisce permessi eccessivi o introduce condizioni pericolose.
+Il workflow trusted acquisisce permessi eccessivi o condizioni pericolose.
 
-**Difesa:** workflow minimale, pin delle action, `actionlint`, `zizmor`, CodeQL quando applicabile, review indipendente e ruleset/policy repository.
+**Difesa:** workflow minimale, pin action, `actionlint`, `zizmor`, CodeQL quando applicabile, review indipendente e governance repository.
 
 ### T09 — Attestation misuse
 
-Il job che attesta viene influenzato da contenuto non trusted o può attestare un risultato non prodotto dal Gate Core.
+Il job di attestazione viene influenzato da H o attesta un risultato non prodotto da G.
 
-**Difesa:** separazione dei job; il job di attestazione consuma soltanto la receipt verificata/digestata prodotta dal job read-only e non esegue né rilegge il Candidate.
+**Difesa:** separazione dei job; il job attest consuma soltanto R/digest già verificati e non esegue né rilegge H.
+
+### T10 — Supply-chain substitution
+
+Una dipendenza del control plane cambia senza essere qualificata.
+
+**Difesa:** dipendenze e action pin a versione immutabile/digest quando tecnicamente possibile; lock/manifest e review esplicita di ogni variazione della toolchain trusted.
 
 ---
 
 ## 8. Architettura logica
-
-La soluzione è composta da sette componenti.
 
 ### 8.1 Trusted Trigger Workflow
 
 Responsabilità:
 
 - ricevere l'evento autorizzato;
-- determinare H;
+- fissare B e H;
 - selezionare G e A trusted;
-- invocare il Gate Core;
+- invocare G;
 - propagare fail-closed l'exit code;
-- passare la receipt al job di attestazione solo in caso di PASS.
+- consegnare R al successivo strato soltanto in caso di PASS.
 
 Non contiene logica CEW sostanziale.
 
@@ -271,14 +287,14 @@ Responsabilità:
 - acquisire oggetti Git appartenenti esattamente a H;
 - esporre soltanto una API di lettura blob;
 - verificare path/type/size;
-- non creare un ambiente eseguibile del candidate.
+- non creare un ambiente eseguibile del Candidate.
 
 Implementazione preferita:
 
 - Git object access/bare repository isolato, oppure API GitHub per blob/trees;
-- nessun `checkout` del Candidate come working directory operativa del Gate Core.
+- nessun checkout di H usato come working directory operativa di G.
 
-La scelta precisa fra bare Git e Git object API è demandata al piano di implementazione; entrambe devono rispettare la stessa interfaccia `CandidateReader`.
+La scelta bare Git vs Git object API è reversibile e demandata al piano; entrambe devono rispettare la stessa interfaccia `CandidateReader`.
 
 ### 8.3 Gate Core G
 
@@ -298,8 +314,8 @@ Responsabilità:
 
 - rendere espliciti i valori trusted;
 - definire la superficie candidate ammessa;
-- definire gli invarianti applicabili;
-- definire le authority boundary CEW-CONTRACT/FEM.
+- definire gli invarianti;
+- definire la authority boundary CEW-CONTRACT/FEM.
 
 ### 8.5 Operational Materializer
 
@@ -325,8 +341,14 @@ Responsabilità:
 
 - serializzare R in modo canonico;
 - calcolarne SHA-256;
-- creare, se la piattaforma/policy è disponibile, un'attestazione GitHub/Sigstore sul subject digest di R o del qualification bundle;
+- creare, se richiesto dalla policy, un'attestazione GitHub/Sigstore;
 - non decidere autonomamente PASS/FAIL.
+
+### 8.8 Optional Promotion Publisher
+
+Se la governance di merge richiederà un check/status esplicitamente associato a H, esso deve essere pubblicato **solo dopo** la verifica di R da un job separato e minimale.
+
+Il Promotion Publisher è difesa operativa GitHub, non trust anchor CEW. La qualification resta definita da R.
 
 ---
 
@@ -334,33 +356,58 @@ Responsabilità:
 
 ### 9.1 Preferred mode — `pull_request_target`
 
-Per un repository pubblico, `pull_request_target` ha la proprietà desiderata: il workflow viene preso dal contesto base/trusted invece che dal contenuto H.
+Per un repository pubblico, `pull_request_target` usa il workflow dal contesto base/trusted e quindi fornisce la separazione desiderata.
 
 Questa modalità è autorizzata soltanto se:
 
-1. esiste una Actions event policy applicabile che consente esplicitamente il workflow/evento desiderato;
+1. esiste una Actions event policy applicabile che consente esplicitamente l'evento/workflow desiderato;
 2. il workflow non esegue codice proveniente da H;
 3. il job di verifica non dispone di secret;
-4. i permessi del job di verifica sono minimi;
-5. le action terze sono pin a full commit SHA;
+4. i permessi sono minimi;
+5. le action sono pin a full commit SHA;
 6. la configurazione viene verificata prima dell'attivazione.
 
-Vincolo temporale di piattaforma verificato: GitHub ha annunciato l'enforcement della policy predefinita che blocca `pull_request_target` nei repository pubblici dal **2 novembre 2026** in assenza di policy applicabile. La configurazione N12 deve quindi essere verificata esplicitamente in fase di deployment.
+Vincolo temporale verificato: GitHub indica enforcement della default policy che blocca `pull_request_target` nei repository pubblici dal **2 novembre 2026** in assenza di policy applicabile.
 
-### 9.2 Safe fallback — trusted `workflow_dispatch`
+### 9.2 SHA semantics
 
-Se la policy `pull_request_target` non è configurabile o non è approvata, il Gate Authority deve poter operare tramite `workflow_dispatch` trusted con:
+Con `pull_request_target`, `GITHUB_SHA` è il commit della base/default branch, non H.
+
+Conseguenza normativa:
+
+> il successo del check della run `pull_request_target` **non costituisce da solo prova dell'identità o della qualification di H**.
+
+B viene derivato dal contesto trusted; H viene letto esplicitamente dal payload PR e verificato/registrato in R.
+
+La qualification CEW è quindi legata a H dalla Receipt, non dal valore implicito di `GITHUB_SHA` della run.
+
+### 9.3 Required-status-check semantics
+
+GitHub consente a workflow `pull_request_target` di produrre check valutabili nelle PR, ma i required checks devono essere soddisfatti rispetto al commit che GitHub considera corrente per la merge policy.
+
+CEW-GATE-AUTHORITY-01 **non assume** che il check nativo della run sia sufficiente a provare H.
+
+Se si desidera automatizzare la promotion tramite required status check, l'implementazione deve scegliere una delle due strade:
+
+1. dimostrare con uno spike repository reale che il check configurato soddisfa correttamente la policy sulla latest H; oppure
+2. usare un Promotion Publisher separato che pubblica il risultato verificato esplicitamente per H.
+
+In entrambi i casi R resta la prova CEW canonica.
+
+### 9.4 Safe fallback — trusted `workflow_dispatch`
+
+Se `pull_request_target` non è configurabile o approvato, il Gate Authority può operare tramite `workflow_dispatch` trusted con:
 
 - H passato come SHA completo;
-- verifica che H appartenga alla PR candidata prevista;
+- verifica che H appartenga alla PR prevista;
 - attore autorizzato dalla Actions policy;
-- stessi vincoli no-exec e stessi permessi minimi.
+- stessi vincoli no-exec e permessi minimi.
 
-Il fallback non modifica la semantica della qualification; cambia soltanto il trigger.
+GitHub documenta che i check generati da `workflow_dispatch` non devono essere assunti come required checks di una PR. Il fallback preserva quindi la **qualification**, non necessariamente la stessa automazione di **promotion**.
 
-### 9.3 Event policy come prerequisito deployment
+### 9.5 Event policy come prerequisito deployment
 
-La presenza/configurazione reale delle Actions Policies del repository non è assunta. Deve essere verificata prima dell'attivazione del control plane.
+La presenza/configurazione reale delle Actions Policies non è assunta. Deve essere verificata prima dell'attivazione.
 
 ---
 
@@ -376,9 +423,17 @@ Permessi massimi previsti:
 - nessun `pull-requests: write`;
 - nessun secret applicativo.
 
-Il job legge H e O, esegue G e produce una receipt temporanea.
+### 10.2 Handoff `qualify → attest`
 
-### 10.2 Job `attest`
+Il trasporto di R tra job è un dettaglio implementativo ma deve rispettare:
+
+- same-run scope;
+- digest R calcolato nel job `qualify`;
+- verifica del digest nel consumer;
+- nessuna dipendenza da retention storica;
+- nessun artifact effimero usato come autorità permanente.
+
+### 10.3 Job `attest`
 
 Eseguito soltanto se `qualify` è PASS.
 
@@ -386,24 +441,27 @@ Permessi minimi previsti:
 
 - `id-token: write`;
 - `attestations: write`;
-- eventuale `contents: read` solo se strettamente richiesto dall'action di attestazione.
+- `contents: read` solo se richiesto dall'action usata.
 
-Il job `attest`:
+Il job:
 
 - non checkouta H;
-- non interpreta file di H;
-- riceve soltanto la receipt/digest prodotto dal job precedente;
-- verifica nuovamente il digest della receipt prima dell'attestazione.
+- non interpreta H;
+- verifica il digest di R prima dell'attestazione.
+
+### 10.4 Job `promote` opzionale
+
+Se necessario per la merge policy, riceve soltanto R verificata + H e dispone esclusivamente del permesso minimo necessario a pubblicare il check/status previsto.
+
+Non riesegue la qualification.
 
 ---
 
 ## 11. Candidate-as-data protocol
 
-Il CandidateReader espone una superficie chiusa.
-
 ### 11.1 Path allowlist
 
-A definisce i path candidate autorizzati per la qualification. Qualunque path fuori allowlist è ignorato o, se dichiarato come parte del qualification bundle, causa FAIL.
+A definisce i path candidate autorizzati. Qualunque path fuori allowlist è ignorato o, se dichiarato parte del qualification bundle, causa FAIL.
 
 ### 11.2 Object types
 
@@ -413,10 +471,10 @@ Sono rifiutati:
 
 - symlink;
 - gitlink/submodule;
-- path che risolvono fuori dalla root logica;
 - path assoluti;
 - componenti `..`;
-- duplicazioni dopo normalizzazione.
+- duplicazioni dopo normalizzazione;
+- oggetti di tipo non previsto.
 
 ### 11.3 Content constraints
 
@@ -426,7 +484,7 @@ Ogni tipo dati ha limiti dichiarati:
 - CSV: dimensione massima + numero righe + colonne attese;
 - Markdown/evidence: dimensione massima e trattamento testuale non eseguibile.
 
-I valori esatti dei limiti saranno definiti nel piano, scegliendo soglie superiori al corpus N12 reale ma finite.
+Le soglie quantitative saranno fissate nel piano sopra il corpus N12 reale ma resteranno finite.
 
 ### 11.4 No-exec invariant
 
@@ -438,7 +496,7 @@ I valori esatti dei limiti saranno definiti nel piano, scegliendo soglie superio
 - eseguire hook Git H;
 - installare dipendenze descritte da H;
 - valutare template o comandi provenienti da H;
-- utilizzare H come working directory di tool che eseguono discovery automatica di plugin/config eseguibile.
+- usare H come working directory di tool che fanno discovery automatica di plugin/config eseguibile.
 
 ---
 
@@ -446,20 +504,18 @@ I valori esatti dei limiti saranno definiti nel piano, scegliendo soglie superio
 
 A non deve nascere dentro la qualification PR che dovrà essere giudicata.
 
-La migrazione avviene quindi in due tempi.
-
 ### Bootstrap A0
 
 Un piccolo PR dedicato promuove nel trusted control plane:
 
-- l'autorità N12 già verificata;
-- i valori derivati da O;
-- l'identità dell'output storico;
-- i supporti registration congelati;
-- gli invarianti CEW-CONTRACT-01;
-- la authority boundary CEW-FEM.
+- autorità N12 già verificata;
+- valori derivati da O;
+- identità output storico;
+- supporti registration congelati;
+- invarianti CEW-CONTRACT-01;
+- authority boundary CEW-FEM.
 
-A0 non introduce dati nuovi: ricopia in forma machine-checkable fatti già verificati, con confronto indipendente contro O e l'audit trail #147.
+A0 non introduce dati nuovi: rende machine-checkable fatti già verificati contro O e audit trail #147.
 
 ### Qualification successiva
 
@@ -475,6 +531,8 @@ R deve includere almeno:
 schema_id
 schema_version
 qualified_at
+control_plane:
+  base_commit_sha
 gate_core:
   repository
   commit_sha
@@ -483,8 +541,9 @@ authority:
   authority_id
   authority_sha256
 candidate:
-  repository
+  base_repository
   pr_number
+  head_repository
   head_sha
   qualification_bundle_sha256
 operational_authority:
@@ -515,21 +574,20 @@ La serializzazione deve essere deterministica/canonicalizzabile per produrre un 
 
 ## 14. Qualification Attestation
 
-Per repository pubblici, GitHub Artifact Attestations usa Sigstore e registra provenance verificabile; la piattaforma associa l'attestazione a workflow, repository, commit, evento e identità OIDC.
-
-CEW usa questa capacità come **strato aggiuntivo di attestazione**, non come sostituto della receipt.
+Per repository pubblici, GitHub Artifact Attestations usa Sigstore e registra provenance verificabile. CEW usa questa capacità come **strato aggiuntivo**, non come sostituto della receipt.
 
 ### Subject
 
 Subject preferito:
 
-- SHA-256 della Qualification Receipt canonica, oppure
+- SHA-256 della Qualification Receipt canonica; oppure
 - SHA-256 di un qualification bundle deterministico contenente receipt + evidence index.
 
 ### Predicate CEW
 
-Il predicate CEW deve contenere almeno:
+Deve contenere almeno:
 
+- `control_plane_base_sha`;
 - `gate_core_sha`;
 - `authority_sha256`;
 - `candidate_head_sha`;
@@ -539,35 +597,30 @@ Il predicate CEW deve contenere almeno:
 - `qualified`;
 - versione schema CEW Gate Authority.
 
-La verifica futura deve controllare sia la firma/provenance GitHub sia il contenuto CEW del predicate.
+La verifica futura controlla sia firma/provenance GitHub sia contenuto CEW.
 
 ---
 
 ## 15. Nuova formulazione di I02
 
-La precedente I02 cercava di rendere non bypassabile ogni step del workflow attraverso parsing repository-native della sintassi GitHub Actions.
+> **I02 — Trusted Gate Invocation.** La decisione di qualification deve essere prodotta esclusivamente da un Gate Core G identificato e trusted, invocato da un control plane B non modificabile dal Candidate H. H non può cambiare G/A né introdurre codice eseguito dal control plane. L'exit status e la receipt di G devono propagarsi fail-closed.
 
-La nuova formulazione è:
+I02 si dimostra tramite proprietà finite:
 
-> **I02 — Trusted Gate Invocation.** La decisione di qualification deve essere prodotta esclusivamente da un Gate Core G identificato e trusted, invocato da un control plane non modificabile dal Candidate H. H non può cambiare G/A né introdurre codice eseguito dal control plane. L'exit status e la receipt di G devono propagarsi fail-closed.
-
-I02 si dimostra tramite proprietà architetturali finite:
-
-1. identity di G;
+1. identity di B/G/A;
 2. identity di H;
-3. identity di A;
-4. no-exec H;
-5. separation dei job/permission;
-6. fail-closed propagation;
-7. receipt binding G/A/H/O.
+3. no-exec H;
+4. separation dei job/permission;
+5. fail-closed propagation;
+6. receipt binding B/G/A/H/O.
 
-Non richiede più di modellare tutte le forme sintattiche equivalenti di GitHub Actions.
+Non richiede di modellare tutte le forme sintattiche equivalenti di GitHub Actions.
 
 ---
 
 ## 16. Conservazione degli invarianti CEW-CONTRACT-01
 
-Gli invarianti sostanziali restano invariati:
+Restano invariati:
 
 - exact candidate head;
 - operational authority identity;
@@ -586,51 +639,50 @@ Gli invarianti sostanziali restano invariati:
 - authority boundary;
 - CEW-FEM separation.
 
-Soltanto l'invariante di non-bypassabilità viene rifondato sul trust boundary invece che sul parsing sintattico del workflow candidate.
+Soltanto la non-bypassabilità viene rifondata sul trust boundary invece che sul parsing sintattico del workflow candidate.
 
 ---
 
 ## 17. Gate Core lifecycle
 
-### 17.1 G0 bootstrap
+### 17.1 G0 bootstrap non self-validating
 
-La prima versione del Gate Core viene introdotta con PR dedicata, separata dalla qualification payload.
+G0 non può dichiarare autonomamente di essere trusted.
 
-### 17.2 Qualification di G
+La prima promozione G0 richiede almeno:
 
-Ogni nuova versione G deve superare:
+- presente design approvato;
+- review umana indipendente del diff;
+- actionlint/zizmor/code scanning disponibili;
+- test unit/property/adversarial/integration;
+- prova no-exec Candidate;
+- replay N12 riproducibile;
+- verifica manuale della configurazione GitHub rilevante;
+- decisione umana esplicita di promozione G0.
 
-- unit test;
-- property-based test sul parsing dati;
-- mutation/adversarial corpus;
-- integration test del control plane;
-- no-exec test;
-- replay test;
-- `actionlint` sul workflow;
-- `zizmor` sul workflow;
-- CodeQL/security checks disponibili;
-- review indipendente exact-head.
+Soltanto dopo tale decisione G0 diventa trust anchor per qualification successive.
+
+### 17.2 Qualification delle versioni successive
+
+Ogni G+1 deve superare il Gate Core assurance package della versione precedente quando applicabile, più review indipendente.
 
 ### 17.3 G → G+1
 
-Un finding futuro nel Gate Core produce una nuova versione G+1.
+Un finding futuro nel Gate Core produce G+1.
 
-Non riapre automaticamente tutte le qualification precedenti.
+Non riapre automaticamente le qualification precedenti. È richiesta impact analysis:
 
-È richiesto impact analysis:
-
-- quale invariant è affetto;
-- quali candidate/receipt potrebbero essere state erroneamente qualificate;
-- se il difetto è reachable sui dati della specifica qualification;
-- se serve requalification.
-
-Solo qualification materialmente interessate vengono riaperte.
+- invariant affetto;
+- classi di input raggiungibili;
+- receipt/candidate potenzialmente interessate;
+- prova di reachability sul caso specifico;
+- decisione di requalification solo se materialmente necessaria.
 
 ---
 
 ## 18. Testing strategy
 
-### 18.1 Gate Core unit tests
+### 18.1 Unit tests
 
 Test per ogni funzione pura/schema/invariant.
 
@@ -642,49 +694,51 @@ Categorie:
 
 - campi mancanti;
 - tipi errati;
-- liste duplicate;
+- duplicati;
 - permutazioni;
 - valori boundary;
 - path patologici;
-- dati UTF-8/Unicode ambigui;
+- Unicode ambiguo;
 - strutture annidate;
 - dimensioni oltre soglia;
 - inconsistenze Manifest/Receipt/Authority.
 
 ### 18.3 Adversarial corpus
 
-Corpus stabile per regressioni reali scoperte nelle review #147, riclassificate per invariant invece che per “round”.
+Corpus stabile per regressioni reali #147, riclassificate per invariant invece che per “round”.
 
-Le regressioni puramente legate alla sintassi YAML della qualification workflow non appartengono al Candidate corpus, perché il Candidate non controlla più il workflow trusted.
+Le regressioni puramente legate alla sintassi YAML della qualification workflow non appartengono al Candidate corpus perché H non controlla più il workflow trusted.
 
 ### 18.4 Integration tests
 
 Devono dimostrare almeno:
 
 - candidate valido → PASS;
-- candidate altera G nel proprio branch → nessun effetto sulla decisione;
-- candidate altera A nel proprio branch → nessun effetto sulla trusted A;
+- candidate modifica il proprio workflow → nessun effetto sul control plane;
+- candidate modifica una copia di A → nessun effetto su A trusted;
 - candidate aggiunge script malevolo → non eseguito;
-- candidate prova symlink/gitlink → FAIL;
-- candidate cambia exact head durante una run → receipt legata allo SHA iniziale, nessuna ambiguità;
+- symlink/gitlink → FAIL;
+- candidate force-push durante una run → R resta legata allo H iniziale;
 - replay O → output storico esatto;
-- receipt G/A/H/O mismatch → FAIL;
+- mismatch B/G/A/H/O → FAIL;
+- handoff R alterato → FAIL;
 - authority boundary CEW-FEM violata → FAIL.
 
 ---
 
 ## 19. Workflow assurance tools
 
-Il control plane non deve implementare un parser GitHub Actions alternativo.
+Il control plane non implementa un parser GitHub Actions alternativo.
 
-Quando cambia il workflow trusted vengono usati strumenti esterni specifici:
+Quando cambia il workflow trusted vengono usati:
 
-- **actionlint** per sintassi/espressioni/semantica statica GitHub Actions;
-- **zizmor** per security audit dei workflow;
-- **CodeQL** / code scanning disponibile per il repository pubblico;
-- pin a SHA completi delle action usate.
+- **actionlint**;
+- **zizmor**;
+- **CodeQL/code scanning** disponibile;
+- pin a SHA completi delle action;
+- dipendenze trusted pin/locked.
 
-Questi strumenti qualificano il control plane, non decidono la semantica CEW del Candidate.
+Questi strumenti qualificano il control plane; non decidono la semantica CEW del Candidate.
 
 ---
 
@@ -696,47 +750,47 @@ Al momento della specifica:
 
 - N12 è pubblico;
 - `main` non risulta protetto;
-- il repository non espone ruleset attivi.
+- non risultano ruleset attivi.
 
 ### 20.2 Target minimo
 
-Per `main` deve essere progettato un repository-level ruleset compatibile con repository pubblico GitHub Free che includa, salvo limitazioni di account verificate in fase di implementazione:
+Per `main` deve essere progettato un repository-level ruleset compatibile con repository pubblico GitHub Free che includa, salvo verifica account:
 
 - pull request obbligatoria;
 - blocco force-push;
 - blocco deletion;
-- required status check del bootstrap/control-plane dove utile;
-- bypass ridotto e documentato.
+- required status check dove utile;
+- bypass ridotto/documentato.
 
 ### 20.3 Required workflows
 
-Non sono prerequisito di CEW-GATE-AUTHORITY-01. GitHub documenta i required workflows nei ruleset a livello organization/enterprise; N12 è attualmente user-owned. La soluzione deve funzionare senza migrazione organizzativa.
+Non sono prerequisito. GitHub documenta i required workflows nei ruleset organization/enterprise; N12 è user-owned. La soluzione deve funzionare senza migrazione organizzativa.
 
 ---
 
 ## 21. Actions policy
 
-Il deployment preferito tramite `pull_request_target` è subordinato a una event policy esplicita.
+Il deployment preferito tramite `pull_request_target` è subordinato a event policy esplicita.
 
 Prima dell'attivazione deve essere verificato in Settings:
 
-1. se la nuova Actions Policy è disponibile sull'account/repository;
-2. quale policy si applicherebbe a `pull_request_target`;
-3. che il workflow CEW Gate Authority sia autorizzato;
-4. che attori/eventi non necessari restino negati;
-5. che la configurazione non allarghi genericamente l'esecuzione di workflow privilegiati.
+1. disponibilità Actions Policy;
+2. policy applicabile a `pull_request_target`;
+3. autorizzazione del workflow CEW Gate Authority;
+4. attori/eventi non necessari negati;
+5. assenza di liberalizzazione generica dei workflow privilegiati.
 
-In assenza di esito positivo si usa il fallback `workflow_dispatch` trusted.
+In assenza di esito positivo si usa `workflow_dispatch` trusted.
 
 ---
 
 ## 22. Migrazione dalla PR #147
 
-### Fase M0 — Freeze
+### M0 — Freeze
 
-La PR #147 viene congelata al suo audit trail finale. Non vengono aggiunti ulteriori round di parser hardening.
+#147 viene congelata al suo audit trail finale. Non vengono aggiunti ulteriori round di parser hardening.
 
-### Fase M1 — Gate Authority bootstrap
+### M1 — Gate Authority bootstrap
 
 Nuova PR piccola da `main` contenente esclusivamente:
 
@@ -745,25 +799,25 @@ Nuova PR piccola da `main` contenente esclusivamente:
 - Trusted Trigger Workflow;
 - A0 Frozen Authority;
 - test del control plane;
-- configurazione/documentazione di assurance.
+- documentazione assurance.
 
 Nessuna nuova proprietà ingegneristica N12.
 
-### Fase M2 — Qualifica del Gate Core
+### M2 — Promozione umana di G0/A0
 
-G0 viene qualificato tramite il proprio assurance package e review indipendente.
+G0/A0 vengono promossi soltanto dopo il bootstrap non self-validating definito in §17.1.
 
-### Fase M3 — Qualification payload pulito
+### M3 — Qualification payload pulito
 
-Nuova PR candidate contiene soltanto il qualification payload necessario CEW-CONTRACT-01, non il giudice che lo valuta.
+Nuova PR contiene soltanto il qualification payload CEW-CONTRACT-01, non il giudice.
 
-### Fase M4 — Attested Receipt
+### M4 — Receipt/Attestation
 
-Il trusted Gate Core produce R per H e la relativa attestation.
+Il trusted Gate Core produce R per H e, se richiesto, relativa attestation.
 
-### Fase M5 — Retire #147
+### M5 — Retire #147
 
-Dopo che la nuova qualification è chiusa e verificata, #147 può essere chiusa come `superseded`, preservando integralmente discussioni e audit trail.
+Dopo la nuova qualification chiusa e verificata, #147 può essere chiusa come `superseded`, preservando integralmente audit trail e discussioni.
 
 Nessuna chiusura automatica è autorizzata.
 
@@ -773,11 +827,11 @@ Nessuna chiusura automatica è autorizzata.
 
 ### Gate Core unavailable
 
-Nessuna qualification viene concessa. Stato: `BLOCKED_CONTROL_PLANE`.
+Nessuna qualification. Stato `BLOCKED_CONTROL_PLANE`.
 
 ### Actions policy blocks trigger
 
-Nessun fallback implicito. Si usa soltanto il trigger trusted alternativo approvato.
+Nessun fallback implicito: soltanto trigger trusted alternativo approvato.
 
 ### Candidate read failure
 
@@ -789,11 +843,11 @@ FAIL; nessuna receipt `qualified=true`.
 
 ### Attestation service unavailable dopo PASS
 
-La receipt può essere prodotta ma lo stato finale resta `QUALIFIED_NOT_ATTESTED` o equivalente; la promotion finale richiede decisione/policy esplicita. Non si finge un'attestazione avvenuta.
+R può essere prodotta ma lo stato resta `QUALIFIED_NOT_ATTESTED` o equivalente; se la promotion policy richiede attestazione, la promotion resta bloccata.
 
 ### New Gate Core finding
 
-Si apre Gate Core G+1 e si effettua impact analysis; nessuna riapertura massiva automatica.
+Si apre G+1 e si effettua impact analysis; nessuna riapertura massiva automatica.
 
 ---
 
@@ -801,45 +855,48 @@ Si apre Gate Core G+1 e si effettua impact analysis; nessuna riapertura massiva 
 
 Una qualification CEW-CONTRACT-01 può essere dichiarata chiusa quando, sullo stesso H:
 
-1. G è una versione trusted già qualificata;
-2. A è trusted e immutata rispetto alla run;
-3. H è l'exact candidate head;
-4. O è l'operational commit autorizzato;
-5. H non è stato eseguito come codice;
-6. il qualification bundle digest è registrato;
-7. replay deterministico PASS;
-8. tutti gli invarianti applicabili PASS;
-9. authority boundary CEW-FEM intatta;
-10. R lega esattamente G/A/H/O;
-11. il trusted workflow completa con successo;
-12. l'attestation è presente se richiesta dalla policy di promotion;
-13. non esistono finding aperti che dimostrino una decisione errata di G su quello specifico H.
+1. B è identificato;
+2. G è trusted già qualificato;
+3. A è trusted e immutata rispetto alla run;
+4. H è l'exact candidate head con head repository/PR identificati;
+5. O è l'operational commit autorizzato;
+6. H non è stato eseguito come codice;
+7. qualification bundle digest registrato;
+8. replay deterministico PASS;
+9. tutti gli invarianti applicabili PASS;
+10. authority boundary CEW-FEM intatta;
+11. R lega esattamente B/G/A/H/O;
+12. trusted workflow completa con successo;
+13. attestation presente se richiesta dalla promotion policy;
+14. nessun finding aperto dimostra una decisione errata di G su quello specifico H.
 
-Dopo questo punto, un finding su G è gestito tramite il lifecycle G → G+1 e impact analysis.
-
-Questo è il meccanismo che rende finita la closure.
+Dopo questo punto, un finding su G è gestito tramite lifecycle G → G+1 e impact analysis.
 
 ---
 
-## 25. Promotion policy
+## 25. Qualification vs Promotion
 
-La qualification e la promotion sono due decisioni distinte.
+Le due decisioni sono separate.
 
-- **Qualification:** G stabilisce che H soddisfa A.
-- **Promotion/merge:** resta una decisione umana/governance GitHub.
+- **Qualification:** G stabilisce che H soddisfa A e produce R.
+- **Promotion/merge:** governance umana/GitHub decide se H può essere integrato.
 
-CEW-GATE-AUTHORITY-01 non autorizza auto-merge.
+Il fatto che `pull_request_target` operi con `GITHUB_SHA` della base rende ancora più importante non confondere check GitHub e qualification identity.
+
+La promotion può usare required checks/status publisher/attestation, ma la prova CEW canonica rimane R.
+
+Nessun auto-merge è autorizzato.
 
 ---
 
 ## 26. Evidenze minime del Gate Authority
 
-Il Gate Core bootstrap deve produrre almeno:
+Il bootstrap deve produrre almeno:
 
 - design spec approvata;
 - threat model;
 - Gate Core source identity;
-- A0 identity/digest;
+- B/G/A0 identity/digest;
 - workflow identity;
 - test report;
 - actionlint report;
@@ -849,27 +906,31 @@ Il Gate Core bootstrap deve produrre almeno:
 - integration report;
 - sample PASS receipt;
 - sample FAIL receipt;
+- prova handoff-integrity;
 - attestation verification evidence, se attivata;
-- human review decision.
+- human review decision;
+- human promotion decision G0/A0.
 
 ---
 
-## 27. Decisioni irrevocabili e reversibili
+## 27. Decisioni reversibili e da governare
 
 ### Reversibili
 
 - bare Git vs Git object API;
-- formato esatto interno del CandidateReader;
-- libreria Python per schema/property testing;
-- soglie quantitative di size limit, purché finite e documentate;
-- naming dei failure code;
-- trigger `pull_request_target` vs trusted `workflow_dispatch`.
+- formato interno CandidateReader;
+- libreria property testing;
+- soglie size limit finite;
+- naming failure code;
+- `pull_request_target` vs trusted `workflow_dispatch`;
+- meccanismo same-run di handoff R;
+- uso o meno del Promotion Publisher.
 
 ### Da governare con particolare cautela
 
-- promozione di A0 a trusted authority;
-- prima versione G0 qualificata;
-- ruleset/policy GitHub applicati a `main`;
+- promozione A0;
+- promozione G0;
+- ruleset/policy applicati a `main`;
 - schema/versione delle Qualification Receipt;
 - policy che rende obbligatoria l'attestation per promotion.
 
@@ -877,47 +938,53 @@ Il Gate Core bootstrap deve produrre almeno:
 
 ## 28. Precondizioni prima dell'implementazione
 
-Prima di scrivere il piano operativo devono essere considerate approvate/verificate:
+Prima del piano operativo devono essere approvate/verificate:
 
 1. questa specifica;
 2. decisione di mantenere #147 congelata;
 3. nessun nuovo round di parser hardening su #147;
-4. disponibilità reale o fallback per Actions Policies;
-5. repository-level ruleset target compatibile con l'account;
-6. possibilità di usare GitHub Artifact Attestations nel repository pubblico;
-7. authority A0 derivabile senza introdurre nuovi dati tecnici;
-8. nessuna implementazione CEW-FEM inclusa.
+4. disponibilità reale o fallback Actions Policies;
+5. repository-level ruleset target compatibile con account;
+6. disponibilità Artifact Attestations nel repository pubblico;
+7. A0 derivabile senza nuovi dati tecnici;
+8. nessuna implementazione CEW-FEM;
+9. bootstrap G0 esplicitamente non self-validating.
 
 ---
 
 ## 29. Acceptance criteria della prima implementazione
 
-La prima implementazione CEW-GATE-AUTHORITY-01 è accettabile solo se dimostra, con evidenza fresh:
+La prima implementazione è accettabile solo se dimostra con evidenza fresh:
 
-- una PR candidate che modifica il proprio workflow non modifica il workflow trusted effettivamente eseguito;
-- una PR candidate che modifica una copia di A non modifica A trusted;
-- nessuno script candidate viene eseguito;
-- G/A/H/O sono tutti registrati in R;
-- una mutazione di ciascuna identità produce FAIL;
-- una mutazione di authority boundary produce FAIL;
-- O produce lo stesso replay output storico previsto;
-- una receipt viene verificata indipendentemente;
-- l'event policy/ruleset effettivi sono documentati;
-- actionlint/zizmor non producono blocker aperti;
-- review indipendente del Gate Core non dimostra false-positive contro il threat model;
-- nessun auto-merge è attivo.
+- PR candidate modifica il proprio workflow → nessun effetto su B/G;
+- PR candidate modifica copia A → nessun effetto su A trusted;
+- nessuno script Candidate eseguito;
+- B/G/A/H/O tutti registrati in R;
+- una mutazione di ciascuna identity produce FAIL;
+- authority boundary mutation produce FAIL;
+- O riproduce output storico;
+- R viene verificata indipendentemente;
+- alterazione del handoff R viene rifiutata;
+- event policy/ruleset effettivi documentati;
+- actionlint/zizmor senza blocker aperti;
+- review indipendente G0 senza false-positive contro threat model;
+- decisione umana di promozione G0/A0;
+- nessun auto-merge attivo.
 
 ---
 
 ## 30. Riferimenti piattaforma verificati
 
-Vincoli di piattaforma usati in questa progettazione, verificati sulla documentazione ufficiale GitHub al 13 ottobre 2026:
+Vincoli usati nella progettazione, verificati sulla documentazione ufficiale GitHub al 13 ottobre 2026:
 
-- `pull_request_target` nei repository pubblici è soggetto a una default policy di blocco; GitHub indica enforcement dal 2 novembre 2026 in assenza di policy applicabile;
-- Actions Policies permettono regole per eventi e attori;
-- Artifact Attestations usano Sigstore; per repository pubblici la provenance è registrata anche in transparency log pubblico;
-- repository-level rulesets sono disponibili sui repository pubblici con GitHub Free;
-- i ruleset “Require workflows to pass before merging” sono documentati a livello organization/enterprise e non vengono assunti come disponibili nel repository user-owned N12.
+- `pull_request_target` nei repository pubblici è soggetto a default policy di blocco; GitHub indica enforcement dal 2 novembre 2026 in assenza di policy applicabile;
+- `pull_request_target` usa come `GITHUB_SHA` l'ultimo commit della base/default branch, non H;
+- Actions Policies consentono regole per eventi e attori;
+- Artifact Attestations usa Sigstore; nei repository pubblici la provenance è registrata anche in transparency log pubblico;
+- repository-level rulesets sono disponibili nei repository pubblici con GitHub Free;
+- i ruleset “Require workflows to pass before merging” sono documentati a livello organization/enterprise e non vengono assunti disponibili nel repository user-owned N12;
+- required status checks devono riferirsi al commit considerato corrente dalla merge policy;
+- check da `workflow_dispatch` non devono essere assunti come required checks della PR.
 
 La configurazione specifica dell'account/repository deve essere verificata al deployment e prevale sulle assunzioni di progetto.
 
@@ -929,6 +996,6 @@ CEW-GATE-AUTHORITY-01 è riuscito quando la qualification non è più un sistema
 
 Il risultato atteso è:
 
-> un Candidate H non fidato viene valutato come dato da un Gate Core G già trusted, rispetto a una Authority A già trusted e a una Operational Authority O immutabile; la decisione è registrata in una Receipt R legata a G/A/H/O e, quando previsto, attestata. Un difetto futuro del giudice produce una nuova versione del giudice e una impact analysis, non una sequenza indefinita di patch alla qualification corrente.
+> un Candidate H non fidato viene valutato come dato da un Gate Core G già trusted, invocato da B, rispetto a una Authority A già trusted e a una Operational Authority O immutabile; la decisione è registrata in una Receipt R legata a B/G/A/H/O e, quando previsto, attestata. Un difetto futuro del giudice produce una nuova versione del giudice e una impact analysis, non una sequenza indefinita di patch alla qualification corrente.
 
 Questa architettura costituisce il nuovo punto di riferimento per superare la fase di stabilizzazione CEW-CONTRACT-01 e riprendere la catena canonica CEW senza consumare lavoro in hardening sintattico non finito.
