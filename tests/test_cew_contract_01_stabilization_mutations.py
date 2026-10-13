@@ -124,7 +124,10 @@ class StabilizationMutationTests(unittest.TestCase):
         self.assertIn("CI_BYPASS_UNPINNED_ACTION:actions/checkout@v4", self.c.workflow_contract_errors(text))
 
     def test_workflow_conditional_bypass_mutation_is_rejected(self):
-        text = VALID_WORKFLOW.replace("      - name: Enforce", "      - if: success()\n      - name: Enforce")
+        text = VALID_WORKFLOW.replace(
+            "      - name: Enforce CEW-CONTRACT-01 qualification\n        run:",
+            "      - name: Enforce CEW-CONTRACT-01 qualification\n        if: false\n        run:",
+        )
         self.assertIn("CI_BYPASS_CONDITIONAL_STEP", self.c.workflow_contract_errors(text))
 
     def test_workflow_ephemeral_artifact_dependency_is_rejected(self):
