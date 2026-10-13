@@ -59,10 +59,10 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "output_identity": {"minLength": 1, "type": "string"},
-        "output_sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"},
-        "output_size_bytes": {"minimum": 0, "type": "integer"},
-        "historical_generated_at": {"minLength": 1, "type": "string"}
+        "output_identity": {"minLength": 1, "type": ["string", "null"]},
+        "output_sha256": {"pattern": "^[0-9a-f]{64}$", "type": ["string", "null"]},
+        "output_size_bytes": {"minimum": 0, "type": ["integer", "null"]},
+        "historical_generated_at": {"minLength": 1, "type": ["string", "null"]}
       },
       "required": ["output_identity", "output_sha256", "output_size_bytes", "historical_generated_at"]
     },
@@ -122,6 +122,14 @@
         "properties": {
           "failure_codes": {"maxItems": 0},
           "cew_fem_01_required": {"const": true},
+          "replay": {
+            "properties": {
+              "output_identity": {"minLength": 1, "type": "string"},
+              "output_sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"},
+              "output_size_bytes": {"minimum": 0, "type": "integer"},
+              "historical_generated_at": {"minLength": 1, "type": "string"}
+            }
+          },
           "authority_boundary": {
             "properties": {
               "solver_authorized": {"const": false},
