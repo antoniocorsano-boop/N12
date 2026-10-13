@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 import unittest
 from pathlib import Path
@@ -38,6 +39,47 @@ class IndependentReviewCandidateContractRegressions(QualificationEngineTests):
                 receipt = self.evaluate(payload)
                 self.assertFalse(receipt.qualified)
                 self.assertIn("CANDIDATE_MARKDOWN_EMPTY", receipt.failure_codes)
+
+    def test_rejects_unbound_model_generation_receipt_id(self):
+        payload = self.mutate_json(
+            "qualification/cew-contract-01/n12/model-generation-receipt.json",
+            lambda obj: obj.update(receipt_id="WRONG"),
+        )
+        receipt = self.evaluate(payload)
+        self.assertFalse(receipt.qualified)
+        self.assertIn("CANDIDATE_DOCUMENT_SCHEMA_UNSUPPORTED", receipt.failure_codes)
+
+    def test_non_object_builder_returns_unqualified_receipt(self):
+        path = "qualification/cew-contract-01/n12/model-generation.json"
+        for builder in (None, [], "builder", 7):
+            with self.subTest(builder=builder):
+                payload = self.mutate_json(path, lambda obj, value=builder: obj.update(builder=value))
+                receipt = self.evaluate(payload)
+                self.assertFalse(receipt.qualified)
+                self.assertIn("I03_OPERATIONAL_AUTHORITY_MISMATCH", receipt.failure_codes)
+                self.assertIn("I06_BUILDER_IDENTITY_MISMATCH", receipt.failure_codes)
+
+    def test_deep_json_recursion_returns_depth_failure_receipt(self):
+        payload = valid_payload(self.authority)
+        path = "qualification/cew-contract-01/n12/model-generation.json"
+        nested = b"[" * 1200 + b"0" + b"]" * 1200
+        payload[path] = payload[path].replace(
+            b'"generation_profile": "CEW_CANONICAL_STRUCTURAL_GRAPH_v0"',
+            b'"generation_profile": ' + nested,
+            1,
+        )
+        receipt = self.evaluate(payload)
+        self.assertFalse(receipt.qualified)
+        self.assertIn("CANDIDATE_JSON_DEPTH_EXCEEDED", receipt.failure_codes)
+
+    def test_oversized_csv_field_returns_payload_failure_receipt(self):
+        payload = valid_payload(self.authority)
+        path = "qualification/cew-contract-01/n12/structural-type-minimality.csv"
+        oversized = b"X" * (csv.field_size_limit() + 1)
+        payload[path] = b"structural_type,status\nCEW_CORE," + oversized + b"\n"
+        receipt = self.evaluate(payload)
+        self.assertFalse(receipt.qualified)
+        self.assertIn("CANDIDATE_CSV_ROW_INVALID", receipt.failure_codes)
 
 
 class IndependentReviewReceiptSchemaRegressions(unittest.TestCase):
@@ -85,6 +127,32 @@ class IndependentReviewReceiptSchemaRegressions(unittest.TestCase):
             )
         for key in EXPECTED_INVARIANTS:
             self.assertEqual(qualified["invariants"]["properties"][key], {"const": "PASS"})
+
+    def test_replay_contract_allows_null_only_for_unqualified_receipts(self):
+        schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
+        replay = schema["properties"]["replay"]["properties"]
+        expected_base_types = {
+            "output_identity": {"string", "null"},
+            "output_sha256": {"string", "null"},
+            "output_size_bytes": {"integer", "null"},
+            "historical_generated_at": {"string", "null"},
+        }
+        for key, expected in expected_base_types.items():
+            with self.subTest(key=key):
+                actual = replay[key].get("type")
+                actual_types = {actual} if isinstance(actual, str) else set(actual or ())
+                self.assertEqual(actual_types, expected)
+
+        qualified_rules = [
+            rule
+            for rule in schema.get("allOf", ())
+            if rule.get("if", {}).get("properties", {}).get("qualified") == {"const": True}
+        ]
+        qualified_replay = qualified_rules[0]["then"]["properties"]["replay"]["properties"]
+        self.assertEqual(qualified_replay["output_identity"].get("type"), "string")
+        self.assertEqual(qualified_replay["output_sha256"].get("type"), "string")
+        self.assertEqual(qualified_replay["output_size_bytes"].get("type"), "integer")
+        self.assertEqual(qualified_replay["historical_generated_at"].get("type"), "string")
 
 
 if __name__ == "__main__":
