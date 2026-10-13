@@ -191,11 +191,11 @@ N12 resta non autorizzato a una verifica strutturale corrente finché i gate tec
 
 ## 11. Debito separato CEW-FEM-01
 
-`CEW_FEM_01_REQUIRED=true`
+CEW_FEM_01_REQUIRED=true
 
 Resta obbligatoriamente fuori da CEW-CONTRACT-01:
 
-`CEW-FEM-01: ModelGeneration → SolverRun → Result → Verification → Receipt`.
+CEW-FEM-01: ModelGeneration → SolverRun → Result → Verification → Receipt
 
 La stabilizzazione non anticipa né simula questa catena.
 
@@ -217,5 +217,3 @@ Una nuova garanzia fuori da I01–I17, un refactoring non necessario, un miglior
 Il run `38359875885` qualifica l'implementazione di stabilizzazione allo SHA `13dc6df9a6aabf747491efb79adb5c9d60edad31`.
 
 Questo report è a sua volta una modifica di repository. Pertanto **non eredita automaticamente** la qualifica del precedente SHA: l'exact head che contiene questo report deve completare nuovamente con `success` lo stesso gate repository-native prima della decisione finale e della fresh review indipendente.
-
-Nessun merge automatico, scelta solver o calcolo N12 è autorizzato da questo report.
