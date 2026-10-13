@@ -27,3 +27,5 @@ jobs:
           python-version: '3.12'
       - name: Task 2 identity and authority tests
         run: python -m unittest tests/cew_gate_authority/test_types_and_receipt.py tests/cew_gate_authority/test_authority.py -v
+      - name: Task 3 candidate reader tests
+        run: python -m unittest tests/cew_gate_authority/test_candidate_reader.py tests/cew_gate_authority/test_candidate_properties.py -v
