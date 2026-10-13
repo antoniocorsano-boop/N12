@@ -259,18 +259,13 @@ class FinalReviewRegressionTests(unittest.TestCase):
         self.assertIn("REGISTRATION_SOURCE_BLOB_SHA_MISMATCH", result["errors"])
         self.assertTrue(any(error.startswith("REGISTRATION_SOURCE_EXAMPLE_MISMATCH") for error in result["errors"]))
 
-    def test_model_generation_output_bytes_and_archive_are_verified(self) -> None:
+    def test_model_generation_requires_durable_replay_result(self) -> None:
         with tempfile.TemporaryDirectory() as td, tempfile.TemporaryDirectory() as sd, tempfile.TemporaryDirectory() as od:
             root, operational, output_root = Path(td), Path(sd), Path(od)
-            paths = self.make_project(root, operational, output_root)
-            with zipfile.ZipFile(paths["archive"], "w", compression=zipfile.ZIP_DEFLATED) as zf:
-                zf.writestr("output.json", b"tampered-output")
+            self.make_project(root, operational, output_root)
             result = self.validate(root, operational, output_root)
         self.assertFalse(result["qualified"])
-        self.assertTrue(
-            "MODEL_GENERATION_ARTIFACT_ARCHIVE_DIGEST_MISMATCH" in result["errors"]
-            or "MODEL_GENERATION_OUTPUT_SHA256_MISMATCH" in result["errors"]
-        )
+        self.assertIn("REPLAY_RESULT_MISSING", result["errors"])
 
 
 if __name__ == "__main__":
