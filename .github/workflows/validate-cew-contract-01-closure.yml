@@ -58,6 +58,7 @@ jobs:
         run: python -m py_compile scripts/cew_contract_01_replay.py scripts/cew_contract_01_stabilization_checks.py scripts/validate_cew_contract_01_closure.py
 
       - name: Run deterministic ModelGeneration replay
+        shell: bash
         run: |
           python scripts/cew_contract_01_replay.py \
             --authority evidence/cew-contract-01/stabilization/N12_CEW_CONTRACT_01_FROZEN_AUTHORITY_v1.json \
@@ -99,4 +100,5 @@ jobs:
         run: python -m unittest tests/test_cew_contract_01_ci_gate.py -v
 
       - name: Enforce CEW-CONTRACT-01 qualification
+        shell: bash
         run: python scripts/validate_cew_contract_01_closure.py
