@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = ROOT / "scripts" / "validate_cew_contract_01_closure.py"
+REGISTRATION_FIXTURE = ROOT / "evidence" / "cew-contract-01" / "fixtures" / "N12_REGISTRATION_UNCERTAINTY_v1.json"
 
 
 def load_validator():
@@ -90,6 +91,40 @@ class ClosureValidatorUnitTests(unittest.TestCase):
         bad = json.loads(json.dumps(good))
         bad["interpretive_guard"] = "residual_px is the certified accuracy tolerance"
         self.assertTrue(v.validate_registration_uncertainty(bad))
+
+    def test_project_registration_fixture_matches_frozen_source_examples(self) -> None:
+        self.assertTrue(REGISTRATION_FIXTURE.exists(), "registration fixture must exist")
+        data = json.loads(REGISTRATION_FIXTURE.read_text(encoding="utf-8"))
+        self.assertEqual(data["source_commit"], "d806dcca72779b5a186defe557a7a9b739575a90")
+        by_id = {str(item["support_id"]): item for item in data["examples"]}
+        self.assertEqual(
+            by_id["1"],
+            {
+                "support_id": "1",
+                "property_ref": "PT support registration coordinate",
+                "unit": "px",
+                "observed": {"u": 4096.63, "v": 2823.61},
+                "predicted": {"u": 4100.03, "v": 2822.89},
+                "residual": {"du": 3.40, "dv": -0.72, "scalar": 3.47},
+                "diagnostic_status": "PASS_DIAGNOSTIC",
+                "evidence_class": "DOC_METRIC_OR_AXIS",
+                "derived_bound": None,
+            },
+        )
+        self.assertEqual(
+            by_id["19"],
+            {
+                "support_id": "19",
+                "property_ref": "PT support registration coordinate",
+                "unit": "px",
+                "observed": {"u": 2458.56, "v": 4200.73},
+                "predicted": {"u": 2462.23, "v": 4224.46},
+                "residual": {"du": 3.67, "dv": 23.73, "scalar": 24.01},
+                "diagnostic_status": "WATCH",
+                "evidence_class": "MIS_AFFINE_WATCH",
+                "derived_bound": None,
+            },
+        )
 
 
 if __name__ == "__main__":
