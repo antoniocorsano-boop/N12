@@ -40,6 +40,10 @@ def _strict_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return value
 
 
+def _reject_nonfinite_constant(_value: str) -> None:
+    raise PayloadError("CANDIDATE_JSON_INVALID")
+
+
 def _depth(value: Any) -> int:
     if isinstance(value, dict):
         return 1 + max((_depth(v) for v in value.values()), default=0)
@@ -56,7 +60,11 @@ def _json(reader: CandidateReader, path: str, max_depth: int) -> dict[str, Any]:
             raise PayloadError("CANDIDATE_UTF8_INVALID") from exc
         raise
     try:
-        value = json.loads(text, object_pairs_hook=_strict_object)
+        value = json.loads(
+            text,
+            object_pairs_hook=_strict_object,
+            parse_constant=_reject_nonfinite_constant,
+        )
     except json.JSONDecodeError as exc:
         raise PayloadError("CANDIDATE_JSON_INVALID") from exc
     if _depth(value) > max_depth:
@@ -95,6 +103,11 @@ def parse_csv_limited(text: str, max_rows: int, expected_header: tuple[str, ...]
         raise ValueError("CANDIDATE_CSV_HEADER_UNSUPPORTED")
     rows: list[dict[str, str]] = []
     for row in reader:
+        if expected_header is not None and (
+            tuple(row.keys()) != expected_header
+            or any(row[field] is None for field in expected_header)
+        ):
+            raise ValueError("CANDIDATE_CSV_ROW_INVALID")
         rows.append(dict(row))
         if len(rows) > max_rows:
             raise ValueError("CANDIDATE_CSV_ROWS_EXCEEDED")
@@ -112,7 +125,11 @@ def _csv_contract(reader: CandidateReader, authority: FrozenAuthority, path: str
     try:
         return parse_csv_limited(text, authority.limits.max_csv_rows, contract.csv_header)
     except ValueError as exc:
-        if str(exc) in {"CANDIDATE_CSV_ROWS_EXCEEDED", "CANDIDATE_CSV_HEADER_UNSUPPORTED"}:
+        if str(exc) in {
+            "CANDIDATE_CSV_ROWS_EXCEEDED",
+            "CANDIDATE_CSV_HEADER_UNSUPPORTED",
+            "CANDIDATE_CSV_ROW_INVALID",
+        }:
             raise PayloadError(str(exc)) from exc
         raise
 
