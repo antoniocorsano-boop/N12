@@ -31,6 +31,15 @@ class PayloadError(ValueError):
         self.code = code
 
 
+def _strict_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    value: dict[str, Any] = {}
+    for key, child in pairs:
+        if key in value:
+            raise PayloadError("CANDIDATE_JSON_DUPLICATE_KEY")
+        value[key] = child
+    return value
+
+
 def _depth(value: Any) -> int:
     if isinstance(value, dict):
         return 1 + max((_depth(v) for v in value.values()), default=0)
@@ -47,7 +56,7 @@ def _json(reader: CandidateReader, path: str, max_depth: int) -> dict[str, Any]:
             raise PayloadError("CANDIDATE_UTF8_INVALID") from exc
         raise
     try:
-        value = json.loads(text)
+        value = json.loads(text, object_pairs_hook=_strict_object)
     except json.JSONDecodeError as exc:
         raise PayloadError("CANDIDATE_JSON_INVALID") from exc
     if _depth(value) > max_depth:
