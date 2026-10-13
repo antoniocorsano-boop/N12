@@ -34,4 +34,4 @@ jobs:
       - name: Task 4 operational replay tests
         run: python -m unittest tests/cew_gate_authority/test_operational_replay.py -v
       - name: Task 5 qualification invariant tests
-        run: python -m unittest tests/cew_gate_authority/test_qualification.py tests/cew_gate_authority/test_candidate_properties.py -v
+        run: python -m unittest tests/cew_gate_authority/test_qualification.py tests/cew_gate_authority/test_qualification_properties.py -v
