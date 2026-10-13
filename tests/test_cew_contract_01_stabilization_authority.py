@@ -23,6 +23,7 @@ class AuthorityTests(unittest.TestCase):
         data = json.loads(AUTH.read_text(encoding="utf-8"))
         self.assertEqual(data["operational_commit"], COMMIT)
         self.assertEqual(data["canonical_snapshot_id"], f"N12-FROZEN-INPUTSET@{COMMIT}")
+        self.assertEqual(data["model_generation_id"], "N12-CEW-MG-001")
         self.assertEqual(data["builder"]["path"], "scripts/cew_structural_model_builder.py")
         self.assertEqual(data["builder"]["git_blob_sha"], "4459fd0f519d8bb9425fa1490cc720a2edb0bd0a")
         self.assertEqual({item["path"]: item["sha256"] for item in data["inputs"]}, INPUTS)
@@ -30,6 +31,7 @@ class AuthorityTests(unittest.TestCase):
         self.assertEqual(data["registration"]["source_git_blob_sha"], "fa28cf034a03d98aaa8e8ac1deb1549ddef6d64a")
         self.assertEqual(data["registration"]["support_ids"], ["1", "19"])
         self.assertEqual(data["output"]["identity"], "N12_CEW_CANONICAL_STRUCTURAL_MODEL_v0.json")
+        self.assertEqual(data["output"]["generation_id_inside_artifact"], "N12-CEW-CSM-v0")
         self.assertEqual(data["output"]["sha256"], "4e1c3f341093e9b60670099802bdee0c5fcdc174b12aedb63922f49301a965b2")
         self.assertEqual(data["output"]["size_bytes"], 1068121)
         self.assertEqual(data["generated_at"], "2026-08-26T09:54:00.472520+00:00")
@@ -59,6 +61,9 @@ class AuthorityTests(unittest.TestCase):
         self.assertEqual(data["artifact"]["archive_digest"], "sha256:5278bec007f427f6535947343b29d0f586da461f4acdac6aa4502aea73a1d5a5")
         self.assertEqual(data["output"]["sha256"], "4e1c3f341093e9b60670099802bdee0c5fcdc174b12aedb63922f49301a965b2")
         self.assertEqual(data["output"]["size_bytes"], 1068121)
+        self.assertIs(data["verification"]["archive_sha256_verified"], True)
+        self.assertIs(data["verification"]["output_sha256_verified"], True)
+        self.assertIs(data["verification"]["output_size_verified"], True)
 
 
 if __name__ == "__main__":
