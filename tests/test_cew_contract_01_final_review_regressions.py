@@ -263,7 +263,8 @@ class FinalReviewRegressionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td, tempfile.TemporaryDirectory() as sd, tempfile.TemporaryDirectory() as od:
             root, operational, output_root = Path(td), Path(sd), Path(od)
             self.make_project(root, operational, output_root)
-            result = self.validate(root, operational, output_root)
+            with patch.dict(os.environ, {"CEW_REPLAY_RESULT_PATH": ""}):
+                result = self.validate(root, operational, output_root)
         self.assertFalse(result["qualified"])
         self.assertIn("REPLAY_RESULT_MISSING", result["errors"])
 
