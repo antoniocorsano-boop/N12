@@ -29,3 +29,7 @@ jobs:
         run: python -m unittest tests/cew_gate_authority/test_types_and_receipt.py tests/cew_gate_authority/test_authority.py -v
       - name: Task 3 candidate reader tests
         run: python -m unittest tests/cew_gate_authority/test_candidate_reader.py tests/cew_gate_authority/test_candidate_properties.py -v
+      - name: Fetch frozen operational authority commit
+        run: git fetch --no-tags --depth=1 origin d806dcca72779b5a186defe557a7a9b739575a90
+      - name: Task 4 operational replay tests
+        run: python -m unittest tests/cew_gate_authority/test_operational_replay.py -v
