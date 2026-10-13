@@ -18,6 +18,18 @@ class IndependentReviewParserRegressions(QualificationEngineTests):
         self.assertFalse(receipt.qualified)
         self.assertIn("CANDIDATE_JSON_INVALID", receipt.failure_codes)
 
+    def test_rejects_numeric_overflow_decoded_as_infinity(self):
+        payload = valid_payload(self.authority)
+        path = "qualification/cew-contract-01/n12/model-generation.json"
+        payload[path] = payload[path].replace(
+            b'"generation_profile": "CEW_CANONICAL_STRUCTURAL_GRAPH_v0"',
+            b'"generation_profile": 1e400',
+            1,
+        )
+        receipt = self.evaluate(payload)
+        self.assertFalse(receipt.qualified)
+        self.assertIn("CANDIDATE_JSON_INVALID", receipt.failure_codes)
+
     def test_rejects_csv_row_wider_than_frozen_contract(self):
         payload = valid_payload(self.authority)
         path = "qualification/cew-contract-01/n12/conformance-matrix.csv"
