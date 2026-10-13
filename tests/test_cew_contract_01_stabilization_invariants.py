@@ -79,6 +79,7 @@ class StabilizationChecksTests(unittest.TestCase):
         receipt = {
             "model_generation_id": "MG-001",
             "generation_id_inside_artifact": "CSM-v0",
+            "generated_artifact_timestamp": authority["generated_at"],
             "source_commit": "abc",
             "solver_run": False,
             "result_entity_created": False,
