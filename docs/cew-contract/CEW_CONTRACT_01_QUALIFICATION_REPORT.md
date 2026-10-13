@@ -191,6 +191,8 @@ N12 resta non autorizzato a una verifica strutturale corrente finché i gate tec
 
 ## 11. Debito separato CEW-FEM-01
 
+`CEW_FEM_01_REQUIRED=true`
+
 Resta obbligatoriamente fuori da CEW-CONTRACT-01:
 
 `CEW-FEM-01: ModelGeneration → SolverRun → Result → Verification → Receipt`.
