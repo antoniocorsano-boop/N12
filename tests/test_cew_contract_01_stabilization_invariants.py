@@ -24,11 +24,12 @@ class StabilizationChecksTests(unittest.TestCase):
         authority = {
             "operational_commit": "abc",
             "canonical_snapshot_id": "snap@abc",
+            "model_generation_id": "MG-001",
             "builder": {"path": "scripts/builder.py", "git_blob_sha": git_blob_sha_file(builder), "declared_builder": "B"},
             "generation_profile": "P",
             "inputs": inputs,
             "registration": {"source_path": "reg.csv", "source_git_blob_sha": "blob", "support_ids": ["1", "19"]},
-            "output": {"identity": "out.json", "sha256": "outsha", "size_bytes": 10},
+            "output": {"identity": "out.json", "generation_id_inside_artifact": "CSM-v0", "sha256": "outsha", "size_bytes": 10},
             "generated_at": "2026-01-01T00:00:00+00:00",
             "authority_flags": {
                 "solver_authorized": False,
@@ -46,16 +47,23 @@ class StabilizationChecksTests(unittest.TestCase):
             "run": {"id": 42, "workflow_path": "wf.yml", "head_sha": "abc", "status": "completed", "conclusion": "success"},
             "artifact": {"id": 7, "name": "artifact", "archive_digest": "zipsha"},
             "output": {"identity": "out.json", "sha256": "outsha", "size_bytes": 10},
+            "verification": {
+                "archive_sha256_verified": True,
+                "output_sha256_verified": True,
+                "output_size_verified": True,
+            },
         }
         historical_path = root / "evidence/cew-contract-01/stabilization/N12_CEW_MODEL_GENERATION_HISTORICAL_RECEIPT_v1.json"
         historical_path.write_text(json.dumps(historical), encoding="utf-8")
         model = {
+            "model_generation_id": "MG-001",
             "canonical_snapshot_id": "snap@abc",
             "generation_profile": "P",
             "builder": {"path": "scripts/builder.py", "source_commit": "abc", "git_blob_sha": authority["builder"]["git_blob_sha"]},
             "inputs": inputs,
             "output": {
                 "identity": "out.json",
+                "generation_id_inside_artifact": "CSM-v0",
                 "sha256": "outsha",
                 "size_bytes": 10,
                 "artifact_id": 7,
@@ -69,6 +77,8 @@ class StabilizationChecksTests(unittest.TestCase):
             "synthetic_solver_result": False,
         }
         receipt = {
+            "model_generation_id": "MG-001",
+            "generation_id_inside_artifact": "CSM-v0",
             "source_commit": "abc",
             "solver_run": False,
             "result_entity_created": False,
