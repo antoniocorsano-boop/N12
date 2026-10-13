@@ -9,6 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = ROOT / "scripts" / "validate_cew_contract_01_closure.py"
 REGISTRATION_FIXTURE = ROOT / "evidence" / "cew-contract-01" / "fixtures" / "N12_REGISTRATION_UNCERTAINTY_v1.json"
+MODEL_GENERATION = ROOT / "evidence" / "cew-contract-01" / "model-generation" / "N12_CEW_MODEL_GENERATION_v1.json"
+MODEL_RECEIPT = ROOT / "evidence" / "cew-contract-01" / "model-generation" / "N12_CEW_MODEL_GENERATION_RECEIPT_v1.json"
 
 
 def load_validator():
@@ -125,6 +127,30 @@ class ClosureValidatorUnitTests(unittest.TestCase):
                 "derived_bound": None,
             },
         )
+
+    def test_model_generation_uses_real_workflow_artifact_and_input_digests(self) -> None:
+        self.assertTrue(MODEL_GENERATION.exists(), "ModelGeneration manifest must exist")
+        self.assertTrue(MODEL_RECEIPT.exists(), "ModelGeneration receipt must exist")
+        data = json.loads(MODEL_GENERATION.read_text(encoding="utf-8"))
+        self.assertEqual(data["builder"]["source_commit"], "d806dcca72779b5a186defe557a7a9b739575a90")
+        self.assertEqual(data["verification"]["workflow_run_id"], 32955421352)
+        self.assertEqual(data["output"]["artifact_id"], 9601773275)
+        self.assertEqual(data["output"]["sha256"], "4e1c3f341093e9b60670099802bdee0c5fcdc174b12aedb63922f49301a965b2")
+        self.assertFalse(data["solver_authorized"])
+        self.assertFalse(data["calculation_model_ready"])
+        expected_inputs = {
+            "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json": "e6ce185e5a439e952950f1c9877b6dd35c036dcf4cb837f74da34c34ebe543d8",
+            "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv": "98d309e0c1ae9159c73e0f9d173c139bfeaf9a8335948ead64e9207cad20bce8",
+            "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv": "ce10cf06c6f4a5805afdbb9bd78ffd0d3d79fe5f104e18720b47488a11ffa5d6",
+            "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv": "b174517f418335ca43a66305087a4f7ae87acc224c40e0bbd81ce7d18f3ddc45",
+            "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv": "aaf3636487618b39dd70c5a363626d2a6d78845ed913c32d6244f2b17c3e1ed0",
+            "data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json": "0e2da5eb31d5491ce1c56f27023cdd7635cfe080dc07f87ffb29f6dee938175d",
+        }
+        self.assertEqual({item["path"]: item["sha256"] for item in data["inputs"]}, expected_inputs)
+        receipt = json.loads(MODEL_RECEIPT.read_text(encoding="utf-8"))
+        self.assertEqual(receipt["receipt_class"], "QUALIFICATION_RECEIPT")
+        self.assertFalse(receipt["engineering_result"])
+        self.assertEqual(receipt["artifact_archive_digest"], "sha256:5278bec007f427f6535947343b29d0f586da461f4acdac6aa4502aea73a1d5a5")
 
 
 if __name__ == "__main__":
