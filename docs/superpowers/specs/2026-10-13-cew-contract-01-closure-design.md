@@ -11,7 +11,7 @@
 Questa specifica integra e corregge in modo mirato `2026-10-12-cew-contract-01-design.md` per chiudere tre residui emersi dalla qualifica iniziale:
 
 1. dipendenza circolare `CEW-CONTRACT-01 ↔ SolverRun/Result`;
-2. assenza di un caso N12 formalizzato di incertezza di misura;
+2. assenza di un caso N12 formalizzato di incertezza associata a una registrazione/misura reale;
 3. minima sufficienza non dimostrata per `Wall` e `ModelGeneration`.
 
 La chiusura deve preservare gli invarianti già approvati:
@@ -23,7 +23,7 @@ La chiusura deve preservare gli invarianti già approvati:
 - nessuna entità V1 obbligatoria senza un caso reale che ne dimostri la necessità;
 - nessuna perdita di provenienza, stato epistemico o storia delle decisioni.
 
-## 2. Autorità e precedenza
+## 2. Autorità, precedenza e riferimenti N12
 
 Questa specifica prevale sulla specifica del 12 ottobre 2026 solo per i punti esplicitamente modificati qui.
 
@@ -35,6 +35,14 @@ In caso di conflitto, vale l'ordine:
 2. `2026-10-12-cew-contract-01-design.md`;
 3. piano/artefatti di qualifica derivati;
 4. implementazioni e report.
+
+Per i tre residui sono autorizzati come casi di prova, senza attribuire loro autorità superiore a quella già registrata nel repository:
+
+- `data/canonical/M1E_CALCULATION_MODEL_HANDOFF_v1.json` — autorità sul fatto che il modello di calcolo corrente non è autorizzato (`calculation_model_ready=false`) e sui relativi blocker;
+- `data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv` — osservazioni reali degli scarti di registrazione geometrica in pixel;
+- `scripts/cew_structural_model_builder.py` e l'output governato che esso produce — caso reale di generazione di un grafo strutturale solver-independent.
+
+Questi riferimenti non autorizzano nuove proprietà tecniche, nuovi valori di progetto o esecuzioni solver.
 
 ## 3. Residuo 1 — separazione CEW-CONTRACT-01 / CEW-FEM-01
 
@@ -86,11 +94,11 @@ Il precedente test di provenienza completa viene scisso in due livelli:
 
 Un `Result` reale non è più necessario per dichiarare qualificato CEW-CONTRACT-01, ma resta necessario per dichiarare qualificato CEW-FEM-01.
 
-## 4. Residuo 2 — incertezza di misura reale N12
+## 4. Residuo 2 — incertezza di registrazione reale N12
 
 ### 4.1 Fonte del caso pilota
 
-Il caso N12 usa il patrimonio già esistente della registrazione geometrica del piano terra, in particolare gli artefatti che conservano:
+Il caso N12 usa `data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv`, che conserva per supporti reali del piano terra:
 
 - coordinate osservate in pixel;
 - coordinate previste dalla trasformazione;
@@ -99,62 +107,55 @@ Il caso N12 usa il patrimonio già esistente della registrazione geometrica del 
 - stato diagnostico `PASS_DIAGNOSTIC` o `WATCH`;
 - classe di evidenza.
 
-Questi dati sono osservazioni reali del processo di registrazione e non devono essere reinterpretati come tolleranza normativa o precisione certificata dello strumento.
+Questi dati sono osservazioni reali del processo di registrazione. **Non sono una tolleranza normativa, un errore standard, una deviazione standard, una precisione certificata dello strumento o una misura di accuratezza metrologica.**
 
 ### 4.2 Rappresentazione CEW richiesta
 
-Il caso deve essere formalizzato come `MeasurementUncertainty` o struttura logica equivalente collegata alla proprietà geometrica osservata.
+Il caso deve essere formalizzato come `REGISTRATION_UNCERTAINTY` o struttura logica equivalente collegata alla proprietà geometrica registrata.
 
 Campi minimi:
 
-- `uncertainty_type = MEASUREMENT_OR_REGISTRATION`;
+- `uncertainty_type = REGISTRATION_UNCERTAINTY`;
 - oggetto/proprietà cui si riferisce;
 - valore nominale osservato;
 - unità;
 - origine/source/evidence;
-- metodo di registrazione o misura;
-- residuo osservato vettoriale, se disponibile;
+- metodo di registrazione;
+- residuo osservato vettoriale (`du`, `dv`), se disponibile;
 - residuo osservato scalare, se disponibile;
 - eventuale intervallo/bound **solo se derivato esplicitamente da una regola dichiarata**;
-- stato epistemico;
+- stato epistemico della coordinata/proprietà di base;
 - stato diagnostico;
-- note su limiti di interpretazione.
+- note sui limiti di interpretazione.
 
 ### 4.3 Regola anti-invenzione
 
-`residual_px` non deve essere automaticamente rinominato “tolleranza”, “errore standard”, “incertezza standard” o “accuratezza”.
+`residual_px` non deve essere rinominato “tolleranza”, “errore standard”, “incertezza standard” o “accuratezza”.
 
-Se serve soddisfare un requisito di intervallo, l'implementazione può costruire un **bound diagnostico derivato** soltanto dichiarando:
+Se viene costruito un **bound diagnostico derivato**, la trasformazione deve dichiarare:
 
 - formula;
 - input;
 - unità;
-- natura `DERIVED/DIAGNOSTIC`;
+- natura `DERIVED_DIAGNOSTIC`;
 - assenza di valore metrologico certificato;
 - impossibilità di promuoverlo a `DOC` o `MIS` come nuova misura autonoma.
 
-Il caso è sufficiente per dimostrare che CEW sa distinguere:
-
-- valore osservato;
-- discrepanza di registrazione;
-- bound diagnostico derivato;
-- dato assente;
-- dato documentale;
-- inferenza;
-- assunzione di scenario.
+Il PASS del contratto **non richiede** di fabbricare un intervallo `±x` quando la fonte non lo dichiara. È sufficiente che il modello distingua correttamente valore osservato, residuo reale, eventuale bound derivato e limiti del metodo.
 
 ### 4.4 Criterio di PASS
 
 Il test C01-T07 passa se almeno un caso N12 reale presenta:
 
-1. proprietà misurata/registrata reale;
+1. proprietà registrata/misurata reale;
 2. provenienza completa;
 3. metodo dichiarato;
 4. scarto/residuo osservato;
-5. eventuale bound derivato separato dalla misura;
-6. nessuna promozione epistemica impropria.
+5. eventuale bound derivato separato dalla misura di base;
+6. nessuna promozione epistemica impropria;
+7. classificazione esplicita che impedisce di scambiare il residuo di registrazione per incertezza metrologica certificata.
 
-Non è necessario inventare una “± tolleranza” se la fonte non la dichiara.
+La precedente formulazione “misura con tolleranza” viene quindi precisata in “misura/registrazione con incertezza o discrepanza caratterizzata secondo il metodo disponibile”.
 
 ## 5. Residuo 3A — `Wall` e minima sufficienza
 
@@ -190,9 +191,9 @@ Il validator deve fallire se un tipo viene marcato `CORE_REQUIRED` senza una giu
 
 ### 6.1 Caso reale disponibile
 
-N12 dispone già di un builder che genera un grafo strutturale solver-independent da artefatti canonici promossi, senza estrarre geometria dalle tavole e senza creare connettività per prossimità geometrica.
+N12 dispone di `scripts/cew_structural_model_builder.py`, che genera un grafo strutturale solver-independent da artefatti canonici promossi, senza estrarre geometria dalle tavole e senza creare connettività per prossimità geometrica.
 
-Il builder incorpora:
+Il builder incorpora già:
 
 - riferimenti agli input canonici;
 - hash degli input;
@@ -233,7 +234,7 @@ Il gate continua ad avere 11 test, ma i test interessati vengono reinterpretati 
 
 - `C01-T01` — rappresentabilità N12: PASS solo se tutti i concetti core necessari sono rappresentabili senza campi N12-specifici; `Wall` non è richiesto se resta `SUPPORTED_EXTENSION`.
 - `C01-T02` — provenienza completa core: chiusura end-to-end da Projection/Receipt fino a Source; la parte SolverRun/Result è rinviata a CEW-FEM-01.
-- `C01-T07` — incertezza: usa un caso reale di registrazione/misura N12 con residuo/metodo e, se presente, bound diagnostico derivato esplicito.
+- `C01-T07` — incertezza: usa un caso reale N12 di registrazione/misura con residuo e metodo; eventuali bound restano derivati e non metrologici salvo fonte esplicita.
 - `C01-T09` — riproducibilità: usa la ModelGeneration N12 formalizzata con Snapshot/Scenario/adapter/versione/parametri/input/output/hash.
 - `C01-T10` — assurance: almeno una trasformazione reale attraversa input → output → Verification → Receipt e include uno stato non banalmente PASS quando applicabile.
 - `C01-T11` — minima sufficienza: ogni entità/tipo `CORE_REQUIRED` ha almeno un caso reale; ciò che non è necessario viene riclassificato senza essere fittiziamente istanziato.
@@ -247,7 +248,7 @@ CEW-CONTRACT-01 può diventare `QUALIFIED` solo se:
 1. tutti gli 11 test del gate risultano `PASS` sull'exact head;
 2. nessun PASS dipende da un `SolverRun` o `Result` fittizio;
 3. la ModelGeneration è reale, riproducibile e receipt-gated;
-4. il caso di incertezza usa dati N12 reali e distingue osservazione da bound derivato;
+4. il caso di incertezza usa dati N12 reali e distingue osservazione/residuo da eventuale bound derivato;
 5. `Wall` o altri tipi non necessari non vengono fabbricati per soddisfare il test;
 6. non vengono introdotti concetti specifici di OpenSees, EdiLus, Code_Aster, IFC o CAD nel nucleo logico;
 7. nessuna modifica rende `calculation_model_ready=true` nel progetto N12;
@@ -277,7 +278,7 @@ L'implementazione successiva dovrà aggiornare, nel minimo perimetro necessario:
 
 - documentazione del gate CEW-CONTRACT-01;
 - matrice/test di qualifica;
-- fixture/caso N12 per incertezza di registrazione;
+- fixture/caso N12 per `REGISTRATION_UNCERTAINTY`;
 - manifest/receipt della ModelGeneration;
 - validator della minima sufficienza;
 - report finale di qualifica;
