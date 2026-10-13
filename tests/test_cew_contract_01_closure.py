@@ -87,6 +87,16 @@ class ClosureValidatorUnitTests(unittest.TestCase):
                     "diagnostic_status": "PASS_DIAGNOSTIC",
                     "evidence_class": "DOC_METRIC_OR_AXIS",
                     "derived_bound": None,
+                },
+                {
+                    "support_id": "19",
+                    "unit": "px",
+                    "observed": {"u": 2458.56, "v": 4200.73},
+                    "predicted": {"u": 2462.23, "v": 4224.46},
+                    "residual": {"du": 3.67, "dv": 23.73, "scalar": 24.01},
+                    "diagnostic_status": "WATCH",
+                    "evidence_class": "MIS_AFFINE_WATCH",
+                    "derived_bound": None,
                 }
             ],
             "interpretive_guard": "Residuals are registration diagnostics, not tolerance, standard error, standard uncertainty, accuracy, or certified metrological uncertainty.",
