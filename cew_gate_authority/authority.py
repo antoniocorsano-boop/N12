@@ -78,6 +78,7 @@ class DocumentContract:
     schema_identity: tuple[tuple[str, Any], ...] = ()
     allowed_fields: tuple[str, ...] = ()
     csv_header: tuple[str, ...] = ()
+    csv_rows: tuple[tuple[str, ...], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -130,12 +131,22 @@ def _load_document_contracts(data: dict[str, Any], allowlist: tuple[str, ...]) -
                 raise ValueError("json document contract schema identity must be part of allowed_fields")
             contracts.append(DocumentContract(path=path, format=fmt, schema_identity=schema_identity, allowed_fields=allowed_fields))
         elif fmt == "csv":
-            if set(raw) != {"format", "header"}:
+            if not {"format", "header"} <= set(raw) <= {"format", "header", "rows"}:
                 raise ValueError("csv document contract has unexpected fields")
             header = tuple(str(v) for v in _required(raw, "header"))
             if not header or len(set(header)) != len(header):
                 raise ValueError("csv document contract header must be unique and non-empty")
-            contracts.append(DocumentContract(path=path, format=fmt, csv_header=header))
+            rows: list[tuple[str, ...]] = []
+            for item in raw.get("rows", []):
+                if not isinstance(item, dict) or set(item) != set(header):
+                    raise ValueError("csv document contract rows must match the frozen header exactly")
+                row = tuple(str(item[field]) for field in header)
+                if any(not value for value in row):
+                    raise ValueError("csv document contract row values must be non-empty")
+                rows.append(row)
+            if len(rows) != len(set(rows)):
+                raise ValueError("csv document contract rows must be unique")
+            contracts.append(DocumentContract(path=path, format=fmt, csv_header=header, csv_rows=tuple(rows)))
         else:
             raise ValueError("unsupported authority document contract format")
     return tuple(contracts)
