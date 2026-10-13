@@ -8,6 +8,7 @@ from typing import Any
 
 AUTHORITY = Path("evidence/cew-contract-01/stabilization/N12_CEW_CONTRACT_01_FROZEN_AUTHORITY_v1.json")
 HISTORICAL = Path("evidence/cew-contract-01/stabilization/N12_CEW_MODEL_GENERATION_HISTORICAL_RECEIPT_v1.json")
+EXPECTED_CHECKOUT_REF = "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -38,6 +39,16 @@ def _unquote_yaml_scalar(value: str) -> str:
 
 def _indent(line: str) -> int:
     return len(line) - len(line.lstrip(" "))
+
+
+def _parse_yaml_mapping_line(line: str) -> tuple[str, str] | None:
+    match = re.match(r"^\s*(.+?):(?:\s*(.*))?$", line)
+    if not match:
+        return None
+    key = _unquote_yaml_scalar(match.group(1))
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", key):
+        return None
+    return key, (match.group(2) or "").strip()
 
 
 def _parse_workflow_steps(text: str) -> list[dict[str, Any]]:
@@ -72,12 +83,11 @@ def _parse_workflow_steps(text: str) -> list[dict[str, Any]]:
                 index += 1
                 continue
 
-            key_match = re.match(r"^\s*([A-Za-z0-9_-]+):(?:\s*(.*))?$", line)
-            if not key_match:
+            parsed = _parse_yaml_mapping_line(line)
+            if parsed is None:
                 index += 1
                 continue
-            key = key_match.group(1)
-            raw_value = (key_match.group(2) or "").strip()
+            key, raw_value = parsed
 
             if key == "with" and not raw_value:
                 mapping: dict[str, str] = {}
@@ -91,9 +101,10 @@ def _parse_workflow_steps(text: str) -> list[dict[str, Any]]:
                     if nested_indent <= step_indent + 2:
                         break
                     if nested_indent == step_indent + 4:
-                        nested_match = re.match(r"^\s*([A-Za-z0-9_-]+):\s*(.*?)\s*$", nested)
-                        if nested_match:
-                            mapping[nested_match.group(1)] = _unquote_yaml_scalar(nested_match.group(2))
+                        nested_parsed = _parse_yaml_mapping_line(nested)
+                        if nested_parsed is not None:
+                            nested_key, nested_value = nested_parsed
+                            mapping[nested_key] = _unquote_yaml_scalar(nested_value)
                     index += 1
                 step["with"] = mapping
                 continue
@@ -181,6 +192,8 @@ def validate_stabilization(
     for field, actual, expected in receipt_generation:
         if actual != expected:
             errors.append(f"RECEIPT_GENERATION_IDENTITY_MISMATCH:{field}")
+    if receipt.get("generated_artifact_timestamp") != authority.get("generated_at"):
+        errors.append("RECEIPT_GENERATION_TIMESTAMP_MISMATCH")
 
     if _input_map(model.get("inputs")) != _input_map(authority.get("inputs")):
         errors.append("INPUT_SET_AUTHORITY_MISMATCH")
@@ -276,7 +289,7 @@ def workflow_contract_errors(text: str) -> list[str]:
 
     checkout = _single_named_step(steps, "Checkout PR exact head")
     checkout_with = checkout.get("with", {}) if checkout else {}
-    if checkout is None or "github.event.pull_request.head.sha" not in str(checkout_with.get("ref", "")):
+    if checkout is None or str(checkout_with.get("ref", "")).strip() != EXPECTED_CHECKOUT_REF:
         errors.append("CI_BYPASS_EXACT_HEAD_MISSING")
     if checkout is None or str(checkout_with.get("persist-credentials", "")).lower() != "false":
         errors.append("CI_BYPASS_PERSISTED_CREDENTIALS")
