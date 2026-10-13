@@ -142,9 +142,27 @@ def _parse_workflow_steps(text: str) -> list[dict[str, Any]]:
     return steps
 
 
-def _parse_defaults_shell(lines: list[str], defaults_index: int, defaults_indent: int) -> str | None:
+def _direct_mapping_indent(lines: list[str], parent_index: int, parent_indent: int) -> int | None:
+    candidates: list[int] = []
+    for index in range(parent_index + 1, len(lines)):
+        line = lines[index]
+        if not line.strip():
+            continue
+        line_indent = _indent(line)
+        if line_indent <= parent_indent:
+            break
+        if _parse_yaml_mapping_line(line) is not None:
+            candidates.append(line_indent)
+    return min(candidates) if candidates else None
+
+
+def _parse_defaults_run_value(
+    lines: list[str], defaults_index: int, defaults_indent: int, field: str
+) -> str | None:
+    run_indent = _direct_mapping_indent(lines, defaults_index, defaults_indent)
+    if run_indent is None:
+        return None
     index = defaults_index + 1
-    run_indent = defaults_indent + 2
     while index < len(lines):
         line = lines[index]
         if not line.strip():
@@ -156,6 +174,9 @@ def _parse_defaults_shell(lines: list[str], defaults_index: int, defaults_indent
         if line_indent == run_indent:
             parsed = _parse_yaml_mapping_line(line)
             if parsed is not None and parsed[0] == "run" and not parsed[1]:
+                field_indent = _direct_mapping_indent(lines, index, line_indent)
+                if field_indent is None:
+                    return None
                 index += 1
                 while index < len(lines):
                     nested = lines[index]
@@ -163,50 +184,24 @@ def _parse_defaults_shell(lines: list[str], defaults_index: int, defaults_indent
                         index += 1
                         continue
                     nested_indent = _indent(nested)
-                    if nested_indent <= run_indent:
+                    if nested_indent <= line_indent:
                         break
-                    if nested_indent == run_indent + 2:
+                    if nested_indent == field_indent:
                         nested_parsed = _parse_yaml_mapping_line(nested)
-                        if nested_parsed is not None and nested_parsed[0] == "shell":
+                        if nested_parsed is not None and nested_parsed[0] == field:
                             return _unquote_yaml_scalar(nested_parsed[1])
                     index += 1
                 return None
         index += 1
     return None
+
+
+def _parse_defaults_shell(lines: list[str], defaults_index: int, defaults_indent: int) -> str | None:
+    return _parse_defaults_run_value(lines, defaults_index, defaults_indent, "shell")
 
 
 def _parse_defaults_working_directory(lines: list[str], defaults_index: int, defaults_indent: int) -> str | None:
-    index = defaults_index + 1
-    run_indent = defaults_indent + 2
-    while index < len(lines):
-        line = lines[index]
-        if not line.strip():
-            index += 1
-            continue
-        line_indent = _indent(line)
-        if line_indent <= defaults_indent:
-            break
-        if line_indent == run_indent:
-            parsed = _parse_yaml_mapping_line(line)
-            if parsed is not None and parsed[0] == "run" and not parsed[1]:
-                index += 1
-                while index < len(lines):
-                    nested = lines[index]
-                    if not nested.strip():
-                        index += 1
-                        continue
-                    nested_indent = _indent(nested)
-                    if nested_indent <= run_indent:
-                        break
-                    if nested_indent == run_indent + 2:
-                        nested_parsed = _parse_yaml_mapping_line(nested)
-                        if nested_parsed is not None and nested_parsed[0] == "working-directory":
-                            return _unquote_yaml_scalar(nested_parsed[1])
-                    index += 1
-                return None
-        index += 1
-    return None
-
+    return _parse_defaults_run_value(lines, defaults_index, defaults_indent, "working-directory")
 
 def _workflow_default_shell(text: str) -> str | None:
     lines = text.splitlines()
@@ -233,14 +228,20 @@ def _workflow_default_working_directory(text: str) -> str | None:
 def _parse_workflow_job(text: str, job_name: str) -> dict[str, Any] | None:
     lines = text.splitlines()
     jobs_index: int | None = None
+    jobs_indent: int | None = None
     for index, line in enumerate(lines):
         if _indent(line) != 0:
             continue
         parsed = _parse_yaml_mapping_line(line)
         if parsed is not None and parsed[0] == "jobs" and not parsed[1]:
             jobs_index = index
+            jobs_indent = _indent(line)
             break
-    if jobs_index is None:
+    if jobs_index is None or jobs_indent is None:
+        return None
+
+    job_entry_indent = _direct_mapping_indent(lines, jobs_index, jobs_indent)
+    if job_entry_indent is None:
         return None
 
     job_index: int | None = None
@@ -250,9 +251,9 @@ def _parse_workflow_job(text: str, job_name: str) -> dict[str, Any] | None:
         if not line.strip():
             continue
         line_indent = _indent(line)
-        if line_indent == 0:
+        if line_indent <= jobs_indent:
             break
-        if line_indent != 2:
+        if line_indent != job_entry_indent:
             continue
         parsed = _parse_yaml_mapping_line(line)
         if parsed is not None and parsed[0] == job_name and not parsed[1]:
@@ -261,6 +262,10 @@ def _parse_workflow_job(text: str, job_name: str) -> dict[str, Any] | None:
             break
     if job_index is None or job_indent is None:
         return None
+
+    child_indent = _direct_mapping_indent(lines, job_index, job_indent)
+    if child_indent is None:
+        return {}
 
     job: dict[str, Any] = {}
     index = job_index + 1
@@ -272,7 +277,7 @@ def _parse_workflow_job(text: str, job_name: str) -> dict[str, Any] | None:
         line_indent = _indent(line)
         if line_indent <= job_indent:
             break
-        if line_indent != job_indent + 2:
+        if line_indent != child_indent:
             index += 1
             continue
         parsed = _parse_yaml_mapping_line(line)
@@ -291,7 +296,6 @@ def _parse_workflow_job(text: str, job_name: str) -> dict[str, Any] | None:
                 job["defaults.run.working-directory"] = working_directory
         index += 1
     return job
-
 
 def _normalize_run_command(value: str) -> str:
     parts: list[str] = []
