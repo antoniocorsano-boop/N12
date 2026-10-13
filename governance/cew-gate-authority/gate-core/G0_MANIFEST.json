@@ -1,0 +1,25 @@
+{
+  "schema_id": "CEW_GATE_CORE_MANIFEST",
+  "schema_version": 1,
+  "gate_core_version": "G0",
+  "commit_binding": "HUMAN_PROMOTION_RECORD_REQUIRED",
+  "source_bundle_algorithm": "sha256(sorted(path + NUL + git_blob_sha + LF))",
+  "source_bundle_sha256": "6838d751310cc90555b11867a898b541c789597cd70c692e10bdc640ae39dee3",
+  "source_components": [
+    {"path": "cew_gate_authority/__init__.py", "git_blob_sha": "90bfeb397d79d16eee2b2d61ce8403c50924926f"},
+    {"path": "cew_gate_authority/authority.py", "git_blob_sha": "43c0fc6a1604b2f372c3d52e7131dcf3d1c9f080"},
+    {"path": "cew_gate_authority/candidate_reader.py", "git_blob_sha": "5fa67476121fc7e9848b8d4925b55ae2335f48af"},
+    {"path": "cew_gate_authority/cli.py", "git_blob_sha": "544a18106c18b414cc7ad8334ade30201dfbc7ba"},
+    {"path": "cew_gate_authority/event_identity.py", "git_blob_sha": "fb3077cc4355d7c63a4b9afa13f0340c2fc8b4fc"},
+    {"path": "cew_gate_authority/failure_codes.py", "git_blob_sha": "ab033f792f46e486129e85dfed008dbca9f17cc8"},
+    {"path": "cew_gate_authority/operational.py", "git_blob_sha": "7a5ad3e51e8514d7c0f07f67b6810b1d584ece1c"},
+    {"path": "cew_gate_authority/qualification.py", "git_blob_sha": "059ac7727ab6ca948e08adb0b01bcda949755479"},
+    {"path": "cew_gate_authority/receipt.py", "git_blob_sha": "b1690bf54e78730f2048ae77d62dd3d8967b46f5"},
+    {"path": "cew_gate_authority/replay.py", "git_blob_sha": "81a6159e2697d0239c59792ae3e3169261b8a8ce"},
+    {"path": "cew_gate_authority/types.py", "git_blob_sha": "1cfe2f64002545c1998dd91efca009acc3cc3b27"},
+    {"path": "governance/cew-gate-authority/authorities/N12_CEW_CONTRACT_01_A0.json", "git_blob_sha": "413202117ada754b25f5d700953e79e0b46b0d33"},
+    {"path": "governance/cew-gate-authority/schemas/QUALIFICATION_RECEIPT_v1.schema.json", "git_blob_sha": "cf7a7809dd67338a47e2fa57ce365479cc67960e"}
+  ],
+  "promotion_state": "CANDIDATE",
+  "promotion_note": "G0 becomes authoritative only after explicit human promotion; this manifest does not self-promote."
+}
