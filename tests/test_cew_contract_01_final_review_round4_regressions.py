@@ -23,6 +23,13 @@ class FinalReviewRound4Regressions(unittest.TestCase):
         )
         self.assertIn("CI_BYPASS_MANDATORY_WORKING_DIRECTORY", workflow_contract_errors(tampered))
 
+    def test_quoted_enforcement_working_directory_is_also_rejected(self):
+        tampered = workflow_text().replace(
+            "      - name: Enforce CEW-CONTRACT-01 qualification\n        shell: bash\n",
+            "      - name: Enforce CEW-CONTRACT-01 qualification\n        shell: bash\n        \"working-directory\": bypass\n",
+        )
+        self.assertIn("CI_BYPASS_MANDATORY_WORKING_DIRECTORY", workflow_contract_errors(tampered))
+
     def test_replay_working_directory_cannot_redirect_replay(self):
         tampered = workflow_text().replace(
             "      - name: Run deterministic ModelGeneration replay\n        shell: bash\n",
@@ -53,7 +60,15 @@ class FinalReviewRound4Regressions(unittest.TestCase):
         text = f"CEW_FEM_01_REQUIRED=true_extra\n{CHAIN}\n"
         self.assertFalse(fem_debt_declared(text))
 
-    def test_exact_standalone_fem_marker_remains_valid(self):
+    def test_prefixed_fem_chain_is_not_exact_declaration(self):
+        text = f"CEW_FEM_01_REQUIRED=true\nNOT_{CHAIN}\n"
+        self.assertFalse(fem_debt_declared(text))
+
+    def test_suffixed_fem_chain_is_not_exact_declaration(self):
+        text = f"CEW_FEM_01_REQUIRED=true\n{CHAIN}_EXTRA\n"
+        self.assertFalse(fem_debt_declared(text))
+
+    def test_exact_standalone_fem_marker_and_chain_remain_valid(self):
         text = f"CEW_FEM_01_REQUIRED=true\n{CHAIN}\n"
         self.assertTrue(fem_debt_declared(text))
 
