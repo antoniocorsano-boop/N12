@@ -3,6 +3,7 @@
   "authority_id": "N12-CEW-CONTRACT-01-FROZEN-AUTHORITY-v1",
   "operational_commit": "d806dcca72779b5a186defe557a7a9b739575a90",
   "canonical_snapshot_id": "N12-FROZEN-INPUTSET@d806dcca72779b5a186defe557a7a9b739575a90",
+  "model_generation_id": "N12-CEW-MG-001",
   "builder": {
     "path": "scripts/cew_structural_model_builder.py",
     "git_blob_sha": "4459fd0f519d8bb9425fa1490cc720a2edb0bd0a",
