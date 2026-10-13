@@ -154,6 +154,12 @@
       "header": [
         "structural_type",
         "status"
+      ],
+      "rows": [
+        {
+          "structural_type": "CEW_CORE",
+          "status": "MINIMAL"
+        }
       ]
     }
   },
