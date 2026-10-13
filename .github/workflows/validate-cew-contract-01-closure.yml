@@ -56,6 +56,9 @@ jobs:
       - name: Run closure unit tests
         run: python -m unittest tests/test_cew_contract_01_closure.py -v
 
+      - name: Run review regression tests
+        run: python -m unittest tests/test_cew_contract_01_review_regressions.py -v
+
       - name: Verify repository-native gate contract
         run: python -m unittest tests/test_cew_contract_01_ci_gate.py -v
 
