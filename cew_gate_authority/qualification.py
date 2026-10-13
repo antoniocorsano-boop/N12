@@ -75,11 +75,17 @@ def _json(reader: CandidateReader, path: str, max_depth: int) -> dict[str, Any]:
             object_pairs_hook=_strict_object,
             parse_constant=_reject_nonfinite_constant,
         )
+    except RecursionError as exc:
+        raise PayloadError("CANDIDATE_JSON_DEPTH_EXCEEDED") from exc
     except json.JSONDecodeError as exc:
         raise PayloadError("CANDIDATE_JSON_INVALID") from exc
     if not _numbers_finite(value):
         raise PayloadError("CANDIDATE_JSON_INVALID")
-    if _depth(value) > max_depth:
+    try:
+        depth = _depth(value)
+    except RecursionError as exc:
+        raise PayloadError("CANDIDATE_JSON_DEPTH_EXCEEDED") from exc
+    if depth > max_depth:
         raise PayloadError("CANDIDATE_JSON_DEPTH_EXCEEDED")
     if not isinstance(value, dict):
         raise PayloadError("CANDIDATE_JSON_INVALID")
@@ -137,6 +143,8 @@ def _csv_contract(reader: CandidateReader, authority: FrozenAuthority, path: str
         raise
     try:
         return parse_csv_limited(text, authority.limits.max_csv_rows, contract.csv_header)
+    except csv.Error as exc:
+        raise PayloadError("CANDIDATE_CSV_ROW_INVALID") from exc
     except ValueError as exc:
         if str(exc) in {
             "CANDIDATE_CSV_ROWS_EXCEEDED",
@@ -235,9 +243,10 @@ def evaluate_qualification(
 
     inv["I01"] = _result(reader.head_sha == candidate.head_sha, "I01_CANDIDATE_HEAD_MISMATCH", failures)
     inv["I02"] = _result(gate_core.version == "G0" and bool(control_plane.base_commit_sha) and bool(authority.source_sha256), "I02_TRUSTED_INVOCATION_INVALID", failures)
+    builder = model.get("builder") if isinstance(model.get("builder"), dict) else {}
     inv["I03"] = _result(
         q.get("operational_commit") == authority.operational_commit
-        and model.get("builder", {}).get("source_commit") == authority.operational_commit
+        and builder.get("source_commit") == authority.operational_commit
         and mr.get("source_commit") == authority.operational_commit,
         "I03_OPERATIONAL_AUTHORITY_MISMATCH",
         failures,
@@ -250,7 +259,6 @@ def evaluate_qualification(
     actual_input_map = {str(item.get("path")): str(item.get("sha256")) for item in model_inputs if isinstance(item, dict)}
     inv["I05"] = _result(actual_input_map == dict(authority.inputs), "I05_INPUT_DIGEST_MISMATCH", failures)
 
-    builder = model.get("builder") if isinstance(model.get("builder"), dict) else {}
     inv["I06"] = _result(builder.get("path") == authority.builder.path and builder.get("git_blob_sha") == authority.builder.git_blob_sha, "I06_BUILDER_IDENTITY_MISMATCH", failures)
     inv["I07"] = _result(q.get("canonical_snapshot_id") == authority.canonical_snapshot_id and model.get("canonical_snapshot_id") == authority.canonical_snapshot_id, "I07_SNAPSHOT_IDENTITY_MISMATCH", failures)
     inv["I08"] = _result(replay.passed is True, "I08_REPLAY_FAILED", failures)
