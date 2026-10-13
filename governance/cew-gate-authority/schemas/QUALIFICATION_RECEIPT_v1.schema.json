@@ -1,0 +1,25 @@
+{
+  "$id": "CEW_QUALIFICATION_RECEIPT_v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authority": {"type": "object"},
+    "authority_boundary": {"type": "object"},
+    "candidate": {"type": "object"},
+    "cew_fem_01_required": {"type": "boolean"},
+    "control_plane": {"type": "object"},
+    "failure_codes": {"items": {"type": "string"}, "type": "array"},
+    "gate_core": {"type": "object"},
+    "invariants": {"maxProperties": 17, "minProperties": 17, "type": "object"},
+    "operational_authority": {"type": "object"},
+    "qualification_bundle_sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"},
+    "qualified": {"type": "boolean"},
+    "qualified_at": {"minLength": 1, "type": "string"},
+    "replay": {"type": "object"},
+    "schema_id": {"const": "CEW_QUALIFICATION_RECEIPT"},
+    "schema_version": {"const": 1}
+  },
+  "required": ["schema_id","schema_version","qualified_at","control_plane","gate_core","authority","candidate","operational_authority","qualification_bundle_sha256","replay","invariants","failure_codes","authority_boundary","cew_fem_01_required","qualified"],
+  "title": "CEW Qualification Receipt v1",
+  "type": "object"
+}
