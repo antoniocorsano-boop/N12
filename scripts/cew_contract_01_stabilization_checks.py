@@ -9,6 +9,14 @@ from typing import Any
 AUTHORITY = Path("evidence/cew-contract-01/stabilization/N12_CEW_CONTRACT_01_FROZEN_AUTHORITY_v1.json")
 HISTORICAL = Path("evidence/cew-contract-01/stabilization/N12_CEW_MODEL_GENERATION_HISTORICAL_RECEIPT_v1.json")
 EXPECTED_CHECKOUT_REF = "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
+EXPECTED_REPLAY_COMMAND = (
+    "python scripts/cew_contract_01_replay.py "
+    "--authority evidence/cew-contract-01/stabilization/N12_CEW_CONTRACT_01_FROZEN_AUTHORITY_v1.json "
+    "--source-root \"$CEW_OPERATIONAL_SOURCE_ROOT\" "
+    "--output \"$CEW_REPLAY_OUTPUT_PATH\" "
+    "--result \"$CEW_REPLAY_RESULT_PATH\""
+)
+EXPECTED_MANDATORY_SHELL = "bash"
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -132,6 +140,122 @@ def _parse_workflow_steps(text: str) -> list[dict[str, Any]]:
 
         steps.append(step)
     return steps
+
+
+def _parse_defaults_shell(lines: list[str], defaults_index: int, defaults_indent: int) -> str | None:
+    index = defaults_index + 1
+    run_indent = defaults_indent + 2
+    while index < len(lines):
+        line = lines[index]
+        if not line.strip():
+            index += 1
+            continue
+        line_indent = _indent(line)
+        if line_indent <= defaults_indent:
+            break
+        if line_indent == run_indent:
+            parsed = _parse_yaml_mapping_line(line)
+            if parsed is not None and parsed[0] == "run" and not parsed[1]:
+                index += 1
+                while index < len(lines):
+                    nested = lines[index]
+                    if not nested.strip():
+                        index += 1
+                        continue
+                    nested_indent = _indent(nested)
+                    if nested_indent <= run_indent:
+                        break
+                    if nested_indent == run_indent + 2:
+                        nested_parsed = _parse_yaml_mapping_line(nested)
+                        if nested_parsed is not None and nested_parsed[0] == "shell":
+                            return _unquote_yaml_scalar(nested_parsed[1])
+                    index += 1
+                return None
+        index += 1
+    return None
+
+
+def _workflow_default_shell(text: str) -> str | None:
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if _indent(line) != 0:
+            continue
+        parsed = _parse_yaml_mapping_line(line)
+        if parsed is not None and parsed[0] == "defaults" and not parsed[1]:
+            return _parse_defaults_shell(lines, index, 0)
+    return None
+
+
+def _parse_workflow_job(text: str, job_name: str) -> dict[str, Any] | None:
+    lines = text.splitlines()
+    jobs_index: int | None = None
+    for index, line in enumerate(lines):
+        if _indent(line) != 0:
+            continue
+        parsed = _parse_yaml_mapping_line(line)
+        if parsed is not None and parsed[0] == "jobs" and not parsed[1]:
+            jobs_index = index
+            break
+    if jobs_index is None:
+        return None
+
+    job_index: int | None = None
+    job_indent: int | None = None
+    for index in range(jobs_index + 1, len(lines)):
+        line = lines[index]
+        if not line.strip():
+            continue
+        line_indent = _indent(line)
+        if line_indent == 0:
+            break
+        if line_indent != 2:
+            continue
+        parsed = _parse_yaml_mapping_line(line)
+        if parsed is not None and parsed[0] == job_name and not parsed[1]:
+            job_index = index
+            job_indent = line_indent
+            break
+    if job_index is None or job_indent is None:
+        return None
+
+    job: dict[str, Any] = {}
+    index = job_index + 1
+    while index < len(lines):
+        line = lines[index]
+        if not line.strip():
+            index += 1
+            continue
+        line_indent = _indent(line)
+        if line_indent <= job_indent:
+            break
+        if line_indent != job_indent + 2:
+            index += 1
+            continue
+        parsed = _parse_yaml_mapping_line(line)
+        if parsed is None:
+            index += 1
+            continue
+        key, raw_value = parsed
+        if key in {"if", "continue-on-error"}:
+            job[key] = _unquote_yaml_scalar(raw_value)
+        elif key == "defaults" and not raw_value:
+            shell = _parse_defaults_shell(lines, index, line_indent)
+            if shell is not None:
+                job["defaults.run.shell"] = shell
+        index += 1
+    return job
+
+
+def _normalize_run_command(value: str) -> str:
+    parts: list[str] = []
+    for raw_line in value.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        if line.endswith("\\"):
+            line = line[:-1].rstrip()
+        parts.append(line)
+    return " ".join(parts)
 
 
 def _single_named_step(steps: list[dict[str, Any]], name: str) -> dict[str, Any] | None:
@@ -286,6 +410,16 @@ def validate_stabilization(
 def workflow_contract_errors(text: str) -> list[str]:
     errors: list[str] = []
     steps = _parse_workflow_steps(text)
+    closure_job = _parse_workflow_job(text, "closure")
+
+    if closure_job is not None and "if" in closure_job:
+        errors.append("CI_BYPASS_JOB_CONDITIONAL")
+    if closure_job is not None and "continue-on-error" in closure_job:
+        errors.append("CI_BYPASS_JOB_FAILURE_OVERRIDE")
+    if _workflow_default_shell(text) is not None or (
+        closure_job is not None and closure_job.get("defaults.run.shell") is not None
+    ):
+        errors.append("CI_BYPASS_MANDATORY_SHELL")
 
     checkout = _single_named_step(steps, "Checkout PR exact head")
     checkout_with = checkout.get("with", {}) if checkout else {}
@@ -311,12 +445,18 @@ def workflow_contract_errors(text: str) -> list[str]:
         errors.append("CI_BYPASS_EPHEMERAL_ACTIONS_DEPENDENCY")
 
     replay = _single_named_step(steps, "Run deterministic ModelGeneration replay")
-    replay_run = str(replay.get("run", "")) if replay else ""
-    first_replay_command = next((line.strip() for line in replay_run.splitlines() if line.strip()), "")
-    if replay is None or not first_replay_command.startswith("python scripts/cew_contract_01_replay.py"):
+    if replay is None:
         errors.append("CI_BYPASS_REPLAY_STEP_MISSING")
+    else:
+        replay_run = _normalize_run_command(str(replay.get("run", "")))
+        if replay_run != EXPECTED_REPLAY_COMMAND:
+            errors.append("CI_BYPASS_REPLAY_COMMAND_INVALID")
+        if str(replay.get("shell", "")).strip() != EXPECTED_MANDATORY_SHELL:
+            errors.append("CI_BYPASS_MANDATORY_SHELL")
 
     enforcement = _single_named_step(steps, "Enforce CEW-CONTRACT-01 qualification")
     if enforcement is None or str(enforcement.get("run", "")).strip() != "python scripts/validate_cew_contract_01_closure.py":
         errors.append("CI_BYPASS_ENFORCEMENT_MISSING")
+    elif str(enforcement.get("shell", "")).strip() != EXPECTED_MANDATORY_SHELL:
+        errors.append("CI_BYPASS_MANDATORY_SHELL")
     return errors
