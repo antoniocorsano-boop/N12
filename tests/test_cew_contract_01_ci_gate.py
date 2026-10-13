@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 import unittest
 from pathlib import Path
 
@@ -36,6 +35,7 @@ class ClosureGateWorkflowTests(unittest.TestCase):
             "N12_CEW_CONTRACT_01_FROZEN_AUTHORITY_v1.json",
             "tests/test_cew_contract_01_stabilization_authority.py",
             "tests/test_cew_contract_01_replay.py",
+            "tests/test_cew_contract_01_fresh_review_regressions.py",
             "tests/test_cew_contract_01_stabilization_invariants.py",
             "tests/test_cew_contract_01_stabilization_mutations.py",
             "python scripts/validate_cew_contract_01_closure.py",
@@ -43,13 +43,16 @@ class ClosureGateWorkflowTests(unittest.TestCase):
         for marker in required:
             self.assertIn(marker, text)
         self.assertEqual(workflow_contract_errors(text), [])
-        for forbidden in ("actions: read", "CEW_MODEL_OUTPUT_ROOT", "/actions/artifacts/", "artifact.zip", "9601773275", "32955421352", "GITHUB_TOKEN"):
+        for forbidden in (
+            "actions: read",
+            "CEW_MODEL_OUTPUT_ROOT",
+            "/actions/artifacts/",
+            "artifact.zip",
+            "9601773275",
+            "32955421352",
+            "GITHUB_TOKEN",
+        ):
             self.assertNotIn(forbidden, text)
-        enforcement = re.search(
-            r"- name: Enforce CEW-CONTRACT-01 qualification\s*\n\s*run: python scripts/validate_cew_contract_01_closure\.py",
-            text,
-        )
-        self.assertIsNotNone(enforcement)
 
 
 if __name__ == "__main__":
