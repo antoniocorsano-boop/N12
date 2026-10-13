@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import importlib.util
 import json
 import tempfile
@@ -11,6 +12,7 @@ VALIDATOR = ROOT / "scripts" / "validate_cew_contract_01_closure.py"
 REGISTRATION_FIXTURE = ROOT / "evidence" / "cew-contract-01" / "fixtures" / "N12_REGISTRATION_UNCERTAINTY_v1.json"
 MODEL_GENERATION = ROOT / "evidence" / "cew-contract-01" / "model-generation" / "N12_CEW_MODEL_GENERATION_v1.json"
 MODEL_RECEIPT = ROOT / "evidence" / "cew-contract-01" / "model-generation" / "N12_CEW_MODEL_GENERATION_RECEIPT_v1.json"
+MINIMALITY = ROOT / "evidence" / "cew-contract-01" / "CEW_STRUCTURAL_TYPE_MINIMALITY_v1.csv"
 
 
 def load_validator():
@@ -151,6 +153,20 @@ class ClosureValidatorUnitTests(unittest.TestCase):
         self.assertEqual(receipt["receipt_class"], "QUALIFICATION_RECEIPT")
         self.assertFalse(receipt["engineering_result"])
         self.assertEqual(receipt["artifact_archive_digest"], "sha256:5278bec007f427f6535947343b29d0f586da461f4acdac6aa4502aea73a1d5a5")
+
+    def test_project_structural_type_minimality_is_conservative(self) -> None:
+        self.assertTrue(MINIMALITY.exists(), "structural type minimality fixture must exist")
+        with MINIMALITY.open("r", encoding="utf-8-sig", newline="") as fh:
+            rows = list(csv.DictReader(fh))
+        by_type = {row["structural_type"]: row for row in rows}
+        self.assertEqual(by_type["Wall"]["classification"], "SUPPORTED_EXTENSION")
+        expected_core = {"Node", "Column", "Beam", "FoundationElement"}
+        actual_core = {name for name, row in by_type.items() if row["classification"] == "CORE_REQUIRED"}
+        self.assertEqual(actual_core, expected_core)
+        for name in expected_core:
+            self.assertTrue(by_type[name]["case_ref"].strip())
+        v = load_validator()
+        self.assertEqual(v.validate_minimality(MINIMALITY), [])
 
 
 if __name__ == "__main__":
