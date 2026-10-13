@@ -144,10 +144,11 @@ def read_gate_status(path: Path, root: Path | None = None) -> dict[str, Any]:
 
 def fem_debt_declared(text: str) -> bool:
     required_chain = f"CEW-FEM-01: {FEM_DEBT_CHAIN}"
+    lines = [line.strip() for line in text.splitlines()]
     return (
-        text.count(FEM_DEBT_MARKER) == 1
-        and required_chain in text
-        and "CEW_FEM_01_REQUIRED=false" not in text
+        lines.count(FEM_DEBT_MARKER) == 1
+        and lines.count(required_chain) == 1
+        and "CEW_FEM_01_REQUIRED=false" not in lines
     )
 
 
