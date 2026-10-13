@@ -65,10 +65,12 @@ class ClosureValidatorUnitTests(unittest.TestCase):
         self.assertFalse(status["all_pass"])
         self.assertEqual(status["pass_count"], 10)
 
-    def test_fem_debt_guard_requires_exact_chain(self) -> None:
+    def test_fem_debt_guard_requires_affirmative_marker_and_exact_chain(self) -> None:
         v = load_validator()
         required = "ModelGeneration → SolverRun → Result → Verification → Receipt"
-        self.assertTrue(v.fem_debt_declared(f"CEW-FEM-01: {required}"))
+        affirmative = f"{v.FEM_DEBT_MARKER}\nCEW-FEM-01: {required}"
+        self.assertTrue(v.fem_debt_declared(affirmative))
+        self.assertFalse(v.fem_debt_declared(f"CEW-FEM-01: {required}"))
         self.assertFalse(v.fem_debt_declared("solver later"))
 
     def test_registration_uncertainty_rejects_metrology_overclaim(self) -> None:
