@@ -35,6 +35,7 @@ EXPECTED_MODEL_INPUT_PATHS = (
     "data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json",
 )
 FEM_DEBT_CHAIN = "ModelGeneration → SolverRun → Result → Verification → Receipt"
+FEM_DEBT_MARKER = "CEW_FEM_01_REQUIRED=true"
 
 REGISTRATION_FIXTURE = Path("evidence/cew-contract-01/fixtures/N12_REGISTRATION_UNCERTAINTY_v1.json")
 MODEL_GENERATION_MANIFEST = Path("evidence/cew-contract-01/model-generation/N12_CEW_MODEL_GENERATION_v1.json")
@@ -142,7 +143,12 @@ def read_gate_status(path: Path, root: Path | None = None) -> dict[str, Any]:
 
 
 def fem_debt_declared(text: str) -> bool:
-    return "CEW-FEM-01" in text and FEM_DEBT_CHAIN in text
+    required_chain = f"CEW-FEM-01: {FEM_DEBT_CHAIN}"
+    return (
+        text.count(FEM_DEBT_MARKER) == 1
+        and required_chain in text
+        and "CEW_FEM_01_REQUIRED=false" not in text
+    )
 
 
 def validate_registration_uncertainty(data: dict[str, Any]) -> list[str]:
