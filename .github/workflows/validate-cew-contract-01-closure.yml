@@ -83,6 +83,9 @@ jobs:
       - name: Run fresh review regression tests
         run: python -m unittest tests/test_cew_contract_01_fresh_review_regressions.py -v
 
+      - name: Run final review round-2 regression tests
+        run: python -m unittest tests/test_cew_contract_01_final_review_round2_regressions.py -v
+
       - name: Run stabilization invariant tests
         run: python -m unittest tests/test_cew_contract_01_stabilization_invariants.py -v
 
