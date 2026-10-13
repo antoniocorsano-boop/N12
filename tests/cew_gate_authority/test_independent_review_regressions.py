@@ -115,6 +115,51 @@ class IndependentReviewSemanticRegressions(QualificationEngineTests):
         )
         self.assert_failure(self.evaluate(payload), "I16", "I16_AUTHORITY_BOUNDARY_VIOLATION")
 
+    def _assert_duplicate_key_rejected(self, payload):
+        receipt = self.evaluate(payload)
+        self.assertFalse(receipt.qualified)
+        self.assertIn("CANDIDATE_JSON_DUPLICATE_KEY", receipt.failure_codes)
+
+    def test_rejects_duplicate_boundary_key_true_then_false(self):
+        payload = valid_payload(self.authority)
+        path = "qualification/cew-contract-01/n12/model-generation.json"
+        payload[path] = payload[path].replace(
+            b'"solver_authorized": false',
+            b'"solver_authorized": true, "solver_authorized": false',
+            1,
+        )
+        self._assert_duplicate_key_rejected(payload)
+
+    def test_rejects_duplicate_schema_version_even_when_last_value_is_supported(self):
+        payload = valid_payload(self.authority)
+        path = "qualification/cew-contract-01/n12/qualification.json"
+        payload[path] = payload[path].replace(
+            b'"schema_version": 1',
+            b'"schema_version": 999, "schema_version": 1',
+            1,
+        )
+        self._assert_duplicate_key_rejected(payload)
+
+    def test_rejects_duplicate_provenance_key_even_when_last_value_is_trusted(self):
+        payload = valid_payload(self.authority)
+        path = "qualification/cew-contract-01/n12/model-generation-receipt.json"
+        payload[path] = payload[path].replace(
+            b'"source_repository": "antoniocorsano-boop/N12"',
+            b'"source_repository": "example/other", "source_repository": "antoniocorsano-boop/N12"',
+            1,
+        )
+        self._assert_duplicate_key_rejected(payload)
+
+    def test_rejects_semantically_innocuous_duplicate_key(self):
+        payload = valid_payload(self.authority)
+        path = "qualification/cew-contract-01/n12/evidence-index.json"
+        payload[path] = payload[path].replace(
+            b'"schema_id": "CEW_EVIDENCE_INDEX"',
+            b'"schema_id": "CEW_EVIDENCE_INDEX", "schema_id": "CEW_EVIDENCE_INDEX"',
+            1,
+        )
+        self._assert_duplicate_key_rejected(payload)
+
     def test_rejects_wrong_conformance_matrix_header(self):
         payload = valid_payload(self.authority)
         path = "qualification/cew-contract-01/n12/conformance-matrix.csv"
