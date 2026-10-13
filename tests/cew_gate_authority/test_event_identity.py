@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Task 6 RED synchronization marker: no production implementation exists at this head.
 import unittest
 
 from cew_gate_authority.event_identity import candidate_from_pull_request_target_event, control_plane_from_pull_request_target_event, verify_dispatch_candidate
