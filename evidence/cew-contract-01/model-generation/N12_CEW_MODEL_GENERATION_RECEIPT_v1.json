@@ -3,6 +3,8 @@
   "receipt_id": "N12-CEW-MG-001-RECEIPT",
   "receipt_class": "QUALIFICATION_RECEIPT",
   "transformation": "CEW_CANONICAL_STRUCTURAL_GRAPH_GENERATION",
+  "model_generation_id": "N12-CEW-MG-001",
+  "generation_id_inside_artifact": "N12-CEW-CSM-v0",
   "engineering_result": false,
   "solver_run": false,
   "result_entity_created": false,
