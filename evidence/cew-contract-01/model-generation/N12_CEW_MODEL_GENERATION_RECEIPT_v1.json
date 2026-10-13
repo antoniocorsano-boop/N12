@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "receipt_id": "N12-CEW-MG-001-RECEIPT",
+  "receipt_class": "QUALIFICATION_RECEIPT",
+  "transformation": "CEW_CANONICAL_STRUCTURAL_GRAPH_GENERATION",
+  "engineering_result": false,
+  "solver_run": false,
+  "result_entity_created": false,
+  "source_repository": "antoniocorsano-boop/N12",
+  "source_commit": "d806dcca72779b5a186defe557a7a9b739575a90",
+  "builder_path": "scripts/cew_structural_model_builder.py",
+  "workflow_path": ".github/workflows/validate-cew-structural-model-builder.yml",
+  "workflow_run_id": 32955421352,
+  "workflow_conclusion": "success",
+  "artifact_id": 9601773275,
+  "artifact_name": "N12-CEW-canonical-structural-model-v0",
+  "artifact_archive_digest": "sha256:5278bec007f427f6535947343b29d0f586da461f4acdac6aa4502aea73a1d5a5",
+  "output_file": "N12_CEW_CANONICAL_STRUCTURAL_MODEL_v0.json",
+  "output_sha256": "4e1c3f341093e9b60670099802bdee0c5fcdc174b12aedb63922f49301a965b2",
+  "output_size_bytes": 1068121,
+  "input_sha256": {
+    "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json": "e6ce185e5a439e952950f1c9877b6dd35c036dcf4cb837f74da34c34ebe543d8",
+    "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv": "98d309e0c1ae9159c73e0f9d173c139bfeaf9a8335948ead64e9207cad20bce8",
+    "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv": "ce10cf06c6f4a5805afdbb9bd78ffd0d3d79fe5f104e18720b47488a11ffa5d6",
+    "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv": "b174517f418335ca43a66305087a4f7ae87acc224c40e0bbd81ce7d18f3ddc45",
+    "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv": "aaf3636487618b39dd70c5a363626d2a6d78845ed913c32d6244f2b17c3e1ed0",
+    "data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json": "0e2da5eb31d5491ce1c56f27023cdd7635cfe080dc07f87ffb29f6dee938175d"
+  },
+  "verification": {
+    "status": "PASS",
+    "method": "GitHub Actions deterministic graph invariant checks on source commit",
+    "workflow_run_id": 32955421352
+  },
+  "generated_artifact_timestamp": "2026-08-26T09:54:00.472520+00:00",
+  "qualification_recorded_date": "2026-10-13",
+  "warnings": ["FOUNDATION_NUMERIC_Z remains ND and symbolic as ZF_COMMON"],
+  "authority_guard": "Receipt proves the identified transformation and its deterministic checks. It is not a structural-analysis result, does not set calculation_model_ready=true, and does not promote derived model content to source evidence."
+}
