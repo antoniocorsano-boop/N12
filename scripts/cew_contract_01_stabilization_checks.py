@@ -141,3 +141,28 @@ def validate_stabilization(
         if historical_value != model_value:
             errors.append(f"AUTHORITY_IDENTITY_HISTORICAL_MISMATCH:{field}")
     return errors
+
+
+def workflow_contract_errors(text: str) -> list[str]:
+    import re
+
+    errors: list[str] = []
+    if "github.event.pull_request.head.sha" not in text:
+        errors.append("CI_BYPASS_EXACT_HEAD_MISSING")
+    if "persist-credentials: false" not in text:
+        errors.append("CI_BYPASS_PERSISTED_CREDENTIALS")
+    for action in re.findall(r"uses:\s*(actions/(?:checkout|setup-python)@[^\s]+)", text):
+        ref = action.rsplit("@", 1)[1]
+        if not re.fullmatch(r"[0-9a-f]{40}", ref):
+            errors.append(f"CI_BYPASS_UNPINNED_ACTION:{action}")
+    if re.search(r"(?m)^\s*(?:-\s*)?if\s*:", text):
+        errors.append("CI_BYPASS_CONDITIONAL_STEP")
+    if "continue-on-error:" in text or "|| true" in text or "; true" in text:
+        errors.append("CI_BYPASS_FAILURE_OVERRIDE")
+    if any(marker in text for marker in ("/actions/artifacts/", "artifact.zip", "CEW_MODEL_OUTPUT_ROOT")):
+        errors.append("CI_BYPASS_EPHEMERAL_ACTIONS_DEPENDENCY")
+    if "python scripts/cew_contract_01_replay.py" not in text:
+        errors.append("CI_BYPASS_REPLAY_STEP_MISSING")
+    if "python scripts/validate_cew_contract_01_closure.py" not in text:
+        errors.append("CI_BYPASS_ENFORCEMENT_MISSING")
+    return errors
