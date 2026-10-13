@@ -67,11 +67,12 @@ class StabilizationMutationTests(unittest.TestCase):
         authority = {
             "operational_commit": "abc",
             "canonical_snapshot_id": "snap@abc",
+            "model_generation_id": "MG-001",
             "builder": {"path": "scripts/builder.py", "git_blob_sha": blob},
             "generation_profile": "P",
             "inputs": inputs,
             "registration": {"source_path": "reg.csv", "source_git_blob_sha": "regblob", "support_ids": ["1", "19"]},
-            "output": {"identity": "out.json", "sha256": "outsha", "size_bytes": 10},
+            "output": {"identity": "out.json", "generation_id_inside_artifact": "CSM-v0", "sha256": "outsha", "size_bytes": 10},
             "generated_at": "2026-08-26T09:54:00+00:00",
             "authority_flags": {"solver_authorized": False, "calculation_model_ready": False, "synthetic_solver_result": False, "solver_run": False, "result_entity_created": False},
             "gate_evidence": {f"C01-T{i:02d}": ["e"] for i in range(1, 12)},
@@ -82,19 +83,31 @@ class StabilizationMutationTests(unittest.TestCase):
             "run": {"id": 42, "workflow_path": "wf.yml", "head_sha": "abc", "status": "completed", "conclusion": "success"},
             "artifact": {"id": 7, "name": "artifact", "archive_digest": "zipsha"},
             "output": {"identity": "out.json", "sha256": "outsha", "size_bytes": 10},
+            "verification": {
+                "archive_sha256_verified": True,
+                "output_sha256_verified": True,
+                "output_size_verified": True,
+            },
         }
         (root / "evidence/cew-contract-01/stabilization/N12_CEW_MODEL_GENERATION_HISTORICAL_RECEIPT_v1.json").write_text(json.dumps(historical), encoding="utf-8")
         model = {
+            "model_generation_id": "MG-001",
             "canonical_snapshot_id": "snap@abc", "generation_profile": "P",
             "builder": {"path": "scripts/builder.py", "source_commit": "abc", "git_blob_sha": blob},
             "inputs": inputs,
-            "output": {"identity": "out.json", "sha256": "outsha", "size_bytes": 10, "artifact_id": 7, "artifact_name": "artifact", "artifact_archive_digest": "zipsha"},
+            "output": {"identity": "out.json", "generation_id_inside_artifact": "CSM-v0", "sha256": "outsha", "size_bytes": 10, "artifact_id": 7, "artifact_name": "artifact", "artifact_archive_digest": "zipsha"},
             "generated_at": authority["generated_at"],
             "workflow": {"path": "wf.yml", "workflow_run_id": 42},
             "verification": {"status": "PASS", "workflow_run_id": 42},
             "solver_authorized": False, "calculation_model_ready": False, "synthetic_solver_result": False,
         }
-        receipt = {"solver_run": False, "result_entity_created": False, "engineering_result": False}
+        receipt = {
+            "model_generation_id": "MG-001",
+            "generation_id_inside_artifact": "CSM-v0",
+            "solver_run": False,
+            "result_entity_created": False,
+            "engineering_result": False,
+        }
         fixture = {"source_commit": "abc", "source_path": "reg.csv", "source_git_blob_sha": "regblob", "examples": [{"support_id": "1"}, {"support_id": "19"}]}
         replay = {"passed": True, "identity": "out.json", "sha256": "outsha", "size_bytes": 10, "generated_at": authority["generated_at"], "errors": []}
         return source_root, model, receipt, fixture, replay
