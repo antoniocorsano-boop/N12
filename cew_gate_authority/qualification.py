@@ -17,7 +17,6 @@ Q = ROOT + "qualification.json"
 MATRIX = ROOT + "conformance-matrix.csv"
 INDEX = ROOT + "evidence-index.json"
 MINIMALITY = ROOT + "structural-type-minimality.csv"
-SUFFICIENCY = ROOT + "source-sufficiency.md"
 REG = ROOT + "registration-uncertainty.json"
 MODEL = ROOT + "model-generation.json"
 MODEL_RECEIPT = ROOT + "model-generation-receipt.json"
@@ -207,21 +206,24 @@ def evaluate_qualification(
         mr = _json_contract(reader, authority, MODEL_RECEIPT)
         index = _json_contract(reader, authority, INDEX)
         matrix = _csv_contract(reader, authority, MATRIX)
-        _csv_contract(reader, authority, MINIMALITY)
-        try:
-            reader.read_text(SUFFICIENCY)
-        except ValueError as exc:
-            if "UTF-8" in str(exc):
-                raise PayloadError("CANDIDATE_UTF8_INVALID") from exc
-            raise
+        minimality = _csv_contract(reader, authority, MINIMALITY)
+        minimality_contract = _contract(authority, MINIMALITY, "csv")
+        actual_minimality = tuple(
+            tuple(row[field] for field in minimality_contract.csv_header)
+            for row in minimality
+        )
+        if actual_minimality != minimality_contract.csv_rows:
+            raise PayloadError("CANDIDATE_STRUCTURAL_MINIMALITY_MISMATCH")
         for path in authority.candidate_allowlist:
             if path.endswith(".md"):
                 try:
-                    reader.read_text(path)
+                    text = reader.read_text(path)
                 except ValueError as exc:
                     if "UTF-8" in str(exc):
                         raise PayloadError("CANDIDATE_UTF8_INVALID") from exc
                     raise
+                if not text.strip():
+                    raise PayloadError("CANDIDATE_MARKDOWN_EMPTY")
     except PayloadError as exc:
         failures.append(exc.code)
         digest = "0" * 64
