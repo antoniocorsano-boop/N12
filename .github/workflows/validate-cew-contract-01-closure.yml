@@ -7,10 +7,12 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
 
 env:
   CEW_OPERATIONAL_SOURCE_ROOT: /tmp/cew-contract-01-operational-source
+  CEW_MODEL_OUTPUT_ROOT: /tmp/cew-contract-01-model-output
 
 jobs:
   closure:
@@ -43,12 +45,34 @@ jobs:
             data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv
             data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv
             data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json
+            data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv
           )
           rm -rf "$CEW_OPERATIONAL_SOURCE_ROOT"
           for path in "${paths[@]}"; do
             mkdir -p "$CEW_OPERATIONAL_SOURCE_ROOT/$(dirname "$path")"
             git show "$operational_commit:$path" > "$CEW_OPERATIONAL_SOURCE_ROOT/$path"
           done
+
+      - name: Materialize pinned ModelGeneration artifact
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          artifact_id="$(python -c 'import json; print(json.load(open("evidence/cew-contract-01/model-generation/N12_CEW_MODEL_GENERATION_v1.json"))["output"]["artifact_id"])')"
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}"
+          rm -rf "$CEW_MODEL_OUTPUT_ROOT"
+          mkdir -p "$CEW_MODEL_OUTPUT_ROOT"
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$api" > "$CEW_MODEL_OUTPUT_ROOT/artifact-metadata.json"
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$api/zip" > "$CEW_MODEL_OUTPUT_ROOT/artifact.zip"
 
       - name: Compile closure validator
         run: python -m py_compile scripts/validate_cew_contract_01_closure.py
