@@ -4,6 +4,7 @@ import csv
 import hashlib
 import io
 import json
+import math
 from typing import Any
 
 from .authority import DocumentContract, FrozenAuthority
@@ -44,6 +45,16 @@ def _reject_nonfinite_constant(_value: str) -> None:
     raise PayloadError("CANDIDATE_JSON_INVALID")
 
 
+def _numbers_finite(value: Any) -> bool:
+    if isinstance(value, float):
+        return math.isfinite(value)
+    if isinstance(value, dict):
+        return all(_numbers_finite(child) for child in value.values())
+    if isinstance(value, list):
+        return all(_numbers_finite(child) for child in value)
+    return True
+
+
 def _depth(value: Any) -> int:
     if isinstance(value, dict):
         return 1 + max((_depth(v) for v in value.values()), default=0)
@@ -67,6 +78,8 @@ def _json(reader: CandidateReader, path: str, max_depth: int) -> dict[str, Any]:
         )
     except json.JSONDecodeError as exc:
         raise PayloadError("CANDIDATE_JSON_INVALID") from exc
+    if not _numbers_finite(value):
+        raise PayloadError("CANDIDATE_JSON_INVALID")
     if _depth(value) > max_depth:
         raise PayloadError("CANDIDATE_JSON_DEPTH_EXCEEDED")
     if not isinstance(value, dict):
