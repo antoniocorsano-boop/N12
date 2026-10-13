@@ -90,7 +90,8 @@ def _json_contract(reader: CandidateReader, authority: FrozenAuthority, path: st
             raise PayloadError("CANDIDATE_SCHEMA_UNEXPECTED_FIELD")
         raise PayloadError("CANDIDATE_DOCUMENT_UNEXPECTED_FIELD")
     for key, expected in contract.schema_identity:
-        if value.get(key) != expected:
+        actual = value.get(key)
+        if type(actual) is not type(expected) or actual != expected:
             if path == Q:
                 raise PayloadError("CANDIDATE_QUALIFICATION_SCHEMA_UNSUPPORTED")
             raise PayloadError("CANDIDATE_DOCUMENT_SCHEMA_UNSUPPORTED")
@@ -105,7 +106,7 @@ def parse_csv_limited(text: str, max_rows: int, expected_header: tuple[str, ...]
     for row in reader:
         if expected_header is not None and (
             tuple(row.keys()) != expected_header
-            or any(row[field] is None for field in expected_header)
+            or any(row[field] is None or row[field] == "" for field in expected_header)
         ):
             raise ValueError("CANDIDATE_CSV_ROW_INVALID")
         rows.append(dict(row))
