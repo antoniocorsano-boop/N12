@@ -5,7 +5,9 @@ import csv
 import hashlib
 import json
 import os
+import zipfile
 from collections import Counter
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +20,16 @@ ALLOWED_GATE_STATUS = {
     "NOT_RUN",
 }
 EXPECTED_OPERATIONAL_COMMIT = "d806dcca72779b5a186defe557a7a9b739575a90"
+EXPECTED_CANONICAL_SNAPSHOT_ID = f"N12-FROZEN-INPUTSET@{EXPECTED_OPERATIONAL_COMMIT}"
+EXPECTED_REGISTRATION_SOURCE_PATH = "data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv"
+EXPECTED_MODEL_INPUT_PATHS = (
+    "data/canonical/M0G_GEOMETRY_HANDOFF_v1.json",
+    "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",
+    "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv",
+    "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv",
+    "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv",
+    "data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json",
+)
 FEM_DEBT_CHAIN = "ModelGeneration → SolverRun → Result → Verification → Receipt"
 
 REGISTRATION_FIXTURE = Path("evidence/cew-contract-01/fixtures/N12_REGISTRATION_UNCERTAINTY_v1.json")
@@ -40,9 +52,22 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def git_blob_sha_file(path: Path) -> str:
+    data = path.read_bytes()
+    header = f"blob {len(data)}\0".encode("ascii")
+    return hashlib.sha1(header + data).hexdigest()
+
+
 def _safe_relative_path(value: str) -> bool:
     candidate = Path(value)
     return bool(value) and not candidate.is_absolute() and ".." not in candidate.parts
+
+
+def _decimal_equal(left: Any, right: Any) -> bool:
+    try:
+        return Decimal(str(left)) == Decimal(str(right))
+    except (InvalidOperation, ValueError):
+        return False
 
 
 def _validate_gate_evidence(root: Path, rows: list[dict[str, str]]) -> list[str]:
@@ -122,7 +147,7 @@ def validate_registration_uncertainty(data: dict[str, Any]) -> list[str]:
         errors.append("REGISTRATION_UNCERTAINTY_TYPE_INVALID")
     if data.get("source_commit") != EXPECTED_OPERATIONAL_COMMIT:
         errors.append("REGISTRATION_SOURCE_COMMIT_INVALID")
-    if data.get("source_path") != "data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv":
+    if data.get("source_path") != EXPECTED_REGISTRATION_SOURCE_PATH:
         errors.append("REGISTRATION_SOURCE_PATH_INVALID")
     examples = data.get("examples")
     if not isinstance(examples, list) or not examples:
@@ -176,8 +201,107 @@ def validate_registration_epistemic_guard(data: dict[str, Any]) -> list[str]:
     ]
 
 
+def validate_registration_source(data: dict[str, Any], operational_source_root: Path | None) -> list[str]:
+    errors: list[str] = []
+    if operational_source_root is None:
+        return ["REGISTRATION_OPERATIONAL_SOURCE_ROOT_MISSING"]
+    source_path = str(data.get("source_path", "")).strip()
+    if source_path != EXPECTED_REGISTRATION_SOURCE_PATH or not _safe_relative_path(source_path):
+        return ["REGISTRATION_SOURCE_PATH_INVALID"]
+    source = operational_source_root / source_path
+    if not source.is_file():
+        return ["REGISTRATION_SOURCE_FILE_MISSING"]
+    expected_blob = str(data.get("source_git_blob_sha", "")).strip().lower()
+    if not expected_blob:
+        errors.append("REGISTRATION_SOURCE_BLOB_SHA_MISSING")
+    elif git_blob_sha_file(source) != expected_blob:
+        errors.append("REGISTRATION_SOURCE_BLOB_SHA_MISMATCH")
+
+    with source.open("r", encoding="utf-8-sig", newline="") as fh:
+        rows = {str(row.get("support_id", "")): row for row in csv.DictReader(fh)}
+    mapping = {
+        "observed.u": ("observed", "u", "u_observed_px"),
+        "observed.v": ("observed", "v", "v_observed_px"),
+        "predicted.u": ("predicted", "u", "u_predicted_px"),
+        "predicted.v": ("predicted", "v", "v_predicted_px"),
+        "residual.du": ("residual", "du", "du_px"),
+        "residual.dv": ("residual", "dv", "dv_px"),
+        "residual.scalar": ("residual", "scalar", "residual_px"),
+    }
+    for example in data.get("examples") or []:
+        support_id = str(example.get("support_id", ""))
+        row = rows.get(support_id)
+        if row is None:
+            errors.append(f"REGISTRATION_SOURCE_EXAMPLE_MISMATCH:{support_id}:MISSING")
+            continue
+        for label, (group, key, column) in mapping.items():
+            group_value = example.get(group) or {}
+            if not _decimal_equal(group_value.get(key), row.get(column)):
+                errors.append(f"REGISTRATION_SOURCE_EXAMPLE_MISMATCH:{support_id}:{label}")
+        if str(example.get("diagnostic_status", "")) != str(row.get("residual_status", "")):
+            errors.append(f"REGISTRATION_SOURCE_EXAMPLE_MISMATCH:{support_id}:diagnostic_status")
+        if str(example.get("evidence_class", "")) != str(row.get("evidence_class", "")):
+            errors.append(f"REGISTRATION_SOURCE_EXAMPLE_MISMATCH:{support_id}:evidence_class")
+    return errors
+
+
+def validate_model_output(data: dict[str, Any], output_root: Path | None) -> list[str]:
+    errors: list[str] = []
+    if output_root is None:
+        return ["MODEL_GENERATION_OUTPUT_ROOT_MISSING"]
+    metadata_path = output_root / "artifact-metadata.json"
+    archive_path = output_root / "artifact.zip"
+    if not metadata_path.is_file():
+        errors.append("MODEL_GENERATION_ARTIFACT_METADATA_MISSING")
+    if not archive_path.is_file():
+        errors.append("MODEL_GENERATION_ARTIFACT_ARCHIVE_MISSING")
+    if errors:
+        return errors
+
+    output = data.get("output") or {}
+    workflow = data.get("workflow") or {}
+    metadata = load_json(metadata_path)
+    expected_archive_digest = str(output.get("artifact_archive_digest", ""))
+    expected_archive_sha = expected_archive_digest.removeprefix("sha256:")
+    actual_archive_sha = sha256_file(archive_path)
+
+    if metadata.get("id") != output.get("artifact_id"):
+        errors.append("MODEL_GENERATION_ARTIFACT_METADATA_ID_MISMATCH")
+    if metadata.get("name") != output.get("artifact_name"):
+        errors.append("MODEL_GENERATION_ARTIFACT_METADATA_NAME_MISMATCH")
+    if metadata.get("expired") is not False:
+        errors.append("MODEL_GENERATION_ARTIFACT_EXPIRED_OR_UNKNOWN")
+    if metadata.get("digest") != expected_archive_digest:
+        errors.append("MODEL_GENERATION_ARTIFACT_METADATA_DIGEST_MISMATCH")
+    metadata_run = metadata.get("workflow_run") or {}
+    if metadata_run.get("id") != workflow.get("workflow_run_id"):
+        errors.append("MODEL_GENERATION_ARTIFACT_WORKFLOW_RUN_MISMATCH")
+    if metadata_run.get("head_sha") != EXPECTED_OPERATIONAL_COMMIT:
+        errors.append("MODEL_GENERATION_ARTIFACT_HEAD_SHA_MISMATCH")
+    if actual_archive_sha != expected_archive_sha:
+        errors.append("MODEL_GENERATION_ARTIFACT_ARCHIVE_DIGEST_MISMATCH")
+
+    try:
+        with zipfile.ZipFile(archive_path) as zf:
+            names = [name for name in zf.namelist() if not name.endswith("/")]
+            identity = str(output.get("identity", ""))
+            if names != [identity]:
+                errors.append("MODEL_GENERATION_ARTIFACT_CONTENT_INVALID")
+            elif identity in names:
+                payload = zf.read(identity)
+                if len(payload) != output.get("size_bytes"):
+                    errors.append("MODEL_GENERATION_OUTPUT_SIZE_MISMATCH")
+                if hashlib.sha256(payload).hexdigest() != str(output.get("sha256", "")):
+                    errors.append("MODEL_GENERATION_OUTPUT_SHA256_MISMATCH")
+    except (zipfile.BadZipFile, KeyError):
+        errors.append("MODEL_GENERATION_ARTIFACT_ZIP_INVALID")
+    return errors
+
+
 def validate_model_generation(
-    data: dict[str, Any], operational_source_root: Path | None = None
+    data: dict[str, Any],
+    operational_source_root: Path | None = None,
+    output_root: Path | None = None,
 ) -> list[str]:
     errors: list[str] = []
     required = {
@@ -201,6 +325,8 @@ def validate_model_generation(
     if missing:
         errors.append("MODEL_GENERATION_FIELDS_MISSING:" + ",".join(missing))
         return errors
+    if data.get("canonical_snapshot_id") != EXPECTED_CANONICAL_SNAPSHOT_ID:
+        errors.append("MODEL_GENERATION_CANONICAL_SNAPSHOT_INVALID")
     builder = data.get("builder") or {}
     if builder.get("source_commit") != EXPECTED_OPERATIONAL_COMMIT:
         errors.append("MODEL_GENERATION_BUILDER_COMMIT_INVALID")
@@ -215,10 +341,18 @@ def validate_model_generation(
         errors.append("MODEL_GENERATION_SOLVER_MUST_REMAIN_UNAUTHORIZED")
     if data.get("calculation_model_ready") is not False:
         errors.append("MODEL_GENERATION_CALCULATION_MODEL_READY_MUTATED")
+
     inputs = data.get("inputs")
     if not isinstance(inputs, list) or not inputs:
         errors.append("MODEL_GENERATION_INPUTS_MISSING")
     else:
+        input_paths = [str(item.get("path", "")).strip() for item in inputs]
+        if (
+            len(input_paths) != len(EXPECTED_MODEL_INPUT_PATHS)
+            or len(set(input_paths)) != len(input_paths)
+            or set(input_paths) != set(EXPECTED_MODEL_INPUT_PATHS)
+        ):
+            errors.append("MODEL_GENERATION_INPUT_SET_INVALID")
         if operational_source_root is None:
             errors.append("MODEL_GENERATION_OPERATIONAL_SOURCE_ROOT_MISSING")
         for index, item in enumerate(inputs):
@@ -238,6 +372,7 @@ def validate_model_generation(
                 continue
             if sha256_file(materialized) != expected_digest:
                 errors.append(f"MODEL_GENERATION_INPUT_{index}_DIGEST_MISMATCH")
+
     output = data.get("output") or {}
     required_output = (
         "identity",
@@ -254,6 +389,7 @@ def validate_model_generation(
         errors.append("MODEL_GENERATION_VERIFICATION_NOT_PASS")
     if verification.get("workflow_run_id") != workflow.get("workflow_run_id"):
         errors.append("MODEL_GENERATION_VERIFICATION_RUN_MISMATCH")
+    errors.extend(validate_model_output(data, output_root))
     return errors
 
 
@@ -332,6 +468,11 @@ def validate_minimality(path: Path) -> list[str]:
 
 def validate_project(root: Path) -> dict[str, Any]:
     errors: list[str] = []
+    operational_root_value = os.environ.get("CEW_OPERATIONAL_SOURCE_ROOT", "").strip()
+    operational_root = Path(operational_root_value) if operational_root_value else None
+    output_root_value = os.environ.get("CEW_MODEL_OUTPUT_ROOT", "").strip()
+    output_root = Path(output_root_value) if output_root_value else None
+
     fixture_path = root / REGISTRATION_FIXTURE
     if not fixture_path.exists():
         errors.append("REGISTRATION_UNCERTAINTY_FIXTURE_MISSING")
@@ -339,9 +480,7 @@ def validate_project(root: Path) -> dict[str, Any]:
         fixture = load_json(fixture_path)
         errors.extend(validate_registration_uncertainty(fixture))
         errors.extend(validate_registration_epistemic_guard(fixture))
-
-    operational_root_value = os.environ.get("CEW_OPERATIONAL_SOURCE_ROOT", "").strip()
-    operational_root = Path(operational_root_value) if operational_root_value else None
+        errors.extend(validate_registration_source(fixture, operational_root))
 
     model: dict[str, Any] | None = None
     model_path = root / MODEL_GENERATION_MANIFEST
@@ -349,7 +488,7 @@ def validate_project(root: Path) -> dict[str, Any]:
         errors.append("MODEL_GENERATION_MANIFEST_MISSING")
     else:
         model = load_json(model_path)
-        errors.extend(validate_model_generation(model, operational_root))
+        errors.extend(validate_model_generation(model, operational_root, output_root))
         if model.get("receipt_ref") != MODEL_GENERATION_RECEIPT.as_posix():
             errors.append("MODEL_GENERATION_RECEIPT_REF_INVALID")
 
