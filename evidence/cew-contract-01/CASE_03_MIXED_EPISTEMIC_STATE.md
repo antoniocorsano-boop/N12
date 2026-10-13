@@ -24,8 +24,12 @@ La proprietà complessiva non viene appiattita a `DOC` semplice. La stringa stor
 
 ## Source limitation
 
-Le fonti storiche originali non sono presenti nel repository corrente: il locator originario resta `UNRESOLVED_LOCATOR`. Questa limitazione è già coperta da `C01-T02` e non annulla la capacità del contratto di preservare la distinzione `DOC`/`INF`.
+Le fonti storiche originali non sono presenti nel repository corrente: il locator originario resta `UNRESOLVED_LOCATOR` e la provenienza di `GEO-005` per questa evidenza storica resta `BLOCKED_SOURCE`.
+
+Questo blocco è locale alla provenienza del caso storico `GEO-005`: non viene riassorbito né annullato dal `C01-T02` corrente. Dopo la closure del 13 ottobre 2026, `C01-T02` è qualificato su una distinta catena core end-to-end reale documentata in `CASE_13_CORE_END_TO_END_ASSURANCE.md`; tale qualifica non promuove né completa retroattivamente il locator mancante di `GEO-005`.
+
+La limitazione di fonte non annulla la capacità del contratto di preservare la distinzione `DOC`/`INF` dimostrata da questo caso.
 
 ## Qualification conclusion
 
-Il contratto rappresenta senza perdita uno stato epistemico misto e mantiene separata l'inferenza dalla parte documentale. Caso `PASS`.
+Il contratto rappresenta senza perdita uno stato epistemico misto e mantiene separata l'inferenza dalla parte documentale. Caso `PASS` limitatamente alla rappresentazione epistemica; la provenienza sorgente di `GEO-005` resta `BLOCKED_SOURCE` come sopra registrato.
