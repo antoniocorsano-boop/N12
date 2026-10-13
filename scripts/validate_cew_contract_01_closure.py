@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
+import os
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -30,9 +32,56 @@ def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def read_gate_status(path: Path) -> dict[str, Any]:
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _safe_relative_path(value: str) -> bool:
+    candidate = Path(value)
+    return bool(value) and not candidate.is_absolute() and ".." not in candidate.parts
+
+
+def _validate_gate_evidence(root: Path, rows: list[dict[str, str]]) -> list[str]:
+    errors: list[str] = []
+    for row in rows:
+        test_id = str(row.get("test_id", "")).strip()
+        status = str(row.get("status", "")).strip()
+        if status != "PASS":
+            continue
+        raw = str(row.get("evidence", "")).strip()
+        if not raw:
+            errors.append(f"C01_GATE_EVIDENCE_MISSING:{test_id}:EMPTY")
+            continue
+        for reference in (part.strip() for part in raw.split(";")):
+            if not reference:
+                errors.append(f"C01_GATE_EVIDENCE_MISSING:{test_id}:EMPTY")
+                continue
+            if not _safe_relative_path(reference):
+                errors.append(f"C01_GATE_EVIDENCE_INVALID_PATH:{test_id}:{reference}")
+                continue
+            if any(char in reference for char in "*?["):
+                matches = [path for path in root.glob(reference) if path.is_file()]
+                if not matches:
+                    errors.append(f"C01_GATE_EVIDENCE_MISSING:{test_id}:{reference}")
+            elif not (root / reference).is_file():
+                errors.append(f"C01_GATE_EVIDENCE_MISSING:{test_id}:{reference}")
+    return errors
+
+
+def read_gate_status(path: Path, root: Path | None = None) -> dict[str, Any]:
     if not path.exists():
-        return {"count": 0, "pass_count": 0, "all_pass": False, "distribution": {}}
+        return {
+            "count": 0,
+            "pass_count": 0,
+            "all_pass": False,
+            "distribution": {},
+            "evidence_valid": False if root is not None else True,
+            "evidence_errors": [],
+        }
     with path.open("r", encoding="utf-8-sig", newline="") as fh:
         rows = list(csv.DictReader(fh))
     statuses = [str(row.get("status", "")).strip() for row in rows]
@@ -42,13 +91,24 @@ def read_gate_status(path: Path) -> dict[str, Any]:
     unique_ids = len(ids) == len(set(ids))
     exact_ids = sorted(ids) == expected_ids
     pass_count = sum(status == "PASS" for status in statuses)
+    evidence_errors = _validate_gate_evidence(root, rows) if root is not None else []
+    evidence_valid = not evidence_errors
     return {
         "count": len(rows),
         "pass_count": pass_count,
-        "all_pass": len(rows) == 11 and pass_count == 11 and allowed and unique_ids and exact_ids,
+        "all_pass": (
+            len(rows) == 11
+            and pass_count == 11
+            and allowed
+            and unique_ids
+            and exact_ids
+            and evidence_valid
+        ),
         "distribution": dict(Counter(statuses)),
         "allowed_statuses_only": allowed,
         "exact_test_ids": exact_ids and unique_ids,
+        "evidence_valid": evidence_valid,
+        "evidence_errors": evidence_errors,
     }
 
 
@@ -99,7 +159,26 @@ def validate_registration_uncertainty(data: dict[str, Any]) -> list[str]:
     return errors
 
 
-def validate_model_generation(data: dict[str, Any]) -> list[str]:
+def validate_registration_epistemic_guard(data: dict[str, Any]) -> list[str]:
+    guard = data.get("epistemic_guard")
+    fields = (
+        "residual_is_new_measurement",
+        "residual_promotable_to_DOC",
+        "residual_promotable_to_MIS",
+        "unsourced_plus_minus_interval_allowed",
+    )
+    if not isinstance(guard, dict):
+        return ["REGISTRATION_EPISTEMIC_GUARD_MISSING"]
+    return [
+        f"REGISTRATION_EPISTEMIC_GUARD_INVALID:{field}"
+        for field in fields
+        if guard.get(field) is not False
+    ]
+
+
+def validate_model_generation(
+    data: dict[str, Any], operational_source_root: Path | None = None
+) -> list[str]:
     errors: list[str] = []
     required = {
         "model_generation_id",
@@ -132,15 +211,82 @@ def validate_model_generation(data: dict[str, Any]) -> list[str]:
     if not isinstance(inputs, list) or not inputs:
         errors.append("MODEL_GENERATION_INPUTS_MISSING")
     else:
+        if operational_source_root is None:
+            errors.append("MODEL_GENERATION_OPERATIONAL_SOURCE_ROOT_MISSING")
         for index, item in enumerate(inputs):
-            if not item.get("path") or not item.get("sha256"):
+            input_path = str(item.get("path", "")).strip()
+            expected_digest = str(item.get("sha256", "")).strip().lower()
+            if not input_path or not expected_digest:
                 errors.append(f"MODEL_GENERATION_INPUT_{index}_DIGEST_MISSING")
+                continue
+            if not _safe_relative_path(input_path):
+                errors.append(f"MODEL_GENERATION_INPUT_{index}_PATH_INVALID")
+                continue
+            if operational_source_root is None:
+                continue
+            materialized = operational_source_root / input_path
+            if not materialized.is_file():
+                errors.append(f"MODEL_GENERATION_INPUT_{index}_SOURCE_MISSING")
+                continue
+            if sha256_file(materialized) != expected_digest:
+                errors.append(f"MODEL_GENERATION_INPUT_{index}_DIGEST_MISMATCH")
     output = data.get("output") or {}
     if not output.get("identity") or not output.get("sha256"):
         errors.append("MODEL_GENERATION_OUTPUT_DIGEST_MISSING")
     verification = data.get("verification") or {}
-    if verification.get("status") not in {"PASS", "WARNING", "REVIEW_REQUIRED", "FAIL"}:
-        errors.append("MODEL_GENERATION_VERIFICATION_STATUS_INVALID")
+    if verification.get("status") != "PASS":
+        errors.append("MODEL_GENERATION_VERIFICATION_NOT_PASS")
+    workflow = data.get("workflow") or {}
+    if workflow and workflow.get("conclusion") != "success":
+        errors.append("MODEL_GENERATION_WORKFLOW_NOT_SUCCESS")
+    return errors
+
+
+def validate_receipt(receipt: dict[str, Any], model: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    if receipt.get("receipt_class") != "QUALIFICATION_RECEIPT":
+        errors.append("MODEL_GENERATION_RECEIPT_CLASS_INVALID")
+    for field in ("engineering_result", "solver_run", "result_entity_created"):
+        if receipt.get(field) is not False:
+            errors.append(f"MODEL_GENERATION_RECEIPT_AUTHORITY_INVALID:{field}")
+
+    builder = model.get("builder") or {}
+    workflow = model.get("workflow") or {}
+    verification = model.get("verification") or {}
+    output = model.get("output") or {}
+    expected_inputs = {
+        str(item.get("path")): str(item.get("sha256"))
+        for item in model.get("inputs", [])
+        if item.get("path") and item.get("sha256")
+    }
+
+    comparisons = (
+        ("source_commit", receipt.get("source_commit"), builder.get("source_commit")),
+        ("builder_path", receipt.get("builder_path"), builder.get("path")),
+        ("workflow_path", receipt.get("workflow_path"), workflow.get("path")),
+        ("workflow_run_id", receipt.get("workflow_run_id"), verification.get("workflow_run_id")),
+        ("artifact_id", receipt.get("artifact_id"), output.get("artifact_id")),
+        ("artifact_name", receipt.get("artifact_name"), output.get("artifact_name")),
+        ("artifact_archive_digest", receipt.get("artifact_archive_digest"), output.get("artifact_archive_digest")),
+        ("output_file", receipt.get("output_file"), output.get("identity")),
+        ("output_sha256", receipt.get("output_sha256"), output.get("sha256")),
+        ("output_size_bytes", receipt.get("output_size_bytes"), output.get("size_bytes")),
+    )
+    for field, actual, expected in comparisons:
+        if actual != expected:
+            errors.append(f"MODEL_GENERATION_RECEIPT_MISMATCH:{field}")
+
+    if receipt.get("source_commit") != EXPECTED_OPERATIONAL_COMMIT:
+        errors.append("MODEL_GENERATION_RECEIPT_SOURCE_COMMIT_INVALID")
+    if receipt.get("workflow_conclusion") != "success":
+        errors.append("MODEL_GENERATION_RECEIPT_WORKFLOW_NOT_SUCCESS")
+    if receipt.get("input_sha256") != expected_inputs:
+        errors.append("MODEL_GENERATION_RECEIPT_INPUT_DIGESTS_MISMATCH")
+    receipt_verification = receipt.get("verification") or {}
+    if receipt_verification.get("status") != "PASS":
+        errors.append("MODEL_GENERATION_RECEIPT_VERIFICATION_NOT_PASS")
+    if receipt_verification.get("workflow_run_id") != verification.get("workflow_run_id"):
+        errors.append("MODEL_GENERATION_RECEIPT_VERIFICATION_RUN_MISMATCH")
     return errors
 
 
@@ -175,21 +321,33 @@ def validate_project(root: Path) -> dict[str, Any]:
     if not fixture_path.exists():
         errors.append("REGISTRATION_UNCERTAINTY_FIXTURE_MISSING")
     else:
-        errors.extend(validate_registration_uncertainty(load_json(fixture_path)))
+        fixture = load_json(fixture_path)
+        errors.extend(validate_registration_uncertainty(fixture))
+        errors.extend(validate_registration_epistemic_guard(fixture))
 
+    operational_root_value = os.environ.get("CEW_OPERATIONAL_SOURCE_ROOT", "").strip()
+    operational_root = Path(operational_root_value) if operational_root_value else None
+
+    model: dict[str, Any] | None = None
     model_path = root / MODEL_GENERATION_MANIFEST
     if not model_path.exists():
         errors.append("MODEL_GENERATION_MANIFEST_MISSING")
     else:
-        errors.extend(validate_model_generation(load_json(model_path)))
+        model = load_json(model_path)
+        errors.extend(validate_model_generation(model, operational_root))
+        if model.get("receipt_ref") != MODEL_GENERATION_RECEIPT.as_posix():
+            errors.append("MODEL_GENERATION_RECEIPT_REF_INVALID")
 
     receipt_path = root / MODEL_GENERATION_RECEIPT
     if not receipt_path.exists():
         errors.append("MODEL_GENERATION_RECEIPT_MISSING")
+    elif model is not None:
+        errors.extend(validate_receipt(load_json(receipt_path), model))
 
     errors.extend(validate_minimality(root / MINIMALITY))
 
-    gate = read_gate_status(root / GATE_MATRIX)
+    gate = read_gate_status(root / GATE_MATRIX, root=root)
+    errors.extend(gate.get("evidence_errors", []))
     if not gate["all_pass"]:
         errors.append("C01_GATE_NOT_11_OF_11_PASS")
 
@@ -200,8 +358,7 @@ def validate_project(root: Path) -> dict[str, Any]:
 
     synthetic_solver_result = False
     calculation_model_ready_mutated = False
-    if model_path.exists():
-        model = load_json(model_path)
+    if model is not None:
         synthetic_solver_result = bool(model.get("synthetic_solver_result", False))
         calculation_model_ready_mutated = model.get("calculation_model_ready") is not False
         if synthetic_solver_result:
