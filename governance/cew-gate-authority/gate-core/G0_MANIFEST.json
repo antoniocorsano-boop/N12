@@ -4,7 +4,7 @@
   "gate_core_version": "G0",
   "commit_binding": "HUMAN_PROMOTION_RECORD_REQUIRED",
   "source_bundle_algorithm": "sha256(sorted(path + NUL + git_blob_sha + LF))",
-  "source_bundle_sha256": "77b5288c9ab12837011471705ba199e5a2093d370a135f7a7f86f81853cf71ec",
+  "source_bundle_sha256": "a26bdc4e174d3258666faca35bb0c6fc36e26b0311559154a4b4bc3b901dfc11",
   "source_components": [
     {"path": "cew_gate_authority/__init__.py", "git_blob_sha": "90bfeb397d79d16eee2b2d61ce8403c50924926f"},
     {"path": "cew_gate_authority/authority.py", "git_blob_sha": "445878c7b6ef3bf1aac0845306422d9870a22352"},
@@ -13,12 +13,12 @@
     {"path": "cew_gate_authority/event_identity.py", "git_blob_sha": "fb3077cc4355d7c63a4b9afa13f0340c2fc8b4fc"},
     {"path": "cew_gate_authority/failure_codes.py", "git_blob_sha": "ab033f792f46e486129e85dfed008dbca9f17cc8"},
     {"path": "cew_gate_authority/operational.py", "git_blob_sha": "7a5ad3e51e8514d7c0f07f67b6810b1d584ece1c"},
-    {"path": "cew_gate_authority/qualification.py", "git_blob_sha": "bf7cf8ec92f1a20d6317b130912e41caab7c735d"},
+    {"path": "cew_gate_authority/qualification.py", "git_blob_sha": "4c3025298c031b4209a3db508f79cd76d939875e"},
     {"path": "cew_gate_authority/receipt.py", "git_blob_sha": "b1690bf54e78730f2048ae77d62dd3d8967b46f5"},
     {"path": "cew_gate_authority/replay.py", "git_blob_sha": "81a6159e2697d0239c59792ae3e3169261b8a8ce"},
     {"path": "cew_gate_authority/types.py", "git_blob_sha": "1cfe2f64002545c1998dd91efca009acc3cc3b27"},
-    {"path": "governance/cew-gate-authority/authorities/N12_CEW_CONTRACT_01_A0.json", "git_blob_sha": "c8a10c479dda306d1e69211c0933785cc3bd8d48"},
-    {"path": "governance/cew-gate-authority/schemas/QUALIFICATION_RECEIPT_v1.schema.json", "git_blob_sha": "145fc0a5dbd02d421da2e875637ba8e9fb9db7b2"}
+    {"path": "governance/cew-gate-authority/authorities/N12_CEW_CONTRACT_01_A0.json", "git_blob_sha": "e535412179d60ea6ec39015d61d650d74d822d9d"},
+    {"path": "governance/cew-gate-authority/schemas/QUALIFICATION_RECEIPT_v1.schema.json", "git_blob_sha": "ff1c107a72507d5e6869b6e8b0ef5bf84d3a8fce"}
   ],
   "promotion_state": "CANDIDATE",
   "promotion_note": "G0 becomes authoritative only after explicit human promotion; this manifest does not self-promote."
