@@ -186,6 +186,7 @@ def validate_model_generation(
         "scenario_id",
         "generation_profile",
         "builder",
+        "workflow",
         "parameters",
         "inputs",
         "output",
@@ -203,6 +204,13 @@ def validate_model_generation(
     builder = data.get("builder") or {}
     if builder.get("source_commit") != EXPECTED_OPERATIONAL_COMMIT:
         errors.append("MODEL_GENERATION_BUILDER_COMMIT_INVALID")
+    if not builder.get("path") or not builder.get("git_blob_sha"):
+        errors.append("MODEL_GENERATION_BUILDER_IDENTITY_MISSING")
+    workflow = data.get("workflow") or {}
+    if not workflow.get("path") or not workflow.get("workflow_run_id"):
+        errors.append("MODEL_GENERATION_WORKFLOW_IDENTITY_MISSING")
+    if workflow.get("conclusion") != "success":
+        errors.append("MODEL_GENERATION_WORKFLOW_NOT_SUCCESS")
     if data.get("solver_authorized") is not False:
         errors.append("MODEL_GENERATION_SOLVER_MUST_REMAIN_UNAUTHORIZED")
     if data.get("calculation_model_ready") is not False:
@@ -231,14 +239,21 @@ def validate_model_generation(
             if sha256_file(materialized) != expected_digest:
                 errors.append(f"MODEL_GENERATION_INPUT_{index}_DIGEST_MISMATCH")
     output = data.get("output") or {}
-    if not output.get("identity") or not output.get("sha256"):
-        errors.append("MODEL_GENERATION_OUTPUT_DIGEST_MISSING")
+    required_output = (
+        "identity",
+        "sha256",
+        "size_bytes",
+        "artifact_id",
+        "artifact_name",
+        "artifact_archive_digest",
+    )
+    if any(output.get(field) in (None, "") for field in required_output):
+        errors.append("MODEL_GENERATION_OUTPUT_IDENTITY_MISSING")
     verification = data.get("verification") or {}
     if verification.get("status") != "PASS":
         errors.append("MODEL_GENERATION_VERIFICATION_NOT_PASS")
-    workflow = data.get("workflow") or {}
-    if workflow and workflow.get("conclusion") != "success":
-        errors.append("MODEL_GENERATION_WORKFLOW_NOT_SUCCESS")
+    if verification.get("workflow_run_id") != workflow.get("workflow_run_id"):
+        errors.append("MODEL_GENERATION_VERIFICATION_RUN_MISMATCH")
     return errors
 
 
@@ -264,7 +279,7 @@ def validate_receipt(receipt: dict[str, Any], model: dict[str, Any]) -> list[str
         ("source_commit", receipt.get("source_commit"), builder.get("source_commit")),
         ("builder_path", receipt.get("builder_path"), builder.get("path")),
         ("workflow_path", receipt.get("workflow_path"), workflow.get("path")),
-        ("workflow_run_id", receipt.get("workflow_run_id"), verification.get("workflow_run_id")),
+        ("workflow_run_id", receipt.get("workflow_run_id"), workflow.get("workflow_run_id")),
         ("artifact_id", receipt.get("artifact_id"), output.get("artifact_id")),
         ("artifact_name", receipt.get("artifact_name"), output.get("artifact_name")),
         ("artifact_archive_digest", receipt.get("artifact_archive_digest"), output.get("artifact_archive_digest")),
