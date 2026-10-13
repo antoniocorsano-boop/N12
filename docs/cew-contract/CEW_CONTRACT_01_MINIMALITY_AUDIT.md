@@ -74,18 +74,76 @@ Nel materiale di qualifica tali nomi compaiono solo come strumenti/candidati/pro
 
 **Esito indipendenza tecnologica:** `PASS` — conferma `C01-T06`.
 
-## 5. Orfani e incompletezze che impediscono C01-T11 PASS
+## 5. Orfani e incompletezze che impedivano C01-T11 PASS nella qualifica iniziale
 
-La minima sufficienza **non è ancora dimostrata integralmente** per tre ragioni:
+La qualifica del 12 ottobre 2026 registrava tre residui:
 
-1. `SolverRun` e `Result` sono entità centrali ma non hanno ancora un caso N12 reale autorizzato; sono `BLOCKED_INPUT`.
-2. `Wall` è elencato tra i tipi minimi V1 ma non è esercitato da un caso N12 in questo gate; va deciso se resta tipo core, diventa estensione o viene rinviato.
-3. `ModelGeneration` è giustificato concettualmente dagli handoff reali, ma non esiste ancora un evento formalizzato che consenta di provare tutti gli attributi richiesti dalla spec.
+1. `SolverRun` e `Result` non esercitabili perché `calculation_model_ready=false`;
+2. `Wall` elencato tra i tipi minimi senza caso N12 autonomo;
+3. `ModelGeneration` giustificato concettualmente ma non formalizzato come evento riproducibile.
 
-Perciò **C01-T11 = REVIEW_REQUIRED**, non PASS.
+Per questo la qualifica iniziale conservava **C01-T11 = REVIEW_REQUIRED**.
 
-## 6. Decisione di audit
+## 6. Decisione di audit iniziale
 
-Il nucleo concettuale è molto più piccolo e sostenuto di quanto sembrasse dalla sola baseline di ricerca: quasi tutte le entità epistemiche, strutturali, di conflitto/versionamento e assurance hanno già analoghi reali nel patrimonio N12 operativo.
+Il nucleo concettuale risultava sostenuto da molti casi N12 reali, ma la minima sufficienza non era ancora dichiarabile. Nessuna entità era stata eliminata automaticamente.
 
-Non è però corretto dichiarare il contratto “minimamente sufficiente e completamente qualificato” finché gli orfani sopra non vengono risolti. Nessuna entità viene eliminata automaticamente da questo audit: le decisioni di rinvio/modifica della spec richiedono un successivo atto esplicito.
+## 7. Closure audit — 13 ottobre 2026
+
+Autorità aggiuntiva: `docs/superpowers/specs/2026-10-13-cew-contract-01-closure-design.md`.
+
+La closure separa il contratto logico dalla futura estensione FEM:
+
+- `CEW-CONTRACT-01` qualifica il core fino a `ModelGeneration → Projection → Verification → Receipt`;
+- `CEW-FEM-01` resta obbligatorio per `ModelGeneration → SolverRun → Result → Verification → Receipt`.
+
+Questa separazione non elimina `SolverRun` o `Result` dal lessico CEW; elimina soltanto la dipendenza circolare che li rendeva requisito operativo del gate C01 prima della qualifica del solver.
+
+### 7.1 Tassonomia macchina
+
+La classificazione corrente è congelata in:
+
+`evidence/cew-contract-01/CEW_STRUCTURAL_TYPE_MINIMALITY_v1.csv`
+
+Regole:
+
+- `CORE_REQUIRED` — subtype effettivamente istanziato e necessario nel caso N12 del gate;
+- `SUPPORTED_EXTENSION` — subtype legittimo del contratto, ma non necessario per il PASS del gate corrente;
+- `DEFERRED` — subtype non ancora definito/qualificato.
+
+Nel gate corrente sono `CORE_REQUIRED` soltanto:
+
+- `Node`;
+- `Column`;
+- `Beam`;
+- `FoundationElement`.
+
+Sono provati dal grafo strutturale reale di CASE_12; `Beam` è inoltre esercitato indipendentemente da CASE_04.
+
+`Wall = SUPPORTED_EXTENSION`: non viene rimosso dalla tassonomia CEW e non viene fittiziamente istanziato in N12.
+
+Gli altri subtype della specifica restano `SUPPORTED_EXTENSION` quando il patrimonio N12 ne dimostra la legittimità concettuale ma questa closure non necessita di una loro identità StructuralObject autonoma.
+
+### 7.2 ModelGeneration
+
+CASE_12 sostituisce la precedente giustificazione puramente concettuale con una prova reale:
+
+- source commit `d806dcca72779b5a186defe557a7a9b739575a90`;
+- workflow run `32955421352` PASS;
+- artifact `9601773275`;
+- output JSON SHA-256 `4e1c3f341093e9b60670099802bdee0c5fcdc174b12aedb63922f49301a965b2`;
+- sei input con SHA-256 registrati;
+- receipt di qualificazione separata da qualsiasi risultato ingegneristico;
+- `solver_authorized=false` e `calculation_model_ready=false`.
+
+`ModelGeneration` è quindi `JUSTIFIED_REAL` nel perimetro CEW-CONTRACT-01.
+
+### 7.3 Esito minimalità aggiornato
+
+I tre residui del paragrafo 5 sono ora trattati senza artifici:
+
+- SolverRun/Result → debito esplicito e obbligatorio di CEW-FEM-01, non requisito operativo C01;
+- Wall → `SUPPORTED_EXTENSION`;
+- ModelGeneration → caso reale CASE_12.
+
+**Esito closure minimality:** idoneo a `C01-T11 = PASS`, subordinatamente al validator exact-head e al gate finale 11/11.
