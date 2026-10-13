@@ -84,9 +84,9 @@ Il caso distingue:
 - stato diagnostico (`PASS_DIAGNOSTIC` / `WATCH`);
 - classe di evidenza;
 - eventuale bound derivato separato;
-- guardia interpretativa.
+- guardia interpretativa ed epistemica.
 
-Il residuo di registrazione non viene rinominato tolleranza, errore standard, incertezza standard o accuratezza certificata. Nessun valore metrologico viene inventato.
+Il residuo di registrazione non viene rinominato tolleranza, errore standard, incertezza standard o accuratezza certificata. Nessun valore metrologico viene inventato e le quattro promozioni/allowance vietate restano esplicitamente `false`.
 
 ## 5. Minima sufficienza — C01-T01 / C01-T11
 
@@ -101,7 +101,23 @@ Il residuo di registrazione non viene rinominato tolleranza, errore standard, in
 
 `Wall` resta `SUPPORTED_EXTENSION`: il gate non fabbrica un'entità muro strutturale N12 solo per soddisfare lo schema. Anche gli altri tipi non necessari restano estensioni finché un caso reale non ne richiede l'identità autonoma.
 
-## 6. Test già qualificati e invariati
+## 6. Gate repository-native rafforzato
+
+Il gate `.github/workflows/validate-cew-contract-01-closure.yml` qualifica il vero PR head e non il merge ref sintetico. Il workflow:
+
+- usa action pin a SHA completi e `persist-credentials: false`;
+- materializza in area temporanea read-only i sei input dal commit operativo congelato `d806dcca72779b5a186defe557a7a9b739575a90`;
+- ricalcola gli SHA-256 dei file reali e li confronta con il manifest;
+- richiede identità di builder, workflow, output e artifact;
+- richiede `Verification=PASS` e coerenza del workflow run;
+- valida la Receipt contro Manifest e Verification, inclusi authority flags e digest;
+- risolve l'evidenza di ogni riga `PASS` della matrice;
+- applica le guardie epistemiche della registration uncertainty;
+- impedisce bypass del validator finale tramite condizioni o failure override nel workflow qualificato.
+
+La qualifica resta exact-head: ogni modifica degli artefatti richiede un nuovo run del gate.
+
+## 7. Test già qualificati e invariati
 
 Restano PASS senza reinterpretazione sostanziale:
 
@@ -113,7 +129,7 @@ Restano PASS senza reinterpretazione sostanziale:
 
 Le relative evidenze N12 rimangono quelle già registrate nei casi di conformità dedicati.
 
-## 7. Confine di autorità
+## 8. Confine di autorità
 
 La qualifica mantiene obbligatoriamente:
 
@@ -127,7 +143,7 @@ La qualifica mantiene obbligatoriamente:
 
 N12 resta pertanto **non autorizzato a una verifica strutturale corrente** finché i gate tecnici dedicati non lo consentono.
 
-## 8. Debito trasferito a CEW-FEM-01
+## 9. Debito trasferito a CEW-FEM-01
 
 Il debito solver-specifico è intenzionalmente separato e resta aperto:
 
@@ -135,8 +151,8 @@ Il debito solver-specifico è intenzionalmente separato e resta aperto:
 
 Questa catena sarà obbligatoria per qualificare un adapter FEM e un round trip solver, ma non è più un prerequisito circolare per qualificare il contratto logico CEW.
 
-## 9. Decisione
+## 10. Decisione
 
-**CEW-CONTRACT-01: QUALIFIED**, subordinatamente al validator fail-closed sull'exact head che contiene questa matrice e questo report.
+**CEW-CONTRACT-01: QUALIFIED**, subordinatamente al validator fail-closed sul medesimo exact head della decisione di integrazione.
 
 La decisione non autorizza merge automatico, scelta solver o calcolo N12. Qualunque successiva mutazione degli artefatti di closure richiede una nuova qualifica exact-head.
