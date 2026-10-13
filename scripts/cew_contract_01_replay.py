@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import hashlib
 import importlib.util
 import json
@@ -131,3 +132,21 @@ def run_replay(authority_path: Path, source_root: Path, output_path: Path) -> di
         "size_bytes": actual_size,
         "generated_at": model.get("generated_at"),
     }
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--authority", required=True, type=Path)
+    parser.add_argument("--source-root", required=True, type=Path)
+    parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--result", required=True, type=Path)
+    args = parser.parse_args(argv)
+    result = run_replay(args.authority, args.source_root, args.output)
+    args.result.parent.mkdir(parents=True, exist_ok=True)
+    args.result.write_text(json.dumps(result, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
+    print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+    return 0 if result.get("passed") is True else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

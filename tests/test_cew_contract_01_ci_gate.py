@@ -4,59 +4,52 @@ import re
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-WORKFLOW = ROOT / ".github" / "workflows" / "validate-cew-contract-01-closure.yml"
+from scripts.cew_contract_01_stabilization_checks import workflow_contract_errors
 
+ROOT = Path(__file__).resolve().parents[1]
+WORKFLOW = ROOT / ".github/workflows/validate-cew-contract-01-closure.yml"
 CHECKOUT_SHA = "11d5960a326750d5838078e36cf38b85af677262"
 SETUP_PYTHON_SHA = "a26af69be951a213d495a4c3e4e4022e16d87065"
 OPERATIONAL_COMMIT = "d806dcca72779b5a186defe557a7a9b739575a90"
 
 
 class ClosureGateWorkflowTests(unittest.TestCase):
-    def test_closure_gate_is_repository_native_exact_head_and_fail_closed(self) -> None:
-        self.assertTrue(WORKFLOW.exists(), "CEW-CONTRACT-01 closure workflow must exist")
+    def test_closure_gate_is_durable_repository_native_exact_head_and_fail_closed(self) -> None:
         text = WORKFLOW.read_text(encoding="utf-8")
         required = (
             "name: CEW-CONTRACT-01 Closure Gate",
             "pull_request:",
             "workflow_dispatch:",
             "contents: read",
-            "actions: read",
             f"uses: actions/checkout@{CHECKOUT_SHA}",
             f"uses: actions/setup-python@{SETUP_PYTHON_SHA}",
             "persist-credentials: false",
             "github.event.pull_request.head.sha",
-            "github.sha",
             f"git fetch --no-tags --depth=1 origin {OPERATIONAL_COMMIT}",
             "CEW_OPERATIONAL_SOURCE_ROOT: /tmp/cew-contract-01-operational-source",
-            "CEW_MODEL_OUTPUT_ROOT: /tmp/cew-contract-01-model-output",
+            "CEW_REPLAY_RESULT_PATH: /tmp/cew-contract-01-replay-result.json",
+            "CEW_REPLAY_OUTPUT_PATH: /tmp/N12_CEW_CANONICAL_STRUCTURAL_MODEL_v0.json",
+            "scripts/cew_structural_model_builder.py",
             "data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv",
-            "Materialize pinned ModelGeneration artifact",
-            "artifact-metadata.json",
-            "artifact.zip",
-            "python -m py_compile scripts/validate_cew_contract_01_closure.py",
-            "python -m unittest tests/test_cew_contract_01_closure.py -v",
-            "python -m unittest tests/test_cew_contract_01_review_regressions.py -v",
-            "python -m unittest tests/test_cew_contract_01_final_review_regressions.py -v",
-            "python -m unittest tests/test_cew_contract_01_ci_gate.py -v",
+            "Run deterministic ModelGeneration replay",
+            "scripts/cew_contract_01_replay.py",
+            "N12_CEW_CONTRACT_01_FROZEN_AUTHORITY_v1.json",
+            "tests/test_cew_contract_01_stabilization_authority.py",
+            "tests/test_cew_contract_01_replay.py",
+            "tests/test_cew_contract_01_stabilization_invariants.py",
+            "tests/test_cew_contract_01_stabilization_mutations.py",
             "python scripts/validate_cew_contract_01_closure.py",
         )
         for marker in required:
             self.assertIn(marker, text)
-
-        self.assertNotRegex(text, r"uses:\s+actions/(?:checkout|setup-python)@v\d")
-        self.assertNotRegex(text, r"(?m)^\s*if\s*:")
-        self.assertNotIn("continue-on-error:", text)
-        self.assertNotIn("|| true", text)
-        self.assertNotIn("; true", text)
-        self.assertNotIn("ref: work/m0-global-model", text)
-
+        self.assertEqual(workflow_contract_errors(text), [])
+        for forbidden in ("actions: read", "CEW_MODEL_OUTPUT_ROOT", "/actions/artifacts/", "artifact.zip", "9601773275", "32955421352", "GITHUB_TOKEN"):
+            self.assertNotIn(forbidden, text)
         enforcement = re.search(
-            r"- name: Enforce CEW-CONTRACT-01 qualification\s*\n"
-            r"\s*run: python scripts/validate_cew_contract_01_closure\.py",
+            r"- name: Enforce CEW-CONTRACT-01 qualification\s*\n\s*run: python scripts/validate_cew_contract_01_closure\.py",
             text,
         )
-        self.assertIsNotNone(enforcement, "qualification validator must be an unconditional run step")
+        self.assertIsNotNone(enforcement)
 
 
 if __name__ == "__main__":
