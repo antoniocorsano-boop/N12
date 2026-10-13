@@ -8,12 +8,42 @@ from typing import Any
 
 _EXPECTED_INVARIANTS = tuple(f"I{i:02d}" for i in range(1, 18))
 _EXPECTED_TEST_IDS = tuple(f"C01-T{i:02d}" for i in range(1, 12))
-_BOUNDARY_KEYS = {"solver_authorized","calculation_model_ready","synthetic_solver_result","solver_run","result_entity_created"}
+_BOUNDARY_KEYS = {"solver_authorized", "calculation_model_ready", "synthetic_solver_result", "solver_run", "result_entity_created"}
+_EXPECTED_DOCUMENT_CONTRACT_PATHS = (
+    "qualification/cew-contract-01/n12/qualification.json",
+    "qualification/cew-contract-01/n12/evidence-index.json",
+    "qualification/cew-contract-01/n12/registration-uncertainty.json",
+    "qualification/cew-contract-01/n12/model-generation.json",
+    "qualification/cew-contract-01/n12/model-generation-receipt.json",
+    "qualification/cew-contract-01/n12/conformance-matrix.csv",
+    "qualification/cew-contract-01/n12/structural-type-minimality.csv",
+)
+_EXPECTED_AUTHORITY_FIELDS = {
+    "schema_id",
+    "schema_version",
+    "authority_id",
+    "source_repository",
+    "operational_commit",
+    "canonical_snapshot_id",
+    "model_generation_id",
+    "builder",
+    "inputs",
+    "registration",
+    "output",
+    "authority_boundary",
+    "invariants",
+    "candidate_allowlist",
+    "evidence_bindings",
+    "document_contracts",
+    "limits",
+}
+
 
 @dataclass(frozen=True)
 class BuilderAuthority:
     path: str
     git_blob_sha: str
+
 
 @dataclass(frozen=True)
 class RegistrationAuthority:
@@ -21,6 +51,7 @@ class RegistrationAuthority:
     source_git_blob_sha: str
     support_ids: tuple[str, ...]
     examples: tuple[dict[str, Any], ...]
+
 
 @dataclass(frozen=True)
 class OutputAuthority:
@@ -30,6 +61,7 @@ class OutputAuthority:
     size_bytes: int
     generated_at: str
 
+
 @dataclass(frozen=True)
 class CandidateLimits:
     max_blobs: int
@@ -38,16 +70,26 @@ class CandidateLimits:
     max_json_depth: int
     max_csv_rows: int
 
+
+@dataclass(frozen=True)
+class DocumentContract:
+    path: str
+    format: str
+    schema_identity: tuple[tuple[str, Any], ...] = ()
+    allowed_fields: tuple[str, ...] = ()
+    csv_header: tuple[str, ...] = ()
+
+
 @dataclass(frozen=True)
 class FrozenAuthority:
     authority_id: str
     source_sha256: str
+    source_repository: str
     operational_commit: str
     canonical_snapshot_id: str
     model_generation_id: str
-    qualification_schema_id: str
-    qualification_schema_version: int
     evidence_bindings: tuple[tuple[str, str], ...]
+    document_contracts: tuple[DocumentContract, ...]
     builder: BuilderAuthority
     inputs: tuple[tuple[str, str], ...]
     registration: RegistrationAuthority
@@ -57,40 +99,129 @@ class FrozenAuthority:
     candidate_allowlist: tuple[str, ...]
     limits: CandidateLimits
 
+
 def _required(data: dict[str, Any], key: str) -> Any:
-    if key not in data: raise ValueError(f"authority missing required field: {key}")
+    if key not in data:
+        raise ValueError(f"authority missing required field: {key}")
     return data[key]
 
+
+def _load_document_contracts(data: dict[str, Any], allowlist: tuple[str, ...]) -> tuple[DocumentContract, ...]:
+    raw_contracts = dict(_required(data, "document_contracts"))
+    if set(raw_contracts) != set(_EXPECTED_DOCUMENT_CONTRACT_PATHS):
+        raise ValueError("authority document contracts must cover exactly the seven structured candidate documents")
+
+    contracts: list[DocumentContract] = []
+    for path in _EXPECTED_DOCUMENT_CONTRACT_PATHS:
+        if path not in allowlist:
+            raise ValueError("authority document contract outside candidate allowlist")
+        raw = dict(raw_contracts[path])
+        fmt = str(_required(raw, "format"))
+        if fmt == "json":
+            if set(raw) != {"format", "schema_identity", "allowed_fields"}:
+                raise ValueError("json document contract has unexpected fields")
+            schema_identity = tuple(dict(_required(raw, "schema_identity")).items())
+            allowed_fields = tuple(str(v) for v in _required(raw, "allowed_fields"))
+            if not schema_identity:
+                raise ValueError("json document contract must freeze schema identity")
+            if not allowed_fields or len(set(allowed_fields)) != len(allowed_fields):
+                raise ValueError("json document contract allowed_fields must be unique and non-empty")
+            if any(key not in allowed_fields for key, _ in schema_identity):
+                raise ValueError("json document contract schema identity must be part of allowed_fields")
+            contracts.append(DocumentContract(path=path, format=fmt, schema_identity=schema_identity, allowed_fields=allowed_fields))
+        elif fmt == "csv":
+            if set(raw) != {"format", "header"}:
+                raise ValueError("csv document contract has unexpected fields")
+            header = tuple(str(v) for v in _required(raw, "header"))
+            if not header or len(set(header)) != len(header):
+                raise ValueError("csv document contract header must be unique and non-empty")
+            contracts.append(DocumentContract(path=path, format=fmt, csv_header=header))
+        else:
+            raise ValueError("unsupported authority document contract format")
+    return tuple(contracts)
+
+
 def load_authority(path: Path) -> FrozenAuthority:
-    raw=path.read_bytes(); data=json.loads(raw.decode("utf-8"))
-    if data.get("schema_id")!="CEW_FROZEN_QUALIFICATION_AUTHORITY" or data.get("schema_version")!=1: raise ValueError("unsupported authority schema")
-    inputs_raw=_required(data,"inputs")
-    if not isinstance(inputs_raw,list) or len(inputs_raw)!=6: raise ValueError("authority inputs must contain exactly six entries")
-    inputs=tuple((str(_required(item,"path")),str(_required(item,"sha256"))) for item in inputs_raw)
-    if len({p for p,_ in inputs})!=6: raise ValueError("authority input paths must be unique")
-    boundary=dict(_required(data,"authority_boundary"))
-    if set(boundary)!=_BOUNDARY_KEYS or any(v is not False for v in boundary.values()): raise ValueError("authority boundary must contain exactly five explicit false flags")
-    invariants=tuple(str(v) for v in _required(data,"invariants"))
-    if invariants!=_EXPECTED_INVARIANTS: raise ValueError("authority invariants must be exactly I01..I17 in order")
-    allowlist=tuple(str(v) for v in _required(data,"candidate_allowlist"))
-    if len(allowlist)!=len(set(allowlist)): raise ValueError("candidate allowlist contains duplicates")
-    qualification_schema=dict(_required(data,"qualification_schema"))
-    evidence_map=dict(_required(data,"evidence_bindings"))
-    if tuple(evidence_map)!=_EXPECTED_TEST_IDS: raise ValueError("authority evidence bindings must be exactly C01-T01..C01-T11 in order")
-    evidence_bindings=tuple((key,str(evidence_map[key])) for key in _EXPECTED_TEST_IDS)
-    if len({path for _,path in evidence_bindings})!=len(evidence_bindings): raise ValueError("authority evidence bindings must be unique")
-    if any(path not in allowlist for _,path in evidence_bindings): raise ValueError("authority evidence binding outside candidate allowlist")
-    builder=_required(data,"builder"); registration=_required(data,"registration"); output=_required(data,"output"); limits=_required(data,"limits")
-    examples=tuple(dict(item) for item in _required(registration,"examples"))
-    if tuple(str(item.get("support_id")) for item in examples)!=tuple(str(v) for v in _required(registration,"support_ids")): raise ValueError("registration examples do not match support_ids")
+    raw = path.read_bytes()
+    data = json.loads(raw.decode("utf-8"))
+    if data.get("schema_id") != "CEW_FROZEN_QUALIFICATION_AUTHORITY" or data.get("schema_version") != 1:
+        raise ValueError("unsupported authority schema")
+    if set(data) != _EXPECTED_AUTHORITY_FIELDS:
+        raise ValueError("authority schema contains unexpected or missing fields")
+
+    inputs_raw = _required(data, "inputs")
+    if not isinstance(inputs_raw, list) or len(inputs_raw) != 6:
+        raise ValueError("authority inputs must contain exactly six entries")
+    inputs = tuple((str(_required(item, "path")), str(_required(item, "sha256"))) for item in inputs_raw)
+    if len({p for p, _ in inputs}) != 6:
+        raise ValueError("authority input paths must be unique")
+
+    boundary = dict(_required(data, "authority_boundary"))
+    if set(boundary) != _BOUNDARY_KEYS or any(v is not False for v in boundary.values()):
+        raise ValueError("authority boundary must contain exactly five explicit false flags")
+
+    invariants = tuple(str(v) for v in _required(data, "invariants"))
+    if invariants != _EXPECTED_INVARIANTS:
+        raise ValueError("authority invariants must be exactly I01..I17 in order")
+
+    allowlist = tuple(str(v) for v in _required(data, "candidate_allowlist"))
+    if len(allowlist) != len(set(allowlist)):
+        raise ValueError("candidate allowlist contains duplicates")
+
+    evidence_map = dict(_required(data, "evidence_bindings"))
+    if tuple(evidence_map) != _EXPECTED_TEST_IDS:
+        raise ValueError("authority evidence bindings must be exactly C01-T01..C01-T11 in order")
+    evidence_bindings = tuple((key, str(evidence_map[key])) for key in _EXPECTED_TEST_IDS)
+    if len({bound_path for _, bound_path in evidence_bindings}) != len(evidence_bindings):
+        raise ValueError("authority evidence bindings must be unique")
+    if any(bound_path not in allowlist for _, bound_path in evidence_bindings):
+        raise ValueError("authority evidence binding outside candidate allowlist")
+
+    document_contracts = _load_document_contracts(data, allowlist)
+    builder = _required(data, "builder")
+    registration = _required(data, "registration")
+    output = _required(data, "output")
+    limits = _required(data, "limits")
+    examples = tuple(dict(item) for item in _required(registration, "examples"))
+    if tuple(str(item.get("support_id")) for item in examples) != tuple(str(v) for v in _required(registration, "support_ids")):
+        raise ValueError("registration examples do not match support_ids")
+
+    source_repository = str(_required(data, "source_repository"))
+    if not source_repository or "/" not in source_repository:
+        raise ValueError("authority source_repository must be owner/name")
+
     return FrozenAuthority(
-        authority_id=str(_required(data,"authority_id")),source_sha256=hashlib.sha256(raw).hexdigest(),operational_commit=str(_required(data,"operational_commit")),
-        canonical_snapshot_id=str(_required(data,"canonical_snapshot_id")),model_generation_id=str(_required(data,"model_generation_id")),
-        qualification_schema_id=str(_required(qualification_schema,"schema_id")),qualification_schema_version=int(_required(qualification_schema,"schema_version")),
+        authority_id=str(_required(data, "authority_id")),
+        source_sha256=hashlib.sha256(raw).hexdigest(),
+        source_repository=source_repository,
+        operational_commit=str(_required(data, "operational_commit")),
+        canonical_snapshot_id=str(_required(data, "canonical_snapshot_id")),
+        model_generation_id=str(_required(data, "model_generation_id")),
         evidence_bindings=evidence_bindings,
-        builder=BuilderAuthority(str(_required(builder,"path")),str(_required(builder,"git_blob_sha"))),inputs=inputs,
-        registration=RegistrationAuthority(str(_required(registration,"source_path")),str(_required(registration,"source_git_blob_sha")),tuple(str(v) for v in _required(registration,"support_ids")),examples),
-        output=OutputAuthority(str(_required(output,"identity")),str(_required(output,"generation_id_inside_artifact")),str(_required(output,"sha256")),int(_required(output,"size_bytes")),str(_required(output,"generated_at"))),
-        authority_boundary=boundary,invariants=invariants,candidate_allowlist=allowlist,
-        limits=CandidateLimits(int(_required(limits,"max_blobs")),int(_required(limits,"max_blob_bytes")),int(_required(limits,"max_aggregate_bytes")),int(_required(limits,"max_json_depth")),int(_required(limits,"max_csv_rows"))),
+        document_contracts=document_contracts,
+        builder=BuilderAuthority(str(_required(builder, "path")), str(_required(builder, "git_blob_sha"))),
+        inputs=inputs,
+        registration=RegistrationAuthority(
+            str(_required(registration, "source_path")),
+            str(_required(registration, "source_git_blob_sha")),
+            tuple(str(v) for v in _required(registration, "support_ids")),
+            examples,
+        ),
+        output=OutputAuthority(
+            str(_required(output, "identity")),
+            str(_required(output, "generation_id_inside_artifact")),
+            str(_required(output, "sha256")),
+            int(_required(output, "size_bytes")),
+            str(_required(output, "generated_at")),
+        ),
+        authority_boundary=boundary,
+        invariants=invariants,
+        candidate_allowlist=allowlist,
+        limits=CandidateLimits(
+            int(_required(limits, "max_blobs")),
+            int(_required(limits, "max_blob_bytes")),
+            int(_required(limits, "max_aggregate_bytes")),
+            int(_required(limits, "max_json_depth")),
+            int(_required(limits, "max_csv_rows")),
+        ),
     )
