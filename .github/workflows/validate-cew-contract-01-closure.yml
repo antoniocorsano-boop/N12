@@ -1,0 +1,36 @@
+name: CEW-CONTRACT-01 Closure Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  closure:
+    name: CEW-CONTRACT-01 Closure Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout PR exact head
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile closure validator
+        run: python -m py_compile scripts/validate_cew_contract_01_closure.py
+
+      - name: Run closure unit tests
+        run: python -m unittest tests/test_cew_contract_01_closure.py -v
+
+      - name: Verify repository-native gate contract
+        run: python -m unittest tests/test_cew_contract_01_ci_gate.py -v
+
+      - name: Enforce CEW-CONTRACT-01 qualification
+        run: python scripts/validate_cew_contract_01_closure.py
