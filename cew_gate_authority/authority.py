@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 _EXPECTED_INVARIANTS = tuple(f"I{i:02d}" for i in range(1, 18))
+_EXPECTED_TEST_IDS = tuple(f"C01-T{i:02d}" for i in range(1, 12))
 _BOUNDARY_KEYS = {"solver_authorized","calculation_model_ready","synthetic_solver_result","solver_run","result_entity_created"}
 
 @dataclass(frozen=True)
@@ -44,6 +45,9 @@ class FrozenAuthority:
     operational_commit: str
     canonical_snapshot_id: str
     model_generation_id: str
+    qualification_schema_id: str
+    qualification_schema_version: int
+    evidence_bindings: tuple[tuple[str, str], ...]
     builder: BuilderAuthority
     inputs: tuple[tuple[str, str], ...]
     registration: RegistrationAuthority
@@ -70,12 +74,20 @@ def load_authority(path: Path) -> FrozenAuthority:
     if invariants!=_EXPECTED_INVARIANTS: raise ValueError("authority invariants must be exactly I01..I17 in order")
     allowlist=tuple(str(v) for v in _required(data,"candidate_allowlist"))
     if len(allowlist)!=len(set(allowlist)): raise ValueError("candidate allowlist contains duplicates")
+    qualification_schema=dict(_required(data,"qualification_schema"))
+    evidence_map=dict(_required(data,"evidence_bindings"))
+    if tuple(evidence_map)!=_EXPECTED_TEST_IDS: raise ValueError("authority evidence bindings must be exactly C01-T01..C01-T11 in order")
+    evidence_bindings=tuple((key,str(evidence_map[key])) for key in _EXPECTED_TEST_IDS)
+    if len({path for _,path in evidence_bindings})!=len(evidence_bindings): raise ValueError("authority evidence bindings must be unique")
+    if any(path not in allowlist for _,path in evidence_bindings): raise ValueError("authority evidence binding outside candidate allowlist")
     builder=_required(data,"builder"); registration=_required(data,"registration"); output=_required(data,"output"); limits=_required(data,"limits")
     examples=tuple(dict(item) for item in _required(registration,"examples"))
     if tuple(str(item.get("support_id")) for item in examples)!=tuple(str(v) for v in _required(registration,"support_ids")): raise ValueError("registration examples do not match support_ids")
     return FrozenAuthority(
         authority_id=str(_required(data,"authority_id")),source_sha256=hashlib.sha256(raw).hexdigest(),operational_commit=str(_required(data,"operational_commit")),
         canonical_snapshot_id=str(_required(data,"canonical_snapshot_id")),model_generation_id=str(_required(data,"model_generation_id")),
+        qualification_schema_id=str(_required(qualification_schema,"schema_id")),qualification_schema_version=int(_required(qualification_schema,"schema_version")),
+        evidence_bindings=evidence_bindings,
         builder=BuilderAuthority(str(_required(builder,"path")),str(_required(builder,"git_blob_sha"))),inputs=inputs,
         registration=RegistrationAuthority(str(_required(registration,"source_path")),str(_required(registration,"source_git_blob_sha")),tuple(str(v) for v in _required(registration,"support_ids")),examples),
         output=OutputAuthority(str(_required(output,"identity")),str(_required(output,"generation_id_inside_artifact")),str(_required(output,"sha256")),int(_required(output,"size_bytes")),str(_required(output,"generated_at"))),
