@@ -4,7 +4,7 @@ import csv
 import hashlib
 import io
 import json
-from typing import Any, Mapping
+from typing import Any
 
 from .authority import FrozenAuthority
 from .candidate_reader import CandidateReader
@@ -69,7 +69,10 @@ def evaluate_qualification(reader:CandidateReader,authority:FrozenAuthority,repl
     failures:list[str]=[]; inv={key:InvariantResult.NOT_APPLICABLE for key in EXPECTED_INV}
     try:
         digest=_bundle_digest(reader,authority.candidate_allowlist)
-        q=_json(reader,Q,authority.limits.max_json_depth,closed_fields=Q_FIELDS); reg=_json(reader,REG,authority.limits.max_json_depth); model=_json(reader,MODEL,authority.limits.max_json_depth); mr=_json(reader,MODEL_RECEIPT,authority.limits.max_json_depth); index=_json(reader,INDEX,authority.limits.max_json_depth)
+        q=_json(reader,Q,authority.limits.max_json_depth,closed_fields=Q_FIELDS)
+        if q.get("schema_id")!=authority.qualification_schema_id or q.get("schema_version")!=authority.qualification_schema_version:
+            raise PayloadError("CANDIDATE_QUALIFICATION_SCHEMA_UNSUPPORTED")
+        reg=_json(reader,REG,authority.limits.max_json_depth); model=_json(reader,MODEL,authority.limits.max_json_depth); mr=_json(reader,MODEL_RECEIPT,authority.limits.max_json_depth); index=_json(reader,INDEX,authority.limits.max_json_depth)
         matrix=_csv(reader,MATRIX,authority.limits.max_csv_rows); _csv(reader,MINIMALITY,authority.limits.max_csv_rows)
         try: reader.read_text(SUFFICIENCY)
         except ValueError as exc:
@@ -113,12 +116,14 @@ def evaluate_qualification(reader:CandidateReader,authority:FrozenAuthority,repl
     inv["I13"]=_result(_false_exact(qguards,qkeys) and _false_exact(rguards,rkeys),"I13_EPISTEMIC_GUARD_VIOLATION",failures)
     matrix_ids=[r.get("test_id") for r in matrix]; matrix_ok=(tuple(matrix_ids)==EXPECTED_IDS and len(set(matrix_ids))==11 and all(r.get("status")=="PASS" and r.get("evidence_id")==r.get("test_id") for r in matrix))
     inv["I14"]=_result(matrix_ok,"I14_GATE_MATRIX_INVALID",failures)
-    evidence=index.get("evidence") if isinstance(index.get("evidence"),dict) else {}; evidence_ok=(index.get("schema_id")=="CEW_EVIDENCE_INDEX" and index.get("schema_version")==1 and tuple(sorted(evidence))==EXPECTED_IDS)
+    evidence=index.get("evidence") if isinstance(index.get("evidence"),dict) else {}
+    expected_evidence=dict(authority.evidence_bindings)
+    evidence_ok=(index.get("schema_id")=="CEW_EVIDENCE_INDEX" and index.get("schema_version")==1 and evidence==expected_evidence)
     if evidence_ok:
         for key in EXPECTED_IDS:
-            path=evidence[key]
+            path=expected_evidence[key]
             try:
-                if path not in authority.candidate_allowlist or not reader.read_text(path).strip(): evidence_ok=False; break
+                if not reader.read_text(path).strip(): evidence_ok=False; break
             except ValueError: evidence_ok=False; break
     inv["I15"]=_result(evidence_ok,"I15_EVIDENCE_INVALID",failures)
     boundary_ok=_false_exact(q.get("authority_boundary"),BOUNDARY_KEYS) and model.get("solver_authorized") is False and model.get("calculation_model_ready") is False and model.get("synthetic_solver_result") is False and mr.get("engineering_result") is False and mr.get("solver_run") is False and mr.get("result_entity_created") is False
