@@ -192,6 +192,28 @@ class ClosureReviewRegressionTests(unittest.TestCase):
         self.assertFalse(result["qualified"])
         self.assertIn("MODEL_GENERATION_VERIFICATION_NOT_PASS", result["errors"])
 
+    def test_model_generation_requires_workflow_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as td, tempfile.TemporaryDirectory() as sd:
+            root, operational = Path(td), Path(sd)
+            paths = self.make_valid_project(root, operational)
+            data = json.loads(paths["manifest"].read_text(encoding="utf-8"))
+            data["workflow"] = {}
+            paths["manifest"].write_text(json.dumps(data), encoding="utf-8")
+            result = self.validate(root, operational)
+        self.assertFalse(result["qualified"])
+        self.assertIn("MODEL_GENERATION_WORKFLOW_IDENTITY_MISSING", result["errors"])
+
+    def test_model_generation_requires_output_artifact_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as td, tempfile.TemporaryDirectory() as sd:
+            root, operational = Path(td), Path(sd)
+            paths = self.make_valid_project(root, operational)
+            data = json.loads(paths["manifest"].read_text(encoding="utf-8"))
+            data["output"]["artifact_archive_digest"] = ""
+            paths["manifest"].write_text(json.dumps(data), encoding="utf-8")
+            result = self.validate(root, operational)
+        self.assertFalse(result["qualified"])
+        self.assertIn("MODEL_GENERATION_OUTPUT_IDENTITY_MISSING", result["errors"])
+
     def test_receipt_must_match_manifest_and_remain_non_engineering(self) -> None:
         with tempfile.TemporaryDirectory() as td, tempfile.TemporaryDirectory() as sd:
             root, operational = Path(td), Path(sd)
