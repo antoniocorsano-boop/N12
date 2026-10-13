@@ -175,6 +175,39 @@ def _parse_defaults_shell(lines: list[str], defaults_index: int, defaults_indent
     return None
 
 
+def _parse_defaults_working_directory(lines: list[str], defaults_index: int, defaults_indent: int) -> str | None:
+    index = defaults_index + 1
+    run_indent = defaults_indent + 2
+    while index < len(lines):
+        line = lines[index]
+        if not line.strip():
+            index += 1
+            continue
+        line_indent = _indent(line)
+        if line_indent <= defaults_indent:
+            break
+        if line_indent == run_indent:
+            parsed = _parse_yaml_mapping_line(line)
+            if parsed is not None and parsed[0] == "run" and not parsed[1]:
+                index += 1
+                while index < len(lines):
+                    nested = lines[index]
+                    if not nested.strip():
+                        index += 1
+                        continue
+                    nested_indent = _indent(nested)
+                    if nested_indent <= run_indent:
+                        break
+                    if nested_indent == run_indent + 2:
+                        nested_parsed = _parse_yaml_mapping_line(nested)
+                        if nested_parsed is not None and nested_parsed[0] == "working-directory":
+                            return _unquote_yaml_scalar(nested_parsed[1])
+                    index += 1
+                return None
+        index += 1
+    return None
+
+
 def _workflow_default_shell(text: str) -> str | None:
     lines = text.splitlines()
     for index, line in enumerate(lines):
@@ -183,6 +216,17 @@ def _workflow_default_shell(text: str) -> str | None:
         parsed = _parse_yaml_mapping_line(line)
         if parsed is not None and parsed[0] == "defaults" and not parsed[1]:
             return _parse_defaults_shell(lines, index, 0)
+    return None
+
+
+def _workflow_default_working_directory(text: str) -> str | None:
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if _indent(line) != 0:
+            continue
+        parsed = _parse_yaml_mapping_line(line)
+        if parsed is not None and parsed[0] == "defaults" and not parsed[1]:
+            return _parse_defaults_working_directory(lines, index, 0)
     return None
 
 
@@ -240,8 +284,11 @@ def _parse_workflow_job(text: str, job_name: str) -> dict[str, Any] | None:
             job[key] = _unquote_yaml_scalar(raw_value)
         elif key == "defaults" and not raw_value:
             shell = _parse_defaults_shell(lines, index, line_indent)
+            working_directory = _parse_defaults_working_directory(lines, index, line_indent)
             if shell is not None:
                 job["defaults.run.shell"] = shell
+            if working_directory is not None:
+                job["defaults.run.working-directory"] = working_directory
         index += 1
     return job
 
@@ -420,6 +467,10 @@ def workflow_contract_errors(text: str) -> list[str]:
         closure_job is not None and closure_job.get("defaults.run.shell") is not None
     ):
         errors.append("CI_BYPASS_MANDATORY_SHELL")
+    if _workflow_default_working_directory(text) is not None or (
+        closure_job is not None and closure_job.get("defaults.run.working-directory") is not None
+    ):
+        errors.append("CI_BYPASS_MANDATORY_WORKING_DIRECTORY")
 
     checkout = _single_named_step(steps, "Checkout PR exact head")
     checkout_with = checkout.get("with", {}) if checkout else {}
@@ -453,10 +504,15 @@ def workflow_contract_errors(text: str) -> list[str]:
             errors.append("CI_BYPASS_REPLAY_COMMAND_INVALID")
         if str(replay.get("shell", "")).strip() != EXPECTED_MANDATORY_SHELL:
             errors.append("CI_BYPASS_MANDATORY_SHELL")
+        if "working-directory" in replay:
+            errors.append("CI_BYPASS_MANDATORY_WORKING_DIRECTORY")
 
     enforcement = _single_named_step(steps, "Enforce CEW-CONTRACT-01 qualification")
     if enforcement is None or str(enforcement.get("run", "")).strip() != "python scripts/validate_cew_contract_01_closure.py":
         errors.append("CI_BYPASS_ENFORCEMENT_MISSING")
-    elif str(enforcement.get("shell", "")).strip() != EXPECTED_MANDATORY_SHELL:
-        errors.append("CI_BYPASS_MANDATORY_SHELL")
+    else:
+        if str(enforcement.get("shell", "")).strip() != EXPECTED_MANDATORY_SHELL:
+            errors.append("CI_BYPASS_MANDATORY_SHELL")
+        if "working-directory" in enforcement:
+            errors.append("CI_BYPASS_MANDATORY_WORKING_DIRECTORY")
     return errors
