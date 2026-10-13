@@ -35,3 +35,5 @@ jobs:
         run: python -m unittest tests/cew_gate_authority/test_operational_replay.py -v
       - name: Task 5 qualification invariant tests
         run: python -m unittest tests/cew_gate_authority/test_qualification.py tests/cew_gate_authority/test_qualification_properties.py -v
+      - name: Task 6 event identity and no-exec integration tests
+        run: python -m unittest tests/cew_gate_authority/test_event_identity.py tests/cew_gate_authority/test_no_exec_integration.py -v
