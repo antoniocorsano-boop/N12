@@ -52,4 +52,8 @@ class ArtifactShapeTests(unittest.TestCase):
         for bad in (None,"artifact-name",0,-1,True):
             with self.subTest(bad=bad): self.assert_code("ARTIFACT_HANDOFF_FAILED",lambda bad=bad:validate_artifact_id(bad))
     def test_duplicate_json_keys_in_envelope_fail(self): d,_=write_artifact(); (d/"handoff-envelope.json").write_text('{"schema_id":"CEW_GATE_AUTHORITY_HANDOFF_ENVELOPE","schema_id":"X"}'); self.assert_code("HANDOFF_ENVELOPE_INVALID",lambda:verify_handoff_directory(d,CTX,ANCHOR))
+    def test_duplicate_json_keys_in_receipt_fail(self):
+        d=Path(tempfile.mkdtemp()); rp=d/"qualification-receipt.json"
+        rp.write_text('{"schema_id":"CEW_QUALIFICATION_RECEIPT","schema_id":"X"}',encoding="utf-8")
+        self.assert_code("HANDOFF_RECEIPT_DIGEST_MISMATCH",lambda:build_handoff_envelope(rp,CTX,ANCHOR,0))
 if __name__=="__main__": unittest.main()
