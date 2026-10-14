@@ -81,6 +81,64 @@ class EvidenceExtractionTests(unittest.TestCase):
         self.assertTrue(all(item.geometry.frame.value == "RASTER_PIXEL" for item in first))
         self.assertTrue(all(item.structural_identity_authorized is False for item in first))
 
+    def test_axis_crossed_column_is_recomposed_once_and_single_axis_section_is_excluded(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            raster = np.full((512, 512), 255, dtype=np.uint8)
+
+            # True object pattern: a closed column symbol crossed by both structural axes.
+            cv2.line(raster, (40, 150), (260, 150), 0, 2)
+            cv2.line(raster, (150, 40), (150, 260), 0, 2)
+            cv2.rectangle(raster, (120, 115), (180, 185), 0, 3)
+
+            # False-positive pattern seen in the real review package: a beam/section
+            # rectangle attached to only one long structural direction.
+            cv2.line(raster, (300, 150), (480, 150), 0, 2)
+            cv2.rectangle(raster, (350, 132), (400, 168), 0, 3)
+
+            path = directory / "axis-object-raster.png"
+            self.assertTrue(cv2.imwrite(str(path), raster))
+            png_sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
+            probe_mapping = {
+                "source": SOURCE,
+                "raster": {"width_px": 512, "height_px": 512, "sha256": "3" * 64},
+                "tool_results": [
+                    {
+                        "source": SOURCE,
+                        "tool_id": "pypdfium2",
+                        "tool_version": "5.14.0",
+                        "status": "PASS",
+                        "metrics": {
+                            "png_sha256": png_sha256,
+                            "png_role": "EVIDENCE_RENDER_ONLY_NOT_STRUCTURAL_TRUTH",
+                        },
+                        "limitations": [],
+                    }
+                ],
+            }
+            binding = Task3RasterBinding.from_probe_mapping(probe_mapping)
+            candidates = extract_g4_evidence_candidates(
+                binding,
+                path,
+                config=ExtractionConfig(
+                    threshold=180,
+                    min_width_px=15,
+                    min_height_px=15,
+                    max_width_px=120,
+                    max_height_px=120,
+                    min_rectangularity=0.50,
+                    max_aspect_ratio=5.0,
+                    duplicate_iou_threshold=0.75,
+                ),
+            )
+
+        self.assertEqual(len(candidates), 1)
+        column = candidates[0].geometry
+        self.assertAlmostEqual(column.x + column.width / 2.0, 150.0, delta=5.0)
+        self.assertAlmostEqual(column.y + column.height / 2.0, 150.0, delta=5.0)
+        self.assertGreaterEqual(column.width, 55.0)
+        self.assertGreaterEqual(column.height, 65.0)
+
     def test_extraction_fails_closed_if_step3_png_identity_changes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             path, binding = self._synthetic_raster(Path(tmp))
