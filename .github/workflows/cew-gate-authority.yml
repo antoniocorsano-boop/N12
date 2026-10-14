@@ -128,8 +128,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/handoff"
           qualified_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           set +e
-          cd "$RUNNER_TEMP/g0"
-          python -m cew_gate_authority.cli qualify \
+          PYTHONPATH="$RUNNER_TEMP/g0" python -m cew_gate_authority.cli qualify \
             --candidate-git-dir "$RUNNER_TEMP/candidate.git" \
             --operational-repo "$RUNNER_TEMP/trusted.git" \
             --authority "$RUNNER_TEMP/g0/governance/cew-gate-authority/authorities/N12_CEW_CONTRACT_01_A0.json" \
@@ -140,7 +139,7 @@ jobs:
             --output "$RUNNER_TEMP/handoff/qualification-receipt.json"
           rc=$?
           set -e
-          if [ "$rc" -lt 0 ] || [ "$rc" -gt 2 ]; then rc=2; fi
+          if [ "$rc" -gt 2 ]; then rc=2; fi
           emitted=false
           if { [ "$rc" = 0 ] || [ "$rc" = 1 ]; } && [ -f "$RUNNER_TEMP/handoff/qualification-receipt.json" ]; then emitted=true; fi
           echo "qualification_exit_code=$rc" >> "$GITHUB_OUTPUT"
@@ -212,8 +211,7 @@ jobs:
           CEW_RUN_ID: ${{ github.run_id }}
           CEW_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
-          cd "$RUNNER_TEMP/control-plane"
-          python -m cew_gate_control_plane.cli verify-handoff \
+          PYTHONPATH="$RUNNER_TEMP/control-plane" python -m cew_gate_control_plane.cli verify-handoff \
             --directory "$RUNNER_TEMP/handoff" \
             --run-id "$CEW_RUN_ID" --run-attempt "$CEW_RUN_ATTEMPT" --base-sha "$CEW_BASE_SHA" \
             --pr-number "$CEW_PR_NUMBER" --head-repository "$CEW_HEAD_REPOSITORY" --head-sha "$CEW_HEAD_SHA" \
@@ -236,7 +234,7 @@ jobs:
           CEW_BASE_SHA: ${{ github.sha }}
         run: |
           git init "$RUNNER_TEMP/control-plane"
-          git -C "$RUNER_TEMP/control-plane" fetch --no-tags --depth=1 "https://github.com/antoniocorsano-boop/N12.git" "$CEW_BASE_SHA"
+          git -C "$RUNNER_TEMP/control-plane" fetch --no-tags --depth=1 "https://github.com/antoniocorsano-boop/N12.git" "$CEW_BASE_SHA"
           git -C "$RUNNER_TEMP/control-plane" checkout --detach FETCH_HEAD
           test "$(git -C "$RUNNER_TEMP/control-plane" rev-parse HEAD)" = "$CEW_BASE_SHA"
       - name: Reduce final decision fail closed
@@ -249,5 +247,4 @@ jobs:
           receipt="${RECEIPT_EMITTED:-false}"
           args=(decision --qualify-job-result "$QUALIFY_RESULT" --receipt-emitted "$receipt" --handoff-job-result "$HANDOFF_RESULT" --output-json "$RUNNER_TEMP/final-decision.json")
           if [ -n "$QUAL_EXIT" ]; then args+=(--qualification-exit-code "$QUAL_EXIT"); fi
-          cd "$RUNNER_TEMP/control-plane"
-          python -m cew_gate_control_plane.cli "${args[@]}"
+          PYTHONPATH="$RUNNER_TEMP/control-plane" python -m cew_gate_control_plane.cli "${args[@]}"
