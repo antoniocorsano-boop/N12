@@ -24,33 +24,50 @@ SOURCE = {
 }
 
 
+def _binding_for_raster(path: Path, *, width: int, height: int, raster_sha: str) -> Task3RasterBinding:
+    png_sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
+    probe_mapping = {
+        "source": SOURCE,
+        "raster": {"width_px": width, "height_px": height, "sha256": raster_sha},
+        "tool_results": [
+            {
+                "source": SOURCE,
+                "tool_id": "pypdfium2",
+                "tool_version": "5.14.0",
+                "status": "PASS",
+                "metrics": {
+                    "png_sha256": png_sha256,
+                    "png_role": "EVIDENCE_RENDER_ONLY_NOT_STRUCTURAL_TRUTH",
+                },
+                "limitations": [],
+            }
+        ],
+    }
+    return Task3RasterBinding.from_probe_mapping(probe_mapping)
+
+
 class EvidenceExtractionTests(unittest.TestCase):
     def _synthetic_raster(self, directory: Path) -> tuple[Path, Task3RasterBinding]:
         raster = np.full((512, 512), 255, dtype=np.uint8)
-        cv2.rectangle(raster, (50, 60), (95, 125), 0, 3)
-        cv2.rectangle(raster, (220, 250), (270, 290), 0, 3)
-        cv2.line(raster, (10, 400), (490, 400), 0, 2)
+
+        # Two valid composite symbols. Their long structural axes split the raw
+        # contour, so the detector must suppress the axes and recover one
+        # footprint envelope around each crossing.
+        cv2.line(raster, (20, 100), (210, 100), 0, 2)
+        cv2.line(raster, (100, 20), (100, 210), 0, 2)
+        cv2.rectangle(raster, (70, 65), (130, 135), 0, 3)
+
+        cv2.line(raster, (250, 340), (490, 340), 0, 2)
+        cv2.line(raster, (360, 225), (360, 475), 0, 2)
+        cv2.rectangle(raster, (325, 305), (395, 375), 0, 3)
+
+        # Closed rectangle without the two-axis grammar: never a support
+        # candidate merely because it is rectangular.
+        cv2.rectangle(raster, (220, 70), (275, 110), 0, 3)
+
         path = directory / "step3-raster.png"
         self.assertTrue(cv2.imwrite(str(path), raster))
-        png_sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
-        probe_mapping = {
-            "source": SOURCE,
-            "raster": {"width_px": 512, "height_px": 512, "sha256": "1" * 64},
-            "tool_results": [
-                {
-                    "source": SOURCE,
-                    "tool_id": "pypdfium2",
-                    "tool_version": "5.14.0",
-                    "status": "PASS",
-                    "metrics": {
-                        "png_sha256": png_sha256,
-                        "png_role": "EVIDENCE_RENDER_ONLY_NOT_STRUCTURAL_TRUTH",
-                    },
-                    "limitations": [],
-                }
-            ],
-        }
-        return path, Task3RasterBinding.from_probe_mapping(probe_mapping)
+        return path, _binding_for_raster(path, width=512, height=512, raster_sha="1" * 64)
 
     def test_extraction_is_deterministic_from_exact_step3_raster(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -68,7 +85,7 @@ class EvidenceExtractionTests(unittest.TestCase):
             first = extract_g4_evidence_candidates(binding, path, config=config)
             replay = extract_g4_evidence_candidates(binding, path, config=config)
 
-        self.assertGreaterEqual(len(first), 2)
+        self.assertEqual(len(first), 2)
         self.assertEqual(
             [candidate.candidate_id for candidate in first],
             [candidate.candidate_id for candidate in replay],
@@ -98,25 +115,7 @@ class EvidenceExtractionTests(unittest.TestCase):
 
             path = directory / "axis-object-raster.png"
             self.assertTrue(cv2.imwrite(str(path), raster))
-            png_sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
-            probe_mapping = {
-                "source": SOURCE,
-                "raster": {"width_px": 512, "height_px": 512, "sha256": "3" * 64},
-                "tool_results": [
-                    {
-                        "source": SOURCE,
-                        "tool_id": "pypdfium2",
-                        "tool_version": "5.14.0",
-                        "status": "PASS",
-                        "metrics": {
-                            "png_sha256": png_sha256,
-                            "png_role": "EVIDENCE_RENDER_ONLY_NOT_STRUCTURAL_TRUTH",
-                        },
-                        "limitations": [],
-                    }
-                ],
-            }
-            binding = Task3RasterBinding.from_probe_mapping(probe_mapping)
+            binding = _binding_for_raster(path, width=512, height=512, raster_sha="3" * 64)
             candidates = extract_g4_evidence_candidates(
                 binding,
                 path,
@@ -138,6 +137,38 @@ class EvidenceExtractionTests(unittest.TestCase):
         self.assertAlmostEqual(column.y + column.height / 2.0, 150.0, delta=5.0)
         self.assertGreaterEqual(column.width, 55.0)
         self.assertGreaterEqual(column.height, 65.0)
+
+    def test_t_junction_is_not_mistaken_for_bidirectional_cross_axis_context(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            raster = np.full((512, 512), 255, dtype=np.uint8)
+
+            # Both orientations exist, but the vertical line terminates at the
+            # rectangle. A detector that merely asks for horizontal+vertical
+            # pixels nearby would incorrectly accept this beam/T-junction pattern.
+            cv2.line(raster, (280, 200), (480, 200), 0, 2)
+            cv2.line(raster, (390, 20), (390, 182), 0, 2)
+            cv2.rectangle(raster, (350, 182), (430, 218), 0, 3)
+
+            path = directory / "t-junction-raster.png"
+            self.assertTrue(cv2.imwrite(str(path), raster))
+            binding = _binding_for_raster(path, width=512, height=512, raster_sha="4" * 64)
+            candidates = extract_g4_evidence_candidates(
+                binding,
+                path,
+                config=ExtractionConfig(
+                    threshold=180,
+                    min_width_px=15,
+                    min_height_px=15,
+                    max_width_px=120,
+                    max_height_px=120,
+                    min_rectangularity=0.50,
+                    max_aspect_ratio=5.0,
+                    duplicate_iou_threshold=0.75,
+                ),
+            )
+
+        self.assertEqual(candidates, ())
 
     def test_extraction_fails_closed_if_step3_png_identity_changes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
