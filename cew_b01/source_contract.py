@@ -22,7 +22,7 @@ FROZEN_N12_TAV5 = {
     "commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
     "path": "archive/documentazione_originaria/tavola 5.pdf",
     "git_blob_sha": "ec32cd621877e9037cb26ebc083164140a8e3e68",
-    "sha256": "2143b256511788691291cef533559306fc2988c7cb59a16d49cf86d1d7e94c7f",
+    "sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
     "page_index": 0,
     "source_role": "PRIMARY_IMMUTABLE_QUALIFICATION_SOURCE",
 }
