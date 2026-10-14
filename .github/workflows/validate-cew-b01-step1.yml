@@ -19,9 +19,10 @@ jobs:
   verify-real-source-and-toolchain-contract:
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout exact candidate
+      - name: Checkout exact candidate head
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: Set up Python 3.12.15
@@ -29,51 +30,41 @@ jobs:
         with:
           python-version: '3.12.15'
 
-      - name: Resolve Tesseract system package
+      - name: Install frozen Tesseract system package
         shell: bash
         run: |
           set -euo pipefail
           sudo apt-get update -qq
-          sudo apt-get install -y tesseract-ocr
-          echo "TESSERACT_DPKG_VERSION=$(dpkg-query -W -f='${Version}' tesseract-ocr)"
-          tesseract --version | head -n 1
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+          tesseract --version | head -n 1 | grep -F 'tesseract 5.3.4'
 
-      - name: Resolve newest stable Step 2 Python package set
+      - name: Install frozen Python toolchain
         shell: bash
         run: |
           set -euo pipefail
-          python -m venv "$RUNNER_TEMP/cew-b01-resolve"
-          source "$RUNNER_TEMP/cew-b01-resolve/bin/activate"
+          python -m venv "$RUNNER_TEMP/cew-b01-frozen"
+          source "$RUNNER_TEMP/cew-b01-frozen/bin/activate"
           python -m pip install --upgrade pip
-          python -m pip install \
-            docling \
-            docling-parse \
-            pypdfium2 \
-            pdfplumber \
-            ocrmypdf \
-            opencv-python-headless \
-            build123d \
-            cadquery-ocp
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
           python - <<'PY'
-          from importlib.metadata import metadata, version
-          packages = (
-              'docling',
-              'docling-parse',
-              'pypdfium2',
-              'pdfplumber',
-              'ocrmypdf',
-              'opencv-python-headless',
-              'build123d',
-              'cadquery-ocp',
-          )
-          for package in packages:
-              meta = metadata(package)
-              print(
-                  'RESOLVED '
-                  f'{package}=={version(package)} '
-                  f'| License-Expression={meta.get("License-Expression")} '
-                  f'| License={meta.get("License")}'
-              )
+          from importlib.metadata import version
+          from pathlib import Path
+          from cew_b01.toolchain import load_toolchain_contract, validate_lock_text
+
+          manifest_path = Path('governance/cew-b01/EXTERNAL_TOOLCHAIN_v1.json')
+          lock_path = Path('requirements/cew-b01.lock.txt')
+          contract = load_toolchain_contract(manifest_path)
+          validate_lock_text(contract, lock_path.read_text(encoding='utf-8'))
+          for tool in contract.tools:
+              package = tool.get('python_package')
+              if tool.get('install_for_slice') and package:
+                  actual = version(package)
+                  expected = tool['version']
+                  assert actual == expected, (tool['tool_id'], package, expected, actual)
+                  print(f"QUALIFIED {package}=={actual}")
+
           import docling
           import docling_parse
           import pypdfium2
@@ -82,10 +73,8 @@ jobs:
           import cv2
           import build123d
           import OCP
-          print('STEP2_IMPORT_PROBE=PASS')
+          print('STEP2_FROZEN_IMPORT_PROBE=PASS')
           PY
-          echo "TESSERACT_PATH=$(command -v tesseract)"
-          tesseract --version | head -n 1
 
       - name: Fetch frozen archival commit
         shell: bash
