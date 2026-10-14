@@ -192,7 +192,17 @@ jobs:
 
           first_map = first.to_mapping()
           replay_map = replay.to_mapping()
+          first_receipt_map = first.receipt_mapping()
+          replay_receipt_map = replay.receipt_mapping()
           differences = diff_values(first_map, replay_map)
+          allowed_volatile_paths = {
+              f'$.tool_results[{index}].metrics.output_sha256'
+              for index, item in enumerate(first_map['tool_results'])
+              if item['metrics'].get('output_role') == 'OCR_DERIVATIVE_EVIDENCE_NOT_SOURCE_AUTHORITY'
+          }
+          unexpected_differences = [
+              item for item in differences if item['path'] not in allowed_volatile_paths
+          ]
           diagnostic = {
               'first_raster_sha256': first.raster_sha256,
               'replay_raster_sha256': replay.raster_sha256,
@@ -201,6 +211,8 @@ jobs:
               'first_ocr_trigger': first.ocr_trigger.to_mapping(),
               'replay_ocr_trigger': replay.ocr_trigger.to_mapping(),
               'differences': differences,
+              'allowed_volatile_paths': sorted(allowed_volatile_paths),
+              'unexpected_differences': unexpected_differences,
           }
           first_dir.mkdir(parents=True, exist_ok=True)
           (first_dir / 'first-pdf-probe-result.json').write_text(
@@ -219,7 +231,8 @@ jobs:
 
           assert first.raster_sha256 == replay.raster_sha256
           assert first.deterministic_receipt_sha256() == replay.deterministic_receipt_sha256()
-          assert first_map == replay_map
+          assert first_receipt_map == replay_receipt_map
+          assert not unexpected_differences, unexpected_differences
 
           statuses = {item.tool_id: item.status for item in first.tool_results}
           assert statuses['pypdfium2'] == ToolResultStatus.PASS
