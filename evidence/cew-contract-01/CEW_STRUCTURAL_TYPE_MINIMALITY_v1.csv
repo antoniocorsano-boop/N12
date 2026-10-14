@@ -1,0 +1,14 @@
+structural_type,classification,case_ref,rationale
+Building,SUPPORTED_EXTENSION,,Legitimate CEW root type but not independently required by the current N12 closure gate.
+StructuralUnit,SUPPORTED_EXTENSION,,Legitimate subdivision type; no autonomous N12 case is required by the current gate.
+Level,SUPPORTED_EXTENSION,,Level identifiers are present in N12 but a separate Level StructuralObject identity is not exercised by the closure gate.
+Node,CORE_REQUIRED,evidence/cew-contract-01/CASE_12_MODEL_GENERATION.md,Real N12 generated graph contains 629 explicit analytical nodes.
+Column,CORE_REQUIRED,evidence/cew-contract-01/CASE_12_MODEL_GENERATION.md,Real N12 generated graph maps ordinary member classes to Column entities.
+Beam,CORE_REQUIRED,evidence/cew-contract-01/CASE_04_STRUCTURAL_IDENTITY.md|evidence/cew-contract-01/CASE_12_MODEL_GENERATION.md,Real N12 beam identity is exercised independently and in the generated graph.
+Wall,SUPPORTED_EXTENSION,,Valid CEW structural subtype but no autonomous N12 Wall identity is required or fabricated for this gate.
+Slab,SUPPORTED_EXTENSION,,Valid CEW subtype but not independently exercised as a StructuralObject in this closure gate.
+FoundationElement,CORE_REQUIRED,evidence/cew-contract-01/CASE_12_MODEL_GENERATION.md,Real N12 ModelGeneration contains 38 foundation supports and 55 foundation members with persistent identities.
+Section,SUPPORTED_EXTENSION,,Section data are used by N12 but a reusable standalone Section StructuralObject identity is not required by this closure gate.
+Material,SUPPORTED_EXTENSION,,Material evidence exists in N12 but a standalone Material StructuralObject identity is not required by this closure gate.
+Reinforcement,SUPPORTED_EXTENSION,,Reinforcement evidence exists in N12 but a standalone Reinforcement StructuralObject identity is not required by this closure gate.
+LoadObject,SUPPORTED_EXTENSION,,Load evidence/modeling exists in N12 but a standalone LoadObject identity is not required by this closure gate.

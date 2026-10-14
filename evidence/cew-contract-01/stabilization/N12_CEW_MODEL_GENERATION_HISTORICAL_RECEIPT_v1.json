@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "receipt_id": "N12-CEW-MG-HISTORICAL-TRANSITION-v1",
+  "receipt_class": "HISTORICAL_TRANSITION_EVIDENCE",
+  "runtime_dependency": false,
+  "verified_date": "2026-10-13",
+  "run": {
+    "id": 32955421352,
+    "workflow_name": "Validate CEW Structural Model Builder",
+    "workflow_path": ".github/workflows/validate-cew-structural-model-builder.yml",
+    "workflow_id": 341539338,
+    "run_number": 43,
+    "event": "pull_request",
+    "head_branch": "work/m0-global-model",
+    "head_sha": "d806dcca72779b5a186defe557a7a9b739575a90",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-08-26T09:53:52Z",
+    "updated_at": "2026-08-26T09:54:05Z"
+  },
+  "artifact": {
+    "id": 9601773275,
+    "name": "N12-CEW-canonical-structural-model-v0",
+    "archive_digest": "sha256:5278bec007f427f6535947343b29d0f586da461f4acdac6aa4502aea73a1d5a5",
+    "archive_size_bytes": 28580,
+    "expired_when_verified": false,
+    "created_at": "2026-08-26T09:54:01Z",
+    "expires_at": "2026-11-24T09:53:52Z"
+  },
+  "output": {
+    "identity": "N12_CEW_CANONICAL_STRUCTURAL_MODEL_v0.json",
+    "sha256": "4e1c3f341093e9b60670099802bdee0c5fcdc174b12aedb63922f49301a965b2",
+    "size_bytes": 1068121,
+    "generated_at": "2026-08-26T09:54:00.472520+00:00"
+  },
+  "verification": {
+    "method": "GitHub Actions run metadata plus artifact archive and contained output byte verification",
+    "archive_sha256_verified": true,
+    "output_sha256_verified": true,
+    "output_size_verified": true
+  },
+  "authority_guard": "Historical run and artifact are transition evidence only. Permanent CEW-CONTRACT-01 qualification must not require their continued availability."
+}

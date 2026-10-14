@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "fixture_id": "N12_REGISTRATION_UNCERTAINTY_v1",
+  "uncertainty_type": "REGISTRATION_UNCERTAINTY",
+  "source_repository": "antoniocorsano-boop/N12",
+  "source_branch": "work/m0-global-model",
+  "source_commit": "d806dcca72779b5a186defe557a7a9b739575a90",
+  "source_path": "data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv",
+  "source_git_blob_sha": "fa28cf034a03d98aaa8e8ac1deb1549ddef6d64a",
+  "method": "Observed native-pixel support reference compared with the predicted pixel position from the registered affine transform; du, dv and residual_px are retained as diagnostic registration residuals.",
+  "examples": [
+    {
+      "support_id": "1",
+      "property_ref": "PT support registration coordinate",
+      "unit": "px",
+      "observed": {"u": 4096.63, "v": 2823.61},
+      "predicted": {"u": 4100.03, "v": 2822.89},
+      "residual": {"du": 3.40, "dv": -0.72, "scalar": 3.47},
+      "diagnostic_status": "PASS_DIAGNOSTIC",
+      "evidence_class": "DOC_METRIC_OR_AXIS",
+      "derived_bound": null
+    },
+    {
+      "support_id": "19",
+      "property_ref": "PT support registration coordinate",
+      "unit": "px",
+      "observed": {"u": 2458.56, "v": 4200.73},
+      "predicted": {"u": 2462.23, "v": 4224.46},
+      "residual": {"du": 3.67, "dv": 23.73, "scalar": 24.01},
+      "diagnostic_status": "WATCH",
+      "evidence_class": "MIS_AFFINE_WATCH",
+      "derived_bound": null
+    }
+  ],
+  "interpretive_guard": "Residuals are registration diagnostics, not tolerance, standard error, standard uncertainty, accuracy, or certified metrological uncertainty.",
+  "epistemic_guard": {
+    "residual_is_new_measurement": false,
+    "residual_promotable_to_DOC": false,
+    "residual_promotable_to_MIS": false,
+    "unsourced_plus_minus_interval_allowed": false
+  }
+}

@@ -1,0 +1,110 @@
+name: CEW-CONTRACT-01 Closure Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CEW_OPERATIONAL_SOURCE_ROOT: /tmp/cew-contract-01-operational-source
+  CEW_REPLAY_RESULT_PATH: /tmp/cew-contract-01-replay-result.json
+  CEW_REPLAY_OUTPUT_PATH: /tmp/N12_CEW_CANONICAL_STRUCTURAL_MODEL_v0.json
+
+jobs:
+  closure:
+    name: CEW-CONTRACT-01 Closure Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout PR exact head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+
+      - name: Materialize pinned operational authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          operational_commit=d806dcca72779b5a186defe557a7a9b739575a90
+          git fetch --no-tags --depth=1 origin d806dcca72779b5a186defe557a7a9b739575a90
+          paths=(
+            scripts/cew_structural_model_builder.py
+            data/canonical/M0G_GEOMETRY_HANDOFF_v1.json
+            data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv
+            data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv
+            data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv
+            data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv
+            data/canonical/M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE_v1.json
+            data/canonical/PT_METRIC_NETWORK_RESIDUALS_v1.csv
+          )
+          rm -rf "$CEW_OPERATIONAL_SOURCE_ROOT"
+          for path in "${paths[@]}"; do
+            mkdir -p "$CEW_OPERATIONAL_SOURCE_ROOT/$(dirname "$path")"
+            git show "$operational_commit:$path" > "$CEW_OPERATIONAL_SOURCE_ROOT/$path"
+          done
+
+      - name: Compile stabilization code
+        run: python -m py_compile scripts/cew_contract_01_replay.py scripts/cew_contract_01_stabilization_checks.py scripts/validate_cew_contract_01_closure.py
+
+      - name: Run deterministic ModelGeneration replay
+        shell: bash
+        run: |
+          python scripts/cew_contract_01_replay.py \
+            --authority evidence/cew-contract-01/stabilization/N12_CEW_CONTRACT_01_FROZEN_AUTHORITY_v1.json \
+            --source-root "$CEW_OPERATIONAL_SOURCE_ROOT" \
+            --output "$CEW_REPLAY_OUTPUT_PATH" \
+            --result "$CEW_REPLAY_RESULT_PATH"
+
+      - name: Run authority tests
+        run: python -m unittest tests/test_cew_contract_01_stabilization_authority.py -v
+
+      - name: Run replay tests
+        run: python -m unittest tests/test_cew_contract_01_replay.py -v
+
+      - name: Run closure unit tests
+        run: python -m unittest tests/test_cew_contract_01_closure.py -v
+
+      - name: Run review regression tests
+        run: python -m unittest tests/test_cew_contract_01_review_regressions.py -v
+
+      - name: Run final review regression tests
+        run: python -m unittest tests/test_cew_contract_01_final_review_regressions.py -v
+
+      - name: Run fresh review regression tests
+        run: python -m unittest tests/test_cew_contract_01_fresh_review_regressions.py -v
+
+      - name: Run final review round-2 regression tests
+        run: python -m unittest tests/test_cew_contract_01_final_review_round2_regressions.py -v
+
+      - name: Run final review round-3 regression tests
+        run: python -m unittest tests/test_cew_contract_01_final_review_round3_regressions.py -v
+
+      - name: Run final review round-4 regression tests
+        run: python -m unittest tests/test_cew_contract_01_final_review_round4_regressions.py -v
+
+      - name: Run final review round-5 regression tests
+        run: python -m unittest tests/test_cew_contract_01_final_review_round5_regressions.py -v
+
+      - name: Run stabilization invariant tests
+        run: python -m unittest tests/test_cew_contract_01_stabilization_invariants.py -v
+
+      - name: Run adversarial mutation suite
+        run: python -m unittest tests/test_cew_contract_01_stabilization_mutations.py -v
+
+      - name: Verify repository-native gate contract
+        run: python -m unittest tests/test_cew_contract_01_ci_gate.py -v
+
+      - name: Enforce CEW-CONTRACT-01 qualification
+        shell: bash
+        run: python scripts/validate_cew_contract_01_closure.py
