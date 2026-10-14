@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -26,6 +27,7 @@ _EXPECTED_AUTHORITY_FIELDS = {
     "operational_commit",
     "canonical_snapshot_id",
     "model_generation_id",
+    "model_generation_profile",
     "builder",
     "inputs",
     "registration",
@@ -34,19 +36,24 @@ _EXPECTED_AUTHORITY_FIELDS = {
     "invariants",
     "candidate_allowlist",
     "evidence_bindings",
+    "markdown_sha256",
     "document_contracts",
     "limits",
 }
+_SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 
 @dataclass(frozen=True)
 class BuilderAuthority:
     path: str
     git_blob_sha: str
+    declared_builder: str
 
 
 @dataclass(frozen=True)
 class RegistrationAuthority:
+    fixture_id: str
+    uncertainty_type: str
     source_path: str
     source_git_blob_sha: str
     support_ids: tuple[str, ...]
@@ -89,7 +96,9 @@ class FrozenAuthority:
     operational_commit: str
     canonical_snapshot_id: str
     model_generation_id: str
+    model_generation_profile: str
     evidence_bindings: tuple[tuple[str, str], ...]
+    markdown_sha256: tuple[tuple[str, str], ...]
     document_contracts: tuple[DocumentContract, ...]
     builder: BuilderAuthority
     inputs: tuple[tuple[str, str], ...]
@@ -188,6 +197,14 @@ def load_authority(path: Path) -> FrozenAuthority:
     if any(bound_path not in allowlist for _, bound_path in evidence_bindings):
         raise ValueError("authority evidence binding outside candidate allowlist")
 
+    markdown_paths = tuple(path for path in allowlist if path.endswith(".md"))
+    markdown_map = dict(_required(data, "markdown_sha256"))
+    if set(markdown_map) != set(markdown_paths):
+        raise ValueError("authority markdown digests must cover exactly every allowlisted Markdown artifact")
+    markdown_sha256 = tuple((path, str(markdown_map[path])) for path in markdown_paths)
+    if any(_SHA256.fullmatch(digest) is None for _, digest in markdown_sha256):
+        raise ValueError("authority markdown digests must be lowercase SHA-256 values")
+
     document_contracts = _load_document_contracts(data, allowlist)
     builder = _required(data, "builder")
     registration = _required(data, "registration")
@@ -201,6 +218,13 @@ def load_authority(path: Path) -> FrozenAuthority:
     if not source_repository or "/" not in source_repository:
         raise ValueError("authority source_repository must be owner/name")
 
+    model_generation_profile = str(_required(data, "model_generation_profile"))
+    declared_builder = str(_required(builder, "declared_builder"))
+    fixture_id = str(_required(registration, "fixture_id"))
+    uncertainty_type = str(_required(registration, "uncertainty_type"))
+    if not model_generation_profile or not declared_builder or not fixture_id or not uncertainty_type:
+        raise ValueError("authority semantic identities must be non-empty")
+
     return FrozenAuthority(
         authority_id=str(_required(data, "authority_id")),
         source_sha256=hashlib.sha256(raw).hexdigest(),
@@ -208,11 +232,19 @@ def load_authority(path: Path) -> FrozenAuthority:
         operational_commit=str(_required(data, "operational_commit")),
         canonical_snapshot_id=str(_required(data, "canonical_snapshot_id")),
         model_generation_id=str(_required(data, "model_generation_id")),
+        model_generation_profile=model_generation_profile,
         evidence_bindings=evidence_bindings,
+        markdown_sha256=markdown_sha256,
         document_contracts=document_contracts,
-        builder=BuilderAuthority(str(_required(builder, "path")), str(_required(builder, "git_blob_sha"))),
+        builder=BuilderAuthority(
+            str(_required(builder, "path")),
+            str(_required(builder, "git_blob_sha")),
+            declared_builder,
+        ),
         inputs=inputs,
         registration=RegistrationAuthority(
+            fixture_id,
+            uncertainty_type,
             str(_required(registration, "source_path")),
             str(_required(registration, "source_git_blob_sha")),
             tuple(str(v) for v in _required(registration, "support_ids")),
