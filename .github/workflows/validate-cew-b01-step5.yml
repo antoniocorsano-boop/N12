@@ -4,9 +4,11 @@ on:
   pull_request:
     paths:
       - '.github/workflows/validate-cew-b01-step5.yml'
-      - 'cew_b01/object_mapping.py'
-      - 'cew_b01/review_package.py'
+      - 'cew_b01/**'
+      - 'governance/cew-b01/N12_TAV5_SOURCE_v1.json'
+      - 'governance/cew-b01/EXTERNAL_TOOLCHAIN_v1.json'
       - 'governance/cew-b01/schemas/B01_REVIEW_DECISION_v1.schema.json'
+      - 'requirements/cew-b01.lock.txt'
       - 'tests/cew_b01/test_object_mapping.py'
       - 'tests/cew_b01/test_historical_comparator_boundary.py'
       - 'tests/cew_b01/test_review_package.py'
@@ -29,18 +31,120 @@ jobs:
         with:
           python-version: '3.12.15'
 
-      - name: Install Step 5 test dependency
+      - name: Install frozen Tesseract system package
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install opencv-python-headless==5.0.0.93
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+          tesseract --version | head -n 1 | grep -F 'tesseract 5.3.4'
 
-      - name: Run Step 5 RED contract tests
+      - name: Install frozen B01 toolchain
         shell: bash
         run: |
           set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-b01-step5"
+          source "$RUNNER_TEMP/cew-b01-step5/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
+
+      - name: Run Step 5 contract tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-b01-step5/bin/activate"
           python -m unittest \
             tests.cew_b01.test_object_mapping \
             tests.cew_b01.test_historical_comparator_boundary \
             tests.cew_b01.test_review_package -v
+
+      - name: Fetch frozen archival source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+
+      - name: Materialize source-derived human review package
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-b01-step5/bin/activate"
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          from cew_b01.evidence_extraction import evidence_bundle_mapping, extract_g4_evidence_candidates
+          from cew_b01.evidence_schema import Task3RasterBinding
+          from cew_b01.pdf_probe import probe_pdf
+          from cew_b01.review_package import render_review_package
+          from cew_b01.source_contract import load_source_contract, materialize_source
+
+          EXPECTED_STEP4_SET_SHA256 = '54b2c8a47847c634fc639d015337e8b2d9df662c7618d16af45bc36e327b1999'
+          EXPECTED_STEP4_BUNDLE_SHA256 = 'b5a869ba25fb7ce400f528c676b48a177f362dfacbb55b9742e9ff99f79341b1'
+
+          runner_temp = Path(os.environ['RUNNER_TEMP'])
+          contract = load_source_contract('governance/cew-b01/N12_TAV5_SOURCE_v1.json')
+          materialized = materialize_source(
+              contract,
+              '.',
+              runner_temp / 'tavola5-step5-source.pdf',
+          )
+          probe_dir = runner_temp / 'cew-b01-step5-task3-input'
+          probe = probe_pdf(materialized, probe_dir)
+          binding = Task3RasterBinding.from_probe_mapping(probe.to_mapping())
+          raster_path = probe_dir / 'tav5-page0-300dpi.png'
+          candidates = extract_g4_evidence_candidates(binding, raster_path)
+          evidence_bundle = evidence_bundle_mapping(binding, candidates)
+
+          ordered_identity_payload = json.dumps(
+              [
+                  {'candidate_id': item.candidate_id, 'geometry_digest': item.geometry_digest}
+                  for item in candidates
+              ],
+              sort_keys=True,
+              separators=(',', ':'),
+          ).encode('utf-8')
+          candidate_set_sha256 = hashlib.sha256(ordered_identity_payload).hexdigest()
+          assert candidate_set_sha256 == EXPECTED_STEP4_SET_SHA256
+          assert evidence_bundle['bundle_sha256'] == EXPECTED_STEP4_BUNDLE_SHA256
+
+          output_dir = Path('evidence/cew-b01/g4/step5-human-review')
+          package = render_review_package(raster_path, candidates, output_dir)
+          decision_path = Path('evidence/cew-b01/g4/CEW_B01_G4_REVIEW_DECISIONS_v1.json')
+          assert not decision_path.exists(), 'human review decisions must not be synthesized by CI'
+
+          summary = {
+              'step': 'CEW-B01-TASK-5-PRE-HUMAN',
+              'source_sha256': materialized.sha256,
+              'candidate_count': len(candidates),
+              'candidate_set_sha256': candidate_set_sha256,
+              'evidence_bundle_sha256': evidence_bundle['bundle_sha256'],
+              'review_state': 'PENDING_HUMAN',
+              'review_decisions_file_created': False,
+              'structural_candidates_created': 0,
+              'canonical': False,
+              'structural_identity_authorized': False,
+              'historical_comparator_loaded': False,
+              'overview': Path(package['overview_path']).name,
+              'contact_sheet_count': len(package['contact_sheet_paths']),
+              'manifest': Path(package['manifest_path']).name,
+          }
+          (output_dir / 'qualification-summary.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          print('STEP5_PRE_HUMAN_QUALIFICATION=' + json.dumps(summary, sort_keys=True))
+          PY
+
+      - name: Upload Step 5 human review package
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-b01-step5-human-review-package
+          path: evidence/cew-b01/g4/step5-human-review/
+          if-no-files-found: error
+          retention-days: 30
