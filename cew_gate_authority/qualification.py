@@ -222,16 +222,19 @@ def evaluate_qualification(
         )
         if actual_minimality != minimality_contract.csv_rows:
             raise PayloadError("CANDIDATE_STRUCTURAL_MINIMALITY_MISMATCH")
+
+        expected_markdown = dict(authority.markdown_sha256)
         for path in authority.candidate_allowlist:
             if path.endswith(".md"):
                 try:
-                    text = reader.read_text(path)
-                except ValueError as exc:
-                    if "UTF-8" in str(exc):
-                        raise PayloadError("CANDIDATE_UTF8_INVALID") from exc
-                    raise
+                    data = reader.read_blob(path)
+                    text = data.decode("utf-8")
+                except UnicodeDecodeError as exc:
+                    raise PayloadError("CANDIDATE_UTF8_INVALID") from exc
                 if not text.strip():
                     raise PayloadError("CANDIDATE_MARKDOWN_EMPTY")
+                if hashlib.sha256(data).hexdigest() != expected_markdown.get(path):
+                    raise PayloadError("CANDIDATE_MARKDOWN_DIGEST_MISMATCH")
     except PayloadError as exc:
         failures.append(exc.code)
         digest = "0" * 64
@@ -259,7 +262,14 @@ def evaluate_qualification(
     actual_input_map = {str(item.get("path")): str(item.get("sha256")) for item in model_inputs if isinstance(item, dict)}
     inv["I05"] = _result(actual_input_map == dict(authority.inputs), "I05_INPUT_DIGEST_MISMATCH", failures)
 
-    inv["I06"] = _result(builder.get("path") == authority.builder.path and builder.get("git_blob_sha") == authority.builder.git_blob_sha, "I06_BUILDER_IDENTITY_MISMATCH", failures)
+    inv["I06"] = _result(
+        builder.get("path") == authority.builder.path
+        and builder.get("git_blob_sha") == authority.builder.git_blob_sha
+        and builder.get("declared_builder") == authority.builder.declared_builder
+        and model.get("generation_profile") == authority.model_generation_profile,
+        "I06_BUILDER_IDENTITY_MISMATCH",
+        failures,
+    )
     inv["I07"] = _result(q.get("canonical_snapshot_id") == authority.canonical_snapshot_id and model.get("canonical_snapshot_id") == authority.canonical_snapshot_id, "I07_SNAPSHOT_IDENTITY_MISMATCH", failures)
     inv["I08"] = _result(replay.passed is True, "I08_REPLAY_FAILED", failures)
     inv["I09"] = _result(
@@ -289,7 +299,9 @@ def evaluate_qualification(
     inv["I10"] = _result(coherent, "I10_MANIFEST_RECEIPT_INCOHERENT", failures)
 
     source_ok = (
-        reg.get("source_repository") == authority.source_repository
+        reg.get("fixture_id") == authority.registration.fixture_id
+        and reg.get("uncertainty_type") == authority.registration.uncertainty_type
+        and reg.get("source_repository") == authority.source_repository
         and reg.get("source_commit") == authority.operational_commit
         and reg.get("source_path") == authority.registration.source_path
         and reg.get("source_git_blob_sha") == authority.registration.source_git_blob_sha
