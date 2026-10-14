@@ -29,6 +29,59 @@ jobs:
         with:
           python-version: '3.12.15'
 
+      - name: Resolve newest stable Step 2 Python package set
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-b01-resolve"
+          source "$RUNNER_TEMP/cew-b01-resolve/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install \
+            docling \
+            docling-parse \
+            pypdfium2 \
+            pdfplumber \
+            ocrmypdf \
+            opencv-python-headless \
+            build123d \
+            cadquery-ocp
+          python - <<'PY'
+          from importlib.metadata import metadata, version
+          packages = (
+              'docling',
+              'docling-parse',
+              'pypdfium2',
+              'pdfplumber',
+              'ocrmypdf',
+              'opencv-python-headless',
+              'build123d',
+              'cadquery-ocp',
+          )
+          for package in packages:
+              meta = metadata(package)
+              print(
+                  'RESOLVED '
+                  f'{package}=={version(package)} '
+                  f'| License-Expression={meta.get("License-Expression")} '
+                  f'| License={meta.get("License")}'
+              )
+          import docling
+          import docling_parse
+          import pypdfium2
+          import pdfplumber
+          import ocrmypdf
+          import cv2
+          import build123d
+          import OCP
+          print('STEP2_IMPORT_PROBE=PASS')
+          PY
+          if command -v tesseract >/dev/null 2>&1; then
+            echo "TESSERACT_PATH=$(command -v tesseract)"
+            tesseract --version | head -n 1
+          else
+            echo 'TESSERACT_PATH=NOT_INSTALLED_ON_RUNNER'
+          fi
+
       - name: Fetch frozen archival commit
         shell: bash
         run: |
