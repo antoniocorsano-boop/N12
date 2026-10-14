@@ -1,0 +1,144 @@
+{
+  "schema_id": "CEW_B01_EXTERNAL_TOOLCHAIN",
+  "schema_version": 1,
+  "qualification_environment": {
+    "python": "3.12.15",
+    "runner": "ubuntu-24.04",
+    "lock_scope": "DIRECT_EXTERNAL_TOOL_PACKAGES",
+    "source_task": "CEW-B01 — External Tool Qualification / N12 Vertical Slice"
+  },
+  "required_python_packages": [
+    "docling==2.138.0",
+    "docling-parse==7.22.3",
+    "pypdfium2==5.14.0",
+    "pdfplumber==0.11.10",
+    "ocrmypdf==17.13.0",
+    "opencv-python-headless==5.0.0.93",
+    "build123d==0.13.0",
+    "cadquery-ocp==8.0.1.1.0"
+  ],
+  "tools": [
+    {
+      "tool_id": "docling",
+      "slice_status": "ADOPT_BENCHMARK_N12",
+      "blocking": true,
+      "install_for_slice": true,
+      "execution_mode": "QUALIFY_ON_REAL_N12_SOURCE",
+      "python_package": "docling",
+      "version": "2.138.0",
+      "license": "MIT",
+      "source": "https://pypi.org/project/docling/2.138.0/"
+    },
+    {
+      "tool_id": "docling-parse",
+      "slice_status": "ADOPT_BENCHMARK_N12",
+      "blocking": true,
+      "install_for_slice": true,
+      "execution_mode": "QUALIFY_ON_REAL_N12_SOURCE",
+      "python_package": "docling-parse",
+      "version": "7.22.3",
+      "license": "MIT",
+      "source": "https://pypi.org/project/docling-parse/7.22.3/"
+    },
+    {
+      "tool_id": "pypdfium2",
+      "slice_status": "ADOPT",
+      "blocking": true,
+      "install_for_slice": true,
+      "execution_mode": "PRIMARY_DETERMINISTIC_PAGE_RENDERER",
+      "python_package": "pypdfium2",
+      "version": "5.14.0",
+      "license": "BSD-3-Clause + Apache-2.0; dependency licenses apply",
+      "source": "https://pypi.org/project/pypdfium2/5.14.0/"
+    },
+    {
+      "tool_id": "pdfplumber",
+      "slice_status": "ADOPT_BENCHMARK_N12",
+      "blocking": true,
+      "install_for_slice": true,
+      "execution_mode": "QUALIFY_ON_REAL_N12_SOURCE",
+      "python_package": "pdfplumber",
+      "version": "0.11.10",
+      "license": "MIT",
+      "source": "https://github.com/jsvine/pdfplumber"
+    },
+    {
+      "tool_id": "ocrmypdf",
+      "slice_status": "ADOPT_CONDITIONAL",
+      "blocking": false,
+      "install_for_slice": true,
+      "execution_mode": "CONDITIONAL_TRIGGER_ONLY",
+      "python_package": "ocrmypdf",
+      "version": "17.13.0",
+      "license": "MPL-2.0",
+      "source": "https://pypi.org/project/ocrmypdf/17.13.0/"
+    },
+    {
+      "tool_id": "tesseract",
+      "slice_status": "ADOPT_CONDITIONAL",
+      "blocking": false,
+      "install_for_slice": true,
+      "execution_mode": "CONDITIONAL_TRIGGER_ONLY",
+      "system_package": "tesseract-ocr",
+      "version": "5.3.4",
+      "system_package_version": "5.3.4-1build5",
+      "license": "Apache-2.0",
+      "source": "https://github.com/tesseract-ocr/tesseract"
+    },
+    {
+      "tool_id": "opencv",
+      "slice_status": "ADOPT",
+      "blocking": true,
+      "install_for_slice": true,
+      "execution_mode": "SOURCE_DERIVED_RASTER_FEATURES_ONLY",
+      "python_package": "opencv-python-headless",
+      "version": "5.0.0.93",
+      "license": "Apache-2.0",
+      "source": "https://pypi.org/project/opencv-python-headless/5.0.0.93/"
+    },
+    {
+      "tool_id": "ezdxf",
+      "slice_status": "DEFER_FOR_THIS_SLICE_NO_IMMUTABLE_DXF_SOURCE",
+      "blocking": false,
+      "install_for_slice": false,
+      "execution_mode": "TRANSITIVE_ONLY_NO_DIRECT_DXF_QUALIFICATION",
+      "python_package": "ezdxf",
+      "version": "1.4.4",
+      "observed_transitively_via": "build123d==0.13.0",
+      "license": "MIT",
+      "source": "https://github.com/mozman/ezdxf"
+    },
+    {
+      "tool_id": "build123d",
+      "slice_status": "FOUNDATION",
+      "blocking": true,
+      "install_for_slice": true,
+      "execution_mode": "PARAMETRIC_GEOMETRY_FOUNDATION",
+      "python_package": "build123d",
+      "version": "0.13.0",
+      "license": "Apache-2.0",
+      "source": "https://pypi.org/project/build123d/0.13.0/"
+    },
+    {
+      "tool_id": "ocp",
+      "slice_status": "FOUNDATION",
+      "blocking": true,
+      "install_for_slice": true,
+      "execution_mode": "OPENCASCADE_BINDING_FOUNDATION",
+      "python_package": "cadquery-ocp",
+      "version": "8.0.1.1.0",
+      "license": "Apache-2.0",
+      "source": "https://pypi.org/project/cadquery-ocp/8.0.1.1.0/"
+    },
+    {
+      "tool_id": "cadcraft",
+      "slice_status": "BENCHMARK_N12_NON_CORE",
+      "blocking": false,
+      "install_for_slice": false,
+      "execution_mode": "SEPARATE_BENCHMARK_ONLY",
+      "version": null,
+      "license": "MIT OR Apache-2.0",
+      "source": "https://github.com/cadcraft-app/cadcraft"
+    }
+  ]
+}

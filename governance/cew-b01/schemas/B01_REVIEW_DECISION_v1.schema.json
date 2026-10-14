@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cew.local/schemas/B01_REVIEW_DECISION_v1.schema.json",
+  "title": "CEW-B01 Review Decision v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["candidate_id", "disposition"],
+  "properties": {
+    "candidate_id": {
+      "type": "string",
+      "pattern": "^CEW-B01-EV-[0-9a-f]{24}$"
+    },
+    "disposition": {
+      "type": "string",
+      "enum": ["ACCEPT", "REJECT", "AMBIGUOUS"]
+    },
+    "semantic_label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "support_identifier": {
+      "type": "string",
+      "minLength": 1
+    },
+    "section_family": {
+      "type": "string",
+      "minLength": 1
+    },
+    "note": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "disposition": {"const": "ACCEPT"}
+        },
+        "required": ["disposition"]
+      },
+      "then": {
+        "required": ["semantic_label"]
+      }
+    }
+  ],
+  "description": "Human review decisions may select and semantically interpret source-derived Evidence candidate IDs. Replacement coordinates, geometry, frames, bounding boxes and typed manual positions are intentionally outside this schema."
+}
