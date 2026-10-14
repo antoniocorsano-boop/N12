@@ -1,0 +1,52 @@
+{
+  "schema_id": "CEW_GATE_AUTHORITY_PROMOTION_RECORD",
+  "schema_version": 1,
+  "promotion_id": "CEW-GATE-AUTHORITY-01-G0-A0-2026-10-14",
+  "bootstrap_mode": "HUMAN_PROMOTION",
+  "decision": "PROMOTED",
+  "decision_recorded_at": "2026-10-14T01:39:00Z",
+  "decision_authority": "HUMAN_REPOSITORY_OWNER",
+  "repository": "antoniocorsano-boop/N12",
+  "pull_request": 148,
+  "promoted_gate_core": {
+    "version": "G0",
+    "exact_reviewed_commit_sha": "1f32a24f456e7db18c994096e4c8f5067222a592",
+    "source_bundle_sha256": "b56a98461373f59bc54ad3bd88d3047cff45a7f840b862248a99cd33ed3fe766",
+    "manifest_git_blob_sha": "318a38199e5d7643e654442b9d92cbf41c94dd7f"
+  },
+  "promoted_authority": {
+    "authority_id": "N12_CEW_CONTRACT_01_A0",
+    "git_blob_sha": "d6f71146b5b833650f1943021d956e1a2d742563",
+    "sha256": "88ab731c986cef0af474bf567a9bb19a12a43dcdbef2de6cb211107b17f92dbb",
+    "operational_commit": "d806dcca72779b5a186defe557a7a9b739575a90"
+  },
+  "assurance_evidence": {
+    "bootstrap_workflow_run_id": 38494988431,
+    "bootstrap_workflow_conclusion": "success",
+    "full_suite": "251/251 PASS",
+    "actionlint": "PASS",
+    "zizmor": "PASS_NO_FINDINGS_2_OFFLINE_SUPPRESSIONS",
+    "codeql": "PASS",
+    "fresh_independent_review_comment_id": 6158870835,
+    "fresh_independent_review_result": "CLEAN_NO_MAJOR_ISSUES"
+  },
+  "authority_boundary": {
+    "solver_authorized": false,
+    "calculation_model_ready": false,
+    "synthetic_solver_result": false,
+    "solver_run": false,
+    "result_entity_created": false
+  },
+  "cew_fem_01_required": true,
+  "residual_controls": {
+    "preferred_trigger": "workflow_dispatch",
+    "pull_request_target_policy_verified": false,
+    "artifact_attestation_verified": false,
+    "production_workflow_activated": false,
+    "ready_transition_authorized_by_this_record": false,
+    "merge_authorized_by_this_record": false,
+    "auto_merge_authorized": false,
+    "pr_147_superseded": false
+  },
+  "promotion_scope": "G0/A0 become durable bootstrap trust anchors for subsequent CEW Gate Authority work. This record does not activate the production control-plane workflow, authorize CEW-FEM-01, merge PR #148, or supersede PR #147."
+}

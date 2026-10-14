@@ -1,0 +1,30 @@
+{
+  "schema_id": "CEW_GATE_AUTHORITY_TRUSTED_TOOLCHAIN",
+  "schema_version": 1,
+  "runner": "ubuntu-24.04",
+  "python": "3.12",
+  "github_actions": {
+    "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+    "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+    "github/codeql-action": "24c54180a607b1449ed407dd24f251e4e9147c8d"
+  },
+  "binaries": {
+    "actionlint": {
+      "version": "1.7.12",
+      "asset": "actionlint_1.7.12_linux_amd64.tar.gz",
+      "sha256_linux_amd64": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8",
+      "source": "https://github.com/rhysd/actionlint/releases/tag/v1.7.12"
+    },
+    "zizmor": {
+      "version": "1.30.1",
+      "asset": "zizmor-x86_64-unknown-linux-gnu.tar.gz",
+      "sha256_linux_x86_64": "e65324f4430c2717591937edcec90ccbefaf14c174f8ec9415e03ca875b46e1a",
+      "source": "https://github.com/zizmorcore/zizmor/releases/tag/v1.30.1"
+    }
+  },
+  "verification": {
+    "actionlint_release_verified": "2026-10-13",
+    "zizmor_release_verified": "2026-10-13",
+    "codeql_commit_verified_signature": true
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "$id": "CEW_QUALIFICATION_RECEIPT_v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CEW Qualification Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_id": {"const": "CEW_QUALIFICATION_RECEIPT"},
+    "schema_version": {"const": 1},
+    "qualified_at": {"minLength": 1, "type": "string"},
+    "control_plane": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "base_commit_sha": {"pattern": "^[0-9a-f]{40}$", "type": "string"}
+      },
+      "required": ["base_commit_sha"]
+    },
+    "gate_core": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {"pattern": "^[^/\\s]+/[^/\\s]+$", "type": "string"},
+        "commit_sha": {"pattern": "^[0-9a-f]{40}$", "type": "string"},
+        "version": {"minLength": 1, "type": "string"}
+      },
+      "required": ["repository", "commit_sha", "version"]
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "authority_id": {"minLength": 1, "type": "string"},
+        "authority_sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"}
+      },
+      "required": ["authority_id", "authority_sha256"]
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "base_repository": {"pattern": "^[^/\\s]+/[^/\\s]+$", "type": "string"},
+        "pr_number": {"minimum": 1, "type": "integer"},
+        "head_repository": {"pattern": "^[^/\\s]+/[^/\\s]+$", "type": "string"},
+        "head_sha": {"pattern": "^[0-9a-f]{40}$", "type": "string"}
+      },
+      "required": ["base_repository", "pr_number", "head_repository", "head_sha"]
+    },
+    "operational_authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "commit_sha": {"pattern": "^[0-9a-f]{40}$", "type": "string"}
+      },
+      "required": ["commit_sha"]
+    },
+    "qualification_bundle_sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"},
+    "replay": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "output_identity": {"minLength": 1, "type": ["string", "null"]},
+        "output_sha256": {"pattern": "^[0-9a-f]{64}$", "type": ["string", "null"]},
+        "output_size_bytes": {"minimum": 0, "type": ["integer", "null"]},
+        "historical_generated_at": {"minLength": 1, "type": ["string", "null"]}
+      },
+      "required": ["output_identity", "output_sha256", "output_size_bytes", "historical_generated_at"]
+    },
+    "invariants": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "I01": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I02": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I03": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I04": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I05": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I06": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I07": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I08": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I09": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I10": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I11": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I12": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I13": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I14": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I15": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I16": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]},
+        "I17": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE"]}
+      },
+      "required": ["I01", "I02", "I03", "I04", "I05", "I06", "I07", "I08", "I09", "I10", "I11", "I12", "I13", "I14", "I15", "I16", "I17"]
+    },
+    "failure_codes": {
+      "type": "array",
+      "items": {"minLength": 1, "type": "string"}
+    },
+    "authority_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "solver_authorized": {"type": "boolean"},
+        "calculation_model_ready": {"type": "boolean"},
+        "synthetic_solver_result": {"type": "boolean"},
+        "solver_run": {"type": "boolean"},
+        "result_entity_created": {"type": "boolean"}
+      },
+      "required": ["solver_authorized", "calculation_model_ready", "synthetic_solver_result", "solver_run", "result_entity_created"]
+    },
+    "cew_fem_01_required": {"type": "boolean"},
+    "qualified": {"type": "boolean"}
+  },
+  "required": ["schema_id", "schema_version", "qualified_at", "control_plane", "gate_core", "authority", "candidate", "operational_authority", "qualification_bundle_sha256", "replay", "invariants", "failure_codes", "authority_boundary", "cew_fem_01_required", "qualified"],
+  "allOf": [
+    {
+      "if": {
+        "required": ["qualified"],
+        "properties": {
+          "qualified": {"const": true}
+        }
+      },
+      "then": {
+        "properties": {
+          "failure_codes": {"maxItems": 0},
+          "cew_fem_01_required": {"const": true},
+          "replay": {
+            "properties": {
+              "output_identity": {"minLength": 1, "type": "string"},
+              "output_sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"},
+              "output_size_bytes": {"minimum": 0, "type": "integer"},
+              "historical_generated_at": {"minLength": 1, "type": "string"}
+            }
+          },
+          "authority_boundary": {
+            "properties": {
+              "solver_authorized": {"const": false},
+              "calculation_model_ready": {"const": false},
+              "synthetic_solver_result": {"const": false},
+              "solver_run": {"const": false},
+              "result_entity_created": {"const": false}
+            }
+          },
+          "invariants": {
+            "properties": {
+              "I01": {"const": "PASS"},
+              "I02": {"const": "PASS"},
+              "I03": {"const": "PASS"},
+              "I04": {"const": "PASS"},
+              "I05": {"const": "PASS"},
+              "I06": {"const": "PASS"},
+              "I07": {"const": "PASS"},
+              "I08": {"const": "PASS"},
+              "I09": {"const": "PASS"},
+              "I10": {"const": "PASS"},
+              "I11": {"const": "PASS"},
+              "I12": {"const": "PASS"},
+              "I13": {"const": "PASS"},
+              "I14": {"const": "PASS"},
+              "I15": {"const": "PASS"},
+              "I16": {"const": "PASS"},
+              "I17": {"const": "PASS"}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

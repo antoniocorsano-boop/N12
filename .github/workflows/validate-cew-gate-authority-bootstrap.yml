@@ -1,0 +1,84 @@
+name: CEW Gate Authority Bootstrap
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap-tests:
+    name: CEW Gate Authority Bootstrap Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Task 2 identity and authority tests
+        run: python -m unittest tests/cew_gate_authority/test_types_and_receipt.py tests/cew_gate_authority/test_authority.py -v
+      - name: Task 3 candidate reader tests
+        run: python -m unittest tests/cew_gate_authority/test_candidate_reader.py tests/cew_gate_authority/test_candidate_properties.py -v
+      - name: Fetch frozen operational authority commit
+        run: git fetch --no-tags --depth=1 origin d806dcca72779b5a186defe557a7a9b739575a90
+      - name: Task 4 operational replay tests
+        run: python -m unittest tests/cew_gate_authority/test_operational_replay.py -v
+      - name: Task 5 qualification invariant tests
+        run: python -m unittest tests/cew_gate_authority/test_qualification.py tests/cew_gate_authority/test_qualification_properties.py -v
+      - name: Task 6 event identity and no-exec integration tests
+        run: python -m unittest tests/cew_gate_authority/test_event_identity.py tests/cew_gate_authority/test_no_exec_integration.py -v
+      - name: Task 7 manifest and toolchain identity tests
+        run: python -m unittest tests/cew_gate_authority/test_g0_manifest.py -v
+      - name: Compile Gate Core
+        run: python -m compileall -q cew_gate_authority
+      - name: Full Gate Authority test suite
+        run: python -m unittest discover -s tests/cew_gate_authority -p 'test_*.py' -v
+      - name: Verify and run actionlint 1.7.12
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/actionlint_1.7.12_linux_amd64.tar.gz"
+          curl -fsSL -o "$archive" "https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz"
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $archive" | sha256sum -c -
+          tar -xzf "$archive" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" .github/workflows/validate-cew-gate-authority-bootstrap.yml
+      - name: Verify and run zizmor 1.30.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/zizmor-x86_64-unknown-linux-gnu.tar.gz"
+          curl -fsSL -o "$archive" "https://github.com/zizmorcore/zizmor/releases/download/v1.30.1/zizmor-x86_64-unknown-linux-gnu.tar.gz"
+          echo "e65324f4430c2717591937edcec90ccbefaf14c174f8ec9415e03ca875b46e1a  $archive" | sha256sum -c -
+          tar -xzf "$archive" -C "$RUNNER_TEMP" zizmor
+          "$RUNNER_TEMP/zizmor" --offline --color=never .github/workflows/validate-cew-gate-authority-bootstrap.yml
+
+  bootstrap-codeql:
+    name: CEW Gate Authority CodeQL
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          languages: python
+      - name: Analyze Gate Core
+        uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d
