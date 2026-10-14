@@ -59,6 +59,13 @@ class ValidationWorkflowContractTests(unittest.TestCase):
         self.assertIn('ref: ${{ github.event.pull_request.head.sha }}', t)
         self.assertIn('persist-credentials: false', t)
 
+    def test_validation_fetches_operational_commit_before_g0_suite(self):
+        t=self.text()
+        fetch='git fetch --no-tags --depth=1 origin d806dcca72779b5a186defe557a7a9b739575a90'
+        suite="python -m unittest discover -s tests/cew_gate_authority -p 'test_*.py' -v"
+        self.assertIn(fetch, t)
+        self.assertLess(t.index(fetch), t.index(suite))
+
     def test_validation_does_not_invoke_production_qualification(self):
         t=self.text()
         self.assertNotIn('gh workflow run', t)

@@ -27,6 +27,8 @@ jobs:
           python-version: '3.12.15'
       - name: Task 9 control plane tests
         run: python -m unittest discover -s tests/cew_gate_control_plane -p 'test_*.py' -v
+      - name: Fetch frozen operational authority commit
+        run: git fetch --no-tags --depth=1 origin d806dcca72779b5a186defe557a7a9b739575a90
       - name: Existing promoted G0 regression suite
         run: python -m unittest discover -s tests/cew_gate_authority -p 'test_*.py' -v
       - name: Compile trusted packages
