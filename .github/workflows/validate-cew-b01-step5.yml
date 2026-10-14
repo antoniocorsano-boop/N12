@@ -1,0 +1,46 @@
+name: CEW-B01 Step 5 Human Review Contract
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/validate-cew-b01-step5.yml'
+      - 'cew_b01/object_mapping.py'
+      - 'cew_b01/review_package.py'
+      - 'governance/cew-b01/schemas/B01_REVIEW_DECISION_v1.schema.json'
+      - 'tests/cew_b01/test_object_mapping.py'
+      - 'tests/cew_b01/test_historical_comparator_boundary.py'
+      - 'tests/cew_b01/test_review_package.py'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-step5-review-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+
+      - name: Install Step 5 test dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install opencv-python-headless==5.0.0.93
+
+      - name: Run Step 5 RED contract tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest \
+            tests.cew_b01.test_object_mapping \
+            tests.cew_b01.test_historical_comparator_boundary \
+            tests.cew_b01.test_review_package -v
