@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import posixpath
 import subprocess
 import unicodedata
 from pathlib import Path
@@ -82,6 +83,19 @@ class CandidateReader:
         except ValueError as exc:
             raise ValueError("invalid git blob size") from exc
 
+    def _surface_paths(self, root: str) -> set[str]:
+        raw = self._git("ls-tree", "-r", "-z", "--full-tree", self.head_sha, "--", root)
+        paths: set[str] = set()
+        for entry in (item for item in raw.split(b"\0") if item):
+            _meta, sep, encoded_path = entry.partition(b"\t")
+            if not sep:
+                raise ValueError("invalid git tree entry")
+            path = normalize_candidate_path(encoded_path.decode("utf-8"))
+            if path in paths:
+                raise ValueError("candidate surface contains duplicate paths")
+            paths.add(path)
+        return paths
+
     def read_blob(self, path: str) -> bytes:
         _, _, object_sha = self._entry(path)
         size = self._blob_size(object_sha)
@@ -100,10 +114,20 @@ class CandidateReader:
 
     def verify_allowlisted_surface(self, paths: Sequence[str]) -> None:
         normalized = [normalize_candidate_path(path) for path in paths]
+        if not normalized:
+            raise ValueError("candidate surface must be non-empty")
         if len(normalized) != len(set(normalized)):
             raise ValueError("candidate surface contains duplicate normalized paths")
         if len(normalized) > self.limits.max_blobs:
             raise ValueError("candidate surface exceeds max_blobs")
+
+        parents = [posixpath.dirname(path) for path in normalized]
+        root = posixpath.commonpath(parents)
+        if not root or root == ".":
+            raise ValueError("candidate surface has no bounded qualification root")
+        if self._surface_paths(root) != set(normalized):
+            raise ValueError("candidate qualification surface does not match A0 allowlist")
+
         total = 0
         for path in normalized:
             _, _, object_sha = self._entry(path)
