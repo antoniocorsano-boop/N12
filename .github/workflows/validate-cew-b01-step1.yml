@@ -1,0 +1,79 @@
+name: CEW-B01 Step 1 Real Source Verification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/validate-cew-b01-step1.yml'
+      - 'cew_b01/**'
+      - 'governance/cew-b01/N12_TAV5_SOURCE_v1.json'
+      - 'tests/cew_b01/test_source_contract.py'
+      - 'tests/cew_b01/test_source_materialization.py'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-real-source:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+
+      - name: Fetch frozen archival commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+
+      - name: Verify frozen Git object and SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_COMMIT='78c20a52db4f391ce0d13b9705b9f04737e218c9'
+          SOURCE_PATH='archive/documentazione_originaria/tavola 5.pdf'
+          EXPECTED_BLOB='ec32cd621877e9037cb26ebc083164140a8e3e68'
+          EXPECTED_SHA256='2143b256511788691291cef533559306fc2988c7cb59a16d49cf86d1d7e94c7f'
+          ACTUAL_BLOB="$(git rev-parse "${SOURCE_COMMIT}:${SOURCE_PATH}")"
+          test "$ACTUAL_BLOB" = "$EXPECTED_BLOB"
+          git cat-file blob "$ACTUAL_BLOB" > "$RUNNER_TEMP/tavola5-direct.pdf"
+          ACTUAL_SHA256="$(sha256sum "$RUNNER_TEMP/tavola5-direct.pdf" | awk '{print $1}')"
+          test "$ACTUAL_SHA256" = "$EXPECTED_SHA256"
+          echo "blob=$ACTUAL_BLOB"
+          echo "sha256=$ACTUAL_SHA256"
+          echo "size_bytes=$(wc -c < "$RUNNER_TEMP/tavola5-direct.pdf")"
+
+      - name: Run focused Step 1 tests
+        run: python -m unittest tests.cew_b01.test_source_contract tests.cew_b01.test_source_materialization -v
+
+      - name: Materialize through CEW-B01 CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m cew_b01.cli materialize-source \
+            --contract governance/cew-b01/N12_TAV5_SOURCE_v1.json \
+            --repository-path . \
+            --destination "$RUNNER_TEMP/tavola5-materialized.pdf" \
+            | tee "$RUNNER_TEMP/materialization.json"
+          cmp "$RUNNER_TEMP/tavola5-direct.pdf" "$RUNNER_TEMP/tavola5-materialized.pdf"
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          direct = Path(os.environ['RUNNER_TEMP']) / 'tavola5-direct.pdf'
+          materialized = Path(os.environ['RUNNER_TEMP']) / 'tavola5-materialized.pdf'
+          expected = '2143b256511788691291cef533559306fc2988c7cb59a16d49cf86d1d7e94c7f'
+          for path in (direct, materialized):
+              digest = hashlib.sha256(path.read_bytes()).hexdigest()
+              assert digest == expected, (path, digest)
+          record = json.loads((Path(os.environ['RUNNER_TEMP']) / 'materialization.json').read_text())
+          assert record['git_blob_sha'] == 'ec32cd621877e9037cb26ebc083164140a8e3e68'
+          assert record['sha256'] == expected
+          assert record['size_bytes'] == direct.stat().st_size == materialized.stat().st_size
+          print(json.dumps({'real_source_verification':'PASS','sha256':expected,'size_bytes':direct.stat().st_size}, sort_keys=True))
+          PY
