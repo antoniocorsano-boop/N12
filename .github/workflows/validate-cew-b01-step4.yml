@@ -1,0 +1,48 @@
+name: CEW-B01 Step 4 Evidence Verification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/validate-cew-b01-step4.yml'
+      - 'cew_b01/evidence_extraction.py'
+      - 'cew_b01/evidence_schema.py'
+      - 'tests/cew_b01/test_evidence_extraction.py'
+      - 'tests/cew_b01/test_coordinate_frames.py'
+      - 'requirements/cew-b01.lock.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-step4-evidence-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+
+      - name: Install frozen B01 toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-b01-step4"
+          source "$RUNNER_TEMP/cew-b01-step4/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
+
+      - name: Run Step 4 RED/GREEN contract tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-b01-step4/bin/activate"
+          python -m unittest \
+            tests.cew_b01.test_evidence_extraction \
+            tests.cew_b01.test_coordinate_frames -v
