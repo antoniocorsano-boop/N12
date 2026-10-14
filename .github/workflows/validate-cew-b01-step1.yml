@@ -151,6 +151,33 @@ jobs:
           from cew_b01.records import ToolResultStatus
           from cew_b01.source_contract import load_source_contract, materialize_source
 
+          def diff_values(first, replay, path='$'):
+              differences = []
+              if type(first) is not type(replay):
+                  return [{'path': path, 'first': first, 'replay': replay}]
+              if isinstance(first, dict):
+                  keys = sorted(set(first) | set(replay))
+                  for key in keys:
+                      child = f'{path}.{key}'
+                      if key not in first or key not in replay:
+                          differences.append({
+                              'path': child,
+                              'first': first.get(key, '<MISSING>'),
+                              'replay': replay.get(key, '<MISSING>'),
+                          })
+                      else:
+                          differences.extend(diff_values(first[key], replay[key], child))
+                  return differences
+              if isinstance(first, list):
+                  if len(first) != len(replay):
+                      differences.append({'path': f'{path}.length', 'first': len(first), 'replay': len(replay)})
+                  for index, (left, right) in enumerate(zip(first, replay)):
+                      differences.extend(diff_values(left, right, f'{path}[{index}]'))
+                  return differences
+              if first != replay:
+                  differences.append({'path': path, 'first': first, 'replay': replay})
+              return differences
+
           runner_temp = Path(os.environ['RUNNER_TEMP'])
           contract = load_source_contract('governance/cew-b01/N12_TAV5_SOURCE_v1.json')
           materialized = materialize_source(
@@ -163,9 +190,36 @@ jobs:
           first = probe_pdf(materialized, first_dir)
           replay = probe_pdf(materialized, replay_dir)
 
+          first_map = first.to_mapping()
+          replay_map = replay.to_mapping()
+          differences = diff_values(first_map, replay_map)
+          diagnostic = {
+              'first_raster_sha256': first.raster_sha256,
+              'replay_raster_sha256': replay.raster_sha256,
+              'first_receipt_sha256': first.deterministic_receipt_sha256(),
+              'replay_receipt_sha256': replay.deterministic_receipt_sha256(),
+              'first_ocr_trigger': first.ocr_trigger.to_mapping(),
+              'replay_ocr_trigger': replay.ocr_trigger.to_mapping(),
+              'differences': differences,
+          }
+          first_dir.mkdir(parents=True, exist_ok=True)
+          (first_dir / 'first-pdf-probe-result.json').write_text(
+              json.dumps(first_map, indent=2, sort_keys=True, ensure_ascii=False) + '\n',
+              encoding='utf-8',
+          )
+          (first_dir / 'replay-pdf-probe-result.json').write_text(
+              json.dumps(replay_map, indent=2, sort_keys=True, ensure_ascii=False) + '\n',
+              encoding='utf-8',
+          )
+          (first_dir / 'replay-diff.json').write_text(
+              json.dumps(diagnostic, indent=2, sort_keys=True, ensure_ascii=False) + '\n',
+              encoding='utf-8',
+          )
+          print('STEP3_REPLAY_DIAGNOSTIC=' + json.dumps(diagnostic, sort_keys=True, ensure_ascii=False))
+
           assert first.raster_sha256 == replay.raster_sha256
           assert first.deterministic_receipt_sha256() == replay.deterministic_receipt_sha256()
-          assert first.to_mapping() == replay.to_mapping()
+          assert first_map == replay_map
 
           statuses = {item.tool_id: item.status for item in first.tool_results}
           assert statuses['pypdfium2'] == ToolResultStatus.PASS
@@ -196,10 +250,10 @@ jobs:
               encoding='utf-8',
           )
           print(json.dumps(summary, sort_keys=True))
-          print(json.dumps(first.to_mapping(), sort_keys=True))
           PY
 
       - name: Upload Step 3 qualification evidence
+        if: ${{ always() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: cew-b01-step3-pdf-qualification
