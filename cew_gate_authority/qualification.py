@@ -79,14 +79,14 @@ def _json(reader: CandidateReader, path: str, max_depth: int) -> dict[str, Any]:
         raise PayloadError("CANDIDATE_JSON_DEPTH_EXCEEDED") from exc
     except json.JSONDecodeError as exc:
         raise PayloadError("CANDIDATE_JSON_INVALID") from exc
-    if not _numbers_finite(value):
-        raise PayloadError("CANDIDATE_JSON_INVALID")
     try:
         depth = _depth(value)
     except RecursionError as exc:
         raise PayloadError("CANDIDATE_JSON_DEPTH_EXCEEDED") from exc
     if depth > max_depth:
         raise PayloadError("CANDIDATE_JSON_DEPTH_EXCEEDED")
+    if not _numbers_finite(value):
+        raise PayloadError("CANDIDATE_JSON_INVALID")
     if not isinstance(value, dict):
         raise PayloadError("CANDIDATE_JSON_INVALID")
     return value
