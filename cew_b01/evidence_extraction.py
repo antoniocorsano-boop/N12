@@ -17,12 +17,15 @@ from .evidence_schema import (
 from .records import CoordinateFrame
 
 
-_METHOD_ID = "OPENCV_LONG_AXIS_SUPPRESSED_CROSS_AXIS_ENVELOPE_V2"
+_METHOD_ID = "OPENCV_COMPOUND_RECTANGULAR_CELL_ENVELOPE_V2"
 _TOOL_PACKAGE = "opencv-python-headless"
-_AXIS_KERNEL_EXTRA_PX = 5
-_AXIS_CLOSE_ITERATIONS = 2
-_AXIS_CONTEXT_EXTENSION_RATIO = 0.50
-_AXIS_INNER_BAND_FRACTION = 0.20
+_CELL_VERTICAL_OVERLAP_RATIO = 0.70
+_CELL_SIZE_RATIO_MAX = 1.50
+_CELL_GAP_MIN_PX = -4
+_CELL_GAP_TOLERANCE_RATIO = 0.75
+_ROW_ALIGNMENT_RATIO = 0.25
+_OUTER_FRAME_BAND_PX = 5
+_OUTER_FRAME_SIDE_COVERAGE_MIN = 0.80
 
 
 @dataclass(frozen=True)
@@ -106,113 +109,189 @@ def _deduplicate_rectangles(
     return sorted(accepted, key=lambda item: (item[1], item[0], item[2], item[3]))
 
 
-def _axis_suppressed_envelope_mask(binary: Any, config: ExtractionConfig) -> tuple[Any, Any, Any]:
-    close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, close_kernel, iterations=1)
+def _interval_overlap(start_a: int, end_a: int, start_b: int, end_b: int) -> int:
+    return max(0, min(end_a, end_b) - max(start_a, start_b))
 
-    long_run = max(config.max_width_px, config.max_height_px) + _AXIS_KERNEL_EXTRA_PX
-    horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (long_run, 1))
-    vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, long_run))
-    long_horizontal = cv2.morphologyEx(closed, cv2.MORPH_OPEN, horizontal_kernel)
-    long_vertical = cv2.morphologyEx(closed, cv2.MORPH_OPEN, vertical_kernel)
-    long_axes = cv2.bitwise_or(long_horizontal, long_vertical)
 
-    axis_suppressed = cv2.subtract(closed, long_axes)
-    axis_suppressed = cv2.morphologyEx(
-        axis_suppressed,
-        cv2.MORPH_CLOSE,
-        close_kernel,
-        iterations=_AXIS_CLOSE_ITERATIONS,
+def _cell_gap_tolerance(config: ExtractionConfig) -> int:
+    return max(
+        4,
+        int(round(min(config.min_width_px, config.min_height_px) * _CELL_GAP_TOLERANCE_RATIO)),
     )
-    return axis_suppressed, long_horizontal, long_vertical
 
 
-def _slice_has_ink(mask: Any, y1: int, y2: int, x1: int, x2: int) -> bool:
-    height, width = mask.shape[:2]
-    top = max(0, min(height, y1))
-    bottom = max(0, min(height, y2))
-    left = max(0, min(width, x1))
-    right = max(0, min(width, x2))
+def _extract_rectangular_cells(
+    binary: Any,
+    config: ExtractionConfig,
+) -> list[tuple[int, int, int, int, float]]:
+    contours, _ = cv2.findContours(binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    cells: list[tuple[int, int, int, int, float]] = []
+    for contour in contours:
+        x, y, width, height = cv2.boundingRect(contour)
+        if not (
+            config.min_width_px <= width <= config.max_width_px
+            and config.min_height_px <= height <= config.max_height_px
+        ):
+            continue
+        contour_area = abs(float(cv2.contourArea(contour)))
+        rectangle_area = float(width * height)
+        if contour_area <= 0 or rectangle_area <= 0:
+            continue
+        rectangularity = contour_area / rectangle_area
+        if rectangularity < config.min_rectangularity:
+            continue
+        aspect_ratio = max(width / height, height / width)
+        if aspect_ratio > config.max_aspect_ratio:
+            continue
+        cells.append((x, y, width, height, rectangularity))
+    return sorted(cells, key=lambda item: (item[1], item[0], item[2], item[3], -item[4]))
+
+
+def _horizontal_cell_pairs(
+    cells: list[tuple[int, int, int, int, float]],
+    config: ExtractionConfig,
+) -> list[tuple[int, int, int, int, int, int]]:
+    gap_tolerance = _cell_gap_tolerance(config)
+    pairs: list[tuple[int, int, int, int, int, int]] = []
+    for first_index, first in enumerate(cells):
+        for second_index in range(first_index + 1, len(cells)):
+            second = cells[second_index]
+            left, right = (first, second) if first[0] <= second[0] else (second, first)
+            lx, ly, lw, lh, _ = left
+            rx, ry, rw, rh, _ = right
+            vertical_overlap = _interval_overlap(ly, ly + lh, ry, ry + rh)
+            if vertical_overlap < _CELL_VERTICAL_OVERLAP_RATIO * min(lh, rh):
+                continue
+            horizontal_gap = rx - (lx + lw)
+            if not _CELL_GAP_MIN_PX <= horizontal_gap <= gap_tolerance:
+                continue
+            if max(lh, rh) / min(lh, rh) > _CELL_SIZE_RATIO_MAX:
+                continue
+            x1 = min(lx, rx)
+            y1 = min(ly, ry)
+            x2 = max(lx + lw, rx + rw)
+            y2 = max(ly + lh, ry + rh)
+            if x2 - x1 > config.max_width_px or y2 - y1 > config.max_height_px:
+                continue
+            pairs.append((first_index, second_index, x1, y1, x2 - x1, y2 - y1))
+    return sorted(pairs, key=lambda item: (item[3], item[2], item[4], item[5], item[0], item[1]))
+
+
+def _column_coverage(binary: Any, y1: int, y2: int, x1: int, x2: int) -> float:
+    image_height, image_width = binary.shape[:2]
+    top = max(0, min(image_height, y1))
+    bottom = max(0, min(image_height, y2))
+    left = max(0, min(image_width, x1))
+    right = max(0, min(image_width, x2))
     if bottom <= top or right <= left:
-        return False
-    region = mask[top:bottom, left:right]
-    return bool(region.size and cv2.countNonZero(region) > 0)
+        return 0.0
+    region = binary[top:bottom, left:right]
+    if not region.size:
+        return 0.0
+    return float((region > 0).any(axis=0).mean())
 
 
-def _has_bidirectional_cross_axis_context(
-    long_horizontal: Any,
-    long_vertical: Any,
+def _row_coverage(binary: Any, y1: int, y2: int, x1: int, x2: int) -> float:
+    image_height, image_width = binary.shape[:2]
+    top = max(0, min(image_height, y1))
+    bottom = max(0, min(image_height, y2))
+    left = max(0, min(image_width, x1))
+    right = max(0, min(image_width, x2))
+    if bottom <= top or right <= left:
+        return 0.0
+    region = binary[top:bottom, left:right]
+    if not region.size:
+        return 0.0
+    return float((region > 0).any(axis=1).mean())
+
+
+def _outer_frame_side_coverages(
+    binary: Any,
     rectangle: tuple[int, int, int, int],
-) -> bool:
-    x, y, region_width, region_height = rectangle
-    extension = max(
-        5,
-        int(round(min(region_width, region_height) * _AXIS_CONTEXT_EXTENSION_RATIO)),
-    )
-    inset_x = max(1, int(round(region_width * _AXIS_INNER_BAND_FRACTION)))
-    inset_y = max(1, int(round(region_height * _AXIS_INNER_BAND_FRACTION)))
-
-    center_x1 = x + inset_x
-    center_x2 = x + region_width - inset_x
-    center_y1 = y + inset_y
-    center_y2 = y + region_height - inset_y
-    if center_x2 <= center_x1 or center_y2 <= center_y1:
-        return False
-
-    horizontal_center = _slice_has_ink(
-        long_horizontal,
-        center_y1,
-        center_y2,
-        center_x1,
-        center_x2,
-    )
-    horizontal_left = _slice_has_ink(
-        long_horizontal,
-        center_y1,
-        center_y2,
-        x - extension,
+) -> tuple[float, float, float, float]:
+    x, y, width, height = rectangle
+    band = _OUTER_FRAME_BAND_PX
+    top = _column_coverage(binary, y - band, y + band + 1, x, x + width)
+    bottom = _column_coverage(
+        binary,
+        y + height - band,
+        y + height + band + 1,
         x,
+        x + width,
     )
-    horizontal_right = _slice_has_ink(
-        long_horizontal,
-        center_y1,
-        center_y2,
-        x + region_width,
-        x + region_width + extension,
-    )
-
-    vertical_center = _slice_has_ink(
-        long_vertical,
-        center_y1,
-        center_y2,
-        center_x1,
-        center_x2,
-    )
-    vertical_top = _slice_has_ink(
-        long_vertical,
-        y - extension,
+    left = _row_coverage(binary, y, y + height, x - band, x + band + 1)
+    right = _row_coverage(
+        binary,
         y,
-        center_x1,
-        center_x2,
+        y + height,
+        x + width - band,
+        x + width + band + 1,
     )
-    vertical_bottom = _slice_has_ink(
-        long_vertical,
-        y + region_height,
-        y + region_height + extension,
-        center_x1,
-        center_x2,
-    )
+    return (top, bottom, left, right)
 
-    return all(
-        (
-            horizontal_center,
-            horizontal_left,
-            horizontal_right,
-            vertical_center,
-            vertical_top,
-            vertical_bottom,
-        )
-    )
+
+def _assemble_compound_envelopes(
+    binary: Any,
+    cells: list[tuple[int, int, int, int, float]],
+    pairs: list[tuple[int, int, int, int, int, int]],
+    config: ExtractionConfig,
+) -> list[tuple[int, int, int, int, float]]:
+    gap_tolerance = _cell_gap_tolerance(config)
+    envelopes: list[tuple[int, int, int, int, float]] = []
+    for first_pair_index, first_pair in enumerate(pairs):
+        first_ids = {first_pair[0], first_pair[1]}
+        for second_pair in pairs[first_pair_index + 1 :]:
+            second_ids = {second_pair[0], second_pair[1]}
+            if first_ids & second_ids:
+                continue
+
+            top_pair, bottom_pair = (
+                (first_pair, second_pair)
+                if first_pair[3] <= second_pair[3]
+                else (second_pair, first_pair)
+            )
+            tx, ty, tw, th = top_pair[2:6]
+            bx, by, bw, bh = bottom_pair[2:6]
+            alignment_tolerance = max(
+                gap_tolerance,
+                int(round(max(tw, bw) * _ROW_ALIGNMENT_RATIO)),
+            )
+            if abs(tx - bx) > alignment_tolerance:
+                continue
+            if abs((tx + tw) - (bx + bw)) > alignment_tolerance:
+                continue
+            vertical_gap = by - (ty + th)
+            if not _CELL_GAP_MIN_PX <= vertical_gap <= gap_tolerance:
+                continue
+
+            x1 = min(tx, bx)
+            y1 = min(ty, by)
+            x2 = max(tx + tw, bx + bw)
+            y2 = max(ty + th, by + bh)
+            width = x2 - x1
+            height = y2 - y1
+            if not (
+                config.min_width_px <= width <= config.max_width_px
+                and config.min_height_px <= height <= config.max_height_px
+            ):
+                continue
+            aspect_ratio = max(width / height, height / width)
+            if aspect_ratio > config.max_aspect_ratio:
+                continue
+
+            side_coverages = _outer_frame_side_coverages(binary, (x1, y1, width, height))
+            minimum_side_coverage = min(side_coverages)
+            if minimum_side_coverage < _OUTER_FRAME_SIDE_COVERAGE_MIN:
+                continue
+
+            member_ids = first_ids | second_ids
+            mean_rectangularity = sum(cells[index][4] for index in member_ids) / len(member_ids)
+            confidence = round(
+                min(1.0, max(0.0, mean_rectangularity * minimum_side_coverage)),
+                6,
+            )
+            envelopes.append((x1, y1, width, height, confidence))
+    return _deduplicate_rectangles(envelopes, config.duplicate_iou_threshold)
 
 
 def extract_g4_evidence_candidates(
@@ -240,50 +319,10 @@ def extract_g4_evidence_candidates(
         255,
         cv2.THRESH_BINARY_INV,
     )
-    envelope_mask, long_horizontal, long_vertical = _axis_suppressed_envelope_mask(binary, config)
-    contours, _ = cv2.findContours(envelope_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    cells = _extract_rectangular_cells(binary, config)
+    pairs = _horizontal_cell_pairs(cells, config)
+    rectangles = _assemble_compound_envelopes(binary, cells, pairs, config)
 
-    rectangles: list[tuple[int, int, int, int, float]] = []
-    for contour in contours:
-        perimeter = cv2.arcLength(contour, True)
-        if perimeter <= 0:
-            continue
-        approximation = cv2.approxPolyDP(
-            contour,
-            config.approximation_epsilon_ratio * perimeter,
-            True,
-        )
-        if len(approximation) != 4 or not cv2.isContourConvex(approximation):
-            continue
-        x, y, region_width, region_height = cv2.boundingRect(approximation)
-        if not (
-            config.min_width_px <= region_width <= config.max_width_px
-            and config.min_height_px <= region_height <= config.max_height_px
-        ):
-            continue
-        contour_area = float(cv2.contourArea(contour))
-        rectangle_area = float(region_width * region_height)
-        if contour_area <= 0 or rectangle_area <= 0:
-            continue
-        rectangularity = contour_area / rectangle_area
-        if rectangularity < config.min_rectangularity:
-            continue
-        aspect_ratio = max(
-            region_width / region_height,
-            region_height / region_width,
-        )
-        if aspect_ratio > config.max_aspect_ratio:
-            continue
-        if not _has_bidirectional_cross_axis_context(
-            long_horizontal,
-            long_vertical,
-            (x, y, region_width, region_height),
-        ):
-            continue
-        confidence = round(min(1.0, max(0.0, rectangularity)), 6)
-        rectangles.append((x, y, region_width, region_height, confidence))
-
-    rectangles = _deduplicate_rectangles(rectangles, config.duplicate_iou_threshold)
     tool_version = version(_TOOL_PACKAGE)
     candidates = tuple(
         EvidenceRegionCandidate.create(
