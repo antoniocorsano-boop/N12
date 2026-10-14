@@ -1,0 +1,250 @@
+name: CEW Gate Authority Qualification
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to qualify
+        required: true
+        type: number
+      candidate_sha:
+        description: Exact lowercase 40-hex current PR head
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      qualification_exit_code: ${{ steps.g0.outputs.qualification_exit_code }}
+      receipt_emitted: ${{ steps.g0.outputs.receipt_emitted }}
+      artifact_id: ${{ steps.upload.outputs.artifact-id }}
+      artifact_digest: ${{ steps.upload.outputs.artifact-digest }}
+      head_repository: ${{ steps.binding.outputs.head_repository }}
+      head_sha: ${{ steps.binding.outputs.head_sha }}
+    steps:
+      - name: Checkout trusted control plane base
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+          submodules: false
+          lfs: false
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+      - name: Reject non-canonical dispatch before Candidate read
+        env:
+          CEW_REPOSITORY: ${{ github.repository }}
+          CEW_REF: ${{ github.ref }}
+          CEW_REF_TYPE: ${{ github.ref_type }}
+          CEW_PR_NUMBER: ${{ inputs.pr_number }}
+          CEW_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          python -m cew_gate_control_plane.cli preflight \
+            --repository "$CEW_REPOSITORY" --ref "$CEW_REF" --ref-type "$CEW_REF_TYPE" \
+            --pr-number "$CEW_PR_NUMBER" --candidate-sha "$CEW_CANDIDATE_SHA" \
+            --output-json "$RUNNER_TEMP/dispatch-preflight.json"
+      - name: Read PR metadata from GitHub API
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CEW_PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          curl -fsS \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/antoniocorsano-boop/N12/pulls/$CEW_PR_NUMBER" \
+            -o "$RUNNER_TEMP/pr-metadata.json"
+      - name: Bind requested H to current open PR head
+        env:
+          CEW_REPOSITORY: ${{ github.repository }}
+          CEW_REF: ${{ github.ref }}
+          CEW_REF_TYPE: ${{ github.ref_type }}
+          CEW_PR_NUMBER: ${{ inputs.pr_number }}
+          CEW_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          python -m cew_gate_control_plane.cli preflight \
+            --repository "$CEW_REPOSITORY" --ref "$CEW_REF" --ref-type "$CEW_REF_TYPE" \
+            --pr-number "$CEW_PR_NUMBER" --candidate-sha "$CEW_CANDIDATE_SHA" \
+            --pr-metadata "$RUNNER_TEMP/pr-metadata.json" \
+            --output-json "$RUNNER_TEMP/pr-binding.json"
+      - name: Export validated Candidate binding
+        id: binding
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          data=json.loads((Path(os.environ['RUNNER_TEMP'])/'pr-binding.json').read_text())
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as f:
+              f.write(f"head_repository={data['head_repository']}\n")
+              f.write(f"head_sha={data['head_sha']}\n")
+          PY
+      - name: Fetch exact Candidate H as bare Git data
+        env:
+          CEW_PR_NUMBER: ${{ inputs.pr_number }}
+          CEW_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          python -m cew_gate_control_plane.cli fetch-candidate \
+            --base-url "https://github.com/antoniocorsano-boop/N12.git" \
+            --pr-number "$CEW_PR_NUMBER" --candidate-sha "$CEW_CANDIDATE_SHA" \
+            --destination "$RUNNER_TEMP/candidate.git" \
+            --output-json "$RUNNER_TEMP/candidate-fetch.json"
+      - name: Materialize exact promoted G0 and O Git objects
+        env:
+          G0: 1f32a24f456e7db18c994096e4c8f5067222a592
+          O: d806dcca72779b5a186defe557a7a9b739575a90
+        run: |
+          mkdir -p "$RUNNER_TEMP/trusted-hooks" "$RUNNER_TEMP/g0"
+          git init --bare "$RUNNER_TEMP/trusted.git"
+          git --git-dir "$RUNNER_TEMP/trusted.git" config core.hooksPath "$RUNNER_TEMP/trusted-hooks"
+          git --git-dir "$RUNNER_TEMP/trusted.git" fetch --no-tags --depth=1 "https://github.com/antoniocorsano-boop/N12.git" "$G0"
+          git --git-dir "$RUNNER_TEMP/trusted.git" update-ref refs/heads/g0 "$G0"
+          git --git-dir "$RUNNER_TEMP/trusted.git" symbolic-ref HEAD refs/heads/g0
+          git --git-dir "$RUNNER_TEMP/trusted.git" fetch --no-tags --depth=1 "https://github.com/antoniocorsano-boop/N12.git" "$O"
+          git --git-dir "$RUNNER_TEMP/trusted.git" archive "$G0" | tar -x -C "$RUNNER_TEMP/g0"
+      - name: Verify human-promoted G0 A0 and O identities
+        run: |
+          python -m cew_gate_control_plane.cli verify-trust \
+            --promotion-record "$GITHUB_WORKSPACE/governance/cew-gate-authority/G0_PROMOTION_RECORD_v1.json" \
+            --gate-git-dir "$RUNNER_TEMP/trusted.git" \
+            --operational-git-dir "$RUNNER_TEMP/trusted.git" \
+            --output-json "$RUNNER_TEMP/trust.json"
+      - name: Run promoted G0 qualification and preserve receipt
+        id: g0
+        env:
+          CEW_PR_NUMBER: ${{ inputs.pr_number }}
+          CEW_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          CEW_BASE_SHA: ${{ github.sha }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/handoff"
+          qualified_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          set +e
+          PYTHONPATH="$RUNNER_TEMP/g0" python -m cew_gate_authority.cli qualify \
+            --candidate-git-dir "$RUNNER_TEMP/candidate.git" \
+            --operational-repo "$RUNNER_TEMP/trusted.git" \
+            --authority "$RUNNER_TEMP/g0/governance/cew-gate-authority/authorities/N12_CEW_CONTRACT_01_A0.json" \
+            --pr-metadata "$RUNNER_TEMP/pr-metadata.json" \
+            --requested-sha "$CEW_CANDIDATE_SHA" --base-commit "$CEW_BASE_SHA" \
+            --gate-core-commit "1f32a24f456e7db18c994096e4c8f5067222a592" \
+            --qualified-at "$qualified_at" \
+            --output "$RUNNER_TEMP/handoff/qualification-receipt.json"
+          rc=$?
+          set -e
+          if [ "$rc" -gt 2 ]; then rc=2; fi
+          emitted=false
+          if { [ "$rc" = 0 ] || [ "$rc" = 1 ]; } && [ -f "$RUNNER_TEMP/handoff/qualification-receipt.json" ]; then emitted=true; fi
+          echo "qualification_exit_code=$rc" >> "$GITHUB_OUTPUT"
+          echo "receipt_emitted=$emitted" >> "$GITHUB_OUTPUT"
+      - name: Build same-run handoff envelope
+        if: steps.g0.outputs.receipt_emitted == 'true'
+        env:
+          CEW_PR_NUMBER: ${{ inputs.pr_number }}
+          CEW_HEAD_REPOSITORY: ${{ steps.binding.outputs.head_repository }}
+          CEW_HEAD_SHA: ${{ steps.binding.outputs.head_sha }}
+          CEW_BASE_SHA: ${{ github.sha }}
+          CEW_RUN_ID: ${{ github.run_id }}
+          CEW_RUN_ATTEMPT: ${{ github.run_attempt }}
+          CEW_EXIT: ${{ steps.g0.outputs.qualification_exit_code }}
+        run: |
+          python -m cew_gate_control_plane.cli build-handoff \
+            --receipt "$RUNNER_TEMP/handoff/qualification-receipt.json" \
+            --run-id "$CEW_RUN_ID" --run-attempt "$CEW_RUN_ATTEMPT" --base-sha "$CEW_BASE_SHA" \
+            --pr-number "$CEW_PR_NUMBER" --head-repository "$CEW_HEAD_REPOSITORY" --head-sha "$CEW_HEAD_SHA" \
+            --promotion-record "$GITHUB_WORKSPACE/governance/cew-gate-authority/G0_PROMOTION_RECORD_v1.json" \
+            --qualification-exit-code "$CEW_EXIT" \
+            --envelope-path "$RUNNER_TEMP/handoff/handoff-envelope.json" \
+            --output-json "$RUNNER_TEMP/handoff-build.json"
+      - name: Upload immutable Qualification Receipt handoff
+        id: upload
+        if: steps.g0.outputs.receipt_emitted == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-qualification-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.candidate_sha }}
+          path: |
+            ${{ runner.temp }}/handoff/qualification-receipt.json
+            ${{ runner.temp }}/handoff/handoff-envelope.json
+          overwrite: false
+          if-no-files-found: error
+
+  verify-handoff:
+    needs: qualify
+    if: needs.qualify.outputs.receipt_emitted == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: read
+    steps:
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+      - name: Materialize trusted B-layer at exact run B
+        env:
+          CEW_BASE_SHA: ${{ github.sha }}
+        run: |
+          git init "$RUNNER_TEMP/control-plane"
+          git -C "$RUNNER_TEMP/control-plane" fetch --no-tags --depth=1 "https://github.com/antoniocorsano-boop/N12.git" "$CEW_BASE_SHA"
+          git -C "$RUNNER_TEMP/control-plane" checkout --detach FETCH_HEAD
+          test "$(git -C "$RUNNER_TEMP/control-plane" rev-parse HEAD)" = "$CEW_BASE_SHA"
+      - name: Download exact same-run artifact by ID
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          artifact-ids: ${{ needs.qualify.outputs.artifact_id }}
+          path: ${{ runner.temp }}/handoff
+          merge-multiple: true
+          digest-mismatch: error
+      - name: Verify handoff identity and both Receipt digests
+        env:
+          CEW_PR_NUMBER: ${{ inputs.pr_number }}
+          CEW_HEAD_REPOSITORY: ${{ needs.qualify.outputs.head_repository }}
+          CEW_HEAD_SHA: ${{ needs.qualify.outputs.head_sha }}
+          CEW_BASE_SHA: ${{ github.sha }}
+          CEW_RUN_ID: ${{ github.run_id }}
+          CEW_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          PYTHONPATH="$RUNNER_TEMP/control-plane" python -m cew_gate_control_plane.cli verify-handoff \
+            --directory "$RUNNER_TEMP/handoff" \
+            --run-id "$CEW_RUN_ID" --run-attempt "$CEW_RUN_ATTEMPT" --base-sha "$CEW_BASE_SHA" \
+            --pr-number "$CEW_PR_NUMBER" --head-repository "$CEW_HEAD_REPOSITORY" --head-sha "$CEW_HEAD_SHA" \
+            --promotion-record "$RUNNER_TEMP/control-plane/governance/cew-gate-authority/G0_PROMOTION_RECORD_v1.json" \
+            --output-json "$RUNNER_TEMP/handoff-verified.json"
+
+  decision:
+    needs: [qualify, verify-handoff]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+      - name: Materialize trusted B-layer at exact run B
+        env:
+          CEW_BASE_SHA: ${{ github.sha }}
+        run: |
+          git init "$RUNNER_TEMP/control-plane"
+          git -C "$RUNNER_TEMP/control-plane" fetch --no-tags --depth=1 "https://github.com/antoniocorsano-boop/N12.git" "$CEW_BASE_SHA"
+          git -C "$RUNNER_TEMP/control-plane" checkout --detach FETCH_HEAD
+          test "$(git -C "$RUNNER_TEMP/control-plane" rev-parse HEAD)" = "$CEW_BASE_SHA"
+      - name: Reduce final decision fail closed
+        env:
+          QUALIFY_RESULT: ${{ needs.qualify.result }}
+          QUAL_EXIT: ${{ needs.qualify.outputs.qualification_exit_code }}
+          RECEIPT_EMITTED: ${{ needs.qualify.outputs.receipt_emitted }}
+          HANDOFF_RESULT: ${{ needs.verify-handoff.result }}
+        run: |
+          receipt="${RECEIPT_EMITTED:-false}"
+          args=(decision --qualify-job-result "$QUALIFY_RESULT" --receipt-emitted "$receipt" --handoff-job-result "$HANDOFF_RESULT" --output-json "$RUNNER_TEMP/final-decision.json")
+          if [ -n "$QUAL_EXIT" ]; then args+=(--qualification-exit-code "$QUAL_EXIT"); fi
+          PYTHONPATH="$RUNNER_TEMP/control-plane" python -m cew_gate_control_plane.cli "${args[@]}"
