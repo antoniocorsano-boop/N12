@@ -30,6 +30,45 @@ class PdfProbeContractTests(unittest.TestCase):
             page_index=0,
         )
 
+    def _probe_with_ocr_transport_sha(self, output_sha256: str) -> PdfProbeResult:
+        trigger = should_trigger_ocr({"non_whitespace_text_char_count": 0})
+        transform = pdf_point_to_raster_transform(page_height_points=792.0)
+        common_metrics = {
+            "trigger": trigger.to_mapping(),
+            "returncode": 0,
+            "output_role": "OCR_DERIVATIVE_EVIDENCE_NOT_SOURCE_AUTHORITY",
+            "output_sha256": output_sha256,
+        }
+        return PdfProbeResult(
+            source=self.source,
+            renderer_tool_id="pypdfium2",
+            renderer_version="5.14.0",
+            render_dpi=300,
+            page_width_points=612.0,
+            page_height_points=792.0,
+            raster_width_px=2550,
+            raster_height_px=3300,
+            raster_sha256="1" * 64,
+            render_transform=transform,
+            ocr_trigger=trigger,
+            tool_results=(
+                ToolProbeResult(
+                    source=self.source,
+                    tool_id="ocrmypdf",
+                    tool_version="17.13.0",
+                    status=ToolResultStatus.PASS,
+                    metrics=common_metrics,
+                ),
+                ToolProbeResult(
+                    source=self.source,
+                    tool_id="tesseract",
+                    tool_version="5.3.4",
+                    status=ToolResultStatus.PASS,
+                    metrics=common_metrics,
+                ),
+            ),
+        )
+
     def test_coordinate_frames_are_typed_and_closed(self) -> None:
         self.assertEqual(
             {frame.value for frame in CoordinateFrame},
@@ -125,6 +164,25 @@ class PdfProbeContractTests(unittest.TestCase):
         self.assertEqual(usable.reason, "USABLE_NATIVE_TEXT_LAYER")
         self.assertTrue(empty.triggered)
         self.assertEqual(empty.reason, "NO_NON_WHITESPACE_NATIVE_TEXT")
+
+    def test_volatile_ocr_transport_sha_is_audited_but_excluded_from_receipt(self) -> None:
+        first = self._probe_with_ocr_transport_sha("a" * 64)
+        replay = self._probe_with_ocr_transport_sha("b" * 64)
+
+        self.assertNotEqual(first.to_mapping(), replay.to_mapping())
+        self.assertEqual(
+            first.deterministic_receipt_sha256(),
+            replay.deterministic_receipt_sha256(),
+        )
+        self.assertEqual(first.receipt_mapping(), replay.receipt_mapping())
+        self.assertEqual(
+            first.to_mapping()["tool_results"][0]["metrics"]["output_sha256"],
+            "a" * 64,
+        )
+        self.assertNotIn(
+            "output_sha256",
+            first.receipt_mapping()["tool_results"][0]["metrics"],
+        )
 
 
 if __name__ == "__main__":
