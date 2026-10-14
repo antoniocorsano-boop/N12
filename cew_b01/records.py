@@ -271,9 +271,17 @@ class PdfProbeResult:
             "tool_results": [result.to_mapping() for result in self.tool_results],
         }
 
+    def receipt_mapping(self) -> dict[str, Any]:
+        mapping = self.to_mapping()
+        for result in mapping["tool_results"]:
+            metrics = result["metrics"]
+            if metrics.get("output_role") == "OCR_DERIVATIVE_EVIDENCE_NOT_SOURCE_AUTHORITY":
+                metrics.pop("output_sha256", None)
+        return mapping
+
     def deterministic_receipt_sha256(self) -> str:
         payload = json.dumps(
-            self.to_mapping(),
+            self.receipt_mapping(),
             sort_keys=True,
             separators=(",", ":"),
             ensure_ascii=False,
