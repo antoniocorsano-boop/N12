@@ -1,4 +1,4 @@
-name: CEW-B01 Steps 1-2 Verification
+name: CEW-B01 Steps 1-3 Verification
 
 on:
   pull_request:
@@ -11,6 +11,7 @@ on:
       - 'tests/cew_b01/test_source_contract.py'
       - 'tests/cew_b01/test_source_materialization.py'
       - 'tests/cew_b01/test_toolchain_contract.py'
+      - 'tests/cew_b01/test_pdf_probe.py'
 
 permissions:
   contents: read
@@ -132,3 +133,6 @@ jobs:
 
       - name: Run Step 2 toolchain contract tests
         run: python -m unittest tests.cew_b01.test_toolchain_contract -v
+
+      - name: Run Step 3 PDF probe contract tests
+        run: python -m unittest tests.cew_b01.test_pdf_probe -v
