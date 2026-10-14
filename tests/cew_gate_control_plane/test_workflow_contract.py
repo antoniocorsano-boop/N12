@@ -30,6 +30,14 @@ class ProductionWorkflowContractTests(unittest.TestCase):
             snippet=t[m.start():m.start()+300]; self.assertNotIn('inputs.candidate_sha',snippet); self.assertNotIn('candidate_sha }}',snippet)
         self.assertIn('python -m cew_gate_control_plane.cli fetch-candidate',t)
         self.assertIn('--destination "$RUNNER_TEMP/candidate.git"',t)
+    def test_promoted_g0_runs_from_isolated_promoted_tree(self):
+        t=self.text()
+        step=t.split('      - name: Run promoted G0 qualification and preserve receipt\n',1)[1].split('\n      - name: Build same-run handoff envelope',1)[0]
+        invocation='python -m cew_gate_authority.cli qualify'
+        self.assertIn('cd "$RUNNER_TEMP/g0"',step)
+        self.assertIn(invocation,step)
+        self.assertLess(step.index('cd "$RUNNER_TEMP/g0"'),step.index(invocation))
+        self.assertNotIn('PYTHONPATH="$RUNNER_TEMP/g0" '+invocation,step)
     def test_verify_handoff_job_never_reads_or_fetches_candidate(self):
         t=self.text()
         verify=t.split('\n  verify-handoff:\n',1)[1].split('\n  decision:\n',1)[0]
