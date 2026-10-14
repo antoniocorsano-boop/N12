@@ -4,11 +4,12 @@ on:
   pull_request:
     paths:
       - '.github/workflows/validate-cew-b01-step4.yml'
-      - 'cew_b01/evidence_extraction.py'
-      - 'cew_b01/evidence_schema.py'
+      - 'cew_b01/**'
+      - 'governance/cew-b01/N12_TAV5_SOURCE_v1.json'
+      - 'governance/cew-b01/EXTERNAL_TOOLCHAIN_v1.json'
+      - 'requirements/cew-b01.lock.txt'
       - 'tests/cew_b01/test_evidence_extraction.py'
       - 'tests/cew_b01/test_coordinate_frames.py'
-      - 'requirements/cew-b01.lock.txt'
 
 permissions:
   contents: read
@@ -28,6 +29,15 @@ jobs:
         with:
           python-version: '3.12.15'
 
+      - name: Install frozen Tesseract system package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+          tesseract --version | head -n 1 | grep -F 'tesseract 5.3.4'
+
       - name: Install frozen B01 toolchain
         shell: bash
         run: |
@@ -38,7 +48,7 @@ jobs:
           python -m pip install -r requirements/cew-b01.lock.txt
           python -m pip check
 
-      - name: Run Step 4 RED/GREEN contract tests
+      - name: Run Step 4 contract tests
         shell: bash
         run: |
           set -euo pipefail
@@ -46,3 +56,113 @@ jobs:
           python -m unittest \
             tests.cew_b01.test_evidence_extraction \
             tests.cew_b01.test_coordinate_frames -v
+
+      - name: Fetch frozen archival source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+
+      - name: Qualify Step 4 on exact Task 3-derived TAV5 raster twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-b01-step4/bin/activate"
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          from cew_b01.evidence_extraction import (
+              evidence_bundle_mapping,
+              extract_g4_evidence_candidates,
+              write_evidence_bundle,
+          )
+          from cew_b01.evidence_schema import Task3RasterBinding
+          from cew_b01.pdf_probe import probe_pdf
+          from cew_b01.source_contract import load_source_contract, materialize_source
+
+          runner_temp = Path(os.environ['RUNNER_TEMP'])
+          contract = load_source_contract('governance/cew-b01/N12_TAV5_SOURCE_v1.json')
+          materialized = materialize_source(
+              contract,
+              '.',
+              runner_temp / 'tavola5-step4-source.pdf',
+          )
+
+          # Re-materialize the already-qualified Task 3 interface in this exact-head job,
+          # then consume only its governed raster/probe output in Step 4.
+          step3_input_dir = runner_temp / 'cew-b01-step4-task3-input'
+          probe = probe_pdf(materialized, step3_input_dir)
+          probe_mapping = probe.to_mapping()
+          binding = Task3RasterBinding.from_probe_mapping(probe_mapping)
+          raster_path = step3_input_dir / 'tav5-page0-300dpi.png'
+
+          first = extract_g4_evidence_candidates(binding, raster_path)
+          replay = extract_g4_evidence_candidates(binding, raster_path)
+          assert first, 'Step 4 must derive at least one non-trivial geometric Evidence candidate'
+
+          first_ids = [item.candidate_id for item in first]
+          replay_ids = [item.candidate_id for item in replay]
+          first_geometry_digests = [item.geometry_digest for item in first]
+          replay_geometry_digests = [item.geometry_digest for item in replay]
+          assert first_ids == replay_ids
+          assert first_geometry_digests == replay_geometry_digests
+          assert all(item.source.sha256 == materialized.sha256 for item in first)
+          assert all(item.page_index == contract.page_index for item in first)
+          assert all(item.geometry.frame.value == 'RASTER_PIXEL' for item in first)
+          assert all(item.status == 'UNREVIEWED_GEOMETRIC_REGION' for item in first)
+          assert all(item.structural_identity_authorized is False for item in first)
+
+          output_dir = Path('evidence/cew-b01/g4')
+          output_dir.mkdir(parents=True, exist_ok=True)
+          destination = output_dir / 'CEW_B01_G4_EVIDENCE_CANDIDATES_v1.json'
+          first_bundle = write_evidence_bundle(binding, first, destination)
+          replay_bundle = evidence_bundle_mapping(binding, replay)
+          assert first_bundle == replay_bundle
+
+          ordered_identity_payload = json.dumps(
+              [
+                  {'candidate_id': item.candidate_id, 'geometry_digest': item.geometry_digest}
+                  for item in first
+              ],
+              sort_keys=True,
+              separators=(',', ':'),
+          ).encode('utf-8')
+          candidate_set_sha256 = hashlib.sha256(ordered_identity_payload).hexdigest()
+
+          summary = {
+              'step': 'CEW-B01-STEP-4',
+              'source_sha256': materialized.sha256,
+              'page_index': contract.page_index,
+              'task3_input_raster_sha256': binding.raster_sha256,
+              'task3_input_png_sha256': binding.png_sha256,
+              'task3_renderer': {
+                  'tool_id': binding.renderer_tool_id,
+                  'tool_version': binding.renderer_tool_version,
+              },
+              'candidate_count': len(first),
+              'candidate_set_sha256': candidate_set_sha256,
+              'evidence_bundle_sha256': first_bundle['bundle_sha256'],
+              'coordinate_frame': 'RASTER_PIXEL',
+              'semantic_identity_assigned': False,
+              'structural_identity_authorized': False,
+              'historical_oracle_used': False,
+              'deterministic_replay': 'PASS',
+          }
+          (output_dir / 'qualification-summary.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          print('STEP4_QUALIFICATION=' + json.dumps(summary, sort_keys=True))
+          PY
+
+      - name: Upload Step 4 qualification evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-b01-step4-g4-evidence
+          path: evidence/cew-b01/g4/
+          if-no-files-found: error
+          retention-days: 30
