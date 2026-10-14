@@ -128,7 +128,8 @@ jobs:
           mkdir -p "$RUNNER_TEMP/handoff"
           qualified_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           set +e
-          PYTHONPATH="$RUNNER_TEMP/g0" python -m cew_gate_authority.cli qualify \
+          cd "$RUNNER_TEMP/g0"
+          python -m cew_gate_authority.cli qualify \
             --candidate-git-dir "$RUNNER_TEMP/candidate.git" \
             --operational-repo "$RUNNER_TEMP/trusted.git" \
             --authority "$RUNNER_TEMP/g0/governance/cew-gate-authority/authorities/N12_CEW_CONTRACT_01_A0.json" \
