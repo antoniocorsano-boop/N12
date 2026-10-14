@@ -50,9 +50,8 @@ class EvidenceExtractionTests(unittest.TestCase):
     def _synthetic_raster(self, directory: Path) -> tuple[Path, Task3RasterBinding]:
         raster = np.full((512, 512), 255, dtype=np.uint8)
 
-        # Two valid composite symbols. Their long structural axes split the raw
-        # contour, so the detector must suppress the axes and recover one
-        # footprint envelope around each crossing.
+        # Two valid composite symbols. Internal orthogonal strokes split each
+        # physical symbol into four source cells that must be recomposed once.
         cv2.line(raster, (20, 100), (210, 100), 0, 2)
         cv2.line(raster, (100, 20), (100, 210), 0, 2)
         cv2.rectangle(raster, (70, 65), (130, 135), 0, 3)
@@ -61,7 +60,7 @@ class EvidenceExtractionTests(unittest.TestCase):
         cv2.line(raster, (360, 225), (360, 475), 0, 2)
         cv2.rectangle(raster, (325, 305), (395, 375), 0, 3)
 
-        # Closed rectangle without the two-axis grammar: never a support
+        # Closed rectangle without the compound-cell grammar: never a support
         # candidate merely because it is rectangular.
         cv2.rectangle(raster, (220, 70), (275, 110), 0, 3)
 
@@ -137,6 +136,51 @@ class EvidenceExtractionTests(unittest.TestCase):
         self.assertAlmostEqual(column.y + column.height / 2.0, 150.0, delta=5.0)
         self.assertGreaterEqual(column.width, 55.0)
         self.assertGreaterEqual(column.height, 65.0)
+
+    def test_source_like_compound_symbol_does_not_require_axes_to_continue_on_both_sides(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            raster = np.full((512, 512), 255, dtype=np.uint8)
+
+            # Source-like support: a closed outer frame split into four internal
+            # cells. Beam edges attach from the left and a thin centre line exits
+            # only above the frame; there is no bidirectional external cross.
+            cv2.rectangle(raster, (120, 115), (180, 185), 0, 3)
+            cv2.line(raster, (150, 115), (150, 185), 0, 2)
+            cv2.line(raster, (120, 150), (180, 150), 0, 2)
+            cv2.line(raster, (40, 115), (120, 115), 0, 2)
+            cv2.line(raster, (40, 185), (120, 185), 0, 2)
+            cv2.line(raster, (150, 60), (150, 115), 0, 2)
+
+            # A neighbouring beam bay has only a single subdivision and must not
+            # be promoted into the same geometric object grammar.
+            cv2.rectangle(raster, (300, 120), (420, 180), 0, 3)
+            cv2.line(raster, (360, 120), (360, 180), 0, 2)
+
+            path = directory / "source-like-compound-raster.png"
+            self.assertTrue(cv2.imwrite(str(path), raster))
+            binding = _binding_for_raster(path, width=512, height=512, raster_sha="5" * 64)
+            candidates = extract_g4_evidence_candidates(
+                binding,
+                path,
+                config=ExtractionConfig(
+                    threshold=180,
+                    min_width_px=15,
+                    min_height_px=15,
+                    max_width_px=140,
+                    max_height_px=140,
+                    min_rectangularity=0.45,
+                    max_aspect_ratio=5.0,
+                    duplicate_iou_threshold=0.75,
+                ),
+            )
+
+        self.assertEqual(len(candidates), 1)
+        support = candidates[0].geometry
+        self.assertAlmostEqual(support.x, 120.0, delta=5.0)
+        self.assertAlmostEqual(support.y, 115.0, delta=5.0)
+        self.assertAlmostEqual(support.width, 60.0, delta=7.0)
+        self.assertAlmostEqual(support.height, 70.0, delta=7.0)
 
     def test_t_junction_is_not_mistaken_for_bidirectional_cross_axis_context(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
