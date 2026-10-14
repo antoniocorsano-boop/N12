@@ -1,0 +1,89 @@
+{
+  "schema_id": "CEW_CURRENT_STATE",
+  "schema_version": 1,
+  "master_version": "CEW_MASTER_PLAN_v1",
+  "master_path": "CEW_MASTER_PLAN.md",
+  "decision_date": "2026-10-14",
+  "decision_authority": "HUMAN_REPOSITORY_OWNER",
+  "repository": "antoniocorsano-boop/N12",
+  "pilot": "Condominio N.12",
+  "wip_limit": 1,
+  "current_phase": "B",
+  "current_phase_name": "External Tool Qualification + Source-to-Evidence",
+  "current_task": {
+    "id": "CEW-B01",
+    "name": "External Tool Qualification / N12 Vertical Slice",
+    "status": "AUTHORIZED_NOT_STARTED",
+    "objective": "Far attraversare a dati reali N12 la catena Fonte reale -> Evidence -> StructuralObject -> geometria parametrica usando strumenti esterni open-source e senza ricostruzioni manuali nascoste.",
+    "input": [
+      "fonti reali N12 già disponibili",
+      "baseline/evidence N12 esistenti",
+      "CEW Canonical knowledge rules"
+    ],
+    "expected_output": [
+      "evidenze geometriche riproducibili dal documento originale",
+      "mapping Evidence -> StructuralObject",
+      "primo insieme reale non banale di oggetti N12 generato deterministicamente in geometria parametrica"
+    ],
+    "external_tools": [
+      "Docling/docling-parse",
+      "pypdfium2",
+      "pdfplumber",
+      "OCRmyPDF/Tesseract when needed",
+      "OpenCV",
+      "ezdxf",
+      "build123d/OpenCascade"
+    ],
+    "separate_benchmarks": [
+      "CADCraft on controlled N12 TAV.5/TAV.6/TAV.7 copies"
+    ],
+    "internal_components_allowed": [
+      "Evidence Engine integration",
+      "StructuralObject identity/mapping",
+      "thin adapters",
+      "deterministic validation and receipts"
+    ],
+    "exit_criteria": [
+      "Source-to-Evidence is reproducible from immutable original sources",
+      "no manual unprovenanced coordinates are required",
+      "at least one real non-trivial N12 element set reaches StructuralObject identity",
+      "the same element set is regenerated deterministically as parametric geometry",
+      "tool choices are recorded as ADOPT, BENCHMARK, DEFER or REJECT with N12 evidence"
+    ]
+  },
+  "frozen_fronts": [
+    "new Gate Authority work except blocker fixes",
+    "new governance infrastructure except blocker fixes",
+    "CEW-FEM-01",
+    "SolverRun",
+    "Result entities",
+    "new FEM solvers",
+    "internal CAD engine",
+    "internal OCR engine",
+    "internal generic viewer",
+    "new agentic frameworks",
+    "mandatory database server",
+    "point-cloud pipeline without real source need",
+    "new major architecture abstractions"
+  ],
+  "frozen_pull_requests": [
+    {
+      "number": 147,
+      "policy": "READ_ONLY_DO_NOT_MODIFY_DO_NOT_CLOSE_DO_NOT_SUPERSEDE"
+    }
+  ],
+  "future_phases": [
+    "C Canonical Geometry",
+    "D Automatic Control + IFC",
+    "E Sufficiency of Knowledge",
+    "F CEW-FEM-01",
+    "G Assessment + Technical Dossier"
+  ],
+  "anti_drift_rule": "Every CEW task and PR must map to the current canonical task or an explicitly human-approved Master change. Otherwise classify as SCOPE_DRIFT.",
+  "change_control": "Master and current task may change only by explicit human repository-owner decision.",
+  "notes": [
+    "Task 9 Gate Authority is integrated in main and is infrastructure, not the current product direction.",
+    "No production qualification dispatch is implied by this state.",
+    "CEW-FEM remains explicitly unauthorized until Phase E passes and Phase F is separately approved."
+  ]
+}
