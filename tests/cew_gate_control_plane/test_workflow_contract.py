@@ -37,3 +37,37 @@ class ProductionWorkflowContractTests(unittest.TestCase):
         for repo,sha in [('actions/checkout',CHECKOUT),('actions/setup-python',SETUP),('actions/upload-artifact',UPLOAD),('actions/download-artifact',DOWNLOAD)]: self.assertIn(f'uses: {repo}@{sha}',t); self.assertNotRegex(t,rf'uses: {re.escape(repo)}@v\d')
 
 if __name__=='__main__': unittest.main()
+
+VALIDATE = Path('.github/workflows/validate-cew-gate-authority-task9.yml')
+
+class ValidationWorkflowContractTests(unittest.TestCase):
+    def text(self):
+        self.assertTrue(VALIDATE.is_file(), 'validation workflow missing')
+        return VALIDATE.read_text()
+
+    def test_validation_is_pr_only_and_read_only(self):
+        t=self.text(); event=t.split('\npermissions:',1)[0]
+        self.assertIn('pull_request:', event)
+        self.assertNotIn('workflow_dispatch:', event)
+        self.assertNotIn(': write', t)
+        self.assertNotIn('secrets.', t)
+        self.assertIn('permissions:\n  contents: read', t)
+
+    def test_validation_checks_out_exact_pr_head(self):
+        t=self.text()
+        self.assertIn(f'uses: actions/checkout@{CHECKOUT}', t)
+        self.assertIn('ref: ${{ github.event.pull_request.head.sha }}', t)
+        self.assertIn('persist-credentials: false', t)
+
+    def test_validation_does_not_invoke_production_qualification(self):
+        t=self.text()
+        self.assertNotIn('gh workflow run', t)
+        self.assertNotIn('/dispatches', t)
+        self.assertNotIn('fetch-candidate', t)
+        self.assertNotIn('cew_gate_authority.cli qualify', t)
+
+    def test_codeql_is_analysis_only_without_upload(self):
+        t=self.text()
+        self.assertIn('github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d', t)
+        self.assertIn('upload: never', t)
+        self.assertIn('upload-database: false', t)

@@ -1,0 +1,71 @@
+name: CEW Gate Authority Task 9 Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  task9-certification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+          submodules: false
+          lfs: false
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+      - name: Task 9 control plane tests
+        run: python -m unittest discover -s tests/cew_gate_control_plane -p 'test_*.py' -v
+      - name: Existing promoted G0 regression suite
+        run: python -m unittest discover -s tests/cew_gate_authority -p 'test_*.py' -v
+      - name: Compile trusted packages
+        run: python -m compileall -q cew_gate_control_plane cew_gate_authority
+      - name: Verify and run actionlint 1.7.12
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/actionlint_1.7.12_linux_amd64.tar.gz"
+          curl -fsSL -o "$archive" "https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz"
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $archive" | sha256sum -c -
+          tar -xzf "$archive" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" .github/workflows/cew-gate-authority.yml .github/workflows/validate-cew-gate-authority-task9.yml
+      - name: Verify and run zizmor 1.30.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/zizmor-x86_64-unknown-linux-gnu.tar.gz"
+          curl -fsSL -o "$archive" "https://github.com/zizmorcore/zizmor/releases/download/v1.30.1/zizmor-x86_64-unknown-linux-gnu.tar.gz"
+          echo "e65324f4430c2717591937edcec90ccbefaf14c174f8ec9415e03ca875b46e1a  $archive" | sha256sum -c -
+          tar -xzf "$archive" -C "$RUNNER_TEMP" zizmor
+          "$RUNNER_TEMP/zizmor" --offline --color=never .github/workflows/cew-gate-authority.yml .github/workflows/validate-cew-gate-authority-task9.yml
+
+  task9-codeql:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          languages: python
+      - name: Analyze without upload
+        uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          upload: never
+          upload-database: false
