@@ -83,8 +83,8 @@ jobs:
           from cew_b01.review_package import render_review_package
           from cew_b01.source_contract import load_source_contract, materialize_source
 
-          EXPECTED_STEP4_SET_SHA256 = '54b2c8a47847c634fc639d015337e8b2d9df662c7618d16af45bc36e327b1999'
-          EXPECTED_STEP4_BUNDLE_SHA256 = 'b5a869ba25fb7ce400f528c676b48a177f362dfacbb55b9742e9ff99f79341b1'
+          EXPECTED_STEP4_SET_SHA256 = '72c0a8d08f720c50e9ebb2ac4009eae2f43b201732b4daafd967208c4b0e1099'
+          EXPECTED_STEP4_BUNDLE_SHA256 = '28502f32fa2f360c6422668cc5f6b833a0bcc38523437476f1109897a66c1c87'
 
           runner_temp = Path(os.environ['RUNNER_TEMP'])
           contract = load_source_contract('governance/cew-b01/N12_TAV5_SOURCE_v1.json')
