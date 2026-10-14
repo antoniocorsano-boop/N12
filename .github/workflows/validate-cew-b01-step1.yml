@@ -1,4 +1,4 @@
-name: CEW-B01 Step 1 Real Source Verification
+name: CEW-B01 Steps 1-2 Verification
 
 on:
   pull_request:
@@ -6,14 +6,17 @@ on:
       - '.github/workflows/validate-cew-b01-step1.yml'
       - 'cew_b01/**'
       - 'governance/cew-b01/N12_TAV5_SOURCE_v1.json'
+      - 'governance/cew-b01/EXTERNAL_TOOLCHAIN_v1.json'
+      - 'requirements/cew-b01.lock.txt'
       - 'tests/cew_b01/test_source_contract.py'
       - 'tests/cew_b01/test_source_materialization.py'
+      - 'tests/cew_b01/test_toolchain_contract.py'
 
 permissions:
   contents: read
 
 jobs:
-  verify-real-source:
+  verify-real-source-and-toolchain-contract:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout exact candidate
@@ -79,3 +82,6 @@ jobs:
           assert record['size_bytes'] == direct.stat().st_size == materialized.stat().st_size
           print(json.dumps({'real_source_verification':'PASS','sha256':expected,'size_bytes':direct.stat().st_size}, sort_keys=True))
           PY
+
+      - name: Run Step 2 toolchain contract tests
+        run: python -m unittest tests.cew_b01.test_toolchain_contract -v
