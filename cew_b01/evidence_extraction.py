@@ -17,8 +17,12 @@ from .evidence_schema import (
 from .records import CoordinateFrame
 
 
-_METHOD_ID = "OPENCV_AXIS_ALIGNED_QUADRILATERAL_V1"
+_METHOD_ID = "OPENCV_LONG_AXIS_SUPPRESSED_CROSS_AXIS_ENVELOPE_V2"
 _TOOL_PACKAGE = "opencv-python-headless"
+_AXIS_KERNEL_EXTRA_PX = 5
+_AXIS_CLOSE_ITERATIONS = 2
+_AXIS_CONTEXT_EXTENSION_RATIO = 0.50
+_AXIS_INNER_BAND_FRACTION = 0.20
 
 
 @dataclass(frozen=True)
@@ -102,6 +106,115 @@ def _deduplicate_rectangles(
     return sorted(accepted, key=lambda item: (item[1], item[0], item[2], item[3]))
 
 
+def _axis_suppressed_envelope_mask(binary: Any, config: ExtractionConfig) -> tuple[Any, Any, Any]:
+    close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, close_kernel, iterations=1)
+
+    long_run = max(config.max_width_px, config.max_height_px) + _AXIS_KERNEL_EXTRA_PX
+    horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (long_run, 1))
+    vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, long_run))
+    long_horizontal = cv2.morphologyEx(closed, cv2.MORPH_OPEN, horizontal_kernel)
+    long_vertical = cv2.morphologyEx(closed, cv2.MORPH_OPEN, vertical_kernel)
+    long_axes = cv2.bitwise_or(long_horizontal, long_vertical)
+
+    axis_suppressed = cv2.subtract(closed, long_axes)
+    axis_suppressed = cv2.morphologyEx(
+        axis_suppressed,
+        cv2.MORPH_CLOSE,
+        close_kernel,
+        iterations=_AXIS_CLOSE_ITERATIONS,
+    )
+    return axis_suppressed, long_horizontal, long_vertical
+
+
+def _slice_has_ink(mask: Any, y1: int, y2: int, x1: int, x2: int) -> bool:
+    height, width = mask.shape[:2]
+    top = max(0, min(height, y1))
+    bottom = max(0, min(height, y2))
+    left = max(0, min(width, x1))
+    right = max(0, min(width, x2))
+    if bottom <= top or right <= left:
+        return False
+    region = mask[top:bottom, left:right]
+    return bool(region.size and cv2.countNonZero(region) > 0)
+
+
+def _has_bidirectional_cross_axis_context(
+    long_horizontal: Any,
+    long_vertical: Any,
+    rectangle: tuple[int, int, int, int],
+) -> bool:
+    x, y, region_width, region_height = rectangle
+    extension = max(
+        5,
+        int(round(min(region_width, region_height) * _AXIS_CONTEXT_EXTENSION_RATIO)),
+    )
+    inset_x = max(1, int(round(region_width * _AXIS_INNER_BAND_FRACTION)))
+    inset_y = max(1, int(round(region_height * _AXIS_INNER_BAND_FRACTION)))
+
+    center_x1 = x + inset_x
+    center_x2 = x + region_width - inset_x
+    center_y1 = y + inset_y
+    center_y2 = y + region_height - inset_y
+    if center_x2 <= center_x1 or center_y2 <= center_y1:
+        return False
+
+    horizontal_center = _slice_has_ink(
+        long_horizontal,
+        center_y1,
+        center_y2,
+        center_x1,
+        center_x2,
+    )
+    horizontal_left = _slice_has_ink(
+        long_horizontal,
+        center_y1,
+        center_y2,
+        x - extension,
+        x,
+    )
+    horizontal_right = _slice_has_ink(
+        long_horizontal,
+        center_y1,
+        center_y2,
+        x + region_width,
+        x + region_width + extension,
+    )
+
+    vertical_center = _slice_has_ink(
+        long_vertical,
+        center_y1,
+        center_y2,
+        center_x1,
+        center_x2,
+    )
+    vertical_top = _slice_has_ink(
+        long_vertical,
+        y - extension,
+        y,
+        center_x1,
+        center_x2,
+    )
+    vertical_bottom = _slice_has_ink(
+        long_vertical,
+        y + region_height,
+        y + region_height + extension,
+        center_x1,
+        center_x2,
+    )
+
+    return all(
+        (
+            horizontal_center,
+            horizontal_left,
+            horizontal_right,
+            vertical_center,
+            vertical_top,
+            vertical_bottom,
+        )
+    )
+
+
 def extract_g4_evidence_candidates(
     binding: Task3RasterBinding,
     raster_path: Path | str,
@@ -127,7 +240,8 @@ def extract_g4_evidence_candidates(
         255,
         cv2.THRESH_BINARY_INV,
     )
-    contours, _ = cv2.findContours(binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    envelope_mask, long_horizontal, long_vertical = _axis_suppressed_envelope_mask(binary, config)
+    contours, _ = cv2.findContours(envelope_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     rectangles: list[tuple[int, int, int, int, float]] = []
     for contour in contours:
@@ -159,6 +273,12 @@ def extract_g4_evidence_candidates(
             region_height / region_width,
         )
         if aspect_ratio > config.max_aspect_ratio:
+            continue
+        if not _has_bidirectional_cross_axis_context(
+            long_horizontal,
+            long_vertical,
+            (x, y, region_width, region_height),
+        ):
             continue
         confidence = round(min(1.0, max(0.0, rectangularity)), 6)
         rectangles.append((x, y, region_width, region_height, confidence))
