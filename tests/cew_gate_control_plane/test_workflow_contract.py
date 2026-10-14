@@ -30,6 +30,11 @@ class ProductionWorkflowContractTests(unittest.TestCase):
             snippet=t[m.start():m.start()+300]; self.assertNotIn('inputs.candidate_sha',snippet); self.assertNotIn('candidate_sha }}',snippet)
         self.assertIn('python -m cew_gate_control_plane.cli fetch-candidate',t)
         self.assertIn('--destination "$RUNNER_TEMP/candidate.git"',t)
+    def test_verify_handoff_job_never_reads_or_fetches_candidate(self):
+        t=self.text()
+        verify=t.split('\n  verify-handoff:\n',1)[1].split('\n  decision:\n',1)[0]
+        for forbidden in ('fetch-candidate','candidate.git','refs/pull/','cew_gate_authority.cli qualify','--candidate-git-dir'):
+            self.assertNotIn(forbidden,verify)
     def test_artifact_handoff_is_by_id_and_digest_error(self):
         t=self.text(); self.assertIn('artifact-ids:',t); self.assertIn('digest-mismatch: error',t); self.assertIn('overwrite: false',t); self.assertIn('if-no-files-found: error',t)
     def test_action_pins_are_exact_and_no_tag_forms(self):
