@@ -29,6 +29,15 @@ jobs:
         with:
           python-version: '3.12.15'
 
+      - name: Resolve Tesseract system package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr
+          echo "TESSERACT_DPKG_VERSION=$(dpkg-query -W -f='${Version}' tesseract-ocr)"
+          tesseract --version | head -n 1
+
       - name: Resolve newest stable Step 2 Python package set
         shell: bash
         run: |
@@ -75,12 +84,8 @@ jobs:
           import OCP
           print('STEP2_IMPORT_PROBE=PASS')
           PY
-          if command -v tesseract >/dev/null 2>&1; then
-            echo "TESSERACT_PATH=$(command -v tesseract)"
-            tesseract --version | head -n 1
-          else
-            echo 'TESSERACT_PATH=NOT_INSTALLED_ON_RUNNER'
-          fi
+          echo "TESSERACT_PATH=$(command -v tesseract)"
+          tesseract --version | head -n 1
 
       - name: Fetch frozen archival commit
         shell: bash
