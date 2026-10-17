@@ -1,0 +1,11 @@
+audit_id,metric,value,status,note
+G2-GAX-001,solved_supports_with_xy,30,PASS,"30 of 38 supports have both working X and Y from documented dimensions plus structural axis alignments; unresolved coordinates remain explicit."
+G2-GAX-002,partial_or_unresolved_supports,8,OPEN,"P12 P18 P19 P20 P22-prime P23 P27 P30 retain at least one unresolved coordinate/reference."
+G2-GAX-003,affine_u_from_metric,"u = 157.539621*x - 0.491217*y + 1264.31457",DIAGNOSTIC_ONLY,"Raster diagnostic transform; never metric authority."
+G2-GAX-004,affine_v_from_metric,"v = 0.607656*x + 157.303931*y + 2811.95479",DIAGNOSTIC_ONLY,"Raster diagnostic transform; never metric authority."
+G2-GAX-005,residual_rms_px,9.461,PASS_DIAGNOSTIC,"RMS over 30 working-solved supports."
+G2-GAX-006,residual_median_px,6.826,PASS_DIAGNOSTIC,"Median residual; local scan distortion remains visible."
+G2-GAX-007,max_residual_px,21.203,WATCH,"P25 has largest residual; do not move metric grid to hide it. Review scan deformation/local reference if needed."
+G2-GAX-008,reference_line_rebound_2.10,"X_L1=3.45 -> X_L2=5.55",SUPPORTED_PENDING_G3,"The directly observed r4_c2 2.10 dimension is assigned to reference lines, not a support pair; P21/P22/P22-prime column matches X_L2 in native pixels."
+G2-GAX-009,old_25_19_pairing,revoked,PASS,"2.10 is not P25-P19."
+G2-GAX-010,old_27_22_pairing,revoked,PASS,"2.10 is not P27-P22; P27/P22-prime share an observed row but its Y coordinate remains unresolved."

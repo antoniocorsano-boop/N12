@@ -1,0 +1,69 @@
+name: M0G Local Reopen B053 B054
+
+on:
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - scripts/n12_apply_m0g_reopen_b053_b054.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate-and-revalidate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Apply local PT reopen inputs and validator contracts
+        run: python scripts/n12_apply_m0g_reopen_b053_b054.py --prepare
+
+      - name: Validate PT master after local reopen
+        run: python scripts/validate_pt_master_current.py
+
+      - name: Regenerate global analytical nodes
+        run: python scripts/n12_generate_m0g_3d_nodes.py
+
+      - name: Regenerate rigid joint links
+        run: python scripts/n12_generate_m0g_rigid_links.py
+
+      - name: Regenerate member connectivity
+        run: python scripts/n12_generate_m0g_member_connectivity.py
+
+      - name: Regenerate global topology gate
+        run: python scripts/n12_generate_m0g_global_topology_gate.py
+
+      - name: Finalize handoffs and M1-S counts
+        run: python scripts/n12_apply_m0g_reopen_b053_b054.py --finalize
+
+      - name: Revalidate PT master
+        run: python scripts/validate_pt_master_current.py
+
+      - name: Revalidate global topology gate
+        run: python scripts/n12_generate_m0g_global_topology_gate.py
+
+      - name: Validate knowledge system
+        run: python scripts/validate_knowledge_system.py
+
+      - name: Commit revalidated canonical state
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "N12 Automation"
+          git config user.email "n12-automation@users.noreply.github.com"
+          git add data/canonical analysis/automation knowledge docs scripts
+          git commit -m "geometry: close local M0G reopen B053 B054"
+          git push origin HEAD:work/m0-global-model

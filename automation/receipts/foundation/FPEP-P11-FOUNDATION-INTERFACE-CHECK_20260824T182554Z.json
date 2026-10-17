@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P11-FOUNDATION-INTERFACE-CHECK",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "PASS",
+  "run_id": "FPEP-P11-20260824T182300Z",
+  "result_sha256": "ad239672fef13aee2efa1adec1b49282782a3f659441e0eb0fd901f8bbd46176",
+  "target_outputs": [
+    "analysis/fpep/FPEP_FOUNDATION_INTERFACE_CROSSCHECK_v1.csv"
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_FOUNDATION_INTERFACE_CROSSCHECK_v1.csv"
+  ],
+  "residuals": [
+    {
+      "residual_id": "P11-W001",
+      "claim_id": "ZF_COMMON-NUMERIC-Z",
+      "blocking": false,
+      "reason": "The common foundation plane is documented symbolically but no numeric model/project/geodetic Z is registered.",
+      "required_evidence": "Keep ZF_COMMON numeric value ND until direct datum evidence binds local ground/G1/foundation levels."
+    },
+    {
+      "residual_id": "P11-W002",
+      "claim_id": "GROUND-FLOOR-LOAD-PATH",
+      "blocking": false,
+      "reason": "Ground-supported versus structural/foundation-beam load transfer remains unclassified; numeric build-up properties are not registered.",
+      "required_evidence": "Require new primary/survey evidence before load assignment."
+    },
+    {
+      "residual_id": "P11-W003",
+      "claim_id": "CURRENT-GEOTECHNICS",
+      "blocking": false,
+      "reason": "Current site-specific stratigraphy, groundwater, strength and stiffness/settlement parameters remain unavailable in the registered repository evidence.",
+      "required_evidence": "Register site-specific geotechnical documentation or investigation results before current foundation verification."
+    },
+    {
+      "residual_id": "P11-W004",
+      "claim_id": "SYMBOLIC-3D-58-MEMBER-TOPOLOGY",
+      "blocking": false,
+      "reason": "The elevation gate's pre-P07 symbolic 58-member connectivity is superseded as a topology reference by P07/P10, although the common-plane evidence remains valid.",
+      "required_evidence": "Any successor symbolic 3D foundation connectivity must use P07 primary topology rather than the pre-P07 58-member set."
+    }
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T18:25:54.768021+00:00"
+}

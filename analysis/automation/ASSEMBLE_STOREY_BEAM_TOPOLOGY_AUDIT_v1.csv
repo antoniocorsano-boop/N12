@@ -1,0 +1,9 @@
+check_id,scope,source_path,expected_count,indexed_count,status,watch_state,note
+COUNT-G2,G2,data/canonical/STOREY_BEAMS_G2_v1.csv,48,48,PASS,PASS,Index references source ledger without copying/normalizing member fields.
+COUNT-G3,G3,data/canonical/STOREY_BEAMS_G3_v1.csv,48,48,PASS,PASS,Index references source ledger without copying/normalizing member fields.
+COUNT-G4,G4,data/canonical/STOREY_BEAMS_G4_v1.csv,48,48,PASS,PASS,Index references source ledger without copying/normalizing member fields.
+COUNT-G5,G5,data/canonical/STOREY_BEAMS_G5_v1.csv,36,36,PASS,WATCH,36 ordinary roof beams indexed; source-level section watches retained and not promoted.
+ROOF-RIDGES,G5_SPECIAL,data/canonical/ROOF_G5_SPECIAL_FEATURES_CURRENT_v1.csv,3,3,PASS,WATCH,Three ridge axes remain in the separate roof-special registry; not converted to ordinary support-to-support beams.
+ROOF-GRONDE,G5_SPECIAL,data/canonical/ROOF_G5_SPECIAL_FEATURES_CURRENT_v1.csv,3,3,PASS,WATCH,Three eave edge sets remain in the separate roof-special registry; structural beam identity is not invented.
+ROOF-OBLIQUE,G5_SPECIAL,data/canonical/ROOF_G5_SPECIAL_FEATURES_CURRENT_v1.csv,1,1,PASS,PASS,Confirmed oblique member remains ordinary beam G5-B036 and is cross-referenced by the special-feature registry.
+NO-ROOF-NORMALIZATION,ASSEMBLY,data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv,0,0,PASS,WATCH,No RIDGE_AXIS or GRONDA_EDGE_SET row is inserted into the ordinary beam index.

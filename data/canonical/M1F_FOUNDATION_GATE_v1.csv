@@ -1,0 +1,17 @@
+check_id,metric,expected,actual,status,severity,note
+M1F-MODEL-G01,support_identities,38,38,PASS,HARD,P07/FPEP promoted 38 distinct support identifiers; 22 and 22bis remain distinct and a-d are retained.
+M1F-MODEL-G02,foundation_members_primary,55,55,PASS,HARD,"Successor connectivity is assembled from P07 primary incidences, not from the pre-P07 58-member topology."
+M1F-MODEL-G03,connected_components,1,1,PASS,HARD,The 38-support / 55-member successor graph is one connected foundation component.
+M1F-MODEL-G04,orphan_supports,0,0,PASS,HARD,All 38 support identities participate in at least one P07 primary incidence.
+M1F-MODEL-G05,legacy_only_edges_retained,0,0,PASS,HARD,"25-26, 28-29, 31-32 and 11-20 are excluded from the successor connectivity per P10."
+M1F-MODEL-G06,primary_only_edge_added,11-19,11-19,PASS,HARD,P07 primary-only incidence 11-19 is included; legacy 11-20 remains superseded as geometry authority.
+M1F-MODEL-G07,direct_tav01a_property_bindings,39,39,PASS,HARD,Only P08 primary-coincident direct bindings are applied.
+M1F-MODEL-G08,supported_tav01a_property_bindings,1,1,PASS_WITH_WATCH,WATCH,22bis-27 remains SUPPORTED_PRIMARY_TRANSFORMATION; it is not upgraded to direct.
+M1F-MODEL-G09,nd_tav01a_property_bindings,15,15,PASS_WITH_WATCH,WATCH,Fifteen P07 incidences retain ND_DOCUMENTARY_COVERAGE; no analogy fills section or longitudinal reinforcement.
+M1F-MODEL-G10,foundation_cartesian_xy_promoted_from_pt_m0g,0,0,PASS,HARD,PT/M0-G coordinates are not used to retro-promote P07 foundation Cartesian geometry.
+M1F-MODEL-G11,numeric_foundation_z_assigned,0,0,PASS_WITH_WATCH,WATCH,All supports/members use symbolic ZF_COMMON; numeric model/project/geodetic Z remains ND.
+M1F-MODEL-G12,current_solver_concrete_strength_ready,NO,NO,PASS_WITH_WATCH,WATCH,"Historical R'=300 kg/cm2 is retained as historical DOC only; current in-situ strength, LC and FC remain ND."
+M1F-MODEL-G13,numeric_load_assignment_ready,NO,NO,PASS_WITH_WATCH,WATCH,M1L contains no sourced numerical Gk/Qk/mass values; foundation model carries no invented numerical loads.
+M1F-MODEL-G14,current_geotechnical_parameters_ready,NO,NO,PASS_WITH_WATCH,WATCH,"No modern soil springs, current resistance, stratigraphy, groundwater or stiffness parameters are inferred."
+M1F-MODEL-G15,pre_p07_58_member_topology_used_as_authority,NO,NO,PASS,HARD,Legacy topology is regression/history only after FPEP release.
+M1F-MODEL-FINAL,gate_state,FOUNDATION_STRUCTURAL_ASSEMBLY_COMPLETE_WITH_EXECUTION_WATCHES,FOUNDATION_STRUCTURAL_ASSEMBLY_COMPLETE_WITH_EXECUTION_WATCHES,PASS_WITH_WATCH,GATE,Foundation-side structural identity/connectivity assembly is complete from P07 authority. Numerical calculation readiness remains blocked by explicit XY/Z/material/load/geotechnical watches.

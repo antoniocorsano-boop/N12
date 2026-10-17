@@ -1,0 +1,4 @@
+entity_id,identity_status,section_status,coordinate_status,known_coordinate_m,superseded_coordinate_m,source_scope,current_action,note
+18,DOC_DIRECT,SUPPORTED_PARTIAL_110xND,DOC_GLOBAL,"6.90;4.70",,"UNBOUND_Q01 + PT_MASTER_CURRENT","KEEP_COORDINATE_REVIEW_SECTION","identificativo 18 leggibile; lato 110 cm leggibile; seconda dimensione ND; candidato tile persistente R03C01"
+19,DOC_DIRECT,SUPPORTED_40x50,CONFLICT_REOPENED,,"6.90;9.80","UNBOUND_Q01 + left-sector coordinate reconciliation","DO_NOT_INTERPOLATE","precedente Y=9.80 superseded; nessun legame documentale corrente a R1=12.23 o altre righe; richiede raccordo diretto"
+20,DOC_DIRECT,SUPPORTED_50x40,CONFLICT_REOPENED,,"6.90;13.95","UNBOUND_Q01 + left-sector coordinate reconciliation","DO_NOT_INTERPOLATE","precedente Y=13.95 superseded; nessun legame documentale corrente a R2=18.48 o altre righe; richiede raccordo diretto"

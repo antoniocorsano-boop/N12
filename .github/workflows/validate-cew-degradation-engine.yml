@@ -1,0 +1,34 @@
+name: Validate CEW Degradation Engine
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_DEGRADATION_MODEL_REGISTRY_v1.json'
+      - 'scripts/cew_degradation_engine.py'
+      - '.github/workflows/validate-cew-degradation-engine.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-degradation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: python -m py_compile scripts/cew_degradation_engine.py
+      - name: Evaluate degradation registry safety
+        run: python scripts/cew_degradation_engine.py --registry automation/CEW_DEGRADATION_MODEL_REGISTRY_v1.json --output /tmp/CEW_DEGRADATION_ACTIVATION_GATE_v0.json
+      - name: Assert no uncalibrated model can execute
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('/tmp/CEW_DEGRADATION_ACTIVATION_GATE_v0.json'))
+          assert p['eligible_model_count']==0
+          assert p['blocked_model_count']==p['model_count']==5
+          assert all(not m['scenario_output_authorized'] for m in p['models'])
+          assert all(m['activation_state']=='BLOCKED' for m in p['models'])
+          print('CEW degradation safety gate: PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cew-degradation-activation-gate-v0
+          path: /tmp/CEW_DEGRADATION_ACTIVATION_GATE_v0.json

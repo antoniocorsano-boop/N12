@@ -1,0 +1,2 @@
+record_type,status,reason,source,note
+SUPERSEDED,SUPERSEDED_INVALID,"Il precedente schema ancorato al nodo 33 combinava correttamente alcune quote locali ma associava in modo errato le terne di nodi ai fili. La TAV-02S ad alta risoluzione mostra invece le righe globali corrette: a-b-17-9-1; c-d-18-10-2; 31-28-19-11-3; 32-29-20-12-5-4. Non usare le progressive relative di questa versione.",TAV-02S_tavola2-2.pdf,"File mantenuto come tombstone; la nuova ricostruzione parte dalle righe corrette e dalle quote dirette"

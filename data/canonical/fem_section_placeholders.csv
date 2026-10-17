@@ -1,0 +1,6 @@
+section_id,element_family,b_m,h_m,area_m2,iy_m4,iz_m4,j_m4,status,evidence,note
+COL_PLACEHOLDER_40x40,column,0.40,0.40,0.1600,0.0021333333,0.0021333333,0.0042666667,PLACEHOLDER_GEOMETRY_ONLY,"Registro Master COL-002/COL-003","provvisorio per smoke-test geometrico; non usare per verifica"
+BEAM_T5_20x45_DOC_GEOM,beam,0.20,0.45,0.0900,0.0015187500,0.0003000000,0.0018187500,DOC_GEOMETRY_SECTION,"Telaio 5 G5 relazione_calcolo_v17","sezione documentata per T5 G5; materiali/carichi non ancora modello di verifica"
+BEAM_T5_25x70_DOC_GEOM,beam,0.25,0.70,0.1750,0.0071458333,0.0009114583,0.0080572917,DOC_GEOMETRY_SECTION,"Telaio 5 RC-P13_v16","sezione documentata per T5 C1-C2/C6/C7-C8 ai livelli indicati"
+BEAM_T5_140x20_DOC_GEOM,beam,1.40,0.20,0.2800,0.0009333333,0.0457333333,0.0466666667,DOC_GEOMETRY_SECTION,"Telaio 5 RC-P13_v16","sezione speciale documentata C3-C5; orientamento locale da verificare"
+BEAM_PLACEHOLDER,beam,0.30,0.50,0.1500,0.0031250000,0.0011250000,0.0042500000,PLACEHOLDER_GEOMETRY_ONLY,"ND/INC","fallback vietato per verifica; solo sezione provvisoria per elementi non tipizzati"

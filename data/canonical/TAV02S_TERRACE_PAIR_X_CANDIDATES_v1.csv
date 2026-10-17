@@ -1,0 +1,7 @@
+pair_id,y_global_m,candidate_filo,candidate_x_global_m,state,evidence,exclusion_rule,note
+A_C,3.48,F0,-3.35,CANDIDATE,"TAV.1A chain [a/c]-[b/d]-[25/28/31] + PT left-sector grid","F3 excluded from this chain because terminal group is 25/28/31 = F2/F1/F0","candidate only; do not assign a or c"
+A_C,3.48,F1,1.35,CANDIDATE,"TAV.1A chain [a/c]-[b/d]-[25/28/31] + PT left-sector grid","F3 excluded from this chain because terminal group is 25/28/31 = F2/F1/F0","candidate only; do not assign a or c"
+A_C,3.48,F2,4.80,CANDIDATE,"TAV.1A chain [a/c]-[b/d]-[25/28/31] + PT left-sector grid","F3 excluded from this chain because terminal group is 25/28/31 = F2/F1/F0","candidate only; do not assign a or c"
+B_D,8.18,F0,-3.35,CANDIDATE,"TAV.1A chain [a/c]-[b/d]-[25/28/31] + PT left-sector grid","F3 excluded from this chain because terminal group is 25/28/31 = F2/F1/F0","candidate only; do not assign b or d"
+B_D,8.18,F1,1.35,CANDIDATE,"TAV.1A chain [a/c]-[b/d]-[25/28/31] + PT left-sector grid","F3 excluded from this chain because terminal group is 25/28/31 = F2/F1/F0","candidate only; do not assign b or d"
+B_D,8.18,F2,4.80,CANDIDATE,"TAV.1A chain [a/c]-[b/d]-[25/28/31] + PT left-sector grid","F3 excluded from this chain because terminal group is 25/28/31 = F2/F1/F0","candidate only; do not assign b or d"

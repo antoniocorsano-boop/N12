@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0",
+  "system_id": "N12_STRUCTURAL_ANALYSIS_ORCHESTRATOR",
+  "purpose": "Run structural-document analysis as controlled repeatable cycles with deterministic checks, specialist semantic gates, residual queues and canonical promotion rules.",
+  "canonical_branch": "work/m0-global-model",
+  "entrypoint": "scripts/n12_orchestrator.py",
+  "queue": "automation/N12_WORK_QUEUE_v1.json",
+  "agent_result_contract": "automation/N12_AGENT_RESULT_CONTRACT_v1.json",
+  "agent_result_inbox": "automation/inbox/N12_AGENT_RESULT.json",
+  "agent_result_ingestor": "scripts/n12_ingest_agent_result.py",
+  "current_state": "knowledge/CURRENT_STATE.json",
+  "manifest": "knowledge/KNOWLEDGE_MANIFEST.json",
+  "effective_authority": ["knowledge/ARTIFACT_REGISTRY.csv", "knowledge/ARTIFACT_REGISTRY_G1G9_PATCH_v1.csv"],
+  "delegated_subpipelines": {
+    "M1F-PRIMARY-GEOMETRY-REVALIDATION": {
+      "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+      "contract": "automation/N12_FOUNDATION_PIPELINE_CONTRACT_v1.json",
+      "queue": "automation/N12_FOUNDATION_WORK_QUEUE_v1.json",
+      "result_contract": "automation/N12_FOUNDATION_AGENT_RESULT_CONTRACT_v1.json",
+      "runner": "scripts/n12_foundation_orchestrator.py",
+      "task_generator": "scripts/n12_make_agent_task.py",
+      "completion_item": "FPEP-P12-RELEASE-AUDIT",
+      "primary_gate": "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
+      "release_gate": "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv",
+      "parent_ingestion_rule": "The parent wrapper cannot PASS until every FPEP sub-item is COMPLETE, the P12 receipt exists and is cited in parent audit_paths, and both canonical gates are ingestible."
+    }
+  },
+  "cycle_outcome_states": [
+    "PASS_ADVANCE",
+    "PASS_WITH_WATCH_ADVANCE",
+    "READY_FOR_AGENT",
+    "RESIDUAL_REVIEW",
+    "BLOCKED_DEPENDENCY",
+    "BLOCKED_INPUT",
+    "CONFLICT_STOP",
+    "FAIL_STOP",
+    "COMPLETE"
+  ],
+  "work_item_states": ["READY", "WAITING", "IN_PROGRESS", "CANDIDATE", "RESIDUAL", "BLOCKED", "COMPLETE", "SUPERSEDED"],
+  "stages": [
+    {
+      "id": "S0_BOOTSTRAP",
+      "mode": "DETERMINISTIC",
+      "checks": ["knowledge_contracts", "agent_bootstrap", "queue_contract", "agent_result_handshake"],
+      "success": "S1_SOURCE_READY"
+    },
+    {
+      "id": "S1_SOURCE_READY",
+      "mode": "DETERMINISTIC",
+      "checks": ["required_inputs_exist", "source_identity_registered"],
+      "success": "S2_SPECIALIST_READING"
+    },
+    {
+      "id": "S2_SPECIALIST_READING",
+      "mode": "AGENT_SEMANTIC",
+      "rule": "Read the primary sheet independently. Do not copy sections, topology or dimensions from adjacent storeys. Produce claims with DOC/MIS/RIF/INF/INC/ND provenance. Delegated wrapper items must execute their registered subpipeline instead of collapsing it into one generic semantic result.",
+      "success": "S3_METRIC_AND_TOPOLOGY_CHECKS",
+      "residual": "RESIDUAL_REVIEW"
+    },
+    {
+      "id": "S3_METRIC_AND_TOPOLOGY_CHECKS",
+      "mode": "HYBRID",
+      "checks": ["identity_consistency", "metric_registration_residuals", "section_orientation_consistency", "topology_well_formed", "anti_extrusion_rules"],
+      "success": "S4_CROSSCHECK",
+      "watch": "S4_CROSSCHECK",
+      "failure": "RESIDUAL_REVIEW"
+    },
+    {
+      "id": "S4_CROSSCHECK",
+      "mode": "HYBRID",
+      "checks": ["adjacent_storey_identity_only", "source_dimension_priority", "extended_support_semantics", "duplicate_and_conflict_scan"],
+      "success": "S5_PROMOTION_GATE",
+      "failure": "RESIDUAL_REVIEW"
+    },
+    {
+      "id": "S5_PROMOTION_GATE",
+      "mode": "DETERMINISTIC_PLUS_SEMANTIC_APPROVAL",
+      "rule": "Canonical promotion is allowed only when output exists, provenance is explicit, no blocking conflict remains, required audit exists and the artifact is registered with compatible authority/state. The semantic executor must submit exactly one result packet through the agent-result handshake; the ingestor verifies promotion but never manufactures canonical evidence. For delegated wrappers, the ingestor additionally verifies delegated-queue completion and its final receipt.",
+      "success": "S6_STATE_ADVANCE",
+      "failure": "RESIDUAL_REVIEW"
+    },
+    {
+      "id": "S6_STATE_ADVANCE",
+      "mode": "DETERMINISTIC",
+      "checks": ["knowledge_contracts", "queue_dependency_release", "anti_restart_checkpoint", "agent_result_receipt"],
+      "success": "COMPLETE_OR_NEXT_ITEM"
+    }
+  ],
+  "global_rules": {
+    "source_priority": "written dimensions/text and explicit identifiers on immutable primary sources outrank raster scale, historical datasets and inference",
+    "no_blind_extrusion": true,
+    "no_cross_storey_section_copy": true,
+    "no_cross_storey_beam_copy": true,
+    "no_mis_to_doc_promotion": true,
+    "reopen_smallest_conflicting_claim_only": true,
+    "watch_is_not_failure": true,
+    "residuals_do_not_block_unrelated_work": true,
+    "extended_support_rule": "physical support centroid is not automatically an analytical beam node; preserve faces and multiple beam incidences",
+    "stable_checkpoint_rule": "PT G1-G9, current PT Master, PT handoff and common storey registration are not reopened unless direct primary-source evidence conflicts with a specific claim",
+    "foundation_primary_geometry_rule": "M1F foundation analytical assembly is blocked behind FPEP. Before FPEP-P07, primary foundation readers, metric solver, topology builder and adjudicator may not receive legacy foundation topology/count targets, PT Master coordinates, M0-G geometry, TAV-01A reinforcement groups or historical calculation topology as geometry-generating context."
+  },
+  "deterministic_checks": {
+    "knowledge_contracts": "python scripts/validate_knowledge_system.py",
+    "agent_bootstrap": "python scripts/agent_bootstrap.py",
+    "semantic_registry": "python skills/pt-carpentry-reader/runner.py validate",
+    "pt_raster_status": "python skills/pt-raster-grid-reconstructor/runner.py status",
+    "queue_contract": "python scripts/n12_orchestrator.py validate",
+    "agent_result_handshake": "python scripts/n12_ingest_agent_result.py validate",
+    "foundation_pipeline": "python scripts/validate_foundation_pipeline.py",
+    "foundation_suborchestrator": "python scripts/n12_foundation_orchestrator.py validate"
+  },
+  "automation_boundary": {
+    "github_actions_can": ["render immutable sources", "run deterministic extraction", "run validators", "select next eligible work item", "publish cycle report artifacts", "ingest a contract-valid specialist result", "advance queue/state only after promotion evidence exists", "delegate a registered wrapper to its specialist sub-orchestrator", "stop on deterministic failure"],
+    "specialist_agent_required_for": ["reading ambiguous labels or dimensions", "semantic classification of structural symbols", "resolving competing source interpretations", "approving a claim for canonical promotion when visual evidence is required", "writing the single-item semantic result packet"],
+    "fully_unattended_semantic_execution": "Requires an authorized external agent executor. A scheduled project agent may act as that executor only within the single-item contract. The deterministic orchestrator must not weaken semantic gates when no executor is connected. Delegated pipelines retain their own single-item boundary and information barriers."
+  }
+}

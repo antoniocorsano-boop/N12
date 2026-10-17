@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW_INVESTIGATION_PLANNER_CONTRACT",
+  "product": "CEW",
+  "subsystem": "Civil Existing Workflow",
+  "purpose": "Convert unresolved assessment claims into an auditable, staged investigation plan without manufacturing missing engineering facts.",
+  "invariants": [
+    "INVESTIGATION_RECOMMENDATIONS_ARE_NOT_EVIDENCE",
+    "DOCUMENTARY_RECOVERY_PRECEDES_INVASIVE_TESTING_WHERE_PLAUSIBLE",
+    "TEST_SELECTION_MUST_REFERENCE_ONE_OR_MORE_UNRESOLVED_DOMAINS",
+    "COST_OR_INVASIVENESS_SCORES_NEVER_OVERRIDE_ENGINEERING_SAFETY",
+    "VALUE_OF_INFORMATION_REQUIRES_A_DECLARED_DECISION_MODEL_AND_IS_NOT_AVAILABLE_IN_V0",
+    "NO_TEST_RESULT_IS_CREATED_BY_THE_PLANNER",
+    "LC_FC_OR_CURRENT_MATERIAL_VALUES_ARE_NEVER_ASSIGNED_BY_PLANNING"
+  ],
+  "candidate_classes": [
+    "DOCUMENTARY_RECOVERY",
+    "VISUAL_SURVEY",
+    "NON_DESTRUCTIVE_SCREENING",
+    "TARGETED_OPENING_OR_SURVEY",
+    "LABORATORY_TEST",
+    "GEOTECHNICAL_INVESTIGATION",
+    "SPECIALIST_REVIEW"
+  ],
+  "required_candidate_fields": [
+    "investigation_id",
+    "target_domain",
+    "candidate_class",
+    "method",
+    "expected_uncertainty_reduction",
+    "invasiveness",
+    "relative_cost",
+    "dependency_ids",
+    "potentially_closes",
+    "unlocks",
+    "decision_state"
+  ],
+  "ranking_v0": {
+    "name": "HEURISTIC_INFORMATION_PRIORITY",
+    "not_value_of_information": true,
+    "factors": ["blocker_coverage", "expected_uncertainty_reduction", "invasiveness", "relative_cost", "dependency_readiness"],
+    "rule": "Prefer zero/low-invasive evidence recovery with high blocker coverage; preserve specialist-required investigations even when expensive; ranking is advisory only."
+  },
+  "future_voi_gate": {
+    "required_before_activation": [
+      "decision_variable",
+      "decision_threshold_or_loss_function",
+      "prior_uncertainty_model",
+      "test_likelihood_model",
+      "test_cost_model",
+      "downstream_structural_response_model"
+    ]
+  }
+}

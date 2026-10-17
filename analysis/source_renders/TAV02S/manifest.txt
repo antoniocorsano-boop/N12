@@ -1,0 +1,4 @@
+source_size_px=4680x8609
+rows=4
+cols=3
+overlap=0.06

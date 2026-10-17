@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW_EXPOSURE_CONDITION_CONTRACT",
+  "purpose": "Represent project exposure context and observed/measured condition without manufacturing deterioration parameters or evidence.",
+  "epistemic_states": ["DOC", "MIS", "RIF", "INF", "INC", "ND", "MOD", "POST"],
+  "record_types": ["EXPOSURE_ZONE", "ELEMENT_FACE_EXPOSURE", "CONDITION_OBSERVATION", "CONDITION_MEASUREMENT", "PROTECTION_SYSTEM", "MECHANISM_SCREENING"],
+  "location_classes": ["INTERNAL", "EXTERNAL", "SHELTERED_EXTERNAL", "BURIED", "WET_ZONE", "ND"],
+  "condition_features": ["CRACKING", "SPALLING", "DELAMINATION", "RUST_STAINING", "EXPOSED_REBAR", "MOISTURE", "LEAKAGE", "SECTION_LOSS_VISIBLE", "SURFACE_PROTECTION_DAMAGE", "NONE_OBSERVED", "ND"],
+  "screening_mechanisms": ["CARBONATION_INITIATION", "CHLORIDE_INGRESS", "CORROSION_PROPAGATION", "COVER_CRACKING_SPALLING", "BOND_DEGRADATION", "FREEZE_THAW_IF_APPLICABLE", "CHEMICAL_ATTACK_IF_APPLICABLE"],
+  "minimum_fields": ["record_id", "record_type", "target_ref", "state", "source_refs", "observation_or_reference_date", "review_state"],
+  "invariants": [
+    "EXPOSURE_IS_NOT_CONDITION",
+    "OBSERVED_CONDITION_IS_NOT_HIDDEN_MATERIAL_PROPERTY",
+    "NO_EXPOSURE_CLASS_FROM_GEOGRAPHY_OR_AGE_ALONE",
+    "NO_DEGRADATION_MODEL_AUTO_ACTIVATION",
+    "NO_NUMERIC_PARAMETER_WITHOUT_SOURCE_OR_ADMITTED_RULE",
+    "FACE_LEVEL_DIFFERENTIATION_PREFERRED_WHEN_EVIDENCE_EXISTS",
+    "MODEL_DERIVED_STATE_NEVER_OVERWRITES_OBSERVATION_OR_MEASUREMENT",
+    "DAMAGE_AND_TIME_DEPENDENT_DETERIORATION_REMAIN_DISTINCT"
+  ],
+  "mechanism_screening_output": {
+    "states": ["RELEVANT", "POSSIBLY_RELEVANT", "NOT_SUPPORTED", "NOT_APPLICABLE", "ND"],
+    "effect": "SCREENING_ONLY",
+    "activation_authority": false
+  },
+  "references": [
+    "docs/RESEARCH/CEW_EXPOSURE_CONDITION_RESEARCH_v1.md",
+    "automation/CEW_DEGRADATION_MODEL_REGISTRY_v1.json"
+  ]
+}

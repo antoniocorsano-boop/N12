@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "activation_id": "N12_FPEP_PARENT_HANDOFF_ACTIVATION",
+  "activated_at": "2026-08-24T18:31:00Z",
+  "branch": "work/m0-global-model",
+  "parent_work_item": "M1F-PRIMARY-GEOMETRY-REVALIDATION",
+  "foundation_completion_item": "FPEP-P12-RELEASE-AUDIT",
+  "foundation_receipt": "automation/receipts/foundation/FPEP-P12-RELEASE-AUDIT_20260824T183020Z.json",
+  "parent_result_inbox": "automation/inbox/N12_AGENT_RESULT.json",
+  "reason": "Explicit connector-authored activation after the FPEP bot persisted the P12 receipt and parent result. GitHub does not recursively trigger workflows from GITHUB_TOKEN-authored commits; this record creates an auditable parent-ingest trigger without changing any semantic evidence.",
+  "semantic_effect": "NONE",
+  "information_barrier_effect": "NONE"
+}

@@ -1,0 +1,2 @@
+record_type,status,reason,source,note
+SUPERSEDED,SUPERSEDED_CONFLICT,"Le coordinate precedentemente attribuite a 32 e 29 sulla riga Y=13.95 sono incompatibili con la catena documentale del settore sinistro: 31->32=6.25 m e 32->33=4.95 m. Il file non deve più essere usato per le coordinate del blocco sinistro.",TAV-02S_tavola2-2.pdf,"Restano validi nodo 4, nodo 5 e le relazioni del settore destro se confermati da file canonici indipendenti; per il settore sinistro usare tav02s_pt_nodes_evidence_v2.csv e i registri locali aggiornati."

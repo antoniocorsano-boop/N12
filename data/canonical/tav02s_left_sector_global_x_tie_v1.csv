@@ -1,0 +1,8 @@
+entity_or_filo,u_local_m,x_global_m,y_global_m,derivation,evidence,status,note
+24,10.25,6.90,28.13,"X24=X16-6.45=13.35-6.45; Y24=Y8 on common lower reference line","TAV-02S bottom chain 6.45-4.65 + right chain",DOC_GLOBAL_TIE,"primo nodo del settore sinistro chiuso in X,Y globali"
+F3,10.25,6.90,,"F3 contains node 24","TAV-02S left-sector local grid + node24 tie",DOC_GLOBAL_X,"filo 21/22/23/24"
+F2,8.15,4.80,,"X_F2=X_F3-2.10=6.90-2.10","TAV-02S transverse chain",DOC_GLOBAL_X,"filo 25/26/27"
+F1,4.70,1.35,,"X_F1=X_F2-3.45=4.80-3.45","TAV-02S transverse chain",DOC_GLOBAL_X,"filo 28/29/30"
+F0,0.00,-3.35,,"X_F0=X_F1-4.70=1.35-4.70","TAV-02S transverse chain",DOC_GLOBAL_X,"filo 31/32/33"
+16,,13.35,28.13,"reference node from lower-right chain","TAV-02S lower-right quoted grid",DOC_REFERENCE,"nodo di controllo per la campata 6.45"
+8,,18.00,28.13,"reference node from right chain","TAV-02S right quoted chain",DOC_REFERENCE,"nodo di controllo per la campata 4.65"

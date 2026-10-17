@@ -1,0 +1,30 @@
+name: Validate CEW Exposure Condition
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_EXPOSURE_CONDITION_CONTRACT_v1.json'
+      - 'automation/CEW_DEGRADATION_MODEL_REGISTRY_v1.json'
+      - 'data/canonical/N12_EXPOSURE_CONDITION_PROFILE_v0.json'
+      - 'docs/RESEARCH/CEW_EXPOSURE_CONDITION_RESEARCH_v1.md'
+      - 'scripts/cew_exposure_condition_validator.py'
+      - '.github/workflows/validate-cew-exposure-condition.yml'
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: python -m py_compile scripts/cew_exposure_condition_validator.py
+      - name: Validate exposure and condition safety
+        run: >-
+          python scripts/cew_exposure_condition_validator.py
+          --contract automation/CEW_EXPOSURE_CONDITION_CONTRACT_v1.json
+          --profile data/canonical/N12_EXPOSURE_CONDITION_PROFILE_v0.json
+          --registry automation/CEW_DEGRADATION_MODEL_REGISTRY_v1.json
+      - name: Assert research trace exists
+        run: |
+          test -s docs/RESEARCH/CEW_EXPOSURE_CONDITION_RESEARCH_v1.md
+          grep -q 'ISO 16311-2:2024' docs/RESEARCH/CEW_EXPOSURE_CONDITION_RESEARCH_v1.md
+          grep -q 'fib Bulletin 109' docs/RESEARCH/CEW_EXPOSURE_CONDITION_RESEARCH_v1.md
+          grep -q 'fib Bulletin 112' docs/RESEARCH/CEW_EXPOSURE_CONDITION_RESEARCH_v1.md

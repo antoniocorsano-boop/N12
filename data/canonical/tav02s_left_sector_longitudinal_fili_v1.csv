@@ -1,0 +1,10 @@
+filo_id,nodes_order,u_local_m,segment_from,segment_to,distance_m,v_from_m,v_to_m,evidence,status,note
+F0,"31/32/33",0.00,31,32,6.25,-6.25,0.00,"TAV-02S left external dimension chain; high-resolution crop",DOC_QUOTATO,"nodo 32 assunto origine longitudinale locale"
+F0,"31/32/33",0.00,32,33,4.95,0.00,4.95,"TAV-02S quota diretta 4.95; high-resolution crop",DOC_QUOTATO,"distanza direttamente leggibile"
+F1,"28/29/30",4.70,28,29,,,,"TAV-02S q3 high-resolution; identità e filo leggibili",DOC_ID_FIL0,"distanza longitudinale specifica non ancora quotata/promossa"
+F1,"28/29/30",4.70,29,30,,,,"TAV-02S q3 high-resolution; identità e filo leggibili",DOC_ID_FIL0,"non propagare 6.25 o 4.95 dal filo F0"
+F2,"25/26/27",8.15,25,26,,,,"TAV-02S q3 high-resolution; identità e filo leggibili",DOC_ID_FIL0,"distanza longitudinale specifica non ancora quotata/promossa"
+F2,"25/26/27",8.15,26,27,,,,"TAV-02S q3 high-resolution; identità e filo leggibili",DOC_ID_FIL0,"non propagare 6.25 o 4.95 dal filo F0"
+F3,"21/22/23/24",10.25,21,22,,,,"TAV-02S q3 high-resolution; quattro nodi sul medesimo filo",DOC_ID_FIL0,"ordine longitudinale documentale; distanza specifica da leggere"
+F3,"21/22/23/24",10.25,22,23,,,,"TAV-02S q3 high-resolution; quattro nodi sul medesimo filo",DOC_ID_FIL0,"distanza specifica da leggere"
+F3,"21/22/23/24",10.25,23,24,,,,"TAV-02S q3 high-resolution; quattro nodi sul medesimo filo",DOC_ID_FIL0,"distanza specifica da leggere"

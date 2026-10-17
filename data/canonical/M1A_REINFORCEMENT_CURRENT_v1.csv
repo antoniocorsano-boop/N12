@@ -1,0 +1,11 @@
+reinforcement_id,member_id,source_member_id,storey_id,source_id,source_group,component,bar_count,diameter_mm,shape_class,length_or_segments_cm,position_or_role,stirrup_spacing_cm,section_cm,evidence_status,binding_status,source_locator,note
+M1A-G1-B051-ST,B-051,B-051,G1,TAV-02A,T2A-G08,STIRRUP,,6,CLOSED_RECTANGULAR,,TRANSVERSE,15,30x65,DOC,DIRECT_MEMBER_BINDING,TAV02A dedicated 20-21 detail,"Source writes staffe Ø6/15; preserved as direct historical detailing."
+M1A-G1-B051-TOP,B-051,B-051,G1,TAV-02A,T2A-G08,LONGITUDINAL,2,14,STRAIGHT,620,TOP_CONTINUOUS,,30x65,DOC,DIRECT_MEMBER_BINDING,TAV02A dedicated 20-21 detail,"Direct source label 2Ø14; length 620 cm."
+M1A-G1-B051-BOT,B-051,B-051,G1,TAV-02A,T2A-G08,LONGITUDINAL,2,14,STRAIGHT,620,BOTTOM_CONTINUOUS,,30x65,DOC,DIRECT_MEMBER_BINDING,TAV02A dedicated 20-21 detail,"Direct source label 2Ø14; length 620 cm."
+M1A-G1-B051-B16,B-051,B-051,G1,TAV-02A,T2A-G08,LONGITUDINAL,2,16,BENT,"100;86_DIAG;300;86_DIAG;90",BENT_MAIN,,30x65,DOC,DIRECT_MEMBER_BINDING,TAV02A dedicated 20-21 detail,"Continuous bent bar geometry transcribed from source; dimensions in cm."
+M1A-G1-B051-E14L,B-051,B-051,G1,TAV-02A,T2A-G08,LONGITUDINAL,2,14,END_BENT,"140;86_DIAG",LEFT_END,,30x65,DOC,DIRECT_MEMBER_BINDING,TAV02A dedicated 20-21 detail,"Left end bent piece as drawn."
+M1A-G1-B051-E14R,B-051,B-051,G1,TAV-02A,T2A-G08,LONGITUDINAL,2,14,END_BENT,"86_DIAG;130",RIGHT_END,,30x65,DOC,DIRECT_MEMBER_BINDING,TAV02A dedicated 20-21 detail,"Right end bent piece as drawn."
+M1A-G1-B051-E12L,B-051,B-051,G1,TAV-02A,T2A-G08,LONGITUDINAL,2,12,END_BENT,"175;DIAG_LENGTH_UNREADABLE",LEFT_END,,30x65,DOC_WITH_READABILITY_WATCH,DIRECT_MEMBER_BINDING,TAV02A dedicated 20-21 detail,"Do not infer the unreadable left diagonal length from the opposite end."
+M1A-G1-B051-E12R,B-051,B-051,G1,TAV-02A,T2A-G08,LONGITUDINAL,2,12,END_BENT,"86_DIAG;165",RIGHT_END,,30x65,DOC,DIRECT_MEMBER_BINDING,TAV02A dedicated 20-21 detail,"Right end bent piece as drawn."
+M1A-G1-B051-S14L,B-051,B-051,G1,TAV-02A,T2A-G08,LONGITUDINAL,2,14,STRAIGHT,173,LEFT_END_STRAIGHT,,30x65,DOC,DIRECT_MEMBER_BINDING,TAV02A dedicated 20-21 detail,"Direct source length 173 cm."
+M1A-G1-B051-S14R,B-051,B-051,G1,TAV-02A,T2A-G08,LONGITUDINAL,2,14,STRAIGHT,173,RIGHT_END_STRAIGHT,,30x65,DOC,DIRECT_MEMBER_BINDING,TAV02A dedicated 20-21 detail,"Direct source length 173 cm."

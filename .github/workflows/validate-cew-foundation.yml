@@ -1,0 +1,33 @@
+name: Validate CEW System Foundation
+
+on:
+  pull_request:
+    paths:
+      - 'docs/ARCHITECTURE/CEW_SYSTEM_FOUNDATION_v1.md'
+      - 'automation/CEW_SYSTEM_FOUNDATION_CONTRACT_v1.json'
+      - 'data/canonical/CEW_SYSTEM_MILESTONES_v1.csv'
+      - 'scripts/validate_cew_system_foundation.py'
+      - '.github/workflows/validate-cew-foundation.yml'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_FOUNDATION_PATCH_v1.csv'
+  push:
+    branches:
+      - 'work/m0-global-model'
+    paths:
+      - 'docs/ARCHITECTURE/CEW_SYSTEM_FOUNDATION_v1.md'
+      - 'automation/CEW_SYSTEM_FOUNDATION_CONTRACT_v1.json'
+      - 'data/canonical/CEW_SYSTEM_MILESTONES_v1.csv'
+      - 'scripts/validate_cew_system_foundation.py'
+      - '.github/workflows/validate-cew-foundation.yml'
+      - 'knowledge/ARTIFACT_REGISTRY_CEW_FOUNDATION_PATCH_v1.csv'
+  workflow_dispatch:
+
+jobs:
+  foundation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate CEW system foundation
+        run: python scripts/validate_cew_system_foundation.py

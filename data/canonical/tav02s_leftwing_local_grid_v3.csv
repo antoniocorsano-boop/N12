@@ -1,0 +1,2 @@
+record_type,status,reason,source,note
+SUPERSEDED,SUPERSEDED_INVALID,"La griglia locale v3 è invalidata: le identificazioni usate per costruire i gruppi 25/28/31, 26/29/32, 27/30/33 erano state associate a righe/colonne errate. La lettura ad alta risoluzione TAV-02S ha corretto le righe globali in a-b-17-9-1; c-d-18-10-2; 31-28-19-11-3; 32-29-20-12-5-4. Non usare le coordinate u/v di questa versione.",TAV-02S_tavola2-2.pdf,"Conservato come tombstone per impedire il riuso accidentale; ricostruzione 2D da rifare dalle quote e dalle righe corrette"

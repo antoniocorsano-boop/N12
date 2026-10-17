@@ -1,0 +1,45 @@
+candidate_id,armature_from,armature_to,source_group,tav01s_result,physical_topology_action,section_family_candidate,promotion_state,note
+FND-C001,1,2,F1A-G01,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on TAV-01S and independently present in TAV-01A reinforcement sequence.
+FND-C002,2,3,F1A-G01,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on TAV-01S and independently present in TAV-01A reinforcement sequence.
+FND-C003,3,4,F1A-G01,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on TAV-01S and independently present in TAV-01A reinforcement sequence.
+FND-C004,9,10,F1A-G02,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on TAV-01S and independently present in TAV-01A reinforcement sequence.
+FND-C005,10,11,F1A-G02,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on TAV-01S and independently present in TAV-01A reinforcement sequence.
+FND-C006,11,12,F1A-G02,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on TAV-01S and independently present in TAV-01A reinforcement sequence.
+FND-C007,12,13,F1A-G02,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Offset physical run directly visible on TAV-01S.
+FND-C008,13,14,F1A-G02,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C009,14,15,F1A-G02,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C010,15,16,F1A-G02,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C011,13,21,F1A-G03,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,First physical branch of paired schedule.
+FND-C012,21,26,F1A-G03,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C013,26,29,F1A-G03,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C014,29,32,F1A-G03,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C015,13,22,F1A-G03,NOT_CONFIRMED_AS_DIRECT_MEMBER,"Do not create 13-22; TAV-01S shows the parallel geometry through 13-21 and 14-22. Preserve the TAV-01A station label as a source inconsistency.",FND-SEC-A,REJECTED_AS_PHYSICAL_EDGE,"TAV-01A G03 begins with single label 13 while downstream stations are paired 22/21,27/26,30/29,33/32. Carpenteria controls geometry."
+FND-C016,22,27,F1A-G03,SCHEMATIC_SPAN_CROSSES_22_PRIME,"Replace direct 22-27 by physical path 22-22' plus 22'-27; retain group-level armature continuity as SUPPORTED with source watch.",FND-SEC-A,TRANSFORMED_TO_PHYSICAL_PATH,"TAV-01S directly distinguishes 22 and 22' and shows the continuation from 22' to 27."
+FND-C017,27,30,F1A-G03,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C018,30,33,F1A-G03,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C019,24,16,F1A-G04,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C020,16,8,F1A-G04,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C021,23,15,F1A-G04,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C022,15,7,F1A-G04,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C023,22,14,F1A-G04,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,"Direct physical 14-22 run; independently helps resolve the G03 first-station ambiguity."
+FND-C024,14,6,F1A-G04,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C025,c,a,F1A-G05,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-B,PROMOTE_DOC_CROSS_SOURCE,Terrace/addition foundation subsystem directly documented on both sheets.
+FND-C026,a,17,F1A-G05,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-B,PROMOTE_DOC_CROSS_SOURCE,Terrace/addition foundation subsystem directly documented on both sheets.
+FND-C027,17,9,F1A-G05,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-B_TO_A_TRANSITION_WATCH,PROMOTE_DOC_CROSS_SOURCE,Geometry confirmed; section-family transition remains to bind.
+FND-C028,9,1,F1A-G05,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C029,d,b,F1A-G05,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-B,PROMOTE_DOC_CROSS_SOURCE,Terrace/addition foundation subsystem directly documented on both sheets.
+FND-C030,b,18,F1A-G05,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-B,PROMOTE_DOC_CROSS_SOURCE,Terrace/addition foundation subsystem directly documented on both sheets.
+FND-C031,18,10,F1A-G05,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-B_TO_A_TRANSITION_WATCH,PROMOTE_DOC_CROSS_SOURCE,Geometry confirmed; section-family transition remains to bind.
+FND-C032,10,2,F1A-G05,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C033,a,b,F1A-G06,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-B,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C034,b,25,F1A-G06,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-B_TO_VERIFY,PROMOTE_DOC_CROSS_SOURCE,Geometry confirmed; section extent remains a watch.
+FND-C035,25,26,F1A-G06,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A_TO_VERIFY,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C036,26,27,F1A-G06,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A_TO_VERIFY,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C037,c,d,F1A-G06,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-B,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C038,d,28,F1A-G06,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-B_TO_VERIFY,PROMOTE_DOC_CROSS_SOURCE,Geometry confirmed; section extent remains a watch.
+FND-C039,28,29,F1A-G06,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A_TO_VERIFY,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C040,29,30,F1A-G06,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A_TO_VERIFY,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C041,31,32,F1A-G06,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A_TO_VERIFY,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C042,32,33,F1A-G06,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A_TO_VERIFY,PROMOTE_DOC_CROSS_SOURCE,Visible on both sources.
+FND-C043,12,5,F1A-G07,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Offset run directly visible on TAV-01S.
+FND-C044,5,4,F1A-G07,DIRECTLY_CONFIRMED,Promote same support-to-support physical member.,FND-SEC-A,PROMOTE_DOC_CROSS_SOURCE,Short return directly visible on TAV-01S.

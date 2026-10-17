@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "activation_id": "M1F-FOUNDATION-MODEL-20260824T1842Z",
+  "work_item_id": "M1F-FOUNDATION-MODEL",
+  "reason": "Explicit connector-authored activation for parent-orchestrator ingestion after canonical merge; bot-authored or merge-triggered runs did not consume the pending N12 agent result.",
+  "canonical_merge_commit": "c486f30c92c48f0a87279b00a1ddbeb6c570f5d6",
+  "pending_result": "automation/inbox/N12_AGENT_RESULT.json",
+  "expected_targets": [
+    "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv",
+    "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
+  ],
+  "expected_decision": "PASS_WITH_WATCH",
+  "expected_next_item": "M1E-CALCULATION-MODEL-HANDOFF",
+  "rule": "Activation changes no semantic claim; deterministic parent orchestrator remains the only authority that may ingest the result and transition the queue."
+}

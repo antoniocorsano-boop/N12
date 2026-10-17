@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-08-21",
+  "domain": "PT_GEOMETRY",
+  "status": "CURRENT_HANDOFF_REVALIDATED_B055",
+  "source_authority": "TAV-02S native raster/PDF through validated G1-G9 pipeline",
+  "current_master": "data/canonical/PT_MASTER_CURRENT.csv",
+  "historical_master_snapshot": "data/canonical/PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv",
+  "master_regeneration_audit": "data/canonical/PT_MASTER_REGENERATION_AUDIT_v1.csv",
+  "physical_supports": {
+    "artifact": "data/canonical/PT_VECTOR_SUPPORTS_v1.csv",
+    "count": 38,
+    "rule": "Physical support geometry is rectangular/extended geometry, not a point-node substitute.",
+    "extended_supports": {
+      "P18": "110x30",
+      "P23": "110x30",
+      "P30": "30x110"
+    }
+  },
+  "analytical_nodes": {
+    "artifact": "data/canonical/PT_ANALYTICAL_NODES_v1.csv",
+    "audit": "data/canonical/PT_ANALYTICAL_NODES_AUDIT_v1.csv",
+    "count": 104,
+    "rule": "Beam joints are support-face nodes generated from documentary beam axes intersecting physical support faces; support centroids are not analytical nodes unless explicitly documented.",
+    "extended_support_node_counts": {
+      "P18": 4,
+      "P23": 3,
+      "P30": 3
+    },
+    "centroid_substitution_count": 0
+  },
+  "beams": {
+    "base": "data/canonical/PT_VECTOR_BEAMS_v2.csv",
+    "patch": "data/canonical/PT_VECTOR_BEAMS_G6_PATCH_v1.csv",
+    "raster_qa": "data/canonical/PT_VECTOR_BEAMS_RASTER_QA_v1.csv",
+    "raster_qa_metrics": "data/canonical/PT_VECTOR_BEAMS_RASTER_QA_METRICS_v1.csv",
+    "effective_physical_member_count": 52,
+    "revoked_members": [
+      "B-029",
+      "B-044"
+    ],
+    "duplicate_provenance_only": [
+      "B-037"
+    ],
+    "added_after_source_closure": [
+      "B-052",
+      "B-053",
+      "B-054",
+      "B-055"
+    ]
+  },
+  "terrace_addition": {
+    "supports": [
+      "a",
+      "b",
+      "c",
+      "d"
+    ],
+    "section": "30x30",
+    "carpentry_status": "PRESENT_IN_TAV02S",
+    "historical_calculation_status": "ABSENT_FROM_ORIGINAL_CALCULATION_MODEL",
+    "rule": "Preserve as later/documented addition and do not silently merge with the historical calculation model."
+  },
+  "provenance_watches": [
+    "P19 metric center/face nodes",
+    "P25 raster residual",
+    "d raster residual",
+    "P12 MIS Y and dependent nodes",
+    "P18/P23/P30 MIS-supported center components",
+    "P22-prime/P27 MIS-supported row"
+  ],
+  "downstream_consumption_rules": [
+    "Use PT_MASTER_CURRENT.csv as the current PT support-level master.",
+    "Use PT_VECTOR_SUPPORTS_v1.csv for physical support extents and faces.",
+    "Use PT_ANALYTICAL_NODES_v1.csv for frame connectivity at support faces.",
+    "Use the effective beam topology PT_VECTOR_BEAMS_v2.csv plus PT_VECTOR_BEAMS_G6_PATCH_v1.csv.",
+    "Do not use PT_MASTER_PRE_G1G9_SNAPSHOT_20260821.csv as current geometry.",
+    "Do not reintroduce revoked B-029/B-044 or duplicate B-037 as a second physical member.",
+    "Do not collapse P18/P23/P30 to one centroid node.",
+    "Do not upgrade MIS/WATCH evidence to DOC without new primary-source evidence.",
+    "Reopen only individual claims contradicted by primary-source evidence; never restart G1-G9 wholesale."
+  ],
+  "validation": {
+    "supports": 38,
+    "effective_beams": 52,
+    "analytical_nodes": 104,
+    "topology_rejects": 0,
+    "final_overlay": "PASS_WITH_PROVENANCE_WATCHES",
+    "knowledge_system": "PASS"
+  },
+  "local_reopen": {
+    "id": "M0G-REOPEN-B055",
+    "state": "CLOSED_REVALIDATED",
+    "evidence": "data/canonical/M0G_REOPEN_PT_BEAM_EVIDENCE_v1.csv"
+  }
+}

@@ -1,0 +1,10 @@
+audit_id,metric,value,status,note
+G6-V2-001,total_beam_claims,51,PASS,"All inherited claim identifiers retained for provenance in TAV02S_BEAMS_DOC_CURRENT_v2.csv."
+G6-V2-002,physical_vectors_emitted,48,PASS,"Excludes B-029 and B-044 pending direct source trace and excludes duplicate B-037 as a second physical member."
+G6-V2-003,source_review_blocked,2,OPEN,"B-029 P19-P21 and B-044 P12-P5 remain non-vectorized; no geometry invented."
+G6-V2-004,duplicate_claims_no_second_member,1,PASS,"B-037 duplicates the physical P7-P8 run represented by B-012."
+G6-V2-005,endpoint_rebounds,2,PASS,"B-010 corrected to P5-P6; B-022 corrected to P27-P22-prime."
+G6-V2-006,revoked_span_attributions,3,PASS,"2.10 removed from P25-P19; 2.10 removed from P27-P22/P22-prime; 6.45 removed from P23-P15 and retained at P24-P16."
+G6-V2-007,extended_support_face_vectors,7,PASS,"P18: B-006/B-038; P23: B-031/B-035; P30: B-020/B-021/B-026. Beam axes intersect physical faces and do not pass generically through centroids."
+G6-V2-008,P30_multi_face_semantics,3,PASS,"P33-P30 and P30-P27 terminate on different points of P30 side faces; P29-P30 terminates on the transverse face."
+G6-V2-009,analytical_nodes_authorized,0,BLOCKED,"Analytical nodes remain forbidden until B-029/B-044 are resolved or explicitly closed and beam-vector overlay QA is performed."

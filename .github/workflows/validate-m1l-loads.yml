@@ -1,0 +1,40 @@
+name: Validate M1-L loads
+
+on:
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - 'data/canonical/M1L_*.csv'
+      - 'data/canonical/M1_SPECIAL_CONFIGURATION_LOADS_REGISTER_v1.csv'
+      - 'data/canonical/M1A_G5_EAVE_CANTILEVER_ENDS_CURRENT_v1.csv'
+      - 'data/canonical/M1F_GROUND_FLOOR_INTERFACE_CURRENT_v1.csv'
+      - 'scripts/validate_m1l_loads.py'
+      - '.github/workflows/validate-m1l-loads.yml'
+  pull_request:
+    paths:
+      - 'data/canonical/M1L_*.csv'
+      - 'data/canonical/M1_SPECIAL_CONFIGURATION_LOADS_REGISTER_v1.csv'
+      - 'data/canonical/M1A_G5_EAVE_CANTILEVER_ENDS_CURRENT_v1.csv'
+      - 'data/canonical/M1F_GROUND_FLOOR_INTERFACE_CURRENT_v1.csv'
+      - 'scripts/validate_m1l_loads.py'
+      - '.github/workflows/validate-m1l-loads.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate M1-L load paths and delta framework
+        run: python scripts/validate_m1l_loads.py

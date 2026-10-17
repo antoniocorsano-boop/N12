@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0",
+  "handoff_id": "N12_M0G_GEOMETRY_HANDOFF",
+  "date": "2026-08-22",
+  "domain": "M0-G_GLOBAL_GEOMETRY",
+  "status": "CURRENT_WITH_WATCHES_REVALIDATED_B055",
+  "promotion_decision": "PASS_WITH_WATCH",
+  "purpose": "Freeze the validated M0-G analytical geometry as a reference-only handoff for downstream section completion and EdiLus/open-source FEM model construction without duplicating canonical ledgers or repairing unresolved evidence by inference.",
+  "promotion_basis": {
+    "global_topology_gate": "data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv",
+    "global_topology_gate_status": "PASS_WITH_WATCH",
+    "hard_gate_failures": 0,
+    "nonblocking_watches": 2,
+    "connected_analytical_components": 1,
+    "orphan_analytical_nodes": 0
+  },
+  "coordinate_frame": {
+    "xy_frame": "PT_MASTER_CURRENT common frame propagated through STOREY_SUPPORT_XY_REGISTRATION_v1.csv",
+    "upper_storey_xy_registration_evidence": "MIS",
+    "z_datum": "G1 structural level = 0.00 m relative",
+    "levels_m": {
+      "G1": 0.0,
+      "G2": 3.2,
+      "G3": 6.4,
+      "G4": 9.6,
+      "G5": 11.8
+    },
+    "absolute_project_or_geodetic_z": "ND",
+    "rule": "Relative structural Z may be used exactly as registered; absolute/project/geodetic Z must not be invented."
+  },
+  "canonical_references": {
+    "assembly_contract": {
+      "path": "data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json",
+      "git_blob_sha": "c98d1c14cbfc3e40aafb8d556ca1d744e435b804"
+    },
+    "analytical_nodes_3d": {
+      "path": "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",
+      "git_blob_sha": "1201910ed30b9abb7962983b9950a7f5f1ff7914"
+    },
+    "rigid_joint_links": {
+      "path": "data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv",
+      "git_blob_sha": "b489415604c5698d2a96fcad0a920abafc0baf37"
+    },
+    "member_connectivity": {
+      "path": "data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv",
+      "git_blob_sha": "1edaf832d5729f323bfded711dfa2e716208195a"
+    },
+    "roof_special_geometry_3d": {
+      "path": "data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv",
+      "git_blob_sha": "a92547186d34961ff02fe70763a16a03c6a1e1c2"
+    },
+    "global_topology_gate": {
+      "path": "data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv",
+      "git_blob_sha": "b8e36c264eba61718d56e678d6891d2c4bf22add"
+    }
+  },
+  "frozen_inventory": {
+    "analytical_nodes_total": 629,
+    "support_core_nodes": 165,
+    "beam_face_nodes": 464,
+    "rigid_joint_links": 464,
+    "ordinary_structural_members": 359,
+    "ordinary_beams": 232,
+    "vertical_column_segments": 127,
+    "roof_special_nonordinary_geometry": {
+      "ridge_axes": 3,
+      "eaves_edge_sets": 3,
+      "total": 6
+    },
+    "g5_confirmed_oblique_beam": {
+      "beam_id": "G5-B036",
+      "supports": [
+        "19",
+        "26"
+      ],
+      "counting_rule": "Count exactly once among the 36 G5 ordinary beams; the linked roof-special feature is not a second member."
+    }
+  },
+  "analytical_semantics": {
+    "beam_end_node_role": "BEAM_FACE_INCIDENCE_NODE",
+    "column_axis_node_role": "SUPPORT_CORE",
+    "rigid_offset_role": "RIGID_JOINT_OFFSET analytical constraint",
+    "beam_face_to_core_collapse": "FORBIDDEN",
+    "extended_support_incidence_merge": "FORBIDDEN",
+    "rigid_links_are_structural_members": false,
+    "roof_ridge_or_eave_is_structural_member_by_default": false
+  },
+  "documented_terminations": {
+    "terrace_added_supports_terminate_at_G1": [
+      "a",
+      "b",
+      "c",
+      "d"
+    ],
+    "supports_without_G4_G5_column": [
+      "1",
+      "8",
+      "9",
+      "16",
+      "17",
+      "24",
+      "31",
+      "32",
+      "33"
+    ]
+  },
+  "mandatory_downstream_watches": [
+    {
+      "id": "WATCH-G5-BEAM-SECTIONS",
+      "scope": "G5 ordinary beams",
+      "status": "ND",
+      "count": 17,
+      "rule": "Do not copy or infer sections from adjacent beams/storeys."
+    },
+    {
+      "id": "WATCH-COLUMN-SECTIONS",
+      "scope": "Vertical column segments affected by G3 support-section watches 18 and 21",
+      "status": "MIS/WATCH",
+      "count": 4,
+      "rule": "Preserve endpoint evidence independently; do not promote MIS to DOC."
+    },
+    {
+      "id": "WATCH-ROOF-Z",
+      "scope": "3 ridge axes + 3 eaves edge sets",
+      "status": "ND",
+      "count": 6,
+      "rule": "TAV-06S local 2.10/3.75 m and TAV-06E 2.20 m upper-module evidence are not a proven common global-Z binding."
+    },
+    {
+      "id": "WATCH-GRONDA-CENTERLINE",
+      "scope": "3 eaves edge sets",
+      "status": "ND",
+      "count": 3,
+      "rule": "Do not invent a unique analytical/structural centerline from documentary edge-set geometry."
+    },
+    {
+      "id": "WATCH-RIDGE-XY",
+      "scope": "3 ridge axes",
+      "status": "MIS",
+      "count": 3,
+      "rule": "Registered metric XY may be used with MIS provenance only; no MIS-to-DOC promotion."
+    },
+    {
+      "id": "WATCH-ABSOLUTE-Z",
+      "scope": "Whole model",
+      "status": "ND",
+      "count": 1,
+      "rule": "Do not derive absolute/project/geodetic elevation from the relative structural datum."
+    }
+  ],
+  "downstream_authorized_use": [
+    "Construct the analytical superstructure geometry using the referenced node, rigid-link and member-connectivity ledgers.",
+    "Use the relative G1-G5 level system as currently registered.",
+    "Carry source evidence and WATCH/ND states into section completion and model-input preparation.",
+    "Use G5-B036 once as the confirmed 19-26 oblique ordinary beam.",
+    "Keep the six roof-special geometries outside ordinary frame connectivity unless later primary-source evidence authorizes a member role."
+  ],
+  "not_authorized_by_this_handoff": [
+    "Inventing or completing missing beam/column sections.",
+    "Assigning materials, mechanical properties, reinforcement, loads, masses, diaphragms, releases, boundary conditions or soil parameters without separate canonical evidence.",
+    "Converting ridge/eave geometry into structural members without explicit evidence.",
+    "Creating an absolute/geodetic elevation datum.",
+    "Extending terrace supports a-d above G1 or roof-absent supports above G4.",
+    "Treating foundation geometry/details as completed unless separately handed off by the foundation workflow."
+  ],
+  "next_modeling_boundary": {
+    "geometry_ready": true,
+    "topology_ready": true,
+    "provenance_ready": true,
+    "section_assignment_complete": false,
+    "materials_complete": false,
+    "reinforcement_complete": false,
+    "loads_complete": false,
+    "foundation_model_complete": false,
+    "analysis_model_ready_for_execution": false
+  },
+  "completion_statement": "M0-G geometry is frozen and suitable as the canonical geometric/topological basis for downstream model construction. PASS_WITH_WATCH does not close the listed evidence gaps and does not authorize silent completion of any ND/MIS field.",
+  "local_reopen_revision": {
+    "id": "M0G-REOPEN-B055",
+    "state": "CLOSED_REVALIDATED",
+    "new_g1_beams": [
+      "B-055"
+    ],
+    "evidence": "data/canonical/M0G_REOPEN_PT_BEAM_EVIDENCE_v1.csv"
+  }
+}

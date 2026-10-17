@@ -1,0 +1,11 @@
+semantic_class,definition,minimum_discriminators,can_create_structural_entity,default_status,notes
+FILO_FISSO_RIFERIMENTO,"linea/faccia di tracciamento o riferimento geometrico","quota associata + continuita/raccordo grafico",NO,INF,"non equivale automaticamente ad asse o baricentro"
+PILASTRO,"impronta/sezione di pilastro","impronta + ID/sezione/abaco",YES,TO_VERIFY,"promuovere a DOC solo con lettura inequivoca"
+TRAVE,"elemento lineare strutturale dell'impalcato","segno strutturale + continuita tra appoggi oppure sezione associata",YES,TO_VERIFY,"non confondere con quota o bordo solaio"
+TRAVE_EMERGENTE,"trave con altezza maggiore dello spessore dell'impalcato","TRAVE + sezione/particolare che documenta altezza",YES,TO_VERIFY,"tipologia da tavola/particolare, non da sola grafica"
+TRAVE_A_SPESSORE,"trave integrata nello spessore del solaio","TRAVE + sezione/larghezza e relazione col solaio",YES,TO_VERIFY,"non inferire dal solo spessore del tratto"
+SOLAIO_DIREZIONE_PORTANTE,"campo di solaio e relativa orditura","segno di campo/orditura + delimitazione",NO,TO_VERIFY,"proprieta del campo, non asta nodo-nodo"
+BORDO_IMPALCATO_SBALZO,"limite geometrico dell'impalcato o sbalzo","continuita perimetrale + relazione col campo solaio",NO,TO_VERIFY,"non equivale automaticamente a trave di bordo"
+QUOTA,"linea/testo di misura e relativi riferimenti","geometria di quotatura + testo numerico",NO,DOC,"mai convertire in elemento strutturale"
+SEZIONE_RICHIAMO_TESTO_SIMBOLO,"richiamo a dettaglio, sezione, sigla o nota","testo/simbolo + posizione/leader",NO,DOC,"serve alla semantica"
+INCERTO,"segno non classificabile con sufficiente evidenza","meno di due discriminatori indipendenti",NO,ND,"resta fuori dal grafo strutturale"

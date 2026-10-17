@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P03B-20260824T133755Z",
+  "work_item_id": "FPEP-P03B-BLIND-READ-B",
+  "stage_id": "P03B",
+  "agent_role": "FOUNDATION_CARPENTRY_READER_B",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "input_artifacts": [
+    {
+      "path": "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json",
+      "sha256": "73576a4f2d0e3a9cf21eba5bd5182698d3039c9d05affc985bad722dfcb2d2d5",
+      "authority": "AUDIT_DERIVED_FROM_PRIMARY_IDENTITY",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json",
+      "sha256": "6d3c2d791bb0b61833d30d772771927181373acd634f6275b32bf7d4ca1fed55",
+      "authority": "DERIVED_EVIDENCE_MANIFEST",
+      "status": "CURRENT"
+    }
+  ],
+  "primary_sources": [
+    {
+      "source_id": "TAV-01S",
+      "path": "archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf",
+      "git_blob_sha": "64b842fa03b3aa7437e80d2bce90406a66f73827",
+      "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "evidence_anchor": "P02 parent-hash-verified overview/regions/tiles under analysis/fpep/hires/TAV01S/page-001"
+    }
+  ],
+  "target_outputs": [
+    "analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv"
+  ],
+  "provenance_summary": {
+    "DOC": 0,
+    "RIF": 11,
+    "INC": 4,
+    "ND": 0,
+    "reader": "B",
+    "output_sha256": "6e42cdddb3c217e39354bbb1cad406b78ac3147e0142d33975e67b6a38c316ac",
+    "scope": "independent machine observation-only; no metric closure, coordinate solution, member creation or topology target"
+  },
+  "residuals": [
+    {
+      "residual_id": "P03B-R001",
+      "claim_id": "P03B-SYMBOL-CONTINUITY-COVERAGE",
+      "blocking": false,
+      "reason": "Deterministic OCR does not classify all structural symbols or semantic graphical continuity with sufficient reliability.",
+      "required_evidence": "Use Reader A/B claim comparison in P04 and order source-local reread/adjudication in P06 only where the missing B semantic observation affects a claim."
+    },
+    {
+      "residual_id": "P03B-R002",
+      "claim_id": "P03B-LOW-CONFIDENCE-TEXT-CANDIDATES",
+      "blocking": false,
+      "reason": "4 retained text candidates remain INC and are not corrected against Reader A.",
+      "required_evidence": "Cross-read only after both blind reads are closed; preserve CONFLICT/NOT_VISIBLE where source-local evidence cannot resolve the value."
+    }
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_READER_B_METHOD_v1.json",
+    "analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv"
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "reader_scope_attestation": {
+    "reader_a_output_seen_by_b_extraction_process": false,
+    "existing_foundation_topology_seen": false,
+    "legacy_support_member_counts_seen_as_extraction_target": false,
+    "M0G_geometry_seen": false,
+    "PT_master_coordinates_seen": false,
+    "TAV01A_reinforcement_groups_seen": false,
+    "historical_calculation_topology_seen": false
+  },
+  "notes": [
+    "Reader B is a deterministic isolated machine reader because a separate external VLM job was unavailable (HF Jobs returned 402 before any source execution).",
+    "The orchestration context had prior Reader A knowledge, but no Reader A artifact/value was supplied to the B extraction process and no B value was corrected using A.",
+    "Written dimensions preserve raw text; unit is UNSPECIFIED_ON_DRAWING at P03B.",
+    "Integer token 58, if present, is retained only as NUMERIC_TEXT_CANDIDATE and is not interpreted as a legacy target count or structural identifier.",
+    "P03B is PASS_WITH_WATCH because the second reading is independent and reproducible but intentionally partial."
+  ]
+}

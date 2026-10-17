@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "ingested_at": "2026-08-22T18:51:10.820020+00:00",
+  "work_item_id": "M0G-RESOLVE-ROOF-SPECIAL-3D",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "result": {
+    "schema_version": "1.0",
+    "work_item_id": "M0G-RESOLVE-ROOF-SPECIAL-3D",
+    "source_sheet": "TAV-06S+TAV-06E",
+    "decision": "PASS_WITH_WATCH",
+    "semantic_gate": "WATCH",
+    "target_outputs": [
+      "data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv"
+    ],
+    "provenance_summary": {
+      "DOC": 6,
+      "MIS": 3,
+      "RIF": 0,
+      "INF": 0,
+      "INC": 0,
+      "ND": 9
+    },
+    "residuals": [
+      {
+        "claim": "Global roof-special Z binding",
+        "status": "NONBLOCKING_WATCH",
+        "reason": "TAV-06S local 2.10/3.75 dimensions and TAV-06E 2.20 upper module do not have proven equivalent endpoints across all three roof wings.",
+        "scope": "All six global Z values remain ND; no structural member is created."
+      },
+      {
+        "claim": "Gronda metric centerline",
+        "status": "NONBLOCKING_WATCH",
+        "reason": "TAV-06S documents eave edge sets, not one uniquely defined analytical or structural centerline.",
+        "scope": "Three gronda identities remain documentary; metric centerline XY remains ND."
+      }
+    ],
+    "audit_paths": [
+      "analysis/automation/M0G_RESOLVE_ROOF_SPECIAL_3D_AUDIT_v1.csv"
+    ]
+  },
+  "warnings": [],
+  "deterministic_validators": [
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python scripts/validate_knowledge_system.py",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout": "KNOWLEDGE_SYSTEM_VALIDATION = PASS\nArchitecture and authority contracts are coherent.\nOpen domain gates are reported as warnings and remain subject to specialist semantic QA.\n",
+      "stderr": ""
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python scripts/n12_orchestrator.py validate",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout": "N12_AUTOMATION_CONTRACT = PASS\nCycle contract, semantic handshake, queue dependencies and current knowledge gate are coherent.\n",
+      "stderr": ""
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python skills/pt-carpentry-reader/runner.py validate",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout": "VALIDATION: PASS\ncrops=12 observations=69 beams=51 provisional=51 beam_doc=0 residuals=7\n",
+      "stderr": ""
+    }
+  ]
+}

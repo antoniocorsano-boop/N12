@@ -1,0 +1,52 @@
+beam_id,support_i,support_j,geometry_role,section_hint,source_tile_primary,source_tile_crosscheck,evidence_basis,claim_status,may_feed_vector,note
+B-001,c,a,TERRACE_TRANSVERSE,70x25,TAV-02S_L1_R02C01,,DOC_SECTION_BOUND,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-002,a,17,TERRACE_TO_ORIGINAL,70x25,TAV-02S_L1_R02C01,,DOC_SECTION_BOUND,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-003,17,9,TOP_MAIN,,TAV-02S_L1_R02C01,TAV-02S_L1_R02C02,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-004,9,1,TOP_MAIN,,TAV-02S_L1_R02C02,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-005,d,b,TERRACE_TRANSVERSE,,TAV-02S_L1_R02C01,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-006,b,18,TERRACE_TO_ORIGINAL,,TAV-02S_L1_R02C01,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-007,1,2,RIGHT_MAIN,,TAV-02S_L1_R02C02,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-008,2,3,RIGHT_MAIN,,TAV-02S_L1_R02C02,TAV-02S_L1_R03C02,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-009,3,4,RIGHT_MAIN,70x25,TAV-02S_L1_R03C02,,DOC_SECTION_BOUND,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-010,5,6,RIGHT_MAIN,70x25,TAV-02S_L1_R03C02,,DOC_SECTION_BOUND,DOC_DIRECT_REBOUND,YES_AFTER_VECTOR_QA,Direct r3_c3 review: former P4-P6 binding corrected to P5-P6.
+B-011,6,7,RIGHT_MAIN,70x25,TAV-02S_L1_R03C02,,DOC_SECTION_BOUND,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-012,7,8,RIGHT_MAIN,,TAV-02S_L1_R03C02,TAV-02S_L1_R04C02,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-013,5,4,LOCAL_RIGHT,,TAV-02S_L1_R03C02,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-014,31,28,LEFT_ROW_1,,TAV-02S_L1_R02C01,TAV-02S_L1_R03C01,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-015,28,25,LEFT_ROW_1,,TAV-02S_L1_R02C01,TAV-02S_L1_R03C01,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-016,25,19,LEFT_ROW_1,,TAV-02S_L1_R02C01,TAV-02S_L1_R03C01,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,P25-P19 beam continuity retained; former 2.10 m span attribution revoked.
+B-017,32,29,LEFT_ROW_2,,TAV-02S_L1_R03C01,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-018,29,26,LEFT_ROW_2,,TAV-02S_L1_R03C01,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-019,26,21,LEFT_ROW_2,,TAV-02S_L1_R03C01,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-020,33,30,LEFT_ROW_3,,TAV-02S_L1_R03C01,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Extended P30: beam row must terminate on physical face at documentary row axis.
+B-021,30,27,LEFT_ROW_3,,TAV-02S_L1_R03C01,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Extended P30: beam row must terminate on a different physical face point than B-020.
+B-022,27,22',LEFT_ROW_3,,TAV-02S_L1_R03C01,,DOC_CONTINUITY,DOC_DIRECT_REBOUND,YES_AFTER_VECTOR_QA,Direct row topology: P27 connects to P22-prime, not P22; no 2.10 m span asserted.
+B-023,31,32,LEFT_COL_0,70x25,TAV-02S_L1_R02C01,TAV-02S_L1_R03C01,DOC_SECTION_BOUND,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-024,32,33,LEFT_COL_0,70x25,TAV-02S_L1_R03C01,,DOC_SECTION_BOUND,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-025,28,29,LEFT_COL_1,,TAV-02S_L1_R02C01,TAV-02S_L1_R03C01,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-026,29,30,LEFT_COL_1,,TAV-02S_L1_R03C01,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Longitudinal run terminates on P30 face; centroid remains distinct.
+B-027,25,26,LEFT_COL_2,,TAV-02S_L1_R02C01,TAV-02S_L1_R03C01,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-028,26,27,LEFT_COL_2,,TAV-02S_L1_R03C01,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-029,19,21,LEFT_COL_3,,TAV-02S_L1_R02C01,TAV-02S_L1_R03C01,DOC_CONTINUITY,RESIDUAL_SOURCE_REVIEW,NO,Inherited P19-P21 LEFT_COL_3 binding not confirmed; direct r3_c2 review clearly shows P20-P21 diagonal instead. Keep out of vectors pending explicit trace.
+B-030,21,22,LEFT_COL_3,,TAV-02S_L1_R03C01,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-031,23,15,LOWER_ROW_1,,TAV-02S_L1_R04C01,TAV-02S_L1_R04C02,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,P23-P15 beam continuity retained; former 6.45 m span attribution revoked; 6.45 belongs to P24-P16.
+B-032,15,7,LOWER_ROW_1,,TAV-02S_L1_R04C02,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-033,24,16,LOWER_ROW_2,,TAV-02S_L1_R04C01,TAV-02S_L1_R04C02,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,6.45 m axis spacing confirmed separately from clear beam length.
+B-034,16,8,LOWER_ROW_2,,TAV-02S_L1_R04C02,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-035,23,24,LOWER_COL_LEFT,,TAV-02S_L1_R04C01,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,P23 extended: use documentary column axis to physical face, not centroid line.
+B-036,15,16,LOWER_COL_MID,,TAV-02S_L1_R04C02,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-037,7,8,LOWER_COL_RIGHT,,TAV-02S_L1_R03C02,TAV-02S_L1_R04C02,DOC_CONTINUITY,DUPLICATE_DOCUMENTARY_CLAIM,NO_SECOND_MEMBER,Same physical P7-P8 run already represented by B-012; keep for provenance only.
+B-038,18,10,MID_ROW_1,,TAV-02S_L1_R02C02,TAV-02S_L1_R02C01,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Extended P18: horizontal beam terminates on support face.
+B-039,10,2,MID_ROW_1,,TAV-02S_L1_R02C02,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-040,20,11,MID_ROW_2,,TAV-02S_L1_R02C02,TAV-02S_L1_R03C02,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-041,11,3,MID_ROW_2,,TAV-02S_L1_R02C02,TAV-02S_L1_R03C02,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-042,9,10,INNER_COL_RIGHT,,TAV-02S_L1_R02C02,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-043,10,11,INNER_COL_RIGHT,,TAV-02S_L1_R02C02,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-044,12,5,MID_ROW_3,,TAV-02S_L1_R03C02,,DOC_CONTINUITY,RESIDUAL_SOURCE_REVIEW,NO,Direct P12-P5 face-to-face path not confirmed; do not create diagonal vector from metric centers.
+B-045,14,6,LOWER_RIGHT_CROSS,,TAV-02S_L1_R03C02,,DOC_CONTINUITY,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-046,14,15,INNER_COL_LOWER,65x30,TAV-02S_L1_R03C02,TAV-02S_L1_R04C02,DOC_SECTION_BOUND,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-047,22,22',LOCAL_PRIME_LINK,,TAV-02S_L1_R03C01,,DOC_CONTINUITY_MIS_LENGTH,PROVISIONAL_DOC,CONDITIONAL,Beam continuity documentary; center spacing remains MIS-supported rather than DOC.
+B-048,11,12,CENTRAL_BENT_CHAIN,120x20,TAV-02S_L1_R03C02,,DOC_SECTION_BOUND,PROVISIONAL_DOC,CONDITIONAL,120x20 is a beam section callout; P12 Y includes MIS completion.
+B-049,12,13,CENTRAL_BENT_CHAIN,120x20,TAV-02S_L1_R03C02,,DOC_SECTION_BOUND,PROVISIONAL_DOC,CONDITIONAL,Inclined documentary segment; 120x20 is a beam section callout.
+B-050,13,14,CENTRAL_BENT_CHAIN,120x20,TAV-02S_L1_R03C02,,DOC_SECTION_BOUND,PROVISIONAL_DOC,CONDITIONAL,Inherited documentary continuity/section claim; metric span kept separate from topology.
+B-051,20,21,CENTRAL_DIAGONAL,65x30,TAV-02S_L1_R03C01,TAV-02S_L1_R03C02,DOC_SECTION_BOUND,PROVISIONAL_DOC,CONDITIONAL,Direct r3_c2 diagonal P20-P21 with 65x30 beam section callout.

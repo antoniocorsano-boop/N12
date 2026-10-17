@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P01-20260824T123400Z",
+  "work_item_id": "FPEP-P01-SOURCE-IDENTITY",
+  "stage_id": "FPEP-P01-SOURCE-IDENTITY",
+  "agent_role": "SOURCE_IDENTITY_VERIFIER",
+  "decision": "PASS",
+  "semantic_gate": "PASS",
+  "input_artifacts": [
+    {
+      "path": "analysis/fpep/FPEP_STATE_COHERENCE_AUDIT_v1.json",
+      "sha256": "b54ef98276d0b204f94d19d333a73bc3bc2c24457d3b67e253d18332987282a5",
+      "authority": "RECEIPT_GATED_DERIVED",
+      "status": "CURRENT"
+    },
+    {
+      "path": "data/canonical/tavole_originali_remote_index_v1.csv",
+      "sha256": "4332108bc3508ff1108c75db76db9c66d51684af47acaff65f567e37a41e1f8a",
+      "authority": "CANONICAL",
+      "status": "CURRENT"
+    },
+    {
+      "path": "data/canonical/M1F_FOUNDATION_SOURCE_ROLE_AUDIT_v1.csv",
+      "sha256": "517e83be8a45bf9b360cc1f3de6b025a024aa65f49518ffe12436b7c6a2e967c",
+      "authority": "CANONICAL",
+      "status": "CURRENT"
+    },
+    {
+      "path": "archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf",
+      "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "authority": "SOURCE_PRIMARY",
+      "status": "DOC_PRIMARY_IMMUTABLE"
+    }
+  ],
+  "primary_sources": [
+    {
+      "source_id": "TAV-01S",
+      "path": "archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf",
+      "git_blob_sha": "64b842fa03b3aa7437e80d2bce90406a66f73827",
+      "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "evidence_anchor": "tavole_originali_remote_index_v1.csv:TAV-01S + M1F_FOUNDATION_SOURCE_ROLE_AUDIT_v1.csv:TAV-01S"
+    }
+  ],
+  "target_outputs": [
+    "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json"
+  ],
+  "provenance_summary": {
+    "DOC": 1,
+    "MIS": 0,
+    "RIF": 0,
+    "INF": 0,
+    "INC": 0,
+    "ND": 0
+  },
+  "residuals": [],
+  "audit_paths": [
+    "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json"
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  }
+}

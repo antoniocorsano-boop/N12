@@ -1,0 +1,3 @@
+audit_id,support_id,metric_x_m,metric_y_m,evidence_basis,predicted_u_px,predicted_v_px,observed_u_px,observed_v_px,residual_px,status,note
+G2-MISROW-001,22',5.55,19.28,"Y(P22)=18.10 + MIS 22'-22=1.18 m",2129.19,5848.15,2133.09,5852.40,5.77,SUPPORTED_MIS,"Residual from frozen affine raster diagnostic is within existing network residual scale. This does not convert MIS to DOC."
+G2-MISROW-002,27,3.45,19.28,"Observed same row as P22-prime; inherits MIS-supported row ordinate",1798.36,5846.87,1808.65,5844.90,10.48,SUPPORTED_MIS,"Residual is compatible with the existing G2 raster diagnostic spread. P27 row remains MIS-supported, not documentary."

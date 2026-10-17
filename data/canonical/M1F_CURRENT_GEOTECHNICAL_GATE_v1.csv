@@ -1,0 +1,13 @@
+check_id,metric,expected,actual,status,severity,note
+M1F-GEO-G01,current_normative_framework_registered,YES,YES,PASS,HARD,"Current verification basis is separated from the historical allowable-stress soil assumptions."
+M1F-GEO-G02,historical_geotechnical_parameters_preserved,YES,YES,PASS,HARD,"terreno sano pliocenico, 1.6 kg/cm2 and epsilon=1 remain historical DOC evidence."
+M1F-GEO-G03,historical_allowable_pressure_used_as_current_design_resistance,NO,NO,PASS,HARD,"No silent conversion to current limit-state resistance is allowed."
+M1F-GEO-G04,current_site_stratigraphic_model_available,YES,NO,PASS_WITH_WATCH,WATCH,"Current site-specific stratigraphy remains open."
+M1F-GEO-G05,current_groundwater_screening_available,YES,NO,PASS_WITH_WATCH,WATCH,"Groundwater/hydrogeological relevance remains open."
+M1F-GEO-G06,current_strength_parameters_available,YES,NO,PASS_WITH_WATCH,WATCH,"Representative current soil strength parameters are not yet registered."
+M1F-GEO-G07,current_stiffness_settlement_parameters_available,YES,NO,PASS_WITH_WATCH,WATCH,"Current deformation/stiffness parameters are not yet registered."
+M1F-GEO-G08,solver_soil_springs_inferred_from_epsilon_1,NO,NO,PASS,HARD,"Historical epsilon=1 is not converted directly into a modern Winkler or elastic stiffness."
+M1F-GEO-G09,investigation_program_fixed_without_evidence_inventory,NO,NO,PASS,HARD,"Investigation scope remains evidence-gap driven rather than generic."
+M1F-GEO-G10,current_repository_geotechnical_source_inventory_completed,YES,YES,PASS,HARD,"Active repository and immutable drawing archive were searched; no registered geotechnical report/test/groundwater dataset beyond historical calculation assumptions is present."
+M1F-GEO-G11,new_geotechnical_report_or_investigation_dataset_registered,NO,NO,PASS_WITH_WATCH,WATCH,"Current site parameters are now external-document/new-investigation residuals; do not repeat unchanged repository searches."
+M1F-GEO-GATE,gate_state,REQUIREMENTS_DEFINED_CURRENT_GEOTECHNICAL_EVIDENCE_OPEN,REQUIREMENTS_DEFINED_CURRENT_GEOTECHNICAL_EVIDENCE_OPEN,PASS_WITH_WATCH,GATE,"Current geotechnical requirements and current repository source inventory are closed; final foundation verification remains blocked until site-specific documentary or investigation evidence closes the open parameter families."

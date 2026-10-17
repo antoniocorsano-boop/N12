@@ -1,0 +1,12 @@
+check_id,metric,expected,actual,status,severity,note
+M1A-STR-G01,stair_subsystem_rows,6,6,PASS,HARD,"The stair/torrino register contains six explicitly typed subsystem rows."
+M1A-STR-G02,stair_core_geometry_context_doc,YES,YES,PASS,HARD,"G2-G4 central stair/opening geometry and 1.40 m flight-width context are directly registered."
+M1A-STR-G03,recurring_20_21_special_candidates,2,2,PASS,HARD,"The 20-21 continuation recurs in TAV-034A and TAV-05A as a special stair-system candidate rather than an ordinary planar beam."
+M1A-STR-G04,ordinary_planar_20_21_forced_into_m0g,NO,NO,PASS,HARD,"No ordinary M0-G planar 20-21 member is created from reinforcement notation alone."
+M1A-STR-G05,torrino_geometry_context_doc,YES,YES,PASS,HARD,"TAV-04/TAV-06E directly support a dedicated top stair/tower geometry context."
+M1A-STR-G06,torrino_30x40_family_doc,YES,YES,PASS,HARD,"The 30x40 stair-tower family is documentary and TAV-07A directly contains a V-order 30x40 reinforced family."
+M1A-STR-G07,all_30x40_v_order_supports_assigned_to_torrino,NO,NO,PASS,HARD,"Section equality is not used as a membership proof; ordinary 30x40 supports remain ordinary unless plan/section continuity binds them to the tower."
+M1A-STR-G08,exact_stair_3d_member_path_bound,YES,NO,PASS_WITH_WATCH,WATCH,"Landing/ramp/edge-beam role, end faces and Z profile of the recurring 20-21 item remain to bind."
+M1A-STR-G09,exact_torrino_support_footprint_bound,YES,NO,PASS_WITH_WATCH,WATCH,"The top tower footprint and exact subset of tower supports remain a plan/section cross-registration residual."
+M1A-STR-G10,torrino_load_domain_ready,YES,NO,PASS_WITH_WATCH,WATCH,"Loads/masses remain in M1-L until footprint, tributary geometry and construction layers are fixed."
+M1A-STR-GATE,gate_state,PASS_DEDICATED_SUBSYSTEM_IDENTIFIED_WITH_3D_AND_FOOTPRINT_WATCH,PASS_DEDICATED_SUBSYSTEM_IDENTIFIED_WITH_3D_AND_FOOTPRINT_WATCH,PASS_WITH_WATCH,GATE,"Stair/torrino evidence is sufficient to freeze dedicated subsystem semantics; only exact 3D/member footprint binding and downstream loads remain open."

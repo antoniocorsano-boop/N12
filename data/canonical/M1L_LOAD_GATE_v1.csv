@@ -1,0 +1,12 @@
+check_id,metric,expected,actual,status,severity,note
+M1L-FG01,target_load_rows_registered,16,16,PASS,HARD,"The target model covers historical reconstruction, ordinary frame/floors, PT, terraces, balconies, stair/torrino, roof/eaves, infill shift, deltas, mass and combinations."
+M1L-FG02,existing_semantic_load_path_rows,7,7,PASS,HARD,"All existing path classifications are represented without weakening their model guards."
+M1L-FG03,historical_asbuilt_delta_domains,6,6,PASS,HARD,"Historical and as-built/current effects remain separate symbolic terms."
+M1L-FG04,unsourced_numeric_load_rows,0,0,PASS,HARD,"No Gk, Qk, line load, mass, eccentricity, unit weight or combination factor is invented."
+M1L-FG05,historical_omission_promoted_to_doc,0,0,PASS,HARD,"Reported omissions remain RIF/conditional until direct primary calculation inputs are recovered."
+M1L-FG06,pt_whole_build_up_forced_onto_structure,NO,NO,PASS,HARD,"The PT structural-transfer guard is preserved."
+M1L-FG07,roof_special_geometry_loaded_without_role,NO,NO,PASS,HARD,"Ridge/fold and gronda geometry is not converted into structural load hosts without evidence."
+M1L-FG08,numeric_load_rows_ready,0,0,PASS_WITH_WATCH,WATCH,"Numerical execution remains unavailable pending layer, unit-weight, use, geometry, tributary and assessment inputs."
+M1L-FG09,independent_foundation_work_releasable,YES,YES,PASS_WITH_WATCH,WATCH,"The load schema and guards are sufficient to continue M1-F independently; numerical soil-structure and calculation-model use remain blocked."
+M1L-FG10,calculation_model_ready,NO,NO,PASS_WITH_WATCH,WATCH,"M1-E cannot consume numerical loads or masses until residual evidence is supplied or assumptions are explicitly admitted at a later gate."
+M1L-FINAL-GATE,gate_state,PASS_WITH_WATCH,PASS_WITH_WATCH,PASS_WITH_WATCH,GATE,"The evidence-aware load model is canonically structured with no fabricated values. M1-F may advance; numerical analysis and CALCULATION_MODEL_READY remain blocked by explicit residuals."

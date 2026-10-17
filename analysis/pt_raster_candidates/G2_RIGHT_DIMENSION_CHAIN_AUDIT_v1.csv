@@ -1,0 +1,9 @@
+audit_id,source_tile,dimension_text,endpoint_i,endpoint_j,constraint_type,evidence_status,decision,note
+G2-RIGHT-001,r2_c3,4.70,P1 axis,P2 axis,DISTANCE_COLUMN,DOC_DIRECT_RASTER,HARD,"Linea di quota superiore con estremi sugli assi dei sostegni 1 e 2."
+G2-RIGHT-002,r2_c3,5.10,P2 axis,P3 axis,DISTANCE_COLUMN,DOC_DIRECT_RASTER,HARD,"Testo letto 5.10; distinto dal 5.50 della catena 17-9."
+G2-RIGHT-003,r3_c3,4.15,P3 axis,P4/P5 column axis,DISTANCE_COLUMN,DOC_DIRECT_RASTER,HARD,"Primo segmento della catena 4.15-4.15-5.30; P4 rappresenta la linea metrica comune P4/P5."
+G2-RIGHT-004,r3_c3,4.15,P4/P5 column axis,P6 column axis,DISTANCE_COLUMN,DOC_DIRECT_RASTER,HARD,"Secondo segmento della stessa catena."
+G2-RIGHT-005,r3_c3,5.30,P6 column axis,P7 column axis,DISTANCE_COLUMN,DOC_DIRECT_RASTER,HARD,"Terzo segmento della catena."
+G2-RIGHT-006,r3_c3,1.90,P4 axis,P5 axis,DISTANCE_ROW,DOC_DIRECT_RASTER,HARD,"Quota verticale esplicita con linee di estensione sugli assi P4 e P5."
+G2-RIGHT-007,r4_c3,4.70,P7 axis,P8 axis,DISTANCE_COLUMN,DOC_DIRECT_RASTER,HARD,"Quota superiore diretta nel settore inferiore destro."
+G2-RIGHT-008,r4_c3,4.65,P8 axis,P16 axis,DISTANCE_ROW,DOC_DIRECT_RASTER,CONFIRMS_EXISTING,"Conferma visiva diretta del vincolo G2-LOW-X4 gia presente."

@@ -1,0 +1,2 @@
+issue_id,affected_artifact,affected_fields,status,reason,replacement_authority,note
+G1A-REV-001,PT_RASTER_GEOMETRIC_CANDIDATES_v1.csv,"u_global_px;v_global_px",REVOKED,"tile JPG dimensions differ from historical 2400x2400 crop windows; direct offset addition is invalid",data/canonical/TAV02S_TILE_TO_NATIVE_REGISTRATION_v1.csv,"Only tile-local candidate coordinates remain usable. Native raster coordinates must be obtained after semantic binding through registered tile->overview->native transform."

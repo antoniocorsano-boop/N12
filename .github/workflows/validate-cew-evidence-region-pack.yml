@@ -1,0 +1,122 @@
+name: Validate CEW Evidence Region Pack
+
+on:
+  pull_request:
+    paths:
+      - 'automation/CEW_SOURCE_RENDER_REGISTRY_v1.json'
+      - 'scripts/cew_evidence_region_review_pack.py'
+      - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
+      - '.github/workflows/validate-cew-evidence-region-pack.yml'
+
+jobs:
+  build-review-pack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch immutable source branch
+        run: git fetch origin archive/originali-alta-risoluzione:refs/remotes/origin/archive/originali-alta-risoluzione
+
+      - name: Install render dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y poppler-utils python3-pil
+
+      - name: Validate registry against established source renderer
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          reg=json.loads(Path('automation/CEW_SOURCE_RENDER_REGISTRY_v1.json').read_text())
+          legacy=Path('scripts/render_storey_sources.sh').read_text()
+          assert reg['archive_branch']=='archive/originali-alta-risoluzione'
+          assert reg['render_policy']['authority']=='DERIVATIVE_FOR_REVIEW_ONLY'
+          assert len(reg['sources'])==6
+          for s in reg['sources']:
+              expected=f'render_one "{s["source_id"]}" "{s["archive_path"]}"'
+              assert expected in legacy, f'mapping drift: {expected}'
+          issues={x['issue_id']:x for x in reg['issue_review_sets']}
+          assert issues['N12-ISS-M1E-B05']['source_ids']==['TAV01A']
+          assert set(issues['N12-ISS-M1E-B06']['source_ids'])=={'TAV02A','TAV034A','TAV05A','TAV06A','TAV07A'}
+          print('SOURCE RENDER REGISTRY: PASS | mappings match established renderer')
+          PY
+
+      - name: Extract and render immutable review sources at 300 dpi
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/cew_source_pdfs /tmp/cew_source_images /tmp/cew_region_pack
+          ARCHIVE_COMMIT="$(git rev-parse refs/remotes/origin/archive/originali-alta-risoluzione)"
+          python - <<'PY' > /tmp/cew_sources.tsv
+          import json
+          r=json.load(open('automation/CEW_SOURCE_RENDER_REGISTRY_v1.json'))
+          wanted=[]
+          for i in r['issue_review_sets']:
+              if i['issue_id'] in {'N12-ISS-M1E-B05','N12-ISS-M1E-B06'}:
+                  wanted.extend(i['source_ids'])
+          idx={s['source_id']:s for s in r['sources']}
+          for sid in sorted(set(wanted)):
+              print(sid+'\t'+idx[sid]['archive_path'])
+          PY
+          printf '{\n' > /tmp/cew_source_meta.json
+          first=1
+          while IFS=$'\t' read -r sid path; do
+            pdf="/tmp/cew_source_pdfs/${sid}.pdf"
+            git show "${ARCHIVE_COMMIT}:${path}" > "$pdf"
+            pages="$(pdfinfo "$pdf" | awk -F: '/^Pages:/ {gsub(/ /,"",$2); print $2}')"
+            test "$pages" = "1"
+            blob="$(git rev-parse "${ARCHIVE_COMMIT}:${path}")"
+            pdftoppm -f 1 -l 1 -jpeg -jpegopt quality=92 -r 300 -singlefile "$pdf" "/tmp/cew_source_images/${sid}"
+            mv "/tmp/cew_source_images/${sid}.jpg" "/tmp/cew_source_images/${sid}_300dpi.jpg"
+            if [ "$first" -eq 0 ]; then printf ',\n' >> /tmp/cew_source_meta.json; fi
+            first=0
+            printf '  "%s": {"archive_commit":"%s","archive_blob_sha":"%s","pdf_page_count":%s}' "$sid" "$ARCHIVE_COMMIT" "$blob" "$pages" >> /tmp/cew_source_meta.json
+          done < /tmp/cew_sources.tsv
+          printf '\n}\n' >> /tmp/cew_source_meta.json
+          cat /tmp/cew_source_meta.json
+
+      - name: Build deterministic B05/B06 review packs
+        run: |
+          python -m py_compile scripts/cew_evidence_region_review_pack.py
+          python scripts/cew_evidence_region_review_pack.py \
+            --source-meta /tmp/cew_source_meta.json \
+            --image-dir /tmp/cew_source_images \
+            --output /tmp/cew_region_pack \
+            --issue N12-ISS-M1E-B05 \
+            --issue N12-ISS-M1E-B06
+
+      - name: Assert review-only semantics and deterministic bbox inventory
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/cew_region_pack')
+          b05=json.loads((p/'N12-ISS-M1E-B05/review_manifest.json').read_text())
+          b06=json.loads((p/'N12-ISS-M1E-B06/review_manifest.json').read_text())
+          assert b05['authority_state']=='REVIEW_CONTEXT_ONLY'
+          assert b06['authority_state']=='REVIEW_CONTEXT_ONLY'
+          assert len(b05['sources'])==1
+          assert len(b06['sources'])==5
+          assert sum(len(s['tiles']) for s in b05['sources'])==16
+          assert sum(len(s['tiles']) for s in b06['sources'])==80
+          for m in (b05,b06):
+              for s in m['sources']:
+                  assert len(s['archive_blob_sha'])==40
+                  assert len(s['render_sha256'])==64
+                  assert s['pdf_page_count']==1
+                  for t in s['tiles']:
+                      assert t['authority_state']=='CONTEXT_ONLY'
+                      assert len(t['bbox_px'])==4 and len(t['bbox_normalized'])==4
+          print('CEW EVIDENCE REGION PACK: PASS | B05=16 tiles | B06=80 tiles | no evidence promotion')
+          PY
+
+      - name: Upload technician review pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: CEW-R3-N12-evidence-region-review-pack
+          path: /tmp/cew_region_pack
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,3 @@
+batch_id,scope,support_id,review_state,promotion_state,evidence,reason,next_check
+G1B-RIGHT-04,RIGHT_LOWER,15,CROSS_VALIDATED,CURRENT_PIXEL_REGISTRY,"clean r4_c2 + clean r3_c2 overlap; BIND-R4C2-P15-001; delta ~0.38 px native","ID 15 and written 50x40 section are directly readable on both registered tiles; full-symbol center agrees within subpixel tolerance.","none for G1 center"
+G1B-RIGHT-04,RIGHT_LOWER,16,CONFIRMED_VISUAL,WORKING_ONLY,"clean r4_c2; BIND-R4C2-P16-001","ID 16 and written 40x50 section are directly readable; no independent overlapping tile contains the full symbol with sufficient detail.","seek independent crosscheck before promotion"

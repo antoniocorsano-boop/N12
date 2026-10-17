@@ -1,0 +1,13 @@
+check_id,metric,expected,actual,status,severity,note
+M1A-G1T-G01,added_supports_in_current_master,4,4,PASS,HARD,"a,b,c,d are four distinct terrace-added supports in PT_MASTER_CURRENT."
+M1A-G1T-G02,added_supports_section_30x30_doc,4,4,PASS,HARD,"All four supports have current documentary 30x30 sections and metric coordinates."
+M1A-G1T-G03,asbuilt_foundation_presence_confirmed,YES,YES,PASS,HARD,"M1-F independently preserves the a-d foundation mesh and reinforcement subsystem in the documented/as-built model."
+M1A-G1T-G04,tav07a_i_order_30x30_family_available,YES,YES,PASS,HARD,"TAV-07A contains a DOC I-order 30x30 reinforcement family (4x14 longitudinal, 8x16 monconi, phi6/15 stirrups)."
+M1A-G1T-G05,tav07a_30x30_family_directly_numbered_to_a_d,YES,NO,PASS_WITH_WATCH,WATCH,"The TAV-07A 30x30 family is FAMILY_ONLY and has no explicit support-id list; it is not automatically assigned to a-d."
+M1A-G1T-G06,a_d_column_reinforcement_bound,YES,NO,PASS_WITH_WATCH,WATCH,"Longitudinal/stirrup reinforcement of the added columns remains open until direct source/member binding or survey evidence is registered."
+M1A-G1T-G07,projecting_member_E03_length_doc_m,1.50,1.50,PASS,HARD,"ETW-FLT-E03 preserves a directly registered 1.50 m projecting-member length."
+M1A-G1T-G08,projecting_member_E03_section_bound,YES,NO,PASS_WITH_WATCH,WATCH,"Section remains ND."
+M1A-G1T-G09,projecting_member_E03_anchorage_bound,YES,NO,PASS_WITH_WATCH,WATCH,"Anchorage/reinforcement detail remains ND."
+M1A-G1T-G10,E03_merged_with_a_d_subsystem,NO,NO,PASS,HARD,"The local projecting member near P16-P08 remains separate from the a-d support subsystem unless new direct evidence binds them."
+M1A-G1T-G11,historical_omission_promoted_to_doc,NO,NO,PASS,HARD,"Reported historical omission of a-d remains conditional/RIF until primary historical calculation evidence is registered."
+M1A-G1T-GATE,gate_state,PASS_G1_ADDITION_GEOMETRY_WITH_COLUMN_AND_ANCHORAGE_REINFORCEMENT_WATCH,PASS_G1_ADDITION_GEOMETRY_WITH_COLUMN_AND_ANCHORAGE_REINFORCEMENT_WATCH,PASS_WITH_WATCH,GATE,"G1 terrace-addition geometry/as-built support evidence is closed; a-d column reinforcement and the separate E03 section/anchorage remain explicit evidence residuals."

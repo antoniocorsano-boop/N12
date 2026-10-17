@@ -1,0 +1,355 @@
+name: Validate FPEP foundation pipeline
+
+on:
+  pull_request:
+    paths:
+      - 'AGENTS.md'
+      - 'automation/N12_FOUNDATION_*.json'
+      - 'automation/inbox/N12_FOUNDATION_AGENT_RESULT.json'
+      - 'automation/N12_AUTOMATION_CONTRACT_v1.json'
+      - 'automation/N12_WORK_QUEUE_v1.json'
+      - 'analysis/fpep/**'
+      - 'docs/PROCEDURES/FOUNDATION_PRIMARY_EVIDENCE_PIPELINE_v1.md'
+      - 'scripts/n12_foundation_orchestrator.py'
+      - 'scripts/fpep_p00_state_consistency.py'
+      - 'scripts/fpep_p02_build_hires_evidence.py'
+      - 'scripts/n12_make_agent_task.py'
+      - 'scripts/n12_ingest_agent_result.py'
+      - 'scripts/validate_foundation_pipeline.py'
+      - 'knowledge/KNOWLEDGE_MANIFEST.json'
+      - 'knowledge/CURRENT_STATE.json'
+      - 'knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv'
+      - '.github/workflows/n12-analysis-orchestrator.yml'
+      - '.github/workflows/validate-fpep-foundation-pipeline.yml'
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - 'AGENTS.md'
+      - 'automation/N12_FOUNDATION_*.json'
+      - 'automation/inbox/N12_FOUNDATION_AGENT_RESULT.json'
+      - 'automation/N12_AUTOMATION_CONTRACT_v1.json'
+      - 'automation/N12_WORK_QUEUE_v1.json'
+      - 'analysis/fpep/**'
+      - 'docs/PROCEDURES/FOUNDATION_PRIMARY_EVIDENCE_PIPELINE_v1.md'
+      - 'scripts/n12_foundation_orchestrator.py'
+      - 'scripts/fpep_p00_state_consistency.py'
+      - 'scripts/fpep_p02_build_hires_evidence.py'
+      - 'scripts/n12_make_agent_task.py'
+      - 'scripts/n12_ingest_agent_result.py'
+      - 'scripts/validate_foundation_pipeline.py'
+      - 'knowledge/KNOWLEDGE_MANIFEST.json'
+      - 'knowledge/CURRENT_STATE.json'
+      - 'knowledge/ARTIFACT_REGISTRY_FPEP_PATCH_v1.csv'
+      - '.github/workflows/n12-analysis-orchestrator.yml'
+      - '.github/workflows/validate-fpep-foundation-pipeline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: n12-fpep-foundation-runtime
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate FPEP contract, delegation, runtime bridge and information barriers
+        run: python scripts/validate_foundation_pipeline.py
+
+      - name: Validate FPEP sub-orchestrator
+        run: python scripts/n12_foundation_orchestrator.py validate
+
+      - name: Validate parent task delegation packet
+        run: python scripts/n12_make_agent_task.py
+
+      - name: Validate global knowledge system
+        run: python scripts/validate_knowledge_system.py
+
+      - name: Validate parent N12 orchestrator
+        run: python scripts/n12_orchestrator.py validate
+
+      - name: Validate parent result handshake
+        run: python scripts/n12_ingest_agent_result.py validate
+
+  evidence-export:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'work/m0-global-model'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout canonical working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 1
+
+      - name: Upload P02 HiRes evidence for blind readers
+        uses: actions/upload-artifact@v4
+        with:
+          name: fpep-hires-evidence
+          path: |
+            analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json
+            analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json
+            analysis/fpep/hires/TAV01S/
+          if-no-files-found: error
+          retention-days: 30
+
+  p00-bootstrap:
+    if: (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'work/m0-global-model') || github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout canonical working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Detect selected P00 state
+        id: selection
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          import os
+          from pathlib import Path
+          queue = json.loads(Path('automation/N12_FOUNDATION_WORK_QUEUE_v1.json').read_text(encoding='utf-8'))
+          item = next((x for x in queue.get('items', []) if x.get('id') == 'FPEP-P00-STATE-CONSISTENCY'), None)
+          state = item.get('state') if item else 'MISSING'
+          automatic = state in {'READY', 'IN_PROGRESS'}
+          manual_residual = state == 'RESIDUAL' and os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch'
+          active = automatic or manual_residual
+          print(f"active={'true' if active else 'false'}")
+          print(f"state={state}")
+          PY
+
+      - name: Validate P00 contracts before execution
+        if: steps.selection.outputs.active == 'true'
+        run: |
+          python scripts/validate_knowledge_system.py
+          python scripts/validate_foundation_pipeline.py
+          python scripts/n12_foundation_orchestrator.py validate
+
+      - name: Generate deterministic P00 result when inbox is empty
+        if: steps.selection.outputs.active == 'true'
+        shell: bash
+        run: |
+          if [ -f automation/inbox/N12_FOUNDATION_AGENT_RESULT.json ]; then
+            echo 'FPEP inbox already contains one pending result; bootstrap will not overwrite it.'
+          else
+            python scripts/fpep_p00_state_consistency.py
+          fi
+
+      - name: Ingest exactly one P00 result
+        if: steps.selection.outputs.active == 'true'
+        shell: bash
+        run: |
+          if [ ! -f automation/inbox/N12_FOUNDATION_AGENT_RESULT.json ]; then
+            echo 'P00 did not produce a result inbox packet.' >&2
+            exit 1
+          fi
+          python scripts/n12_foundation_orchestrator.py ingest
+
+      - name: Revalidate P00 state after ingestion
+        if: steps.selection.outputs.active == 'true'
+        run: |
+          python scripts/validate_foundation_pipeline.py
+          python scripts/n12_foundation_orchestrator.py validate
+          python scripts/validate_knowledge_system.py
+
+      - name: Persist P00 audit receipt and subqueue transition
+        if: steps.selection.outputs.active == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-fpep-p00-bootstrap[bot]'
+          git config user.email 'n12-fpep-p00-bootstrap[bot]@users.noreply.github.com'
+          git add automation/N12_FOUNDATION_WORK_QUEUE_v1.json
+          git add -A automation/receipts/foundation || true
+          git add -A automation/inbox || true
+          git add -A analysis/fpep || true
+          if git diff --cached --quiet; then
+            echo 'P00 produced no canonical state change.'
+          else
+            git commit -m 'automation: execute FPEP P00 state consistency gate'
+            git pull --rebase origin work/m0-global-model
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Report P00 bootstrap state
+        run: |
+          echo "FPEP P00 selected: ${{ steps.selection.outputs.active }}"
+          echo "FPEP P00 state: ${{ steps.selection.outputs.state }}"
+
+  p02-hires-bootstrap:
+    if: (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'work/m0-global-model') || github.event_name == 'workflow_dispatch'
+    needs: [validate, p00-bootstrap]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout canonical working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Detect selected P02 state
+        id: selection
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          import subprocess
+          from pathlib import Path
+          proc = subprocess.run(['python', 'scripts/n12_foundation_orchestrator.py', 'make-task'], text=True, capture_output=True)
+          if proc.returncode != 0:
+              print('active=false')
+              print('selected=FAIL_STOP')
+              raise SystemExit(0)
+          task = json.loads(proc.stdout)
+          selected = task.get('work_item_id', 'NONE')
+          inbox_empty = not Path('automation/inbox/N12_FOUNDATION_AGENT_RESULT.json').exists()
+          active = selected == 'FPEP-P02-HIRES-EVIDENCE' and inbox_empty
+          print(f"active={'true' if active else 'false'}")
+          print(f"selected={selected}")
+          PY
+
+      - name: Install deterministic P02 renderer dependencies
+        if: steps.selection.outputs.active == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y poppler-utils
+          python -m pip install --disable-pip-version-check pillow
+
+      - name: Materialize immutable TAV-01S from archive branch
+        if: steps.selection.outputs.active == 'true'
+        shell: bash
+        run: |
+          git fetch --depth=1 origin archive/originali-alta-risoluzione
+          git show FETCH_HEAD:archive/documentazione_originaria/tavola1-2.pdf > /tmp/TAV01S.pdf
+          test -s /tmp/TAV01S.pdf
+
+      - name: Build deterministic P02 HiRes evidence packet
+        if: steps.selection.outputs.active == 'true'
+        run: python scripts/fpep_p02_build_hires_evidence.py --pdf /tmp/TAV01S.pdf
+
+      - name: Ingest exactly one P02 result
+        if: steps.selection.outputs.active == 'true'
+        run: python scripts/n12_foundation_orchestrator.py ingest
+
+      - name: Revalidate P02 state after ingestion
+        if: steps.selection.outputs.active == 'true'
+        run: |
+          python scripts/validate_foundation_pipeline.py
+          python scripts/n12_foundation_orchestrator.py validate
+          python scripts/validate_knowledge_system.py
+          python scripts/n12_orchestrator.py validate
+
+      - name: Persist P02 evidence receipt and subqueue transition
+        if: steps.selection.outputs.active == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-fpep-p02-bootstrap[bot]'
+          git config user.email 'n12-fpep-p02-bootstrap[bot]@users.noreply.github.com'
+          git add automation/N12_FOUNDATION_WORK_QUEUE_v1.json
+          git add -A automation/receipts/foundation || true
+          git add -A automation/inbox || true
+          git add -A analysis/fpep || true
+          if git diff --cached --quiet; then
+            echo 'P02 produced no canonical state change.'
+          else
+            git commit -m 'automation: build and ingest FPEP P02 HiRes evidence'
+            git pull --rebase origin work/m0-global-model
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Report P02 bootstrap state
+        run: |
+          echo "FPEP P02 selected: ${{ steps.selection.outputs.active }}"
+          echo "Selected FPEP item: ${{ steps.selection.outputs.selected }}"
+
+  pending-result-ingest:
+    if: (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'work/m0-global-model') || github.event_name == 'workflow_dispatch'
+    needs: [validate, p00-bootstrap, p02-hires-bootstrap]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout canonical working branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/m0-global-model
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Detect one pending FPEP specialist result
+        id: pending
+        shell: bash
+        run: |
+          if [ -f automation/inbox/N12_FOUNDATION_AGENT_RESULT.json ]; then
+            echo 'pending=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'pending=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Ingest exactly one pending FPEP specialist result
+        if: steps.pending.outputs.pending == 'true'
+        run: python scripts/n12_foundation_orchestrator.py ingest
+
+      - name: Revalidate after FPEP specialist result ingestion
+        if: steps.pending.outputs.pending == 'true'
+        run: |
+          python scripts/validate_foundation_pipeline.py
+          python scripts/n12_foundation_orchestrator.py validate
+          python scripts/validate_knowledge_system.py
+          python scripts/n12_orchestrator.py validate
+
+      - name: Persist FPEP queue receipts audits and inbox transition
+        if: steps.pending.outputs.pending == 'true'
+        shell: bash
+        run: |
+          git config user.name 'n12-fpep-result-ingest[bot]'
+          git config user.email 'n12-fpep-result-ingest[bot]@users.noreply.github.com'
+          git add automation/N12_FOUNDATION_WORK_QUEUE_v1.json
+          git add -A automation/receipts/foundation || true
+          git add -A automation/inbox || true
+          git add -A analysis/fpep || true
+          if git diff --cached --quiet; then
+            echo 'Pending FPEP result produced no canonical state change.'
+          else
+            git commit -m 'automation: ingest FPEP specialist result and advance subcycle'
+            git pull --rebase origin work/m0-global-model
+            git push origin HEAD:work/m0-global-model
+          fi
+
+      - name: Report pending result state
+        run: |
+          echo "Pending FPEP result: ${{ steps.pending.outputs.pending }}"

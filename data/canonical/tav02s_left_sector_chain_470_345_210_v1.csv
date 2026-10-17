@@ -1,0 +1,8 @@
+sequence_order,row_group,member_nodes,distance_from_previous_m,cumulative_from_row_32_33_m,evidence,status,note
+0,ROW_32_33,"32/33",,0.00,"TAV-02S high-resolution q3 sector",DOC_ANCHOR,"fila di riferimento inferiore del settore sinistro"
+1,ROW_29_30,"29/30",4.70,4.70,"TAV-02S quota 4.70 + lettura allineamenti",DOC_QUOTATO,"prima distanza della catena 4.70-3.45-2.10"
+2,ROW_26_27,"26/27",3.45,8.15,"TAV-02S quota 3.45 + lettura allineamenti",DOC_QUOTATO,"seconda distanza della catena"
+3,ROW_21_22_23_24,"21/22/23/24",2.10,10.25,"TAV-02S quota 2.10 + lettura allineamenti",DOC_QUOTATO,"fila superiore articolata del settore; presenti più nodi sul medesimo livello locale"
+DIRECT_PAIR,LEFT_REFERENCE_COLUMN,"32->29",4.70,4.70,"TAV-02S q3 crop: stessa linea di riferimento",DOC_DIRECT_MAPPING,"mappatura certa del primo segmento"
+DIRECT_PAIR,LEFT_REFERENCE_COLUMN,"29->26",3.45,8.15,"TAV-02S q3 crop: stessa linea di riferimento",DOC_DIRECT_MAPPING,"mappatura certa del secondo segmento"
+DIRECT_PAIR,LEFT_REFERENCE_COLUMN,"26->24",2.10,10.25,"TAV-02S q3 crop: stessa linea di riferimento",DOC_DIRECT_MAPPING,"mappatura certa del terzo segmento sulla colonna di riferimento sinistra"

@@ -1,0 +1,72 @@
+name: Validate M1-F foundation
+
+on:
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - 'data/canonical/M1F_FOUNDATION_*.csv'
+      - 'data/canonical/M1F_TAV01A_*.csv'
+      - 'data/canonical/M1F_REINFORCEMENT_EXTRACTION_QUEUE_v1.csv'
+      - 'data/canonical/M1F_GROUND_FLOOR_INTERFACE_*.csv'
+      - 'data/canonical/M1F_GROUND_FLOOR_BUILDUP_SOURCE_AVAILABILITY_v1.csv'
+      - 'data/canonical/M1F_AD_HISTORICAL_MODEL_DELTA_*.csv'
+      - 'data/canonical/M1F_HISTORICAL_CALC_SOURCE_AVAILABILITY_v1.csv'
+      - 'data/canonical/M1F_CURRENT_GEOTECHNICAL_*.csv'
+      - 'data/canonical/M1F_GEOTECHNICAL_SOURCE_AVAILABILITY_v1.csv'
+      - 'data/canonical/M1F_EXTERNAL_EVIDENCE_ACQUISITION_QUEUE_v1.csv'
+      - 'scripts/validate_m1f_foundation_topology.py'
+      - 'scripts/validate_m1f_foundation_sections.py'
+      - 'scripts/validate_m1f_foundation_reinforcement.py'
+      - 'scripts/validate_m1f_foundation_elevation.py'
+      - 'scripts/validate_m1f_ground_interface_and_residuals.py'
+      - '.github/workflows/validate-m1f-foundation.yml'
+  pull_request:
+    paths:
+      - 'data/canonical/M1F_FOUNDATION_*.csv'
+      - 'data/canonical/M1F_TAV01A_*.csv'
+      - 'data/canonical/M1F_REINFORCEMENT_EXTRACTION_QUEUE_v1.csv'
+      - 'data/canonical/M1F_GROUND_FLOOR_INTERFACE_*.csv'
+      - 'data/canonical/M1F_GROUND_FLOOR_BUILDUP_SOURCE_AVAILABILITY_v1.csv'
+      - 'data/canonical/M1F_AD_HISTORICAL_MODEL_DELTA_*.csv'
+      - 'data/canonical/M1F_HISTORICAL_CALC_SOURCE_AVAILABILITY_v1.csv'
+      - 'data/canonical/M1F_CURRENT_GEOTECHNICAL_*.csv'
+      - 'data/canonical/M1F_GEOTECHNICAL_SOURCE_AVAILABILITY_v1.csv'
+      - 'data/canonical/M1F_EXTERNAL_EVIDENCE_ACQUISITION_QUEUE_v1.csv'
+      - 'scripts/validate_m1f_foundation_topology.py'
+      - 'scripts/validate_m1f_foundation_sections.py'
+      - 'scripts/validate_m1f_foundation_reinforcement.py'
+      - 'scripts/validate_m1f_foundation_elevation.py'
+      - 'scripts/validate_m1f_ground_interface_and_residuals.py'
+      - '.github/workflows/validate-m1f-foundation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate foundation topology
+        run: python scripts/validate_m1f_foundation_topology.py
+
+      - name: Validate foundation sections
+        run: python scripts/validate_m1f_foundation_sections.py
+
+      - name: Validate foundation reinforcement
+        run: python scripts/validate_m1f_foundation_reinforcement.py
+
+      - name: Validate foundation elevation continuity
+        run: python scripts/validate_m1f_foundation_elevation.py
+
+      - name: Validate PT interface and residuals
+        run: python scripts/validate_m1f_ground_interface_and_residuals.py

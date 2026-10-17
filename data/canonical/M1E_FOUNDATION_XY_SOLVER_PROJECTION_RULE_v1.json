@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0",
+  "rule_id": "M1E_FOUNDATION_XY_SOLVER_PROJECTION_RULE",
+  "date": "2026-08-24",
+  "authority": "MODELING_RULE",
+  "status": "CURRENT",
+  "purpose": "Provide numerical XY placement for the foundation solver shell without changing the evidentiary state or topology authority of the FPEP/P07 foundation reconstruction.",
+  "topology_authority": "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
+  "foundation_model": "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv",
+  "coordinate_source": "data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv",
+  "source_selector": {
+    "level_id": "G1",
+    "node_role": "SUPPORT_CORE",
+    "required_unique_mapping": true,
+    "mapped_supports": 38
+  },
+  "identity_rule": {
+    "default": "P07 support_id equals M0G G1 SUPPORT_CORE support_id",
+    "explicit_alias": {
+      "P07_22bis": "M0G_22'"
+    },
+    "distinct_support_guard": "22 and 22bis/22' remain separate supports and must never be collapsed."
+  },
+  "projection_semantics": {
+    "solver_x": "M0G G1 SUPPORT_CORE x_m",
+    "solver_y": "M0G G1 SUPPORT_CORE y_m",
+    "solver_z": "NOT_DEFINED_BY_THIS_RULE",
+    "coordinate_evidence_state": "retain M0G coordinate_evidence_state and xy_input_provenance per support",
+    "foundation_primary_xy_state": "UNCHANGED_ND_WHERE_P07_LEFT_ND",
+    "topology": "UNCHANGED_P07_55_MEMBER_AUTHORITY"
+  },
+  "mapping": [
+    {"foundation_support_id":"1","m0g_node_id":"M0G-C-G1-1","solver_x_m":18.0,"solver_y_m":0.0,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"2","m0g_node_id":"M0G-C-G1-2","solver_x_m":18.0,"solver_y_m":4.7,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"3","m0g_node_id":"M0G-C-G1-3","solver_x_m":18.0,"solver_y_m":9.8,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"4","m0g_node_id":"M0G-C-G1-4","solver_x_m":18.0,"solver_y_m":13.95,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"5","m0g_node_id":"M0G-C-G1-5","solver_x_m":16.1,"solver_y_m":13.95,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"6","m0g_node_id":"M0G-C-G1-6","solver_x_m":16.1,"solver_y_m":18.1,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"7","m0g_node_id":"M0G-C-G1-7","solver_x_m":16.1,"solver_y_m":23.4,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"8","m0g_node_id":"M0G-C-G1-8","solver_x_m":16.1,"solver_y_m":28.1,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"9","m0g_node_id":"M0G-C-G1-9","solver_x_m":12.4,"solver_y_m":0.0,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"10","m0g_node_id":"M0G-C-G1-10","solver_x_m":12.4,"solver_y_m":4.7,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"11","m0g_node_id":"M0G-C-G1-11","solver_x_m":12.4,"solver_y_m":9.8,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"12","m0g_node_id":"M0G-C-G1-12","solver_x_m":12.4,"solver_y_m":13.0725,"xy_input_provenance":"MIS_AFFINE","coordinate_evidence_state":"MIS"},
+    {"foundation_support_id":"13","m0g_node_id":"M0G-C-G1-13","solver_x_m":11.45,"solver_y_m":15.2,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"14","m0g_node_id":"M0G-C-G1-14","solver_x_m":11.45,"solver_y_m":18.1,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"15","m0g_node_id":"M0G-C-G1-15","solver_x_m":11.45,"solver_y_m":23.4,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"16","m0g_node_id":"M0G-C-G1-16","solver_x_m":11.45,"solver_y_m":28.1,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"17","m0g_node_id":"M0G-C-G1-17","solver_x_m":6.9,"solver_y_m":0.0,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"18","m0g_node_id":"M0G-C-G1-18","solver_x_m":7.224,"solver_y_m":4.7,"xy_input_provenance":"MIS_AFFINE_EXTENDED","coordinate_evidence_state":"MIS"},
+    {"foundation_support_id":"19","m0g_node_id":"M0G-C-G1-19","solver_x_m":7.6318,"solver_y_m":8.95,"xy_input_provenance":"MIS_AFFINE_WATCH","coordinate_evidence_state":"MIS"},
+    {"foundation_support_id":"20","m0g_node_id":"M0G-C-G1-20","solver_x_m":7.6318,"solver_y_m":9.8,"xy_input_provenance":"MIS_AFFINE_WATCH","coordinate_evidence_state":"MIS"},
+    {"foundation_support_id":"21","m0g_node_id":"M0G-C-G1-21","solver_x_m":5.55,"solver_y_m":15.2,"xy_input_provenance":"SUPPORTED_REFERENCE_REBOUND","coordinate_evidence_state":"MIS"},
+    {"foundation_support_id":"22","m0g_node_id":"M0G-C-G1-22","solver_x_m":5.55,"solver_y_m":18.1,"xy_input_provenance":"SUPPORTED_REFERENCE_REBOUND","coordinate_evidence_state":"MIS"},
+    {"foundation_support_id":"22bis","m0g_node_id":"M0G-C-G1-22PRIME","m0g_support_id":"22'","solver_x_m":5.55,"solver_y_m":19.28,"xy_input_provenance":"SUPPORTED_REFERENCE_PLUS_MIS","coordinate_evidence_state":"MIS"},
+    {"foundation_support_id":"23","m0g_node_id":"M0G-C-G1-23","solver_x_m":5.2289,"solver_y_m":23.4,"xy_input_provenance":"MIS_AFFINE_EXTENDED","coordinate_evidence_state":"MIS"},
+    {"foundation_support_id":"24","m0g_node_id":"M0G-C-G1-24","solver_x_m":5.0,"solver_y_m":28.1,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"25","m0g_node_id":"M0G-C-G1-25","solver_x_m":3.45,"solver_y_m":8.95,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"26","m0g_node_id":"M0G-C-G1-26","solver_x_m":3.45,"solver_y_m":15.2,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"27","m0g_node_id":"M0G-C-G1-27","solver_x_m":3.45,"solver_y_m":19.28,"xy_input_provenance":"SUPPORTED_MIS_SHARED_ROW","coordinate_evidence_state":"MIS"},
+    {"foundation_support_id":"28","m0g_node_id":"M0G-C-G1-28","solver_x_m":0.0,"solver_y_m":8.95,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"29","m0g_node_id":"M0G-C-G1-29","solver_x_m":0.0,"solver_y_m":15.2,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"30","m0g_node_id":"M0G-C-G1-30","solver_x_m":0.0,"solver_y_m":19.7334,"xy_input_provenance":"SUPPORTED_REFERENCE_PLUS_MIS_EXTENDED","coordinate_evidence_state":"MIS"},
+    {"foundation_support_id":"31","m0g_node_id":"M0G-C-G1-31","solver_x_m":-4.7,"solver_y_m":8.95,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"32","m0g_node_id":"M0G-C-G1-32","solver_x_m":-4.7,"solver_y_m":15.2,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"33","m0g_node_id":"M0G-C-G1-33","solver_x_m":-4.7,"solver_y_m":20.15,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"a","m0g_node_id":"M0G-C-G1-a","solver_x_m":3.45,"solver_y_m":0.0,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"b","m0g_node_id":"M0G-C-G1-b","solver_x_m":3.45,"solver_y_m":4.7,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"c","m0g_node_id":"M0G-C-G1-c","solver_x_m":0.0,"solver_y_m":0.0,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"},
+    {"foundation_support_id":"d","m0g_node_id":"M0G-C-G1-d","solver_x_m":0.0,"solver_y_m":4.7,"xy_input_provenance":"DOC_METRIC_OR_AXIS","coordinate_evidence_state":"DOC"}
+  ],
+  "guards": [
+    "Do not write solver XY back into P07/FPEP primary geometry as DOC, MIS, or any other evidentiary promotion.",
+    "Do not use beam-face incidence nodes for foundation support placement.",
+    "Do not create, delete, merge, or reroute any of the 55 P07 foundation members.",
+    "Do not collapse support 22 with 22bis/22'.",
+    "Retain per-support M0G coordinate provenance and evidence state in solver export/audit records.",
+    "This rule does not define foundation Z, soil springs, loads, materials, sections, or reinforcement."
+  ],
+  "closure_statement": "M1E-B03 is closed for solver-shell XY placement by an explicit modeling rule. P07 foundation Cartesian evidence remains unchanged and this rule does not make the calculation model ready."
+}

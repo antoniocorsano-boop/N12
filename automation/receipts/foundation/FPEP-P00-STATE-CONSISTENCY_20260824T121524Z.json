@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P00-STATE-CONSISTENCY",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "run_id": "FPEP-P00-20260824T121524Z",
+  "result_sha256": "bb7dd029500e43f5d4301984d8bf4890f2d404cd0f0e682d97fb9715234d4d78",
+  "target_outputs": [
+    "analysis/fpep/FPEP_STATE_COHERENCE_AUDIT_v1.json"
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_STATE_COHERENCE_AUDIT_v1.json"
+  ],
+  "residuals": [
+    {
+      "residual_id": "P00-W001",
+      "claim_id": "P00-C011",
+      "blocking": false,
+      "reason": "human Master backtick references resolve to existing repository artifacts: ['data/canonical/m0s1a_level_sheet_crosswalk.csv', 'docs/FOGLIO_LAVORO/M0S_DXF_TEXT_MEANINGFUL_TAV5.csv']",
+      "required_evidence": "Update or supersede the human Master reference only if it is still intended as a current operational pointer; do not substitute a guessed file."
+    }
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T12:15:24.185417+00:00"
+}

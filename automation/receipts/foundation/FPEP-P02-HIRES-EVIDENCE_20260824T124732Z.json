@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P02-HIRES-EVIDENCE",
+  "decision": "PASS",
+  "semantic_gate": "PASS",
+  "run_id": "FPEP-P02-20260824T124732Z",
+  "result_sha256": "16f42c06952c10c23f16c533453ebb509d21bbf1c983bf757353afb9178fc58b",
+  "target_outputs": [
+    "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json"
+  ],
+  "residuals": [],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T12:47:32.365620+00:00"
+}

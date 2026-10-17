@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P09-20260824T181500Z",
+  "work_item_id": "FPEP-P09-HISTORICAL-CALC-CROSSCHECK",
+  "stage_id": "FPEP-P09-HISTORICAL-CALC-CROSSCHECK",
+  "agent_role": "HISTORICAL_MODEL_RECONCILER",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "PASS",
+  "input_artifacts": [
+    {"path":"data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"CANONICAL_PRIMARY_GEOMETRY_GATE","status":"CURRENT"},
+    {"path":"data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"CANONICAL_PRIMARY_GEOMETRY_LEDGER","status":"CURRENT"},
+    {"path":"data/canonical/M1F_HISTORICAL_CALC_SOURCE_AVAILABILITY_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"CANONICAL_SOURCE_AVAILABILITY_AUDIT","status":"CURRENT"},
+    {"path":"data/canonical/ORIGINAL_RELATION_PAGE2_EVIDENCE_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"DIRECT_PRIMARY_HISTORICAL_RELATION_TRANSCRIPTION","status":"CURRENT"}
+  ],
+  "primary_sources": [
+    {"source_id":"ORIGINAL-RELATION-PAGE2","path":"data/canonical/ORIGINAL_RELATION_PAGE2_EVIDENCE_v1.csv","git_blob_sha":"ND_NOT_RECOMPUTED","sha256":"8728e4d09d5dd3b9c5ce34a5a75bd52dd889e9c55d28991d2b6a35dabdb1a66b","evidence_anchor":"Original calculation relation page 2 transcription"},
+    {"source_id":"TAV-01S-P07","path":"data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv","git_blob_sha":"64b842fa03b3aa7437e80d2bce90406a66f73827","sha256":"abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8","evidence_anchor":"P07 primary geometry authority"}
+  ],
+  "target_outputs": ["analysis/fpep/FPEP_HISTORICAL_MODEL_CROSSCHECK_v1.csv"],
+  "provenance_summary": {"conceptual_compatibility_claims":2,"member_level_historical_comparisons":0,"historical_omission_claims_proven":0,"watch_items":4},
+  "residuals": [
+    {"residual_id":"P09-W001","claim_id":"HISTORICAL-MEMBER-TOPOLOGY","blocking":false,"reason":"No complete indexed historical calculation-frame/load dossier is registered, so member-level comparison is unavailable.","required_evidence":"Register historical frame/load calculation sheets before any member-level omission/participation claim is promoted."},
+    {"residual_id":"P09-W002","claim_id":"A-D-HISTORICAL-PARTICIPATION","blocking":false,"reason":"Historical omission or participation of supports a-d is not directly proven by the registered calculation source.","required_evidence":"Keep historical participation ND/RIF until a direct historical calculation source is registered."}
+  ],
+  "audit_paths": ["analysis/fpep/FPEP_HISTORICAL_MODEL_CROSSCHECK_v1.csv"],
+  "information_barrier_attestation": {"forbidden_context_not_used":true,"legacy_target_counts_not_used_before_primary_gate":true,"downstream_model_not_used_as_primary_evidence":true,"majority_vote_not_used_for_authority":true}
+}

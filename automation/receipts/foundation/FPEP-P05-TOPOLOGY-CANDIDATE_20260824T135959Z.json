@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P05-TOPOLOGY-CANDIDATE",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "run_id": "FPEP-P05-20260824T135500Z",
+  "result_sha256": "747b84961f5bf6007551073743811dda5261843ca4225371c85d54405b507795",
+  "target_outputs": [
+    "analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv"
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv"
+  ],
+  "residuals": [
+    {
+      "residual_id": "P05-R001",
+      "claim_id": "P05-PAIR-CONTINUITY-SET",
+      "blocking": false,
+      "reason": "Six A-direct two-label continuity candidates have identified nominal endpoints but no independent Reader B semantic continuity classification.",
+      "required_evidence": "P06 source-local reread of each pair candidate before any member can become CROSS_VALIDATED."
+    },
+    {
+      "residual_id": "P05-R002",
+      "claim_id": "P05-CHAIN-CONTINUITY-SET",
+      "blocking": false,
+      "reason": "Nine continuity observations contain multi-label chains or local direction changes whose endpoint/member decomposition is unresolved.",
+      "required_evidence": "P06 claim-scoped source-local reread; do not split chains by adjacency or arithmetic."
+    }
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T13:59:59.288917+00:00"
+}

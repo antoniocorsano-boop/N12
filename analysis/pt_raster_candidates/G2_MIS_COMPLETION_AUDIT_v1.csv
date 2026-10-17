@@ -1,0 +1,7 @@
+audit_id,support_or_group,fixed_documentary_constraint,mis_coordinate,mis_value_m,observed_pixel,residual_px,status,note
+G2-MISC-001,P12,"X=12.40",Y,13.0725,"u=3216.97;v=4875.86",5.59,SUPPORTED_MIS,"Y obtained by inverse frozen affine with X fixed documentarily. No written Y dimension found."
+G2-MISC-002,P18,"Y=4.70",X,7.2240,"u=2400.06;v=3560.21",4.54,SUPPORTED_MIS,"Extended 110x30 center only. Beam-face analytical nodes remain separate."
+G2-MISC-003,P19-P20,"Y19=8.95;Y20=9.80; observed common column",X,7.6318,"P19 u=2458.56 v=4200.73; P20 u=2465.55 v=4363.23","24.01 P19; 6.29 P20",SUPPORTED_MIS_WATCH,"Single common X fitted under observed column equality. P19 lies in a locally distorted scan band already visible in documented-point residuals; preserve WATCH."
+G2-MISC-004,P23,"Y=23.40",X,5.2289,"u=2076.60;v=6491.39",4.65,SUPPORTED_MIS,"Extended 110x30 physical center only; revoked P23-P15=6.45 is not used."
+G2-MISC-005,P30,"X=0.00 supported centerline",Y,19.7334,"u=1265.81;v=5916.13",11.19,SUPPORTED_MIS,"Extended 30x110 center lies between P27/P22-prime row and P33 row; does not replace distinct beam-face nodes."
+G2-MISC-006,P22-prime-P27,"Y22=18.10 + local MIS 1.18; observed common row",Y,19.2800,"P22-prime u=2133.09 v=5852.40; P27 u=1808.65 v=5844.90","5.77;10.48",SUPPORTED_MIS,"Previously saved local-calibration rebound; retained here for complete MIS inventory."

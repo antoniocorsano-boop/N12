@@ -1,0 +1,95 @@
+obs_id,source_id,evidence_anchor,semantic_class,raw_value,unit,evidence_state,readability,method,note
+A-ID-001,TAV-01S,P001-TILE-R02-C03,SUPPORT_IDENTIFIER,1,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-002,TAV-01S,P001-TILE-R02-C03,SUPPORT_IDENTIFIER,2,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-003,TAV-01S,P001-TILE-R02-C03,SUPPORT_IDENTIFIER,3,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-004,TAV-01S,P001-TILE-R03-C03,SUPPORT_IDENTIFIER,4,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-005,TAV-01S,P001-TILE-R03-C02,SUPPORT_IDENTIFIER,5,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-006,TAV-01S,P001-TILE-R03-C02,SUPPORT_IDENTIFIER,6,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-007,TAV-01S,P001-TILE-R03-C02,SUPPORT_IDENTIFIER,7,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-008,TAV-01S,P001-TILE-R04-C02,SUPPORT_IDENTIFIER,8,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-009,TAV-01S,P001-TILE-R02-C02,SUPPORT_IDENTIFIER,9,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-010,TAV-01S,P001-TILE-R02-C02,SUPPORT_IDENTIFIER,10,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-011,TAV-01S,P001-TILE-R02-C02,SUPPORT_IDENTIFIER,11,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-012,TAV-01S,P001-TILE-R03-C02,SUPPORT_IDENTIFIER,12,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-013,TAV-01S,P001-TILE-R03-C02,SUPPORT_IDENTIFIER,13,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-014,TAV-01S,P001-TILE-R03-C02,SUPPORT_IDENTIFIER,14,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-015,TAV-01S,P001-TILE-R03-C02,SUPPORT_IDENTIFIER,15,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-016,TAV-01S,P001-TILE-R04-C02,SUPPORT_IDENTIFIER,16,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-017,TAV-01S,P001-TILE-R02-C02,SUPPORT_IDENTIFIER,17,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-018,TAV-01S,P001-TILE-R02-C02,SUPPORT_IDENTIFIER,18,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-019,TAV-01S,P001-TILE-R02-C02,SUPPORT_IDENTIFIER,19,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-020,TAV-01S,P001-TILE-R02-C02,SUPPORT_IDENTIFIER,20,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-021,TAV-01S,P001-TILE-R03-C02,SUPPORT_IDENTIFIER,21,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-022,TAV-01S,P001-TILE-R03-C02,SUPPORT_IDENTIFIER,22,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-023,TAV-01S,P001-TILE-R03-C02,SUPPORT_IDENTIFIER,22bis,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-024,TAV-01S,P001-TILE-R03-C02,SUPPORT_IDENTIFIER,23,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-025,TAV-01S,P001-REGION-R02-C01,SUPPORT_IDENTIFIER,24,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-026,TAV-01S,P001-TILE-R02-C02,SUPPORT_IDENTIFIER,25,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-027,TAV-01S,P001-TILE-R03-C02,SUPPORT_IDENTIFIER,26,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-028,TAV-01S,P001-TILE-R03-C02,SUPPORT_IDENTIFIER,27,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-029,TAV-01S,P001-TILE-R02-C01,SUPPORT_IDENTIFIER,28,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-030,TAV-01S,P001-TILE-R03-C01,SUPPORT_IDENTIFIER,29,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-031,TAV-01S,P001-TILE-R03-C01,SUPPORT_IDENTIFIER,30,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-032,TAV-01S,P001-TILE-R02-C01,SUPPORT_IDENTIFIER,31,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-033,TAV-01S,P001-TILE-R03-C01,SUPPORT_IDENTIFIER,32,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-034,TAV-01S,P001-TILE-R03-C01,SUPPORT_IDENTIFIER,33,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-035,TAV-01S,P001-TILE-R02-C02,SUPPORT_IDENTIFIER,a,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-036,TAV-01S,P001-TILE-R02-C02,SUPPORT_IDENTIFIER,b,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-037,TAV-01S,P001-TILE-R02-C01,SUPPORT_IDENTIFIER,c,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-038,TAV-01S,P001-TILE-R02-C01,SUPPORT_IDENTIFIER,d,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct label; no geometry inference
+A-ID-REL-001,TAV-01S,P001-TILE-R03-C02,DISTINCT_IDENTIFIER_RELATION,22 and 22bis are simultaneously visible as separate labels,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,Direct coexistence observation only; no support-count target used.
+A-DIM-001,TAV-01S,P001-TILE-R02-C03,WRITTEN_DIMENSION,14.35,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,overall dimension line; endpoints/span are not solved at P03A.
+A-DIM-002,TAV-01S,P001-TILE-R02-C03,WRITTEN_DIMENSION,4.70,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,segment dimension on same visible dimension band; endpoints/span are not solved at P03A.
+A-DIM-003,TAV-01S,P001-TILE-R02-C03,WRITTEN_DIMENSION,5.10,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,segment dimension on same visible dimension band; endpoints/span are not solved at P03A.
+A-DIM-004,TAV-01S,P001-REGION-R02-C02,WRITTEN_DIMENSION,14.55,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,overall dimension line; endpoints/span are not solved at P03A.
+A-DIM-005,TAV-01S,P001-REGION-R02-C02,WRITTEN_DIMENSION,4.15,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,segment dimension; endpoints/span are not solved at P03A.
+A-DIM-006,TAV-01S,P001-REGION-R02-C02,WRITTEN_DIMENSION,4.25,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,segment dimension; endpoints/span are not solved at P03A.
+A-DIM-007,TAV-01S,P001-REGION-R02-C02,WRITTEN_DIMENSION,5.30,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,segment dimension; endpoints/span are not solved at P03A.
+A-DIM-008,TAV-01S,P001-REGION-R02-C02,WRITTEN_DIMENSION,4.70,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,segment dimension; endpoints/span are not solved at P03A.
+A-DIM-009,TAV-01S,P001-TILE-R02-C01,WRITTEN_DIMENSION,20.30,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,overall dimension line; endpoints/span are not solved at P03A.
+A-DIM-010,TAV-01S,P001-TILE-R02-C01,WRITTEN_DIMENSION,4.70,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,segment dimension; endpoints/span are not solved at P03A.
+A-DIM-011,TAV-01S,P001-TILE-R02-C01,WRITTEN_DIMENSION,4.05,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,segment dimension; endpoints/span are not solved at P03A.
+A-DIM-012,TAV-01S,P001-TILE-R03-C01,WRITTEN_DIMENSION,20.30,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,overall dimension line; endpoints/span are not solved at P03A.
+A-DIM-013,TAV-01S,P001-TILE-R03-C01,WRITTEN_DIMENSION,6.25,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,segment dimension; endpoints/span are not solved at P03A.
+A-DIM-014,TAV-01S,P001-TILE-R03-C01,WRITTEN_DIMENSION,4.95,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,segment dimension; endpoints/span are not solved at P03A.
+A-DIM-015,TAV-01S,P001-REGION-R01-C01,WRITTEN_DIMENSION,23.20,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,overall vertical dimension line; endpoints/span are not solved at P03A.
+A-DIM-016,TAV-01S,P001-REGION-R01-C01,WRITTEN_DIMENSION,5.50,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,vertical segment dimension; endpoints/span are not solved at P03A.
+A-DIM-017,TAV-01S,P001-REGION-R01-C01,WRITTEN_DIMENSION,3.45,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,vertical segment dimension; endpoints/span are not solved at P03A.
+A-DIM-018,TAV-01S,P001-REGION-R01-C01,WRITTEN_DIMENSION,3.45,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,second visible vertical segment dimension; endpoints/span are not solved at P03A.
+A-DIM-019,TAV-01S,P001-REGION-R01-C01,WRITTEN_DIMENSION,4.70,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,vertical segment dimension; endpoints/span are not solved at P03A.
+A-DIM-020,TAV-01S,P001-TILE-R02-C02,WRITTEN_DIMENSION,5.60,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,vertical segment dimension; endpoints/span are not solved at P03A.
+A-DIM-021,TAV-01S,P001-TILE-R03-C02,WRITTEN_DIMENSION,4.45,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,vertical segment dimension; endpoints/span are not solved at P03A.
+A-DIM-022,TAV-01S,P001-TILE-R04-C02,WRITTEN_DIMENSION,13.60,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,overall vertical dimension line; endpoints/span are not solved at P03A.
+A-DIM-023,TAV-01S,P001-TILE-R04-C02,WRITTEN_DIMENSION,2.00,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,vertical segment dimension; endpoints/span are not solved at P03A.
+A-DIM-024,TAV-01S,P001-TILE-R04-C02,WRITTEN_DIMENSION,4.65,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,vertical segment dimension; endpoints/span are not solved at P03A.
+A-DIM-025,TAV-01S,P001-TILE-R04-C02,WRITTEN_DIMENSION,6.45,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,vertical segment dimension; endpoints/span are not solved at P03A.
+A-DTL-001,TAV-01S,P001-TILE-R02-C02,DETAIL_DIMENSION,45,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,detail dimension near trapezoidal section sketch by label 11; geometric role intentionally not assigned at P03A.
+A-DTL-002,TAV-01S,P001-TILE-R02-C02,DETAIL_DIMENSION,90,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,detail dimension near trapezoidal section sketch by label 11; geometric role intentionally not assigned at P03A.
+A-DTL-003,TAV-01S,P001-TILE-R02-C02,DETAIL_DIMENSION,120,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,detail dimension near trapezoidal section sketch by label 11; geometric role intentionally not assigned at P03A.
+A-DTL-004,TAV-01S,P001-TILE-R02-C02,DETAIL_DIMENSION,20,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,detail dimension near trapezoidal section sketch by label 11; geometric role intentionally not assigned at P03A.
+A-DTL-005,TAV-01S,P001-TILE-R02-C02,DETAIL_DIMENSION,95,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,detail dimension near trapezoidal sketch between a and b; geometric role intentionally not assigned at P03A.
+A-DTL-006,TAV-01S,P001-TILE-R02-C02,DETAIL_DIMENSION,70,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,detail dimension near trapezoidal sketch between a and b; geometric role intentionally not assigned at P03A.
+A-DTL-007,TAV-01S,P001-TILE-R02-C02,DETAIL_DIMENSION,15,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,detail dimension near trapezoidal sketch between a and b; geometric role intentionally not assigned at P03A.
+A-DTL-008,TAV-01S,P001-TILE-R02-C02,DETAIL_DIMENSION,35,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,detail dimension near trapezoidal sketch between a and b; geometric role intentionally not assigned at P03A.
+A-DTL-009,TAV-01S,P001-TILE-R02-C02,DETAIL_DIMENSION,100,UNSPECIFIED_ON_DRAWING,DOC,READABLE,VISUAL_P02_HASHED_RENDER,detail dimension near trapezoidal sketch between a and b; geometric role intentionally not assigned at P03A.
+A-SYM-001,TAV-01S,P001-TILE-R02-C02,SUPPORT_SYMBOL_SHAPE,"18: elongated rectangular symbol, vertical in Reader-A view",,DOC,READABLE,VISUAL_P02_HASHED_RENDER,shape only; no section assignment
+A-SYM-002,TAV-01S,P001-TILE-R03-C02,SUPPORT_SYMBOL_SHAPE,"23: elongated rectangular symbol, vertical in Reader-A view",,DOC,READABLE,VISUAL_P02_HASHED_RENDER,shape only; no section assignment
+A-SYM-003,TAV-01S,P001-TILE-R03-C01,SUPPORT_SYMBOL_SHAPE,"30: elongated rectangular symbol, horizontal in Reader-A view",,DOC,READABLE,VISUAL_P02_HASHED_RENDER,shape only; no section assignment
+A-SYM-004,TAV-01S,P001-TILE-R02-C02,DETAIL_SYMBOL,trapezoidal section/detail sketch visible near label 11,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,detail only; no member assignment
+A-SYM-005,TAV-01S,P001-TILE-R02-C02,DETAIL_SYMBOL,trapezoidal section/detail sketch visible between labels a and b,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,detail only; no member assignment
+A-CONT-001,TAV-01S,P001-TILE-R02-C03,GRAPHICAL_CONTINUITY,multi-line foundation contour is visibly continuous across the zone containing labels 1-2-3,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-002,TAV-01S,P001-TILE-R03-C02,GRAPHICAL_CONTINUITY,multi-line contour is visibly continuous across the zone containing labels 5-6-7,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-003,TAV-01S,P001-TILE-R04-C02,GRAPHICAL_CONTINUITY,multi-line contour remains visible through the zone containing labels 7-8,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-004,TAV-01S,P001-TILE-R02-C02,GRAPHICAL_CONTINUITY,multi-line contour is visibly continuous across the zone containing labels 9-10-11,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-005,TAV-01S,P001-TILE-R03-C02,GRAPHICAL_CONTINUITY,"angled multi-line contour is directly visible around labels 12-13; direction change is observed, not interpreted",,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-006,TAV-01S,P001-TILE-R03-C02,GRAPHICAL_CONTINUITY,multi-line contour is visibly continuous across the zone containing labels 13-14-15,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-007,TAV-01S,P001-TILE-R04-C02,GRAPHICAL_CONTINUITY,multi-line contour remains visible through the zone containing labels 15-16,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-008,TAV-01S,P001-TILE-R02-C02,GRAPHICAL_CONTINUITY,multi-line contour is visibly continuous across the zone containing labels 17-18-19-20,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-009,TAV-01S,P001-TILE-R03-C02,GRAPHICAL_CONTINUITY,multi-line contour is visibly continuous across the zone containing labels 21-22-22bis with local offsets around the labeled symbols,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-010,TAV-01S,P001-REGION-R02-C01,GRAPHICAL_CONTINUITY,multi-line contour remains visible from the 22bis/23 zone toward label 24 with local jogs,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-011,TAV-01S,P001-TILE-R02-C02,GRAPHICAL_CONTINUITY,multi-line contour is visibly continuous across the zone containing labels a-b,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-012,TAV-01S,P001-TILE-R02-C01,GRAPHICAL_CONTINUITY,multi-line contour is visibly continuous across the zone containing labels c-d-28,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-013,TAV-01S,P001-TILE-R03-C02,GRAPHICAL_CONTINUITY,multi-line contour is visibly continuous across the zone containing labels 26-27,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-014,TAV-01S,P001-TILE-R03-C01,GRAPHICAL_CONTINUITY,multi-line contour is visibly continuous across the zone containing labels 29-30,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-CONT-015,TAV-01S,P001-TILE-R03-C01,GRAPHICAL_CONTINUITY,multi-line contour is visibly continuous across the zone containing labels 32-33,,DOC,READABLE,VISUAL_P02_HASHED_RENDER,direct continuity only; no member created
+A-QUAL-001,TAV-01S,P001-REGION-R02-C02,READABILITY_QUALIFIER,dimension band containing 14.55 crosses physical sheet folds but numerals remain legible,,DOC,READABLE_WITH_FOLD_INTERFERENCE,VISUAL_P02_HASHED_RENDER,P04 must resolve dimension witness spans without assuming closure.

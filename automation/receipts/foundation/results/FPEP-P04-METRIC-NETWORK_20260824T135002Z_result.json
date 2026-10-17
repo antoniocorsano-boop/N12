@@ -1,0 +1,111 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P04-20260824T134900Z",
+  "work_item_id": "FPEP-P04-METRIC-NETWORK",
+  "stage_id": "P04",
+  "agent_role": "FOUNDATION_METRIC_NETWORK_SOLVER",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "input_artifacts": [
+    {
+      "path": "analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv",
+      "sha256": "dae9bcd5d842c3a386e2e0cd3fb2cb33b443ff65247d795481e839e4656cb8e5",
+      "authority": "PRIMARY_READER_OBSERVATIONS",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv",
+      "sha256": "6e42cdddb3c217e39354bbb1cad406b78ac3147e0142d33975e67b6a38c316ac",
+      "authority": "INDEPENDENT_READER_OBSERVATIONS",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json",
+      "sha256": "6d3c2d791bb0b61833d30d772771927181373acd634f6275b32bf7d4ca1fed55",
+      "authority": "DERIVED_EVIDENCE_MANIFEST",
+      "status": "CURRENT"
+    }
+  ],
+  "primary_sources": [
+    {
+      "source_id": "TAV-01S",
+      "path": "archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf",
+      "git_blob_sha": "64b842fa03b3aa7437e80d2bce90406a66f73827",
+      "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "evidence_anchor": "P03A/P03B observations bound to P02 hashed evidence anchors"
+    }
+  ],
+  "target_outputs": [
+    "analysis/fpep/FPEP_METRIC_CLAIMS_v1.csv",
+    "analysis/fpep/FPEP_METRIC_CLOSURE_AUDIT_v1.csv"
+  ],
+  "provenance_summary": {
+    "claim_rows": 73,
+    "closure_rows": 7,
+    "direct_A_DOC_identifiers_and_relation": 39,
+    "direct_A_DOC_written_dimensions": 25,
+    "preserved_nonplan_detail_dimensions": 9,
+    "reader_value_matches": 2,
+    "reader_value_conflicts": 2,
+    "closure_conflicts_or_ambiguous_membership": 2,
+    "open_partial_or_fragment_chains": 5,
+    "coordinate_values_promoted": 0,
+    "raster_measurements_used_as_dimensions": 0
+  },
+  "residuals": [
+    {
+      "residual_id": "P04-R001",
+      "claim_id": "P04-CL-002",
+      "blocking": false,
+      "reason": "The folded 14.55 region contains legible values 4.15, 4.25, 5.30 and 4.70, but their witness-span membership is unresolved; all four cannot belong to the same 14.55 total.",
+      "required_evidence": "Source-local witness-line reread during P06; do not assign segments by arithmetic fit."
+    },
+    {
+      "residual_id": "P04-R002",
+      "claim_id": "P04-DIM-013|P04-DIM-014",
+      "blocking": false,
+      "reason": "Independent readers disagree 6.25 vs 6.26 and 4.95 vs 4.96 on the same P02 tile.",
+      "required_evidence": "P06 source-local reread of the exact numeral glyphs; no averaging or majority vote."
+    },
+    {
+      "residual_id": "P04-R003",
+      "claim_id": "P04-CL-006",
+      "blocking": false,
+      "reason": "Written overall 13.60 and visible segments 2.00 + 4.65 + 6.45 differ by 0.50 if treated as one closed chain.",
+      "required_evidence": "P06 local reread of witness endpoints and numerals before this chain can be used as closed metric geometry."
+    },
+    {
+      "residual_id": "P04-R004",
+      "claim_id": "P03B-UNPAIRED-TEXT",
+      "blocking": false,
+      "reason": "Reader B produced unpaired candidates including 22.30 and adjacent-tile 4.45/4.70/44.56; witness identity to Reader A claims is not established.",
+      "required_evidence": "Retain as unpaired until a source-local evidence anchor demonstrates identity; otherwise leave NOT_VISIBLE/INC."
+    }
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_METRIC_CLAIMS_v1.csv",
+    "analysis/fpep/FPEP_METRIC_CLOSURE_AUDIT_v1.csv"
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "solver_scope_attestation": {
+    "existing_foundation_topology_used": false,
+    "legacy_support_member_counts_used": false,
+    "M0G_geometry_used": false,
+    "PT_master_coordinates_used": false,
+    "TAV01A_reinforcement_groups_used": false,
+    "arithmetic_remainders_promoted_as_dimensions": false,
+    "coordinate_solution_created": false
+  },
+  "notes": [
+    "Reader A direct written dimensions remain governing DOC observations; Reader B agreement is a cross-read check, not an authority upgrade.",
+    "Same region does not imply same dimension chain. Closure is evaluated only as far as witness-span membership is supportable from P03 observations.",
+    "Detail dimensions are preserved but explicitly excluded from the plan metric network because their geometric role was not assigned by P03.",
+    "P05 may consume only non-conflicting claims; unresolved metric claims remain visible for P06 adjudication and cannot support P07 promotion until closed."
+  ]
+}

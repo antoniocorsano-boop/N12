@@ -1,0 +1,48 @@
+name: Audit M1-A beam reinforcement coverage
+
+on:
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'data/canonical/M1A_TAV02A_BEAM_GROUP_INDEX_v1.csv'
+      - 'data/canonical/M1A_TAV034A_BEAM_GROUP_INDEX_v1.csv'
+      - 'data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv'
+      - 'data/canonical/M1A_TAV06A_ROOF_GROUP_INDEX_v1.csv'
+      - 'data/canonical/M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CURRENT_v1.csv'
+      - 'data/canonical/M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_GATE_v1.csv'
+      - 'scripts/audit_m1a_beam_reinforcement_coverage.py'
+      - 'scripts/audit_m1a_beam_gap_families.py'
+      - '.github/workflows/audit-m1a-beam-coverage.yml'
+  pull_request:
+    paths:
+      - 'data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv'
+      - 'data/canonical/M1A_TAV02A_BEAM_GROUP_INDEX_v1.csv'
+      - 'data/canonical/M1A_TAV034A_BEAM_GROUP_INDEX_v1.csv'
+      - 'data/canonical/M1A_TAV05A_BEAM_GROUP_INDEX_v1.csv'
+      - 'data/canonical/M1A_TAV06A_ROOF_GROUP_INDEX_v1.csv'
+      - 'data/canonical/M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_CURRENT_v1.csv'
+      - 'data/canonical/M1A_BEAM_REINFORCEMENT_SOURCE_COVERAGE_GATE_v1.csv'
+      - 'scripts/audit_m1a_beam_reinforcement_coverage.py'
+      - 'scripts/audit_m1a_beam_gap_families.py'
+      - '.github/workflows/audit-m1a-beam-coverage.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate beam reinforcement source coverage
+        run: python scripts/audit_m1a_beam_reinforcement_coverage.py
+      - name: Classify uncovered beam gap families
+        run: python scripts/audit_m1a_beam_gap_families.py

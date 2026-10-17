@@ -1,0 +1,45 @@
+name: Validate CEW Control Room
+
+on:
+  pull_request:
+    paths:
+      - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
+      - 'data/canonical/N12_ISSUES_CURRENT_v1.json'
+      - 'automation/CEW_ISSUE_RESIDUAL_CONTRACT_v1.json'
+      - 'scripts/cew_project_control_room.py'
+      - '.github/workflows/validate-cew-control-room.yml'
+
+jobs:
+  validate-control-room:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: python -m py_compile scripts/cew_project_control_room.py
+      - name: Build Control Room
+        run: |
+          python scripts/cew_project_control_room.py \
+            --state data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json \
+            --issues data/canonical/N12_ISSUES_CURRENT_v1.json \
+            --output artifacts/cew-control-room/index.html
+      - name: Assert anti-drift and issue coverage
+        run: |
+          python - <<'PY'
+          import json
+          s=json.load(open('data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'))
+          i=json.load(open('data/canonical/N12_ISSUES_CURRENT_v1.json'))
+          blocker_ids={x['id'] for x in s['current_calculation_blockers']}
+          issue_blockers={g for x in i['issues'] for g in x.get('blocking_gate_ids',[]) if g=='M1E'}
+          assert len(s['current_calculation_blockers']) == 6
+          assert len(i['issues']) == 6
+          assert s['current_work_item']['state'] == 'IN_PROGRESS'
+          assert len(s['anti_drift_rules']) >= 5
+          assert all(x['state'] in {'OPEN','IN_REVIEW','WAITING_EVIDENCE','WAITING_INVESTIGATION','PROPOSED_RESOLUTION','RESOLVED','SUPERSEDED'} for x in i['issues'])
+          assert all(x['impact'] in {'BLOCKING','LOCAL_BLOCKING','NON_BLOCKING','INFORMATIONAL'} for x in i['issues'])
+          assert issue_blockers == {'M1E'}
+          print('CEW CONTROL ROOM CONTRACT: PASS | blockers=6 | issues=6')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cew-control-room-n12
+          path: artifacts/cew-control-room/index.html

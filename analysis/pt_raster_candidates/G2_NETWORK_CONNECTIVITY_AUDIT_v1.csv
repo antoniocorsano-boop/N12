@@ -1,0 +1,8 @@
+component_id,members,status,anchor_policy,blocking_issue,note
+C1,"c;a;17;9;1;d;b",PARTIAL_ANCHORED,"c=(0,0), +X follows c-a-17-9-1, +Y follows c-d/a-b","P18 connection suspended because extended-support reference semantics unresolved; P2/P10 not linked by current hard quotes","Terrace/top chain is internally solvable from written quotes only."
+C2,"31;28;25;32;29;26;21;33",PARTIAL_ANCHORED,"31=(0,0) component-local, +X 31->28->25, +Y 31->32->33","No valid hard bridge to main component after 25-19 conflict and extended P30 constraints suspended","Left mesh portion is internally solvable but global translation relative to C1 is not yet documentally fixed."
+C3,"15;7",PARTIAL_UNANCHORED,"component-local only","P23-15 suspended pending P23 face/axis reference","6.45 quote retained but not centroid-hard because P23 is extended."
+C4,"24;16;8",PARTIAL_UNANCHORED,"component-local only","No documented hard bridge to main component","Internal row distances 24-16=6.45 and 16-8=4.65 remain usable."
+C5,"13;14",PARTIAL_UNANCHORED,"component-local only","No documented hard bridge to other components in current G2 dataset","Only direct 13-14=2.90 constraint is hard."
+ISOLATED,"2;3;4;5;6;10;11;12;18;19;20;22;22';23;27;30",UNANCHORED_OR_REFERENCE_PENDING,"none","Missing hard quote bridge, conflicting inherited binding, diagnostic-only relation, or extended-support reference semantics","Do not derive global metric coordinates from raster scale or historical Master."
+SUMMARY,"38 expected supports",G2_OPEN,"No global solution authorized","Need direct source reread for 25-19 and 27-22/22-prime; resolve axis/face reference for P18/P23/P30; add only documented bridges","Network connectivity audit intentionally blocks premature PT_METRIC_SUPPORT_CENTERS_v1.csv creation."

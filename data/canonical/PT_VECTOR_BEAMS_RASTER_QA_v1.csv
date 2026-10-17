@@ -1,0 +1,53 @@
+beam_id,qa_scope,source_tile,topology_face_qa,metric_overlay_qa,evidence_basis,note
+B-006,P18_EXTENDED_FACE,r2_c2,PASS,PASS_WITH_MIS_WATCH,DIRECT_RASTER,b-P18 run is directly continuous and terminates on P18 left physical face; exact metric face coordinate inherits P18 MIS center.
+B-038,P18_EXTENDED_FACE,r2_c2,PASS,PASS_WITH_MIS_WATCH,DIRECT_RASTER,P18-P10 run is directly continuous on the opposite P18 face; no centroid snapping.
+B-020,P30_EXTENDED_FACE,r3_c1,PASS,PASS_WITH_MIS_WATCH,DIRECT_RASTER,P33 row reaches the left face of P30 at its own elevation; distinct from B-021.
+B-021,P30_EXTENDED_FACE,r3_c1,PASS,PASS_WITH_MIS_WATCH,DIRECT_RASTER,P30-P27 row reaches the opposite face at P27 elevation; source confirms different attachment level from B-020.
+B-026,P30_EXTENDED_FACE,r3_c1,PASS,PASS_WITH_MIS_WATCH,DIRECT_RASTER,P29-P30 longitudinal run reaches P30 transverse face; physical center is not used as beam node.
+B-031,P23_EXTENDED_FACE,r4_c2,PASS,PASS_WITH_MIS_WATCH,DIRECT_RASTER,P23-P15 horizontal run is visible; former 6.45 span attribution remains revoked.
+B-035,P23_EXTENDED_FACE,r4_c2,PASS,PASS_WITH_MIS_WATCH,DIRECT_RASTER,P23-P24 longitudinal run is visible and intersects a different P23 face from B-031.
+B-040,P19_P20_P21_CHAIN,r2_c2+r3_c2,PASS,WATCH_MIS_X,DIRECT_RASTER,P20-P11 horizontal run is visible; P20 X derives from MIS_WATCH and must not be shifted solely to improve raster fit.
+B-051,P19_P20_P21_CHAIN,r3_c2,PASS,PASS_WITH_MIS_WATCH,DIRECT_RASTER,P20-P21 diagonal 65x30 is directly visible and section callout is correctly treated as beam section.
+B-052,P19_P20_P21_CHAIN,r3_c2,PASS,WATCH_MIS_X,DIRECT_RASTER,P19-P20 short vertical member is directly visible; replaces revoked B-029 P19-P21.
+B-048,CENTRAL_120x20_CHAIN,r3_c2,PASS,WATCH_P12_MIS_Y,DIRECT_RASTER,"P11-P12 vertical segment is visible; 120x20 is a beam section callout, not a support."
+B-049,CENTRAL_120x20_CHAIN,r3_c2,PASS,WATCH_P12_MIS_Y,DIRECT_RASTER,P12-P13 inclined segment is directly visible; endpoint at P12 inherits MIS Y.
+B-050,CENTRAL_120x20_CHAIN,r3_c2,PASS,PASS,DIRECT_RASTER,P13-P14 continuation of the 120x20 bent chain is directly visible.
+B-001,TERRACE_TOP_RUN,r2_c1+r2_c2,PASS,PASS,DIRECT_RASTER,c-a terrace beam run and 70x25 section are directly visible.
+B-002,TERRACE_TOP_RUN,r2_c2,PASS,PASS,DIRECT_RASTER,a-P17 terrace-to-original run is directly visible and distinct from support symbol.
+B-005,TERRACE_LOWER_RUN,r2_c1+r2_c2,PASS,PASS,DIRECT_RASTER,d-b lower terrace beam run is directly visible.
+B-003,TOP_MAIN,r2_c1+r2_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P17-P9 vector follows the documented top structural run.
+B-004,TOP_MAIN,r2_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P9-P1 vector follows the documented top structural run.
+B-007,RIGHT_MAIN,r2_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P1-P2 vertical run overlays the raster line and terminates on facing support boundaries.
+B-008,RIGHT_MAIN,r2_c2+r3_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P2-P3 vertical run overlays the continuous documentary beam; local text/linework increases distance-transform residual but no topology conflict is visible.
+B-009,RIGHT_MAIN,r3_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P3-P4 vertical run overlays the beam line; 70x25 remains a section callout.
+B-010,RIGHT_MAIN_REBOUND,r3_c3,PASS,PASS,DIRECT_RASTER,Corrected P5-P6 run confirmed by direct source review; former P4-P6 binding remains revoked.
+B-011,RIGHT_MAIN,r3_c3,PASS,PASS,REGISTERED_RASTER_OVERLAY,P6-P7 vertical run follows the documented structural line.
+B-012,RIGHT_MAIN,r3_c3+r4_c3,PASS,PASS,REGISTERED_RASTER_OVERLAY,P7-P8 vertical run follows the documentary line; B-037 remains duplicate provenance only.
+B-013,LOCAL_RIGHT,r3_c3,PASS,PASS,DIRECT_RASTER,Short P5-P4 transverse member is directly visible.
+B-014,LEFT_ROW_1,r2_c1+r3_c1,PASS,PASS,REGISTERED_RASTER_OVERLAY,P31-P28 run overlays the first left-row beam.
+B-015,LEFT_ROW_1,r2_c1+r3_c1,PASS,WATCH_SUPPORT_P25,REGISTERED_RASTER_OVERLAY,P28-P25 beam alignment passes; P25 remains a G3 raster-residual WATCH and is not shifted.
+B-016,LEFT_ROW_1,r2_c1+r3_c1,PASS,WATCH_SUPPORT_P25_P19,REGISTERED_RASTER_OVERLAY,P25-P19 continuity is confirmed independently of the revoked 2.10 span; P25/P19 metric residual watches remain explicit.
+B-017,LEFT_ROW_2,r3_c1,PASS,PASS,REGISTERED_RASTER_OVERLAY,P32-P29 horizontal run follows the raster beam.
+B-018,LEFT_ROW_2,r3_c1,PASS,PASS,REGISTERED_RASTER_OVERLAY,P29-P26 horizontal run follows the raster beam.
+B-019,LEFT_ROW_2,r3_c1,PASS,PASS,REGISTERED_RASTER_OVERLAY,P26-P21 horizontal run follows the raster beam.
+B-022,LEFT_ROW_3_REBOUND,r3_c1,PASS,PASS_WITH_MIS_WATCH,DIRECT_RASTER,P27-P22-prime rebound is directly supported by the raster; no 2.10 documentary span is asserted.
+B-023,LEFT_COL_0,r2_c1+r3_c1,PASS,PASS,REGISTERED_RASTER_OVERLAY,P31-P32 longitudinal run follows the raster; 70x25 remains beam section.
+B-024,LEFT_COL_0,r3_c1,PASS,PASS,REGISTERED_RASTER_OVERLAY,P32-P33 longitudinal run follows the raster; 70x25 remains beam section.
+B-025,LEFT_COL_1,r2_c1+r3_c1,PASS,PASS,REGISTERED_RASTER_OVERLAY,P28-P29 longitudinal run follows the raster despite local fold/text interference in the distance diagnostic.
+B-027,LEFT_COL_2,r2_c1+r3_c1,PASS,PASS,REGISTERED_RASTER_OVERLAY,P25-P26 longitudinal run follows the raster.
+B-028,LEFT_COL_2,r3_c1,PASS,PASS,REGISTERED_RASTER_OVERLAY,P26-P27 longitudinal run follows the raster.
+B-030,LEFT_COL_3,r3_c1,PASS,PASS,REGISTERED_RASTER_OVERLAY,P21-P22 longitudinal run is directly consistent with the raster topology.
+B-032,LOWER_ROW_1,r4_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P15-P7 lower horizontal run overlays the documentary beam.
+B-033,LOWER_ROW_2,r4_c1+r4_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,"P24-P16 lower run overlays the raster; 6.45 is axis spacing, distinct from clear face-to-face length."
+B-034,LOWER_ROW_2,r4_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P16-P8 lower run follows the raster beam.
+B-036,LOWER_COL_MID,r4_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P15-P16 longitudinal run follows the raster beam.
+B-039,MID_ROW_1,r2_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P10-P2 horizontal run follows the documentary line.
+B-041,MID_ROW_2,r2_c2+r3_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P11-P3 horizontal run follows the documentary line.
+B-042,INNER_COL_RIGHT,r2_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P9-P10 vertical run follows the raster beam.
+B-043,INNER_COL_RIGHT,r2_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P10-P11 vertical run follows the raster beam.
+B-045,LOWER_RIGHT_CROSS,r3_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P14-P6 horizontal run follows the raster beam.
+B-046,INNER_COL_LOWER,r3_c2+r4_c2,PASS,PASS,REGISTERED_RASTER_OVERLAY,P14-P15 vertical run follows the documentary line; 65x30 is beam section.
+B-047,LOCAL_PRIME_LINK,r3_c1,PASS,PASS_WITH_MIS_WATCH,DIRECT_RASTER,"P22-P22-prime vertical member is directly visible; center spacing remains MIS-supported, not DOC."
+B-053,M0G_REOPEN_18_19,r2_c2,PASS,PASS_WITH_MIS_WATCH,DIRECT_RASTER_PLUS_TAV02A_CROSSCHECK,Direct 18-19 line; endpoint metrics retain P18/P19 watches.
+B-054,M0G_REOPEN_23_22PRIME,r3_c2,PASS,PASS_WITH_MIS_WATCH,DIRECT_RASTER_PLUS_TAV02A_CROSSCHECK,Direct 23-22-prime line; P23 gets a distinct third face incidence.
+B-055,M0G_REOPEN_17_18,r2_c2,PASS,PASS_WITH_MIS_WATCH,DIRECT_RASTER_PLUS_TAV02A_CROSSCHECK,"Direct 17-18 line; P17 endpoint DOC, P18 endpoint retains MIS provenance."

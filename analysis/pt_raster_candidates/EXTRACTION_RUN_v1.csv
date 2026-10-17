@@ -1,0 +1,2 @@
+run_id,workflow_run_id,artifact_id,head_sha,source_raster_size_px,tiles,candidate_count,status,authority,script_path,note
+G1A-001,32462991062,9439609767,c4778104d7e8f97798410a0d03796a82a6836577,4680x8609,12,1185,COMPLETED,AUTO_CANDIDATE_NON_AUTHORITATIVE,scripts/extract_pt_raster_candidates.py,"OpenCV contour extraction completed on 12 persistent raster tiles; candidates may include pillar symbols beam-section callouts text boxes and other rectangles; semantic binding required before PT_PIXEL_SUPPORT_REGISTRY_v1.csv"

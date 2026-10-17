@@ -1,0 +1,77 @@
+name: Render archived structural sources
+
+on:
+  push:
+    branches:
+      - work/m0-global-model
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    if: ${{ !contains(github.event.head_commit.message, '[render-source]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch immutable source branch
+        run: git fetch origin archive/originali-alta-risoluzione:refs/remotes/origin/archive/originali-alta-risoluzione
+
+      - name: Install PDF tools
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils python3-pil
+
+      - name: Extract source PDFs from archive branch
+        run: |
+          mkdir -p .source_tmp analysis/source_renders/TAV02S analysis/source_renders/TAV07
+          git show refs/remotes/origin/archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola2-2.pdf > .source_tmp/TAV02S.pdf
+          git show refs/remotes/origin/archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola7.pdf > .source_tmp/TAV07.pdf
+
+      - name: Extract original embedded raster
+        run: |
+          pdfimages -f 1 -l 1 -png .source_tmp/TAV02S.pdf .source_tmp/tav02s
+          pdfimages -f 1 -l 1 -png .source_tmp/TAV07.pdf .source_tmp/tav07
+          cp "$(find .source_tmp -maxdepth 1 -name 'tav02s-*.png' | head -1)" .source_tmp/TAV02S.png
+          cp "$(find .source_tmp -maxdepth 1 -name 'tav07-*.png' | head -1)" .source_tmp/TAV07.png
+
+      - name: Build overviews and overlapping tiles
+        run: |
+          python3 - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+
+          def process(src, outdir, rows=4, cols=3, overlap=0.06):
+              im=Image.open(src).convert('RGB')
+              out=Path(outdir); out.mkdir(parents=True, exist_ok=True)
+              w,h=im.size
+              ov=im.copy(); ov.thumbnail((1800,1800))
+              ov.save(out/'overview.jpg', quality=92)
+              cw=w/cols; ch=h/rows
+              for r in range(rows):
+                  for c in range(cols):
+                      x0=max(0, int(c*cw-overlap*cw))
+                      y0=max(0, int(r*ch-overlap*ch))
+                      x1=min(w, int((c+1)*cw+overlap*cw))
+                      y1=min(h, int((r+1)*ch+overlap*ch))
+                      tile=im.crop((x0,y0,x1,y1))
+                      tile.save(out/f'r{r+1}_c{c+1}.jpg', quality=94)
+              (out/'manifest.txt').write_text(f'source_size_px={w}x{h}\nrows={rows}\ncols={cols}\noverlap={overlap}\n', encoding='utf-8')
+
+          process('.source_tmp/TAV02S.png','analysis/source_renders/TAV02S')
+          process('.source_tmp/TAV07.png','analysis/source_renders/TAV07')
+          PY
+
+      - name: Commit rendered derivatives
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add analysis/source_renders
+          if git diff --cached --quiet; then
+            echo "No render changes"
+          else
+            git commit -m "chore: render archived TAV02S and TAV07 [render-source]"
+            git push origin HEAD:work/m0-global-model
+          fi

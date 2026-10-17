@@ -1,0 +1,13 @@
+check_id,metric,expected,actual,status,severity,note
+M1A-G5BR-G01,tav06a_indexed_groups,6,6,PASS,HARD,"Primary reread recovered T6A-G06 in addition to the five previously indexed roof schedules."
+M1A-G5BR-G02,g5_ordinary_beams,36,36,PASS,HARD,"Frozen G5 ordinary-beam population."
+M1A-G5BR-G03,g5_direct_source_covered,19,19,PASS,HARD,"Fifteen previous direct bindings plus four DOC direct members from recovered T6A-G06."
+M1A-G5BR-G04,g5_direct_source_residuals,17,17,PASS_WITH_WATCH,WATCH,"Every remaining G5 direct-source gap is classified in M1A_G5_BEAM_RESIDUAL_DRAFTING_AUDIT_v1.csv."
+M1A-G5BR-G05,recovered_t6a_g06_direct_members,4,4,PASS,HARD,"G5-B029/B030/B034/B035 are direct DOC members of 25-26-27 / 28-29-30."
+M1A-G5BR-G06,g5_residual_numeric_reinforcement_promoted,0,0,PASS,HARD,"No residual armature is created from section-only or adjacency-only similarity."
+M1A-G5BR-G07,candidate_5_13_21_bound_members,0,0,PASS_WITH_WATCH,WATCH,"B008+B020 form a plausible neighboring roof-run candidate but B008 has offset geometry and the source omits 5-13-21; no binding is promoted."
+M1A-G5BR-G08,t6a_g06_transverse_connectors_absorbed,0,0,PASS,HARD,"G5-B031/B032/B033 remain separate transverse connectors under homologous-travate semantics."
+M1A-G5BR-G09,b017_bound_to_t6a_g03,NO,NO,PASS,HARD,"The unlabelled T6A-G03 scheme remains non-matching to the support-to-support impluvio B017."
+M1A-G5BR-G10,global_direct_beam_coverage,152,152,PASS,HARD,"Direct global coverage after T6A-G06 recovery."
+M1A-G5BR-G11,global_effective_scheme_coverage,155,155,PASS_WITH_WATCH,WATCH,"152 direct plus exactly three validated G4 INF_STRONG companion members."
+M1A-G5BR-GATE,gate_state,PASS_G5_DIRECT_19_OF_36_WITH_17_CLASSIFIED_RESIDUALS,PASS_G5_DIRECT_19_OF_36_WITH_17_CLASSIFIED_RESIDUALS,PASS_WITH_WATCH,GATE,"G5 current source inventory is classified: six direct roof groups, 19/36 direct ordinary-beam bindings and 17 explicit residuals; no unresolved member receives inferred numerical reinforcement."

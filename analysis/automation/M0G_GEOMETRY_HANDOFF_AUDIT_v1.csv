@@ -1,0 +1,26 @@
+audit_id,work_item_id,check,expected,observed,result,evidence_state,source_or_method,note
+M0G-HO-A01,M0G-GEOMETRY-HANDOFF,global_topology_gate,NONBLOCKING,PASS_WITH_WATCH,PASS,DERIVED_GATE,data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv,All HARD topology and provenance checks passed before handoff.
+M0G-HO-A02,M0G-GEOMETRY-HANDOFF,analytical_nodes,623,623,PASS,CANONICAL,data/canonical/M0G_ANALYTICAL_NODES_3D_CURRENT_v1.csv,Reference only; rows are not duplicated in handoff.
+M0G-HO-A03,M0G-GEOMETRY-HANDOFF,support_core_nodes,165,165,PASS,CANONICAL,M0G analytical-node registry,Distinct support-core/column-axis role preserved.
+M0G-HO-A04,M0G-GEOMETRY-HANDOFF,beam_face_nodes,458,458,PASS,CANONICAL,M0G analytical-node registry,Beam-face incidence nodes remain distinct from support cores.
+M0G-HO-A05,M0G-GEOMETRY-HANDOFF,rigid_joint_links,458,458,PASS,INF,data/canonical/M0G_RIGID_JOINT_LINKS_CURRENT_v1.csv,Analytical offsets remain constraints and are not counted as structural members.
+M0G-HO-A06,M0G-GEOMETRY-HANDOFF,ordinary_structural_members,356,356,PASS,CANONICAL,data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv,Exactly 229 beams plus 127 column segments.
+M0G-HO-A07,M0G-GEOMETRY-HANDOFF,ordinary_beams,229,229,PASS,CANONICAL,M0G member-connectivity registry,G1=49 G2=48 G3=48 G4=48 G5=36.
+M0G-HO-A08,M0G-GEOMETRY-HANDOFF,column_segments,127,127,PASS,CANONICAL,M0G member-connectivity registry,G1-G2=34 G2-G3=34 G3-G4=34 G4-G5=25.
+M0G-HO-A09,M0G-GEOMETRY-HANDOFF,roof_special_geometry,6,6,PASS,DOC+MIS+ND,data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv,Exactly three ridge axes plus three eaves edge sets retained outside ordinary connectivity.
+M0G-HO-A10,M0G-GEOMETRY-HANDOFF,g5_b036_count,1,1,PASS,DOC,data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv,Confirmed 19-26 oblique beam counted once only.
+M0G-HO-A11,M0G-GEOMETRY-HANDOFF,connected_components,1,1,PASS,CROSS_ARTIFACT_GRAPH_REVIEW,data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv,Whole analytical frame is one connected component.
+M0G-HO-A12,M0G-GEOMETRY-HANDOFF,orphan_nodes,0,0,PASS,CROSS_ARTIFACT_GRAPH_REVIEW,data/canonical/M0G_GLOBAL_TOPOLOGY_GATE_v1.csv,No analytical node is orphaned.
+M0G-HO-A13,M0G-GEOMETRY-HANDOFF,terrace_vertical_extrusions,0,0,PASS,DOC,data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json,Supports a-d terminate at G1.
+M0G-HO-A14,M0G-GEOMETRY-HANDOFF,unsupported_g4_g5_columns,0,0,PASS,DOC,data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json,"No G4-G5 columns for supports 1,8,9,16,17,24,31,32,33."
+M0G-HO-A15,M0G-GEOMETRY-HANDOFF,g5_nd_beam_sections,17,17,PASS,ND,data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv,Missing roof-beam sections remain explicit downstream constraints.
+M0G-HO-A16,M0G-GEOMETRY-HANDOFF,column_section_watch_segments,4,4,PASS,MIS/WATCH,data/canonical/M0G_MEMBER_CONNECTIVITY_CURRENT_v1.csv,G3 support-section watches 18 and 21 propagate without promotion.
+M0G-HO-A17,M0G-GEOMETRY-HANDOFF,roof_global_z_assignments,0,0,PASS,ND,data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv,Local 2.10/3.75 and upper-module 2.20 evidence is not converted to a common global Z.
+M0G-HO-A18,M0G-GEOMETRY-HANDOFF,invented_gronda_centerlines,0,0,PASS,ND,data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv,No unsupported single eave centerline is generated.
+M0G-HO-A19,M0G-GEOMETRY-HANDOFF,ridge_xy_evidence,MIS,MIS,PASS,MIS,data/canonical/ROOF_G5_SPECIAL_FEATURES_3D_CURRENT_v1.csv,No MIS-to-DOC promotion.
+M0G-HO-A20,M0G-GEOMETRY-HANDOFF,absolute_project_z,ND,ND,PASS,ND,data/canonical/M0G_ASSEMBLY_CONTRACT_v1.json,Relative level datum is not promoted to absolute/geodetic elevation.
+M0G-HO-A21,M0G-GEOMETRY-HANDOFF,canonical_reference_count,6,6,PASS,CANONICAL,data/canonical/M0G_GEOMETRY_HANDOFF_v1.json,Handoff references contract nodes rigid links members roof-special geometry and topology gate.
+M0G-HO-A22,M0G-GEOMETRY-HANDOFF,canonical_data_duplication,0,0,PASS,DERIVED_HANDOFF,data/canonical/M0G_GEOMETRY_HANDOFF_v1.json,Handoff freezes identities counts and constraints only; detailed canonical rows remain in source ledgers.
+M0G-HO-A23,M0G-GEOMETRY-HANDOFF,unauthorized_section_completion,0,0,PASS,ANTI_INFERENCE,data/canonical/M0G_GEOMETRY_HANDOFF_v1.json,Handoff explicitly forbids filling ND/MIS sections by analogy.
+M0G-HO-A24,M0G-GEOMETRY-HANDOFF,unauthorized_model_properties,0,0,PASS,ANTI_INFERENCE,data/canonical/M0G_GEOMETRY_HANDOFF_v1.json,Materials reinforcement loads boundary conditions soil and incomplete foundation model remain outside authorization.
+M0G-HO-A25,M0G-GEOMETRY-HANDOFF,overall_handoff_state,CURRENT_WITH_WATCHES,CURRENT_WITH_WATCHES,PASS,DERIVED_HANDOFF,data/canonical/M0G_GEOMETRY_HANDOFF_v1.json,M0-G geometry/topology is ready as downstream basis while all WATCH/ND constraints remain explicit.

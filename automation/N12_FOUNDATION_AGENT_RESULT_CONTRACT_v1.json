@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "N12_FPEP_AGENT_RESULT_HANDSHAKE",
+  "purpose": "Define the only machine-ingestible specialist result for one FPEP work item and preserve stage-specific information barriers.",
+  "inbox": "automation/inbox/N12_FOUNDATION_AGENT_RESULT.json",
+  "receipt_dir": "automation/receipts/foundation",
+  "orchestrator": "scripts/n12_foundation_orchestrator.py",
+  "max_work_items_per_result": 1,
+  "allowed_decisions": ["PASS", "PASS_WITH_WATCH", "RESIDUAL", "BLOCKED", "CONFLICT"],
+  "allowed_semantic_gate_states": ["PASS", "WATCH", "FAIL"],
+  "allowed_provenance": ["DOC", "MIS", "RIF", "INF", "INC", "ND"],
+  "required_fields": [
+    "schema_version",
+    "pipeline_id",
+    "run_id",
+    "work_item_id",
+    "stage_id",
+    "agent_role",
+    "decision",
+    "semantic_gate",
+    "input_artifacts",
+    "primary_sources",
+    "target_outputs",
+    "provenance_summary",
+    "residuals",
+    "audit_paths",
+    "information_barrier_attestation"
+  ],
+  "information_barrier_attestation_required": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "input_artifact_fields": ["path", "sha256", "authority", "status"],
+  "primary_source_fields": ["source_id", "path", "git_blob_sha", "sha256", "evidence_anchor"],
+  "observation_minimum_fields": ["obs_id", "source_id", "evidence_anchor", "semantic_class", "raw_value", "unit", "evidence_state", "readability", "method"],
+  "residual_minimum_fields": ["residual_id", "claim_id", "blocking", "reason", "required_evidence"],
+  "pass_rules": {
+    "work_item_must_be_selected_and_eligible": true,
+    "agent_role_must_match_queue_item": true,
+    "target_outputs_must_exactly_match_queue_item": true,
+    "all_target_outputs_must_exist": true,
+    "audit_paths_required": true,
+    "information_barrier_attestation_must_pass": true,
+    "semantic_gate_for_PASS": ["PASS"],
+    "semantic_gate_for_PASS_WITH_WATCH": ["PASS", "WATCH"],
+    "no_open_blocking_residual_for_PASS": true
+  },
+  "non_pass_rules": {
+    "RESIDUAL": "Persist the smallest unresolved claim and keep only this work item in RESIDUAL; unrelated branches of the FPEP queue remain releasable when their dependencies permit.",
+    "BLOCKED": "Do not promote. Record the missing source, tool, or dependency explicitly.",
+    "CONFLICT": "Do not promote. Reopen only the smallest conflicting claim and evidence region."
+  },
+  "forbidden": [
+    "multiple work items in one result",
+    "using forbidden_context declared by the queue item",
+    "exposing Reader A output to Reader B or vice versa before both blind reads close",
+    "supplying legacy 38/58 counts as extraction targets before P07",
+    "creating foundation geometry from TAV-01A",
+    "creating foundation geometry from PT Master or M0-G",
+    "promoting agent confidence or majority agreement as evidence authority",
+    "promoting MIS/RIF/INF/INC to DOC",
+    "dropping ND/INC/WATCH residuals",
+    "editing main"
+  ]
+}

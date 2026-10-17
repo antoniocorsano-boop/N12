@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P10-20260824T181800Z",
+  "work_item_id": "FPEP-P10-M0G-REGRESSION-CROSSCHECK",
+  "stage_id": "FPEP-P10-M0G-REGRESSION-CROSSCHECK",
+  "agent_role": "GLOBAL_MODEL_REGRESSION_AUDITOR",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "PASS",
+  "input_artifacts": [
+    {"path":"data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"CANONICAL_PRIMARY_GEOMETRY_GATE","status":"CURRENT"},
+    {"path":"data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"CANONICAL_PRIMARY_GEOMETRY_LEDGER","status":"CURRENT"},
+    {"path":"data/canonical/M1F_FOUNDATION_TOPOLOGY_CURRENT_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"LEGACY_FOUNDATION_TOPOLOGY_FOR_REGRESSION_ONLY","status":"CURRENT_PRE_P07_REFERENCE"},
+    {"path":"data/canonical/M1F_FOUNDATION_TOPOLOGY_GATE_v1.csv","sha256":"ND_NOT_RECOMPUTED","authority":"LEGACY_FOUNDATION_TOPOLOGY_GATE_FOR_REGRESSION_ONLY","status":"CURRENT_PRE_P07_REFERENCE"},
+    {"path":"data/canonical/PT_MASTER_CURRENT.csv","sha256":"ND_NOT_RECOMPUTED","authority":"CANONICAL_PT_REFERENCE","status":"CURRENT"},
+    {"path":"data/canonical/M0G_GEOMETRY_HANDOFF_v1.json","sha256":"ND_NOT_RECOMPUTED","authority":"M0G_REFERENCE_ONLY_HANDOFF","status":"CURRENT_WITH_WATCHES_REVALIDATED_B055"}
+  ],
+  "primary_sources": [
+    {"source_id":"TAV-01S-P07","path":"data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv","git_blob_sha":"64b842fa03b3aa7437e80d2bce90406a66f73827","sha256":"abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8","evidence_anchor":"P07 promoted primary geometry authority; downstream files used only for regression"}
+  ],
+  "target_outputs": ["analysis/fpep/FPEP_M0G_REGRESSION_CROSSCHECK_v1.csv"],
+  "provenance_summary": {
+    "support_identifiers_matching": 38,
+    "topology_incidences_matching": 54,
+    "legacy_only_incidences": 4,
+    "primary_only_incidences": 1,
+    "claim_scoped_deltas_total": 5,
+    "m0g_files_modified": 0,
+    "p07_coordinates_backfilled_from_pt_or_m0g": 0
+  },
+  "residuals": [
+    {"residual_id":"P10-W001","claim_id":"FOUNDATION-TOPOLOGY-SUCCESSOR","blocking":false,"reason":"The pre-P07 foundation topology differs from P07 on five incidence claims: legacy-only 25-26, 28-29, 31-32, 11-20; primary-only 11-19.","required_evidence":"Build a successor foundation topology by superseding only those four legacy edges and adding 11-19. Do not modify unrelated M0-G superstructure geometry."},
+    {"residual_id":"P10-W002","claim_id":"P07-CARTESIAN-BINDING","blocking":false,"reason":"PT Master/M0-G provide XY context but P07 deliberately left foundation Cartesian coordinates ND where primary metric binding was incomplete.","required_evidence":"Do not retro-promote P07 foundation coordinates from PT/M0-G. Preserve coordinate-domain separation until primary metric claims are independently closed."}
+  ],
+  "audit_paths": ["analysis/fpep/FPEP_M0G_REGRESSION_CROSSCHECK_v1.csv"],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "ingested_at": "2026-08-22T13:16:32.105380+00:00",
+  "work_item_id": "ASSEMBLE-STOREY-BEAM-TOPOLOGY",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "result": {
+    "schema_version": "1.0",
+    "work_item_id": "ASSEMBLE-STOREY-BEAM-TOPOLOGY",
+    "source_sheet": "MULTI",
+    "decision": "PASS_WITH_WATCH",
+    "semantic_gate": "WATCH",
+    "target_outputs": [
+      "data/canonical/STOREY_BEAM_TOPOLOGY_CURRENT_v1.csv"
+    ],
+    "provenance_summary": {
+      "DOC": 163,
+      "MIS": 0,
+      "RIF": 0,
+      "INF": 0,
+      "INC": 0,
+      "ND": 17
+    },
+    "residuals": [],
+    "audit_paths": [
+      "analysis/automation/ASSEMBLE_STOREY_BEAM_TOPOLOGY_AUDIT_v1.csv",
+      "data/canonical/ROOF_G5_SPECIAL_FEATURES_CURRENT_v1.csv"
+    ]
+  },
+  "warnings": [],
+  "deterministic_validators": [
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python scripts/validate_knowledge_system.py",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout": "KNOWLEDGE_SYSTEM_VALIDATION = PASS\nArchitecture and authority contracts are coherent.\nOpen domain gates are reported as warnings and remain subject to specialist semantic QA.\n",
+      "stderr": ""
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python scripts/n12_orchestrator.py validate",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout": "N12_AUTOMATION_CONTRACT = PASS\nCycle contract, semantic handshake, queue dependencies and current knowledge gate are coherent.\n",
+      "stderr": ""
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python skills/pt-carpentry-reader/runner.py validate",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout": "VALIDATION: PASS\ncrops=12 observations=69 beams=51 provisional=51 beam_doc=0 residuals=7\n",
+      "stderr": ""
+    }
+  ]
+}

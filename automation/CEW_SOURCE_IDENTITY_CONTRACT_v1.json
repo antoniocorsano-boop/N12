@@ -1,0 +1,66 @@
+{
+  "contract_id": "CEW-SOURCE-IDENTITY-v1",
+  "milestone": "CEW-F1",
+  "identity_rule": "CONTENT_IDENTITY_NOT_FILENAME_IDENTITY",
+  "source_version_required_fields_when_ready": [
+    "source_id",
+    "source_version_id",
+    "project_id",
+    "logical_source_code",
+    "sha256",
+    "storage_locator",
+    "media_type",
+    "authority",
+    "readiness_state"
+  ],
+  "readiness_states": [
+    "READY",
+    "NEEDS_HASH",
+    "NEEDS_LOCATOR",
+    "NEEDS_HASH_AND_LOCATOR",
+    "UNRESOLVED"
+  ],
+  "authority_classes": [
+    "PRIMARY",
+    "SECONDARY",
+    "DERIVED"
+  ],
+  "invariants": {
+    "filename_is_identity": false,
+    "source_version_overwrite_allowed": false,
+    "better_scan_creates_new_source_version": true,
+    "ready_requires_sha256": true,
+    "ready_requires_storage_locator": true,
+    "stored_hash_mismatch_invalidates_ready_state": true,
+    "derived_asset_may_be_primary_authority": false,
+    "derived_asset_may_replace_primary_source": false,
+    "derived_asset_must_reference_source_version": true,
+    "conversation_may_supply_source_identity": false
+  },
+  "content_addressed_locator": {
+    "recommended_shape": "sha256/<first2>/<sha256>",
+    "storage_backends": [
+      "FILESYSTEM",
+      "S3_COMPATIBLE",
+      "MINIO"
+    ],
+    "backend_is_part_of_authority": false,
+    "content_hash_is_part_of_identity": true
+  },
+  "version_relationships": [
+    "INITIAL",
+    "BETTER_SCAN_OF",
+    "REISSUED_DOCUMENT",
+    "DUPLICATE_CONTENT_OF"
+  ],
+  "derived_asset_types": [
+    "PAGE_RENDER",
+    "DEEP_ZOOM_TILE_PYRAMID",
+    "THUMBNAIL",
+    "CROP_VIEW",
+    "ENHANCED_VIEW",
+    "VECTOR_EXTRACTION",
+    "OCR_TRANSCRIPT"
+  ],
+  "acceptance_rule": "CEW-F1 may become COMPLETE only when the reference primary sources TAV-05A and TAV-06A each resolve to a READY immutable SourceVersion with verified SHA-256 and reproducible storage locator."
+}

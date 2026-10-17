@@ -1,0 +1,7 @@
+node_id,x_local_m,y_local_m,source_dimension,evidence,status,note
+6,18.00,18.10,"verticale destra Y4=18.10","numero leggibile + continuità verticale destra",DOC_QUOTATO,"filo destro"
+7,18.00,23.43,"verticale destra Y5=23.43","numero leggibile + continuità verticale destra",DOC_QUOTATO,"filo destro"
+8,18.00,28.13,"verticale destra Y6=28.13","numero leggibile + continuità verticale destra",DOC_QUOTATO,"filo destro"
+14,13.35,18.10,"quota orizzontale inferiore 4.65 m rispetto al filo destro","numero leggibile + quota 4.65",DOC_QUOTATO,"filo sinistro ramo inferiore destro"
+15,13.35,23.43,"quota orizzontale inferiore 4.65 m rispetto al filo destro","numero leggibile + continuità verticale",DOC_QUOTATO,"filo sinistro ramo inferiore destro"
+16,13.35,28.13,"quota orizzontale inferiore 4.65 m rispetto al filo destro","numero leggibile + continuità verticale",DOC_QUOTATO,"filo sinistro ramo inferiore destro"

@@ -1,0 +1,12 @@
+audit_id,scope,status,note
+OVR-001,TAV02S_NATIVE_SOURCE,PASS,"overlay eseguito sul raster nativo 4680x8609"
+OVR-002,TERRACE_GRID,PASS,"c-a-17 e d-b-18 ricadono sui simboli e fili della carpenteria"
+OVR-003,LEFT_STEPPED_GRID,PASS,"31-28-25-19; 32-29-26-21; 33-30-27-22 coerenti con il raster"
+OVR-004,RIGHT_MAIN,PASS,"1-2-3-4-6-7-8 coerente con la linea strutturale principale"
+OVR-005,LOWER_GRID,PASS,"23-15-7 e 24-16-8 coerenti con il raster"
+OVR-006,P22_PRIME,PASS_MIS,"22-prime sullo stesso filo e sotto 22; interasse calibrato circa 1.20 m"
+OVR-007,CENTRAL_CHAIN,PASS_TOPOLOGY,"11-12-13-14 e una catena spezzata con richiami 120x20"
+OVR-008,CENTRAL_DIAGONAL,PASS_TOPOLOGY,"20-21 e una trave inclinata con richiamo 65x30"
+OVR-009,ANTI_FALSE_NODE,PASS,"i rettangoli di sezione senza identificativo non generano pilastri"
+OVR-010,P23_P30_FACE_BINDING,OPEN,"per i sostegni 110x30 e 30x110 vanno ancora fissate le facce di attestazione"
+OVR-011,MASTER_PROMOTION,HOLD,"PT_MASTER_CURRENT non va promosso prima del binding fili/facce e del controllo locale 11-14"

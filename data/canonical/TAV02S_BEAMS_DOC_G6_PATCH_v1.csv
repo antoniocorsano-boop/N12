@@ -1,0 +1,4 @@
+patch_id,action,beam_id,support_i,support_j,geometry_role,section_hint,evidence_status,may_feed_vector,source,note
+G6P-001,REVOKE,B-029,19,21,LEFT_COL_3,,DOC_DIRECT_RASTER,NO,"TAV-02S current clean r3_c2","Direct source shows P19-P20 member and P20-P21 diagonal; no P19-P21 member."
+G6P-002,REVOKE,B-044,12,5,MID_ROW_3,,DOC_DIRECT_RASTER,NO,"TAV-02S current clean r3_c3","Direct source shows P11-P12 and P12-P13-P14 bent chain; no P12-P5 member."
+G6P-003,ADD,B-052,19,20,LOCAL_P19_P20,,DOC_DIRECT_RASTER,YES,"TAV-02S current clean r3_c2","Direct member between P19 and P20; distinct from B-051 P20-P21 diagonal."

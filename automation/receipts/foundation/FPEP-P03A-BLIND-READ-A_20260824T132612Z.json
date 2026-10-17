@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P03A-BLIND-READ-A",
+  "decision": "PASS",
+  "semantic_gate": "PASS",
+  "run_id": "FPEP-P03A-20260824T132131Z",
+  "result_sha256": "540d5f7318e90d3171f4eb781bf690b958c2538fb08f58d8dbf908176f1e41ed",
+  "target_outputs": [
+    "analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv"
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_READER_A_OBSERVATIONS_v1.csv"
+  ],
+  "residuals": [],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T13:26:12.866835+00:00"
+}

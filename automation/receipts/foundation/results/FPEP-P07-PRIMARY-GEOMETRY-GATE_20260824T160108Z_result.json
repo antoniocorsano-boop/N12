@@ -1,0 +1,98 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P07-20260824T160000Z",
+  "work_item_id": "FPEP-P07-PRIMARY-GEOMETRY-GATE",
+  "stage_id": "P07",
+  "agent_role": "PRIMARY_GEOMETRY_PROMOTER",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "input_artifacts": [
+    {
+      "path": "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json",
+      "sha256": "73576a4f2d0e3a9cf21eba5bd5182698d3039c9d05affc985bad722dfcb2d2d5",
+      "authority": "SOURCE_IDENTITY",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_METRIC_CLAIMS_v1.csv",
+      "sha256": "84bc38aeaac0553154e662dad6454f4b2ce3ccc73ad99a16d7ef77c684c1d9d0",
+      "authority": "METRIC_CLAIMS",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_PRIMARY_TOPOLOGY_CANDIDATE_v1.csv",
+      "sha256": "b9b93791def5a03bab203aa0c76059c6586ad2a799c1e3bc9cf1a41bec92837a",
+      "authority": "TOPOLOGY_CANDIDATE",
+      "status": "CURRENT"
+    },
+    {
+      "path": "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv",
+      "sha256": "3930a6fe98c5e5a0fa9ae20ddc722bfe56de396763fca1f9c224f3d778c22d27",
+      "authority": "CLAIM_ADJUDICATION",
+      "status": "CURRENT"
+    }
+  ],
+  "primary_sources": [
+    {
+      "source_id": "TAV-01S",
+      "path": "archive/originali-alta-risoluzione:archive/documentazione_originaria/tavola1-2.pdf",
+      "git_blob_sha": "64b842fa03b3aa7437e80d2bce90406a66f73827",
+      "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "evidence_anchor": "P01 immutable identity; P04 metric claims; P05 topology candidates; P06 source-local adjudication"
+    }
+  ],
+  "target_outputs": [
+    "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
+    "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv"
+  ],
+  "provenance_summary": {
+    "DOC": 89,
+    "MIS": 0,
+    "RIF": 0,
+    "INF": 0,
+    "INC": 1,
+    "ND": 2
+  },
+  "residuals": [
+    {
+      "residual_id": "P07-W01",
+      "claim_id": "P04-CL-002",
+      "blocking": false,
+      "reason": "The written 14.55 overall remains incompatible with an unambiguous assignment of the visible segment witnesses, although the repeated segment is retained as 4.15 after P06 reread.",
+      "required_evidence": "Keep the chain excluded from coordinate derivation until source-local witness endpoints are demonstrated."
+    },
+    {
+      "residual_id": "P07-W02",
+      "claim_id": "P04-CL-006",
+      "blocking": false,
+      "reason": "The written 13.60 overall and the visible 2.00 + 4.65 + 6.45 values retain a 0.50 closure discrepancy if treated as one chain.",
+      "required_evidence": "Keep the chain excluded from coordinate derivation until endpoint membership or an additional witness is documented."
+    },
+    {
+      "residual_id": "P07-W03",
+      "claim_id": "P03B-UNPAIRED-TEXT",
+      "blocking": false,
+      "reason": "Reader-B-only OCR tokens lack a demonstrated witness identity.",
+      "required_evidence": "Do not promote the tokens unless a source-local witness binds them to a specific claim."
+    },
+    {
+      "residual_id": "P07-W04",
+      "claim_id": "P07-CARTESIAN-BINDING",
+      "blocking": false,
+      "reason": "P07 promotes primary identifiers and source-continuity claims but does not fabricate Cartesian coordinates or analytical member identities where endpoint metric binding is incomplete.",
+      "required_evidence": "Perform downstream TAV-01A binding and historical/M0-G regression only after this gate, preserving the primary claims as authority."
+    }
+  ],
+  "audit_paths": [
+    "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
+    "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
+    "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv"
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  }
+}

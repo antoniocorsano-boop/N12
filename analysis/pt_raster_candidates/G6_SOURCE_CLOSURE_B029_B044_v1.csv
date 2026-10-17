@@ -1,0 +1,4 @@
+audit_id,claim_id,source_observation,decision,status,note
+G6-SC-001,B-029,"Direct r3_c2 review shows P19-P20 connected on the local run; the diagonal leaving P20 continues to P21 and is already B-051","REVOKE P19-P21 claim; add B-052 P19-P20",DOC_DIRECT_RASTER,"Do not change P19 metric X solely from this correction."
+G6-SC-002,B-044,"Direct r3_c3 review shows P11-P12 and the bent 120x20 chain P12-P13-P14; no direct P12-P5 member is present","REVOKE P12-P5 claim",DOC_DIRECT_RASTER,"No diagonal vector P12-P5 shall be generated."
+G6-SC-003,B-052,"Direct r3_c2 review shows direct member P19-P20","ADD P19-P20 beam claim",DOC_DIRECT_RASTER,"P19 and P20 share the same metric X in the current working solution; face-to-face clear segment can be vectorized without inference."

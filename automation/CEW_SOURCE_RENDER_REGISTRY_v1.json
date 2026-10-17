@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "registry_id": "CEW_SOURCE_RENDER_REGISTRY",
+  "archive_branch": "archive/originali-alta-risoluzione",
+  "render_policy": {
+    "dpi": 300,
+    "format": "jpeg",
+    "quality": 92,
+    "authority": "DERIVATIVE_FOR_REVIEW_ONLY",
+    "primary_authority": "ARCHIVED_PDF",
+    "image_persistence": "CI_ARTIFACT_ONLY",
+    "manifest_persistence": "REQUIRED",
+    "tile_grid": {"rows": 4, "cols": 4, "overlap_fraction": 0.08}
+  },
+  "sources": [
+    {"source_id":"TAV01A","archive_path":"archive/documentazione_originaria/tavola1-3.pdf","role":"armature_travi","level":"fondazioni_primo_livello"},
+    {"source_id":"TAV02A","archive_path":"archive/documentazione_originaria/tavola 2-3.pdf","role":"armature_travi","level":"G1_piano_terra"},
+    {"source_id":"TAV034A","archive_path":"archive/documentazione_originaria/tavola3a-4a.pdf","role":"armature_travi","level":"G2_G3"},
+    {"source_id":"TAV05A","archive_path":"archive/documentazione_originaria/tavola 5-3.pdf","role":"armature_travi","level":"G4"},
+    {"source_id":"TAV06A","archive_path":"archive/documentazione_originaria/tavola 6.pdf","role":"armature_copertura","level":"G5_copertura"},
+    {"source_id":"TAV07A","archive_path":"archive/documentazione_originaria/tavola7.pdf","role":"abaco_dettagli_pilastri","level":"pilastri_particolari"}
+  ],
+  "issue_review_sets": [
+    {
+      "issue_id":"N12-ISS-M1E-B05",
+      "source_ids":["TAV01A"],
+      "purpose":"Locate documentary regions relevant to the 15 foundation members still ND for section/reinforcement coverage.",
+      "promotion_rule":"A review tile or source locator is not an EvidenceSnippet until a reviewer explicitly binds a region to claim/entity IDs."
+    },
+    {
+      "issue_id":"N12-ISS-M1E-B06",
+      "source_ids":["TAV02A","TAV034A","TAV05A","TAV06A","TAV07A"],
+      "purpose":"Locate documentary regions relevant to remaining superstructure reinforcement residuals and watches.",
+      "promotion_rule":"No group, tile or visual similarity may create a member binding without explicit source/topology evidence and review."
+    }
+  ],
+  "invariants": [
+    "ARCHIVE_PATH_MUST_MATCH_EXISTING_CANONICAL_RENDER_SCRIPT",
+    "ARCHIVE_COMMIT_AND_BLOB_SHA_MUST_BE_RECORDED_AT_RENDER_TIME",
+    "REVIEW_RENDER_NEVER_REPLACES_PRIMARY_PDF_AUTHORITY",
+    "TILE_BBOX_IS_IMAGE_CONTEXT_ONLY",
+    "TILE_GENERATION_DOES_NOT_CREATE_CLAIMS",
+    "TILE_GENERATION_DOES_NOT_CLOSE_ISSUES"
+  ]
+}

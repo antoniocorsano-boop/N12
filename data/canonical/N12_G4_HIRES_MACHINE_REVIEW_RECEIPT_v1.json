@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0",
+  "project_id": "N12",
+  "issue_id": "N12-ISS-M1E-B06",
+  "review_type": "MACHINE_VISUAL_REVIEW_CANDIDATE",
+  "status": "CURRENT_REVIEW_RECEIPT_NOT_ENGINEERING_AUTHORITY",
+  "review_date": "2026-08-25",
+  "primary_source": {
+    "source_id": "TAV-05A",
+    "source_ref": "archive/documentazione_originaria/tavola 5-3.pdf",
+    "archive_branch": "archive/originali-alta-risoluzione",
+    "archive_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+    "archive_blob_sha": "111542c26192dac0a3a801eb5f2e5d5cdbffe3d3",
+    "page": 1
+  },
+  "render_context": {
+    "render_dpi": 300,
+    "render_size_px": [4299, 34764],
+    "render_sha256": "768910240658b995419aa8a8add26a120423e95f28cf9cff40b4596bdc7ade21",
+    "review_pack_run_id": 32817649620,
+    "review_pack_artifact_id": 9551979710,
+    "review_pack_digest": "sha256:aeb7e16d88ebc25eaf39bddf8791a8072db71541583b85fc36409ccf5476e5c3"
+  },
+  "findings": [
+    {
+      "finding_id": "N12-G4-HIRES-F01",
+      "source_row": "T5A-G01-R06",
+      "source_locator": "P02",
+      "entity_scope": ["G4-B003","G4-B002","G4-B001","G4-B005","G4-B006","G4-B007"],
+      "binding_precision": "GROUP_SCOPE_NOT_SINGLE_MEMBER",
+      "page_bbox_px": [988,2500,1385,7600],
+      "page_bbox_normalized": [0.22982088857873925,0.07191347370843401,0.32216794603396137,0.2186169600736394],
+      "visual_reading": {"bar_quantity":2,"bar_diameter_mm":12,"shape_or_length":"L=1040"},
+      "machine_review_state": "DIRECT_LABEL_VISUALLY_READABLE_CANDIDATE",
+      "interpretation": "The full 300 dpi review region shows a direct 2phi12 label on the same drawn straight bar carrying L=1040. This resolves the previous crop-loss at row level only; it does not identify a unique canonical G4 member within group T5A-G01.",
+      "engineering_promotion_authorized": false,
+      "promotion_requirement": "Human review of this source region and explicit decision on whether row-level reinforcement transcription may be updated; any single-member binding still requires explicit station/member identity."
+    },
+    {
+      "finding_id": "N12-G4-HIRES-F02",
+      "source_row": "T5A-G05-R04",
+      "source_locator": "P07-P08",
+      "entity_scope": ["G4-B022","G4-B008"],
+      "binding_precision": "GROUP_SCOPE_NOT_SINGLE_MEMBER",
+      "page_bbox_px": [2530,22286,3130,26072],
+      "page_bbox_normalized": [0.5885089555710631,0.6410654700264642,0.7280762968132124,0.7499712346105166],
+      "visual_reading": {"bar_quantity":2,"bar_diameter_mm":12,"shape":"BENT_BAR","missing_dimension_recovered":false},
+      "machine_review_state": "PARTIAL_STATE_CONFIRMED_CANDIDATE",
+      "interpretation": "The HiRes region confirms the written 2phi12 label and visible segment dimensions, but the previously missing intermediate fall/continuation dimension is not explicitly written in the reviewed region. The canonical partial state should therefore remain unless another direct source region supplies that dimension.",
+      "engineering_promotion_authorized": false,
+      "promotion_requirement": "No numerical completion from graphical appearance. Human review may confirm retention of DOC_DIRECT_PARTIAL."
+    },
+    {
+      "finding_id": "N12-G4-HIRES-F03",
+      "source_row": "T5A-G07-R07",
+      "source_locator": "P10",
+      "entity_scope": ["G4-B030","G4-B039","G4-B044"],
+      "binding_precision": "GROUP_SCOPE_NOT_SINGLE_MEMBER",
+      "page_bbox_px": [1085,30577,1585,33877],
+      "page_bbox_normalized": [0.2523842754128867,0.8795593142331147,0.36869039311467783,0.9744850995282476],
+      "visual_reading": {"bar_quantity":2,"bar_diameter_mm":12,"shape_or_length":"L=865"},
+      "machine_review_state": "DIRECT_LABEL_VISUALLY_READABLE_CANDIDATE",
+      "interpretation": "The full 300 dpi review region shows a direct 2phi12 label on the same drawn straight bar carrying L=865. This resolves the previous current-crop omission at row level only; it does not identify a unique canonical G4 member within group T5A-G07.",
+      "engineering_promotion_authorized": false,
+      "promotion_requirement": "Human review of this source region and explicit decision on whether row-level reinforcement transcription may be updated; any single-member binding still requires explicit station/member identity."
+    }
+  ],
+  "summary": {
+    "review_targets": 3,
+    "direct_label_candidates": 2,
+    "partial_state_confirmed_candidates": 1,
+    "single_member_bindings_created": 0,
+    "canonical_reinforcement_values_promoted": 0,
+    "approved_evidence_snippets_created": 0
+  },
+  "guards": [
+    "MACHINE_VISUAL_REVIEW_IS_NOT_HUMAN_ENGINEERING_APPROVAL",
+    "ROW_LEVEL_LABEL_RECOVERY_DOES_NOT_CREATE_SINGLE_MEMBER_BINDING",
+    "CROP_BBOX_IS_NAVIGATION_CONTEXT_NOT_MODEL_GEOMETRY",
+    "MISSING_DIMENSION_IS_NOT_COMPLETED_FROM_GRAPHICAL_APPEARANCE",
+    "PRIMARY_PDF_REMAINS_SOURCE_AUTHORITY"
+  ]
+}

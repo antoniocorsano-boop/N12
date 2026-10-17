@@ -1,0 +1,5 @@
+audit_id,support_or_group,known_coordinate,missing_coordinate,source_review,evidence_status,decision,note
+G2-R812-001,P12,X=12.40,Y,r3_c3 clean + registered pixel support,DOC_SOURCE_REVIEW,KEEP_UNRESOLVED,"P12 is securely on column X_R1 with P9-P10-P11, but no directly readable written dimension was found that fixes its Y. Nearby 120 is a beam-section callout, not a metric spacing. Do not interpolate from raster scale."
+G2-R81920-001,P19-P20,"Y(P19)=8.95; Y(P20)=9.80",common X,r2_c2 clean + registered pixel support,DOC_SOURCE_REVIEW,KEEP_COMMON_X_UNRESOLVED,"P19 and P20 lie on the same observed local structural column. No directly readable horizontal dimension ties that column to a solved metric axis. Preserve one shared unknown X instead of two independent unknowns; do not derive it from raster px/m or historical Master."
+G2-R81920-002,P19,P19 row Y=8.95,X,r2_c2 clean,DOC_SOURCE_REVIEW,KEEP_UNRESOLVED,"Row alignment is documentarily observable; X remains unresolved."
+G2-R81920-003,P20,P20 row Y=9.80,X,r2_c2 clean,DOC_SOURCE_REVIEW,KEEP_UNRESOLVED,"Row alignment is documentarily observable; X remains unresolved."

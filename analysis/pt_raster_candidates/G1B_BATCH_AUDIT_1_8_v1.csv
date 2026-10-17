@@ -1,0 +1,9 @@
+batch_id,scope,support_id,review_state,promotion_state,evidence,reason,next_check
+G1B-RIGHT-TOP-05,RIGHT_TOP,1,DIRECT_RASTER_WORKING,NO_PROMOTION,"clean r2_c3","ID 1 and written 40x50 section directly readable; full symbol center registered in native pixels","seek independent crosscheck; do not infer from metric grid"
+G1B-RIGHT-TOP-05,RIGHT_TOP,2,DIRECT_RASTER_WORKING,NO_PROMOTION,"clean r2_c3","ID 2 and written 50x40 section directly readable; full symbol center registered","seek independent crosscheck"
+G1B-RIGHT-TOP-05,RIGHT_TOP,3,CROSS_VALIDATED,CURRENT_PIXEL_REGISTRY,"clean r2_c3+r3_c3; delta 0.39 px native","ID 3 and 60x40 section directly readable; corresponding symbol fragments agree across row overlap","none for G1 center"
+G1B-RIGHT-TOP-05,RIGHT_TOP,4,DIRECT_RASTER_WORKING,NO_PROMOTION,"clean r3_c3","ID 4 and written 40x50 section directly readable","seek independent crosscheck"
+G1B-RIGHT-TOP-05,RIGHT_TOP,5,DIRECT_RASTER_WORKING,NO_PROMOTION,"clean r3_c3","ID 5 and written 40x50 section directly readable","seek independent crosscheck"
+G1B-RIGHT-TOP-05,RIGHT_TOP,6,DIRECT_RASTER_WORKING,NO_PROMOTION,"clean r3_c3","ID 6 and written 50x40 section directly readable","seek independent crosscheck"
+G1B-RIGHT-TOP-05,RIGHT_TOP,7,CROSS_VALIDATED,CURRENT_PIXEL_REGISTRY,"clean r3_c3+r4_c3; delta 0.22 px native","ID 7 and written 50x40 section directly readable; complete symbol agrees in overlap","none for G1 center"
+G1B-RIGHT-TOP-05,RIGHT_TOP,8,DIRECT_RASTER_WORKING,NO_PROMOTION,"clean r4_c3","ID 8 and written 40x50 section directly readable; previous section residual closed","seek independent crosscheck"

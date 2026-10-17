@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "method_id": "FPEP_P03B_DETERMINISTIC_MACHINE_READER_V1",
+  "scope": "Independent Reader B extraction only; no Reader A comparison and no topology construction.",
+  "inputs": [
+    {
+      "path": "analysis/fpep/FPEP_SOURCE_IDENTITY_v1.json",
+      "sha256": "73576a4f2d0e3a9cf21eba5bd5182698d3039c9d05affc985bad722dfcb2d2d5"
+    },
+    {
+      "path": "analysis/fpep/FPEP_HIRES_EVIDENCE_MANIFEST_v1.json",
+      "sha256": "6d3c2d791bb0b61833d30d772771927181373acd634f6275b32bf7d4ca1fed55"
+    }
+  ],
+  "software": {
+    "tesseract": "5.5.0",
+    "opencv": "4.13.0"
+  },
+  "procedure": [
+    "Use only P02 overview/regions/tiles and P01/P02 metadata copied into isolated fpep_b workspace.",
+    "Rotate each P02 region/tile 90 degrees counter-clockwise for machine reading.",
+    "Run one Tesseract psm=11 English pass per tile/region; no iterative correction against expected values.",
+    "Reconstruct a 150 dpi page from P02 regions solely for additional decimal-text candidates.",
+    "Keep decimal strings as DIMENSION_TEXT_CANDIDATE; keep compact integer/alphabetic strings as raw text candidates.",
+    "Use RIF for OCR confidence >=85, INC for retained decimal candidates below 85; no OCR value is promoted to DOC.",
+    "Do not infer supports, members, coordinates, topology, target counts or section/reinforcement data."
+  ],
+  "isolation_attestation": {
+    "reader_a_csv_opened_by_b_process": false,
+    "reader_a_values_used_to_correct_b": false,
+    "legacy_target_counts_supplied_to_b": false,
+    "M0G_geometry_supplied_to_b": false,
+    "PT_master_coordinates_supplied_to_b": false,
+    "TAV01A_reinforcement_supplied_to_b": false,
+    "historical_calculation_topology_supplied_to_b": false
+  },
+  "output": {
+    "path": "analysis/fpep/FPEP_READER_B_OBSERVATIONS_v1.csv",
+    "sha256": "6e42cdddb3c217e39354bbb1cad406b78ac3147e0142d33975e67b6a38c316ac",
+    "rows": 15,
+    "provenance_counts": {
+      "RIF": 11,
+      "INC": 4
+    }
+  },
+  "limitations": [
+    "Machine OCR is intentionally partial. Symbol classification and structural graphical-continuity semantics are not promoted by this method.",
+    "Any value that conflicts with Reader A remains unresolved until P04/P06; B values are never corrected by A."
+  ]
+}

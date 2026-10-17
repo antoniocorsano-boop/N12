@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "ingested_at": "2026-08-24T18:49:47.914375+00:00",
+  "work_item_id": "M1F-FOUNDATION-MODEL",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "WATCH",
+  "result": {
+    "schema_version": "1.0",
+    "work_item_id": "M1F-FOUNDATION-MODEL",
+    "source_sheet": "TAV-01S+MULTI",
+    "decision": "PASS_WITH_WATCH",
+    "semantic_gate": "WATCH",
+    "target_outputs": [
+      "data/canonical/M1F_FOUNDATION_MODEL_CURRENT_v1.csv",
+      "data/canonical/M1F_FOUNDATION_GATE_v1.csv"
+    ],
+    "provenance_summary": {
+      "DOC": 93,
+      "MIS": 0,
+      "RIF": 2,
+      "INF": 0,
+      "INC": 0,
+      "ND": 5
+    },
+    "residuals": [
+      {
+        "residual_id": "M1F-MODEL-W001",
+        "claim_id": "FOUNDATION-CARTESIAN-XY",
+        "blocking": false,
+        "reason": "P07 deliberately did not promote foundation Cartesian XY; PT/M0-G coordinates are not backfilled into the primary foundation geometry domain.",
+        "required_evidence": "Close primary metric endpoint binding or define a later explicitly admitted modeling transform without rewriting P07 provenance before numerical execution."
+      },
+      {
+        "residual_id": "M1F-MODEL-W002",
+        "claim_id": "TAV01A-PROPERTY-COVERAGE",
+        "blocking": false,
+        "reason": "Fifteen P07 primary members retain ND_DOCUMENTARY_COVERAGE and 22bis-27 remains supported rather than direct.",
+        "required_evidence": "Keep exact section/longitudinal reinforcement ND for the fifteen members and SUPPORTED for 22bis-27 unless direct property evidence is registered."
+      },
+      {
+        "residual_id": "M1F-MODEL-W003",
+        "claim_id": "ZF_COMMON-NUMERIC-Z",
+        "blocking": false,
+        "reason": "The common foundation plane is documentally supported only as symbolic ZF_COMMON; numeric model/project/geodetic Z is ND.",
+        "required_evidence": "Register direct datum evidence before assigning a numeric foundation elevation."
+      },
+      {
+        "residual_id": "M1F-MODEL-W004",
+        "claim_id": "CURRENT-MATERIAL-PARAMETERS",
+        "blocking": false,
+        "reason": "Historical R'=300 kg/cm2 and FeB38k are retained as historical DOC context, while current in-situ concrete strength, LC and FC remain ND.",
+        "required_evidence": "Provide current material assessment evidence or an explicitly admitted later modeling rule before CALCULATION_MODEL_READY."
+      },
+      {
+        "residual_id": "M1F-MODEL-W005",
+        "claim_id": "NUMERIC-LOADS-AND-GEOTECHNICS",
+        "blocking": false,
+        "reason": "M1L contains no sourced numerical Gk/Qk/mass values and current site-specific geotechnical strength/stiffness/groundwater parameters remain unavailable.",
+        "required_evidence": "Do not create numerical foundation loads, soil resistance or springs until documentary/assessment inputs or explicit admitted assumptions are available."
+      }
+    ],
+    "audit_paths": [
+      "data/canonical/M1F_FOUNDATION_GATE_v1.csv",
+      "data/canonical/M1F_FPEP_RELEASE_GATE_v1.csv",
+      "analysis/fpep/FPEP_TAV01A_BINDING_REVIEW_v1.csv",
+      "analysis/fpep/FPEP_M0G_REGRESSION_CROSSCHECK_v1.csv",
+      "analysis/fpep/FPEP_FOUNDATION_INTERFACE_CROSSCHECK_v1.csv"
+    ]
+  },
+  "warnings": [],
+  "deterministic_validators": [
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python scripts/validate_knowledge_system.py",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout": "KNOWLEDGE_SYSTEM_VALIDATION = PASS\nArchitecture and authority contracts are coherent.\nOpen domain gates are reported as warnings and remain subject to specialist semantic QA.\n",
+      "stderr": ""
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python scripts/n12_orchestrator.py validate",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout": "N12_AUTOMATION_CONTRACT = PASS\nCycle contract, semantic handshake, queue dependencies and current knowledge gate are coherent.\n",
+      "stderr": ""
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python skills/pt-carpentry-reader/runner.py validate",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout": "VALIDATION: PASS\ncrops=12 observations=69 beams=51 provisional=51 beam_doc=0 residuals=7\n",
+      "stderr": ""
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python scripts/validate_foundation_pipeline.py",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"errors\": [],\n  \"warnings\": [\n    \"FPEP parent wrapper is not currently active: state=COMPLETE\",\n    \"CURRENT_STATE automation.current_work_item is not FPEP wrapper\"\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python scripts/n12_foundation_orchestrator.py validate",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"errors\": [],\n  \"warnings\": [\n    \"FPEP-P04-METRIC-NETWORK: not all legacy barrier tokens are explicit: ['historical_calculation_topology']\"\n  ]\n}\n",
+      "stderr": ""
+    }
+  ]
+}

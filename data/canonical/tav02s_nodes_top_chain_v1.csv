@@ -1,0 +1,6 @@
+entity_id,entity_type,x_local_m,y_local_m,chain_id,read_status,source,status,note
+a,TERRACE_ADDED_PILLAR,0.00,0.00,MAIN_X_TOP,DOC_DIRECT,TAV-02S_tavola2-2.pdf,DOC_QUOTATO_CORRETTO,"lettera a leggibile nel primo simbolo della catena superiore; coppia verticale a/c"
+b,TERRACE_ADDED_PILLAR,3.45,0.00,MAIN_X_TOP,DOC_DIRECT,TAV-02S_tavola2-2.pdf,DOC_QUOTATO_CORRETTO,"lettera b leggibile nel secondo simbolo della catena superiore; coppia verticale b/d"
+17,NUMBERED_PILLAR,6.90,0.00,MAIN_X_TOP,DOC_DIRECT,TAV-02S_tavola2-2.pdf,DOC_QUOTATO,"numero 17 leggibile nel simbolo"
+9,NUMBERED_PILLAR,12.40,0.00,MAIN_X_TOP,DOC_DIRECT,TAV-02S_tavola2-2.pdf,DOC_QUOTATO,"numero 9 leggibile nel simbolo"
+1,NUMBERED_PILLAR,18.00,0.00,MAIN_X_TOP,DOC_DIRECT,TAV-02S_tavola2-2.pdf,DOC_QUOTATO,"numero 1 leggibile nel simbolo; coincide con il filo destro principale"

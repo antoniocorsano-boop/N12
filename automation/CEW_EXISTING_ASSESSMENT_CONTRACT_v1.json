@@ -1,0 +1,122 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "CEW_EXISTING_ASSESSMENT_CONTRACT",
+  "product": "CEW",
+  "subsystem": "Civil Existing Workflow",
+  "purpose": "Generate auditable existing-structure assessment scenarios from a canonical structural model while preserving evidence provenance and unresolved uncertainty.",
+  "epistemic_states": ["DOC", "MIS", "RIF", "INF", "INC", "ND", "MOD", "POST"],
+  "evidence_states": ["DOC", "MIS", "RIF", "INF", "INC", "ND"],
+  "derived_states": ["MOD", "POST"],
+  "invariants": [
+    "MOD_AND_POST_NEVER_OVERWRITE_SOURCE_EVIDENCE",
+    "SCENARIO_OUTPUT_REQUIRES_RULE_OR_EVIDENCE_PROVENANCE",
+    "GEOMETRIC_PROXIMITY_NEVER_CREATES_TOPOLOGY",
+    "HISTORICAL_VALUES_REMAIN_HISTORICAL_UNLESS_SCENARIO_RULE_EXPLICITLY_USES_THEM",
+    "LC_FC_IS_REGULATORY_KNOWLEDGE_STATE_NOT_PROBABILISTIC_CONFIDENCE",
+    "UNRESOLVED_INPUTS_REMAIN_MACHINE_READABLE",
+    "SOLVER_RESULTS_NEVER_AUTO_PROMOTE_TO_EVIDENCE"
+  ],
+  "modes": {
+    "MODE-1": {
+      "id": "HISTORICAL_BASELINE",
+      "derived_state": "MOD",
+      "purpose": "Reconstruct documented historical/as-designed assumptions for comparison.",
+      "allows_historical_values": true,
+      "requires_current_state_claim": false
+    },
+    "MODE-2": {
+      "id": "CONSERVATIVE_EXISTING",
+      "derived_state": "MOD",
+      "purpose": "Bound current assessment with explicit conservative modeling rules when direct evidence is incomplete.",
+      "allows_historical_values": "ONLY_IF_EXPLICIT_RULE",
+      "requires_current_state_claim": false
+    },
+    "MODE-3": {
+      "id": "PROBABILISTIC_DEGRADATION",
+      "derived_state": "MOD",
+      "purpose": "Generate uncertainty envelopes from exposure, protection, age, material priors and observed condition.",
+      "requires_probability_model": true,
+      "requires_current_state_claim": false
+    },
+    "MODE-4": {
+      "id": "ESSENTIAL_TESTS_UPDATED",
+      "derived_state": "POST",
+      "purpose": "Update prior deterioration/material distributions using selected high-information test evidence.",
+      "requires_probability_model": true,
+      "requires_test_evidence": true
+    },
+    "MODE-5": {
+      "id": "SURVEYED_EXISTING",
+      "derived_state": "POST",
+      "purpose": "Represent a measurement-driven current state from sufficiently complete surveys and tests.",
+      "requires_test_evidence": true
+    }
+  },
+  "mechanism_registry": [
+    "CARBONATION_INITIATION",
+    "CHLORIDE_INGRESS",
+    "CORROSION_PROPAGATION",
+    "LONGITUDINAL_BAR_SECTION_LOSS",
+    "STIRRUP_SECTION_LOSS",
+    "COVER_CRACKING_SPALLING",
+    "BOND_DEGRADATION",
+    "MOISTURE_WATER_EXPOSURE",
+    "FREEZE_THAW_IF_APPLICABLE",
+    "CHEMICAL_ATTACK_IF_APPLICABLE",
+    "GEOTECHNICAL_UNCERTAINTY"
+  ],
+  "required_scenario_fields": [
+    "scenario_id",
+    "mode",
+    "canonical_model_ref",
+    "scenario_status",
+    "inputs",
+    "model_rules",
+    "residuals",
+    "solver_authorization",
+    "provenance_statement"
+  ],
+  "solver_authorization_states": [
+    "NOT_EXECUTABLE",
+    "SCREENING_ONLY",
+    "COMPARATIVE_ONLY",
+    "EXECUTABLE_WITH_DECLARED_ASSUMPTIONS",
+    "CURRENT_STATE_VERIFICATION_ELIGIBLE"
+  ],
+  "degradation_model_contract": {
+    "required_fields": [
+      "model_id",
+      "mechanism",
+      "applicability",
+      "inputs",
+      "units",
+      "parameter_provenance",
+      "uncertainty_model",
+      "validity_range",
+      "outputs",
+      "reference_id",
+      "calibration_state"
+    ],
+    "forbidden_behavior": [
+      "WRITE_SOURCE_EVIDENCE",
+      "PROMOTE_MOD_TO_MIS",
+      "SILENT_DEFAULTS",
+      "APPLY_OUTSIDE_DECLARED_VALIDITY_WITHOUT_WATCH"
+    ]
+  },
+  "investigation_planner_contract": {
+    "objective": "Rank candidate investigations by expected decision value and uncertainty reduction rather than test count alone.",
+    "required_fields": [
+      "investigation_id",
+      "target_parameter_or_claim",
+      "affected_elements",
+      "current_state",
+      "test_method",
+      "invasiveness",
+      "expected_uncertainty_reduction",
+      "affected_outputs",
+      "priority",
+      "decision"
+    ]
+  }
+}

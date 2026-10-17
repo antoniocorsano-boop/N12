@@ -1,0 +1,37 @@
+name: Storey Source Render
+
+on:
+  push:
+    branches:
+      - work/m0-global-model
+    paths:
+      - '.github/workflows/storey-source-render.yml'
+      - 'scripts/render_storey_sources.sh'
+  pull_request:
+    paths:
+      - '.github/workflows/storey-source-render.yml'
+      - 'scripts/render_storey_sources.sh'
+  workflow_dispatch:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install PDF renderer
+        run: sudo apt-get update -qq && sudo apt-get install -y poppler-utils
+
+      - name: Render immutable upper-storey sources
+        run: bash scripts/render_storey_sources.sh
+
+      - name: Upload source renders
+        uses: actions/upload-artifact@v4
+        with:
+          name: storey-source-renders-v1
+          path: analysis/storey_source_renders/
+          if-no-files-found: error
+          retention-days: 30

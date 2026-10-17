@@ -1,0 +1,7 @@
+audit_id,beam_or_zone,source_observation,decision,status,note
+G6-TOP-001,r3_c3 P4-P5,"Direct source shows P4 connected to P5 on the local transverse segment","CONFIRM B-013 P5-P4",DOC_DIRECT_RASTER,"Consistent with metric coordinates X(P4)=18.00 and X(P5)=16.10 on the same Y row."
+G6-TOP-002,r3_c3 P5-P6,"Direct source shows the next structural segment between P5 and P6","REPLACE former B-010 P4-P6 with P5-P6",DOC_DIRECT_RASTER,"The previous B-010 endpoint P4 was a semantic binding error. Do not reopen G2."
+G6-TOP-003,r3_c3 P6-P7,"Direct source shows continuous structural run P6-P7","CONFIRM B-011 P6-P7",DOC_DIRECT_RASTER,"Consistent with X(P6)=X(P7)=16.10 and documented 5.30/5.33 vertical spacing."
+G6-TOP-004,G2 rollback trigger,"Former audit interpreted B-010 as proof that P4-P6-P7 share one axis","REVOKE G2 rollback trigger",REVOKED_CONFLICT,"The source separates P4-P5 and P5-P6; the metric grid remains compatible."
+G6-TOP-005,B-044 P12-P5,"Current source review does not yet prove a direct support-face-to-support-face P12-P5 beam","KEEP UNRESOLVED; do not vectorize as diagonal",SOURCE_REVIEW_PENDING,"P12 participates in the 120x20 bent chain; re-read exact local path before binding B-044."
+G6-TOP-006,B-029 P19-P21,"Current metric geometry would make the inherited LEFT_COL_3 claim oblique","KEEP UNRESOLVED pending direct source trace",SOURCE_REVIEW_PENDING,"P19 X is MIS_WATCH; neither the beam claim nor the coordinate is changed without direct source evidence."

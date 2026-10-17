@@ -1,0 +1,13 @@
+check_id,metric,expected,actual,status,severity,evidence,note
+M1F-P07-C01,primary_source_identity,TAV-01S immutable identity pinned,TAV-01S blob 64b842fa03b3aa7437e80d2bce90406a66f73827; sha256 abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8,PASS,HARD,FPEP_SOURCE_IDENTITY_v1.json,Filename alone was not used.
+M1F-P07-C02,support_identifier_claims,all upstream identifier claims retained,38,PASS,HARD,FPEP_METRIC_CLAIMS_v1.csv,"Identifier count is an output of blind primary reading, never a legacy extraction target."
+M1F-P07-C03,distinct_identifier_relation,22 and 22bis remain distinct,CURRENT_PRIMARY_IDENTIFIER_CLAIM,PASS,HARD,P04-IDREL-001,No support identity was merged.
+M1F-P07-C04,topology_candidates_adjudicated,15,15,PASS,HARD,FPEP_CONFLICT_LEDGER_v1.csv,All P05 continuity claims have source-local P06 resolution.
+M1F-P07-C05,primary_topology_coverage,exhaustive incidence sweep complete,EXHAUSTIVE_INCIDENCE_SWEEP_COMPLETE,PASS,HARD,P06-ADJ-021,"Coverage authority is primary-source incidence, not proximity or a legacy member count."
+M1F-P07-C06,blocking_topology_conflicts,0,0,PASS,HARD,FPEP_CONFLICT_LEDGER_v1.csv,No blocking topology conflict is hidden.
+M1F-P07-C07,nonpromotable_metric_residuals,preserved,2,PASS_WITH_WATCH,WATCH,P06-ADJ-018|P06-ADJ-019,The 14.55 witness-membership conflict and 13.60 closure discrepancy are excluded from coordinate derivation.
+M1F-P07-C08,unpaired_ocr_tokens,not promoted,NOT_PROMOTED,PASS_WITH_WATCH,WATCH,P06-ADJ-020,B-only tokens remain INC/unpaired.
+M1F-P07-C09,cartesian_coordinates_created,0,0,PASS,HARD,M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv,P07 does not fabricate coordinates where witness-endpoint binding is incomplete.
+M1F-P07-C10,analytical_members_created,0,0,PASS,HARD,M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv,P07 promotes source continuity claims; analytical member binding is downstream-only.
+M1F-P07-C11,information_barrier_violation,0,0,PASS,HARD,P07 agent attestation,"No legacy topology, PT/M0-G generator geometry, TAV-01A geometry generation or semantic rereading by the promoter."
+M1F-P07-FINAL-GATE,primary_geometry_gate,PASS_WITH_WATCH,PASS_WITH_WATCH,PASS_WITH_WATCH,GATE,P07 ledger + P06 adjudication,"Primary identifiers, continuity claims and complete incidence coverage are promoted. Two metric-chain conflicts and unpaired OCR remain explicit and nonpromotable."

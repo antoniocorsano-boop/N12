@@ -1,0 +1,5 @@
+dataset,records,status,usable_as,not_usable_as,evidence
+ABACO_TOPOLOGICO_TAV5_v11,57,PREDOC_TOPOLOGICO,"coordinate/rete grafica di controllo","nodi strutturali definitivi",ABACO_TOPOLOGICO_TAV5_v11.csv
+REGISTRO_CONNessioni_TAV5_v07,141,INF_DA_QUOTARE,"candidati di connettivita grafica","travi strutturali definitive",REGISTRO_CONNessioni_TAV5_v07.csv
+CATENE_VERTICALI_PILASTRI_v20,27,VER,"fili geometrici verticali","assi baricentrici/sezioni definitive",CATENE_VERTICALI_PILASTRI_v20.csv
+MATRICE_PILASTRI_27x5_v22,135,VER,"continuita verticale da verificare/organizzare","attribuzione sezioni",MATRICE_PILASTRI_27x5_v22.csv

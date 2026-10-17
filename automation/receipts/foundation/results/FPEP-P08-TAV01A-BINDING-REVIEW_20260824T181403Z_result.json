@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "run_id": "FPEP-P08-20260824T181000Z",
+  "work_item_id": "FPEP-P08-TAV01A-BINDING-REVIEW",
+  "stage_id": "FPEP-P08-TAV01A-BINDING-REVIEW",
+  "agent_role": "TAV01A_BINDING_AUDITOR",
+  "decision": "PASS_WITH_WATCH",
+  "semantic_gate": "PASS",
+  "input_artifacts": [
+    {
+      "path": "data/canonical/M1F_PRIMARY_GEOMETRY_GATE_v1.csv",
+      "sha256": "ND_NOT_RECOMPUTED",
+      "authority": "CANONICAL_PRIMARY_GEOMETRY_GATE",
+      "status": "CURRENT"
+    },
+    {
+      "path": "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
+      "sha256": "ND_NOT_RECOMPUTED",
+      "authority": "CANONICAL_PRIMARY_GEOMETRY_LEDGER",
+      "status": "CURRENT"
+    },
+    {
+      "path": "data/canonical/M1F_FOUNDATION_REINFORCEMENT_GATE_v1.csv",
+      "sha256": "ND_NOT_RECOMPUTED",
+      "authority": "CANONICAL_REINFORCEMENT_GATE",
+      "status": "CURRENT"
+    },
+    {
+      "path": "data/canonical/M1F_FOUNDATION_SECTION_BINDING_GATE_v1.csv",
+      "sha256": "ND_NOT_RECOMPUTED",
+      "authority": "CANONICAL_SECTION_BINDING_GATE",
+      "status": "CURRENT"
+    },
+    {
+      "path": "data/canonical/M1F_TAV01A_GROUP_INDEX_v1.csv",
+      "sha256": "ND_NOT_RECOMPUTED",
+      "authority": "DOC_GROUP_INDEX",
+      "status": "CURRENT"
+    }
+  ],
+  "primary_sources": [
+    {
+      "source_id": "TAV-01A",
+      "path": "data/canonical/M1F_TAV01A_GROUP_INDEX_v1.csv",
+      "git_blob_sha": "ND_NOT_RECOMPUTED",
+      "sha256": "ND_NOT_RECOMPUTED",
+      "evidence_anchor": "Seven canonical TAV-01A groups F1A-G01..G07; property-binding source only, not geometry authority"
+    },
+    {
+      "source_id": "TAV-01S",
+      "path": "data/canonical/M1F_PRIMARY_GEOMETRY_REVALIDATION_LEDGER_v1.csv",
+      "git_blob_sha": "64b842fa03b3aa7437e80d2bce90406a66f73827",
+      "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "evidence_anchor": "P07 promoted geometry authority"
+    }
+  ],
+  "target_outputs": [
+    "analysis/fpep/FPEP_TAV01A_BINDING_REVIEW_v1.csv"
+  ],
+  "provenance_summary": {
+    "tav01a_groups_reviewed": 7,
+    "direct_primary_coincident_bindings": 39,
+    "supported_primary_bindings": 1,
+    "tav01a_steps_rejected_for_geometry_creation": 3,
+    "primary_incidences_with_nd_documentary_binding": 15
+  },
+  "residuals": [
+    {
+      "residual_id": "P08-W001",
+      "claim_id": "F1A-G06",
+      "blocking": false,
+      "reason": "TAV-01A literal sequence steps 25-26, 28-29 and 31-32 are absent from P07 primary topology and therefore cannot create physical members.",
+      "required_evidence": "Retain their reinforcement information as documentary notation only unless a future primary-geometry reopen establishes a physical incidence."
+    },
+    {
+      "residual_id": "P08-W002",
+      "claim_id": "TAV01A-DOCUMENTARY-COVERAGE",
+      "blocking": false,
+      "reason": "Fifteen P07 primary incidences have no direct autonomous TAV-01A group binding.",
+      "required_evidence": "Keep exact section/longitudinal reinforcement ND for these incidences; do not fill by analogy."
+    },
+    {
+      "residual_id": "P08-W003",
+      "claim_id": "F1A-G03-22bis-27",
+      "blocking": false,
+      "reason": "The 22bis-27 property binding remains supported rather than direct because TAV-01A uses schematic 22-27 notation while TAV-01S controls corrected physical geometry.",
+      "required_evidence": "Preserve SUPPORTED status and do not upgrade by count or analogy."
+    }
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_TAV01A_BINDING_REVIEW_v1.csv"
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  }
+}

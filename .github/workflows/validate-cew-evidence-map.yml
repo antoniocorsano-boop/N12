@@ -1,0 +1,120 @@
+name: Validate CEW Evidence Map
+
+on:
+  pull_request:
+    paths:
+      - 'data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'
+      - 'automation/CEW_EVIDENCE_VIEWPOINT_CONTRACT_v1.json'
+      - 'data/canonical/N12_EVIDENCE_LINKS_CURRENT_v0.json'
+      - 'data/canonical/N12_ISSUES_CURRENT_v1.json'
+      - 'data/canonical/N12_B06_RESIDUAL_ROUTING_CURRENT_v1.json'
+      - 'data/canonical/N12_G4_HIRES_MACHINE_REVIEW_RECEIPT_v1.json'
+      - 'docs/ANALYSIS/CEW_R3_B05_B06_RESOLUTION_ROUTING_v1.md'
+      - 'docs/ANALYSIS/CEW_R3_B06_RESIDUAL_SUBROUTING_v1.md'
+      - '.github/workflows/validate-cew-evidence-map.yml'
+
+jobs:
+  validate-evidence-map:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate contracts, routing, candidates and anti-invention state
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          s=json.load(open('data/canonical/CEW_PROJECT_STATE_CURRENT_v1.json'))
+          c=json.load(open('automation/CEW_EVIDENCE_VIEWPOINT_CONTRACT_v1.json'))
+          m=json.load(open('data/canonical/N12_EVIDENCE_LINKS_CURRENT_v0.json'))
+          i=json.load(open('data/canonical/N12_ISSUES_CURRENT_v1.json'))
+          r=json.load(open('data/canonical/N12_B06_RESIDUAL_ROUTING_CURRENT_v1.json'))
+          h=json.load(open('data/canonical/N12_G4_HIRES_MACHINE_REVIEW_RECEIPT_v1.json'))
+
+          assert s['current_work_item']['id']=='CEW-R3-SYNCHRONIZED-EVIDENCE-MAP-V0'
+          assert c['contract_id']=='CEW_EVIDENCE_VIEWPOINT_CONTRACT'
+          assert m['coverage']['current_issue_count']==6
+          assert m['coverage']['issues_with_structured_source_context']==len(m['source_to_entity_links'])==3
+          links={x['issue_id']:x for x in m['source_to_entity_links']}
+          assert set(links)=={'N12-ISS-M1E-B02','N12-ISS-M1E-B05','N12-ISS-M1E-B06'}
+          assert all(x['authority_state']=='CONTEXT_ONLY' for x in links.values())
+
+          assert links['N12-ISS-M1E-B05']['routing_class']=='CONFIRMED_DOCUMENTARY_GAP'
+          assert links['N12-ISS-M1E-B06']['routing_class']=='MIXED_RESIDUAL_ROUTING'
+          routes=r['residual_routes']
+          assert len(routes)==11
+          assert sum(x['route']=='SEMANTIC_LOCATOR_CANDIDATE_AVAILABLE' for x in routes)==1
+          assert sum(x['route']=='LOCATOR_AVAILABLE_GROUP_SCOPE_ONLY' for x in routes)==3
+          assert sum(x['route']=='CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED' for x in routes)==7
+          assert r['summary']['approved_evidence_snippets_created']==0
+          assert r['summary']['reinforcement_values_promoted']==0
+
+          review_targets=m.get('review_targets',[])
+          assert len(review_targets)==3
+          assert {x['source_locator'] for x in review_targets}=={'P02','P07-P08','P10'}
+          assert all(x['authority_state']=='CONTEXT_ONLY_REVIEW_TARGET' for x in review_targets)
+          assert all(x['binding_precision']=='GROUP_SCOPE_NOT_SINGLE_MEMBER' for x in review_targets)
+
+          # HiRes machine-review receipt is reproducible context, not engineering promotion.
+          assert h['review_type']=='MACHINE_VISUAL_REVIEW_CANDIDATE'
+          assert h['status']=='CURRENT_REVIEW_RECEIPT_NOT_ENGINEERING_AUTHORITY'
+          assert h['primary_source']['source_id']=='TAV-05A'
+          assert h['primary_source']['archive_blob_sha']=='111542c26192dac0a3a801eb5f2e5d5cdbffe3d3'
+          assert h['render_context']['render_dpi']==300
+          assert h['render_context']['render_size_px']==[4299,34764]
+          assert len(h['findings'])==3
+          hf={x['source_row']:x for x in h['findings']}
+          assert set(hf)=={'T5A-G01-R06','T5A-G05-R04','T5A-G07-R07'}
+          assert hf['T5A-G01-R06']['source_locator']=='P02'
+          assert hf['T5A-G01-R06']['visual_reading']=={'bar_quantity':2,'bar_diameter_mm':12,'shape_or_length':'L=1040'}
+          assert hf['T5A-G01-R06']['machine_review_state']=='DIRECT_LABEL_VISUALLY_READABLE_CANDIDATE'
+          assert hf['T5A-G05-R04']['source_locator']=='P07-P08'
+          assert hf['T5A-G05-R04']['visual_reading']['missing_dimension_recovered'] is False
+          assert hf['T5A-G05-R04']['machine_review_state']=='PARTIAL_STATE_CONFIRMED_CANDIDATE'
+          assert hf['T5A-G07-R07']['source_locator']=='P10'
+          assert hf['T5A-G07-R07']['visual_reading']=={'bar_quantity':2,'bar_diameter_mm':12,'shape_or_length':'L=865'}
+          assert hf['T5A-G07-R07']['machine_review_state']=='DIRECT_LABEL_VISUALLY_READABLE_CANDIDATE'
+          assert all(x['binding_precision']=='GROUP_SCOPE_NOT_SINGLE_MEMBER' for x in h['findings'])
+          assert all(x['engineering_promotion_authorized'] is False for x in h['findings'])
+          assert h['summary']['direct_label_candidates']==2
+          assert h['summary']['partial_state_confirmed_candidates']==1
+          assert h['summary']['single_member_bindings_created']==0
+          assert h['summary']['canonical_reinforcement_values_promoted']==0
+          assert h['summary']['approved_evidence_snippets_created']==0
+
+          candidates=m.get('evidence_snippet_candidates',[])
+          assert m['coverage']['issues_with_evidence_snippet_candidate']==1==len(candidates)
+          cand=candidates[0]
+          assert cand['snippet_id']=='N12-SNIP-CAND-B06-G5-B017-TAV06A-P07'
+          assert cand['review_state']=='MACHINE_PROPOSED'
+          assert cand['authority_state']=='EVIDENCE_LINK_CANDIDATE'
+          assert m['coverage']['issues_with_canonical_evidence_snippet']==len(m['evidence_snippets'])==0
+          assert m['coverage']['issues_with_3d_viewpoint']==len(m['viewpoints'])==0
+
+          issues={x['issue_id']:x for x in i['issues']}
+          assert issues['N12-ISS-M1E-B05']['routing_class']=='CONFIRMED_DOCUMENTARY_GAP'
+          assert issues['N12-ISS-M1E-B06']['routing_class']=='MIXED_RESIDUAL_ROUTING'
+          assert issues['N12-ISS-M1E-B06']['evidence_snippet_refs']==[]
+
+          blockers={x['id']:x for x in s['current_calculation_blockers']}
+          assert blockers['M1E-B05']['routing_class']=='CONFIRMED_DOCUMENTARY_GAP'
+          assert blockers['M1E-B06']['routing_class']=='MIXED_RESIDUAL_ROUTING'
+          p=s['current_work_item']['progress']
+          assert p['evidence_snippet_candidates']==1
+          assert p['g4_group_scope_review_targets']==3
+          assert p['g4_machine_visual_direct_label_candidates']==2
+          assert p['g4_machine_visual_partial_state_confirmed_candidates']==1
+          assert p['column_primary_source_search_closed']==7
+          assert p['canonical_evidence_snippets']==0
+
+          analysis1=Path('docs/ANALYSIS/CEW_R3_B05_B06_RESOLUTION_ROUTING_v1.md').read_text(encoding='utf-8')
+          analysis2=Path('docs/ANALYSIS/CEW_R3_B06_RESIDUAL_SUBROUTING_v1.md').read_text(encoding='utf-8')
+          assert 'confirmed documentary coverage gap' in analysis1.lower()
+          assert 'CURRENT_PRIMARY_SOURCE_SEARCH_CLOSED' in analysis2
+
+          guards='\n'.join(m['guards'])+'\n'+'\n'.join(s['anti_drift_rules'])+'\n'+'\n'.join(r['guards'])+'\n'+'\n'.join(h['guards'])
+          assert 'candidate' in guards.lower() and 'approved' in guards.lower()
+          assert 'single-member binding' in guards.lower()
+          assert 'human' in guards.lower()
+
+          print('CEW EVIDENCE MAP: PASS | B06=MIXED | G4 HiRes direct-label candidates=2 | partial-confirmed=1 | promoted_values=0 | approved_snippets=0')
+          PY

@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "pipeline_id": "N12_FPEP_FOUNDATION_PRIMARY_EVIDENCE_PIPELINE",
+  "work_item_id": "FPEP-P06-CONFLICT-ADJUDICATION",
+  "decision": "RESIDUAL",
+  "semantic_gate": "WATCH",
+  "run_id": "FPEP-P06-20260824T140100Z",
+  "result_sha256": "a723d585e0f2bbb3c5f929ddda6907a2f2187eb0309cbe57f071a526478b250d",
+  "target_outputs": [
+    "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv"
+  ],
+  "audit_paths": [
+    "analysis/fpep/FPEP_CONFLICT_LEDGER_v1.csv"
+  ],
+  "residuals": [
+    {
+      "residual_id": "P06-R001",
+      "claim_id": "P05-GLOBAL-COVERAGE",
+      "blocking": true,
+      "reason": "The current P03/P05 continuity set is not an exhaustive support-incidence/member inventory of the complete TAV-01S foundation drawing.",
+      "required_evidence": "Perform a full source-local incidence sweep over every support identifier and every structural contour using only P02 evidence; enumerate witnessed pairwise transitions and preserve unresolved junctions."
+    },
+    {
+      "residual_id": "P06-R002",
+      "claim_id": "P04-CL-002",
+      "blocking": true,
+      "reason": "The 14.55 dimension region retains unresolved witness-line membership across 4.15/4.25/5.30/4.70 values.",
+      "required_evidence": "Focused witness-line trace on the source-local region; no arithmetic-fit assignment."
+    },
+    {
+      "residual_id": "P06-R003",
+      "claim_id": "P04-CL-006",
+      "blocking": true,
+      "reason": "The written 13.60 overall remains inconsistent with visible 2.00 + 4.65 + 6.45 if treated as a single closed chain.",
+      "required_evidence": "Trace exact witness endpoints and numeral association before geometric use."
+    }
+  ],
+  "information_barrier_attestation": {
+    "forbidden_context_not_used": true,
+    "legacy_target_counts_not_used_before_primary_gate": true,
+    "downstream_model_not_used_as_primary_evidence": true,
+    "majority_vote_not_used_for_authority": true
+  },
+  "ingested_at": "2026-08-24T14:07:11.049793+00:00"
+}
