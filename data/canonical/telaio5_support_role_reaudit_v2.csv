@@ -1,0 +1,10 @@
+support_id,telaio5_node,section_doc,role_status,role_candidate,exterior_reference,fixed_line_interpretation,evidence_status,confidence,source_basis,notes,supersedes
+P17,S,40x40,PENDING,ND,ND,NON_PROMOSSO,MIS+RIF,MEDIUM,"planimetria telaio + TAV-05S","La posizione terminale nel percorso non prova il ruolo ANGOLARE. Serve perimetro architettonico dello stesso livello.",telaio5_support_role_reaudit_v1:P17
+P18,S',30x110,PENDING,ND,ND,LINEA_GRAFICA_INTERNA_DISTINTA_DA_FILO_COSTRUTTIVO,MIS,HIGH,"TAV-05S","Non classificare FACCIATA/INTERNO dalla sola carpenteria.",telaio5_support_role_reaudit_v1:P18
+P19,T,40x40,PENDING,ND,ND,LINEA_GRAFICA_INTERNA_DISTINTA_DA_FILO_COSTRUTTIVO,MIS,HIGH,"TAV-05S","Ruolo perimetrale da architettonica dello stesso livello.",telaio5_support_role_reaudit_v1:P19
+P20,U,40x40,PENDING,ND,ND,LINEA_GRAFICA_INTERNA_DISTINTA_DA_FILO_COSTRUTTIVO,MIS,HIGH,"TAV-05S","Ruolo perimetrale da architettonica dello stesso livello.",telaio5_support_role_reaudit_v1:P20
+P21,V,30x45,PENDING,ND,ND,LINEA_GRAFICA_INTERNA_DISTINTA_DA_FILO_COSTRUTTIVO,MIS,HIGH,"TAV-05S","Cambio direzione del telaio non equivale a facciata.",telaio5_support_role_reaudit_v1:P21
+P22,Z,30x45,PENDING,ND,ND,LINEA_GRAFICA_INTERNA_DISTINTA_DA_FILO_COSTRUTTIVO,MIS,HIGH,"TAV-05S","Ruolo perimetrale da architettonica dello stesso livello.",telaio5_support_role_reaudit_v1:P22
+P22P,A',40x40,PENDING,ND,ND,LINEA_GRAFICA_INTERNA_DISTINTA_DA_FILO_COSTRUTTIVO,MIS,HIGH,"TAV-05S","Supporto distinto P22 primo; non dedurre ruolo dalla sola poligonale.",telaio5_support_role_reaudit_v1:P22P
+P23,B',30x110,PENDING,ND,ND,LINEA_GRAFICA_INTERNA_DISTINTA_DA_FILO_COSTRUTTIVO,MIS,HIGH,"TAV-05S","Sostegno largo; lato esterno e filo costruttivo richiedono architettonica dello stesso livello.",telaio5_support_role_reaudit_v1:P23
+P24,C',40x40,PENDING,ND,ND,NON_PROMOSSO,MIS+RIF,MEDIUM,"planimetria telaio + TAV-05S","La posizione terminale nel percorso non prova il ruolo ANGOLARE. Serve perimetro architettonico dello stesso livello.",telaio5_support_role_reaudit_v1:P24

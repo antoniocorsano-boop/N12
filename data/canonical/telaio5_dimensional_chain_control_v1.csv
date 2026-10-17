@@ -1,0 +1,10 @@
+chain_id,frame_reference,segment_index,segment_label,length_m,cumulative_m,reference_type,evidence_status,status,notes
+T5-CHAIN-X,Telaio_5,1,C1,4.70,4.70,HISTORIC_NODE_TO_NODE,RIF,LOCKED,"Campata storica; non interpretare automaticamente come luce netta"
+T5-CHAIN-X,Telaio_5,2,C2,4.05,8.75,HISTORIC_NODE_TO_NODE,RIF,LOCKED,
+T5-CHAIN-X,Telaio_5,3,C3,1.20,9.95,HISTORIC_NODE_TO_NODE,RIF,LOCKED,
+T5-CHAIN-X,Telaio_5,4,C4,5.80,15.75,HISTORIC_NODE_TO_NODE,RIF,LOCKED,
+T5-CHAIN-X,Telaio_5,5,C5,2.90,18.65,HISTORIC_NODE_TO_NODE,RIF,LOCKED,
+T5-CHAIN-X,Telaio_5,6,C6,1.20,19.85,HISTORIC_NODE_TO_NODE,RIF,LOCKED,
+T5-CHAIN-X,Telaio_5,7,C7,4.05,23.90,HISTORIC_NODE_TO_NODE,RIF,LOCKED,
+T5-CHAIN-X,Telaio_5,8,C8,4.70,28.60,HISTORIC_NODE_TO_NODE,RIF,LOCKED,
+T5-CHAIN-X,Telaio_5,TOTAL,TOTAL,28.60,28.60,GLOBAL_CHAIN_CONSTRAINT,RIF,HARD_GATE,"La ricostruzione nodo/filo/facce deve conservare 28.60 m complessivi tra i riferimenti estremi coerenti con la catena"

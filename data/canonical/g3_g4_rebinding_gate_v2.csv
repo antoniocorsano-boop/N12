@@ -1,0 +1,9 @@
+gate_id,check,status,evidence_status,notes
+G3G4-01,"TAV-04S identified as III impalcato",PASS,DOC,"Historical crosswalk maps G3 to TAV-04S."
+G3G4-02,"TAV-04S PDF binary renderable in current runtime",BLOCKED,ND,"Repository exposes binary blob but connector cannot decode binary PDF; no local rendered copy available."
+G3G4-03,"Historical 27 vertical chains recovered",PASS,PREDOC,"column_fixed_lines.csv contains 27 chains with VER_5_LEVELS; usable only as candidate seed."
+G3G4-04,"Automatic legacy-chain to G4-support assignment",FORBIDDEN,WORKFLOW,"Legacy coordinates and current support semantics differ; no silent nearest-neighbour binding."
+G3G4-05,"Current 34-support G4 registry available",PASS,MIS+DOC,"g3_g4_support_crosswalk_v1 carries all G4 supports including P22P."
+G3G4-06,"Definitive G3 support identification",PENDING,DOC_REQUIRED,"Requires visual/documentary reading of TAV-04S or equivalent derived high-resolution source."
+G3G4-07,"Vertical extrusion G3-G4",HOLD,WORKFLOW,"Create column segment only after fixed-line match is verified; section changes recorded as risega, not joint shift."
+G3G4-08,"Residual policy",NON_BLOCKING,WORKFLOW,"Continue other verified fronts while TAV-04S access residual remains open."

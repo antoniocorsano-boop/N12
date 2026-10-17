@@ -1,0 +1,8 @@
+gate_id,check,status,evidence_status,confidence,notes
+T5-PER-01,"G4 structural level identification as TAV-05S IV impalcato",PASS,DOC,HIGH,"Confirmed by historical level-sheet crosswalk."
+T5-PER-02,"Architectural candidate for same ordinary level",READY,INF,HIGH,"TAV-04 is the unique sequence-based candidate: TAV-01..04 pair by ordinal progression with ordinary structural TAV-02S..05S."
+T5-PER-03,"Visual inspection of TAV-04 perimeter",PENDING,ND,ND,"Required before promoting pairing or any ANGOLARE/FACCIATA role to DOC/VER."
+T5-PER-04,"Role P17-P24 ANGOLARE/FACCIATA/INTERNO",HOLD,ND,ND,"Do not infer from structural beam network alone."
+T5-PER-05,"Exterior edge/corner for fixed-line rule",HOLD,ND,ND,"Apply G-16 only after visual perimeter confirmation."
+T5-PER-06,"Current TAV-05S graphic internal lines",KEEP,MIS,HIGH,"Preserve measured graphic lines separately from interpreted construction fixed lines."
+T5-PER-07,"M0-G joint coordinate rewrite",HOLD,MIS_CALIBRATED,MEDIUM,"No coordinate replacement until perimeter roles and true fixed-line references are verified."

@@ -1,0 +1,2 @@
+item,structural_level,structural_sheet,structural_level_doc,architectural_candidate,pairing_status,evidence_status,confidence,basis,next_gate,notes
+G4-ARCH-PAIR,G4,TAV-05S,IV_IMPALCATO,TAV-04,CANDIDATO_UNIVOCO_PER_SEQUENZA,INF,HIGH,"m0s1a_level_sheet_crosswalk: G4=TAV-05S; manifest: quattro architettoniche TAV-01..TAV-04 e quattro carpenterie ordinarie TAV-02S..TAV-05S",VISUAL_PERIMETER_CONFIRMATION,"Non promuovere a DOC finche' tavola 4.pdf non e' ispezionata visivamente; pairing usabile solo per preparare il confronto."

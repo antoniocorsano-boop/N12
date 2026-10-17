@@ -1,0 +1,4 @@
+connection_id,support_i,support_j,beam_type,section_b_cm,section_h_cm,evidence_status,confidence,source_basis,supersedes,notes
+T05-C015,P22,P22P,TRAVE_EMERGENTE,25,70,RIF,HIGH,"dato consolidato riferito dall'utente: P22-P22' = trave emergente 25x70",v6:T05-C015,"chiude precedente sezione ND"
+T05-C025A,P04,P05,TRAVE_EMERGENTE,25,70,RIF,HIGH,"dato consolidato riferito dall'utente: P04-P05 = trave emergente 25x70",v6:T05-C025A,"chiude precedente sezione ND"
+T05-C035,P19,P20,TRAVE_EMERGENTE,25,70,RIF,HIGH,"dato consolidato riferito dall'utente: P19-P20 = trave emergente 25x70",v6:T05-C035,"chiude precedente sezione ND"

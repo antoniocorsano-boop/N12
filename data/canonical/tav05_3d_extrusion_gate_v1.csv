@@ -1,0 +1,8 @@
+gate_id,check,status,evidence,allowed_action,blocked_action,notes
+E3D-01,planar_baseline, PASS,"tav05_etabs_planar_baseline_v1.csv + readiness gate PASS","use TAV-05S as validated source plane","none","52/52 frames ready; offsets resolved"
+E3D-02,relative_levels_L0_L3,PASS,"m0g_storey_levels_v1.csv; three consecutive 3.20 m storeys RIF","create geometric joint scaffold at Z 0.00/3.20/6.40/9.60","assign absolute elevations","Relative Z only"
+E3D-03,upper_levels_L4_L5,BLOCKED,"storey height/roof level not yet source-bound","retain levels as ND","extrapolate 3.20 m upward","Roof has nonuniform ridge/eaves geometry"
+E3D-04,plan_replication_other_storeys,BLOCKED,"TAV-05S is validated plane but floor-by-floor equivalence not yet verified","compare each carpenteria against TAV-05S","copy 52-frame plane to every storey","No automatic typical-floor assumption"
+E3D-05,column_vertical_continuity,BLOCKED,"support XY known; storey-specific column continuity/section changes not yet fully bound","create geometry-only vertical joint scaffold","create column frame elements with inherited TAV-05S section","Column sections may change by order/storey"
+E3D-06,wide_support_orientation,PASS,"P18/P23/P30 physical footprints + offset v2","preserve support orientation and attachment geometry on source plane","collapse wide support to centroid-only geometry","ETABS analytical joint remains single fixed-line joint"
+E3D-07,controlled_extrusion_verdict,PARTIAL_READY,"E3D-01/02/06 PASS; E3D-03/04/05 blocked","proceed with 4-level geometry-only scaffold and source comparison","full structural 3D replication","Residuals are explicit and non-blocking for source-recovery work"

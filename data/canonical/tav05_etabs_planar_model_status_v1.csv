@@ -1,0 +1,5 @@
+dataset,records,status,usable_as,blocked_by,source_ref,notes
+TAV05_ETABS_SECTION_CATALOG_V1,12,READY_WITH_PLACEHOLDERS,"ETABS property catalogue for documented sections","BM_NDx70 and BM_ND are non-import placeholders",tav05_etabs_section_catalog_v1.csv,"Do not create final ETABS properties for placeholders"
+TAV05_ETABS_JOINTS_M0G_V1,34,READY_PLANAR,"Planar analytical joint coordinates at fixed lines","3D storey replication not yet applied",tav05_etabs_joints_m0g_v1.csv,"Coordinates MIS_CALIBRATED; one joint per support fixed line"
+TAV05_ETABS_FRAMES_M0G_V1,39,READY_WITH_7_SECTION_RESIDUALS,"Planar beam connectivity and documented section assignments","7 frames have incomplete/ND section",tav05_etabs_frames_m0g_v1.csv,"32 frames READY; 7 BLOCKED_SECTION"
+TAV05_PLANAR_ANALYTICAL_MODEL,1,READY_FOR_VISUAL_QA,"2D analytical pre-model for geometry/topology QA","end offsets/insertion points/storey Z/loads/materials not yet finalized","tav05_etabs_joints_m0g_v1.csv + tav05_etabs_frames_m0g_v1.csv","Do not interpret fixed-line joint automatically as section centroid; wide P18/P23/P30 remain Frame Columns"

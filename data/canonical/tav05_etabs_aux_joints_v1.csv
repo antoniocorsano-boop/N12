@@ -1,0 +1,2 @@
+joint_id,source_object,x_m,y_m,z_m,joint_type,coord_status,confidence,source_basis,notes
+J-J05E,J05E,17.1077,-5.1646,0.000,BEAM_BEAM_INTERSECTION,MIS_CALIBRATED,HIGH,"tav05_non_support_junctions_v1.csv","Intersezione trave P05-J05E 50x20 con trave principale P09-P16 120x20; non e' un pilastro"

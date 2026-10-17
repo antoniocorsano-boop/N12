@@ -1,0 +1,10 @@
+frame_id,level,node_id,node_label,station_m,plan_support_id,support_role,historic_node_ref,fixed_line_ref,face_ref,rebinding_status,evidence_status,confidence,hard_constraint,notes
+T5,G4,8,S,0.00,ND,ND,DOC_NODE,ND,ND,PENDING_REBIND,DOC,MEDIUM,"CHAIN_TOTAL_28.60_M","non forzare associazione da vecchia matrice candidata"
+T5,G4,9,S',4.70,ND,ND,DOC_NODE,ND,ND,PENDING_REBIND,DOC,MEDIUM,"CHAIN_TOTAL_28.60_M","distinguere nodo storico da filo fisso"
+T5,G4,10,T,8.75,ND,ND,DOC_NODE,ND,ND,PENDING_REBIND,DOC,MEDIUM,"CHAIN_TOTAL_28.60_M","distinguere nodo storico da filo fisso"
+T5,G4,11,U,9.95,ND,ND,DOC_NODE,ND,ND,PENDING_REBIND,DOC,MEDIUM,"CHAIN_TOTAL_28.60_M","distinguere nodo storico da filo fisso"
+T5,G4,12,V,15.75,ND,ND,DOC_NODE,ND,ND,PENDING_REBIND,DOC,MEDIUM,"CHAIN_TOTAL_28.60_M","distinguere nodo storico da filo fisso"
+T5,G4,13,Z,18.65,ND,ND,DOC_NODE,ND,ND,PENDING_REBIND,DOC,MEDIUM,"CHAIN_TOTAL_28.60_M","distinguere nodo storico da filo fisso"
+T5,G4,14,A',19.85,ND,ND,DOC_NODE,ND,ND,PENDING_REBIND,DOC,MEDIUM,"CHAIN_TOTAL_28.60_M","distinguere nodo storico da filo fisso"
+T5,G4,15,B',23.90,ND,ND,DOC_NODE,ND,ND,PENDING_REBIND,DOC,MEDIUM,"CHAIN_TOTAL_28.60_M","distinguere nodo storico da filo fisso"
+T5,G4,16,C',28.60,ND,ND,DOC_NODE,ND,ND,PENDING_REBIND,DOC,MEDIUM,"CHAIN_TOTAL_28.60_M","estremo finale della catena; non traslare globalmente"

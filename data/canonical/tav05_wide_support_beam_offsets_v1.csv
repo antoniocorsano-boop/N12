@@ -1,0 +1,10 @@
+support_id,frame_or_connection,beam_axis_policy,offset_dx_m,offset_dy_m,offset_status,confidence,source_basis,notes
+P18,T05-C032,KEEP_BEAM_ORTHOGONAL,-0.2733,0.0000,MIS_FROM_M0G,HIGH,"asse P17-P18 verticale; x asse assunto dalla catena P17","Non inclinare verso filo fisso P18; usare joint offset/insertion geometry"
+P18,T05-C033,KEEP_BEAM_ORTHOGONAL,0.0000,-0.0206,MIS_FROM_M0G,HIGH,"asse P18-P10 orizzontale; y asse assunto da P10","Trave 120x20; offset minimo sul sostegno largo"
+P18,T05-C034,KEEP_BEAM_ORTHOGONAL,0.4978,0.0000,MIS_FROM_M0G,HIGH,"asse P18-P19 verticale; x asse assunto da P19","Attacco distinto da T05-C032 sullo stesso sostegno largo"
+P23,T05-C016,KEEP_BEAM_ORTHOGONAL,0.4768,0.0000,MIS_FROM_M0G,HIGH,"asse P22P-P23 verticale; x asse assunto da P22P","Non inclinare trave verso filo fisso P23"
+P23,T05-C017,KEEP_BEAM_ORTHOGONAL,-0.3080,0.0000,MIS_FROM_M0G,HIGH,"asse P23-P24 verticale; x asse assunto da P24","Attacco distinto sul sostegno largo"
+P23,T05-C040,KEEP_BEAM_ORTHOGONAL,0.0000,0.0077,MIS_FROM_M0G,HIGH,"asse P23-P15 orizzontale; y asse assunto da P15","Trave a spessore 50x20; usare offset/insertion geometry"
+P30,T05-C009,KEEP_BEAM_ORTHOGONAL,-0.0021,0.0000,MIS_FROM_M0G,HIGH,"asse P29-P30 verticale; x asse assunto da P29","Praticamente concorrente"
+P30,T05-C005,KEEP_BEAM_ORTHOGONAL,0.0000,-0.4019,MIS_FROM_M0G,HIGH,"asse P33-P30 orizzontale; y asse assunto da P33","Attacco su una faccia/linea distinta del 30x110"
+P30,T05-C012,KEEP_BEAM_ORTHOGONAL,0.0000,0.4707,MIS_FROM_M0G,HIGH,"asse P30-P27 orizzontale; y asse assunto da P27","Attacco opposto/distinto; non inclinare verso filo fisso"

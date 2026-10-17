@@ -1,0 +1,10 @@
+gate_id,check_id,check,status,evidence,blocking,notes
+ETABS-T05-PLANAR-GATE-V1,G01,all_support_joints_present,PASS,"34 support joints in tav05_etabs_joints_m0g_v1.csv",NO,""
+ETABS-T05-PLANAR-GATE-V1,G02,auxiliary_beam_junctions_present,PASS,"J05E in tav05_etabs_aux_joints_v1.csv",NO,"beam-beam junction explicitly separated from supports"
+ETABS-T05-PLANAR-GATE-V1,G03,all_frames_sectioned,PASS,"52/52 frames READY in tav05_etabs_frames_m0g_v6.csv",NO,"no BM_ND remains"
+ETABS-T05-PLANAR-GATE-V1,G04,wide_support_orientation_correct,PASS,"P18/P23 110 along X; P30 110 along Y",NO,"physical footprints used"
+ETABS-T05-PLANAR-GATE-V1,G05,wide_support_beam_attachments_on_faces,PASS,"9/9 attachments in tav05_etabs_wide_support_joint_offsets_v2.csv",NO,"no artificial beam convergence to fixed-line joint"
+ETABS-T05-PLANAR-GATE-V1,G06,P22prime_attachment_corrected,PASS,"P27-P22P uses physical side attachment",NO,"beam axis preserved"
+ETABS-T05-PLANAR-GATE-V1,G07,planar_topology_residuals_blocking,PASS,"none currently classified blocking",NO,"future source corrections remain versionable"
+ETABS-T05-PLANAR-GATE-V1,G08,vertical_replication_authorized,CONDITIONAL,"planar baseline ready; other storey carpentries still require comparison",YES,"do not blindly replicate TAV-05S to every storey"
+ETABS-T05-PLANAR-GATE-V1,VERDICT,READY_FOR_CONTROLLED_3D_EXTRUSION,READY,"G01-G07 PASS; G08 conditional by storey",NO,"extrude only levels whose geometry equivalence has been checked"

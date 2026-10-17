@@ -1,0 +1,4 @@
+record_id,tavola_id,beam_type,section_b_cm,section_h_cm,section_status,source_region,confidence,notes
+BS-T05-001,TAV-05S,TRAVE_A_SPESSORE,120,20,DOC,"zona centrale; quote 120 e 20 leggibili su più occorrenze",HIGH,"Banda a spessore; larghezza specifica 120 cm, non regola generale"
+BS-T05-002,TAV-05S,TRAVE_A_SPESSORE,50,20,DOC,"zona centrale/inferiore; simboli di sezione con quote 50 e 20",HIGH,"Conferma che le travi a spessore hanno larghezze variabili"
+BS-T05-003,TAV-05S,TRAVE_EMERGENTE,25,70,DOC,"zona centrale/inferiore; simboli di sezione con quote 25 e 70",HIGH,"Famiglia distinta dalle travi a spessore"

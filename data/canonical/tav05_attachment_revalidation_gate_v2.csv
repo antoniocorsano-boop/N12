@@ -1,0 +1,12 @@
+attachment_or_group,beam_section_status,gate_status,action,notes
+P27-W,25x70_DOC,SECTION_RESOLVED,"mantieni geometria di attacco; verifica solo faccia e offset metrico finale","Trave emergente; non richiede ricostruzione come banda a spessore"
+P27-E,25x70_DOC,SECTION_RESOLVED,"mantieni geometria di attacco; verifica solo faccia e offset metrico finale","Trave emergente verso P22"
+P30-E,25x70_DOC,SECTION_RESOLVED,"mantieni geometria di attacco; verifica offset rispetto al filo P30","Cornicione escluso; tratto P30-P27"
+P18-E,120x20_DOC,RECALCULATE_AXIS,"individuare entrambi i bordi longitudinali della banda 120; calcolare mezzeria; ricalcolare Patt","Precedente asse locale non sufficiente"
+P23-E,50x20_DOC,RECALCULATE_AXIS,"individuare entrambi i bordi longitudinali della banda 50; calcolare mezzeria; ricalcolare Patt","Precedente asse locale non sufficiente"
+P18-S,25x70_DOC,SECTION_RESOLVED,"verificare attacco come trave emergente P18-P19","Non trattare come trave a spessore"
+P22-W,25x70_DOC,NEW_VERIFICATION_REQUIRED,"misurare Patt sul lato W di P22","Il precedente record P22-E non rappresenta questo tratto"
+P22-N,50x20_DOC,NEW_AXIS_REQUIRED,"ricostruire banda 50 e asse mediano prima del Patt","Trave a spessore"
+P19-P21,ND,REVALIDATE,"associare sezione DOC del singolo tratto prima di usare gli attachment precedenti","Nessuna analogia ammessa"
+P20,ND,REVALIDATE,"associare sezione DOC del singolo tratto prima di usare l'attachment precedente","Nessuna analogia ammessa"
+P25,ND,GEOMETRY_OK_SECTION_PENDING,"cercare simbolo di sezione sul tratto associato","Filo geometrico già corretto"

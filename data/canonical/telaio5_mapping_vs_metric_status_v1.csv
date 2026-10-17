@@ -1,0 +1,9 @@
+item,status,evidence_status,confidence,detail,next_action
+LETTER_PATH_IDENTITY,VERIFIED,DOC+MIS,HIGH,"S-S'-T-U-V-Z-A'-B'-C' = P17-P18-P19-P20-P21-P22-P22P-P23-P24 from explicit plan geometry","freeze mapping identity"
+TOPOLOGY_ORDER,VERIFIED,DOC,HIGH,"All eight consecutive links exist in current TAV-05S topology","keep"
+HISTORIC_TOTAL_28_60,HARD_GATE,DOC,HIGH,"Historic frame chain total remains 28.60 m","do not alter"
+CARPENTRY_RASTER_TOTAL_28_738,RESIDUAL,MIS,MEDIUM,"Direct raster-based current reference-line path totals about 28.738 m","reconcile metric reference definition; no global rescale"
+LOCAL_T_U_1_20,OPEN_RESIDUAL,DOC+MIS,MEDIUM,"Historic 1.20 m versus carpenteria internal-line spacing about 1.05 m at P19-P20","inspect original dimension/reference convention"
+LOCAL_Z_Ap_1_20,OPEN_RESIDUAL,DOC+MIS,MEDIUM,"Historic 1.20 m versus carpenteria internal-line spacing about 0.99 m at P22-P22P","inspect original dimension/reference convention"
+LOCAL_Ap_Bp_4_05,OPEN_RESIDUAL,DOC+MIS,MEDIUM,"Historic 4.05 m versus carpenteria reference spacing about 4.38 m at P22P-P23","inspect node/reference definition around wide P23"
+GLOBAL_SCALE_CORRECTION,FORBIDDEN,RIF,HIGH,"Do not force-fit the carpenteria by global scaling to 28.60 m","retain source geometry and resolve reference semantics locally"

@@ -1,0 +1,4 @@
+item,source,status,evidence_status,allowed_use,forbidden_use,notes
+ABACO_57_NODI,data/canonical/tav5_topology_nodes_57.csv,RECOVERED,PREDOC_TOPOLOGICO,"firma topologica; ordine; confronto storico","coordinate metriche definitive; fili fissi; sezioni fisiche","57 nodi recuperati dal ramo storico; mantenere natura PREDOC"
+RACCORDO_T5_57,Telaio5 S-S'-T-U-V-Z-A'-B'-C',REOPENED,INF_ASSISTITA,"generazione candidati da verificare con TAV-05S corrente","promozione automatica a DOC/MIS","hard gate sviluppo G1-G4 = 28.60 m"
+CURRENT_SUPPORTS,data/canonical/tav05_fixed_lines_numeric_v7.csv,CANONICAL_SUPPORT_SET,MIS,"supporti P01-P33 + P22P e sezioni correnti","uso delle coordinate come veri fili fissi prima del reaudit semantico G16","34 supporti; coordinate soggette a fixed-line semantic reaudit"

@@ -1,0 +1,10 @@
+g3_support_id,telaio5_node,section_b_cm,section_h_cm,orientation_status,evidence_status,confidence,source_basis,notes
+P17,S,40,40,SQUARE,DOC,HIGH,"TAV-04S native render; support 17 dimension labels 40/40","Directly readable on carpenteria III impalcato."
+P18,S',30,110,LONG_AXIS_AS_DRAWN,DOC+MIS,HIGH,"TAV-04S native render; support 18 short side label 30 + measured footprint aspect ratio approximately 110/30","Long dimension derived by direct graphic measurement against the explicitly labelled 30 cm side; do not treat centroid as fixed line."
+P19,T,40,40,SQUARE,DOC,HIGH,"TAV-04S native render; support 19 dimension labels 40/40","Directly readable."
+P20,U,50,50,SQUARE,DOC,HIGH,"TAV-04S native render; support 20 dimension labels 50/50","Directly readable; differs from G4 40x40."
+P21,V,30,45,RECTANGULAR_AS_DRAWN,DOC+MIS,HIGH,"TAV-04S native render; support 21 short side label 30 + measured footprint aspect ratio approximately 45/30","Long side determined by direct graphic measurement; verify face retained during risega analysis."
+P22,Z,30,50,RECTANGULAR_AS_DRAWN,DOC,HIGH,"TAV-04S native render; support 22 dimension labels 30/50","Directly readable; differs from G4 30x45."
+P22P,A',40,40,SQUARE,DOC,HIGH,"TAV-04S native render; support 22' dimension labels 40/40","Distinct support 22 prime; directly readable."
+P23,B',30,110,LONG_AXIS_AS_DRAWN,DOC,HIGH,"TAV-04S native render; support 23 dimension labels 30/110","Directly readable."
+P24,C',40,40,SQUARE,DOC,HIGH,"TAV-04S native render; support 24 dimension labels 40/40","Directly readable."

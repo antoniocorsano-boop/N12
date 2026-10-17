@@ -1,0 +1,8 @@
+residual_id,tavola_id,scope,status,evidence_status,confidence,required_action,notes
+T05-R001,TAV-05S,P22-P22P_SECTION,OPEN,DOC,HIGH,"leggere quote esterne specifiche del breve collegamento P22-P22P","topologia verificata; sezione ND"
+T05-R002,TAV-05S,P19-P20_SECTION,OPEN,DOC,HIGH,"leggere quote esterne specifiche del breve collegamento P19-P20","topologia verificata; sezione ND"
+T05-R003,TAV-05S,P02-P03_WIDTH,OPEN,DOC,HIGH,"individuare larghezza esterna del tratto; h=70 gia' documentata","non completare 25 per analogia"
+T05-R004,TAV-05S,P03-P04_WIDTH,OPEN,DOC,HIGH,"individuare larghezza esterna del tratto; h=70 gia' documentata","non completare 25 per analogia"
+T05-R005,TAV-05S,P04-P06_WIDTH,OPEN,DOC,HIGH,"individuare larghezza esterna del tratto; h=70 gia' documentata","non completare 25 per analogia"
+T05-R006,TAV-05S,P07-P08_WIDTH,OPEN,DOC,HIGH,"individuare larghezza esterna del tratto; h=70 gia' documentata","non completare 25 per analogia"
+T05-R007,TAV-05S,UNVERIFIED_CONNECTIONS,OPEN,ND,MEDIUM,"scansione finale della tavola per eventuali tratti non ancora presenti nel consolidato","non blocca avanzamento globale"

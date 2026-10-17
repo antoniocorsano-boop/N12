@@ -1,0 +1,8 @@
+support_id,tavola_id,degree_in_consolidated_v1,audit_status,source_basis,action
+P05,TAV-05S,0,MISSING_IN_V1,"raster mostra due tratti distinti P04-P05 e P05-P06","sostituire P04-P06 con P04-P05 + P05-P06"
+P13,TAV-05S,0,NO_BEAM_CONNECTION_CONFIRMED,"crop ad alta risoluzione P21-P13: la trave 50x20 da P21 risvolta prima di P13; nessuna attestazione diretta al pilastro visibile","non creare connessione per analogia; mantenere residuo strutturale da verificare con altre tavole/modello"
+P12,TAV-05S,1,LOW_DEGREE_REVIEWED,"una connessione documentata nel consolidato; nessuna ulteriore connessione promossa in questo audit","mantenere"
+P14,TAV-05S,1,LOW_DEGREE_REVIEWED,"connessione P14-P06 documentata","mantenere"
+P15,TAV-05S,1,LOW_DEGREE_REVIEWED,"connessione P15-P07 documentata","mantenere"
+P16,TAV-05S,1,LOW_DEGREE_REVIEWED,"connessione P16-P08 documentata","mantenere"
+P24,TAV-05S,1,EDGE_SUPPORT,"terminale P23-P24 documentato","mantenere"

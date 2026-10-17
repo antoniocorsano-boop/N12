@@ -1,0 +1,4 @@
+artifact,status,reason,replacement,rule
+foundation_nodes_pixel_v1.csv,SUPERATO,"Modello puntiforme troppo semplificato: non distingue fili fissi, ingombri e facce dei sostegni larghi","tav05_symbol_classification_v1.csv + futuri fixed_lines/faces/attachments",G-03|G-04|G-05
+foundation_edges_doc_v1.csv,SUPERATO,"Le aste erano collegate a centri puntiformi prima della classificazione canonica dei simboli e degli attacchi trave-sostegno","futura rete beam_attachments canonica",G-02|G-05
+TAV05_setti_candidates.png,SUPERATO,"Conteneva rettangoli non numerati che possono rappresentare sezioni trasversali di trave; non valido come inventario setti","drawing_symbol_rules.csv + tav05_symbol_classification_v1.csv",G-01|G-02|G-06

@@ -1,0 +1,10 @@
+gate_id,check,status,evidence_status,notes
+T5-VB-01,"Telaio 5 G3 e G4 condividono gli stessi nove allineamenti S-S'-T-U-V-Z-A'-B'-C'",PASS,DOC,"Schema storico multipiano del Telaio 5."
+T5-VB-02,"Mapping G4 S..C' -> P17..P24/P22P",PASS,RIF+MIS,"Gia' verificato sul percorso planimetrico e topologia G4."
+T5-VB-03,"Binding verticale G3->G4 per i nove fili del Telaio 5",PASS,RIF+DOC,"Fissata identita' di allineamento; non implica sezione invariata."
+T5-VB-04,"Sezione G3 dei nove supporti",PASS,DOC+MIS,"TAV-04S HiRes letta: P17 40x40; P18 30x110 DOC; P19 40x40; P20 30x50 DOC (correzione HiRes); P21 30x45 DOC+MIS; P22 30x50; P22P 40x40; P23 30x110; P24 40x40."
+T5-VB-05,"Footprint delta G3->G4",PENDING,DOC+MIS,"Variazioni nel Telaio 5: P20 30x50->40x40 SECTION_RESHAPE e P22 30x50->30x45 SECTION_REDUCTION. Resta da determinare il vero riferimento costruttivo interno e gli offset alle facce."
+T5-VB-06,"Coordinate finali filo fisso G3",HOLD,DOC_REQUIRED,"Non derivare dal baricentro G4 né dal solo crocicchio grafico; usare linea/faccia documentalmente qualificata."
+T5-VB-07,"Creazione segmenti verticali ETABS/EdiLus sul Telaio 5",PARTIAL_READY,RIF+DOC,"Identita' verticale e sezioni chiuse; offset/riseghe ancora HOLD prima della geometria fisica definitiva."
+T5-VB-08,"TAV-04S source identity",PASS,DOC,"archive/documentazione_originaria/tavola4-2.pdf @ d521f11; blob 7807c32f..."
+T5-VB-09,"TAV-04S visual render recuperabile",PASS,DOC+MIS,"GitHub Actions single-source renderer verificato: run 32223583877, artifact 9354759992, raster 5732x8780."

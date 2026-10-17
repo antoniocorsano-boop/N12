@@ -1,0 +1,4 @@
+artifact,status,replaced_by,reason,commit_or_source
+foundation_nodes_pixel_v1.csv,SUPERATO,support_fixed_lines_v2.csv,"Modello puntiforme insufficiente: non rappresenta fili fissi, ingombro reale dei pilastri/setti né differenti facce di attacco delle travi.",user_correction_2026-08-18
+foundation_edges_doc_v1.csv,SUPERATO,beam_support_attachment_v2.csv,"Le aste non possono essere definite solo centro-centro; per setti/pilastri larghi devono essere distinti filo fisso e punto/faccia di attestamento.",user_correction_2026-08-18
+TAV-01S_reticolo_fondazioni_L2_v1.png,SUPERATO,overlay_fixed_lines_v2,"Overlay incompleto e semanticamente errato sui sostegni larghi.",user_correction_2026-08-18

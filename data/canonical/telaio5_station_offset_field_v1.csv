@@ -1,0 +1,10 @@
+station,label,support_id,historic_station_m,carpenteria_cumulative_m,delta_carp_minus_hist_m,delta_cm,status,evidence_status,interpretation
+S,S,P17,0.000,0.000,0.000,0.0,REFERENCE,MIS+DOC,"Origine arbitraria della catena; nessuna interpretazione fisica dell'offset"
+S1,S',P18,4.700,4.762,0.062,6.2,TO_CHECK,MIS+DOC,"Offset cumulativo richiesto fra misura carpenteria e nodo storico"
+T,T,P19,8.750,8.879,0.129,12.9,TO_CHECK,MIS+DOC,"Offset cumulativo richiesto; verificare posizione nodo interno nella sezione"
+U,U,P20,9.950,9.925,-0.025,-2.5,TO_CHECK,MIS+DOC,"Cambio di segno rispetto a P19; priorita' alta sul tratto breve P19-P20"
+V,V,P21,15.750,15.707,-0.043,-4.3,LOW_RESIDUAL,MIS+DOC,"Scarto contenuto"
+Z,Z,P22,18.650,18.625,-0.025,-2.5,LOW_RESIDUAL,MIS+DOC,"Scarto contenuto fino a P22"
+AP,A',P22P,19.850,19.619,-0.231,-23.1,CRITICAL,MIS+DOC,"Salto critico sul tratto P22-P22'; non attribuire automaticamente a eccentricita' del nodo"
+BP,B',P23,23.900,24.001,0.101,10.1,CRITICAL,MIS+DOC,"Recupero di 33.2 cm rispetto a P22P; verificare footprint 30x110 e mapping"
+CP,C',P24,28.600,28.737,0.137,13.7,HARD_GATE_FAIL,MIS+DOC,"Sviluppo diretto carpenteria +13.7 cm rispetto al totale storico 28.60 m"

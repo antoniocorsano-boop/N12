@@ -1,0 +1,10 @@
+segment_id,tavola_id,support_ref,direction,support_to_if_verified,beam_type,section_b_cm,section_h_cm,section_status,confidence,source_basis,supersedes,notes
+T05-P18-E,TAV-05S,P18,E,ND,TRAVE_A_SPESSORE,120,20,REVIEW_REQUIRED,MEDIUM,"precedente associazione 120x20 da riesaminare con nuova grammatica quote esterne",v2:T05-P18-E,"Non usare per asse ETABS finche' la quota esterna del singolo tratto non e' attribuita senza ambiguita'"
+T05-P18-S,TAV-05S,P18,S,P19,TRAVE_EMERGENTE,25,70,DOC,HIGH,"quote esterne 25 e 70 attribuite al tratto P18-P19",v2:T05-P18-S,"Confermato"
+T05-P23-E,TAV-05S,P23,E,ND,TRAVE_A_SPESSORE,50,20,REVIEW_REQUIRED,MEDIUM,"precedente associazione 50x20 da riesaminare con nuova grammatica quote esterne",v2:T05-P23-E,"Non usare ancora per asse ETABS definitivo"
+T05-P27-W,TAV-05S,P27,W,P30,TRAVE_EMERGENTE,25,70,DOC,HIGH,"quote esterne 25 e 70 sul tratto P30-P27",v2:T05-P27-W,"Confermato"
+T05-P27-E,TAV-05S,P27,E,P22',TRAVE_EMERGENTE,25,70,DOC,HIGH,"tratto orizzontale a est di P27 termina sul pilastro numerato 22'; quote esterne 25 e 70",v2:T05-P27-E,"Corregge endpoint P22 -> P22'"
+T05-P27-N,TAV-05S,P27,N,ND,ND,ND,ND,REVIEW_REQUIRED,LOW,"sezione ancora da attribuire con quote esterne",v2:T05-P27-N,"Nessuna inferenza"
+T05-P30-E,TAV-05S,P30,E,P27,TRAVE_EMERGENTE,25,70,DOC,HIGH,"stesso tratto P30-P27 con quote 25 e 70",v2:T05-P30-E,"Confermato; cornicione escluso"
+T05-P22P-W,TAV-05S,P22',W,P27,TRAVE_EMERGENTE,25,70,DOC,HIGH,"stesso tratto P27-P22'; identificativo 22' verificato sul raster",v2:T05-P22-W,"Il precedente record attribuito a P22 e' SUPERATO"
+T05-P22-N,TAV-05S,P22,N,ND,ND,ND,ND,REVIEW_REQUIRED,LOW,"tratti adiacenti a P22 da rileggere separatamente da P22'",v2:T05-P22-N,"P22 e P22' sono sostegni distinti"

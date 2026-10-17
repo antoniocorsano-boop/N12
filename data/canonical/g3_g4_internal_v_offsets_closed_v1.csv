@@ -1,0 +1,5 @@
+support_id,level,section_cm,u_neg_cm,u_pos_cm,v_neg_cm,v_pos_cm,change_type,retained_face_status,evidence_status,confidence,source_basis,notes
+P20,G3,30x50,30,0,25,25,SECTION_RESHAPE,NONE_IN_U__CENTERED_IN_V,DOC+MIS+RIF,HIGH,"TAV-04S footprint + qualified crosshair semantics + existing U geometry","V crosshair is at section mid-depth; no top/bottom-face fixed-line interpretation is used."
+P20,G4,40x40,20,20,20,20,SECTION_RESHAPE,NONE_IN_U__CENTERED_IN_V,DOC+MIS+RIF,HIGH,"TAV-05S footprint + qualified crosshair semantics + existing U geometry","G4 section centered about V component and centered in U after reshape."
+P22,G3,30x50,30,20,15,15,SECTION_REDUCTION,RETAIN_U_NEG__CENTERED_IN_V,DOC+MIS+RIF,HIGH,"TAV-04S footprint + qualified crosshair semantics + existing U geometry","U_NEG face retained; V remains centered."
+P22,G4,30x45,30,15,15,15,SECTION_REDUCTION,RETAIN_U_NEG__CENTERED_IN_V,DOC+MIS+RIF,HIGH,"TAV-05S footprint + qualified crosshair semantics + existing U geometry","Five-centimetre reduction occurs on U_POS only; V unchanged."

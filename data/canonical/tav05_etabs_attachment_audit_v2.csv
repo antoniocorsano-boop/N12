@@ -1,0 +1,9 @@
+old_record_id,old_file,new_status,replacement_record_id,reason
+ATT-P18-SW,tav05_etabs_attachment_points_v1.csv,SUPERATO,,"Le diagonali/trapezio SW appartengono al cornicione, non a una trave convergente al pilastro"
+ATT-P23-NW,tav05_etabs_attachment_points_v1.csv,SUPERATO,,"Le diagonali NW appartengono al cornicione; non generano attachment point ETABS"
+ATT-P30-E-DIAG,tav05_etabs_attachment_points_v1.csv,SUPERATO,,"La diagonale SE appartiene al cornicione; non e' una trave convergente"
+ATT-P18-E,tav05_etabs_attachment_points_v1.csv,SUPERATO,ATT-P18-E,"Rimisurato sul contorno fisico del 30x110"
+ATT-P23-E,tav05_etabs_attachment_points_v1.csv,SUPERATO,ATT-P23-E,"Rimisurato sul contorno fisico del 30x110"
+ATT-P23-S,tav05_etabs_attachment_points_v1.csv,SUPERATO,ATT-P23-S,"Confermato e riclassificato dopo mascheramento semantico del cornicione"
+ATT-P30-E-UP,tav05_etabs_attachment_points_v1.csv,SUPERATO,ATT-P30-E,"Rimisurata la mezzeria della banda trave: il precedente v era troppo alto"
+ATT-P30-W-LOW,tav05_etabs_attachment_points_v1.csv,SUPERATO,ATT-P30-W,"Confermato/rimisurato dopo esclusione del cornicione"

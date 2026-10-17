@@ -1,0 +1,6 @@
+priority,zone,stations,supports,reason,allowed_action,forbidden_action,status
+1,U,T-U,P19-P20,"Campata storica 1.20 m vs provvisoria 1.046 m; scarto -0.154 m","Verificare posizione del nodo storico rispetto a sezione/fili; controllare se il nodo del telaio cade internamente al pilastro o su asse diverso","Scalare globalmente o spostare arbitrariamente P19/P20",OPEN
+2,A',Z-A',P22-P22P,"Campata storica 1.20 m vs provvisoria 0.994 m; scarto -0.206 m","Verificare natura del nodo 22 primo e relazione nodo storico-filo-faccia","Fondere P22 e P22P o alterare la catena globale",OPEN
+3,B',A'-B',P22P-P23,"Campata storica 4.05 m vs provvisoria 4.382 m; scarto +0.332 m; P23 30x110","Rileggere eccentricita P23 e riferimento del nodo storico; preservare orientamento/facce fisiche","Centrare P23 automaticamente o inclinare la trave",OPEN
+4,S',S-S',P17-P18,"Campata storica 4.70 m vs provvisoria 4.762 m; P18 30x110","Rileggere eccentricita P18 e riferimento del nodo storico","Correggere mediante scala uniforme",OPEN
+5,END,S-C',P17-P24,"Sviluppo provvisorio 28.738 m vs target 28.600 m","Chiudere i residui locali mantenendo target totale immutabile","Accettare drift complessivo",HARD_GATE

@@ -1,0 +1,9 @@
+gate_id,check,status,notes
+MEM-01,Required memory bootstrap files present,PASS,"AGENTS.md; PROJECT_STATE; SOURCE_REGISTRY; ARTIFACT_INDEX; OPEN_RESIDUALS; protocol"
+MEM-02,Immutable original structural sources indexed,PASS,"TAV-01S through TAV-07A relevant sources use immutable Git refs/blob SHAs"
+MEM-03,Artifact index contains AT_RISK rows,PASS,"Zero AT_RISK rows after hardening; transient derivatives are REGENERABLE"
+MEM-04,Runtime-only derived artifacts have deterministic recipes,PASS,"Raster and QA artifacts reference READY entries in REGENERATION_RECIPES.csv"
+MEM-05,Telaio 5 user plan structural content persisted,PASS_WITH_WARNING,"Persistent SVG trace + SHA256/dimensions + File Library recovery pointer; original JPEG not pixel-archived in Git"
+MEM-06,File Library recovery pointers indexed,PASS,"Historical N12 handoffs/data packages recoverable by stable file IDs and semantic queries"
+MEM-07,Validator enforces persistence contract,PASS,"scripts/check_repository_memory.py rejects AT_RISK, CHAT_ONLY and uncontracted RUNTIME_ONLY artifacts"
+MEM-VERDICT,Repository memory continuity gate,PASS_WITH_WARNING,"Operational continuity no longer depends on current chat/runtime; one RIF source remains persistence-partial at pixel level"

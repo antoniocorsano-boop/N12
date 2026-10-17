@@ -1,0 +1,7 @@
+rule_id,scope,rule,status,source_basis,notes
+WS-01,P18|P23|P30,"ONE_COLUMN_JOINT_AT_FIXED_LINE",CANONICAL,"TAV-05S fixed-line geometry + ETABS insertion-point capability","No auxiliary structural column joints on the 30x110 support solely to force beam convergence"
+WS-02,P18|P23|P30,"BEAM_AXIS_PRESERVED_ORTHOGONAL",CANONICAL,"TAV-05S physical geometry","A beam that is horizontal/vertical in the source remains horizontal/vertical analytically"
+WS-03,P18|P23|P30,"FRAME_END_JOINT_OFFSET_TO_PHYSICAL_ATTACHMENT",CANONICAL,"CSI ETABS SetInsertionPoint / joint offsets","Use per-frame endpoint offsets from the column fixed-line joint to the documented/projected attachment axis"
+WS-04,P18|P23|P30,"STIFF_TRANSFORM_TRUE",CANONICAL,"CSI ETABS insertion point semantics","Transform stiffness for offsets from section centroid when applying the insertion-point assignment"
+WS-05,P18|P23|P30,"NO_FAKE_DIAGONAL_TO_FIXED_LINE",CANONICAL,"QA correction","Do not connect a beam geometrically to the fixed-line joint by rotating its analytical axis"
+WS-06,P18|P23|P30,"END_LENGTH_OFFSET_SEPARATE",CANONICAL,"CSI ETABS frame-object model","Joint/insertion offsets define axis eccentricity; end-length offsets, if later used, model clear-length/rigid-zone effects and are not substitutes"

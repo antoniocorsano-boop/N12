@@ -1,0 +1,6 @@
+structural_level,level_name_it,source_sheet,source_pdf,source_class,evidence_status,planar_model_status,replication_status,notes
+G1,1°_impalcato,TAV-02S,tavola2-2.pdf,carpenteria_strutturale,DOC,NOT_REBOUND,PENDING_REBIND,"Carpenteria propria; vietata replica automatica da G4"
+G2,2°_impalcato,TAV-03S,tavola3-2.pdf,carpenteria_strutturale,DOC,NOT_REBOUND,PENDING_REBIND,"Carpenteria propria; vietata replica automatica da G4"
+G3,3°_impalcato,TAV-04S,tavola4-2.pdf,carpenteria_strutturale,DOC,NOT_REBOUND,PENDING_REBIND,"Carpenteria propria; verificare delta rispetto a G4"
+G4,4°_impalcato,TAV-05S,tavola 5.pdf,carpenteria_strutturale,DOC,BASELINE_VERIFIED,BASELINE_VERIFIED,"Baseline planimetrica ETABS corrente: 34 supporti + J05E + 52 frame"
+G5,copertura,TAV-06S,tavola 6-1.pdf,carpenteria_copertura,DOC,NOT_REBOUND,DISTINCT_ROOF_DOMAIN,"Copertura da modellare come dominio distinto; non replica di G4"

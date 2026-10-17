@@ -1,0 +1,130 @@
+{
+  "commit": "d521f11a6989664a54409ab0df064903d8986564",
+  "tile_size": 2400,
+  "overlap": 0.125,
+  "sources": [
+    {
+      "source_id": "TAV-02S",
+      "repo_path": "archive/documentazione_originaria/tavola2-2.pdf",
+      "pdf_sha256": "cd03839589e60ee46b3fd398d6a9fabca1a446859e6693a47d0f83d0e930520f",
+      "pdf_size": 660309,
+      "raster_sha256": "122670fa2ec96a61711e85cef30d8428cb6e9b410e09effff01b90b926b5b1a7",
+      "method": "native_image",
+      "width": 4680,
+      "height": 8609,
+      "image_count": 1,
+      "xref": 4,
+      "native_ext": "jpx",
+      "tiles": [
+        {
+          "tile_id": "TAV-02S_L1_R01C01",
+          "u0": 0,
+          "v0": 0,
+          "u1": 2400,
+          "v1": 2400,
+          "width": 2400,
+          "height": 2400
+        },
+        {
+          "tile_id": "TAV-02S_L1_R01C02",
+          "u0": 2100,
+          "v0": 0,
+          "u1": 4500,
+          "v1": 2400,
+          "width": 2400,
+          "height": 2400
+        },
+        {
+          "tile_id": "TAV-02S_L1_R01C03",
+          "u0": 2280,
+          "v0": 0,
+          "u1": 4680,
+          "v1": 2400,
+          "width": 2400,
+          "height": 2400
+        },
+        {
+          "tile_id": "TAV-02S_L1_R02C01",
+          "u0": 0,
+          "v0": 2100,
+          "u1": 2400,
+          "v1": 4500,
+          "width": 2400,
+          "height": 2400
+        },
+        {
+          "tile_id": "TAV-02S_L1_R02C02",
+          "u0": 2100,
+          "v0": 2100,
+          "u1": 4500,
+          "v1": 4500,
+          "width": 2400,
+          "height": 2400
+        },
+        {
+          "tile_id": "TAV-02S_L1_R02C03",
+          "u0": 2280,
+          "v0": 2100,
+          "u1": 4680,
+          "v1": 4500,
+          "width": 2400,
+          "height": 2400
+        },
+        {
+          "tile_id": "TAV-02S_L1_R03C01",
+          "u0": 0,
+          "v0": 4200,
+          "u1": 2400,
+          "v1": 6600,
+          "width": 2400,
+          "height": 2400
+        },
+        {
+          "tile_id": "TAV-02S_L1_R03C02",
+          "u0": 2100,
+          "v0": 4200,
+          "u1": 4500,
+          "v1": 6600,
+          "width": 2400,
+          "height": 2400
+        },
+        {
+          "tile_id": "TAV-02S_L1_R03C03",
+          "u0": 2280,
+          "v0": 4200,
+          "u1": 4680,
+          "v1": 6600,
+          "width": 2400,
+          "height": 2400
+        },
+        {
+          "tile_id": "TAV-02S_L1_R04C01",
+          "u0": 0,
+          "v0": 6209,
+          "u1": 2400,
+          "v1": 8609,
+          "width": 2400,
+          "height": 2400
+        },
+        {
+          "tile_id": "TAV-02S_L1_R04C02",
+          "u0": 2100,
+          "v0": 6209,
+          "u1": 4500,
+          "v1": 8609,
+          "width": 2400,
+          "height": 2400
+        },
+        {
+          "tile_id": "TAV-02S_L1_R04C03",
+          "u0": 2280,
+          "v0": 6209,
+          "u1": 4680,
+          "v1": 8609,
+          "width": 2400,
+          "height": 2400
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+gate_id,check,status,evidence,threshold_or_rule,notes
+T5MAP-G01,nove stazioni storiche disponibili,PASS,"telaio5_historic_node_stations_v1.csv",9 stazioni,"S-S'-T-U-V-Z-A'-B'-C'"
+T5MAP-G02,percorso corrente con nove supporti connessi,PASS,"tav05_topology_connections_consolidated_v6.csv",8 connessioni consecutive,"P17-P18-P19-P20-P21-P22-P22P-P23-P24"
+T5MAP-G03,ordine firma metrica,PASS,"telaio5_support_mapping_candidate_v1.csv","ordine segmenti coerente con 4.70/4.05/1.20/5.80/2.90/1.20/4.05/4.70","nessun riordinamento richiesto"
+T5MAP-G04,sviluppo storico complessivo,PASS_HARD_GATE,"telaio5_dimensional_chain_control_v1.csv",28.600 m,"valore storico immutabile"
+T5MAP-G05,sviluppo M0-G provvisorio,PENDING_REBIND,"telaio5_support_mapping_candidate_v1.csv",28.600 m,"corrente 28.739 m; delta +0.139 m; non correggere con scala globale automatica"
+T5MAP-G06,vera posizione fili fissi P17-P24,PENDING,"tav05_fixed_line_semantic_reaudit_gate_v1.csv","G-15/G-16","priorita P18 P22P P23 e pilastri di bordo"
+T5MAP-G07,promozione mapping a VER,BLOCKED,"G05+G06",tutti PASS,"mapping resta CANDIDATO_FORTE/INF finche non chiude il reaudit metrico"

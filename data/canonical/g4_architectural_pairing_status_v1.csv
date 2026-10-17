@@ -1,0 +1,3 @@
+item,level,structural_sheet,architectural_candidates,status,evidence_status,source_basis,notes
+G4-ARCH-PAIR,G4,TAV-05S,"TAV-01|TAV-02|TAV-03|TAV-04",PENDING,ND,"tavole_originali_manifest.csv; CATALOGO_TAVOLE_ORIGINALI.md","Il catalogo contiene tavole architettoniche TAV-01..TAV-04 e TAV-05S strutturale, ma non documenta quale tavola architettonica rappresenti lo stesso livello/perimetro del G4. Nessun ruolo ANGOLARE/FACCIATA va promosso finché il pairing non è dimostrato."
+G4-ARCH-RULE,G4,TAV-05S,,ACTIVE,RIF,"regola di workflow","Per classificare ANGOLARE/FACCIATA/INTERNO usare perimetro architettonico dello stesso livello; la sola rete strutturale o la posizione terminale nel Telaio 5 non costituisce prova."

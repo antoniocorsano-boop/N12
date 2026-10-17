@@ -1,0 +1,2 @@
+junction_id,tavola_id,u_px,v_px,m0g_x_m,m0g_y_m,evidence_status,confidence,junction_type,source_basis,notes
+J05E,TAV-05S,3160,4923,17.1077,-5.1646,MIS+RIF,HIGH,BEAM_BEAM_INTERSECTION,"raster: trave 50x20 da P05 termina sulla trave a spessore principale P09-P16; coordinata misurata sull'intersezione","Non e' un pilastro; coincide con il nodo di passaggio/cambio percorso tra P12 e P13 della trave 120x20"

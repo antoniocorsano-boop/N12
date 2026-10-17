@@ -1,0 +1,10 @@
+support_id,telaio5_node,g3_section_cm,g4_section_cm,section_change_status,risega_status,fixed_line_status,evidence_status,confidence,notes
+P17,S,40x40,40x40,SAME,NONE,VERTICAL_IDENTITY_VERIFIED,DOC+RIF,HIGH,"Section unchanged across G3-G4."
+P18,S',30x110,30x110,SAME,NONE,VERTICAL_IDENTITY_VERIFIED,DOC+MIS+RIF,HIGH,"Wide support unchanged; fixed line not centroid."
+P19,T,40x40,40x40,SAME,NONE,VERTICAL_IDENTITY_VERIFIED,DOC+RIF,HIGH,"Section unchanged."
+P20,U,50x50,40x40,SECTION_REDUCTION,PENDING_FACE_RETENTION,VERTICAL_IDENTITY_VERIFIED,DOC+RIF,HIGH,"G3->G4 reduction 50x50 to 40x40. Do not assume centered or unilateral risega until fixed-line/face reading is complete."
+P21,V,30x45,30x45,SAME,NONE,VERTICAL_IDENTITY_VERIFIED,DOC+MIS+RIF,HIGH,"Section unchanged within current direct measurement."
+P22,Z,30x50,30x45,SECTION_REDUCTION,PENDING_FACE_RETENTION,VERTICAL_IDENTITY_VERIFIED,DOC+RIF,HIGH,"G3->G4 reduction of long side by 5 cm; retained face not yet assigned."
+P22P,A',40x40,40x40,SAME,NONE,VERTICAL_IDENTITY_VERIFIED,DOC+RIF,HIGH,"Distinct 22 prime remains 40x40."
+P23,B',30x110,30x110,SAME,NONE,VERTICAL_IDENTITY_VERIFIED,DOC+RIF,HIGH,"Wide support unchanged."
+P24,C',40x40,40x40,SAME,NONE,VERTICAL_IDENTITY_VERIFIED,DOC+RIF,HIGH,"Section unchanged."
