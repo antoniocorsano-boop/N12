@@ -1,0 +1,7 @@
+structural_level,level_name,level_name_it,tav_s_sheet,pdf_filename,ocr_text,evidence_status,resolution_method
+G1,1st_floor,1°_impalcato,TAV-02S,tavola2-2.pdf,"CARPENTERIA I° IMPALCATO",DOC,OCR_tesseract300dpi
+G2,2nd_floor,2°_impalcato,TAV-03S,tavola3-2.pdf,"CARPENTERIA II° IMPALCATO",DOC,OCR_tesseract300dpi
+G3,3rd_floor,3°_impalcato,TAV-04S,tavola4-2.pdf,"CARPENTERIA III° IMPALCATO",DOC,OCR_tesseract300dpi
+G4,4th_floor,4°_impalcato,TAV-05S,tavola 5.pdf,"CARPENTERIA IV° IMPALCATO",DOC,user_visual_confirmation
+G5,roof,copertura,TAV-06S,tavola 6-1.pdf,"CARPENTERIA COPERTURA",DOC,OCR_tesseract300dpi
+NA,foundation,fondazioni,TAV-01S,tavola1-2.pdf,"CARPENTERIA FONDAZIONI",DOC,user_correction_ocr_misread

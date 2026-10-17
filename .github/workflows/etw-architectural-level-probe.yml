@@ -1,0 +1,59 @@
+name: ETW Architectural Level Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/structural-professional-workspace-r1
+    paths:
+      - 'model/etwin/architectural_level_probe.py'
+      - 'model/etwin/document_registry.py'
+      - 'archive/documentazione_originaria/tavola1.pdf'
+      - 'archive/documentazione_originaria/tavola2.pdf'
+      - 'archive/documentazione_originaria/tavola 3.pdf'
+      - 'archive/documentazione_originaria/tavola 4.pdf'
+      - 'archive/documentazione_originaria/tavola5-2.pdf'
+      - 'archive/documentazione_originaria/tavola6-2.pdf'
+      - '.github/workflows/etw-architectural-level-probe.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'model/etwin/architectural_level_probe.py'
+      - '.github/workflows/etw-architectural-level-probe.yml'
+
+jobs:
+  render-architectural-level-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip pypdfium2 Pillow
+
+      - name: Render architectural level evidence
+        run: python -m model.etwin.architectural_level_probe
+
+      - name: Validate outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          root='docs/FOGLIO_LAVORO/etwin_crops/architectural_level_probe'
+          test -f "$root/manifest.json"
+          for id in TAV-01 TAV-02 TAV-03 TAV-04 TAV-05E TAV-06E; do
+            test -f "$root/${id}_OVERVIEW_150DPI.png"
+          done
+
+      - name: Upload evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: etw-architectural-level-probe
+          path: docs/FOGLIO_LAVORO/etwin_crops/architectural_level_probe/
+          retention-days: 14

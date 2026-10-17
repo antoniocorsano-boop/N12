@@ -1,0 +1,9 @@
+candidate_id,area_px,bbox_norm_target_frame,review_status,structural_disposition,evidence,notes
+ETW2-G23-CAND-6500,31843,"0.606466/0.355782/0.706245/0.398603",REVIEWED,SECTION_CHANGE,"registered G3/G2 crop; DOC_RASTER","Column 45x40 in G2 versus 40x40 in G3; adjacent beam 140x20 matches"
+ETW2-G23-CAND-7177,28887,"0.607513/0.467770/0.705663/0.478855",REVIEWED,MATCH_FALSE_POSITIVE,"registered G3/G2 crop","Homologous beam reads 140x20 on both sheets; no structural change promoted"
+ETW2-G23-CAND-8459,28818,"0.605652/0.622732/0.686940/0.646041",REVIEWED,SECTION_CHANGE,"registered G3/G2 crop; DOC_RASTER","Column 35x50 in G2 versus 30x50 in G3; adjacent beam remains 140x20"
+ETW2-G23-CAND-7074,27820,"0.781486/0.461392/0.860798/0.522663",REVIEWED,SECTION_CHANGE,"registered G3/G2 crop; DOC_RASTER","Column 40x45 in G2 versus 40x40 in G3; 25/70/150 beam-perimeter geometry matches"
+ETW2-G23-CAND-8019,26852,"0.512618/0.578696/0.691592/0.634576",REVIEWED,SECTION_CHANGE_MULTIPLE,"registered G3/G2 crop; DOC_RASTER","Broad candidate contains repeated column-section family changes; retained as support but not counted separately where overlapping other candidates"
+ETW2-G23-CAND-7836,25943,"0.482149/0.561916/0.556227/0.576494",REVIEWED,MATCH_FALSE_POSITIVE,"registered G3/G2 crop","Inclined beam reads 140 on both levels; geometry substantially coincides"
+ETW2-G23-CAND-7993,25403,"0.687522/0.576873/0.822421/0.613925",REVIEWED,SECTION_CHANGE_MULTIPLE,"registered G3/G2 crop; DOC_RASTER","Two visible registered column positions show repeated 45x40 in G2 versus 40x40 in G3"
+ETW2-G23-CAND-9850,23480,"0.727061/0.713006/0.805675/0.746792",REVIEWED,MATCH_FALSE_POSITIVE,"registered G3/G2 crop","25x70 L-shaped edge-beam geometry coincides on both sheets"

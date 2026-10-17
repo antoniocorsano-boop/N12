@@ -1,0 +1,73 @@
+name: ETW2 G4 G5 Roof Transition
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/structural-professional-workspace-r1
+    paths:
+      - 'model/etwin/floor_pair_registration.py'
+      - 'model/etwin/frame_extension_probe.py'
+      - 'model/etwin/document_registry.py'
+      - 'archive/documentazione_originaria/tavola 5.pdf'
+      - 'archive/documentazione_originaria/tavola 6-1.pdf'
+      - '.github/workflows/etw2-g4-g5-registration.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'model/etwin/floor_pair_registration.py'
+      - 'model/etwin/frame_extension_probe.py'
+      - 'model/etwin/document_registry.py'
+      - 'archive/documentazione_originaria/tavola 5.pdf'
+      - 'archive/documentazione_originaria/tavola 6-1.pdf'
+      - '.github/workflows/etw2-g4-g5-registration.yml'
+
+jobs:
+  register-g4-g5:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip pypdfium2 Pillow opencv-python-headless numpy
+
+      - name: Register G4 to G5
+        run: >-
+          python -m model.etwin.floor_pair_registration
+          --source-level G4 --source-id TAV-05S
+          --target-level G5 --target-id TAV-06S
+          --out docs/FOGLIO_LAVORO/etwin_crops/ETW-2/G4_G5_registered
+
+      - name: Directional roof-transition probe
+        run: >-
+          python -m model.etwin.frame_extension_probe
+          --registration-dir docs/FOGLIO_LAVORO/etwin_crops/ETW-2/G4_G5_registered
+          --pair-code G45
+
+      - name: Validate outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          root='docs/FOGLIO_LAVORO/etwin_crops/ETW-2/G4_G5_registered'
+          test -f "$root/registration_result.json"
+          test -f "$root/difference_candidates.json"
+          test -f "$root/directional_candidates.json"
+          test -f "$root/TARGET.png"
+          test -f "$root/SOURCE_REGISTERED_TO_TARGET.png"
+          test -f "$root/SOURCE_ONLY.png"
+          test -f "$root/TARGET_ONLY.png"
+
+      - name: Upload comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: etw2-g4-g5-roof-transition
+          path: docs/FOGLIO_LAVORO/etwin_crops/ETW-2/G4_G5_registered/
+          retention-days: 14

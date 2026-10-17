@@ -1,0 +1,6 @@
+﻿ids;resolution;reasoning;in_abaco;not_in_abaco;external_connections;max_coord_dist
+N052|N053|N097;SAME_PHYSICAL_NODE_WITH_ALIASES;All IDs share same coordinates (max dist=0.0mm);N052|N053;N097;N012|N079|N098;0
+N042|N043;SAME_PHYSICAL_NODE_WITH_ALIASES;All IDs share same coordinates (max dist=0.0mm);N042|N043;;N016|N045|N088;0
+N002|N110;SAME_PHYSICAL_NODE_WITH_ALIASES;All IDs share same coordinates (max dist=0.0mm);N002;N110;N001|N034|N090;0
+N020|N107;SAME_PHYSICAL_NODE_WITH_ALIASES;All IDs share same coordinates (max dist=0.0mm);N020;N107;N081;0
+N022|N065;COINCIDENT_DISTINCT_NODES;Different connection sets, coords differ by 261.3mm;N022;N065;N057|N069;261.2999999999993

@@ -1,0 +1,43 @@
+﻿handle;layer;type;text;x;y
+A0;S-TEXT-E;TEXT;TAV7_PILASTRI - BASE DI DIGITALIZZAZIONE;450.0;3239.8200344509546
+A1;S-TEXT-E;TEXT;Unita mm | modelspace 1:1 | armature/sezioni pilastri - scala dichiarata 1:10;450.0;3059.8200344509546
+A2;S-TEXT-E;TEXT;Quote scritte originali prevalgono sulla misura grafica del raster.;450.0;2879.8200344509546
+A3;S-TEXT-E;TEXT;"S-SURV-DOC-E: dato documentato; S-RECON-INF-E: deduzione; S-VERIFY-E: da verificare.";450.0;2699.8200344509546
+A4;S-TEXT-E;TEXT;S-INTERVENTION-N: interventi futuri, separati dallo stato di fatto.;450.0;2519.8200344509546
+AB;S-TEXT-E;TEXT;REGOLE ACQUISITE PER LA LETTURA DEI PILASTRI;800.0;3140.0
+AC;S-TEXT-E;TEXT;Armatura longitudinale riferita: 8 Ø14.;800.0;3035.0
+AD;S-TEXT-E;TEXT;Staffe riferite: Ø8.;800.0;2930.0
+AE;S-TEXT-E;TEXT;Quattro ferri reggistaffe agli angoli: dato riferito.;800.0;2825.0
+AF;S-TEXT-E;TEXT;Passo staffe riferito: 15 cm, ritenuto costante teoricamente.;800.0;2720.0
+B0;S-TEXT-E;TEXT;Ultimo piano: pilastri d'angolo ridotti a 40x40 cm.;800.0;2615.0
+B1;S-TEXT-E;TEXT;Giunzioni longitudinali oltre la lunghezza commerciale della barra.;800.0;2510.0
+438;S-NOTE-VER;TEXT;TRACCIAMENTO AUTOMATICO PRELIMINARE: layer S-TRACE-INF. NON USARE COME GEOMETRIA STRUTTURALE FINCHE' NON VALIDATO CONTRO QUOTE E TAVOLA.;527.6999999999999;109.2
+7A4;S-CHECK-VER;TEXT;CONTROLLO PER PROMOZIONE INF -> DOC;527.3864061803595;3476.8402010050254
+7A5;S-CHECK-VER;TEXT;1 quota numerica leggibile e coerente;527.3864061803595;3383.8402010050254
+7A6;S-CHECK-VER;TEXT;2 elemento riconosciuto sulla carpenteria;527.3864061803595;3290.8402010050254
+7A7;S-CHECK-VER;TEXT;3 continuita' verificata con campata/impalcato;527.3864061803595;3197.8402010050254
+7A8;S-CHECK-VER;TEXT;4 sezione/armatura associata dalla tavola pertinente;527.3864061803595;3104.8402010050254
+7A9;S-CHECK-VER;TEXT;5 fotografia: riscontro se disponibile;527.3864061803595;3011.8402010050254
+7AA;S-CHECK-VER;TEXT;6 nessuna promozione automatica;527.3864061803595;2918.8402010050254
+94B;S-CHECK-VER;TEXT;"CLASSIFICAZIONE GEOMETRICA v0.6: H=263 V=107 O=0; mediana L=329 mm. NON E' CLASSIFICAZIONE STRUTTURALE.";500.0;500.0
+94E;S-MATCH-TEXT;TEXT;v1.5 - TAV7: REGISTRO DI CORRISPONDENZA CON I 27 PILASTRI A DELLA TAV5;800.0;3200.0
+94F;S-MATCH-TEXT;TEXT;Associare solo quando sigla/sezione/dettaglio sono inequivoci.;800.0;3090.0
+950;S-MATCH-TEXT;TEXT;Dati riferiti (8Ø14, Ø8/15 circa, 4 reggistaffe Ø14) = controllo, NON fonte DOC.;800.0;2980.0
+951;S-MATCH-TEXT;TEXT;Se il dettaglio non consente l'abbinamento univoco: lasciare NON_ASSOCIATO/VER.;800.0;2870.0
+955;S-L01-MATCH-TEXT;TEXT;L01.1 N003 | sigla: ____ | sez.: ____ | long.: ____ | staffe: ____ | passo: ____;980.0;2340.0
+957;S-L01-MATCH-TEXT;TEXT;L01.2 N011 | sigla: ____ | sez.: ____ | long.: ____ | staffe: ____ | passo: ____;980.0;2120.0
+959;S-L01-MATCH-TEXT;TEXT;L01.3 N015 | sigla: ____ | sez.: ____ | long.: ____ | staffe: ____ | passo: ____;980.0;1900.0
+95B;S-L01-MATCH-TEXT;TEXT;L01.4 N014 | sigla: ____ | sez.: ____ | long.: ____ | staffe: ____ | passo: ____;980.0;1680.0
+95D;S-L01-MATCH-TEXT;TEXT;L01.5 N009 | sigla: ____ | sez.: ____ | long.: ____ | staffe: ____ | passo: ____;980.0;1460.0
+95F;S-L01-MATCH-TEXT;TEXT;L01.6 N012 | sigla: ____ | sez.: ____ | long.: ____ | staffe: ____ | passo: ____;980.0;1240.0
+964;S-DOC-TAV7-TEXT;TEXT;TAV.7 - EVIDENZE DOCUMENTALI v18;1000.0;1220.0
+965;S-DOC-TAV7-TEXT;TEXT;Organizzazione: pilastri I-V ordine;1000.0;1105.0
+966;S-DOC-TAV7-TEXT;TEXT;Armatura ricorrente leggibile: 4 Ø14 completi + 4 Ø14 monconi;1000.0;990.0
+967;S-DOC-TAV7-TEXT;TEXT;Sezione 40x40 documentata in piu dettagli;1000.0;875.0
+968;S-DOC-TAV7-TEXT;TEXT;"Staffe: Ø8 leggibile; passo da verificare gruppo per gruppo";1000.0;760.0
+969;S-DOC-TAV7-TEXT;TEXT;Non usare i dati RIF per completare cifre deboli della scansione.;1000.0;645.0
+96D;S-PIL-TYPE-TEXT;TEXT;ABACO TIPI DOCUMENTALI - v19;7900.0;1120.0
+96E;S-PIL-TYPE-TEXT;TEXT;P-DOC-01: sez. 40x40;7900.0;1005.0
+96F;S-PIL-TYPE-TEXT;TEXT;Longitudinali leggibili: 4 Ø14 completi + 4 Ø14 monconi;7900.0;890.0
+970;S-PIL-TYPE-TEXT;TEXT;Staffe leggibili: Ø8;7900.0;775.0
+971;S-PIL-TYPE-TEXT;TEXT;Passo e associazione al singolo pilastro: VER;7900.0;660.0

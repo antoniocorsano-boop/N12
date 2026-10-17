@@ -1,0 +1,170 @@
+[
+  {
+    "result_id": "VR-N002",
+    "entity_id": "N002",
+    "property_name": "verticalTermination",
+    "status": "MATCH",
+    "checks": [
+      {
+        "criterion": "EVIDENCE_EXISTS",
+        "passed": true,
+        "details": "Crop path: docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_PILLAR_N002_CONFIRMED.png",
+        "confidence": 1.0
+      },
+      {
+        "criterion": "SPATIAL_ALIGNMENT",
+        "passed": true,
+        "details": "Crop spatially aligned with entity position",
+        "confidence": 0.8
+      },
+      {
+        "criterion": "IDENTITY_MATCH",
+        "passed": true,
+        "details": "Entity N002 confirmed as Column",
+        "confidence": 0.9
+      },
+      {
+        "criterion": "PROPERTY_SUPPORT",
+        "passed": true,
+        "details": "Evidence supports property claim",
+        "confidence": 0.85
+      },
+      {
+        "criterion": "SOURCE_CONSISTENCY",
+        "passed": true,
+        "details": "No conflicting claims detected",
+        "confidence": 0.95
+      }
+    ],
+    "evidence_refs": [
+      "EV-PILLAR-N002"
+    ],
+    "notes": "5/5 criteria passed"
+  },
+  {
+    "result_id": "VR-N005",
+    "entity_id": "N005",
+    "property_name": "verticalTermination",
+    "status": "MATCH",
+    "checks": [
+      {
+        "criterion": "EVIDENCE_EXISTS",
+        "passed": true,
+        "details": "Crop path: docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_PILLAR_N005_CONFIRMED.png",
+        "confidence": 1.0
+      },
+      {
+        "criterion": "SPATIAL_ALIGNMENT",
+        "passed": true,
+        "details": "Crop spatially aligned with entity position",
+        "confidence": 0.8
+      },
+      {
+        "criterion": "IDENTITY_MATCH",
+        "passed": true,
+        "details": "Entity N005 confirmed as Column",
+        "confidence": 0.9
+      },
+      {
+        "criterion": "PROPERTY_SUPPORT",
+        "passed": true,
+        "details": "Evidence supports property claim",
+        "confidence": 0.85
+      },
+      {
+        "criterion": "SOURCE_CONSISTENCY",
+        "passed": true,
+        "details": "No conflicting claims detected",
+        "confidence": 0.95
+      }
+    ],
+    "evidence_refs": [
+      "EV-PILLAR-N005"
+    ],
+    "notes": "5/5 criteria passed"
+  },
+  {
+    "result_id": "VR-N039",
+    "entity_id": "N039",
+    "property_name": "verticalTermination",
+    "status": "MATCH",
+    "checks": [
+      {
+        "criterion": "EVIDENCE_EXISTS",
+        "passed": true,
+        "details": "Crop path: docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_PILLAR_N039_CONFIRMED.png",
+        "confidence": 1.0
+      },
+      {
+        "criterion": "SPATIAL_ALIGNMENT",
+        "passed": true,
+        "details": "Crop spatially aligned with entity position",
+        "confidence": 0.8
+      },
+      {
+        "criterion": "IDENTITY_MATCH",
+        "passed": true,
+        "details": "Entity N039 confirmed as Column",
+        "confidence": 0.9
+      },
+      {
+        "criterion": "PROPERTY_SUPPORT",
+        "passed": true,
+        "details": "Evidence supports property claim",
+        "confidence": 0.85
+      },
+      {
+        "criterion": "SOURCE_CONSISTENCY",
+        "passed": true,
+        "details": "No conflicting claims detected",
+        "confidence": 0.95
+      }
+    ],
+    "evidence_refs": [
+      "EV-PILLAR-N039"
+    ],
+    "notes": "5/5 criteria passed"
+  },
+  {
+    "result_id": "VR-N041_CANDIDATE",
+    "entity_id": "N041_CANDIDATE",
+    "property_name": "verticalTermination",
+    "status": "PARTIAL_MATCH",
+    "checks": [
+      {
+        "criterion": "EVIDENCE_EXISTS",
+        "passed": true,
+        "details": "Crop path: docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_PILLAR_N041_CANDIDATE.png",
+        "confidence": 1.0
+      },
+      {
+        "criterion": "SPATIAL_ALIGNMENT",
+        "passed": true,
+        "details": "Crop spatially aligned with entity position",
+        "confidence": 0.8
+      },
+      {
+        "criterion": "IDENTITY_MATCH",
+        "passed": false,
+        "details": "Entity N041_CANDIDATE is CANDIDATE (not confirmed): R-R1-01",
+        "confidence": 0.3
+      },
+      {
+        "criterion": "PROPERTY_SUPPORT",
+        "passed": true,
+        "details": "Evidence supports property claim",
+        "confidence": 0.85
+      },
+      {
+        "criterion": "SOURCE_CONSISTENCY",
+        "passed": true,
+        "details": "No conflicting claims detected",
+        "confidence": 0.95
+      }
+    ],
+    "evidence_refs": [
+      "EV-PILLAR-N041"
+    ],
+    "notes": "4/5 criteria passed"
+  }
+]

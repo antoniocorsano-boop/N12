@@ -1,0 +1,81 @@
+name: ETW2 Floor Differential
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/structural-professional-workspace-r1
+    paths:
+      - 'model/etwin/**'
+      - 'data/canonical/tavole_originali_manifest.csv'
+      - 'archive/documentazione_originaria/**'
+      - '.github/workflows/etw2-floor-differential.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'model/etwin/**'
+      - 'data/canonical/tavole_originali_manifest.csv'
+      - 'archive/documentazione_originaria/**'
+      - '.github/workflows/etw2-floor-differential.yml'
+
+jobs:
+  etw2-task1-task2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install ETW dependencies
+        run: python -m pip install --upgrade pip pypdfium2 Pillow
+
+      - name: Run ETW-2 Task 1-2
+        run: python -m model.etwin.floor_differential
+
+      - name: Validate ETW-2 outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          for id in TAV-02S TAV-03S TAV-04S TAV-05S; do
+            test -f "docs/FOGLIO_LAVORO/etwin_crops/${id}/document_map.json"
+          done
+          test -f docs/FOGLIO_LAVORO/etwin_crops/ETW-2/floor_registration.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('docs/FOGLIO_LAVORO/etwin_crops')
+          summary = {}
+          for doc_id in ('TAV-02S','TAV-03S','TAV-04S','TAV-05S'):
+              p = root / doc_id / 'document_map.json'
+              data = json.loads(p.read_text(encoding='utf-8'))
+              summary[doc_id] = {
+                  'regions': len(data.get('regions', [])),
+                  'tiles': len(data.get('tiles', [])),
+              }
+          etw2 = root / 'ETW-2'
+          reg = json.loads((etw2 / 'floor_registration.json').read_text(encoding='utf-8'))
+          out = {'document_maps': summary, 'registration': reg}
+          (etw2 / 'execution_summary.json').write_text(
+              json.dumps(out, indent=2, ensure_ascii=False), encoding='utf-8'
+          )
+          print(json.dumps(out, indent=2, ensure_ascii=False))
+          PY
+
+      - name: Upload ETW-2 metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: etw2-task1-task2-metadata
+          path: |
+            docs/FOGLIO_LAVORO/etwin_crops/TAV-02S/document_map.json
+            docs/FOGLIO_LAVORO/etwin_crops/TAV-03S/document_map.json
+            docs/FOGLIO_LAVORO/etwin_crops/TAV-04S/document_map.json
+            docs/FOGLIO_LAVORO/etwin_crops/TAV-05S/document_map.json
+            docs/FOGLIO_LAVORO/etwin_crops/ETW-2/floor_registration.json
+            docs/FOGLIO_LAVORO/etwin_crops/ETW-2/execution_summary.json
+          retention-days: 14

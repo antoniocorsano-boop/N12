@@ -1,0 +1,115 @@
+id,entityType,confidence,reasoning,datasets,hasXY,hasChain,hasFrame
+N001,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N002,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N005,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N006,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N007,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N003,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N008,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N004,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N009,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N010,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N011,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N012,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N013,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N014,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N015,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N016,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N017,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N018,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N019,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N020,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N021,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N022,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N023,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N024,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N025,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N026,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N027,PhysicalEntity,HIGH,"Present in both nodes.csv and tav5 (cross-verified)","nodes.csv + tav5_topology_nodes_57.csv",true,true,true
+N028,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,true,true
+N029,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,true
+N030,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,true
+N031,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,true,true
+N032,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,true
+N033,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,true,true
+N034,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,true
+N035,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,true,true
+N036,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,true
+N037,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,true
+N038,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,true
+N039,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,true,true
+N040,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,true,true
+N041,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,true
+N042,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,true,true
+N043,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,true,true
+N044,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,true,false
+N045,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,true,false
+N046,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,false
+N047,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,false
+N048,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,false
+N049,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,false
+N050,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,false
+N051,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,false
+N052,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,false
+N053,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,false
+N054,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,false
+N055,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,false
+N056,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,false
+N057,TopologicalNode,MEDIUM,"Only in tav5 topology (single source)","tav5_topology_nodes_57.csv",true,false,false
+N093,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N083,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N089,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N090,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N110,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N077,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N087,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N084,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N116,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N063,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N066,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N091,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N113,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N069,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N071,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N072,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N074,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N075,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N079,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N108,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N062,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N098,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N099,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N097,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N094,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N111,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N112,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N061,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N064,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N102,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N059,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N073,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N081,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N070,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N096,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N080,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N078,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N085,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N106,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N105,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N109,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N088,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N114,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N103,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N104,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N100,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N101,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N065,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N058,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N076,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N095,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N067,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N092,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N086,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N107,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N082,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false
+N115,UNRESOLVED_ALIAS,LOW,"Referenced in connections but not in any node list","tav5_topology_connections_v07.csv",false,false,false

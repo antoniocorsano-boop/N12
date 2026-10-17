@@ -1,0 +1,355 @@
+[
+  {
+    "evidence_id": "EV-TERRACE-OVERVIEW",
+    "description": "Terrace region overview",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_TERRACE_overview.png",
+    "bbox_native": [
+      757.6739868164062,
+      0,
+      1683.719970703125,
+      1954.60205078125
+    ],
+    "bbox_normalized": [
+      0.45,
+      0.0,
+      1.0,
+      0.65
+    ],
+    "pixel_bbox": [
+      3156,
+      0,
+      7015,
+      8144
+    ]
+  },
+  {
+    "evidence_id": "EV-CARTIGLIO",
+    "description": "Title block / cartiglio",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_CARTIGLIO.png",
+    "bbox_native": [
+      0,
+      2586.0888671875,
+      1683.719970703125,
+      3007.080078125
+    ],
+    "bbox_normalized": [
+      0.0,
+      0.86,
+      1.0,
+      1.0
+    ],
+    "pixel_bbox": [
+      0,
+      10775,
+      7015,
+      12529
+    ]
+  },
+  {
+    "evidence_id": "EV-LEVEL-LABEL",
+    "description": "Level/impalcato label",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_LEVEL_LABEL.png",
+    "bbox_native": [
+      0,
+      0,
+      841.8599853515625,
+      150.35400390625
+    ],
+    "bbox_normalized": [
+      0.0,
+      0.0,
+      0.5,
+      0.05
+    ],
+    "pixel_bbox": [
+      0,
+      0,
+      3507,
+      626
+    ]
+  },
+  {
+    "evidence_id": "EV-PILLAR-N002",
+    "description": "Pillar N002 annotation (LINE, CONFIRMED)",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_PILLAR_N002_CONFIRMED.png",
+    "dxf_handle": "N002",
+    "dxf_status": "LINE",
+    "dxf_verify": "A",
+    "dxf_type": "A02/N002/ES",
+    "identity_status": "CONFIRMED",
+    "bbox_native": [
+      1124.2,
+      1037.3,
+      1220.2,
+      1133.3
+    ],
+    "bbox_normalized": [
+      0.667688,
+      0.344953,
+      0.724705,
+      0.376877
+    ],
+    "pixel_bbox": [
+      4684,
+      4322,
+      5084,
+      4722
+    ]
+  },
+  {
+    "evidence_id": "EV-PILLAR-N005",
+    "description": "Pillar N005 annotation (LINE, CONFIRMED)",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_PILLAR_N005_CONFIRMED.png",
+    "dxf_handle": "N005",
+    "dxf_status": "LINE",
+    "dxf_verify": "A",
+    "dxf_type": "A03/N005/ES",
+    "identity_status": "CONFIRMED",
+    "bbox_native": [
+      1125.2,
+      1693.6,
+      1221.2,
+      1789.6
+    ],
+    "bbox_normalized": [
+      0.668282,
+      0.563204,
+      0.725299,
+      0.595129
+    ],
+    "pixel_bbox": [
+      4688,
+      7056,
+      5088,
+      7456
+    ]
+  },
+  {
+    "evidence_id": "EV-PILLAR-N039",
+    "description": "Pillar N039 annotation (LINE, CONFIRMED)",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_PILLAR_N039_CONFIRMED.png",
+    "dxf_handle": "N039",
+    "dxf_status": "LINE",
+    "dxf_verify": "A",
+    "dxf_type": "A22/N039/EN",
+    "identity_status": "CONFIRMED",
+    "bbox_native": [
+      779.0,
+      2382.8,
+      875.0,
+      2478.8
+    ],
+    "bbox_normalized": [
+      0.462666,
+      0.792397,
+      0.519683,
+      0.824321
+    ],
+    "pixel_bbox": [
+      3245,
+      9928,
+      3645,
+      10328
+    ]
+  },
+  {
+    "evidence_id": "EV-PILLAR-N041",
+    "description": "Pillar N041 annotation (TERM, CANDIDATE)",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV_PILLAR_N041_CANDIDATE.png",
+    "dxf_handle": "N041",
+    "dxf_status": "TERM",
+    "dxf_verify": "B",
+    "dxf_type": "NONE",
+    "identity_status": "CANDIDATE",
+    "bbox_native": [
+      328.8,
+      97.9,
+      424.8,
+      193.9
+    ],
+    "bbox_normalized": [
+      0.195282,
+      0.032556,
+      0.252298,
+      0.064481
+    ],
+    "pixel_bbox": [
+      1370,
+      407,
+      1770,
+      807
+    ]
+  },
+  {
+    "evidence_id": "EV-DIM-01",
+    "description": "Dimension annotation 1",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV-DIM-01.png",
+    "bbox_native": [
+      505.11599121093747,
+      451.06201171875,
+      841.8599853515625,
+      751.77001953125
+    ],
+    "bbox_normalized": [
+      0.3,
+      0.15,
+      0.5,
+      0.25
+    ],
+    "pixel_bbox": [
+      2104,
+      1879,
+      3507,
+      3132
+    ]
+  },
+  {
+    "evidence_id": "EV-DIM-02",
+    "description": "Dimension annotation 2",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV-DIM-02.png",
+    "bbox_native": [
+      1010.2319824218749,
+      300.7080078125,
+      1346.9759765625001,
+      601.416015625
+    ],
+    "bbox_normalized": [
+      0.6,
+      0.1,
+      0.8,
+      0.2
+    ],
+    "pixel_bbox": [
+      4209,
+      1252,
+      5612,
+      2505
+    ]
+  },
+  {
+    "evidence_id": "EV-DIM-03",
+    "description": "Dimension annotation 3",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV-DIM-03.png",
+    "bbox_native": [
+      168.37199707031252,
+      902.1240234375,
+      589.3019897460937,
+      1202.83203125
+    ],
+    "bbox_normalized": [
+      0.1,
+      0.3,
+      0.35,
+      0.4
+    ],
+    "pixel_bbox": [
+      701,
+      3758,
+      2455,
+      5011
+    ]
+  },
+  {
+    "evidence_id": "EV-BEAM-01",
+    "description": "Beam label in N002-N005 corridor",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV-BEAM-01.png",
+    "bbox_native": [
+      926.0459838867188,
+      751.77001953125,
+      1262.7899780273438,
+      1052.47802734375
+    ],
+    "bbox_normalized": [
+      0.55,
+      0.25,
+      0.75,
+      0.35
+    ],
+    "pixel_bbox": [
+      3858,
+      3132,
+      5261,
+      4385
+    ]
+  },
+  {
+    "evidence_id": "EV-BEAM-02",
+    "description": "Beam label near N005",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV-BEAM-02.png",
+    "bbox_native": [
+      841.8599853515625,
+      1052.47802734375,
+      1178.6039794921874,
+      1353.18603515625
+    ],
+    "bbox_normalized": [
+      0.5,
+      0.35,
+      0.7,
+      0.45
+    ],
+    "pixel_bbox": [
+      3507,
+      4385,
+      4910,
+      5638
+    ]
+  },
+  {
+    "evidence_id": "EV-BEAM-03",
+    "description": "Beam label near N039",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV-BEAM-03.png",
+    "bbox_native": [
+      673.4879882812501,
+      1503.5400390625,
+      1010.2319824218749,
+      1804.248046875
+    ],
+    "bbox_normalized": [
+      0.4,
+      0.5,
+      0.6,
+      0.6
+    ],
+    "pixel_bbox": [
+      2806,
+      6264,
+      4209,
+      7517
+    ]
+  },
+  {
+    "evidence_id": "EV-SLAB-TERRACE",
+    "description": "Terrace slab region",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV-SLAB-TERRACE.png",
+    "bbox_native": [
+      841.8599853515625,
+      150.35400390625,
+      1515.3479736328125,
+      902.1240234375
+    ],
+    "bbox_normalized": [
+      0.5,
+      0.05,
+      0.9,
+      0.3
+    ]
+  },
+  {
+    "evidence_id": "EV-DETAIL-STRUCT",
+    "description": "Structural detail near corridor",
+    "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\terrace_evidence\\EV-DETAIL-STRUCT.png",
+    "bbox_native": [
+      589.3019897460937,
+      601.416015625,
+      1094.4179809570312,
+      1202.83203125
+    ],
+    "bbox_normalized": [
+      0.35,
+      0.2,
+      0.65,
+      0.4
+    ]
+  }
+]

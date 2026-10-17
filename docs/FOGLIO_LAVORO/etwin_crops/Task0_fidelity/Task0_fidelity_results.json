@@ -1,0 +1,158 @@
+{
+  "task": "Task 0: Source Rendering Fidelity Gate",
+  "pdf": "archive\\documentazione_originaria\\tavola 4.pdf",
+  "sha256": "87972049435ea9bac6df76b62da67de097a1299f55dadbcb0dcf65526a3f0948",
+  "file_size_bytes": 1187948,
+  "pages": 1,
+  "page_size_pts": [
+    1683.7,
+    2987.3
+  ],
+  "page_size_mm": [
+    594.0,
+    1053.8
+  ],
+  "render_engine": "pypdfium2",
+  "render_results": {
+    "72": {
+      "size": [
+        1684,
+        2988
+      ],
+      "mode": "RGB",
+      "render_time_s": 0.66,
+      "png_bytes": 3916530,
+      "jpg_bytes": 1300745
+    },
+    "150": {
+      "size": [
+        3508,
+        6224
+      ],
+      "mode": "RGB",
+      "render_time_s": 1.99,
+      "png_bytes": 10854463,
+      "jpg_bytes": 4269658
+    },
+    "300": {
+      "size": [
+        7016,
+        12448
+      ],
+      "mode": "RGB",
+      "render_time_s": 2.98,
+      "png_bytes": 26012284,
+      "jpg_bytes": 11907845
+    },
+    "600": {
+      "size": [
+        14031,
+        24895
+      ],
+      "mode": "RGB",
+      "render_time_s": 6.51,
+      "png_bytes": 62085680,
+      "jpg_bytes": 33543399
+    }
+  },
+  "crop_results": {
+    "cartiglio_bottom": {
+      "description": "Title block / cartiglio",
+      "pdf_bbox": [
+        0,
+        2539.2,
+        1683.7,
+        2987.3
+      ],
+      "pixel_bbox": [
+        0,
+        10579,
+        7015,
+        12447
+      ],
+      "normalized_bbox": {
+        "x0": 0.0,
+        "y0": 0.85,
+        "x1": 1.0,
+        "y1": 1.0
+      },
+      "crop_size": [
+        7015,
+        1868
+      ],
+      "crop_bytes": 726061,
+      "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\Task0_fidelity\\tav4_crop_cartiglio_bottom.png"
+    },
+    "terrace_upper_right": {
+      "description": "Terrace region (upper-right)",
+      "pdf_bbox": [
+        841.9,
+        0,
+        1683.7,
+        1493.6
+      ],
+      "pixel_bbox": [
+        3507,
+        0,
+        7015,
+        6223
+      ],
+      "normalized_bbox": {
+        "x0": 0.5,
+        "y0": 0.0,
+        "x1": 1.0,
+        "y1": 0.5
+      },
+      "crop_size": [
+        3508,
+        6223
+      ],
+      "crop_bytes": 4729133,
+      "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\Task0_fidelity\\tav4_crop_terrace_upper_right.png"
+    },
+    "center_detail": {
+      "description": "Central plan detail",
+      "pdf_bbox": [
+        505.1,
+        896.2,
+        1178.6,
+        2091.1
+      ],
+      "pixel_bbox": [
+        2104,
+        3734,
+        4910,
+        8712
+      ],
+      "normalized_bbox": {
+        "x0": 0.3,
+        "y0": 0.3,
+        "x1": 0.7,
+        "y1": 0.7
+      },
+      "crop_size": [
+        2806,
+        4978
+      ],
+      "crop_bytes": 6298856,
+      "crop_path": "docs\\FOGLIO_LAVORO\\etwin_crops\\Task0_fidelity\\tav4_crop_center_detail.png"
+    }
+  },
+  "coordinate_roundtrip": true,
+  "quality_test": {
+    "mean_pixel_diff": 0.3746132069260649,
+    "max_pixel_diff": 27
+  },
+  "checks": {
+    "PDF opens": true,
+    "Page dimensions valid": true,
+    "300 DPI renders without error": true,
+    "600 DPI renders without error": true,
+    "Crops produce valid images": true,
+    "Coordinate round-trip": true,
+    "Mean degradation < 5 LSB": true
+  },
+  "roundtrip_ok": true,
+  "verdict": "PASS",
+  "timestamp": "2026-08-17T22:32:04"
+}

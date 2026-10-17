@@ -1,0 +1,6 @@
+levelId,ordinal,documentAliases,structuralRole,z_relative_m,z_absolute_m,storey_height_from_previous_m,derivationMethod,evidenceStatus,source
+G1,1,G1,Ground floor,0.00,ND,,IMPLICIT_DATUM,RIF,storey_height_status.csv + telaio_5.csv
+G2,2,G2,First floor,3.20,ND,3.20,DERIVED_BY_RULE,RIF,storey_height_status.csv + telaio_5.csv
+G3,3,G3,Second floor,6.40,ND,3.20,DERIVED_BY_RULE,RIF,storey_height_status.csv + telaio_5.csv
+G4,4,G4,Third floor,9.60,ND,3.20,DERIVED_BY_RULE,RIF,storey_height_status.csv + telaio_5.csv
+G5,5,G5,Fourth floor,12.80,ND,3.20,DERIVED_BY_RULE,RIF,storey_height_status.csv + telaio_5.csv

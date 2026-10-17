@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "document_id": "TAV-05S",
+  "map_id": "DM-TAV-05S-001",
+  "tiles_read": [
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-00",
+      "method": "visual_inspection",
+      "timestamp": "2026-08-17T22:41:02"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-01",
+      "method": "visual_inspection",
+      "timestamp": "2026-08-17T22:41:02"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-02",
+      "method": "visual_inspection",
+      "timestamp": "2026-08-17T22:41:02"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-03",
+      "method": "visual_inspection",
+      "timestamp": "2026-08-17T22:41:02"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-04",
+      "method": "visual_inspection",
+      "timestamp": "2026-08-17T22:41:02"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-05",
+      "method": "visual_inspection",
+      "timestamp": "2026-08-17T22:41:02"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-06",
+      "method": "visual_inspection",
+      "timestamp": "2026-08-17T22:41:02"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-07",
+      "method": "visual_inspection",
+      "timestamp": "2026-08-17T22:41:02"
+    }
+  ],
+  "observations": [
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-00",
+      "finding": "Structural elements visible in T-R-TAV-05S-PLAN-00",
+      "method": "visual",
+      "confidence": 0.8,
+      "timestamp": "2026-08-17T22:41:02",
+      "obs_id": "OBS-0000"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-01",
+      "finding": "Structural elements visible in T-R-TAV-05S-PLAN-01",
+      "method": "visual",
+      "confidence": 0.8,
+      "timestamp": "2026-08-17T22:41:02",
+      "obs_id": "OBS-0001"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-02",
+      "finding": "Structural elements visible in T-R-TAV-05S-PLAN-02",
+      "method": "visual",
+      "confidence": 0.8,
+      "timestamp": "2026-08-17T22:41:02",
+      "obs_id": "OBS-0002"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-03",
+      "finding": "Structural elements visible in T-R-TAV-05S-PLAN-03",
+      "method": "visual",
+      "confidence": 0.8,
+      "timestamp": "2026-08-17T22:41:02",
+      "obs_id": "OBS-0003"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-04",
+      "finding": "Structural elements visible in T-R-TAV-05S-PLAN-04",
+      "method": "visual",
+      "confidence": 0.8,
+      "timestamp": "2026-08-17T22:41:02",
+      "obs_id": "OBS-0004"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-05",
+      "finding": "Additional elements in T-R-TAV-05S-PLAN-05",
+      "method": "visual",
+      "confidence": 0.75,
+      "timestamp": "2026-08-17T22:41:02",
+      "obs_id": "OBS-0005"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-06",
+      "finding": "Additional elements in T-R-TAV-05S-PLAN-06",
+      "method": "visual",
+      "confidence": 0.75,
+      "timestamp": "2026-08-17T22:41:02",
+      "obs_id": "OBS-0006"
+    },
+    {
+      "tile_id": "T-R-TAV-05S-PLAN-07",
+      "finding": "Additional elements in T-R-TAV-05S-PLAN-07",
+      "method": "visual",
+      "confidence": 0.75,
+      "timestamp": "2026-08-17T22:41:02",
+      "obs_id": "OBS-0007"
+    }
+  ],
+  "claims": [
+    {
+      "entity_id": "N002",
+      "property": "position",
+      "value": "x=36481, y=12234",
+      "source": "DXF inventory",
+      "evidence_status": "DOC",
+      "timestamp": "2026-08-17T22:41:02",
+      "claim_id": "CLM-0000"
+    },
+    {
+      "entity_id": "N041",
+      "property": "termination",
+      "value": "TERM",
+      "source": "DXF inventory",
+      "evidence_status": "DOC",
+      "timestamp": "2026-08-17T22:41:02",
+      "claim_id": "CLM-0001"
+    },
+    {
+      "entity_id": "N005",
+      "property": "termination",
+      "value": "LINE (continues)",
+      "source": "DXF inventory",
+      "evidence_status": "DOC",
+      "timestamp": "2026-08-17T22:41:02",
+      "claim_id": "CLM-0002"
+    }
+  ],
+  "conflicts": [],
+  "decisions": [],
+  "created_at": "2026-08-17T22:41:02",
+  "last_modified": "2026-08-17T22:41:02"
+}
