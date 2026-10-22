@@ -45,5 +45,9 @@ jobs:
         run: python -m unittest tests/cew_cad_gateway/test_verification.py -v
       - name: Task 9 exact MCP surface tests
         run: python -m unittest tests/cew_cad_gateway/test_mcp_surface.py -v
+      - name: Task 10 full fake-chain qualification tests
+        run: python -m unittest tests/cew_cad_gateway/test_end_to_end_fake.py -v
+      - name: Full CEW-CAD-01 suite
+        run: python -m unittest discover -s tests/cew_cad_gateway -p 'test_*.py' -v
       - name: Compile gateway package
         run: python -m compileall -q cew_cad_gateway
