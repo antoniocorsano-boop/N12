@@ -1,0 +1,19 @@
+{
+  "schema": "cew.cad.policy.v1",
+  "zones": {
+    "SOURCE": "00_sources",
+    "BASELINE": "01_baseline",
+    "WORKING": "02_working",
+    "EVIDENCE": "03_evidence",
+    "CHANGESETS": "04_changesets",
+    "AUDITS": "05_audits",
+    "VERIFIED": "06_verified",
+    "ISSUED": "07_issued"
+  },
+  "mutable_path_classes": ["WORKING"],
+  "max_primary_operations": 1,
+  "allow_overwrite": false,
+  "allowed_mutating_operations": ["create_polyline", "undo_own_change"],
+  "allowed_property_paths": [],
+  "required_capabilities": ["query", "audit", "capture", "save_verified"]
+}
