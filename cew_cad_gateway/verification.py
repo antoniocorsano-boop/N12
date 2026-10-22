@@ -82,18 +82,31 @@ class VerificationService:
         return True
 
     @staticmethod
-    def _entity_geometry_ok(changeset: Changeset, inspect_data: dict[str, object], measure_data: dict[str, object]) -> bool:
+    def _resolve_changed_entity_scope(changeset: Changeset, actual_handles: tuple[str, ...]) -> tuple[tuple[str, ...], bool, bool]:
+        expected = tuple(changeset.expected_changed_entities)
+        if expected == ("NEW:Polyline",):
+            exact = len(actual_handles) == 1 and isinstance(actual_handles[0], str) and bool(actual_handles[0])
+            unrelated = len(actual_handles) > 1
+            return actual_handles if exact else (), exact, unrelated
+        exact = len(actual_handles) == len(expected) and set(actual_handles) == set(expected)
+        unrelated = bool(set(actual_handles) - set(expected))
+        return expected if exact else (), exact, unrelated
+
+    @staticmethod
+    def _entity_geometry_ok(
+        changeset: Changeset,
+        resolved_handle: str,
+        inspect_data: dict[str, object],
+        measure_data: dict[str, object],
+    ) -> bool:
         if len(changeset.operations) != 1 or not isinstance(changeset.operations[0], CreatePolyline):
             return False
-        if len(changeset.expected_changed_entities) != 1:
-            return False
-        expected_handle = changeset.expected_changed_entities[0]
         entities = inspect_data.get("entities")
         if not isinstance(entities, list) or len(entities) != 1 or not isinstance(entities[0], dict):
             return False
         entity = entities[0]
         operation = changeset.operations[0]
-        if entity.get("handle") != expected_handle:
+        if entity.get("handle") != resolved_handle:
             return False
         if entity.get("type") not in {"Polyline", "LwPolyline", "LWPolyline"}:
             return False
@@ -101,7 +114,7 @@ class VerificationService:
             return False
         if entity.get("closed") is not operation.closed:
             return False
-        if measure_data.get("handle") != expected_handle:
+        if measure_data.get("handle") != resolved_handle:
             return False
         if measure_data.get("closed") is not operation.closed:
             return False
@@ -133,18 +146,20 @@ class VerificationService:
         source_ok = self._source_integrity(changeset, current)
         revision_ok = current.document.revision == change.revision_after and change.revision_after > change.revision_before
 
-        expected_handles = tuple(changeset.expected_changed_entities)
         actual_handles = tuple(change.changed_entities)
-        exact_changed_set = len(actual_handles) == len(expected_handles) and set(actual_handles) == set(expected_handles)
-        unrelated_change = bool(set(actual_handles) - set(expected_handles))
+        resolved_handles, exact_changed_set, unrelated_change = self._resolve_changed_entity_scope(changeset, actual_handles)
 
-        inspect_data = await self.adapter.inspect({"handles": list(expected_handles), "detail": "full"})
+        inspect_data = await self.adapter.inspect({"handles": list(resolved_handles), "detail": "full"})
         measure_data: dict[str, object]
-        if len(expected_handles) == 1:
-            measure_data = await self.adapter.measure({"handle": expected_handles[0], "op": "geometry"})
+        if len(resolved_handles) == 1:
+            measure_data = await self.adapter.measure({"handle": resolved_handles[0], "op": "geometry"})
         else:
             measure_data = {}
-        geometry_ok = exact_changed_set and self._entity_geometry_ok(changeset, inspect_data, measure_data)
+        geometry_ok = (
+            exact_changed_set
+            and len(resolved_handles) == 1
+            and self._entity_geometry_ok(changeset, resolved_handles[0], inspect_data, measure_data)
+        )
 
         capture = await self.adapter.capture({"scope": "viewport", "diff": True})
         diff = capture.get("diff")
@@ -158,7 +173,7 @@ class VerificationService:
         checks: dict[str, bool] = {
             "source_integrity": source_ok,
             "post_revision_matches": revision_ok,
-            "changed_entity_set_exact": exact_changed_set,
+            "changed_entity_scope_exact": exact_changed_set,
             "geometry_kernel_matches": geometry_ok,
             "visual_change_captured": capture_ok,
             "target_audit_lossless": audit_ok,
