@@ -16,18 +16,20 @@ from cew_cad_gateway.workspace import Workspace
 
 
 class CLIBoundaryTests(unittest.TestCase):
-    def test_serve_parser_has_public_key_but_no_private_key_argument(self) -> None:
+    def test_serve_parser_requires_executable_hash_and_has_no_private_key_argument(self) -> None:
         parser = build_parser()
         serve = parser.parse_args([
             "serve",
             "--workspace-root", "C:/lab",
             "--policy", "policy.json",
             "--ocs-executable", "OpenCADStudio.exe",
+            "--ocs-sha256", "0" * 64,
             "--approval-public-key", "public.pem",
             "--target-version", "2018",
         ])
         self.assertEqual(serve.command, "serve")
         self.assertEqual(serve.approval_public_key, "public.pem")
+        self.assertEqual(serve.ocs_sha256, "0" * 64)
         self.assertFalse(hasattr(serve, "private_key"))
         with self.assertRaises(SystemExit):
             parser.parse_args([
@@ -35,6 +37,7 @@ class CLIBoundaryTests(unittest.TestCase):
                 "--workspace-root", "C:/lab",
                 "--policy", "policy.json",
                 "--ocs-executable", "OpenCADStudio.exe",
+                "--ocs-sha256", "0" * 64,
                 "--approval-public-key", "public.pem",
                 "--target-version", "2018",
                 "--private-key", "secret.pem",
