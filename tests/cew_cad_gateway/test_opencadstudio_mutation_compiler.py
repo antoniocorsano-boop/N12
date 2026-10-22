@@ -1,0 +1,55 @@
+from __future__ import annotations
+
+import asyncio
+import tempfile
+import unittest
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+from cew_cad_gateway.adapters.opencadstudio import OpenCADStudioAdapter, OpenCADStudioError
+from cew_cad_gateway.types import CreatePolyline, DocumentIdentity
+
+
+class FakeClient:
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, dict[str, object]]] = []
+    async def list_tools(self): return {"ocs_sessions","ocs_read","ocs_execute","ocs_capture"}
+    async def call_tool(self, name, arguments):
+        self.calls.append((name, arguments))
+        if name == "ocs_sessions": return {"sessions":[{"session_id":"s1"}]}
+        if name == "ocs_read" and arguments.get("op") == "capabilities": return {"build":"2026.41","capabilities":{"query":True,"audit":True,"capture":True,"save_verified":True}}
+        if name == "ocs_read" and arguments.get("op") == "state": return {"document_id":1,"revision":7,"path":"C:/lab.dwg","source_sha256":"0"*64,"command":{"status":"idle"}}
+        if name == "ocs_execute": return {"status":"completed","revision":8,"changed_entities":["A1"]}
+        raise AssertionError((name, arguments))
+
+
+class MutationCompilerTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
+        self.exe = Path(self.tmp.name) / "OpenCADStudio.exe"; self.exe.write_bytes(b"fake")
+        self.client = FakeClient()
+        @asynccontextmanager
+        async def factory(_): yield self.client
+        self.adapter = OpenCADStudioAdapter(self.exe, client_factory=factory)
+        self.expected = DocumentIdentity(path="C:/lab.dwg", sha256="0"*64, document_id=1, revision=7)
+
+    def test_create_polyline_compiles_only_numeric_internal_pline_template(self) -> None:
+        operation = CreatePolyline(layer="CEW-LAB", points=((0.0,0.0),(4.5,0.0),(4.5,3.0)), closed=True)
+        result = asyncio.run(self.adapter.apply_operation(operation, request_id="req-1", expected=self.expected))
+        self.assertEqual(result["status"], "completed")
+        execute = [args for name,args in self.client.calls if name == "ocs_execute"]
+        self.assertEqual(len(execute), 1)
+        request = execute[0]["request"]
+        self.assertEqual(request["op"], "run")
+        self.assertEqual(request["request_id"], "req-1")
+        self.assertEqual(request["document_id"], 1)
+        self.assertEqual(request["revision"], 7)
+        self.assertEqual(request["cmd"], "PLINE 0,0 4.5,0 4.5,3 C")
+
+    def test_wrong_layer_and_non_polyline_operation_are_rejected_before_execute(self) -> None:
+        with self.assertRaises(OpenCADStudioError):
+            asyncio.run(self.adapter.apply_operation(CreatePolyline(layer="WALLS", points=((0.0,0.0),(1.0,0.0))), request_id="req-2", expected=self.expected))
+        self.assertEqual([name for name,_ in self.client.calls if name == "ocs_execute"], [])
+
+
+if __name__ == "__main__": unittest.main()
