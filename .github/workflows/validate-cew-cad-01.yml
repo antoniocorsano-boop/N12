@@ -37,5 +37,7 @@ jobs:
         run: python -m unittest tests/cew_cad_gateway/test_inspection.py -v
       - name: Task 5 governed changeset tests
         run: python -m unittest tests/cew_cad_gateway/test_changesets.py -v
+      - name: Task 6 signed human approval tests
+        run: python -m unittest tests/cew_cad_gateway/test_approval.py -v
       - name: Compile gateway package
         run: python -m compileall -q cew_cad_gateway
