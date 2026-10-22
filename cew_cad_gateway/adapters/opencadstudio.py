@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 from contextlib import asynccontextmanager
@@ -263,4 +264,35 @@ class OpenCADStudioAdapter:
         target_version: str,
         expected: DocumentIdentity,
     ) -> dict[str, object]:
-        raise OpenCADStudioError("VERIFIED_SAVE_NOT_IMPLEMENTED")
+        if not path.is_absolute():
+            raise OpenCADStudioError("VERIFIED_PATH_MUST_BE_ABSOLUTE")
+        resolved = path.resolve()
+        if resolved.exists():
+            raise OpenCADStudioError("VERIFIED_OUTPUT_ALREADY_EXISTS")
+        if not resolved.parent.exists() or not resolved.parent.is_dir():
+            raise OpenCADStudioError("VERIFIED_OUTPUT_PARENT_MISSING")
+        if target_format not in {"dwg", "dxf"} or not target_version:
+            raise OpenCADStudioError("INVALID_VERIFIED_TARGET")
+
+        status = await self.status()
+        if status.document != expected:
+            raise OpenCADStudioError("EXPECTED_DOCUMENT_STATE_MISMATCH")
+        material = f"{resolved}|{target_format}|{target_version}|{expected.document_id}|{expected.revision}"
+        request_id = "cew-cad-save-" + hashlib.sha256(material.encode("utf-8")).hexdigest()[:32]
+        async with self._client_factory(self.executable) as client:
+            return await self._call(
+                client,
+                "ocs_execute",
+                {
+                    "ocs_session_id": status.session_id,
+                    "response_detail": "full",
+                    "request": {
+                        "op": "save_verified",
+                        "request_id": request_id,
+                        "path": str(resolved),
+                        "target_format": target_format,
+                        "target_version": target_version,
+                        "overwrite": False,
+                    },
+                },
+            )
