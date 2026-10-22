@@ -68,7 +68,7 @@ class CADStatus:
     session_id: str
     document: DocumentIdentity
     capabilities: CapabilityIdentity
-    path_class: PathClass
+    path_class: PathClass | None = None
 
     def __post_init__(self) -> None:
         if not self.session_id:
