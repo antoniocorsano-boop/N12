@@ -34,7 +34,6 @@ class PolylineProposalInput(BaseModel):
     epistemic_states: list[EpistemicLiteral] = Field(min_length=1, max_length=6)
     preconditions: list[str] = Field(default_factory=list, max_length=64)
     postconditions: list[str] = Field(default_factory=list, max_length=64)
-    expected_changed_entities: list[str] = Field(default_factory=list, max_length=64)
     forbidden_side_effects: list[str] = Field(default_factory=list, max_length=64)
     unresolved: list[str] = Field(default_factory=list, max_length=64)
     influential_unresolved: bool = False
