@@ -202,6 +202,11 @@ class TechnicalVerificationReceipt:
     schema: str
     changeset_sha256: str
     change_receipt_sha256: str
+    session_id: str
+    document_id: int
+    verified_revision: int
+    source_sha256: str
+    capabilities_sha256: str
     postconditions: Mapping[str, bool]
     unrelated_change: bool
     audit_sha256: str
@@ -212,7 +217,13 @@ class TechnicalVerificationReceipt:
             raise ValueError("unsupported verification schema")
         _require_sha256(self.changeset_sha256, "changeset_sha256")
         _require_sha256(self.change_receipt_sha256, "change_receipt_sha256")
+        _require_sha256(self.source_sha256, "source_sha256")
+        _require_sha256(self.capabilities_sha256, "capabilities_sha256")
         _require_sha256(self.audit_sha256, "audit_sha256")
+        if not self.session_id:
+            raise ValueError("verification session_id is required")
+        _require_positive_int(self.document_id, "document_id")
+        _require_positive_int(self.verified_revision, "verified_revision", allow_zero=True)
         if self.decision not in {"PASS", "FAIL"}:
             raise ValueError("verification decision must be PASS or FAIL")
 
