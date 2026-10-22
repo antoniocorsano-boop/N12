@@ -33,5 +33,7 @@ jobs:
         run: python -m unittest tests/cew_cad_gateway/test_policy_workspace.py -v
       - name: Task 3 adapter contract and OCS handshake tests
         run: python -m unittest tests/cew_cad_gateway/test_adapter_contract.py tests/cew_cad_gateway/test_opencadstudio_adapter.py -v
+      - name: Task 4 read-only inspection tests
+        run: python -m unittest tests/cew_cad_gateway/test_inspection.py -v
       - name: Compile gateway package
         run: python -m compileall -q cew_cad_gateway
