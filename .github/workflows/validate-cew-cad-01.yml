@@ -41,5 +41,7 @@ jobs:
         run: python -m unittest tests/cew_cad_gateway/test_approval.py -v
       - name: Task 7 stale-state idempotency and typed OCS compiler tests
         run: python -m unittest tests/cew_cad_gateway/test_execution.py tests/cew_cad_gateway/test_opencadstudio_mutation_compiler.py -v
+      - name: Task 8 technical verification and verified-copy tests
+        run: python -m unittest tests/cew_cad_gateway/test_verification.py -v
       - name: Compile gateway package
         run: python -m compileall -q cew_cad_gateway
