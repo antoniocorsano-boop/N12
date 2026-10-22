@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import json
+import math
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncIterator, Callable
 
 from ..canonical import sha256_file, sha256_json
-from ..types import CADOperation, CADStatus, CapabilityIdentity, DocumentIdentity
+from ..types import CADOperation, CADStatus, CapabilityIdentity, CreatePolyline, DocumentIdentity
 
 _REQUIRED_TOOLS = {"ocs_sessions", "ocs_read", "ocs_execute", "ocs_capture"}
 _REQUIRED_CAPABILITIES = {"query", "audit", "capture", "save_verified"}
@@ -55,6 +56,23 @@ async def _tool_names(client: Any) -> set[str]:
                     names.add(name)
         return names
     raise OpenCADStudioError("INVALID_TOOL_LIST")
+
+
+def _format_number(value: float) -> str:
+    if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value):
+        raise OpenCADStudioError("INVALID_POLYLINE_COORDINATE")
+    text = format(float(value), ".15g")
+    return "0" if text == "-0" else text
+
+
+def _compile_polyline(operation: CreatePolyline) -> str:
+    if operation.layer != "CEW-LAB":
+        raise OpenCADStudioError("CREATION_LAYER_NOT_AUTHORIZED")
+    if len(operation.points) < 2:
+        raise OpenCADStudioError("POLYLINE_TOO_SHORT")
+    tokens = [f"{_format_number(x)},{_format_number(y)}" for x, y in operation.points]
+    suffix = " C" if operation.closed else ""
+    return "PLINE " + " ".join(tokens) + suffix
 
 
 @asynccontextmanager
@@ -145,8 +163,8 @@ class OpenCADStudioAdapter:
             if not isinstance(source_sha256, str) or len(source_sha256) != 64:
                 raise OpenCADStudioError("OCS_SOURCE_HASH_MISSING")
             if isinstance(command, dict):
-                status = command.get("status")
-                if status not in (None, "idle", "completed"):
+                command_status = command.get("status")
+                if command_status not in (None, "idle", "completed"):
                     raise OpenCADStudioError("OCS_INTERACTIVE_STATE_ACTIVE")
 
             if self._bound_session_id is None:
@@ -208,7 +226,30 @@ class OpenCADStudioAdapter:
         request_id: str,
         expected: DocumentIdentity,
     ) -> dict[str, object]:
-        raise OpenCADStudioError("MUTATION_COMPILER_NOT_IMPLEMENTED")
+        if not isinstance(operation, CreatePolyline):
+            raise OpenCADStudioError("MUTATION_TYPE_NOT_AUTHORIZED")
+        if not isinstance(request_id, str) or not request_id or len(request_id.encode("utf-8")) > 128:
+            raise OpenCADStudioError("INVALID_REQUEST_ID")
+        cmd = _compile_polyline(operation)
+        status = await self.status()
+        if status.document != expected:
+            raise OpenCADStudioError("EXPECTED_DOCUMENT_STATE_MISMATCH")
+        async with self._client_factory(self.executable) as client:
+            return await self._call(
+                client,
+                "ocs_execute",
+                {
+                    "ocs_session_id": status.session_id,
+                    "response_detail": "changed_entities",
+                    "request": {
+                        "op": "run",
+                        "request_id": request_id,
+                        "document_id": expected.document_id,
+                        "revision": expected.revision,
+                        "cmd": cmd,
+                    },
+                },
+            )
 
     async def operation_status(self, request_id: str) -> dict[str, object]:
         status = await self.status()
