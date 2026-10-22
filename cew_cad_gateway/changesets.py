@@ -33,6 +33,31 @@ class ProposalRequest:
     cad_data: tuple[str, ...] = ()
 
 
+def changeset_digest_payload(changeset: Changeset) -> dict[str, object]:
+    return {
+        "schema": changeset.schema,
+        "changeset_id": changeset.changeset_id,
+        "intent": changeset.intent,
+        "session_id": changeset.session_id,
+        "document": changeset.document,
+        "capabilities": changeset.capabilities,
+        "evidence_refs": changeset.evidence_refs,
+        "claim_refs": changeset.claim_refs,
+        "decision_refs": changeset.decision_refs,
+        "epistemic_states": changeset.epistemic_states,
+        "operations": changeset.operations,
+        "preconditions": changeset.preconditions,
+        "postconditions": changeset.postconditions,
+        "expected_changed_entities": changeset.expected_changed_entities,
+        "forbidden_side_effects": changeset.forbidden_side_effects,
+        "unresolved": changeset.unresolved,
+    }
+
+
+def verify_changeset_digest(changeset: Changeset) -> bool:
+    return sha256_json(changeset_digest_payload(changeset)) == changeset.changeset_sha256
+
+
 class ChangesetService:
     def __init__(
         self,
@@ -64,11 +89,9 @@ class ChangesetService:
             raise ChangesetError("TARGET_NOT_UNIQUE")
         if len(request.operations) != 1 or len(request.operations) > self.policy.max_primary_operations:
             raise ChangesetError("PRIMARY_OPERATION_COUNT_INVALID")
-
         self._validate_refs(request.evidence_refs, self.known_evidence, "EVIDENCE")
         self._validate_refs(request.claim_refs, self.known_claims, "CLAIM")
         self._validate_refs(request.decision_refs, self.known_decisions, "DECISION")
-
         operation = request.operations[0]
         if not isinstance(operation, CreatePolyline):
             raise ChangesetError("MUTATION_TYPE_NOT_AUTHORIZED")
@@ -87,32 +110,13 @@ class ChangesetService:
                 raise ChangesetError("INVALID_POLYLINE_COORDINATE")
         return operation
 
-    @staticmethod
-    def _digest_payload(changeset: Changeset) -> dict[str, object]:
-        return {
-            "schema": changeset.schema,
-            "changeset_id": changeset.changeset_id,
-            "intent": changeset.intent,
-            "document": changeset.document,
-            "capabilities": changeset.capabilities,
-            "evidence_refs": changeset.evidence_refs,
-            "claim_refs": changeset.claim_refs,
-            "decision_refs": changeset.decision_refs,
-            "epistemic_states": changeset.epistemic_states,
-            "operations": changeset.operations,
-            "preconditions": changeset.preconditions,
-            "postconditions": changeset.postconditions,
-            "expected_changed_entities": changeset.expected_changed_entities,
-            "forbidden_side_effects": changeset.forbidden_side_effects,
-            "unresolved": changeset.unresolved,
-        }
-
     def propose(self, request: ProposalRequest, inspection: InspectionReceipt) -> Changeset:
         operation = self._validate_request(request, inspection)
         provisional = Changeset(
             schema="cew.cad.changeset.v1",
             changeset_id=request.changeset_id,
             intent=request.intent,
+            session_id=inspection.status.session_id,
             document=inspection.status.document,
             capabilities=inspection.status.capabilities,
             evidence_refs=request.evidence_refs,
@@ -127,11 +131,12 @@ class ChangesetService:
             unresolved=request.unresolved,
             changeset_sha256="0" * 64,
         )
-        digest = sha256_json(self._digest_payload(provisional))
+        digest = sha256_json(changeset_digest_payload(provisional))
         return Changeset(
             schema=provisional.schema,
             changeset_id=provisional.changeset_id,
             intent=provisional.intent,
+            session_id=provisional.session_id,
             document=provisional.document,
             capabilities=provisional.capabilities,
             evidence_refs=provisional.evidence_refs,
@@ -148,4 +153,4 @@ class ChangesetService:
         )
 
     def verify_digest(self, changeset: Changeset) -> bool:
-        return sha256_json(self._digest_payload(changeset)) == changeset.changeset_sha256
+        return verify_changeset_digest(changeset)
