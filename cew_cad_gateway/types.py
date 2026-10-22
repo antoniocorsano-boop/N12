@@ -108,6 +108,7 @@ class Changeset:
     schema: str
     changeset_id: str
     intent: str
+    session_id: str
     document: DocumentIdentity
     capabilities: CapabilityIdentity
     evidence_refs: tuple[str, ...]
@@ -125,8 +126,8 @@ class Changeset:
     def __post_init__(self) -> None:
         if self.schema != "cew.cad.changeset.v1":
             raise ValueError("unsupported changeset schema")
-        if not self.changeset_id or not self.intent:
-            raise ValueError("changeset id and intent are required")
+        if not self.changeset_id or not self.intent or not self.session_id:
+            raise ValueError("changeset id, intent and session_id are required")
         _require_sha256(self.changeset_sha256, "changeset_sha256")
 
 
