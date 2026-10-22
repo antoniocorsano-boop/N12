@@ -39,6 +39,12 @@ class Workspace:
                 raise WorkspaceError(f"WORKSPACE_ZONE_ESCAPE:{key}")
             self._zones[key] = zone
 
+    def zone_path(self, zone_key: str) -> Path:
+        try:
+            return self._zones[zone_key]
+        except KeyError as exc:
+            raise WorkspaceError("UNKNOWN_WORKSPACE_ZONE") from exc
+
     def _canonical_ref(self, ref: str) -> tuple[str, ...]:
         if not isinstance(ref, str) or not ref:
             raise WorkspaceError("INVALID_REF")
@@ -87,6 +93,19 @@ class Workspace:
         if not candidate.is_relative_to(zone):
             raise WorkspaceError("REALPATH_ESCAPE")
         return candidate
+
+    def reference_for(self, path: Path, expected: PathClass) -> str:
+        resolved = path.resolve()
+        if self.classify(resolved) is not expected:
+            raise WorkspaceError("PATH_CLASS_MISMATCH")
+        try:
+            relative = resolved.relative_to(self.root).as_posix()
+        except ValueError as exc:
+            raise WorkspaceError("PATH_OUTSIDE_WORKSPACE") from exc
+        checked = self.resolve_ref(relative, expected)
+        if checked != resolved:
+            raise WorkspaceError("REFERENCE_REALPATH_MISMATCH")
+        return relative
 
     def verified_output(self, source_ref: str, changeset_id: str, suffix: str) -> Path:
         source = self.resolve_ref(source_ref, PathClass.WORKING)
