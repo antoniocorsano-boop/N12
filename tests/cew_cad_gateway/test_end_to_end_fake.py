@@ -212,13 +212,13 @@ class EndToEndFakeTests(unittest.TestCase):
         changed = asyncio.run(self.runtime.apply_approved_changeset(proposed["changeset_id"], "CEW-CAD-APP-E2E-001"))
         self.adapter.changed_entities = ["A1", "B2"]
         change = self.artifacts.load_change(changed["change_id"])
-        tampered_change_id = self.artifacts.store_change_for_test(replace(change, changed_entities=("A1","B2")))
+        tampered_change_id = self.artifacts.store_change(replace(change, changed_entities=("A1","B2")))
         verified = asyncio.run(self.runtime.verify_changeset(proposed["changeset_id"], tampered_change_id))
         self.assertEqual(verified["decision"], "FAIL")
 
         self.adapter.changed_entities = ["A1"]
         self.adapter.entity_present = False
-        clean_change_id = self.artifacts.store_change_for_test(replace(change, changed_entities=("A1",), request_id="second-change"))
+        clean_change_id = self.artifacts.store_change(replace(change, changed_entities=("A1",), request_id="second-change"))
         missing = asyncio.run(self.runtime.verify_changeset(proposed["changeset_id"], clean_change_id))
         self.assertEqual(missing["decision"], "FAIL")
 
