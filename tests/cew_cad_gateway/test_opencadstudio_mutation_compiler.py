@@ -19,7 +19,11 @@ class FakeClient:
         if name == "ocs_sessions": return {"sessions":[{"session_id":"s1"}]}
         if name == "ocs_read" and arguments.get("op") == "capabilities": return {"build":"2026.41","capabilities":{"query":True,"audit":True,"capture":True,"save_verified":True}}
         if name == "ocs_read" and arguments.get("op") == "state": return {"document_id":1,"revision":7,"path":"C:/lab.dwg","source_sha256":"0"*64,"command":{"status":"idle"}}
-        if name == "ocs_execute": return {"status":"completed","revision":8,"changed_entities":["A1"]}
+        if name == "ocs_execute":
+            request = arguments["request"]
+            if request["op"] == "save_verified":
+                return {"ok":True,"status":"completed","semantic_verification_passed":True,"sha256":"2"*64,"actual_version":"2018"}
+            return {"status":"completed","revision":8,"changed_entities":["A1"]}
         raise AssertionError((name, arguments))
 
 
@@ -49,6 +53,34 @@ class MutationCompilerTests(unittest.TestCase):
     def test_wrong_layer_and_non_polyline_operation_are_rejected_before_execute(self) -> None:
         with self.assertRaises(OpenCADStudioError):
             asyncio.run(self.adapter.apply_operation(CreatePolyline(layer="WALLS", points=((0.0,0.0),(1.0,0.0))), request_id="req-2", expected=self.expected))
+        self.assertEqual([name for name,_ in self.client.calls if name == "ocs_execute"], [])
+
+    def test_save_verified_requires_absolute_new_path_and_compiles_no_overwrite_request(self) -> None:
+        output = Path(self.tmp.name) / "verified.dwg"
+        result = asyncio.run(self.adapter.save_verified(output, target_format="dwg", target_version="2018", expected=self.expected))
+        self.assertTrue(result["ok"])
+        execute = [args for name,args in self.client.calls if name == "ocs_execute"]
+        self.assertEqual(len(execute), 1)
+        request = execute[0]["request"]
+        self.assertEqual(request["op"], "save_verified")
+        self.assertEqual(request["path"], str(output.resolve()))
+        self.assertEqual(request["target_format"], "dwg")
+        self.assertEqual(request["target_version"], "2018")
+        self.assertIs(request["overwrite"], False)
+        self.assertRegex(request["request_id"], r"^cew-cad-save-[0-9a-f]{32}$")
+
+    def test_save_verified_rejects_relative_existing_or_stale_target_before_execute(self) -> None:
+        relative = Path("relative.dwg")
+        with self.assertRaises(OpenCADStudioError):
+            asyncio.run(self.adapter.save_verified(relative, target_format="dwg", target_version="2018", expected=self.expected))
+
+        existing = Path(self.tmp.name) / "existing.dwg"; existing.write_bytes(b"x")
+        with self.assertRaises(OpenCADStudioError):
+            asyncio.run(self.adapter.save_verified(existing, target_format="dwg", target_version="2018", expected=self.expected))
+
+        stale = DocumentIdentity(path="C:/lab.dwg", sha256="0"*64, document_id=1, revision=6)
+        with self.assertRaises(OpenCADStudioError):
+            asyncio.run(self.adapter.save_verified(Path(self.tmp.name) / "new.dwg", target_format="dwg", target_version="2018", expected=stale))
         self.assertEqual([name for name,_ in self.client.calls if name == "ocs_execute"], [])
 
 
