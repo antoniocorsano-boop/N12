@@ -54,8 +54,13 @@ class LabAcceptanceRunnerTests(unittest.TestCase):
             "--expected-source-sha256", self.lab_hash,
             "--target-version", "2018",
         ]
-        prepare = parser.parse_args(["prepare", *common, "--changeset-id", "CS-LAB-1"])
-        execute = parser.parse_args(["execute", *common, "--changeset-id", "CS-LAB-1", "--approval-id", "APP-LAB-1"])
+        prepare = parser.parse_args(["prepare", *common, "--changeset-id", "CS-LAB-1", "--point", "0,0", "--point", "1,0"])
+        execute = parser.parse_args([
+            "execute", *common,
+            "--changeset-id", "CS-LAB-1",
+            "--approval-id", "APP-LAB-1",
+            "--confirm-lab-mutation", "CEW-LAB-ONLY",
+        ])
         self.assertEqual(prepare.command, "prepare")
         self.assertEqual(execute.command, "execute")
         self.assertFalse(hasattr(prepare, "private_key"))
@@ -63,7 +68,30 @@ class LabAcceptanceRunnerTests(unittest.TestCase):
         self.assertFalse(hasattr(prepare, "output_path"))
         self.assertFalse(hasattr(execute, "output_path"))
         with self.assertRaises(SystemExit):
-            parser.parse_args(["execute", *common, "--changeset-id", "CS-LAB-1", "--approval-id", "APP-LAB-1", "--private-key", "secret.pem"])
+            parser.parse_args([
+                "execute", *common,
+                "--changeset-id", "CS-LAB-1",
+                "--approval-id", "APP-LAB-1",
+                "--confirm-lab-mutation", "CEW-LAB-ONLY",
+                "--private-key", "secret.pem",
+            ])
+
+    def test_execute_requires_explicit_lab_mutation_confirmation(self) -> None:
+        parser = build_parser()
+        with self.assertRaises(SystemExit):
+            parser.parse_args([
+                "execute",
+                "--workspace-root", str(self.root),
+                "--policy", "governance/cew-cad/CEW_CAD_POLICY_v1.json",
+                "--ocs-executable", "C:/OpenCADStudio/OpenCADStudio.exe",
+                "--ocs-sha256", "a" * 64,
+                "--approval-public-key", "C:/keys/cew-cad-public.pem",
+                "--lab-dwg-ref", "02_working/cew-cad-lab.dwg",
+                "--expected-source-sha256", self.lab_hash,
+                "--target-version", "2018",
+                "--changeset-id", "CS-LAB-1",
+                "--approval-id", "APP-LAB-1",
+            ])
 
     def test_validate_lab_target_requires_exact_working_ref_and_hash(self) -> None:
         resolved = validate_lab_target(self.workspace, "02_working/cew-cad-lab.dwg", self.lab_hash)
