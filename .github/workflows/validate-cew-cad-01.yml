@@ -25,5 +25,11 @@ jobs:
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.12'
+      - name: Install CEW-CAD direct dependencies in clean runner
+        run: python -m pip install -r requirements/cew-cad.in
+      - name: Capture exact dependency snapshot
+        run: python -m pip freeze
       - name: Task 1 RED/GREEN contract tests
         run: python -m unittest tests/cew_cad_gateway/test_types_and_canonical.py -v
+      - name: Compile gateway package
+        run: python -m compileall -q cew_cad_gateway
