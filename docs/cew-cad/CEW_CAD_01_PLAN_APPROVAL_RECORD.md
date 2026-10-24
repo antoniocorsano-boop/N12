@@ -4,7 +4,7 @@
 **Decision authority:** HUMAN_REPOSITORY_OWNER  
 **Repository:** `antoniocorsano-boop/N12`  
 **Decision:** `PLAN_APPROVED`  
-**Implementation authorization:** `NOT_AUTHORIZED`  
+**Implementation authorization:** `AUTHORIZED_IN_PROGRESS`  
 
 ## Approved artifacts
 
@@ -15,23 +15,20 @@
 
 ## Authority boundary
 
-This approval closes the human review gate for the written CEW-CAD-01 implementation plan only.
+The original plan approval closed the human review gate for the written CEW-CAD-01 implementation plan only. A subsequent explicit human decision on **22 October 2026** authorized implementation of CEW-CAD-01 under `WIP=1` and recorded `CEW-CAD-01` as `AUTHORIZED_IN_PROGRESS` in `CEW_CURRENT_STATE.json`.
 
-It does **not** (by itself):
+Under that subsequent authorization:
 
-- authorize implementation;
-- modify `CEW_CURRENT_STATE.json`;
-- change the current `WIP=1` rule;
-- displace `CEW-B01` as the only active macro-task;
-
-**Subsequent human decision (2026-10-22):** implementation of CEW-CAD-01 was explicitly authorized and recorded in `CEW_CURRENT_STATE.json` as `CEW-CAD-01` / `AUTHORIZED_IN_PROGRESS` with `WIP=1`. That authorization did **not** authorize merge, mutation of canonical N12 drawings, promotion of OpenCADStudio beyond BENCHMARK CANDIDATE, resumption of CEW-B01 (it remains suspended, not superseded), or authorization of CEW-FEM. No elaborati N12 reali may be mutated.
-- authorize a second active CEW front;
-- authorize mutating access to any real N12 CAD artifact;
-- promote OpenCADStudio from `BENCHMARK CANDIDATE` to `ADOPT`;
-- authorize CEW-FEM, solver execution, `SolverRun`, `Result`, merge, deployment, or production issuance.
+- CEW-CAD-01 occupies the single active `WIP=1` slot;
+- CEW-B01 is **suspended, not superseded**;
+- implementation of the approved CEW-CAD-01 plan is authorized;
+- the authorization does **not** authorize a second active CEW front;
+- the authorization does **not** authorize mutating access to any real or canonical N12 CAD artifact;
+- OpenCADStudio remains `BENCHMARK CANDIDATE`, not `ADOPT`;
+- CEW-FEM, solver execution, `SolverRun`, `Result`, structural verification and production issuance remain unauthorized;
+- merge and deployment remain separately controlled and are not authorized by this record;
+- no elaborato N12 reale may be mutated by the live pilot.
 
 ## Next gate
 
-Implementation may begin only after a **separate explicit human decision** that authorizes CEW-CAD-01 under the CEW WIP/change-control rules and defines how the active CEW front is changed or sequenced.
-
-Until then, the approved plan remains executable documentation but is operationally blocked.
+Implementation is no longer blocked by plan authorization. The current gate is **qualification of the implemented CEW-CAD-01 candidate and the governed live pilot on disposable/laboratory CAD data**, followed by a separate human decision before any merge, promotion, production use, canonical CAD mutation, or change to the status of OpenCADStudio.
