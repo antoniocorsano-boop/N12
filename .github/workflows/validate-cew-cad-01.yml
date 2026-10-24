@@ -4,6 +4,10 @@ on:
   pull_request:
     branches:
       - main
+      - feat/cew-cad-01-controlled-ai-gateway
+  push:
+    branches:
+      - fix/cew-cad-01-live-contract-repair
   workflow_dispatch:
 
 permissions:
