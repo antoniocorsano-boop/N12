@@ -88,7 +88,7 @@ The original lab hash is a hard invariant throughout the pilot.
 Example only; replace paths, hashes and lab governance references with the reviewed values:
 
 ```powershell
-py -3.12 scripts\cew_cad_lab_acceptance.py prepare `
+py -3.12 -m scripts.cew_cad_lab_acceptance prepare `
   --workspace-root "C:\CivilExisting" `
   --policy "governance\cew-cad\CEW_CAD_POLICY_v1.json" `
   --ocs-executable "C:\Path\OpenCADStudio.exe" `
@@ -141,7 +141,7 @@ Approval is short-lived and single-use. If the CAD revision/session changes, gen
 Execution requires the literal confirmation `CEW-LAB-ONLY`:
 
 ```powershell
-py -3.12 scripts\cew_cad_lab_acceptance.py execute `
+py -3.12 -m scripts.cew_cad_lab_acceptance execute `
   --workspace-root "C:\CivilExisting" `
   --policy "governance\cew-cad\CEW_CAD_POLICY_v1.json" `
   --ocs-executable "C:\Path\OpenCADStudio.exe" `

@@ -17,12 +17,14 @@
 
 This approval closes the human review gate for the written CEW-CAD-01 implementation plan only.
 
-It does **not**:
+It does **not** (by itself):
 
 - authorize implementation;
 - modify `CEW_CURRENT_STATE.json`;
 - change the current `WIP=1` rule;
 - displace `CEW-B01` as the only active macro-task;
+
+**Subsequent human decision (2026-10-22):** implementation of CEW-CAD-01 was explicitly authorized and recorded in `CEW_CURRENT_STATE.json` as `CEW-CAD-01` / `AUTHORIZED_IN_PROGRESS` with `WIP=1`. That authorization did **not** authorize merge, mutation of canonical N12 drawings, promotion of OpenCADStudio beyond BENCHMARK CANDIDATE, resumption of CEW-B01 (it remains suspended, not superseded), or authorization of CEW-FEM. No elaborati N12 reali may be mutated.
 - authorize a second active CEW front;
 - authorize mutating access to any real N12 CAD artifact;
 - promote OpenCADStudio from `BENCHMARK CANDIDATE` to `ADOPT`;

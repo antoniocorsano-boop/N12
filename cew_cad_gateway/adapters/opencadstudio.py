@@ -11,6 +11,8 @@ from ..canonical import sha256_file, sha256_json
 from ..types import CADOperation, CADStatus, CapabilityIdentity, CreatePolyline, DocumentIdentity
 
 _REQUIRED_TOOLS = {"ocs_sessions", "ocs_read", "ocs_execute", "ocs_capture"}
+_INSPECT_AUTHORIZED_OPS = {"query"}
+_INSPECT_AUTHORIZED_FIELDS = {"op", "parameters", "document_id", "entities", "filters", "layer", "handle", "area", "bbox", "tolerance", "include", "query", "selection"}
 
 
 class OpenCADStudioError(ValueError):
@@ -159,11 +161,13 @@ def _resolve_active_document(state: dict[str, Any]) -> tuple[int, int, str]:
     if not isinstance(path, str) or not path:
         raise OpenCADStudioError("OCS_DOCUMENT_PATH_MISSING")
     revision = state.get("revision")
-    if not isinstance(revision, int) or isinstance(revision, bool) or revision < 0:
-        revision = doc.get("revision", 0)
-        if not isinstance(revision, int) or isinstance(revision, bool) or revision < 0:
-            revision = 0
-    return document_id, revision, path
+    if isinstance(revision, int) and not isinstance(revision, bool) and revision >= 0:
+        return document_id, revision, path
+    # revision not valid in state, do NOT fall back to default 0; try document
+    doc_revision = doc.get("revision") if isinstance(doc, dict) else None
+    if isinstance(doc_revision, int) and not isinstance(doc_revision, bool) and doc_revision >= 0:
+        return document_id, doc_revision, path
+    raise OpenCADStudioError("OCS_DOCUMENT_REVISION_MISSING")
 
 
 @asynccontextmanager
@@ -241,7 +245,10 @@ class OpenCADStudioAdapter:
             )
 
             document_id, revision, path = _resolve_active_document(state_payload)
-            source_sha256 = sha256_file(Path(path))
+            try:
+                source_sha256 = sha256_file(Path(path))
+            except OSError as exc:
+                raise OpenCADStudioError("OCS_DOCUMENT_UNREADABLE") from exc
 
             command = state_payload.get("command")
             if isinstance(command, dict):
@@ -275,11 +282,27 @@ class OpenCADStudioAdapter:
             )
 
     async def inspect(self, request: dict[str, object]) -> dict[str, object]:
-        status = await self.status()
+        if not isinstance(request, dict):
+            raise OpenCADStudioError("OCS_INSPECT_INVALID_REQUEST")
+        if "ocs_session_id" in request:
+            raise OpenCADStudioError("OCS_SESSION_OVERRIDE_FORBIDDEN")
+        payload = dict(request)
+        op = payload.get("op", "query")
+        if not isinstance(op, str):
+            raise OpenCADStudioError("OCS_INSPECT_OP_NOT_AUTHORIZED")
+        if op not in _INSPECT_AUTHORIZED_OPS:
+            raise OpenCADStudioError("OCS_INSPECT_OP_NOT_AUTHORIZED")
+        for key in payload:
+            if key not in _INSPECT_AUTHORIZED_FIELDS:
+                raise OpenCADStudioError("OCS_INSPECT_FIELD_NOT_AUTHORIZED")
+        payload["op"] = op
+        if self._bound_session_id is None:
+            status = await self.status()
+            session_id = status.session_id
+        else:
+            session_id = self._bound_session_id
         async with self._client_factory(self.executable) as client:
-            payload = dict(request)
-            payload.setdefault("op", "query")
-            return await self._call(client, "ocs_read", {"ocs_session_id": status.session_id, **payload})
+            return await self._call(client, "ocs_read", {"ocs_session_id": session_id, **payload})
 
     async def measure(self, request: dict[str, object]) -> dict[str, object]:
         return await self.inspect(request)

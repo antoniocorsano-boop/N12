@@ -530,6 +530,152 @@ class OpenCADStudioAdapterTests(unittest.TestCase):
             asyncio.run(adapter.status())
         self.assertEqual(str(cm.exception), "OCS_REQUIRED_CAPABILITY_MISSING")
 
+    def test_inspect_cannot_override_session_id(self) -> None:
+        client = FakeClient(exe_path=self.exe)
+        adapter = OpenCADStudioAdapter(self.exe, client_factory=self.factory(client))
+        asyncio.run(adapter.status())
+        with self.assertRaises(OpenCADStudioError) as cm:
+            asyncio.run(adapter.inspect({"ocs_session_id": "attacker-session", "op": "query"}))
+        self.assertEqual(str(cm.exception), "OCS_SESSION_OVERRIDE_FORBIDDEN")
+
+    def test_inspect_unauthorized_op_rejected_before_call(self) -> None:
+        client = FakeClient(exe_path=self.exe)
+        adapter = OpenCADStudioAdapter(self.exe, client_factory=self.factory(client))
+        asyncio.run(adapter.status())
+        calls_before = len(client.calls)
+        with self.assertRaises(OpenCADStudioError) as cm:
+            asyncio.run(adapter.inspect({"op": "capabilities"}))
+        self.assertEqual(str(cm.exception), "OCS_INSPECT_OP_NOT_AUTHORIZED")
+        self.assertEqual(len(client.calls), calls_before)
+
+    def test_inspect_unauthorized_fields_rejected(self) -> None:
+        client = FakeClient(exe_path=self.exe)
+        adapter = OpenCADStudioAdapter(self.exe, client_factory=self.factory(client))
+        asyncio.run(adapter.status())
+        calls_before = len(client.calls)
+        with self.assertRaises(OpenCADStudioError) as cm:
+            asyncio.run(adapter.inspect({"op": "query", "evil": True}))
+        self.assertEqual(str(cm.exception), "OCS_INSPECT_FIELD_NOT_AUTHORIZED")
+        self.assertEqual(len(client.calls), calls_before)
+
+    def test_inspect_authorized_query_works(self) -> None:
+        class InspectClient:
+            def __init__(self, exe_path):
+                self.exe_path = exe_path
+                self.calls = []
+            async def list_tools(self):
+                return {"ocs_sessions", "ocs_read", "ocs_execute", "ocs_capture"}
+            async def call_tool(self, name, args):
+                self.calls.append((name, args))
+                if name == "ocs_sessions":
+                    return {"result": [{"ok": True, "session_id": "s1", "document_id": 1, "revision": 0, "bridge": {"name": "OpenCADStudio", "version": "2026.42", "build_rev": "rev1", "tool_schema": "ts1"}, "documents": [{"id": 1, "path": str(self.exe_path), "revision": 0}], "command": None}]}
+                if name == "ocs_read" and args.get("op") == "capabilities":
+                    return {
+                        "ok": True,
+                        "api": "ocs-cad-automation",
+                        "version": 1,
+                        "bridge": {"name": "OpenCADStudio", "version": "2026.42", "build_rev": "rev1", "tool_schema": "ts1"},
+                        "concurrency": {"document_id": True, "request_id": True, "revision": True},
+                        "editor": {"capture": True, "commands": True, "events": True, "files": True, "properties": True, "selection": True},
+                        "geometry": {"query": True, "spatial_filters": True, "kernel_measurements": True, "interactive_commands": True},
+                        "operations": {"audit": True, "capture": True, "verified_save": True, "batch": True},
+                        "records": {"collections": [], "filters": []},
+                        "transactions": {"atomic_property_updates": True, "batch": True, "redo": True, "undo": True},
+                    }
+                if name == "ocs_read" and args.get("op") == "state":
+                    return {"ok": True, "document_id": 1, "revision": 0, "documents": [{"id": 1, "path": str(self.exe_path), "revision": 0}], "command": None}
+                if name == "ocs_read" and args.get("op") == "query":
+                    assert args.get("ocs_session_id") == "s1"
+                    return {"ok": True}
+                raise AssertionError((name, args))
+
+        client = InspectClient(self.exe)
+        @asynccontextmanager
+        async def factory(_exe):
+            yield client
+        adapter = OpenCADStudioAdapter(self.exe, client_factory=factory)
+        asyncio.run(adapter.status())
+        res = asyncio.run(adapter.inspect({"op": "query"}))
+        self.assertEqual(res, {"ok": True})
+
+    def test_resolve_revision_zero_valid(self) -> None:
+        client = FakeClient(
+            states=[{"ok": True, "document_id": 1, "revision": 0, "documents": [{"id": 1, "path": str(self.exe), "revision": 5}], "command": {"status": "idle"}}],
+            exe_path=self.exe,
+        )
+        adapter = OpenCADStudioAdapter(self.exe, client_factory=self.factory(client))
+        status = asyncio.run(adapter.status())
+        self.assertEqual(status.document.revision, 0)
+
+    def test_resolve_revision_missing_falls_back_to_document(self) -> None:
+        client = FakeClient(
+            states=[{"ok": True, "document_id": 1, "documents": [{"id": 1, "path": str(self.exe), "revision": 2}], "command": {"status": "idle"}}],
+            exe_path=self.exe,
+        )
+        adapter = OpenCADStudioAdapter(self.exe, client_factory=self.factory(client))
+        status = asyncio.run(adapter.status())
+        self.assertEqual(status.document.revision, 2)
+
+    def test_resolve_revision_none_falls_back_to_document(self) -> None:
+        client = FakeClient(
+            states=[{"ok": True, "document_id": 1, "revision": None, "documents": [{"id": 1, "path": str(self.exe), "revision": 3}], "command": {"status": "idle"}}],
+            exe_path=self.exe,
+        )
+        adapter = OpenCADStudioAdapter(self.exe, client_factory=self.factory(client))
+        status = asyncio.run(adapter.status())
+        self.assertEqual(status.document.revision, 3)
+
+    def test_resolve_revision_false_falls_back_to_document(self) -> None:
+        client = FakeClient(
+            states=[{"ok": True, "document_id": 1, "revision": False, "documents": [{"id": 1, "path": str(self.exe), "revision": 4}], "command": {"status": "idle"}}],
+            exe_path=self.exe,
+        )
+        adapter = OpenCADStudioAdapter(self.exe, client_factory=self.factory(client))
+        status = asyncio.run(adapter.status())
+        self.assertEqual(status.document.revision, 4)
+
+    def test_resolve_revision_negative_falls_back_to_document(self) -> None:
+        client = FakeClient(
+            states=[{"ok": True, "document_id": 1, "revision": -1, "documents": [{"id": 1, "path": str(self.exe), "revision": 6}], "command": {"status": "idle"}}],
+            exe_path=self.exe,
+        )
+        adapter = OpenCADStudioAdapter(self.exe, client_factory=self.factory(client))
+        status = asyncio.run(adapter.status())
+        self.assertEqual(status.document.revision, 6)
+
+    def test_resolve_revision_both_invalid_fails(self) -> None:
+        client = FakeClient(
+            states=[{"ok": True, "document_id": 1, "documents": [{"id": 1, "path": str(self.exe)}], "command": {"status": "idle"}}],
+            exe_path=self.exe,
+        )
+        adapter = OpenCADStudioAdapter(self.exe, client_factory=self.factory(client))
+        with self.assertRaises(OpenCADStudioError) as cm:
+            asyncio.run(adapter.status())
+        self.assertEqual(str(cm.exception), "OCS_DOCUMENT_REVISION_MISSING")
+
+    def test_resolve_revision_state_none_document_invalid_fails(self) -> None:
+        client = FakeClient(
+            states=[{"ok": True, "document_id": 1, "revision": None, "documents": [{"id": 1, "path": str(self.exe), "revision": None}], "command": {"status": "idle"}}],
+            exe_path=self.exe,
+        )
+        adapter = OpenCADStudioAdapter(self.exe, client_factory=self.factory(client))
+        with self.assertRaises(OpenCADStudioError) as cm:
+            asyncio.run(adapter.status())
+        self.assertEqual(str(cm.exception), "OCS_DOCUMENT_REVISION_MISSING")
+
+    def test_status_unreadable_document_raises_ocs_document_unreadable(self) -> None:
+        import builtins
+        original_sha256_file = __import__('cew_cad_gateway.canonical', fromlist=['sha256_file']).sha256_file
+        def fake_sha256_file(path):
+            raise OSError("Permission denied")
+        client = FakeClient(exe_path=self.exe)
+        adapter = OpenCADStudioAdapter(self.exe, client_factory=self.factory(client))
+        with patch('cew_cad_gateway.adapters.opencadstudio.sha256_file', side_effect=OSError("Permission denied")):
+            with self.assertRaises(OpenCADStudioError) as cm:
+                asyncio.run(adapter.status())
+            self.assertEqual(str(cm.exception), "OCS_DOCUMENT_UNREADABLE")
+            self.assertIsInstance(cm.exception.__cause__, OSError)
+
 
 if __name__ == "__main__":
     unittest.main()
