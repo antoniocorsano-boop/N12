@@ -18,6 +18,11 @@ class FailingReceiptStore(ReceiptStore):
             raise ReceiptStoreError("SIMULATED_PERSISTENCE_FAILURE")
         return super().write(kind, value)
 
+    def claim_once(self, kind: str, key: str, value: object):
+        if kind == "consumed_approval":
+            raise ReceiptStoreError("SIMULATED_PERSISTENCE_FAILURE")
+        return super().claim_once(kind, key, value)
+
 
 class DurableApprovalFailClosedTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -129,7 +134,7 @@ class DurableApprovalFailClosedTests(unittest.TestCase):
             )
 
         self.assertEqual(str(cm.exception), "RECEIPT_ALREADY_CLAIMED")
-        self.assertEqual(stored.path.name, "consumed_approval-5dc3641194a160aec4f3790205305973874000340859e50fb256c5bb25f23004.json")
+        self.assertEqual(stored.path.name, "consumed_approval-74b173dc7da8b628c3b7fa6819c643ac28c1a9fe3bcd22c1a74962a6cbae1b3a.json")
 
 
 if __name__ == "__main__":
