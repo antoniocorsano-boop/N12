@@ -55,3 +55,23 @@ jobs:
         run: python -m unittest discover -s tests/cew_cad_gateway -p 'test_*.py' -v
       - name: Compile gateway package
         run: python -m compileall -q cew_cad_gateway
+
+  windows-durability:
+    name: CEW-CAD-01 Windows Durability
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Install CEW-CAD direct dependencies in clean runner
+        run: python -m pip install -r requirements/cew-cad.lock
+      - name: Windows durable directory flush contract
+        run: python -m unittest tests.cew_cad_gateway.test_durable_approval_fail_closed.DurableApprovalFailClosedTests.test_windows_native_directory_flush_succeeds tests.cew_cad_gateway.test_durable_approval_fail_closed.DurableApprovalFailClosedTests.test_windows_directory_flush_requests_generic_write_access -v
