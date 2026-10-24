@@ -477,6 +477,59 @@ class OpenCADStudioAdapterTests(unittest.TestCase):
 
         self.assertEqual(status.document.sha256, expected_sha)
 
+    def test_enforces_policy_required_capabilities(self) -> None:
+        """
+        The adapter must enforce policy.required_capabilities.
+        If policy requires a capability not present in OCS surface, status() must fail closed.
+        """
+        # Policy requires "custom_capability" which is not in OCS surface
+        policy_required = ("query", "audit", "capture", "save_verified", "custom_capability")
+        
+        class CapabilityClient:
+            def __init__(self, exe_path):
+                self.calls = []
+                self.exe_path = exe_path
+            async def list_tools(self):
+                return {"ocs_sessions", "ocs_read", "ocs_execute", "ocs_capture"}
+            async def call_tool(self, name, args):
+                self.calls.append((name, args))
+                if name == "ocs_sessions":
+                    return {"result": [{"ok": True, "session_id": "s1", "document_id": 1, "revision": 0, "bridge": {"name": "OpenCADStudio", "version": "2026.42", "build_rev": "rev1", "tool_schema": "ts1"}, "documents": [{"id": 1, "path": str(self.exe_path), "revision": 0}], "command": None}]}
+                if name == "ocs_read" and args.get("op") == "capabilities":
+                    return {
+                        "ok": True,
+                        "api": "ocs-cad-automation",
+                        "version": 1,
+                        "bridge": {
+                            "name": "OpenCADStudio",
+                            "version": "2026.42",
+                            "build_rev": "rev1",
+                            "tool_schema": "ts1",
+                        },
+                        "concurrency": {"document_id": True, "request_id": True, "revision": True},
+                        "editor": {"capture": True, "commands": True, "events": True, "files": True, "properties": True, "selection": True},
+                        "geometry": {"query": True, "spatial_filters": True, "kernel_measurements": True, "interactive_commands": True},
+                        "operations": {"audit": True, "capture": True, "verified_save": True, "batch": True},
+                        "records": {"collections": [], "filters": []},
+                        "transactions": {"atomic_property_updates": True, "batch": True, "redo": True, "undo": True},
+                    }
+                if name == "ocs_read" and args.get("op") == "state":
+                    return {"ok": True, "document_id": 1, "revision": 0, "documents": [{"id": 1, "path": str(self.exe_path), "revision": 0}], "command": None}
+                raise AssertionError((name, args))
+
+        client = CapabilityClient(self.exe)
+
+        @asynccontextmanager
+        async def factory(_exe):
+            yield client
+
+        # Adapter should accept required_capabilities parameter
+        adapter = OpenCADStudioAdapter(self.exe, required_capabilities=policy_required, client_factory=factory)
+        
+        with self.assertRaises(OpenCADStudioError) as cm:
+            asyncio.run(adapter.status())
+        self.assertEqual(str(cm.exception), "OCS_REQUIRED_CAPABILITY_MISSING")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -109,6 +109,40 @@ def _validate_capabilities_payload(payload: dict[str, Any]) -> None:
     # We validate the structure but don't require specific operation keys.
 
 
+def _check_required_capabilities(
+    tools: set[str],
+    capabilities_payload: dict[str, Any],
+    required: tuple[str, ...],
+) -> None:
+    """
+    Validate that all required capabilities are available in the OCS surface.
+    Maps policy capability names to actual OCS features.
+    Unknown capabilities are treated as missing (fail closed).
+    """
+    if not required:
+        return
+    
+    # Map policy capability names to OCS features
+    capability_map = {
+        "query": lambda: capabilities_payload.get("geometry", {}).get("query") is True,
+        "audit": lambda: (
+            capabilities_payload.get("operations", {}).get("audit") is True
+        ),
+        "capture": lambda: "ocs_capture" in tools,
+        "save_verified": lambda: (
+            capabilities_payload.get("operations", {}).get("verified_save") is True
+        ),
+    }
+    
+    for cap in required:
+        checker = capability_map.get(cap)
+        if checker is None:
+            # Unknown capability - fail closed
+            raise OpenCADStudioError("OCS_REQUIRED_CAPABILITY_MISSING")
+        if not checker():
+            raise OpenCADStudioError("OCS_REQUIRED_CAPABILITY_MISSING")
+
+
 def _resolve_active_document(state: dict[str, Any]) -> tuple[int, int, str]:
     document_id = state.get("document_id")
     if not isinstance(document_id, int) or isinstance(document_id, bool) or document_id < 1:
@@ -146,10 +180,12 @@ class OpenCADStudioAdapter:
         expected_executable_sha256: str | None = None,
         *,
         client_factory: Callable[[Path], Any] | None = None,
+        required_capabilities: tuple[str, ...] | None = None,
     ) -> None:
         self.executable = executable
         self.expected_executable_sha256 = expected_executable_sha256
         self._client_factory = client_factory or _default_client_factory
+        self._required_capabilities = required_capabilities or ()
         self._bound_session_id: str | None = None
         self._bound_document_id: int | None = None
         self._bound_document_path: str | None = None
@@ -194,6 +230,7 @@ class OpenCADStudioAdapter:
                 {"ocs_session_id": session_id, "op": "capabilities"},
             )
             _validate_capabilities_payload(capabilities_payload)
+            _check_required_capabilities(tools, capabilities_payload, self._required_capabilities)
 
             state_payload = await self._call(
                 client,

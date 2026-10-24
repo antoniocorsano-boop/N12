@@ -166,6 +166,8 @@ class VerificationService:
         capture_ok = isinstance(capture.get("resource_uri"), str) and bool(capture.get("resource_uri"))
         if isinstance(diff, dict):
             capture_ok = capture_ok and diff.get("changed") is True
+        else:
+            capture_ok = False
 
         audit = await self.adapter.audit({"target_format": self.target_format, "target_version": self.target_version})
         audit_ok = self._audit_ok(audit)
@@ -179,8 +181,18 @@ class VerificationService:
             "target_audit_lossless": audit_ok,
         }
         governed_postcondition_ok = geometry_ok and audit_ok and source_ok and revision_ok and exact_changed_set
+        model_postconditions: dict[str, bool] = {}
         for postcondition in changeset.postconditions:
-            checks[postcondition] = governed_postcondition_ok
+            if postcondition in checks:
+                # Reserved name - do not overwrite built-in check
+                # Store in separate namespace instead
+                model_postconditions[postcondition] = governed_postcondition_ok
+            else:
+                model_postconditions[postcondition] = governed_postcondition_ok
+        
+        # Merge model postconditions with a prefix to avoid collisions
+        for key, value in model_postconditions.items():
+            checks[f"model:{key}"] = value
 
         decision = "PASS" if all(checks.values()) and not unrelated_change else "FAIL"
         receipt = TechnicalVerificationReceipt(

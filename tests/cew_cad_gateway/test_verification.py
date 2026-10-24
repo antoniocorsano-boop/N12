@@ -132,5 +132,114 @@ class VerificationTests(unittest.TestCase):
         self.adapter.save_verified=bad_hash
         with self.assertRaises(VerificationError): asyncio.run(self.service.save_verified_copy(self.changeset,verification,"02_working/lab.dwg"))
 
+    def test_capture_fail_closed_on_missing_diff(self) -> None:
+        """Capture must fail closed when diff is missing."""
+        adapter = FakeVerificationAdapter(self.adapter.current)
+        adapter.capture_result = {"resource_uri": "memory://capture/post"}  # No diff key
+        root = self.root / "05_audits" / "capture-no-diff"; root.mkdir()
+        service = VerificationService(adapter=adapter, workspace=self.workspace, receipt_store=ReceiptStore(root), target_format="dwg", target_version="2018")
+        receipt = asyncio.run(service.verify(self.changeset, self.change))
+        self.assertEqual(receipt.decision, "FAIL")
+        self.assertFalse(receipt.postconditions.get("visual_change_captured", True))
+
+    def test_capture_fail_closed_on_none_diff(self) -> None:
+        """Capture must fail closed when diff is None."""
+        adapter = FakeVerificationAdapter(self.adapter.current)
+        adapter.capture_result = {"resource_uri": "memory://capture/post", "diff": None}
+        root = self.root / "05_audits" / "capture-none-diff"; root.mkdir()
+        service = VerificationService(adapter=adapter, workspace=self.workspace, receipt_store=ReceiptStore(root), target_format="dwg", target_version="2018")
+        receipt = asyncio.run(service.verify(self.changeset, self.change))
+        self.assertEqual(receipt.decision, "FAIL")
+        self.assertFalse(receipt.postconditions.get("visual_change_captured", True))
+
+    def test_capture_fail_closed_on_non_dict_diff(self) -> None:
+        """Capture must fail closed when diff is not a dict."""
+        adapter = FakeVerificationAdapter(self.adapter.current)
+        adapter.capture_result = {"resource_uri": "memory://capture/post", "diff": "not-a-dict"}
+        root = self.root / "05_audits" / "capture-non-dict-diff"; root.mkdir()
+        service = VerificationService(adapter=adapter, workspace=self.workspace, receipt_store=ReceiptStore(root), target_format="dwg", target_version="2018")
+        receipt = asyncio.run(service.verify(self.changeset, self.change))
+        self.assertEqual(receipt.decision, "FAIL")
+        self.assertFalse(receipt.postconditions.get("visual_change_captured", True))
+
+    def test_capture_fail_closed_on_changed_false(self) -> None:
+        """Capture must fail closed when diff.changed is False."""
+        adapter = FakeVerificationAdapter(self.adapter.current)
+        adapter.capture_result = {"resource_uri": "memory://capture/post", "diff": {"changed": False}}
+        root = self.root / "05_audits" / "capture-changed-false"; root.mkdir()
+        service = VerificationService(adapter=adapter, workspace=self.workspace, receipt_store=ReceiptStore(root), target_format="dwg", target_version="2018")
+        receipt = asyncio.run(service.verify(self.changeset, self.change))
+        self.assertEqual(receipt.decision, "FAIL")
+        self.assertFalse(receipt.postconditions.get("visual_change_captured", True))
+
+    def test_capture_fail_closed_on_missing_resource_uri(self) -> None:
+        """Capture must fail closed when resource_uri is missing."""
+        adapter = FakeVerificationAdapter(self.adapter.current)
+        adapter.capture_result = {"diff": {"changed": True}}  # No resource_uri
+        root = self.root / "05_audits" / "capture-no-resource-uri"; root.mkdir()
+        service = VerificationService(adapter=adapter, workspace=self.workspace, receipt_store=ReceiptStore(root), target_format="dwg", target_version="2018")
+        receipt = asyncio.run(service.verify(self.changeset, self.change))
+        self.assertEqual(receipt.decision, "FAIL")
+        self.assertFalse(receipt.postconditions.get("visual_change_captured", True))
+
+    def test_capture_fail_closed_on_empty_resource_uri(self) -> None:
+        """Capture must fail closed when resource_uri is empty string."""
+        adapter = FakeVerificationAdapter(self.adapter.current)
+        adapter.capture_result = {"resource_uri": "", "diff": {"changed": True}}
+        root = self.root / "05_audits" / "capture-empty-resource-uri"; root.mkdir()
+        service = VerificationService(adapter=adapter, workspace=self.workspace, receipt_store=ReceiptStore(root), target_format="dwg", target_version="2018")
+        receipt = asyncio.run(service.verify(self.changeset, self.change))
+        self.assertEqual(receipt.decision, "FAIL")
+        self.assertFalse(receipt.postconditions.get("visual_change_captured", True))
+
+    def test_capture_passes_only_with_valid_resource_uri_and_changed_true(self) -> None:
+        """Capture passes only with valid resource_uri AND diff.changed=True."""
+        adapter = FakeVerificationAdapter(self.adapter.current)
+        adapter.capture_result = {"resource_uri": "memory://capture/post", "diff": {"changed": True}}
+        root = self.root / "05_audits" / "capture-valid"; root.mkdir()
+        service = VerificationService(adapter=adapter, workspace=self.workspace, receipt_store=ReceiptStore(root), target_format="dwg", target_version="2018")
+        receipt = asyncio.run(service.verify(self.changeset, self.change))
+        self.assertEqual(receipt.decision, "PASS")
+        self.assertTrue(receipt.postconditions.get("visual_change_captured", False))
+
+    def test_model_postconditions_cannot_overwrite_built_in_checks(self) -> None:
+        """
+        Model-authored changeset.postconditions must never overwrite built-in
+        governed checks such as source_integrity, changed_entity_scope_exact,
+        geometry_kernel_matches, visual_change_captured, target_audit_lossless.
+        """
+        # Create a changeset with a postcondition that collides with a built-in check name
+        from dataclasses import replace
+        changeset_with_collision = replace(
+            self.changeset,
+            postconditions=("visual_change_captured", "source_integrity", "custom_postcondition"),
+        )
+        
+        # Create an adapter where the built-in checks would FAIL
+        adapter = FakeVerificationAdapter(self.adapter.current)
+        adapter.capture_result = {"resource_uri": "memory://capture/post", "diff": {"changed": False}}  # capture fails
+        adapter.audit_result = {"ok": False, "target_format": "dwg", "target_version": "2018", "target_compatible": False, "dropped_on_save": ["LOSS"]}  # audit fails
+        # Also make source integrity fail by changing the document path
+        adapter.current = replace(adapter.current, document=replace(adapter.current.document, path="/fake/path.dwg"))
+        
+        root = self.root / "05_audits" / "postcondition-isolation"; root.mkdir()
+        service = VerificationService(adapter=adapter, workspace=self.workspace, receipt_store=ReceiptStore(root), target_format="dwg", target_version="2018")
+        receipt = asyncio.run(service.verify(changeset_with_collision, self.change))
+        
+        # The decision should be FAIL because built-in checks fail
+        self.assertEqual(receipt.decision, "FAIL")
+        
+        # The built-in check keys should be present with their actual (failed) values
+        self.assertFalse(receipt.postconditions.get("visual_change_captured", True))
+        self.assertFalse(receipt.postconditions.get("target_audit_lossless", True))
+        self.assertFalse(receipt.postconditions.get("source_integrity", True))
+        
+        # The custom postcondition should be in a separate namespace or not override
+        # Since the built-in checks fail, the custom one should also be False
+        # but it should not be able to force a PASS
+        # Verify model postconditions are prefixed
+        self.assertIn("model:custom_postcondition", receipt.postconditions)
+        self.assertEqual(receipt.postconditions.get("model:custom_postcondition"), False)
+
 
 if __name__ == "__main__": unittest.main()

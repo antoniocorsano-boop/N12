@@ -108,12 +108,63 @@ class InspectionTests(unittest.TestCase):
         self.assertEqual(receipt.status.document.revision, 4)
         self.assertEqual(receipt.status.capabilities.cad_build, "fake-1")
         self.assertEqual(receipt.status.capabilities.capabilities_sha256, "1" * 64)
-        self.assertTrue(result["stored"].path.exists())
-        with self.assertRaises(ReceiptStoreError):
-            self.store.write("inspection", receipt)
+        # The stored field is now a dict with kind and sha256, not a StoredReceipt object
+        self.assertIn("kind", result["stored"])
+        self.assertIn("sha256", result["stored"])
+        self.assertEqual(result["stored"]["kind"], "inspection")
+        # Verify the receipt file was actually written
+        import glob
+        receipt_files = glob.glob(str(self.root / "05_audits" / "inspection-*.json"))
+        self.assertEqual(len(receipt_files), 1)
+        # Idempotent write should succeed (not raise)
+        stored2 = self.store.write("inspection", receipt)
+        self.assertEqual(stored2.sha256, result["stored"]["sha256"])
         self.assertNotIn("apply_operation", self.adapter.calls)
         self.assertNotIn("save_verified", self.adapter.calls)
 
+    def test_audit_response_is_json_serializable_and_excludes_filesystem_path(self) -> None:
+        """Audit response must be JSON-serializable and must not expose local receipt filesystem path."""
+        import json
+        from cew_cad_gateway.runtime import GatewayRuntimeImpl
+        from cew_cad_gateway.execution import ExecutionService
+        from cew_cad_gateway.verification import VerificationService
+        from cew_cad_gateway.changesets import ChangesetService
+        from cew_cad_gateway.artifacts import ArtifactRepository
+        from cew_cad_gateway.approval import ApprovalVerifier
+        from cew_cad_gateway.server import PolylineProposalInput
+        from cew_cad_gateway.types import CreatePolyline, EpistemicState
+        
+        # Build a runtime with fake adapter
+        runtime = GatewayRuntimeImpl(
+            inspection_service=self.service,
+            changeset_service=ChangesetService(self.policy, known_evidence={"E-001"}, known_claims={"C-001"}, known_decisions={"D-001"}),
+            execution_service=ExecutionService(adapter=self.adapter, workspace=self.workspace, policy=self.policy, approval_verifier=ApprovalVerifier(Path(self.tmp.name)/"pub.pem", now=lambda: "2026-10-22T05:00:00+02:00"), receipt_store=self.store),
+            verification_service=VerificationService(adapter=self.adapter, workspace=self.workspace, receipt_store=self.store, target_format="dwg", target_version="2018"),
+            artifacts=ArtifactRepository(self.workspace),
+            workspace=self.workspace,
+            target_format="dwg",
+            target_version="2018",
+        )
+        
+        result = asyncio.run(runtime.audit("dwg", "2018"))
+        
+        # The result should be JSON serializable
+        json_str = json.dumps(result)
+        self.assertIsInstance(json_str, str)
+        
+        # Parse back and verify structure
+        parsed = json.loads(json_str)
+        self.assertIn("status", parsed)
+        self.assertIn("data", parsed)
+        self.assertIn("receipt", parsed)
+        self.assertIn("stored", parsed)
+        
+        # The stored receipt should not expose the local filesystem path
+        stored = parsed["stored"]
+        self.assertIn("kind", stored)
+        self.assertIn("sha256", stored)
+        # The path should be absent (not exposed)
+        self.assertNotIn("path", stored)
 
-if __name__ == "__main__":
-    unittest.main()
+
+if __name__ == "__main__": unittest.main()

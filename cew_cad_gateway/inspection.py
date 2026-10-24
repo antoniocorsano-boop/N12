@@ -55,4 +55,10 @@ class InspectionService:
             observed_at=self._now(),
         )
         stored = self.receipt_store.write("inspection", receipt)
-        return {"status": status, "data": data, "receipt": receipt, "stored": stored}
+        # Return JSON-serializable response without exposing filesystem path
+        return {
+            "status": status,
+            "data": data,
+            "receipt": receipt,
+            "stored": {"kind": stored.kind, "sha256": stored.sha256},
+        }

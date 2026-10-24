@@ -36,7 +36,7 @@ class ExecutionService:
 
     @staticmethod
     def _request_id(changeset: Changeset) -> str:
-        digest = hashlib.sha256(f"{changeset.changeset_id}:0".encode("utf-8")).hexdigest()
+        digest = hashlib.sha256(f"{changeset.changeset_id}:{changeset.changeset_sha256}:0".encode("utf-8")).hexdigest()
         return f"cew-cad-{digest[:32]}"
 
     def _validate_operation(self, changeset: Changeset) -> CreatePolyline:

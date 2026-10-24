@@ -28,10 +28,33 @@ class ReceiptStore:
             raise ReceiptStoreError("INVALID_RECEIPT_KIND")
         digest = sha256_json(value)
         path = self.root / f"{kind}-{digest}.json"
+        content = canonical_json_bytes(value) + b"\n"
+        
+        if path.exists():
+            existing = path.read_bytes()
+            if existing == content:
+                # Idempotent: same content, return existing
+                return StoredReceipt(kind=kind, path=path, sha256=digest)
+            else:
+                # Conflict: same path but different content
+                raise ReceiptStoreError("RECEIPT_CONTENT_CONFLICT")
+        
+        # Atomic write: temp file + rename
+        import tempfile
+        import os
+        with tempfile.NamedTemporaryFile(mode="wb", dir=self.root, delete=False, prefix=f".{kind}-{digest}.", suffix=".tmp") as tmp:
+            tmp.write(content)
+            tmp.flush()
+            os.fsync(tmp.fileno())
+            tmp_path = Path(tmp.name)
         try:
-            with path.open("xb") as handle:
-                handle.write(canonical_json_bytes(value))
-                handle.write(b"\n")
-        except FileExistsError as exc:
-            raise ReceiptStoreError("RECEIPT_ALREADY_EXISTS") from exc
+            os.replace(tmp_path, path)
+        except BaseException:
+            # Cleanup temp file on error
+            try:
+                tmp_path.unlink(missing_ok=True)
+            except OSError:
+                pass
+            raise
+        
         return StoredReceipt(kind=kind, path=path, sha256=digest)

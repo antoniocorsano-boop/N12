@@ -232,7 +232,8 @@ class EndToEndFakeTests(unittest.TestCase):
         verified = asyncio.run(self.runtime.verify_changeset(proposed["changeset_id"], changed["change_id"]))
         output = self.root / "06_verified" / "lab__CEW-CAD-CS-E2E-001.dwg"
         output.write_bytes(b"collision")
-        with self.assertRaises(Exception):
+        from cew_cad_gateway.verification import VerificationError
+        with self.assertRaisesRegex(VerificationError, "VERIFIED_OUTPUT_REJECTED"):
             asyncio.run(self.runtime.save_verified_copy(proposed["changeset_id"], verified["verification_id"]))
 
 

@@ -99,5 +99,49 @@ class ExecutionTests(unittest.TestCase):
         retry = FakeExecutionAdapter(self.status, mode="timeout_not_found_then_ok"); receipt2 = asyncio.run(self.service(retry).apply(self.changeset, self.approval))
         self.assertEqual(len(retry.apply_calls), 2); self.assertEqual(retry.apply_calls[0][1], retry.apply_calls[1][1]); self.assertEqual(len(retry.status_calls), 1); self.assertEqual(receipt2.status, "COMPLETED")
 
+    def test_request_id_binds_to_changeset_sha256_not_just_id(self) -> None:
+        """
+        Two Changesets with identical changeset_id but different changeset_sha256
+        must generate different request_ids. The same Changeset replay must
+        generate the same request_id.
+        """
+        adapter = FakeExecutionAdapter(self.status)
+        service = self.service(adapter)
+        
+        # First apply - get the request_id
+        receipt1 = asyncio.run(service.apply(self.changeset, self.approval))
+        request_id_1 = receipt1.request_id
+        
+        # Create another changeset with SAME id but DIFFERENT sha256
+        # (simulating a different content with same ID)
+        import hashlib
+        fake_sha = "f" * 64
+        changeset2 = self.changeset
+        # We can't easily replace the sha256 in a frozen dataclass, so we test
+        # the static method directly
+        request_id_1_static = ExecutionService._request_id(self.changeset)
+        
+        # The request_id should include the changeset_sha256 in its hash input
+        # Verify that changing the sha256 would change the request_id
+        # by creating a mock changeset with different sha256 but same id
+        class MockChangeset:
+            changeset_id = "CEW-CAD-CS-000001"
+            changeset_sha256 = "a" * 64
+        
+        class MockChangeset2:
+            changeset_id = "CEW-CAD-CS-000001"
+            changeset_sha256 = "b" * 64
+        
+        rid1 = ExecutionService._request_id(MockChangeset())
+        rid2 = ExecutionService._request_id(MockChangeset2())
+        self.assertNotEqual(rid1, rid2, "Different changeset_sha256 must produce different request_ids")
+        
+        # Same changeset must produce same request_id (idempotent)
+        rid3 = ExecutionService._request_id(MockChangeset())
+        self.assertEqual(rid1, rid3, "Same changeset must produce same request_id")
+        
+        # The actual changeset's request_id should match the static method
+        self.assertEqual(receipt1.request_id, request_id_1_static)
+
 
 if __name__ == "__main__": unittest.main()

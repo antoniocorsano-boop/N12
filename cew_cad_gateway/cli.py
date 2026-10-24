@@ -52,6 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
     approve.add_argument("--workspace-root", required=True)
     approve.add_argument("--policy", required=True)
     approve.add_argument("--changeset-id", required=True)
+    approve.add_argument("--changeset-sha256", required=True, type=_sha256_arg)
     approve.add_argument("--private-key", required=True)
     approve.add_argument("--approval-id", required=True)
     approve.add_argument("--approved-by", required=True)
@@ -77,6 +78,7 @@ def build_live_runtime(
     adapter = OpenCADStudioAdapter(
         ocs_executable,
         expected_executable_sha256=ocs_sha256,
+        required_capabilities=policy.required_capabilities,
     )
     receipt_store = ReceiptStore(workspace.zone_path("AUDITS"))
     inspection = InspectionService(adapter, workspace, receipt_store, now=_now)
@@ -123,10 +125,22 @@ def run_approve(
     approval_id: str,
     approved_by: str,
     approved_at: str | None = None,
+    expected_changeset_sha256: str,
 ) -> str:
     workspace = Workspace(workspace_root, policy)
     artifacts = ArtifactRepository(workspace)
     changeset = artifacts.load_changeset(changeset_id)
+    if expected_changeset_sha256 != changeset.changeset_sha256:
+        raise ValueError("CHANGESET_DIGEST_CONFIRMATION_MISMATCH")
+    # Display Changeset summary for human verification before signing
+    print(f"Changeset ID: {changeset.changeset_id}")
+    print(f"Changeset SHA256: {changeset.changeset_sha256}")
+    print(f"Intent: {changeset.intent}")
+    print(f"Operation: {changeset.operations[0].layer if changeset.operations else 'none'}")
+    if changeset.operations and hasattr(changeset.operations[0], 'points'):
+        op = changeset.operations[0]
+        if hasattr(op, 'points'):
+            print(f"Target: {len(op.points)} points on layer {op.layer}")
     approval = sign_approval(
         changeset=changeset,
         private_key_path=private_key,
@@ -166,6 +180,7 @@ def main(argv: list[str] | None = None) -> int:
             approval_id=args.approval_id,
             approved_by=args.approved_by,
             approved_at=args.approved_at,
+            expected_changeset_sha256=args.changeset_sha256,
         )
         print(json.dumps({"approval_id": approval_id}, separators=(",", ":")))
         return 0
