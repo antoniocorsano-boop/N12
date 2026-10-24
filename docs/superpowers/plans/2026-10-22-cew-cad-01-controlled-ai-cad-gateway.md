@@ -15,8 +15,8 @@
 ## Global Constraints
 
 - Repository: `antoniocorsano-boop/N12`.
-- CEW-CAD-01 remains **NOT AUTHORIZED FOR IMPLEMENTATION** until a separate human decision updates the current WIP state; this plan does not change `CEW_CURRENT_STATE.json`.
-- Current WIP remains `1`; `CEW-B01` remains the only active macro-task.
+- CEW-CAD-01 implementation was explicitly authorized on **22 October 2026** and is recorded in `CEW_CURRENT_STATE.json` as `CEW-CAD-01` / `AUTHORIZED_IN_PROGRESS` under `WIP=1`.
+- Current WIP remains `1`; `CEW-CAD-01` occupies the active slot and `CEW-B01` is **suspended, not superseded**.
 - OpenCADStudio remains `BENCHMARK CANDIDATE`, not `ADOPT`.
 - The AI client is untrusted and is never an authority for epistemic state, professional judgment, approval, canonical promotion, or issuance.
 - No model-facing tool may expose raw `ocs_execute`, raw `run`, arbitrary command strings, arbitrary output paths, shell execution, or approval signing.
@@ -552,9 +552,9 @@ The runner accepts trusted operator configuration for workspace root, OpenCADStu
 
 Include explicit preflight checks: lab file identity, no N12 canonical path, backup/original hash, private approval key outside agent access, active OpenCADStudio document, no command in progress, and exact stop conditions.
 
-- [ ] **Step 7: Run the live pilot only after CEW-CAD-01 receives separate execution authorization**
+- [ ] **Step 7: Run the live pilot only under the explicit CEW-CAD-01 execution authorization and only on disposable/laboratory CAD data**
 
-This step is intentionally blocked by the current WIP state. When authorized, run the pilot and populate `CEW_CAD_TOOLCHAIN_v1.json` with exact OpenCADStudio executable SHA-256, reported build/version, capability digest, MCP SDK lock identity, and cryptography lock identity.
+The 22 October 2026 human decision authorizes CEW-CAD-01 implementation under `WIP=1`; it does **not** authorize mutation of real/canonical N12 drawings. Run the pilot only on a disposable/laboratory DWG and populate `CEW_CAD_TOOLCHAIN_v1.json` with exact OpenCADStudio executable SHA-256, reported build/version, capability digest, MCP SDK lock identity, and cryptography lock identity.
 
 - [ ] **Step 8: Complete qualification report**
 
@@ -575,9 +575,9 @@ git commit -m "test(cew-cad): add controlled gateway qualification harness"
 - [ ] Run `python -m compileall -q cew_cad_gateway`.
 - [ ] Confirm model-facing MCP tool list is exactly the nine governed tools.
 - [ ] Confirm no source path contains a generic model-facing `ocs_execute`, raw `run`, approval-signing tool or overwrite path.
-- [ ] Confirm `CEW_CURRENT_STATE.json` is unchanged unless a separate human WIP decision has explicitly authorized a state update.
+- [ ] Confirm `CEW_CURRENT_STATE.json` remains consistent with the explicit 22 October 2026 `CEW-CAD-01 / AUTHORIZED_IN_PROGRESS / WIP=1` human decision; any further WIP/state change requires a separate human decision.
 - [ ] Confirm PR #147 is untouched.
-- [ ] Confirm live pilot, if eventually run, uses a lab DWG only and original SHA-256 remains unchanged.
+- [ ] Confirm live pilot, if run, uses a lab DWG only and original SHA-256 remains unchanged.
 - [ ] Confirm the qualification report does not promote OpenCADStudio or any verified copy without a separate human decision.
 
 ## Self-Review Result
@@ -586,10 +586,10 @@ git commit -m "test(cew-cad): add controlled gateway qualification harness"
 - **Type consistency:** all downstream services consume the immutable types established in Task 1 and the `CADAdapter` protocol from Task 3.
 - **Security strengthening:** the approved spec required an external Approval Receipt; this plan makes that separation technically enforceable with Ed25519 signatures and a gateway that knows only the public key.
 - **YAGNI:** v0.1 limits each Changeset to one primary mutation, keeps property mutation disabled until a later explicit policy update, uses stdio MCP only, and does not build a web approval UI, database, structural model, or production deployment.
-- **Current-state boundary:** implementation remains blocked; writing this plan does not activate CEW-CAD-01 and does not consume a second WIP slot.
+- **Current-state boundary:** implementation is authorized under the single `WIP=1` slot; CEW-B01 is suspended, not superseded. Merge, production use, canonical N12 CAD mutation, OpenCADStudio promotion and CEW-FEM remain outside this authorization.
 
 ## Execution Gate
 
-This plan may be reviewed and approved now. **Implementation must not begin** until the repository owner separately authorizes CEW-CAD-01 under the CEW WIP/change-control rules.
+The repository owner explicitly authorized CEW-CAD-01 implementation on **22 October 2026** under the CEW WIP/change-control rules. This satisfies the implementation execution gate while preserving the separate gates for live mutation scope, qualification, merge, promotion and production use.
 
-When execution is eventually authorized, the recommended method is **subagent-driven development**: the security boundaries are distributed across ten independently reviewable tasks, and a defect in approval, path confinement, stale-state handling or mutation scope could invalidate the entire safety model.
+Execution remains constrained to the approved fail-closed design. The recommended method is **subagent-driven development**: the security boundaries are distributed across ten independently reviewable tasks, and a defect in approval, path confinement, stale-state handling or mutation scope could invalidate the entire safety model.
