@@ -214,6 +214,33 @@ class DurableApprovalFailClosedTests(unittest.TestCase):
         self.assertIn(store.root, normalized_targets, "claim_once must open the receipt directory for fsync")
         self.assertGreaterEqual(len(fsynced_fds), 2, "claim_once must fsync both the claim file and its parent directory")
 
+    def test_windows_directory_flush_requests_generic_write_access(self) -> None:
+        """FlushFileBuffers requires a handle opened with GENERIC_WRITE on Windows."""
+        audit_root = self.root / "windows-directory-flush"
+        audit_root.mkdir()
+        store = ReceiptStore(audit_root)
+
+        kernel32 = Mock()
+        kernel32.CreateFileW = Mock(return_value=123)
+        kernel32.FlushFileBuffers = Mock(return_value=1)
+        kernel32.CloseHandle = Mock(return_value=1)
+
+        with (
+            patch("cew_cad_gateway.receipts.os.name", "nt"),
+            patch("cew_cad_gateway.receipts.ctypes.WinDLL", return_value=kernel32, create=True),
+        ):
+            store._fsync_root_directory()
+
+        desired_access = kernel32.CreateFileW.call_args.args[1]
+        generic_write = 0x40000000
+        self.assertEqual(
+            desired_access & generic_write,
+            generic_write,
+            "Windows directory handle used with FlushFileBuffers must include GENERIC_WRITE",
+        )
+        kernel32.FlushFileBuffers.assert_called_once_with(123)
+        kernel32.CloseHandle.assert_called_once_with(123)
+
 
 if __name__ == "__main__":
     unittest.main()
