@@ -97,6 +97,40 @@ class DurableApprovalFailClosedTests(unittest.TestCase):
 
         self.assertEqual(str(cm.exception), "APPROVAL_CONSUMPTION_PERSISTENCE_FAILED")
 
+    def test_receipt_store_claim_once_is_deterministic_and_exclusive(self) -> None:
+        audit_root = self.root / "atomic-claims"
+        audit_root.mkdir()
+        store = ReceiptStore(audit_root)
+
+        self.assertTrue(
+            hasattr(store, "claim_once"),
+            "ReceiptStore must provide an atomic claim_once primitive",
+        )
+
+        first = {
+            "approval_id": "CEW-CAD-APP-ATOMIC-1",
+            "consumed_at": "2026-10-24T20:05:00+02:00",
+        }
+        second = {
+            "approval_id": "CEW-CAD-APP-ATOMIC-1",
+            "consumed_at": "2026-10-24T20:05:01+02:00",
+        }
+
+        stored = store.claim_once(
+            "consumed_approval",
+            "CEW-CAD-APP-ATOMIC-1",
+            first,
+        )
+        with self.assertRaises(ReceiptStoreError) as cm:
+            store.claim_once(
+                "consumed_approval",
+                "CEW-CAD-APP-ATOMIC-1",
+                second,
+            )
+
+        self.assertEqual(str(cm.exception), "RECEIPT_ALREADY_CLAIMED")
+        self.assertEqual(stored.path.name, "consumed_approval-5dc3641194a160aec4f3790205305973874000340859e50fb256c5bb25f23004.json")
+
 
 if __name__ == "__main__":
     unittest.main()
