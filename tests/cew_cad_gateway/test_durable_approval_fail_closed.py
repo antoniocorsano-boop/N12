@@ -183,6 +183,9 @@ class DurableApprovalFailClosedTests(unittest.TestCase):
 
     def test_claim_once_fsyncs_parent_directory_before_success(self) -> None:
         """A durable claim requires both file data and its directory entry to reach stable storage."""
+        if os.name == "nt":
+            self.skipTest("POSIX directory-fsync observation; Windows has native coverage below")
+
         audit_root = self.root / "durable-directory"
         audit_root.mkdir()
         store = ReceiptStore(audit_root)
@@ -240,6 +243,15 @@ class DurableApprovalFailClosedTests(unittest.TestCase):
         )
         kernel32.FlushFileBuffers.assert_called_once_with(123)
         kernel32.CloseHandle.assert_called_once_with(123)
+
+    @unittest.skipUnless(os.name == "nt", "Windows-native durability verification")
+    def test_windows_native_directory_flush_succeeds(self) -> None:
+        """Exercise the real Win32 CreateFileW/FlushFileBuffers directory path."""
+        audit_root = self.root / "windows-native-directory-flush"
+        audit_root.mkdir()
+        store = ReceiptStore(audit_root)
+
+        store._fsync_root_directory()
 
 
 if __name__ == "__main__":
