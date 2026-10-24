@@ -31,6 +31,19 @@ class ReceiptStore:
         if not kind or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-" for char in kind):
             raise ReceiptStoreError("INVALID_RECEIPT_KIND")
 
+    def _fsync_root_directory(self) -> None:
+        flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+        try:
+            directory_fd = os.open(self.root, flags)
+        except OSError as exc:
+            raise ReceiptStoreError("RECEIPT_DIRECTORY_SYNC_FAILED") from exc
+        try:
+            os.fsync(directory_fd)
+        except OSError as exc:
+            raise ReceiptStoreError("RECEIPT_DIRECTORY_SYNC_FAILED") from exc
+        finally:
+            os.close(directory_fd)
+
     def write(self, kind: str, value: object) -> StoredReceipt:
         self._validate_kind(kind)
         digest = sha256_json(value)
@@ -65,6 +78,8 @@ class ReceiptStore:
         The destination path is derived only from ``key``. Exclusive creation is
         the serialization point across processes: once the path exists, the same
         key can never be claimed again, regardless of receipt payload or timestamp.
+        The parent directory is synced before success is reported so the directory
+        entry itself is durable across a host crash on filesystems that require it.
         """
         self._validate_kind(kind)
         if not isinstance(key, str) or not key:
@@ -91,4 +106,5 @@ class ReceiptStore:
                 pass
             raise
 
+        self._fsync_root_directory()
         return StoredReceipt(kind=kind, path=path, sha256=sha256_json(value))
