@@ -88,7 +88,12 @@ def build_live_runtime(
         known_claims=set(claim_refs),
         known_decisions=set(decision_refs),
     )
-    approvals = ApprovalVerifier(approval_public_key, now=_now, max_age_seconds=900)
+    approvals = ApprovalVerifier(
+        approval_public_key,
+        now=_now,
+        max_age_seconds=900,
+        receipt_store=receipt_store,
+    )
     execution = ExecutionService(
         adapter=adapter,
         workspace=workspace,
