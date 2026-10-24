@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - feat/cew-cad-01-controlled-ai-gateway
   workflow_dispatch:
 
 permissions:

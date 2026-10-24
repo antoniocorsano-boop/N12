@@ -117,7 +117,7 @@ class EndToEndFakeTests(unittest.TestCase):
         self.receipts = ReceiptStore(self.root / "05_audits")
         self.inspection = InspectionService(self.adapter, self.workspace, self.receipts, now=lambda: "2026-10-22T06:00:00+02:00")
         self.changesets = ChangesetService(self.policy, known_evidence={"E-001"}, known_claims={"C-001"}, known_decisions={"D-001"})
-        self.approval_verifier = ApprovalVerifier(self.public_key, now=lambda: "2026-10-22T06:05:00+02:00", max_age_seconds=900)
+        self.approval_verifier = ApprovalVerifier(self.public_key, now=lambda: "2026-10-22T06:05:00+02:00", max_age_seconds=900, receipt_store=self.receipts)
         self.execution = ExecutionService(adapter=self.adapter, workspace=self.workspace, policy=self.policy, approval_verifier=self.approval_verifier, receipt_store=self.receipts)
         self.verification = VerificationService(adapter=self.adapter, workspace=self.workspace, receipt_store=self.receipts, target_format="dwg", target_version="2018")
         self.artifacts = ArtifactRepository(self.workspace)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import binascii
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Callable
@@ -10,12 +11,16 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 
-from .canonical import canonical_json_bytes
+from .canonical import canonical_json_bytes, sha256_json
+from .receipts import ReceiptStore, ReceiptStoreError
 from .types import ApprovalReceipt, Changeset
 
 
 class ApprovalError(ValueError):
     pass
+
+
+CONSUMED_APPROVAL_KIND = "consumed_approval"
 
 
 def approval_payload(receipt: ApprovalReceipt) -> dict[str, object]:
@@ -84,13 +89,48 @@ class ApprovalVerifier:
         *,
         now: Callable[[], str],
         max_age_seconds: int = 900,
+        receipt_store: ReceiptStore | None = None,
     ) -> None:
         self.public_key_path = public_key_path
         self._now = now
         if not isinstance(max_age_seconds, int) or isinstance(max_age_seconds, bool) or max_age_seconds <= 0:
             raise ApprovalError("INVALID_APPROVAL_MAX_AGE")
         self.max_age_seconds = max_age_seconds
+        self._receipt_store = receipt_store
         self._consumed: set[str] = set()
+
+        if self._receipt_store is not None:
+            self._load_consumed_approvals()
+
+    def _load_consumed_approvals(self) -> None:
+        if self._receipt_store is None:
+            return
+        try:
+            for path in self._receipt_store.root.iterdir():
+                if path.name.startswith(f"{CONSUMED_APPROVAL_KIND}-") and path.suffix == ".json":
+                    try:
+                        content = json.loads(path.read_text(encoding="utf-8"))
+                        approval_id = content.get("approval_id")
+                        if isinstance(approval_id, str) and approval_id:
+                            self._consumed.add(approval_id)
+                    except (OSError, json.JSONDecodeError, UnicodeError):
+                        pass
+        except OSError:
+            pass
+
+    def _persist_consumed_approval(self, approval_id: str) -> None:
+        if self._receipt_store is None:
+            return
+
+        receipt = {"approval_id": approval_id, "consumed_at": self._now()}
+        try:
+            self._receipt_store.claim_once(CONSUMED_APPROVAL_KIND, approval_id, receipt)
+        except ReceiptStoreError as exc:
+            if str(exc) == "RECEIPT_ALREADY_CLAIMED":
+                raise ApprovalError("APPROVAL_ALREADY_CONSUMED") from exc
+            raise ApprovalError("APPROVAL_CONSUMPTION_PERSISTENCE_FAILED") from exc
+        except OSError as exc:
+            raise ApprovalError("APPROVAL_CONSUMPTION_PERSISTENCE_FAILED") from exc
 
     def _load_public_key(self) -> Ed25519PublicKey:
         try:
@@ -140,5 +180,7 @@ class ApprovalVerifier:
     def consume(self, receipt: ApprovalReceipt, changeset: Changeset) -> None:
         if receipt.approval_id in self._consumed:
             raise ApprovalError("APPROVAL_ALREADY_CONSUMED")
+
         self.verify(receipt, changeset)
+        self._persist_consumed_approval(receipt.approval_id)
         self._consumed.add(receipt.approval_id)

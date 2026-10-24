@@ -77,6 +77,103 @@ def _compile_polyline(operation: CreatePolyline) -> str:
     return "PLINE " + " ".join(tokens) + suffix
 
 
+def _build_typed_polyline_request(operation: CreatePolyline) -> dict[str, object]:
+    """Build a typed OCS entity creation request for a polyline.
+    
+    Uses the OCS v2026.42 structured entity creation primitive instead of raw PLINE command.
+    This ensures the layer is materialized in the entity creation, not dependent on CLAYER.
+    """
+    if operation.layer != "CEW-LAB":
+        raise OpenCADStudioError("CREATION_LAYER_NOT_AUTHORIZED")
+    if len(operation.points) < 2:
+        raise OpenCADStudioError("POLYLINE_TOO_SHORT")
+    
+    vertices = [{"x": x, "y": y} for x, y in operation.points]
+    return {
+        "type": "LwPolyline",
+        "layer": operation.layer,
+        "vertices": vertices,
+        "closed": operation.closed,
+    }
+
+
+def _normalize_ocs_mutation_response(response: dict[str, object]) -> dict[str, object]:
+    """Normalize OCS v2026.42 mutation response to stable CEW contract shape.
+    
+    Real OCS response shape:
+    {
+        "ok": True,
+        "status": "completed",
+        "request_id": "...",
+        "result": {"entities": [{"handle": "85", "type": "LwPolyline", "layer": "CEW-LAB"}]},
+        "changes": {"created": ["85"], "modified": [], "deleted": []},
+        "state": {"revision": 1, "geometry_revision": 26, "document_id": 1, "dirty": True}
+    }
+    
+    Normalized shape (CEW contract):
+    {
+        "status": "completed",
+        "revision": 1,
+        "changed_entities": ["85"],
+        ...
+    }
+    """
+    # Extract status (top-level or from result)
+    status = response.get("status")
+    if status is None:
+        # Try result.status
+        result = response.get("result")
+        if isinstance(result, dict):
+            status = result.get("status")
+    if not isinstance(status, str):
+        raise OpenCADStudioError("OCS_RESPONSE_STATUS_MISSING")
+    
+    # Extract revision from state.revision (real OCS) or top-level revision (legacy)
+    revision = response.get("revision")
+    if not isinstance(revision, int) or isinstance(revision, bool):
+        state = response.get("state")
+        if isinstance(state, dict):
+            revision = state.get("revision")
+    if not isinstance(revision, int) or isinstance(revision, bool):
+        raise OpenCADStudioError("OCS_RESPONSE_REVISION_MISSING")
+    
+    # Extract changed entity handles from changes.created (real OCS) or top-level changed_entities (legacy)
+    changed_entities = response.get("changed_entities")
+    if not isinstance(changed_entities, list):
+        changes = response.get("changes")
+        if isinstance(changes, dict):
+            created = changes.get("created")
+            if isinstance(created, list) and all(isinstance(h, str) for h in created):
+                changed_entities = created
+    
+    # Fallback: extract from result.entities[*].handle
+    if not isinstance(changed_entities, list):
+        result = response.get("result")
+        if isinstance(result, dict):
+            entities = result.get("entities")
+            if isinstance(entities, list):
+                handles = [e.get("handle") for e in entities if isinstance(e, dict) and isinstance(e.get("handle"), str)]
+                if handles:
+                    changed_entities = handles
+    
+    if not isinstance(changed_entities, list) or not all(isinstance(h, str) and h for h in changed_entities):
+        raise OpenCADStudioError("OCS_RESPONSE_CHANGED_ENTITIES_MISSING")
+    
+    # Return normalized shape
+    normalized = {
+        "status": status,
+        "revision": revision,
+        "changed_entities": changed_entities,
+    }
+    # Preserve other useful fields
+    if "request_id" in response:
+        normalized["request_id"] = response["request_id"]
+    if "ok" in response:
+        normalized["ok"] = response["ok"]
+    
+    return normalized
+
+
 def _extract_bridge_build(bridge: dict[str, Any]) -> str:
     name = bridge.get("name")
     version = bridge.get("version")
@@ -335,26 +432,33 @@ class OpenCADStudioAdapter:
             raise OpenCADStudioError("MUTATION_TYPE_NOT_AUTHORIZED")
         if not isinstance(request_id, str) or not request_id or len(request_id.encode("utf-8")) > 128:
             raise OpenCADStudioError("INVALID_REQUEST_ID")
-        cmd = _compile_polyline(operation)
         status = await self.status()
         if status.document != expected:
             raise OpenCADStudioError("EXPECTED_DOCUMENT_STATE_MISMATCH")
+        
+        # Use typed OCS entity creation primitive instead of raw PLINE command
+        # This ensures layer is materialized in the entity, not dependent on CLAYER
+        entity_request = _build_typed_polyline_request(operation)
+        
         async with self._client_factory(self.executable) as client:
-            return await self._call(
+            raw_response = await self._call(
                 client,
                 "ocs_execute",
                 {
                     "ocs_session_id": status.session_id,
                     "response_detail": "changed_entities",
                     "request": {
-                        "op": "run",
+                        "op": "entities_create",
                         "request_id": request_id,
                         "document_id": expected.document_id,
                         "revision": expected.revision,
-                        "cmd": cmd,
+                        "entities": [entity_request],
                     },
                 },
             )
+        
+        # Normalize OCS v2026.42 response to stable CEW contract shape
+        return _normalize_ocs_mutation_response(raw_response)
 
     async def operation_status(self, request_id: str) -> dict[str, object]:
         status = await self.status()

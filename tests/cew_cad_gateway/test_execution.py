@@ -67,8 +67,9 @@ class ExecutionTests(unittest.TestCase):
     def service(self, adapter):
         self._service_counter += 1
         receipt_root = self.root / "05_audits" / f"case-{self._service_counter}"; receipt_root.mkdir()
-        verifier = ApprovalVerifier(self.public_path, now=lambda: "2026-10-22T05:31:00+02:00", max_age_seconds=900)
-        return ExecutionService(adapter=adapter, workspace=self.workspace, policy=self.policy, approval_verifier=verifier, receipt_store=ReceiptStore(receipt_root))
+        receipt_store = ReceiptStore(receipt_root)
+        verifier = ApprovalVerifier(self.public_path, now=lambda: "2026-10-22T05:31:00+02:00", max_age_seconds=900, receipt_store=receipt_store)
+        return ExecutionService(adapter=adapter, workspace=self.workspace, policy=self.policy, approval_verifier=verifier, receipt_store=receipt_store)
 
     def test_happy_path_binds_session_status_approval_policy_and_request_id(self) -> None:
         adapter = FakeExecutionAdapter(self.status); receipt = asyncio.run(self.service(adapter).apply(self.changeset, self.approval))
