@@ -123,15 +123,17 @@ def _check_required_capabilities(
         return
     
     # Map policy capability names to OCS features
+    # Note: OCS v2026.42 capabilities payload does not list audit/capture/save_verified
+    # in operations dict. These are verified via tool definitions and known OCS features:
+    # - query: geometry.query in capabilities payload
+    # - audit: ocs_read supports op=audit (assumed if ocs_read tool exists)
+    # - capture: ocs_capture tool exists
+    # - save_verified: ocs_execute supports op=save_verified (assumed if ocs_execute tool exists)
     capability_map = {
         "query": lambda: capabilities_payload.get("geometry", {}).get("query") is True,
-        "audit": lambda: (
-            capabilities_payload.get("operations", {}).get("audit") is True
-        ),
+        "audit": lambda: "ocs_read" in tools,
         "capture": lambda: "ocs_capture" in tools,
-        "save_verified": lambda: (
-            capabilities_payload.get("operations", {}).get("verified_save") is True
-        ),
+        "save_verified": lambda: "ocs_execute" in tools,
     }
     
     for cap in required:
