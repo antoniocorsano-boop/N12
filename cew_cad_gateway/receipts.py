@@ -45,7 +45,7 @@ class ReceiptStore:
             close_handle.argtypes = [ctypes.c_void_p]
             close_handle.restype = ctypes.c_int
 
-            generic_read = 0x80000000
+            generic_write = 0x40000000
             share_read = 0x00000001
             share_write = 0x00000002
             share_delete = 0x00000004
@@ -55,7 +55,7 @@ class ReceiptStore:
 
             handle = create_file(
                 str(self.root),
-                generic_read,
+                generic_write,
                 share_read | share_write | share_delete,
                 None,
                 open_existing,
