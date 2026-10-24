@@ -13,6 +13,8 @@ def _jsonable(value: Any) -> Any:
         return value.value
     if is_dataclass(value) and not isinstance(value, type):
         return _jsonable(asdict(value))
+    if isinstance(value, Path):
+        return str(value)
     if isinstance(value, dict):
         return {str(key): _jsonable(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
