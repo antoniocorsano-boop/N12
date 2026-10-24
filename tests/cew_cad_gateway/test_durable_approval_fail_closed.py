@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from cew_cad_gateway.approval import ApprovalError, ApprovalVerifier, sign_approval
+from cew_cad_gateway.cli import build_live_runtime
 from cew_cad_gateway.receipts import ReceiptStore, ReceiptStoreError
 from cew_cad_gateway.types import CapabilityIdentity, Changeset, CreatePolyline, DocumentIdentity, EpistemicState
 
@@ -135,6 +138,81 @@ class DurableApprovalFailClosedTests(unittest.TestCase):
 
         self.assertEqual(str(cm.exception), "RECEIPT_ALREADY_CLAIMED")
         self.assertEqual(stored.path.name, "consumed_approval-74b173dc7da8b628c3b7fa6819c643ac28c1a9fe3bcd22c1a74962a6cbae1b3a.json")
+
+    def test_live_runtime_wires_shared_receipt_store_into_approval_verifier(self) -> None:
+        """The live serve path must use durable approval consumption, not the in-memory fallback."""
+        policy = Mock(required_capabilities=("query",))
+        workspace = Mock()
+        receipt_store = Mock(spec=ReceiptStore)
+        runtime = Mock()
+
+        with (
+            patch("cew_cad_gateway.cli.GatewayPolicy.load", return_value=policy),
+            patch("cew_cad_gateway.cli.Workspace", return_value=workspace),
+            patch("cew_cad_gateway.cli.OpenCADStudioAdapter", return_value=Mock()),
+            patch("cew_cad_gateway.cli.ReceiptStore", return_value=receipt_store),
+            patch("cew_cad_gateway.cli.InspectionService", return_value=Mock()),
+            patch("cew_cad_gateway.cli.ChangesetService", return_value=Mock()),
+            patch("cew_cad_gateway.cli.ApprovalVerifier", return_value=Mock()) as verifier_cls,
+            patch("cew_cad_gateway.cli.ExecutionService", return_value=Mock()),
+            patch("cew_cad_gateway.cli.VerificationService", return_value=Mock()),
+            patch("cew_cad_gateway.cli.ArtifactRepository", return_value=Mock()),
+            patch("cew_cad_gateway.cli.GatewayRuntimeImpl", return_value=runtime),
+        ):
+            workspace.zone_path.return_value = self.root
+            result = build_live_runtime(
+                workspace_root=self.root,
+                policy_path=self.root / "policy.json",
+                ocs_executable=self.root / "OpenCADStudio.exe",
+                ocs_sha256="0" * 64,
+                approval_public_key=self.public_path,
+                evidence_refs=set(),
+                claim_refs=set(),
+                decision_refs=set(),
+                target_format="dwg",
+                target_version="2018",
+            )
+
+        self.assertIs(result, runtime)
+        verifier_cls.assert_called_once_with(
+            self.public_path,
+            now=unittest.mock.ANY,
+            max_age_seconds=900,
+            receipt_store=receipt_store,
+        )
+
+    def test_claim_once_fsyncs_parent_directory_before_success(self) -> None:
+        """A durable claim requires both file data and its directory entry to reach stable storage."""
+        audit_root = self.root / "durable-directory"
+        audit_root.mkdir()
+        store = ReceiptStore(audit_root)
+
+        real_open = os.open
+        real_fsync = os.fsync
+        opened_targets: list[object] = []
+        fsynced_fds: list[int] = []
+
+        def recording_open(path, flags, mode=0o777):
+            opened_targets.append(path)
+            return real_open(path, flags, mode)
+
+        def recording_fsync(fd: int) -> None:
+            fsynced_fds.append(fd)
+            real_fsync(fd)
+
+        with (
+            patch("cew_cad_gateway.receipts.os.open", side_effect=recording_open),
+            patch("cew_cad_gateway.receipts.os.fsync", side_effect=recording_fsync),
+        ):
+            store.claim_once(
+                "consumed_approval",
+                "CEW-CAD-APP-DIRSYNC-1",
+                {"approval_id": "CEW-CAD-APP-DIRSYNC-1", "consumed_at": "2026-10-24T20:10:00+02:00"},
+            )
+
+        normalized_targets = {Path(target).resolve() for target in opened_targets if isinstance(target, (str, os.PathLike))}
+        self.assertIn(store.root, normalized_targets, "claim_once must open the receipt directory for fsync")
+        self.assertGreaterEqual(len(fsynced_fds), 2, "claim_once must fsync both the claim file and its parent directory")
 
 
 if __name__ == "__main__":
