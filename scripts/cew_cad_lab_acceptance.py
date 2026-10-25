@@ -113,6 +113,14 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("CEW-LAB-ONLY",),
         help="explicit operator confirmation that the open drawing is a disposable lab copy",
     )
+
+    recover = sub.add_parser(
+        "recover",
+        help="reconcile an already completed mutation, then verify and save without remutation",
+    )
+    _common_arguments(recover)
+    recover.add_argument("--changeset-id", required=True)
+    recover.add_argument("--approval-id", required=True)
     return parser
 
 
@@ -227,11 +235,46 @@ async def _execute(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+async def _recover(args: argparse.Namespace) -> dict[str, Any]:
+    _, workspace, lab, runtime = _load_context(args)
+    source_hash_before = sha256_file(lab)
+    status = await runtime.status()
+    _assert_open_document(status, lab, args.expected_source_sha256)
+
+    artifacts = ArtifactRepository(workspace)
+    changeset = artifacts.load_changeset(args.changeset_id)
+    approval = artifacts.load_approval(args.approval_id)
+    if approval.changeset_id != changeset.changeset_id:
+        raise PilotError("APPROVAL_CHANGESET_ID_MISMATCH")
+
+    recovered = await runtime.recover_approved_changeset(args.changeset_id, args.approval_id)
+    if recovered.get("status") != "RECOVERED_AND_SAVED":
+        raise PilotError("RECOVERY_NOT_PASS")
+
+    source_hash_after = sha256_file(lab)
+    if source_hash_after != source_hash_before or source_hash_after != args.expected_source_sha256:
+        raise PilotError("SOURCE_CHANGED_DURING_RECOVERY")
+    return {
+        "phase": "LIVE_LAB_RECOVERY_COMPLETE",
+        "lab_dwg": str(lab),
+        "source_sha256_before": source_hash_before,
+        "source_sha256_after": source_hash_after,
+        "recovery": recovered,
+        "mutation_replayed": False,
+        "promotion": "NOT_AUTHORIZED",
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     evidence_dir = create_evidence_dir(Path(args.repo_root), _stamp())
     try:
-        result = asyncio.run(_prepare(args) if args.command == "prepare" else _execute(args))
+        if args.command == "prepare":
+            result = asyncio.run(_prepare(args))
+        elif args.command == "execute":
+            result = asyncio.run(_execute(args))
+        else:
+            result = asyncio.run(_recover(args))
     except Exception as exc:
         failure = {"status": "FAIL", "phase": args.command, "error_type": type(exc).__name__, "error": str(exc)}
         _write_json(evidence_dir / "pilot-result.json", failure)

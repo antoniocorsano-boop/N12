@@ -42,7 +42,6 @@ class FakeClient:
             if request["op"] == "save_verified":
                 return {"ok": True, "status": "completed", "semantic_verification_passed": True, "sha256": "2" * 64, "actual_version": "2018"}
             if request["op"] == "entities_create":
-                # Return real OCS v2026.42 response shape
                 return {
                     "ok": True,
                     "status": "completed",
@@ -51,7 +50,6 @@ class FakeClient:
                     "changes": {"created": ["A1"], "modified": [], "deleted": []},
                     "state": {"revision": 8, "geometry_revision": 26, "document_id": 1, "dirty": True}
                 }
-            # Legacy "run" op for backward compatibility
             if request["op"] == "run":
                 return {"status": "completed", "revision": 8, "changed_entities": ["A1"]}
         raise AssertionError((name, arguments))
@@ -75,7 +73,7 @@ class MutationCompilerTests(unittest.TestCase):
         expected_sha = hashlib.sha256(b"fake").hexdigest()
         self.expected = DocumentIdentity(path=str(self.exe), sha256=expected_sha, document_id=1, revision=7)
 
-    def test_create_polyline_compiles_only_numeric_internal_pline_template(self) -> None:
+    def test_create_polyline_compiles_live_typed_entities_create_request(self) -> None:
         operation = CreatePolyline(layer="CEW-LAB", points=((0.0, 0.0), (4.5, 0.0), (4.5, 3.0)), closed=True)
         result = asyncio.run(self.adapter.apply_operation(operation, request_id="req-1", expected=self.expected))
         self.assertEqual(result["status"], "completed")
@@ -95,9 +93,9 @@ class MutationCompilerTests(unittest.TestCase):
         self.assertEqual(entity["layer"], "CEW-LAB")
         self.assertEqual(entity["closed"], True)
         self.assertEqual(len(entity["vertices"]), 3)
-        self.assertEqual(entity["vertices"][0], {"x": 0.0, "y": 0.0})
-        self.assertEqual(entity["vertices"][1], {"x": 4.5, "y": 0.0})
-        self.assertEqual(entity["vertices"][2], {"x": 4.5, "y": 3.0})
+        self.assertEqual(entity["vertices"][0], [0.0, 0.0])
+        self.assertEqual(entity["vertices"][1], [4.5, 0.0])
+        self.assertEqual(entity["vertices"][2], [4.5, 3.0])
 
     def test_wrong_layer_and_non_polyline_operation_are_rejected_before_execute(self) -> None:
         with self.assertRaises(OpenCADStudioError):

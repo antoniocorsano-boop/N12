@@ -133,3 +133,41 @@ class GatewayRuntimeImpl:
         result = _jsonable(verified)
         result["verification_id"] = verification_id
         return result
+
+    async def recover_approved_changeset(self, changeset_id: str, approval_id: str) -> dict[str, Any]:
+        """Recover a mutation already confirmed by OCS, then verify and save it.
+
+        Recovery never calls the mutating apply path and never consumes approval
+        again. ExecutionService.reconcile proves the prior operation from the
+        deterministic request ID and durable approval-consumption state.
+        """
+        changeset = self.artifacts.load_changeset(changeset_id)
+        approval = self.artifacts.load_approval(approval_id)
+        change = await self.execution_service.reconcile(changeset, approval)
+        change_id = sha256_json(change)
+
+        verification = await self.verification_service.verify(changeset, change)
+        verification_id = sha256_json(verification)
+        if verification.decision != "PASS":
+            return {
+                "status": "RECOVERY_VERIFICATION_FAILED",
+                "changeset_id": changeset_id,
+                "approval_id": approval_id,
+                "change_id": change_id,
+                "verification_id": verification_id,
+                "change": _jsonable(change),
+                "verification": _jsonable(verification),
+            }
+
+        source_ref = self.workspace.reference_for(Path(changeset.document.path), PathClass.WORKING)
+        verified = await self.verification_service.save_verified_copy(changeset, verification, source_ref)
+        return {
+            "status": "RECOVERED_AND_SAVED",
+            "changeset_id": changeset_id,
+            "approval_id": approval_id,
+            "change_id": change_id,
+            "verification_id": verification_id,
+            "change": _jsonable(change),
+            "verification": _jsonable(verification),
+            "verified_copy": _jsonable(verified),
+        }

@@ -1,18 +1,20 @@
 # CEW-CAD-01 — Live Pilot Runbook
 
-**Status:** READY FOR OPERATOR REVIEW — LIVE PILOT NOT EXECUTED  
+**Status:** GOVERNED LAB PILOT / RECOVERY RUNBOOK  
 **Scope:** disposable laboratory DWG only  
 **Forbidden:** canonical N12 drawings, baseline/issued paths, overwrite, direct model access to `ocs_execute`, private signing key inside the MCP/agent process.
 
 ## 1. Purpose
 
-This runbook executes the first real OpenCADStudio benchmark for CEW-CAD-01 without promoting OpenCADStudio to an adopted CEW component.
+This runbook governs real OpenCADStudio benchmark work for CEW-CAD-01 without promoting OpenCADStudio to an adopted CEW component.
 
-The live sequence is intentionally split into two processes:
+The normal live sequence is intentionally split into three authorities:
 
 1. `prepare` — read-only preflight + governed Changeset creation;
 2. human `approve` — external Ed25519 signature using a private key unavailable to the agent;
 3. `execute` — exact approved Changeset only, technical verification, then new verified copy.
+
+If a mutation is already proven completed but the governed process fails before verification/save finishes, the only permitted continuation is the separate non-mutating `recover` path described below. **Never repeat `execute` merely to finish a transaction already known to have mutated CAD.**
 
 No live step is authorized merely because this document exists.
 
@@ -21,7 +23,7 @@ No live step is authorized merely because this document exists.
 All items below are mandatory before `prepare`:
 
 - Windows workstation with Python 3.12;
-- repository checked out at the exact qualified CEW-CAD-01 head selected for the pilot;
+- repository checked out at the exact qualified CEW-CAD head selected for the pilot;
 - dependencies installed from `requirements/cew-cad.lock`;
 - OpenCADStudio executable present locally;
 - SHA-256 of the OpenCADStudio executable calculated independently and recorded;
@@ -35,7 +37,7 @@ All items below are mandatory before `prepare`:
 - Ed25519 public key is available to the Gateway process;
 - Ed25519 private key is stored outside the agent/MCP process and outside the repository;
 - at least one lab-only Evidence ref, Claim ref and Decision ref have been allocated;
-- the operator has reviewed the intended polyline points and confirms they are disposable pilot geometry.
+- the operator has reviewed the intended geometry and confirms it is disposable pilot geometry.
 
 ## 3. Absolute stop conditions
 
@@ -48,7 +50,7 @@ Stop immediately and do not retry permissively if any of the following occurs:
 - required MCP capability missing;
 - CAD interactive command/dialog active;
 - Changeset digest differs from the signed approval;
-- session, document ID, source hash, capability digest or revision changed after proposal;
+- session, document ID, source hash, capability digest or revision changes outside the expected governed transition;
 - requested path escapes the governed workspace;
 - an output path already exists;
 - any unrelated entity changes;
@@ -79,13 +81,11 @@ Get-FileHash "C:\Path\OpenCADStudio.exe" -Algorithm SHA256
 Get-FileHash "C:\CivilExisting\02_working\cew-cad-lab.dwg" -Algorithm SHA256
 ```
 
-Use lowercase hexadecimal values in CEW-CAD commands.
-
-The original lab hash is a hard invariant throughout the pilot.
+Use lowercase hexadecimal values in CEW-CAD commands. The original lab hash is a hard invariant throughout the pilot and recovery.
 
 ## 6. Phase A — read-only prepare
 
-Example only; replace paths, hashes and lab governance references with the reviewed values:
+Example only; replace paths, hashes and lab governance references with reviewed values:
 
 ```powershell
 py -3.12 -m scripts.cew_cad_lab_acceptance prepare `
@@ -97,10 +97,10 @@ py -3.12 -m scripts.cew_cad_lab_acceptance prepare `
   --lab-dwg-ref "02_working/cew-cad-lab.dwg" `
   --expected-source-sha256 "<64-hex>" `
   --target-version "2018" `
-  --changeset-id "CEW-CAD-LAB-001" `
-  --evidence-ref "LAB-E-001" `
-  --claim-ref "LAB-C-001" `
-  --decision-ref "LAB-D-001" `
+  --changeset-id "CEW-CAD-LAB-XXX" `
+  --evidence-ref "LAB-E-XXX" `
+  --claim-ref "LAB-C-XXX" `
+  --decision-ref "LAB-D-XXX" `
   --point "0,0" `
   --point "4000,0" `
   --point "4000,3000" `
@@ -126,15 +126,16 @@ Run this separately from the agent/MCP process. The private key must not be supp
 py -3.12 -m cew_cad_gateway.cli approve `
   --workspace-root "C:\CivilExisting" `
   --policy "governance\cew-cad\CEW_CAD_POLICY_v1.json" `
-  --changeset-id "CEW-CAD-LAB-001" `
+  --changeset-id "CEW-CAD-LAB-XXX" `
+  --changeset-sha256 "<changeset-sha256>" `
   --private-key "C:\CEW-keys-private\cew-cad-private.pem" `
-  --approval-id "CEW-CAD-APP-LAB-001" `
+  --approval-id "CEW-CAD-APP-LAB-XXX" `
   --approved-by "human-operator"
 ```
 
 Before signing, the human operator must review the exact Changeset digest and current CAD state.
 
-Approval is short-lived and single-use. If the CAD revision/session changes, generate a new Changeset and a new approval rather than reusing the old one.
+Approval is short-lived and single-use **for starting the mutation**. If the CAD revision/session changes before execution, generate a new Changeset and a new approval rather than reusing the old one.
 
 ## 8. Phase C — execute, verify, verified save
 
@@ -150,8 +151,8 @@ py -3.12 -m scripts.cew_cad_lab_acceptance execute `
   --lab-dwg-ref "02_working/cew-cad-lab.dwg" `
   --expected-source-sha256 "<64-hex>" `
   --target-version "2018" `
-  --changeset-id "CEW-CAD-LAB-001" `
-  --approval-id "CEW-CAD-APP-LAB-001" `
+  --changeset-id "CEW-CAD-LAB-XXX" `
+  --approval-id "CEW-CAD-APP-LAB-XXX" `
   --confirm-lab-mutation "CEW-LAB-ONLY"
 ```
 
@@ -160,7 +161,7 @@ The runner must:
 1. bind to the exact current session/document/revision;
 2. re-check the lab file hash and OpenCADStudio executable hash;
 3. load the stored Changeset and externally signed Approval;
-4. execute one CEW-LAB polyline operation only;
+4. execute one CEW-LAB operation only;
 5. use the deterministic request ID/retry policy;
 6. resolve the new concrete CAD entity from `NEW:Polyline`;
 7. verify geometry with the CAD kernel;
@@ -170,6 +171,55 @@ The runner must:
 11. create a **new** file under `06_verified/`;
 12. verify the original lab SHA-256 is unchanged;
 13. emit the complete receipt chain.
+
+## 8A. Failure after confirmed mutation — recovery only
+
+If OCS has already reported the deterministic mutation request as `completed` and the approval has already been durably consumed, but verification/save did not finish, classify the transaction as **FAILED_AFTER_MUTATION**.
+
+At that point:
+
+- **do not run `execute` again**;
+- do not issue a second approval merely to finish the same already-completed mutation;
+- do not replay `entities_create`;
+- do not change policy or revision checks;
+- preserve the existing OCS session/document state while investigating when possible.
+
+Recovery is authorized only through the non-mutating command:
+
+```powershell
+py -3.12 -m scripts.cew_cad_lab_acceptance recover `
+  --workspace-root "C:\CivilExisting" `
+  --policy "governance\cew-cad\CEW_CAD_POLICY_v1.json" `
+  --ocs-executable "C:\Path\OpenCADStudio.exe" `
+  --ocs-sha256 "<64-hex>" `
+  --approval-public-key "C:\CEW-keys\cew-cad-public.pem" `
+  --lab-dwg-ref "02_working/cew-cad-lab.dwg" `
+  --expected-source-sha256 "<64-hex>" `
+  --target-version "2018" `
+  --changeset-id "CEW-CAD-LAB-XXX" `
+  --approval-id "CEW-CAD-APP-LAB-XXX"
+```
+
+`recover` has no `CEW-LAB-ONLY` mutation confirmation because it is forbidden from mutating. It may continue only if CEW proves all of the following:
+
+1. Changeset digest is valid;
+2. signed Approval still has a valid binding and Ed25519 signature;
+3. that Approval is already durably recorded as consumed;
+4. deterministic request ID resolves through OCS `operation_status`;
+5. operation status is exactly `completed`;
+6. reported post-mutation revision and changed handles are valid;
+7. live session/document/path/source hash/capabilities still match the governed identity;
+8. live revision equals the proven post-mutation revision.
+
+The approval's original short execution-age window is **not** reapplied during recovery because no new mutation is being authorized. Its signature, binding and durable consumed state remain mandatory.
+
+If any recovery proof is missing or inconsistent, classify the state **AMBIGUOUS_MUTATION_STATE / FAIL**. Do not replay the mutation.
+
+A successful recovery may only perform:
+
+`reconcile completed request → reconstruct/persist Change Receipt → technical verification → save_verified new copy`
+
+and must leave the original lab source hash unchanged.
 
 ## 9. Evidence to retain
 
@@ -183,6 +233,8 @@ Retain together:
 - Inspection Receipt;
 - Changeset and digest;
 - signed Approval Receipt and digest;
+- durable consumed-approval claim;
+- deterministic mutation request ID and operation-status evidence when recovery is used;
 - Change Receipt;
 - Technical Verification Receipt;
 - capture/diff evidence;
@@ -190,17 +242,18 @@ Retain together:
 - Verified Copy Receipt;
 - verified-copy SHA-256;
 - final original lab SHA-256;
-- `target/cew-cad-01/<timestamp>/pilot-result.json` from prepare and execute.
+- `target/cew-cad-01/<timestamp>/pilot-result.json` from prepare, execute and/or recover.
 
 Do not commit private keys or disposable DWG files.
 
 ## 10. Post-pilot decision
 
-A technically successful run does **not** automatically:
+A technically successful run or recovery does **not** automatically:
 
 - promote OpenCADStudio from `BENCHMARK CANDIDATE` to `ADOPT`;
 - promote the verified copy to CEW baseline or issued artifact;
 - authorize use on N12 canonical drawings;
-- reopen CEW-B01 or change the WIP without a separate governance decision.
+- authorize merge/deploy/CEW-FEM;
+- reopen CEW-B01 or change WIP without a separate governance decision.
 
-After the run, update `CEW_CAD_TOOLCHAIN_v1.json` with exact observed identities and complete the qualification report against all 17 acceptance criteria.
+After the run, record the exact observed identities and complete the qualification evidence before any subsequent human promotion decision.

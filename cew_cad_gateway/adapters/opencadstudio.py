@@ -22,6 +22,30 @@ class OpenCADStudioError(ValueError):
 def _mapping(value: Any) -> dict[str, Any]:
     if isinstance(value, dict):
         return value
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        dumped = model_dump()
+        if isinstance(dumped, dict):
+            structured = dumped.get("structuredContent")
+            if isinstance(structured, dict):
+                return structured
+            structured = dumped.get("structured_content")
+            if isinstance(structured, dict):
+                return structured
+            content = dumped.get("content")
+            if isinstance(content, list):
+                for item in content:
+                    if isinstance(item, dict):
+                        text = item.get("text")
+                        if isinstance(text, str):
+                            try:
+                                decoded = json.loads(text)
+                            except json.JSONDecodeError:
+                                continue
+                            if isinstance(decoded, dict):
+                                return decoded
+            if any(key in dumped for key in ("ok", "result", "status", "state", "api", "document_id")):
+                return dumped
     structured = getattr(value, "structuredContent", None)
     if isinstance(structured, dict):
         return structured
@@ -78,17 +102,11 @@ def _compile_polyline(operation: CreatePolyline) -> str:
 
 
 def _build_typed_polyline_request(operation: CreatePolyline) -> dict[str, object]:
-    """Build a typed OCS entity creation request for a polyline.
-    
-    Uses the OCS v2026.42 structured entity creation primitive instead of raw PLINE command.
-    This ensures the layer is materialized in the entity creation, not dependent on CLAYER.
-    """
     if operation.layer != "CEW-LAB":
         raise OpenCADStudioError("CREATION_LAYER_NOT_AUTHORIZED")
     if len(operation.points) < 2:
         raise OpenCADStudioError("POLYLINE_TOO_SHORT")
-    
-    vertices = [{"x": x, "y": y} for x, y in operation.points]
+    vertices = [[x, y] for x, y in operation.points]
     return {
         "type": "LwPolyline",
         "layer": operation.layer,
@@ -98,37 +116,14 @@ def _build_typed_polyline_request(operation: CreatePolyline) -> dict[str, object
 
 
 def _normalize_ocs_mutation_response(response: dict[str, object]) -> dict[str, object]:
-    """Normalize OCS v2026.42 mutation response to stable CEW contract shape.
-    
-    Real OCS response shape:
-    {
-        "ok": True,
-        "status": "completed",
-        "request_id": "...",
-        "result": {"entities": [{"handle": "85", "type": "LwPolyline", "layer": "CEW-LAB"}]},
-        "changes": {"created": ["85"], "modified": [], "deleted": []},
-        "state": {"revision": 1, "geometry_revision": 26, "document_id": 1, "dirty": True}
-    }
-    
-    Normalized shape (CEW contract):
-    {
-        "status": "completed",
-        "revision": 1,
-        "changed_entities": ["85"],
-        ...
-    }
-    """
-    # Extract status (top-level or from result)
     status = response.get("status")
     if status is None:
-        # Try result.status
         result = response.get("result")
         if isinstance(result, dict):
             status = result.get("status")
     if not isinstance(status, str):
         raise OpenCADStudioError("OCS_RESPONSE_STATUS_MISSING")
-    
-    # Extract revision from state.revision (real OCS) or top-level revision (legacy)
+
     revision = response.get("revision")
     if not isinstance(revision, int) or isinstance(revision, bool):
         state = response.get("state")
@@ -136,8 +131,7 @@ def _normalize_ocs_mutation_response(response: dict[str, object]) -> dict[str, o
             revision = state.get("revision")
     if not isinstance(revision, int) or isinstance(revision, bool):
         raise OpenCADStudioError("OCS_RESPONSE_REVISION_MISSING")
-    
-    # Extract changed entity handles from changes.created (real OCS) or top-level changed_entities (legacy)
+
     changed_entities = response.get("changed_entities")
     if not isinstance(changed_entities, list):
         changes = response.get("changes")
@@ -145,8 +139,14 @@ def _normalize_ocs_mutation_response(response: dict[str, object]) -> dict[str, o
             created = changes.get("created")
             if isinstance(created, list) and all(isinstance(h, str) for h in created):
                 changed_entities = created
-    
-    # Fallback: extract from result.entities[*].handle
+
+    if not isinstance(changed_entities, list):
+        result = response.get("result")
+        if isinstance(result, dict):
+            handles = result.get("handles")
+            if isinstance(handles, list) and all(isinstance(h, str) and h for h in handles):
+                changed_entities = handles
+
     if not isinstance(changed_entities, list):
         result = response.get("result")
         if isinstance(result, dict):
@@ -155,22 +155,19 @@ def _normalize_ocs_mutation_response(response: dict[str, object]) -> dict[str, o
                 handles = [e.get("handle") for e in entities if isinstance(e, dict) and isinstance(e.get("handle"), str)]
                 if handles:
                     changed_entities = handles
-    
+
     if not isinstance(changed_entities, list) or not all(isinstance(h, str) and h for h in changed_entities):
         raise OpenCADStudioError("OCS_RESPONSE_CHANGED_ENTITIES_MISSING")
-    
-    # Return normalized shape
+
     normalized = {
         "status": status,
         "revision": revision,
         "changed_entities": changed_entities,
     }
-    # Preserve other useful fields
     if "request_id" in response:
         normalized["request_id"] = response["request_id"]
     if "ok" in response:
         normalized["ok"] = response["ok"]
-    
     return normalized
 
 
@@ -200,12 +197,6 @@ def _validate_capabilities_payload(payload: dict[str, Any]) -> None:
     operations = payload.get("operations")
     if not isinstance(operations, dict):
         raise OpenCADStudioError("OCS_CAPABILITIES_OPERATIONS_MISSING")
-    # Real OCS v2026.42 capabilities payload does not list audit/capture/verified_save
-    # in operations dict. These are verified via tool definitions in list_tools():
-    # - ocs_read op=audit exists
-    # - ocs_capture tool exists
-    # - ocs_execute op=save_verified exists
-    # We validate the structure but don't require specific operation keys.
 
 
 def _check_required_capabilities(
@@ -213,34 +204,17 @@ def _check_required_capabilities(
     capabilities_payload: dict[str, Any],
     required: tuple[str, ...],
 ) -> None:
-    """
-    Validate that all required capabilities are available in the OCS surface.
-    Maps policy capability names to actual OCS features.
-    Unknown capabilities are treated as missing (fail closed).
-    """
     if not required:
         return
-    
-    # Map policy capability names to OCS features
-    # Note: OCS v2026.42 capabilities payload does not list audit/capture/save_verified
-    # in operations dict. These are verified via tool definitions and known OCS features:
-    # - query: geometry.query in capabilities payload
-    # - audit: ocs_read supports op=audit (assumed if ocs_read tool exists)
-    # - capture: ocs_capture tool exists
-    # - save_verified: ocs_execute supports op=save_verified (assumed if ocs_execute tool exists)
     capability_map = {
         "query": lambda: capabilities_payload.get("geometry", {}).get("query") is True,
         "audit": lambda: "ocs_read" in tools,
         "capture": lambda: "ocs_capture" in tools,
         "save_verified": lambda: "ocs_execute" in tools,
     }
-    
     for cap in required:
         checker = capability_map.get(cap)
-        if checker is None:
-            # Unknown capability - fail closed
-            raise OpenCADStudioError("OCS_REQUIRED_CAPABILITY_MISSING")
-        if not checker():
+        if checker is None or not checker():
             raise OpenCADStudioError("OCS_REQUIRED_CAPABILITY_MISSING")
 
 
@@ -260,7 +234,6 @@ def _resolve_active_document(state: dict[str, Any]) -> tuple[int, int, str]:
     revision = state.get("revision")
     if isinstance(revision, int) and not isinstance(revision, bool) and revision >= 0:
         return document_id, revision, path
-    # revision not valid in state, do NOT fall back to default 0; try document
     doc_revision = doc.get("revision") if isinstance(doc, dict) else None
     if isinstance(doc_revision, int) and not isinstance(doc_revision, bool) and doc_revision >= 0:
         return document_id, doc_revision, path
@@ -340,7 +313,6 @@ class OpenCADStudioAdapter:
                 "ocs_read",
                 {"ocs_session_id": session_id, "op": "state"},
             )
-
             document_id, revision, path = _resolve_active_document(state_payload)
             try:
                 source_sha256 = sha256_file(Path(path))
@@ -435,11 +407,7 @@ class OpenCADStudioAdapter:
         status = await self.status()
         if status.document != expected:
             raise OpenCADStudioError("EXPECTED_DOCUMENT_STATE_MISMATCH")
-        
-        # Use typed OCS entity creation primitive instead of raw PLINE command
-        # This ensures layer is materialized in the entity, not dependent on CLAYER
         entity_request = _build_typed_polyline_request(operation)
-        
         async with self._client_factory(self.executable) as client:
             raw_response = await self._call(
                 client,
@@ -456,8 +424,6 @@ class OpenCADStudioAdapter:
                     },
                 },
             )
-        
-        # Normalize OCS v2026.42 response to stable CEW contract shape
         return _normalize_ocs_mutation_response(raw_response)
 
     async def operation_status(self, request_id: str) -> dict[str, object]:
