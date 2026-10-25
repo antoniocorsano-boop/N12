@@ -199,6 +199,30 @@ def _validate_capabilities_payload(payload: dict[str, Any]) -> None:
         raise OpenCADStudioError("OCS_CAPABILITIES_OPERATIONS_MISSING")
 
 
+def _capability_identity_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    """Exclude document inventory counts while preserving capability semantics."""
+    identity = dict(payload)
+    records = payload.get("records")
+    if not isinstance(records, dict):
+        return identity
+    collections = records.get("collections")
+    if not isinstance(collections, list):
+        return identity
+
+    normalized_records = dict(records)
+    normalized_collections: list[object] = []
+    for collection in collections:
+        if isinstance(collection, dict):
+            item = dict(collection)
+            item.pop("count", None)
+            normalized_collections.append(item)
+        else:
+            normalized_collections.append(collection)
+    normalized_records["collections"] = normalized_collections
+    identity["records"] = normalized_records
+    return identity
+
+
 def _check_required_capabilities(
     tools: set[str],
     capabilities_payload: dict[str, Any],
@@ -345,7 +369,7 @@ class OpenCADStudioAdapter:
                 ),
                 capabilities=CapabilityIdentity(
                     cad_build=cad_build,
-                    capabilities_sha256=sha256_json(capabilities_payload),
+                    capabilities_sha256=sha256_json(_capability_identity_payload(capabilities_payload)),
                 ),
                 path_class=None,
             )
