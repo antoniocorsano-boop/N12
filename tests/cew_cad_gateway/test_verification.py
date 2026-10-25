@@ -30,7 +30,11 @@ class FakeVerificationAdapter:
         self.inspect_result = {
             "entities": [{"handle": "A1", "type": "Polyline", "layer": "CEW-LAB", "closed": True}]
         }
-        self.measure_result = {"handle": "A1", "length": 14.0, "area": 12.0, "closed": True}
+        self.measure_result = {
+            "measurements": [
+                {"handle": "A1", "curve": {"length": 14.0, "area": 12.0}}
+            ]
+        }
         self.capture_result = {"resource_uri": "memory://capture/post", "diff": {"changed": True}}
         self.audit_result = {
             "ok": True,
@@ -103,7 +107,12 @@ class VerificationTests(unittest.TestCase):
                 service = VerificationService(adapter=adapter, workspace=self.workspace, receipt_store=ReceiptStore(root), target_format="dwg", target_version="2018")
                 receipt = asyncio.run(service.verify(self.changeset, change)); self.assertEqual(receipt.decision, "FAIL")
                 with self.assertRaises(VerificationError): asyncio.run(service.save_verified_copy(self.changeset, receipt, "02_working/lab.dwg"))
-        adapter = FakeVerificationAdapter(self.adapter.current); adapter.measure_result = {"handle":"A1","length":99.0,"area":12.0,"closed":True}
+        adapter = FakeVerificationAdapter(self.adapter.current)
+        adapter.measure_result = {
+            "measurements": [
+                {"handle": "A1", "curve": {"length": 99.0, "area": 12.0}}
+            ]
+        }
         root = self.root / "05_audits" / "geometry-mismatch"; root.mkdir()
         service = VerificationService(adapter=adapter, workspace=self.workspace, receipt_store=ReceiptStore(root), target_format="dwg", target_version="2018")
         self.assertEqual(asyncio.run(service.verify(self.changeset, self.change)).decision, "FAIL")
