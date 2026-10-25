@@ -71,7 +71,6 @@ class LayerContractGreenTests(unittest.TestCase):
                 if name == "ocs_execute":
                     request = args["request"]
                     if request["op"] == "entities_create":
-                        # Verify the typed request structure
                         entities = request["entities"]
                         assert len(entities) == 1
                         entity = entities[0]
@@ -79,7 +78,6 @@ class LayerContractGreenTests(unittest.TestCase):
                         assert entity["layer"] == "CEW-LAB"
                         assert entity["closed"] == True
                         assert len(entity["vertices"]) == 4
-                        # Return real OCS v2026.42 response
                         return {
                             "ok": True, "status": "completed", "request_id": request["request_id"],
                             "result": {"entities": [{"handle": "85", "type": "LwPolyline", "layer": "CEW-LAB"}]},
@@ -87,7 +85,6 @@ class LayerContractGreenTests(unittest.TestCase):
                             "state": {"revision": 8, "geometry_revision": 26, "document_id": 1, "dirty": True}
                         }
                     if request["op"] == "run":
-                        # Legacy - should not be used
                         return {"status": "completed", "revision": 8, "changed_entities": ["A1"]}
                 raise AssertionError((name, args))
 
@@ -106,20 +103,18 @@ class LayerContractGreenTests(unittest.TestCase):
         
         result = asyncio.run(adapter.apply_operation(operation, request_id="req-1", expected=expected))
         
-        # Verify the request used entities_create, not run
         execute_calls = [args for name, args in client.calls if name == "ocs_execute"]
         self.assertEqual(len(execute_calls), 1)
         request = execute_calls[0]["request"]
         self.assertEqual(request["op"], "entities_create")
         self.assertEqual(request["entities"][0]["layer"], "CEW-LAB")
         
-        # Verify normalized response
         self.assertEqual(result["status"], "completed")
         self.assertEqual(result["revision"], 8)
         self.assertEqual(result["changed_entities"], ["85"])
 
     def test_build_typed_polyline_request_includes_layer(self):
-        """Test that _build_typed_polyline_request creates proper typed request with layer."""
+        """Test the live OCS typed request, including the observed [x, y] vertex arrays."""
         operation = CreatePolyline(
             layer="CEW-LAB",
             points=((0.0, 0.0), (4000.0, 0.0), (4000.0, 3000.0), (0.0, 3000.0)),
@@ -132,8 +127,8 @@ class LayerContractGreenTests(unittest.TestCase):
         self.assertEqual(request["layer"], "CEW-LAB")
         self.assertEqual(request["closed"], True)
         self.assertEqual(len(request["vertices"]), 4)
-        self.assertEqual(request["vertices"][0], {"x": 0.0, "y": 0.0})
-        self.assertEqual(request["vertices"][3], {"x": 0.0, "y": 3000.0})
+        self.assertEqual(request["vertices"][0], [0.0, 0.0])
+        self.assertEqual(request["vertices"][3], [0.0, 3000.0])
 
 
 # ============================================================================
@@ -144,10 +139,6 @@ class OCSResponseNormalizationGreenTests(unittest.TestCase):
     """Test that OCS response normalization handles real OCS v2026.42 response shape."""
 
     def test_normalize_real_ocs_v2026_42_settled_response(self):
-        """
-        GREEN: _normalize_ocs_mutation_response correctly extracts revision and 
-        changed_entities from real OCS v2026.42 nested response shape.
-        """
         real_ocs_response = {
             "ok": True,
             "status": "completed",
@@ -156,9 +147,7 @@ class OCSResponseNormalizationGreenTests(unittest.TestCase):
             "changes": {"created": ["85"], "modified": [], "deleted": []},
             "state": {"revision": 1, "geometry_revision": 26, "document_id": 1, "dirty": True}
         }
-        
         normalized = _normalize_ocs_mutation_response(real_ocs_response)
-        
         self.assertEqual(normalized["status"], "completed")
         self.assertEqual(normalized["revision"], 1)
         self.assertEqual(normalized["changed_entities"], ["85"])
@@ -166,7 +155,6 @@ class OCSResponseNormalizationGreenTests(unittest.TestCase):
         self.assertTrue(normalized["ok"])
 
     def test_normalize_fallback_to_result_entities(self):
-        """Test fallback extraction from result.entities[*].handle when changes.created missing."""
         response = {
             "ok": True,
             "status": "completed",
@@ -174,44 +162,36 @@ class OCSResponseNormalizationGreenTests(unittest.TestCase):
             "result": {"entities": [{"handle": "H1", "type": "LwPolyline"}, {"handle": "H2", "type": "Line"}]},
             "state": {"revision": 5, "geometry_revision": 10, "document_id": 1, "dirty": True}
         }
-        
         normalized = _normalize_ocs_mutation_response(response)
-        
         self.assertEqual(normalized["status"], "completed")
         self.assertEqual(normalized["revision"], 5)
         self.assertEqual(normalized["changed_entities"], ["H1", "H2"])
 
     def test_normalize_legacy_top_level_fields(self):
-        """Test backward compatibility with legacy response shape (top-level revision/changed_entities)."""
         legacy_response = {
             "status": "completed",
             "revision": 10,
             "changed_entities": ["LEGACY1", "LEGACY2"],
             "request_id": "legacy-req"
         }
-        
         normalized = _normalize_ocs_mutation_response(legacy_response)
-        
         self.assertEqual(normalized["status"], "completed")
         self.assertEqual(normalized["revision"], 10)
         self.assertEqual(normalized["changed_entities"], ["LEGACY1", "LEGACY2"])
 
     def test_normalize_fails_on_missing_status(self):
-        """Test that normalization fails closed when status is missing."""
         response = {"revision": 1, "changed_entities": ["A1"]}
         with self.assertRaises(OpenCADStudioError) as cm:
             _normalize_ocs_mutation_response(response)
         self.assertEqual(str(cm.exception), "OCS_RESPONSE_STATUS_MISSING")
 
     def test_normalize_fails_on_missing_revision(self):
-        """Test that normalization fails closed when revision is missing."""
         response = {"status": "completed", "changed_entities": ["A1"]}
         with self.assertRaises(OpenCADStudioError) as cm:
             _normalize_ocs_mutation_response(response)
         self.assertEqual(str(cm.exception), "OCS_RESPONSE_REVISION_MISSING")
 
     def test_normalize_fails_on_missing_changed_entities(self):
-        """Test that normalization fails closed when changed_entities is missing."""
         response = {"status": "completed", "revision": 1}
         with self.assertRaises(OpenCADStudioError) as cm:
             _normalize_ocs_mutation_response(response)
@@ -223,7 +203,7 @@ class OCSResponseNormalizationGreenTests(unittest.TestCase):
 # ============================================================================
 
 class DurableApprovalGreenTests(unittest.TestCase):
-    """Test that approval consumption is now durable across process boundaries."""
+    """Test that approval consumption is durable across process boundaries."""
 
     def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()
@@ -266,10 +246,6 @@ class DurableApprovalGreenTests(unittest.TestCase):
         )
 
     def test_approval_consumption_durable_across_instances_with_receipt_store(self):
-        """
-        GREEN: ApprovalVerifier with ReceiptStore now persists consumed approvals.
-        New verifier instance (simulating new process/runtime) will reject already-consumed approval.
-        """
         approval = sign_approval(
             changeset=self.changeset,
             private_key_path=self.private_path,
@@ -282,25 +258,19 @@ class DurableApprovalGreenTests(unittest.TestCase):
         audit_root.mkdir(parents=True, exist_ok=True)
         receipt_store = ReceiptStore(audit_root)
         
-        # Process/Runtime A - first verifier instance with receipt_store
         verifier_a = ApprovalVerifier(
             self.public_path,
             now=lambda: "2026-10-22T05:25:00+02:00",
             max_age_seconds=900,
             receipt_store=receipt_store
         )
-        
-        # First consumption succeeds
         verifier_a.verify(approval, self.changeset)
         verifier_a.consume(approval, self.changeset)
         
-        # Second consumption in same instance fails (correct)
         with self.assertRaises(ApprovalError) as cm:
             verifier_a.consume(approval, self.changeset)
         self.assertEqual(str(cm.exception), "APPROVAL_ALREADY_CONSUMED")
         
-        # Process/Runtime B - NEW verifier instance with SAME receipt_store
-        # This simulates a restart/new process with access to the same workspace
         verifier_b = ApprovalVerifier(
             self.public_path,
             now=lambda: "2026-10-22T05:25:00+02:00",
@@ -308,17 +278,12 @@ class DurableApprovalGreenTests(unittest.TestCase):
             receipt_store=receipt_store
         )
         
-        # GREEN: This should now FAIL because the approval was persisted
         with self.assertRaises(ApprovalError) as cm:
             verifier_b.verify(approval, self.changeset)
             verifier_b.consume(approval, self.changeset)
         self.assertEqual(str(cm.exception), "APPROVAL_ALREADY_CONSUMED")
 
     def test_approval_without_receipt_store_still_works_in_memory(self):
-        """
-        GREEN: ApprovalVerifier without receipt_store still works (in-memory only),
-        maintaining backward compatibility for tests that don't need durability.
-        """
         approval = sign_approval(
             changeset=self.changeset,
             private_key_path=self.private_path,
@@ -327,29 +292,16 @@ class DurableApprovalGreenTests(unittest.TestCase):
             approved_at="2026-10-22T05:20:00+02:00"
         )
         
-        # Verifier WITHOUT receipt_store (backward compatible)
         verifier = ApprovalVerifier(
             self.public_path,
             now=lambda: "2026-10-22T05:25:00+02:00",
             max_age_seconds=900
         )
-        
         verifier.verify(approval, self.changeset)
         verifier.consume(approval, self.changeset)
-        
-        # Second consumption in same instance fails
-        with self.assertRaises(ApprovalError):
+        with self.assertRaises(ApprovalError) as cm:
             verifier.consume(approval, self.changeset)
-        
-        # New instance WITHOUT receipt_store allows re-consumption (in-memory only)
-        # This is expected behavior when no receipt_store is provided
-        verifier2 = ApprovalVerifier(
-            self.public_path,
-            now=lambda: "2026-10-22T05:25:00+02:00",
-            max_age_seconds=900
-        )
-        verifier2.verify(approval, self.changeset)
-        verifier2.consume(approval, self.changeset)  # This works because no persistence
+        self.assertEqual(str(cm.exception), "APPROVAL_ALREADY_CONSUMED")
 
 
 if __name__ == "__main__":
