@@ -92,7 +92,7 @@ class VerificationTests(unittest.TestCase):
         receipt = asyncio.run(self.service.verify(self.changeset, self.change))
         self.assertEqual(receipt.decision, "PASS"); self.assertFalse(receipt.unrelated_change); self.assertTrue(all(receipt.postconditions.values()))
         inspect_call = [payload for name,payload in self.adapter.calls if name == "inspect"][0]
-        self.assertEqual(inspect_call["handles"], ["A1"])
+        self.assertEqual(inspect_call, {"op": "query", "handle": "A1"})
         self.assertEqual(sha256_file(self.source), self.original_hash)
 
     def test_unrelated_missing_or_geometry_mismatch_returns_fail_and_blocks_save(self) -> None:
@@ -208,36 +208,22 @@ class VerificationTests(unittest.TestCase):
         governed checks such as source_integrity, changed_entity_scope_exact,
         geometry_kernel_matches, visual_change_captured, target_audit_lossless.
         """
-        # Create a changeset with a postcondition that collides with a built-in check name
         from dataclasses import replace
         changeset_with_collision = replace(
             self.changeset,
             postconditions=("visual_change_captured", "source_integrity", "custom_postcondition"),
         )
-        
-        # Create an adapter where the built-in checks would FAIL
         adapter = FakeVerificationAdapter(self.adapter.current)
-        adapter.capture_result = {"resource_uri": "memory://capture/post", "diff": {"changed": False}}  # capture fails
-        adapter.audit_result = {"ok": False, "target_format": "dwg", "target_version": "2018", "target_compatible": False, "dropped_on_save": ["LOSS"]}  # audit fails
-        # Also make source integrity fail by changing the document path
+        adapter.capture_result = {"resource_uri": "memory://capture/post", "diff": {"changed": False}}
+        adapter.audit_result = {"ok": False, "target_format": "dwg", "target_version": "2018", "target_compatible": False, "dropped_on_save": ["LOSS"]}
         adapter.current = replace(adapter.current, document=replace(adapter.current.document, path="/fake/path.dwg"))
-        
         root = self.root / "05_audits" / "postcondition-isolation"; root.mkdir()
         service = VerificationService(adapter=adapter, workspace=self.workspace, receipt_store=ReceiptStore(root), target_format="dwg", target_version="2018")
         receipt = asyncio.run(service.verify(changeset_with_collision, self.change))
-        
-        # The decision should be FAIL because built-in checks fail
         self.assertEqual(receipt.decision, "FAIL")
-        
-        # The built-in check keys should be present with their actual (failed) values
         self.assertFalse(receipt.postconditions.get("visual_change_captured", True))
         self.assertFalse(receipt.postconditions.get("target_audit_lossless", True))
         self.assertFalse(receipt.postconditions.get("source_integrity", True))
-        
-        # The custom postcondition should be in a separate namespace or not override
-        # Since the built-in checks fail, the custom one should also be False
-        # but it should not be able to force a PASS
-        # Verify model postconditions are prefixed
         self.assertIn("model:custom_postcondition", receipt.postconditions)
         self.assertEqual(receipt.postconditions.get("model:custom_postcondition"), False)
 
