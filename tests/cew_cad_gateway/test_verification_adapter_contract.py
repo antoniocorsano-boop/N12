@@ -26,16 +26,12 @@ from cew_cad_gateway.workspace import Workspace
 
 
 class StrictInspectionAdapter:
-    """Model the already-governed adapter query contract used by OCS.
-
-    Exact-handle verification may use op=query + handle. The LAB-005 request
-    shape handles/detail is deliberately rejected with the same adapter error
-    observed in the live pilot.
-    """
+    """Model the governed query and native kernel measurement contracts."""
 
     def __init__(self, status: CADStatus) -> None:
         self.current = status
         self.inspect_requests: list[dict[str, object]] = []
+        self.measure_requests: list[dict[str, object]] = []
 
     async def status(self):
         return self.current
@@ -51,9 +47,14 @@ class StrictInspectionAdapter:
         }
 
     async def measure(self, request):
-        if request != {"handle": "A1", "op": "geometry"}:
+        self.measure_requests.append(dict(request))
+        if request != {"handles": ["A1"]}:
             raise AssertionError(request)
-        return {"handle": "A1", "length": 14.0, "area": 12.0, "closed": True}
+        return {
+            "measurements": [
+                {"handle": "A1", "curve": {"length": 14.0, "area": 12.0}}
+            ]
+        }
 
     async def capture(self, request):
         return {"resource_uri": "memory://capture/post", "diff": {"changed": True}}
@@ -192,6 +193,7 @@ class VerificationAdapterContractTests(unittest.TestCase):
 
             self.assertEqual(receipt.decision, "PASS")
             self.assertEqual(adapter.inspect_requests, [{"op": "query", "handle": "A1"}])
+            self.assertEqual(adapter.measure_requests, [{"handles": ["A1"]}])
 
 
 if __name__ == "__main__":
