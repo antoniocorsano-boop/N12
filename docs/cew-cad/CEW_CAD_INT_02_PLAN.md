@@ -41,7 +41,7 @@ Origin: CEW-CAD-LAB-005 / Issue #159 — REWORK.
 
 ## CI qualification note
 
-PR #161 is normally stacked on `feat/cew-cad-int-01-transaction-recovery`. That base is not currently included in the inherited `pull_request.branches` filter. For causal RED/GREEN evidence only, #161 may be temporarily retargeted to `fix/cew-cad-01-live-contract-repair`, which is an enabled base. A new head commit then triggers qualification. After capturing the run, restore the PR to the INT-01 stacked base. Never interpret the temporary expanded diff as the intended merge scope.
+PR #161 is normally stacked on `feat/cew-cad-int-01-transaction-recovery`. That base is not included in the inherited `pull_request.branches` filter. For causal RED/GREEN evidence only, #161 may be temporarily retargeted to `feat/cew-cad-01-controlled-ai-gateway`, which is an enabled PR base. A new head commit then triggers qualification. After capturing the run, restore the PR to the INT-01 stacked base. Never interpret the temporary expanded diff as the intended merge scope.
 
 ## Governance
 
