@@ -31,7 +31,7 @@ Causal RED:
 
 Implemented:
 
-- `ApprovalVerifier.is_consumed()` based on durable consumed-approval claims;
+- durable consumed-approval state;
 - `ExecutionService.reconcile()`;
 - deterministic request-ID lookup through `operation_status`;
 - no call to `apply_operation` during recovery;
@@ -78,6 +78,25 @@ Ruling and repair:
 - tampered signatures remain fail-closed;
 - unconsumed approvals remain ineligible for recovery.
 
+## Task 3B — exact consumed-approval binding
+
+Independent diff review identified that an `approval_id`-only durable claim was not sufficient proof of **which signed approval artifact** crossed the mutation boundary.
+
+Causal RED:
+
+- exact head `a5f27586dda41372fa37b5acacec9d0f245e43e6`;
+- CEW-CAD Qualification #144 / run `40174209325`;
+- Task 1–10 PASS;
+- full suite: 123 tests, exactly one failure, one Windows-only skip;
+- only failure: a second valid signed approval reusing the already-consumed `approval_id` was incorrectly accepted by recovery.
+
+Repair:
+
+- new consumed claims persist `approval_id`, `approval_sha256`, `changeset_sha256`, `consumed_at`;
+- recovery requires the durable claim to match the exact signed Approval Receipt digest and exact Changeset digest;
+- legacy ID-only claims remain replay blockers but are deliberately insufficient evidence for recovery;
+- signature, Changeset binding and live post-mutation state checks remain mandatory.
+
 ## Task 4 — internal AI authority boundary
 
 Materialized `docs/cew-cad/CEW_CAD_INTERNAL_AI_BOUNDARY.md`.
@@ -92,7 +111,8 @@ The existing MCP surface gate remains unchanged and continues to enforce exactly
 
 - normal `prepare → approve → execute`;
 - `FAILED_AFTER_MUTATION → recover` only;
-- `AMBIGUOUS_MUTATION_STATE → FAIL`, never replay.
+- `AMBIGUOUS_MUTATION_STATE → FAIL`, never replay;
+- legacy ID-only consumed claims are not sufficient recovery proof.
 
 ## Governance status
 
@@ -100,4 +120,4 @@ The existing MCP surface gate remains unchanged and continues to enforce exactly
 - No live CAD pilot has been executed by CEW-CAD-INT-01.
 - No LAB-005 is authorized by this branch.
 - No deploy, OpenCADStudio `ADOPT`, CEW-FEM or canonical N12 mutation is authorized.
-- Final exact-head qualification and independent review remain required before `READY_FOR_HUMAN_DECISION`.
+- Final exact-head qualification and independent whole-branch review remain required before `READY_FOR_HUMAN_DECISION`.
