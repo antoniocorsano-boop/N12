@@ -50,7 +50,7 @@ class FakeLabAdapter:
         )
 
     async def inspect(self, request):
-        if "handles" in request:
+        if request.get("op") == "query" and request.get("handle") == "A1":
             if not self.entity_present:
                 return {"entities": []}
             return {"entities": [{"handle": "A1", "type": "Polyline", "layer": "CEW-LAB", "closed": True}]}
