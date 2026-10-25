@@ -12,7 +12,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cew_cad_gateway.approval import ApprovalVerifier, sign_approval
 from cew_cad_gateway.canonical import sha256_file
 from cew_cad_gateway.changesets import ChangesetService, ProposalRequest
-from cew_cad_gateway.execution import ExecutionService
+from cew_cad_gateway.execution import ExecutionError, ExecutionService
 from cew_cad_gateway.policy import GatewayPolicy
 from cew_cad_gateway.receipts import ReceiptStore
 from cew_cad_gateway.types import (
@@ -32,6 +32,7 @@ class RecoveryAdapter:
         self.current = current
         self.apply_calls = 0
         self.status_queries: list[str] = []
+        self.operation_result = {"status": "completed", "revision": 8, "changed_entities": ["87"]}
 
     async def status(self):
         return self.current
@@ -42,7 +43,7 @@ class RecoveryAdapter:
 
     async def operation_status(self, request_id):
         self.status_queries.append(request_id)
-        return {"status": "completed", "revision": 8, "changed_entities": ["87"]}
+        return dict(self.operation_result)
 
     async def inspect(self, request): raise AssertionError
     async def measure(self, request): raise AssertionError
@@ -81,17 +82,17 @@ class ExecutionRecoveryTests(unittest.TestCase):
         self.workspace = Workspace(self.root, self.policy)
         self.drawing = self.root / "02_working" / "lab.dwg"
         self.drawing.write_bytes(b"lab-drawing")
-        document = DocumentIdentity(
+        self.document = DocumentIdentity(
             path=str(self.drawing),
             sha256=sha256_file(self.drawing),
             document_id=3,
             revision=7,
         )
-        capabilities = CapabilityIdentity(cad_build="2026.42@b6fbac39ffc7", capabilities_sha256="1" * 64)
-        base_status = CADStatus(session_id="session-lab", document=document, capabilities=capabilities)
+        self.capabilities = CapabilityIdentity(cad_build="2026.42@b6fbac39ffc7", capabilities_sha256="1" * 64)
+        self.base_status = CADStatus(session_id="session-lab", document=self.document, capabilities=self.capabilities)
         inspection = InspectionReceipt(
             schema="cew.cad.inspection.v1",
-            status=replace(base_status, path_class=PathClass.WORKING),
+            status=replace(self.base_status, path_class=PathClass.WORKING),
             audit_sha256="2" * 64,
             observed_at="2026-10-25T06:00:00+00:00",
         )
@@ -121,14 +122,14 @@ class ExecutionRecoveryTests(unittest.TestCase):
         )
         self.changeset = service.propose(proposal, inspection)
 
-        key = Ed25519PrivateKey.generate()
+        self.key = Ed25519PrivateKey.generate()
         self.private_path = Path(self.tmp.name) / "private.pem"
         self.public_path = Path(self.tmp.name) / "public.pem"
         self.private_path.write_bytes(
-            key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption())
+            self.key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption())
         )
         self.public_path.write_bytes(
-            key.public_key().public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
+            self.key.public_key().public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
         )
         self.approval = sign_approval(
             changeset=self.changeset,
@@ -147,15 +148,18 @@ class ExecutionRecoveryTests(unittest.TestCase):
         )
         initial_verifier.consume(self.approval, self.changeset)
 
-        post_document = replace(document, revision=8)
-        self.adapter = RecoveryAdapter(replace(base_status, document=post_document))
+        post_document = replace(self.document, revision=8)
+        self.adapter = RecoveryAdapter(replace(self.base_status, document=post_document))
+        self.execution = self._execution(now="2026-10-25T06:03:00+00:00")
+
+    def _execution(self, *, now: str) -> ExecutionService:
         recovery_verifier = ApprovalVerifier(
             self.public_path,
-            now=lambda: "2026-10-25T06:03:00+00:00",
+            now=lambda: now,
             max_age_seconds=900,
             receipt_store=self.receipt_store,
         )
-        self.execution = ExecutionService(
+        return ExecutionService(
             adapter=self.adapter,
             workspace=self.workspace,
             policy=self.policy,
@@ -172,6 +176,32 @@ class ExecutionRecoveryTests(unittest.TestCase):
         self.assertEqual(receipt.revision_after, 8)
         self.assertEqual(receipt.changed_entities, ("87",))
         self.assertEqual(receipt.status, "COMPLETED")
+
+    def test_recovery_rejects_approval_that_was_never_consumed(self) -> None:
+        unconsumed = sign_approval(
+            changeset=self.changeset,
+            private_key_path=self.private_path,
+            approval_id="CEW-CAD-APP-UNCONSUMED",
+            approved_by="human",
+            approved_at="2026-10-25T06:01:00+00:00",
+        )
+        with self.assertRaisesRegex(ExecutionError, "APPROVAL_NOT_CONSUMED"):
+            asyncio.run(self.execution.reconcile(self.changeset, unconsumed))
+        self.assertEqual(self.adapter.apply_calls, 0)
+        self.assertEqual(self.adapter.status_queries, [])
+
+    def test_recovery_rejects_live_revision_different_from_confirmed_operation(self) -> None:
+        self.adapter.current = replace(self.adapter.current, document=replace(self.adapter.current.document, revision=9))
+        with self.assertRaisesRegex(ExecutionError, "RECOVERY_REVISION_MISMATCH"):
+            asyncio.run(self.execution.reconcile(self.changeset, self.approval))
+        self.assertEqual(self.adapter.apply_calls, 0)
+        self.assertEqual(len(self.adapter.status_queries), 1)
+
+    def test_consumed_approval_may_be_reconciled_after_signing_window_expires(self) -> None:
+        delayed_recovery = self._execution(now="2026-10-25T08:00:00+00:00")
+        receipt = asyncio.run(delayed_recovery.reconcile(self.changeset, self.approval))
+        self.assertEqual(receipt.status, "COMPLETED")
+        self.assertEqual(self.adapter.apply_calls, 0)
 
 
 if __name__ == "__main__":
