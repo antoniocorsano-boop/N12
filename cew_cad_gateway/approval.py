@@ -118,6 +118,14 @@ class ApprovalVerifier:
         except OSError:
             pass
 
+    def is_consumed(self, approval_id: str) -> bool:
+        """Return durable consumption state loaded from the governed ReceiptStore.
+
+        Recovery uses this only as evidence that the original mutating execution
+        already crossed the human-approval boundary. It does not consume again.
+        """
+        return isinstance(approval_id, str) and bool(approval_id) and approval_id in self._consumed
+
     def _persist_consumed_approval(self, approval_id: str) -> None:
         if self._receipt_store is None:
             return
