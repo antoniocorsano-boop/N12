@@ -11,7 +11,7 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 
-from .canonical import canonical_json_bytes, sha256_json
+from .canonical import canonical_json_bytes
 from .receipts import ReceiptStore, ReceiptStoreError
 from .types import ApprovalReceipt, Changeset
 
@@ -119,11 +119,7 @@ class ApprovalVerifier:
             pass
 
     def is_consumed(self, approval_id: str) -> bool:
-        """Return durable consumption state loaded from the governed ReceiptStore.
-
-        Recovery uses this only as evidence that the original mutating execution
-        already crossed the human-approval boundary. It does not consume again.
-        """
+        """Return durable consumption state loaded from the governed ReceiptStore."""
         return isinstance(approval_id, str) and bool(approval_id) and approval_id in self._consumed
 
     def _persist_consumed_approval(self, approval_id: str) -> None:
@@ -173,9 +169,7 @@ class ApprovalVerifier:
         if age < -60 or age > self.max_age_seconds:
             raise ApprovalError("APPROVAL_EXPIRED_OR_FROM_FUTURE")
 
-    def verify(self, receipt: ApprovalReceipt, changeset: Changeset) -> None:
-        self._verify_binding(receipt, changeset)
-        self._verify_age(receipt)
+    def _verify_signature(self, receipt: ApprovalReceipt) -> None:
         try:
             signature = base64.b64decode(receipt.signature, validate=True)
         except (binascii.Error, ValueError) as exc:
@@ -184,6 +178,23 @@ class ApprovalVerifier:
             self._load_public_key().verify(signature, canonical_json_bytes(approval_payload(receipt)))
         except InvalidSignature as exc:
             raise ApprovalError("INVALID_APPROVAL_SIGNATURE") from exc
+
+    def verify(self, receipt: ApprovalReceipt, changeset: Changeset) -> None:
+        """Validate a still-live approval before a new mutation may start."""
+        self._verify_binding(receipt, changeset)
+        self._verify_age(receipt)
+        self._verify_signature(receipt)
+
+    def verify_for_recovery(self, receipt: ApprovalReceipt, changeset: Changeset) -> None:
+        """Validate immutable approval evidence for an already completed mutation.
+
+        Recovery deliberately does not reapply the execution-age window: the
+        durable consumed-approval claim proves that the approval was consumed
+        while crossing the original mutation boundary. Binding and Ed25519
+        signature remain mandatory and are revalidated.
+        """
+        self._verify_binding(receipt, changeset)
+        self._verify_signature(receipt)
 
     def consume(self, receipt: ApprovalReceipt, changeset: Changeset) -> None:
         if receipt.approval_id in self._consumed:
