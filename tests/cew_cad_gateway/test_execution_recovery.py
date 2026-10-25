@@ -203,6 +203,14 @@ class ExecutionRecoveryTests(unittest.TestCase):
         self.assertEqual(receipt.status, "COMPLETED")
         self.assertEqual(self.adapter.apply_calls, 0)
 
+    def test_recovery_still_rejects_tampered_signature_after_consumption(self) -> None:
+        tampered = replace(self.approval, signature="AAAA")
+        delayed_recovery = self._execution(now="2026-10-25T08:00:00+00:00")
+        with self.assertRaisesRegex(ExecutionError, "APPROVAL_REJECTED"):
+            asyncio.run(delayed_recovery.reconcile(self.changeset, tampered))
+        self.assertEqual(self.adapter.apply_calls, 0)
+        self.assertEqual(self.adapter.status_queries, [])
+
 
 if __name__ == "__main__":
     unittest.main()
