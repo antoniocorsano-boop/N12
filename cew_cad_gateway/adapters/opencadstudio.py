@@ -398,7 +398,8 @@ class OpenCADStudioAdapter:
             return await self._call(client, "ocs_read", {"ocs_session_id": session_id, **payload})
 
     async def measure(self, request: dict[str, object]) -> dict[str, object]:
-        return await self.inspect(request)
+        status = await self.status()
+        return await self._read_with_status(status, "measure", request)
 
     async def audit(self, target: dict[str, object]) -> dict[str, object]:
         status = await self.status()
