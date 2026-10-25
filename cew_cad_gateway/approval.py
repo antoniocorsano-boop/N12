@@ -11,7 +11,7 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 
-from .canonical import canonical_json_bytes
+from .canonical import canonical_json_bytes, sha256_json
 from .receipts import ReceiptStore, ReceiptStoreError
 from .types import ApprovalReceipt, Changeset
 
@@ -98,6 +98,7 @@ class ApprovalVerifier:
         self.max_age_seconds = max_age_seconds
         self._receipt_store = receipt_store
         self._consumed: set[str] = set()
+        self._consumed_bindings: dict[str, tuple[str, str]] = {}
 
         if self._receipt_store is not None:
             self._load_consumed_approvals()
@@ -111,8 +112,18 @@ class ApprovalVerifier:
                     try:
                         content = json.loads(path.read_text(encoding="utf-8"))
                         approval_id = content.get("approval_id")
-                        if isinstance(approval_id, str) and approval_id:
-                            self._consumed.add(approval_id)
+                        if not isinstance(approval_id, str) or not approval_id:
+                            continue
+                        self._consumed.add(approval_id)
+                        approval_sha256 = content.get("approval_sha256")
+                        changeset_sha256 = content.get("changeset_sha256")
+                        if (
+                            isinstance(approval_sha256, str)
+                            and len(approval_sha256) == 64
+                            and isinstance(changeset_sha256, str)
+                            and len(changeset_sha256) == 64
+                        ):
+                            self._consumed_bindings[approval_id] = (approval_sha256, changeset_sha256)
                     except (OSError, json.JSONDecodeError, UnicodeError):
                         pass
         except OSError:
@@ -122,13 +133,18 @@ class ApprovalVerifier:
         """Return durable consumption state loaded from the governed ReceiptStore."""
         return isinstance(approval_id, str) and bool(approval_id) and approval_id in self._consumed
 
-    def _persist_consumed_approval(self, approval_id: str) -> None:
+    def _persist_consumed_approval(self, receipt: ApprovalReceipt, changeset: Changeset) -> None:
         if self._receipt_store is None:
             return
 
-        receipt = {"approval_id": approval_id, "consumed_at": self._now()}
+        claim = {
+            "approval_id": receipt.approval_id,
+            "approval_sha256": sha256_json(receipt),
+            "changeset_sha256": changeset.changeset_sha256,
+            "consumed_at": self._now(),
+        }
         try:
-            self._receipt_store.claim_once(CONSUMED_APPROVAL_KIND, approval_id, receipt)
+            self._receipt_store.claim_once(CONSUMED_APPROVAL_KIND, receipt.approval_id, claim)
         except ReceiptStoreError as exc:
             if str(exc) == "RECEIPT_ALREADY_CLAIMED":
                 raise ApprovalError("APPROVAL_ALREADY_CONSUMED") from exc
@@ -186,13 +202,21 @@ class ApprovalVerifier:
         self._verify_signature(receipt)
 
     def verify_for_recovery(self, receipt: ApprovalReceipt, changeset: Changeset) -> None:
-        """Validate immutable approval evidence for an already completed mutation.
+        """Validate the exact approval artifact that crossed the mutation boundary.
 
-        Recovery deliberately does not reapply the execution-age window: the
-        durable consumed-approval claim proves that the approval was consumed
-        while crossing the original mutation boundary. Binding and Ed25519
-        signature remain mandatory and are revalidated.
+        Recovery does not reapply the execution-age window, but it requires the
+        durable consumed claim to bind to this exact signed Approval Receipt and
+        this exact Changeset. Legacy ID-only claims remain replay blockers but
+        are insufficient evidence for recovery.
         """
+        if receipt.approval_id not in self._consumed:
+            raise ApprovalError("APPROVAL_NOT_CONSUMED")
+        binding = self._consumed_bindings.get(receipt.approval_id)
+        if binding is None:
+            raise ApprovalError("APPROVAL_CONSUMPTION_BINDING_MISSING")
+        expected_binding = (sha256_json(receipt), changeset.changeset_sha256)
+        if binding != expected_binding:
+            raise ApprovalError("APPROVAL_CONSUMPTION_BINDING_MISMATCH")
         self._verify_binding(receipt, changeset)
         self._verify_signature(receipt)
 
@@ -201,5 +225,6 @@ class ApprovalVerifier:
             raise ApprovalError("APPROVAL_ALREADY_CONSUMED")
 
         self.verify(receipt, changeset)
-        self._persist_consumed_approval(receipt.approval_id)
+        self._persist_consumed_approval(receipt, changeset)
         self._consumed.add(receipt.approval_id)
+        self._consumed_bindings[receipt.approval_id] = (sha256_json(receipt), changeset.changeset_sha256)
