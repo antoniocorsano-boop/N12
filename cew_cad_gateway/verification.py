@@ -114,14 +114,21 @@ class VerificationService:
             return False
         if entity.get("closed") is not operation.closed:
             return False
-        if measure_data.get("handle") != resolved_handle:
+
+        measurements = measure_data.get("measurements")
+        if not isinstance(measurements, list) or len(measurements) != 1 or not isinstance(measurements[0], dict):
             return False
-        if measure_data.get("closed") is not operation.closed:
+        measurement = measurements[0]
+        if measurement.get("handle") != resolved_handle:
             return False
+        curve = measurement.get("curve")
+        if not isinstance(curve, dict):
+            return False
+
         expected_length, expected_area = _polyline_expected_geometry(operation)
-        if not _close(measure_data.get("length"), expected_length):
+        if not _close(curve.get("length"), expected_length):
             return False
-        if expected_area is not None and not _close(measure_data.get("area"), expected_area):
+        if expected_area is not None and not _close(curve.get("area"), expected_area):
             return False
         return True
 
@@ -154,7 +161,7 @@ class VerificationService:
         if len(resolved_handles) == 1:
             resolved_handle = resolved_handles[0]
             inspect_data = await self.adapter.inspect({"op": "query", "handle": resolved_handle})
-            measure_data = await self.adapter.measure({"handle": resolved_handle, "op": "geometry"})
+            measure_data = await self.adapter.measure({"handles": [resolved_handle]})
         else:
             inspect_data = {}
             measure_data = {}
