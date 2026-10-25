@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+# INT-02 causal RED: document inventory counts must not define capability identity.
+
 import asyncio
 import copy
 import tempfile
