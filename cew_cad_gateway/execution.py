@@ -155,19 +155,20 @@ class ExecutionService:
     async def reconcile(self, changeset: Changeset, approval: ApprovalReceipt) -> ChangeReceipt:
         """Reconstruct a completed ChangeReceipt without reapplying the mutation.
 
-        This is only valid after a prior execution durably consumed the approval.
-        The deterministic request ID is queried from OCS and the current live
-        document must already be at exactly the confirmed post-mutation revision.
+        Recovery is only valid when the original human approval is already
+        durably recorded as consumed. Its immutable binding and Ed25519
+        signature are revalidated, while the original execution-age window is
+        not reapplied because no new mutation is authorized or started here.
         """
         if not verify_changeset_digest(changeset):
             raise ExecutionError("CHANGESET_DIGEST_MISMATCH")
         self._validate_operation(changeset)
-        try:
-            self.approval_verifier.verify(approval, changeset)
-        except ApprovalError as exc:
-            raise ExecutionError("APPROVAL_REJECTED") from exc
         if not self.approval_verifier.is_consumed(approval.approval_id):
             raise ExecutionError("APPROVAL_NOT_CONSUMED")
+        try:
+            self.approval_verifier.verify_for_recovery(approval, changeset)
+        except ApprovalError as exc:
+            raise ExecutionError("APPROVAL_REJECTED") from exc
 
         current = await self.adapter.status()
         self._validate_identity_except_revision(current, changeset)
