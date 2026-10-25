@@ -190,6 +190,19 @@ class ExecutionRecoveryTests(unittest.TestCase):
         self.assertEqual(self.adapter.apply_calls, 0)
         self.assertEqual(self.adapter.status_queries, [])
 
+    def test_recovery_rejects_different_signed_approval_reusing_consumed_id(self) -> None:
+        different = sign_approval(
+            changeset=self.changeset,
+            private_key_path=self.private_path,
+            approval_id=self.approval.approval_id,
+            approved_by="different-human",
+            approved_at="2026-10-25T06:01:30+00:00",
+        )
+        with self.assertRaisesRegex(ExecutionError, "APPROVAL_REJECTED"):
+            asyncio.run(self.execution.reconcile(self.changeset, different))
+        self.assertEqual(self.adapter.apply_calls, 0)
+        self.assertEqual(self.adapter.status_queries, [])
+
     def test_recovery_rejects_live_revision_different_from_confirmed_operation(self) -> None:
         self.adapter.current = replace(self.adapter.current, document=replace(self.adapter.current.document, revision=9))
         with self.assertRaisesRegex(ExecutionError, "RECOVERY_REVISION_MISMATCH"):
