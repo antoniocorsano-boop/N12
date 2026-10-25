@@ -49,10 +49,7 @@ class ExecutionService:
             raise ExecutionError("POLICY_MUTATION_REJECTED")
         return operation
 
-    async def _preflight(self, changeset: Changeset, approval: ApprovalReceipt):
-        if not verify_changeset_digest(changeset):
-            raise ExecutionError("CHANGESET_DIGEST_MISMATCH")
-        current = await self.adapter.status()
+    def _validate_identity_except_revision(self, current, changeset: Changeset) -> None:
         if current.session_id != changeset.session_id:
             raise ExecutionError("CAD_SESSION_MISMATCH")
         if current.document.path != changeset.document.path:
@@ -64,8 +61,6 @@ class ExecutionService:
             raise ExecutionError("CAD_TARGET_NOT_WORKING") from exc
         if current.document.document_id != changeset.document.document_id:
             raise ExecutionError("CAD_DOCUMENT_ID_MISMATCH")
-        if current.document.revision != changeset.document.revision:
-            raise ExecutionError("CAD_REVISION_STALE")
         if current.document.sha256 != changeset.document.sha256:
             raise ExecutionError("CAD_SOURCE_HASH_MISMATCH")
         try:
@@ -76,6 +71,49 @@ class ExecutionService:
             raise ExecutionError("CAD_LOCAL_HASH_MISMATCH")
         if current.capabilities != changeset.capabilities:
             raise ExecutionError("CAD_CAPABILITY_IDENTITY_MISMATCH")
+
+    @staticmethod
+    def _completed_change_result(result: dict[str, object], *, revision_before: int) -> tuple[int, tuple[str, ...]]:
+        if result.get("status") != "completed":
+            raise ExecutionError("MUTATION_NOT_COMPLETED")
+        revision_after = result.get("revision")
+        changed = result.get("changed_entities")
+        if not isinstance(revision_after, int) or isinstance(revision_after, bool) or revision_after <= revision_before:
+            raise ExecutionError("MUTATION_REVISION_INVALID")
+        if not isinstance(changed, list) or not changed or any(not isinstance(item, str) or not item for item in changed):
+            raise ExecutionError("MUTATION_CHANGESET_INVALID")
+        return revision_after, tuple(changed)
+
+    def _change_receipt(
+        self,
+        *,
+        changeset: Changeset,
+        approval: ApprovalReceipt,
+        request_id: str,
+        revision_before: int,
+        revision_after: int,
+        changed_entities: tuple[str, ...],
+    ) -> ChangeReceipt:
+        receipt = ChangeReceipt(
+            schema="cew.cad.change.v1",
+            changeset_sha256=changeset.changeset_sha256,
+            approval_sha256=sha256_json(approval),
+            request_id=request_id,
+            revision_before=revision_before,
+            revision_after=revision_after,
+            changed_entities=changed_entities,
+            status="COMPLETED",
+        )
+        self.receipt_store.write("change", receipt)
+        return receipt
+
+    async def _preflight(self, changeset: Changeset, approval: ApprovalReceipt):
+        if not verify_changeset_digest(changeset):
+            raise ExecutionError("CHANGESET_DIGEST_MISMATCH")
+        current = await self.adapter.status()
+        self._validate_identity_except_revision(current, changeset)
+        if current.document.revision != changeset.document.revision:
+            raise ExecutionError("CAD_REVISION_STALE")
         operation = self._validate_operation(changeset)
         try:
             self.approval_verifier.consume(approval, changeset)
@@ -104,23 +142,50 @@ class ExecutionService:
         current, operation = await self._preflight(changeset, approval)
         request_id = self._request_id(changeset)
         result = await self._execute_with_idempotency(operation, request_id=request_id, expected=current.document)
-        if result.get("status") != "completed":
-            raise ExecutionError("MUTATION_NOT_COMPLETED")
-        revision_after = result.get("revision")
-        changed = result.get("changed_entities")
-        if not isinstance(revision_after, int) or isinstance(revision_after, bool) or revision_after <= current.document.revision:
-            raise ExecutionError("MUTATION_REVISION_INVALID")
-        if not isinstance(changed, list) or any(not isinstance(item, str) or not item for item in changed):
-            raise ExecutionError("MUTATION_CHANGESET_INVALID")
-        receipt = ChangeReceipt(
-            schema="cew.cad.change.v1",
-            changeset_sha256=changeset.changeset_sha256,
-            approval_sha256=sha256_json(approval),
+        revision_after, changed = self._completed_change_result(result, revision_before=current.document.revision)
+        return self._change_receipt(
+            changeset=changeset,
+            approval=approval,
             request_id=request_id,
             revision_before=current.document.revision,
             revision_after=revision_after,
-            changed_entities=tuple(changed),
-            status="COMPLETED",
+            changed_entities=changed,
         )
-        self.receipt_store.write("change", receipt)
-        return receipt
+
+    async def reconcile(self, changeset: Changeset, approval: ApprovalReceipt) -> ChangeReceipt:
+        """Reconstruct a completed ChangeReceipt without reapplying the mutation.
+
+        This is only valid after a prior execution durably consumed the approval.
+        The deterministic request ID is queried from OCS and the current live
+        document must already be at exactly the confirmed post-mutation revision.
+        """
+        if not verify_changeset_digest(changeset):
+            raise ExecutionError("CHANGESET_DIGEST_MISMATCH")
+        self._validate_operation(changeset)
+        try:
+            self.approval_verifier.verify(approval, changeset)
+        except ApprovalError as exc:
+            raise ExecutionError("APPROVAL_REJECTED") from exc
+        if not self.approval_verifier.is_consumed(approval.approval_id):
+            raise ExecutionError("APPROVAL_NOT_CONSUMED")
+
+        current = await self.adapter.status()
+        self._validate_identity_except_revision(current, changeset)
+
+        request_id = self._request_id(changeset)
+        result = await self.adapter.operation_status(request_id)
+        revision_after, changed = self._completed_change_result(
+            result,
+            revision_before=changeset.document.revision,
+        )
+        if current.document.revision != revision_after:
+            raise ExecutionError("RECOVERY_REVISION_MISMATCH")
+
+        return self._change_receipt(
+            changeset=changeset,
+            approval=approval,
+            request_id=request_id,
+            revision_before=changeset.document.revision,
+            revision_after=revision_after,
+            changed_entities=changed,
+        )
