@@ -149,11 +149,14 @@ class VerificationService:
         actual_handles = tuple(change.changed_entities)
         resolved_handles, exact_changed_set, unrelated_change = self._resolve_changed_entity_scope(changeset, actual_handles)
 
-        inspect_data = await self.adapter.inspect({"handles": list(resolved_handles), "detail": "full"})
+        inspect_data: dict[str, object]
         measure_data: dict[str, object]
         if len(resolved_handles) == 1:
-            measure_data = await self.adapter.measure({"handle": resolved_handles[0], "op": "geometry"})
+            resolved_handle = resolved_handles[0]
+            inspect_data = await self.adapter.inspect({"op": "query", "handle": resolved_handle})
+            measure_data = await self.adapter.measure({"handle": resolved_handle, "op": "geometry"})
         else:
+            inspect_data = {}
             measure_data = {}
         geometry_ok = (
             exact_changed_set
@@ -184,13 +187,10 @@ class VerificationService:
         model_postconditions: dict[str, bool] = {}
         for postcondition in changeset.postconditions:
             if postcondition in checks:
-                # Reserved name - do not overwrite built-in check
-                # Store in separate namespace instead
                 model_postconditions[postcondition] = governed_postcondition_ok
             else:
                 model_postconditions[postcondition] = governed_postcondition_ok
-        
-        # Merge model postconditions with a prefix to avoid collisions
+
         for key, value in model_postconditions.items():
             checks[f"model:{key}"] = value
 
