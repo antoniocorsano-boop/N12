@@ -7,6 +7,9 @@ import sys
 from typing import Any
 
 REGISTRY_RELATIVE_PATH = Path("governance/repo-memory/CEW_CAPABILITY_REGISTRY_v1.json")
+LEGACY_ASSESSMENTS_RELATIVE_PATH = Path(
+    "governance/repo-memory/CEW_LEGACY_PLAN_REUSE_ASSESSMENTS_v1.json"
+)
 REUSE_DECISION_GLOB = "*_REUSE_DECISION_v1.json"
 PLAN_GLOB = "*cew*.md"
 MEMORY_HEADING = "## Repository Memory / Reuse Assessment"
@@ -67,7 +70,12 @@ def _validate_registry(root: Path, errors: list[str]) -> tuple[set[str], set[str
     return capability_ids, vocabulary
 
 
-def _validate_reuse_decisions(root: Path, capability_ids: set[str], vocabulary: set[str], errors: list[str]) -> None:
+def _validate_reuse_decisions(
+    root: Path,
+    capability_ids: set[str],
+    vocabulary: set[str],
+    errors: list[str],
+) -> None:
     directory = root / "governance" / "repo-memory"
     if not directory.exists():
         errors.append(f"missing repository-memory directory: {directory}")
@@ -95,7 +103,9 @@ def _validate_reuse_decisions(root: Path, capability_ids: set[str], vocabulary: 
                 continue
             capability_id = str(row.get("source_capability") or "").strip()
             if capability_id and capability_id not in capability_ids:
-                errors.append(f"{decision_id}: decisions[{index}] references unknown capability {capability_id}")
+                errors.append(
+                    f"{decision_id}: decisions[{index}] references unknown capability {capability_id}"
+                )
             disposition = row.get("reuse_disposition")
             if disposition is not None and str(disposition) not in vocabulary:
                 errors.append(
@@ -103,19 +113,74 @@ def _validate_reuse_decisions(root: Path, capability_ids: set[str], vocabulary: 
                 )
 
 
-def _validate_plans(root: Path, errors: list[str]) -> None:
+def _validate_legacy_assessments(
+    root: Path,
+    capability_ids: set[str],
+    errors: list[str],
+) -> set[str]:
+    path = root / LEGACY_ASSESSMENTS_RELATIVE_PATH
+    if not path.exists():
+        return set()
+    payload = _load_json(path, errors)
+    if payload is None:
+        return set()
+    if payload.get("schema_version") != "CEW_LEGACY_PLAN_REUSE_ASSESSMENTS_v1":
+        errors.append(f"unexpected legacy-plan assessment schema in {path}")
+        return set()
+    rows = payload.get("plans")
+    if not isinstance(rows, list) or not rows:
+        errors.append(f"legacy-plan assessments must contain a non-empty plans list in {path}")
+        return set()
+
+    governed_paths: set[str] = set()
+    for index, row in enumerate(rows):
+        if not isinstance(row, dict):
+            errors.append(f"legacy plans[{index}] must be an object in {path}")
+            continue
+        relative = str(row.get("path") or "").strip()
+        if not relative.startswith("docs/superpowers/plans/") or not relative.endswith(".md"):
+            errors.append(f"legacy plans[{index}] has invalid plan path {relative!r}")
+            continue
+        if relative in governed_paths:
+            errors.append(f"duplicate legacy plan assessment for {relative}")
+            continue
+        governed_paths.add(relative)
+        if not (root / relative).is_file():
+            errors.append(f"legacy plan assessment points to missing plan: {relative}")
+        if row.get("status") != "HISTORICAL_PLAN_PREDATES_REPO_MEMORY":
+            errors.append(f"legacy plan {relative} has invalid status")
+        if row.get("assessment") != "REUSE_FIRST_REVIEW_RECORDED_EXTERNALLY":
+            errors.append(f"legacy plan {relative} has invalid assessment state")
+        consulted = row.get("consulted_capabilities")
+        if not isinstance(consulted, list) or not consulted:
+            errors.append(f"legacy plan {relative} requires consulted_capabilities")
+            continue
+        for capability_id in consulted:
+            capability_id = str(capability_id)
+            if capability_id not in capability_ids:
+                errors.append(
+                    f"legacy plan {relative} references unknown capability {capability_id}"
+                )
+    return governed_paths
+
+
+def _validate_plans(root: Path, errors: list[str], legacy_paths: set[str]) -> None:
     directory = root / "docs" / "superpowers" / "plans"
     if not directory.exists():
         return
     for path in sorted(directory.glob(PLAN_GLOB)):
+        relative = path.relative_to(root).as_posix()
         text = path.read_text(encoding="utf-8")
         upper = text.upper()
         if "SUPERSEDED" in upper or "DO NOT CONTINUE" in upper:
             continue
         if not path.name.startswith("2026-10-28-"):
             continue
-        if MEMORY_HEADING not in text:
-            errors.append(f"{path}: active CEW plan must contain '{MEMORY_HEADING}'")
+        if MEMORY_HEADING in text:
+            continue
+        if relative in legacy_paths:
+            continue
+        errors.append(f"{path}: active CEW plan must contain '{MEMORY_HEADING}'")
 
 
 def validate_repository_memory(root: Path) -> list[str]:
@@ -124,7 +189,8 @@ def validate_repository_memory(root: Path) -> list[str]:
     capability_ids, vocabulary = _validate_registry(root, errors)
     if capability_ids and vocabulary:
         _validate_reuse_decisions(root, capability_ids, vocabulary, errors)
-    _validate_plans(root, errors)
+    legacy_paths = _validate_legacy_assessments(root, capability_ids, errors)
+    _validate_plans(root, errors, legacy_paths)
     return errors
 
 
