@@ -66,6 +66,13 @@ class BIMCraftToolchainContractTests(unittest.TestCase):
         )
         self.assertEqual(cli["binary"], "bin/bimcraft-cli")
 
+    def test_ifc_validator_is_pinned(self) -> None:
+        raw = json.loads(CONTRACT_PATH.read_text(encoding="utf-8"))
+        validator = raw["ifc_validator"]
+        self.assertEqual(validator["package"], "ifcopenshell")
+        self.assertEqual(validator["version"], "0.9.0.post1")
+        self.assertEqual(validator["role"], "READ_QUERY_VALIDATE_IFC")
+
 
 if __name__ == "__main__":
     unittest.main()
