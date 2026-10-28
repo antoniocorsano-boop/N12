@@ -50,6 +50,15 @@ class BIMCraftCommandPlanTests(unittest.TestCase):
             self.assertEqual(obj.provenance["CEW_AUTHORITY"], "BENCHMARK_ONLY")
             self.assertEqual(obj.provenance["CEW_OBJECT_ID"], obj.object_id)
 
+    def test_stage_a_levels_do_not_collide_with_observed_default_levels(self) -> None:
+        fixture = load_benchmark_fixture(FIXTURE_PATH)
+        observed_default_elevations = {0, 3000}
+        self.assertTrue(fixture.levels)
+        self.assertTrue(
+            all(level.elevation not in observed_default_elevations for level in fixture.levels)
+        )
+        self.assertEqual([level.name for level in fixture.levels], ["BENCH-L1", "BENCH-L2"])
+
     def test_authority_escalation_fails_closed(self) -> None:
         raw = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
         raw["authority"] = "CANONICAL"
@@ -136,6 +145,12 @@ class BIMCraftCommandPlanTests(unittest.TestCase):
                 declaration.params["categories"],
                 ["structuralcolumn", "beam", "footing", "floor"],
             )
+
+    def test_beam_type_has_explicit_material(self) -> None:
+        fixture = load_benchmark_fixture(FIXTURE_PATH)
+        beam_types = [item for item in fixture.types if item.category == "beam"]
+        self.assertEqual(len(beam_types), 1)
+        self.assertEqual(beam_types[0].params["material"], "Concrete")
 
 
 if __name__ == "__main__":
