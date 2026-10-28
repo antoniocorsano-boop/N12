@@ -10,7 +10,10 @@ import unittest
 
 class RepositoryMemoryGateTests(unittest.TestCase):
     def _load_validator(self):
-        spec = importlib.util.find_spec("automation.validate_cew_repo_memory")
+        try:
+            spec = importlib.util.find_spec("automation.validate_cew_repo_memory")
+        except ModuleNotFoundError:
+            spec = None
         self.assertIsNotNone(spec, "repository-memory validator module must exist")
         return importlib.import_module("automation.validate_cew_repo_memory")
 
