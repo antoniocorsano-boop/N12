@@ -58,6 +58,9 @@ class BIMCraftBenchmarkReceiptTests(unittest.TestCase):
             "73ba200369b3f9afa95309ff74c1e873d80f27f2c054ddf6df9a0fdeb5cfccd8",
         )
         self.assertEqual(receipt.executable_path, "bin/bimcraft-cli")
+        self.assertEqual(receipt.ifc_validator_package, "ifcopenshell")
+        self.assertEqual(receipt.ifc_validator_version, "0.9.0.post1")
+        self.assertEqual(receipt.ifc_validator_role, "READ_QUERY_VALIDATE_IFC")
         self.assertFalse(receipt.canonical_write_authorized)
         self.assertFalse(receipt.structural_identity_authorized)
         self.assertFalse(receipt.fem_authorized)
