@@ -1,0 +1,92 @@
+{
+  "schema_id": "CEW_BIMCRAFT_DECISION_INPUT",
+  "schema_version": 1,
+  "benchmark_id": "CEW-BIMCRAFT-01",
+  "canonical_task": "CEW-B01",
+  "generated_at": "2026-10-28",
+  "recommendation": "ADOPT_CANDIDATE",
+  "candidate_roles": [
+    "BIM_PROJECTION_ENGINE",
+    "AGENTIC_MODEL_INSPECTION_ENGINE",
+    "IFC_PROJECTION_ENGINE"
+  ],
+  "reference_qualification": {
+    "candidate_sha": "058b2794bdd3111a0654f9f57f09026fb3b613db",
+    "workflow_run_id": 40749184019,
+    "job_id": 123030962562,
+    "artifact_id": 12843675684,
+    "artifact_sha256": "49c23fcfd1e21f4c5bd7a14fd73f754d1e19b97d54d537f804e8a9216d48b179",
+    "result": "PASS"
+  },
+  "toolchain": {
+    "bimcraft_release": "v0.9.0",
+    "bimcraft_commit": "c7ba8e2db8d7cc9fbf0847f23c8a56c8e02193f5",
+    "executed_asset": "bimcraft-0.9.0-linux-x86_64.tar.gz",
+    "executed_asset_sha256": "73ba200369b3f9afa95309ff74c1e873d80f27f2c054ddf6df9a0fdeb5cfccd8",
+    "executable_path": "bin/bimcraft-cli",
+    "ifc_validator": "ifcopenshell==0.9.0.post1"
+  },
+  "stage_a": {
+    "status": "QUALIFIED",
+    "fixture_authority": "BENCHMARK_ONLY",
+    "expected_objects": 4,
+    "observed_objects": 4,
+    "difference_count": 0,
+    "command_plan_sha256": "e1a935f5a132c196eb5e984740dccad0da05ffb18f03e63290d655005d825a04",
+    "output_sha256": {
+      "bimcraft": "9980c6707dce059d54e4de98bd62316edcf3a8f4e76141c45fb8c6ffee794208",
+      "ifc": "3e040988b311c61730043fb3a27d4612b2aacd64de7f7bd20154475e5bc14bff"
+    },
+    "gates": {
+      "G0_UPSTREAM_IDENTITY": "PASS",
+      "G1_CAPABILITY_CONTRACT": "PASS_FOR_EXERCISED_CAPABILITIES",
+      "G2_DETERMINISTIC_PROJECTION": "PASS_SEMANTIC_BYTE_OUTPUT_NONDETERMINISTIC",
+      "G3_READ_BACK": "PASS",
+      "G4_IFC_BOUNDARY": "PASS",
+      "G5_N12_AUTHORITY_BOUNDARY": "PASS"
+    }
+  },
+  "ifc_observations": {
+    "schema": "IFC4",
+    "object_classes": {
+      "SYN-COL-001": "IfcColumn",
+      "SYN-BEAM-001": "IfcBeam",
+      "SYN-FOOT-001": "IfcFooting",
+      "SYN-SLAB-001": "IfcSlab"
+    },
+    "load_bearing_preserved_for_all": true,
+    "cew_provenance_preserved_for_all": true
+  },
+  "constraints": {
+    "native_output_byte_deterministic": false,
+    "semantic_reconciliation_required": true,
+    "bimcraft_project_is_canonical_authority": false,
+    "ifc_is_canonical_authority": false,
+    "future_release_requires_requalification": true
+  },
+  "not_qualified": [
+    "N12_REAL_MODEL",
+    "EDILUS_IMPORT",
+    "REINFORCEMENT_AUTHORING",
+    "STRUCTURAL_ANALYTICAL_MODEL",
+    "LOADS_AND_COMBINATIONS",
+    "FEM",
+    "NTC_VERIFICATION",
+    "EXISTING_BUILDING_DIAGNOSIS",
+    "INTERVENTION_DESIGN",
+    "HUMAN_VISUAL_REVIEW_RENDERING"
+  ],
+  "stage_b_n12": {
+    "status": "BLOCKED_BY_EXISTING_HUMAN_GATE",
+    "reason": "CEW-B01 requires source-bound human-reviewed N12 inputs before real structural identities/geometries may be projected."
+  },
+  "authority": {
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "fem_authorized": false,
+    "master_change_authorized": false,
+    "n12_stage_b_authorized": false,
+    "merge_authorized": false
+  },
+  "human_decision_required": true
+}
