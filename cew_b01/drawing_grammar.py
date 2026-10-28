@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import hashlib
 import json
-from typing import Any, Iterable
+from typing import Any
 
 import cv2
 import numpy as np
@@ -128,7 +128,7 @@ def _interior_metrics(
     if not interior.size:
         return (0.0, 0, False)
     ink_ratio = float(interior.mean())
-    count, labels, stats, _ = cv2.connectedComponentsWithStats(interior, connectivity=8)
+    count, _, stats, _ = cv2.connectedComponentsWithStats(interior, connectivity=8)
     components = []
     for label in range(1, count):
         area = int(stats[label, cv2.CC_STAT_AREA])
@@ -160,6 +160,10 @@ def _context_signature(
     image_height, image_width = binary.shape[:2]
     reach = max(8, int(round(min(width, height) * config.context_band_ratio)))
     side_half = max(2, int(round(min(width, height) * 0.12)))
+    # Candidate contours can follow the inner edge of the closed frame. Leave a
+    # dead zone before measuring external context so the frame itself is not
+    # misread as a structural line on every side.
+    frame_dead_zone = max(4, int(round(min(width, height) * 0.10)))
     cx = x + width // 2
     cy = y + height // 2
 
@@ -170,10 +174,30 @@ def _context_signature(
         ]
         return float((region > 0).mean()) if region.size else 0.0
 
-    left = density(x - reach, cy - side_half, x, cy + side_half + 1)
-    right = density(x + width, cy - side_half, x + width + reach, cy + side_half + 1)
-    top = density(cx - side_half, y - reach, cx + side_half + 1, y)
-    bottom = density(cx - side_half, y + height, cx + side_half + 1, y + height + reach)
+    left = density(
+        x - reach,
+        cy - side_half,
+        x - frame_dead_zone,
+        cy + side_half + 1,
+    )
+    right = density(
+        x + width + frame_dead_zone,
+        cy - side_half,
+        x + width + reach,
+        cy + side_half + 1,
+    )
+    top = density(
+        cx - side_half,
+        y - reach,
+        cx + side_half + 1,
+        y - frame_dead_zone,
+    )
+    bottom = density(
+        cx - side_half,
+        y + height + frame_dead_zone,
+        cx + side_half + 1,
+        y + height + reach,
+    )
     return tuple(round(value, 6) for value in (left, right, top, bottom))
 
 
