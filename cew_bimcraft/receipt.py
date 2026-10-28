@@ -19,6 +19,7 @@ class BenchmarkReceipt:
     upstream_commit_sha: str
     asset_name: str
     asset_sha256: str
+    executable_path: str
     fixture_project: str
     fixture_source_sha256: str
     command_plan_sha256: str
@@ -87,8 +88,9 @@ def build_benchmark_receipt(
         adoption_state=contract.adoption_state,
         upstream_release=contract.release,
         upstream_commit_sha=contract.upstream_commit_sha,
-        asset_name=contract.asset_name,
-        asset_sha256=contract.asset_sha256,
+        asset_name=contract.cli_asset_name,
+        asset_sha256=contract.cli_asset_sha256,
+        executable_path=contract.cli_binary,
         fixture_project=fixture.project,
         fixture_source_sha256=fixture.source_sha256,
         command_plan_sha256=command_plan.sha256,
