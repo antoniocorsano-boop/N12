@@ -20,6 +20,9 @@ class BenchmarkReceipt:
     asset_name: str
     asset_sha256: str
     executable_path: str
+    ifc_validator_package: str
+    ifc_validator_version: str
+    ifc_validator_role: str
     fixture_project: str
     fixture_source_sha256: str
     command_plan_sha256: str
@@ -91,6 +94,9 @@ def build_benchmark_receipt(
         asset_name=contract.cli_asset_name,
         asset_sha256=contract.cli_asset_sha256,
         executable_path=contract.cli_binary,
+        ifc_validator_package=contract.ifc_validator_package,
+        ifc_validator_version=contract.ifc_validator_version,
+        ifc_validator_role=contract.ifc_validator_role,
         fixture_project=fixture.project,
         fixture_source_sha256=fixture.source_sha256,
         command_plan_sha256=command_plan.sha256,
