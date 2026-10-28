@@ -9,6 +9,7 @@ from typing import Any, Iterable
 
 import cv2
 
+from .drawing_grammar import DrawingGrammarConfig, extract_drawing_motifs
 from .evidence_schema import (
     AxisAlignedEvidenceRegion,
     EvidenceRegionCandidate,
@@ -17,7 +18,7 @@ from .evidence_schema import (
 from .records import CoordinateFrame
 
 
-_METHOD_ID = "OPENCV_COMPOUND_RECTANGULAR_CELL_ENVELOPE_V2"
+_METHOD_ID = "OPENCV_DRAWING_GRAMMAR_CANDIDATE_UNION_V3"
 _TOOL_PACKAGE = "opencv-python-headless"
 _CELL_VERTICAL_OVERLAP_RATIO = 0.70
 _CELL_SIZE_RATIO_MAX = 1.50
@@ -294,6 +295,30 @@ def _assemble_compound_envelopes(
     return _deduplicate_rectangles(envelopes, config.duplicate_iou_threshold)
 
 
+def _drawing_grammar_rectangles(
+    binary: Any,
+    config: ExtractionConfig,
+) -> list[tuple[int, int, int, int, float]]:
+    grammar_config = DrawingGrammarConfig(
+        min_width_px=config.min_width_px,
+        min_height_px=config.min_height_px,
+        max_width_px=config.max_width_px,
+        max_height_px=config.max_height_px,
+        max_aspect_ratio=min(3.0, config.max_aspect_ratio),
+        min_frame_coverage=0.60,
+        min_internal_ink_ratio=0.008,
+        min_internal_components=1,
+        duplicate_iou_threshold=config.duplicate_iou_threshold,
+    )
+    rectangles: list[tuple[int, int, int, int, float]] = []
+    for motif in extract_drawing_motifs(binary, grammar_config):
+        confidence = round(min(1.0, max(0.0, motif.frame_coverage)), 6)
+        rectangles.append(
+            (motif.x, motif.y, motif.width, motif.height, confidence)
+        )
+    return rectangles
+
+
 def extract_g4_evidence_candidates(
     binding: Task3RasterBinding,
     raster_path: Path | str,
@@ -321,7 +346,12 @@ def extract_g4_evidence_candidates(
     )
     cells = _extract_rectangular_cells(binary, config)
     pairs = _horizontal_cell_pairs(cells, config)
-    rectangles = _assemble_compound_envelopes(binary, cells, pairs, config)
+    compound_rectangles = _assemble_compound_envelopes(binary, cells, pairs, config)
+    grammar_rectangles = _drawing_grammar_rectangles(binary, config)
+    rectangles = _deduplicate_rectangles(
+        [*compound_rectangles, *grammar_rectangles],
+        config.duplicate_iou_threshold,
+    )
 
     tool_version = version(_TOOL_PACKAGE)
     candidates = tuple(
