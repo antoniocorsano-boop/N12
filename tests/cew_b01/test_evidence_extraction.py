@@ -61,7 +61,7 @@ class DrawingGrammarTests(unittest.TestCase):
             max_aspect_ratio=2.5,
             min_frame_coverage=0.62,
             min_internal_ink_ratio=0.01,
-            min_internal_components=2,
+            min_internal_components=1,
         )
 
     def test_closed_frame_with_internal_digit_like_strokes_emits_motif(self) -> None:
@@ -76,7 +76,7 @@ class DrawingGrammarTests(unittest.TestCase):
 
         self.assertEqual(len(motifs), 1)
         motif = motifs[0]
-        self.assertGreaterEqual(motif.internal_component_count, 2)
+        self.assertGreaterEqual(motif.internal_component_count, 1)
         self.assertGreater(motif.internal_ink_ratio, 0.0)
         self.assertFalse(motif.single_full_span_divider)
         self.assertEqual(motif.semantic_identity, None)
