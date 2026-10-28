@@ -1,0 +1,62 @@
+{
+  "schema_id": "CEW_BIMCRAFT_ADOPTION_DECISION",
+  "schema_version": 1,
+  "benchmark_id": "CEW-BIMCRAFT-01",
+  "canonical_task": "CEW-B01",
+  "decision_date": "2026-10-28",
+  "decision": "ADOPT_OPTIONAL",
+  "decision_basis": "Human approval after qualified CEW-BIMCRAFT-01 Stage A benchmark",
+  "qualified_candidate": {
+    "release": "v0.9.0",
+    "upstream_commit": "c7ba8e2db8d7cc9fbf0847f23c8a56c8e02193f5",
+    "executed_asset": "bimcraft-0.9.0-linux-x86_64.tar.gz",
+    "asset_sha256": "73ba200369b3f9afa95309ff74c1e873d80f27f2c054ddf6df9a0fdeb5cfccd8",
+    "executable_path": "bin/bimcraft-cli",
+    "ifc_validator": "ifcopenshell==0.9.0.post1"
+  },
+  "adopted_roles": [
+    "OPTIONAL_BIM_PROJECTION_ENGINE",
+    "OPTIONAL_AGENTIC_AUTHORING_ENGINE",
+    "OPTIONAL_AGENTIC_MODEL_INSPECTION_ENGINE",
+    "OPTIONAL_IFC_PROJECTION_ENGINE"
+  ],
+  "precedence": {
+    "cew_canonical_model": "AUTHORITATIVE",
+    "build123d": "PRIMARY_CANONICAL_GEOMETRY_ADAPTER",
+    "ifcopenshell": "ADOPTED_IFC_READ_QUERY_VALIDATE_COMPONENT",
+    "bimcraft": "OPTIONAL_REPLACEABLE_PROJECTION_ENGINE"
+  },
+  "artifact_policy": {
+    "bimcraft_project_is_canonical_authority": false,
+    "ifc_is_canonical_authority": false,
+    "semantic_reconciliation_required": true,
+    "per_run_output_digest_required": true,
+    "command_plan_digest_required": true
+  },
+  "release_policy": {
+    "qualified_release_pin": "v0.9.0",
+    "future_release_requires_requalification": true,
+    "automatic_upgrade_for_cew_runs": false
+  },
+  "authority": {
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "fem_authorized": false,
+    "n12_stage_b_authorized": false,
+    "master_amendment_authorized": true,
+    "merge_authorized": false
+  },
+  "stage_b_n12": {
+    "status": "BLOCKED_BY_EXISTING_HUMAN_GATE",
+    "unlock_condition": "Source-bound and human-reviewed CEW-B01 StructuralObject inputs must exist before projection of real N12 structural geometry."
+  },
+  "non_goals": [
+    "REPLACE_CEW_CANONICAL_MODEL",
+    "REPLACE_BUILD123D_PRIMARY_GEOMETRY_ADAPTER",
+    "REPLACE_IFCOPENSHELL_VALIDATION_BOUNDARY",
+    "AUTHORIZE_FEM",
+    "AUTHORIZE_NTC_VERIFICATION",
+    "AUTHORIZE_EDILUS_IMPORT",
+    "AUTHORIZE_REINFORCEMENT_AUTHORING"
+  ]
+}
