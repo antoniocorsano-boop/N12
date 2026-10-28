@@ -10,7 +10,11 @@ import cv2
 import numpy as np
 
 import cew_b01.evidence_extraction as evidence_extraction
-from cew_b01.evidence_extraction import ExtractionConfig, extract_g4_evidence_candidates
+from cew_b01.evidence_extraction import (
+    ExtractionConfig,
+    evidence_bundle_mapping,
+    extract_g4_evidence_candidates,
+)
 from cew_b01.evidence_schema import Task3RasterBinding
 
 
@@ -112,6 +116,49 @@ class EvidenceExtractionV3Tests(unittest.TestCase):
 
         self.assertEqual(len(candidates), 1)
         self.assertEqual(candidates[0].method, EXPECTED_METHOD)
+
+    def test_evidence_bundle_declares_proposal_channels_and_reuse_boundaries(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            raster = np.full((240, 260), 255, dtype=np.uint8)
+            cv2.rectangle(raster, (90, 70), (155, 145), 0, 3)
+            cv2.line(raster, (110, 92), (128, 82), 0, 3)
+            cv2.line(raster, (128, 82), (128, 118), 0, 3)
+            path = directory / "bundle-provenance.png"
+            self.assertTrue(cv2.imwrite(str(path), raster))
+            binding = _binding(path, width=260, height=240)
+            candidates = extract_g4_evidence_candidates(binding, path, config=_config())
+            bundle = evidence_bundle_mapping(binding, candidates, config=_config())
+
+        channel_ids = {
+            item["capability_id"] for item in bundle["extraction"]["proposal_channels"]
+        }
+        self.assertEqual(
+            channel_ids,
+            {
+                "CEW-CAP-B01-V2-COMPOUND-CELL-DETECTOR",
+                "CEW-CAP-B01-CLOSED-FRAME-INTERNAL-MARK-SPIKE",
+            },
+        )
+        reconciliation = bundle["reconciliation_provenance"]
+        self.assertEqual(
+            reconciliation["oa3_similarity"]["source_ref"],
+            "a7020bef3934156c917f5bfe975d888c6ba9e684",
+        )
+        self.assertEqual(
+            reconciliation["structured_descriptor"]["source_ref"],
+            "320755e66a7263f1842f73dc14fb9a0ea8ccd7f8",
+        )
+        self.assertEqual(
+            reconciliation["engineering_grammar"]["source_ref"],
+            "098f98d2724c0a16b9293adc366a585f356bc9fc",
+        )
+        self.assertEqual(
+            reconciliation["oa3_similarity"]["execution_state"],
+            "AVAILABLE_REQUIRES_HUMAN_TAUGHT_PROTOTYPE",
+        )
+        self.assertFalse(bundle["authority"]["structural_identity_authorized"])
+        self.assertFalse(bundle["authority"]["canonical_write_authorized"])
 
     def test_v3_source_has_no_historical_number_or_semantic_oracle(self) -> None:
         source = inspect.getsource(evidence_extraction).lower()
