@@ -9,17 +9,29 @@ from typing import Any, Iterable
 
 import cv2
 
-from .drawing_grammar import DrawingGrammarConfig, extract_drawing_motifs
+from .drawing_grammar import (
+    CHANNEL_CAPABILITY_ID,
+    DrawingGrammarConfig,
+    extract_drawing_motifs,
+)
 from .evidence_schema import (
     AxisAlignedEvidenceRegion,
     EvidenceRegionCandidate,
     Task3RasterBinding,
 )
 from .records import CoordinateFrame
+from .reuse_adapter import (
+    PR137_DESCRIPTOR_CAPABILITY_ID,
+    PR137_SOURCE_REF,
+    PR143_GRAMMAR_CAPABILITY_ID,
+    PR143_SOURCE_REF,
+)
+from .reused_oa3_similarity import OA3_CAPABILITY_ID, OA3_SOURCE_REF
 
 
 _METHOD_ID = "OPENCV_DRAWING_GRAMMAR_CANDIDATE_UNION_V3"
 _TOOL_PACKAGE = "opencv-python-headless"
+_V2_CAPABILITY_ID = "CEW-CAP-B01-V2-COMPOUND-CELL-DETECTOR"
 _CELL_VERTICAL_OVERLAP_RATIO = 0.70
 _CELL_SIZE_RATIO_MAX = 1.50
 _CELL_GAP_MIN_PX = -4
@@ -313,9 +325,7 @@ def _drawing_grammar_rectangles(
     rectangles: list[tuple[int, int, int, int, float]] = []
     for motif in extract_drawing_motifs(binary, grammar_config):
         confidence = round(min(1.0, max(0.0, motif.frame_coverage)), 6)
-        rectangles.append(
-            (motif.x, motif.y, motif.width, motif.height, confidence)
-        )
+        rectangles.append((motif.x, motif.y, motif.width, motif.height, confidence))
     return rectangles
 
 
@@ -338,12 +348,7 @@ def extract_g4_evidence_candidates(
     if width != binding.raster_width_px or height != binding.raster_height_px:
         raise ValueError("Step 3 raster dimensions do not match governed probe output")
 
-    _, binary = cv2.threshold(
-        image,
-        config.threshold,
-        255,
-        cv2.THRESH_BINARY_INV,
-    )
+    _, binary = cv2.threshold(image, config.threshold, 255, cv2.THRESH_BINARY_INV)
     cells = _extract_rectangular_cells(binary, config)
     pairs = _horizontal_cell_pairs(cells, config)
     compound_rectangles = _assemble_compound_envelopes(binary, cells, pairs, config)
@@ -400,8 +405,48 @@ def evidence_bundle_mapping(
             "tool_id": _TOOL_PACKAGE,
             "tool_version": version(_TOOL_PACKAGE),
             "config": config.to_mapping(),
+            "proposal_channels": [
+                {
+                    "capability_id": _V2_CAPABILITY_ID,
+                    "role": "SOURCE_SPECIFIC_HIGH_PRECISION_PROPOSAL_CHANNEL",
+                    "execution_state": "EXECUTED",
+                },
+                {
+                    "capability_id": CHANNEL_CAPABILITY_ID,
+                    "role": "CLOSED_FRAME_INTERNAL_MARK_PROPOSAL_CHANNEL",
+                    "execution_state": "EXECUTED",
+                },
+            ],
             "semantic_identity_assigned": False,
             "structural_identity_authorized": False,
+        },
+        "reconciliation_provenance": {
+            "oa3_similarity": {
+                "capability_id": OA3_CAPABILITY_ID,
+                "source_ref": OA3_SOURCE_REF,
+                "execution_state": "AVAILABLE_REQUIRES_HUMAN_TAUGHT_PROTOTYPE",
+                "authority_effect": "PROPOSAL_ONLY",
+            },
+            "structured_descriptor": {
+                "capability_id": PR137_DESCRIPTOR_CAPABILITY_ID,
+                "source_ref": PR137_SOURCE_REF,
+                "execution_state": "B01_ADAPTER_AVAILABLE",
+                "authority_effect": "NONE",
+            },
+            "engineering_grammar": {
+                "capability_id": PR143_GRAMMAR_CAPABILITY_ID,
+                "source_ref": PR143_SOURCE_REF,
+                "execution_state": "REFERENCE_BOUNDARY_NOT_EXECUTED_STEP4",
+                "authority_effect": "NONE_AT_STEP4",
+            },
+        },
+        "authority": {
+            "human_review_required": True,
+            "semantic_identity_assigned": False,
+            "structural_identity_authorized": False,
+            "canonical_geometry_authorized": False,
+            "canonical_write_authorized": False,
+            "engineering_authority_effect": "NONE",
         },
         "candidate_count": len(ordered),
         "candidates": [candidate.to_mapping() for candidate in ordered],
