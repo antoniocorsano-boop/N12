@@ -1,0 +1,44 @@
+{
+  "schema_id": "CEW_BIMCRAFT_TOOLCHAIN",
+  "schema_version": 1,
+  "benchmark_id": "CEW-BIMCRAFT-01",
+  "canonical_task": "CEW-B01",
+  "adoption_state": "BENCHMARK",
+  "upstream": {
+    "repository": "IPedrax/BIMCraft",
+    "release": "v0.9.0",
+    "tag_object_sha": "8b690b6c98a1b365c3524b126f6a3015371b5479",
+    "commit_sha": "c7ba8e2db8d7cc9fbf0847f23c8a56c8e02193f5",
+    "published_at": "2026-10-27T20:17:00Z"
+  },
+  "asset": {
+    "platform": "linux-x86_64",
+    "name": "bimcraft-0.9.0-linux-x86_64.AppImage",
+    "url": "https://github.com/IPedrax/BIMCraft/releases/download/v0.9.0/bimcraft-0.9.0-linux-x86_64.AppImage",
+    "sha256": "69aef919a17f7916d3d3b5ab278cb16e27875669bf6b11c0815387d769b57c6f"
+  },
+  "cli_asset": {
+    "platform": "linux-x86_64",
+    "name": "bimcraft-0.9.0-linux-x86_64.tar.gz",
+    "url": "https://github.com/IPedrax/BIMCraft/releases/download/v0.9.0/bimcraft-0.9.0-linux-x86_64.tar.gz",
+    "sha256": "73ba200369b3f9afa95309ff74c1e873d80f27f2c054ddf6df9a0fdeb5cfccd8",
+    "binary": "bin/bimcraft-cli"
+  },
+  "ifc_validator": {
+    "package": "ifcopenshell",
+    "version": "0.9.0.post1",
+    "role": "READ_QUERY_VALIDATE_IFC"
+  },
+  "project_file_policy": {
+    "observed_format": 6,
+    "canonical_authority": false,
+    "regenerable_projection_only": true
+  },
+  "authority": {
+    "canonical_write_authorized": false,
+    "structural_identity_authorized": false,
+    "fem_authorized": false,
+    "master_change_authorized": false,
+    "n12_stage_b_authorized": false
+  }
+}
