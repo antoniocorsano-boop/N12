@@ -69,10 +69,16 @@ jobs:
 
           curl --fail --location --silent --show-error "$BIMCRAFT_URL" --output "$archive"
           printf '%s  %s\n' "$BIMCRAFT_SHA256" "$archive" | sha256sum --check | tee "$evidence/asset-sha256.txt"
+          tar -tzf "$archive" | sort > "$evidence/archive-tree.txt"
           tar -xzf "$archive" -C "$root"
 
-          top="${BIMCRAFT_NAME%.tar.gz}"
-          cli="$root/$top/$BIMCRAFT_BINARY"
+          mapfile -t candidates < <(find "$root" -type f -path "*/$BIMCRAFT_BINARY" -print | sort)
+          printf '%s\n' "${candidates[@]}" > "$evidence/cli-candidates.txt"
+          if [ "${#candidates[@]}" -ne 1 ]; then
+            echo "BIMCRAFT_CLI_RESOLUTION_FAILED: expected exactly one */$BIMCRAFT_BINARY, found ${#candidates[@]}" >&2
+            exit 1
+          fi
+          cli="${candidates[0]}"
           test -x "$cli"
           printf '%s\n' "$cli" > "$evidence/cli-path.txt"
 
