@@ -108,8 +108,13 @@ class DrawingGrammarTests(unittest.TestCase):
         motifs = extract_drawing_motifs(raster, self._grammar_config())
 
         self.assertEqual(len(motifs), 3)
-        self.assertGreaterEqual(motif_similarity(motifs[0], motifs[1]), 0.80)
-        self.assertLess(motif_similarity(motifs[0], motifs[2]), 0.80)
+        pair_scores = sorted(
+            motif_similarity(motifs[left], motifs[right])
+            for left in range(len(motifs))
+            for right in range(left + 1, len(motifs))
+        )
+        self.assertGreaterEqual(pair_scores[-1], 0.80)
+        self.assertLess(pair_scores[-2], 0.80)
 
 
 class EvidenceExtractionTests(unittest.TestCase):
