@@ -1,0 +1,71 @@
+{
+  "decision_id": "CEW-B01-REUSE-2026-10-28-v1",
+  "date": "2026-10-28",
+  "task": "CEW-B01 Step 4 drawing-grammar / recall revision",
+  "status": "ACTIVE_RECONCILIATION_DECISION",
+  "authority_effect": "NONE",
+  "problem": "The active B01 branch began implementing generic motif similarity and planned family discovery that overlap qualified noncanonical CEW capabilities already present in PRs #116, #137 and #143.",
+  "consulted_capabilities": [
+    "CEW-CAP-ENG-DRAWING-GRAMMAR-V1",
+    "CEW-CAP-OA3-DETERMINISTIC-SIMILARITY-V1",
+    "CEW-CAP-VISUAL-PROTOTYPE-LEARNING-V1",
+    "CEW-CAP-ZERO-PRIOR-GRAPHIC-DISCOVERY-V1",
+    "CEW-CAP-B01-V2-COMPOUND-CELL-DETECTOR",
+    "CEW-CAP-B01-CLOSED-FRAME-INTERNAL-MARK-SPIKE"
+  ],
+  "decisions": [
+    {
+      "responsibility": "technical_drawing_interpretation_rules",
+      "source_capability": "CEW-CAP-ENG-DRAWING-GRAMMAR-V1",
+      "action": "PORT_BOUNDED_RULES_AND_PROVENANCE_CONTRACT",
+      "reason": "Existing N12-qualified non-promoting grammar already owns this responsibility."
+    },
+    {
+      "responsibility": "primitive_discovery_and_nonsemantic_clustering",
+      "source_capability": "CEW-CAP-ZERO-PRIOR-GRAPHIC-DISCOVERY-V1",
+      "action": "ADAPT",
+      "reason": "Existing discovery layer already provides source-bound primitive candidates and opaque clustering without semantic authority."
+    },
+    {
+      "responsibility": "project_local_prototype_memory_and_learning_receipts",
+      "source_capability": "CEW-CAP-VISUAL-PROTOTYPE-LEARNING-V1",
+      "action": "PORT_OR_ADAPT",
+      "reason": "Positive, negative and ambiguous human teaching evidence already has a governed replayable model."
+    },
+    {
+      "responsibility": "find_similar",
+      "source_capability": "CEW-CAP-OA3-DETERMINISTIC-SIMILARITY-V1",
+      "action": "ADAPT",
+      "reason": "Existing deterministic explainable ranking already owns generic similarity and preserves the human review boundary."
+    },
+    {
+      "responsibility": "b01_v2_compound_candidate_channel",
+      "source_capability": "CEW-CAP-B01-V2-COMPOUND-CELL-DETECTOR",
+      "action": "REUSE",
+      "reason": "Qualified source-specific channel remains useful as one strong detector inside the union."
+    },
+    {
+      "responsibility": "closed_frame_internal_mark_features",
+      "source_capability": "CEW-CAP-B01-CLOSED-FRAME-INTERNAL-MARK-SPIKE",
+      "action": "NARROW_AND_ADAPT",
+      "reason": "Feature extraction may be useful, but generic similarity/family ownership must be removed from this B01-local module."
+    }
+  ],
+  "explicitly_rejected_actions": [
+    "Tune motif_similarity weights or threshold solely to make the current 0.70 synthetic score exceed 0.80",
+    "Implement a second generic project-local family-discovery subsystem in cew_b01",
+    "Implement a second generic learning-receipt schema in cew_b01",
+    "Merge historical stacked PRs wholesale without dependency reconciliation",
+    "Use literal identifiers 19 or 22, historical object counts, or manual coordinates as production detection inputs"
+  ],
+  "new_work_boundary": [
+    "B01 exact-source adapter into reusable primitive/prototype/similarity contracts",
+    "B01-specific high-recall proposal features/channels only where existing discovery is insufficient",
+    "deterministic candidate union, deduplication and provenance mapping",
+    "exact TAV.5 replay qualification and human review evidence"
+  ],
+  "promotion_authorized": false,
+  "structural_identity_authorized": false,
+  "canonical_write_authorized": false,
+  "merge_authorized": false
+}
