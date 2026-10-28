@@ -29,8 +29,8 @@ jobs:
         with:
           python-version: '3.12.15'
 
-      - name: Run CEW-BIMCRAFT-01 contract tests
+      - name: Run CEW-BIMCRAFT-01 unit suite
         shell: bash
         run: |
           set -euo pipefail
-          python -m unittest tests.cew_bimcraft.test_toolchain_contract -v
+          python -m unittest discover -s tests/cew_bimcraft -v
