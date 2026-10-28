@@ -10,6 +10,11 @@ import cv2
 import numpy as np
 
 import cew_b01.evidence_extraction as evidence_extraction
+from cew_b01.drawing_grammar import (
+    DrawingGrammarConfig,
+    extract_drawing_motifs,
+    motif_similarity,
+)
 from cew_b01.evidence_extraction import ExtractionConfig, extract_g4_evidence_candidates
 from cew_b01.evidence_schema import Task3RasterBinding
 
@@ -44,6 +49,67 @@ def _binding_for_raster(path: Path, *, width: int, height: int, raster_sha: str)
         ],
     }
     return Task3RasterBinding.from_probe_mapping(probe_mapping)
+
+
+class DrawingGrammarTests(unittest.TestCase):
+    def _grammar_config(self) -> DrawingGrammarConfig:
+        return DrawingGrammarConfig(
+            min_width_px=24,
+            min_height_px=24,
+            max_width_px=120,
+            max_height_px=120,
+            max_aspect_ratio=2.5,
+            min_frame_coverage=0.62,
+            min_internal_ink_ratio=0.01,
+            min_internal_components=2,
+        )
+
+    def test_closed_frame_with_internal_digit_like_strokes_emits_motif(self) -> None:
+        raster = np.zeros((240, 240), dtype=np.uint8)
+        cv2.rectangle(raster, (80, 70), (150, 150), 255, 3)
+        cv2.line(raster, (100, 92), (116, 82), 255, 3)
+        cv2.line(raster, (116, 82), (116, 112), 255, 3)
+        cv2.line(raster, (98, 126), (125, 126), 255, 3)
+        cv2.line(raster, (125, 126), (106, 143), 255, 3)
+
+        motifs = extract_drawing_motifs(raster, self._grammar_config())
+
+        self.assertEqual(len(motifs), 1)
+        motif = motifs[0]
+        self.assertGreaterEqual(motif.internal_component_count, 2)
+        self.assertGreater(motif.internal_ink_ratio, 0.0)
+        self.assertFalse(motif.single_full_span_divider)
+        self.assertEqual(motif.semantic_identity, None)
+
+    def test_empty_frame_and_single_full_span_divider_do_not_emit_motifs(self) -> None:
+        raster = np.zeros((300, 320), dtype=np.uint8)
+        cv2.rectangle(raster, (40, 50), (110, 130), 255, 3)
+        cv2.rectangle(raster, (180, 50), (250, 130), 255, 3)
+        cv2.line(raster, (215, 53), (215, 127), 255, 3)
+
+        motifs = extract_drawing_motifs(raster, self._grammar_config())
+
+        self.assertEqual(motifs, ())
+
+    def test_translation_variants_are_similar_but_context_incompatible_rectangle_is_not(self) -> None:
+        raster = np.zeros((360, 520), dtype=np.uint8)
+        for x, y in ((60, 70), (230, 190)):
+            cv2.rectangle(raster, (x, y), (x + 70, y + 80), 255, 3)
+            cv2.line(raster, (x + 22, y + 18), (x + 40, y + 10), 255, 3)
+            cv2.line(raster, (x + 40, y + 10), (x + 40, y + 38), 255, 3)
+            cv2.line(raster, (x - 45, y + 40), (x, y + 40), 255, 2)
+            cv2.line(raster, (x + 70, y + 40), (x + 110, y + 40), 255, 2)
+
+        cv2.rectangle(raster, (390, 60), (460, 140), 255, 3)
+        cv2.line(raster, (412, 78), (430, 70), 255, 3)
+        cv2.line(raster, (430, 70), (430, 98), 255, 3)
+        cv2.line(raster, (425, 140), (425, 205), 255, 2)
+
+        motifs = extract_drawing_motifs(raster, self._grammar_config())
+
+        self.assertEqual(len(motifs), 3)
+        self.assertGreaterEqual(motif_similarity(motifs[0], motifs[1]), 0.80)
+        self.assertLess(motif_similarity(motifs[0], motifs[2]), 0.80)
 
 
 class EvidenceExtractionTests(unittest.TestCase):
