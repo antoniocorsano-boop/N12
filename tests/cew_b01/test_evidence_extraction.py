@@ -10,11 +10,7 @@ import cv2
 import numpy as np
 
 import cew_b01.evidence_extraction as evidence_extraction
-from cew_b01.drawing_grammar import (
-    DrawingGrammarConfig,
-    extract_drawing_motifs,
-    motif_similarity,
-)
+from cew_b01.drawing_grammar import DrawingGrammarConfig, extract_drawing_motifs
 from cew_b01.evidence_extraction import ExtractionConfig, extract_g4_evidence_candidates
 from cew_b01.evidence_schema import Task3RasterBinding
 
@@ -91,7 +87,7 @@ class DrawingGrammarTests(unittest.TestCase):
 
         self.assertEqual(motifs, ())
 
-    def test_translation_variants_are_similar_but_context_incompatible_rectangle_is_not(self) -> None:
+    def test_context_features_are_source_local_and_nonsemantic(self) -> None:
         raster = np.zeros((360, 520), dtype=np.uint8)
         for x, y in ((60, 70), (230, 190)):
             cv2.rectangle(raster, (x, y), (x + 70, y + 80), 255, 3)
@@ -108,13 +104,13 @@ class DrawingGrammarTests(unittest.TestCase):
         motifs = extract_drawing_motifs(raster, self._grammar_config())
 
         self.assertEqual(len(motifs), 3)
-        pair_scores = sorted(
-            motif_similarity(motifs[left], motifs[right])
-            for left in range(len(motifs))
-            for right in range(left + 1, len(motifs))
-        )
-        self.assertGreaterEqual(pair_scores[-1], 0.80)
-        self.assertLess(pair_scores[-2], 0.80)
+        self.assertTrue(all(item.semantic_identity is None for item in motifs))
+        self.assertTrue(all(len(item.context_signature) == 4 for item in motifs))
+        active_patterns = {
+            tuple(value >= 0.03 for value in item.context_signature)
+            for item in motifs
+        }
+        self.assertGreaterEqual(len(active_patterns), 2)
 
 
 class EvidenceExtractionTests(unittest.TestCase):
