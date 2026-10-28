@@ -61,6 +61,9 @@ class BIMCraftToolchainContract:
     cli_asset_url: str
     cli_asset_sha256: str
     cli_binary: str
+    ifc_validator_package: str
+    ifc_validator_version: str
+    ifc_validator_role: str
     observed_project_format: int
     project_file_canonical_authority: bool
     regenerable_projection_only: bool
@@ -82,6 +85,7 @@ def load_toolchain_contract(path: str | Path) -> BIMCraftToolchainContract:
     upstream = _mapping(root.get("upstream"), "upstream")
     asset = _mapping(root.get("asset"), "asset")
     cli_asset = _mapping(root.get("cli_asset"), "cli_asset")
+    ifc_validator = _mapping(root.get("ifc_validator"), "ifc_validator")
     project_policy = _mapping(root.get("project_file_policy"), "project_file_policy")
     authority = _mapping(root.get("authority"), "authority")
 
@@ -114,6 +118,9 @@ def load_toolchain_contract(path: str | Path) -> BIMCraftToolchainContract:
         cli_asset_url=_text(cli_asset.get("url"), "cli_asset.url"),
         cli_asset_sha256=_hex(cli_asset.get("sha256"), "cli_asset.sha256", _HEX64),
         cli_binary=_text(cli_asset.get("binary"), "cli_asset.binary"),
+        ifc_validator_package=_text(ifc_validator.get("package"), "ifc_validator.package"),
+        ifc_validator_version=_text(ifc_validator.get("version"), "ifc_validator.version"),
+        ifc_validator_role=_text(ifc_validator.get("role"), "ifc_validator.role"),
         observed_project_format=observed_format,
         project_file_canonical_authority=_false(
             project_policy.get("canonical_authority"),
@@ -147,6 +154,8 @@ def load_toolchain_contract(path: str | Path) -> BIMCraftToolchainContract:
         raise BIMCraftContractError("canonical_task must remain CEW-B01")
     if contract.adoption_state != "BENCHMARK":
         raise BIMCraftContractError("adoption_state must remain BENCHMARK")
+    if contract.ifc_validator_package != "ifcopenshell" or contract.ifc_validator_role != "READ_QUERY_VALIDATE_IFC":
+        raise BIMCraftContractError("unexpected IFC validator contract")
 
     return contract
 
