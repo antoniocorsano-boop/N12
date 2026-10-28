@@ -5,8 +5,10 @@ on:
     paths:
       - '.github/workflows/validate-cew-b01-drawing-grammar.yml'
       - 'cew_b01/drawing_grammar.py'
+      - 'cew_b01/evidence_extraction.py'
       - 'tests/cew_b01/test_drawing_grammar_families.py'
       - 'tests/cew_b01/test_evidence_extraction.py'
+      - 'tests/cew_b01/test_evidence_extraction_v3.py'
 
 permissions:
   contents: read
@@ -42,4 +44,5 @@ jobs:
           set -euo pipefail
           python -m unittest \
             tests.cew_b01.test_drawing_grammar_families \
-            tests.cew_b01.test_evidence_extraction.DrawingGrammarTests -v
+            tests.cew_b01.test_evidence_extraction.DrawingGrammarTests \
+            tests.cew_b01.test_evidence_extraction_v3 -v
