@@ -55,6 +55,17 @@ class BIMCraftToolchainContractTests(unittest.TestCase):
         self.assertEqual(set(raw["authority"].values()), {False})
         self.assertEqual(len(hashlib.sha256(CONTRACT_PATH.read_bytes()).hexdigest()), 64)
 
+    def test_cli_execution_asset_is_exact_release_tarball(self) -> None:
+        raw = json.loads(CONTRACT_PATH.read_text(encoding="utf-8"))
+        cli = raw["cli_asset"]
+        self.assertEqual(cli["platform"], "linux-x86_64")
+        self.assertEqual(cli["name"], "bimcraft-0.9.0-linux-x86_64.tar.gz")
+        self.assertEqual(
+            cli["sha256"],
+            "73ba200369b3f9afa95309ff74c1e873d80f27f2c054ddf6df9a0fdeb5cfccd8",
+        )
+        self.assertEqual(cli["binary"], "usr/bin/bimcraft-cli")
+
 
 if __name__ == "__main__":
     unittest.main()
