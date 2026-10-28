@@ -24,6 +24,11 @@
     "sha256": "73ba200369b3f9afa95309ff74c1e873d80f27f2c054ddf6df9a0fdeb5cfccd8",
     "binary": "bin/bimcraft-cli"
   },
+  "ifc_validator": {
+    "package": "ifcopenshell",
+    "version": "0.9.0.post1",
+    "role": "READ_QUERY_VALIDATE_IFC"
+  },
   "project_file_policy": {
     "observed_format": 6,
     "canonical_authority": false,
