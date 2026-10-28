@@ -64,7 +64,7 @@ class BIMCraftToolchainContractTests(unittest.TestCase):
             cli["sha256"],
             "73ba200369b3f9afa95309ff74c1e873d80f27f2c054ddf6df9a0fdeb5cfccd8",
         )
-        self.assertEqual(cli["binary"], "usr/bin/bimcraft-cli")
+        self.assertEqual(cli["binary"], "bin/bimcraft-cli")
 
 
 if __name__ == "__main__":
