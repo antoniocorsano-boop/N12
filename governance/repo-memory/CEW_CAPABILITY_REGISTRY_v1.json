@@ -1,0 +1,219 @@
+{
+  "schema_version": "CEW_CAPABILITY_REGISTRY_v1",
+  "generated_on": "2026-10-28",
+  "scope": "Civil Existing Workflow / N12",
+  "authority_effect": "NONE",
+  "principle": "BUILD_LAST_REUSE_FIRST",
+  "status_vocabulary": [
+    "CANONICAL",
+    "QUALIFIED_NONCANONICAL",
+    "EXPERIMENTAL",
+    "SUPERSEDED",
+    "BLOCKED",
+    "UNKNOWN"
+  ],
+  "reuse_vocabulary": [
+    "REUSE",
+    "ADAPT",
+    "PORT",
+    "REFERENCE_ONLY",
+    "DO_NOT_REUSE"
+  ],
+  "capabilities": [
+    {
+      "capability_id": "CEW-CAP-MASTER-BUILD-LAST-REUSE-FIRST",
+      "name": "Build-last reuse-first governance",
+      "status": "CANONICAL",
+      "source": {
+        "path": "CEW_MASTER_PLAN.md",
+        "ref": "adbad6214df5acaf6dc8250a6cd2692d25733c6b"
+      },
+      "responsibility": "Require reuse evaluation before new internal or external implementation.",
+      "reuse_disposition": "REUSE",
+      "authority_effect": "GOVERNANCE_ONLY",
+      "limitations": []
+    },
+    {
+      "capability_id": "CEW-CAP-ENG-DRAWING-GRAMMAR-V1",
+      "name": "Engineering drawing interpretation grammar",
+      "status": "QUALIFIED_NONCANONICAL",
+      "source": {
+        "pr": 143,
+        "branch": "work/n12-engineering-drawing-grammar-v1",
+        "ref": "098f98d2724c0a16b9293adc366a585f356bc9fc"
+      },
+      "key_files": [
+        "analysis/cew/N12_ENGINEERING_DRAWING_GRAMMAR_v1.md",
+        "automation/N12_ENGINEERING_DRAWING_GRAMMAR_CONTRACT_v1.json",
+        "automation/validate_n12_engineering_drawing_grammar.py",
+        "automation/validate_n12_engineering_drawing_grammar_v2.py",
+        "data/benchmark/n12_engineering_grammar_regression_v2.json"
+      ],
+      "responsibility": "Non-promoting technical-drawing interpretation rules and knowledge provenance above governed graphic/token evidence.",
+      "interfaces": [
+        "GraphicPrimitive/TechnicalToken -> TechnicalRelation -> StructuralHypothesis",
+        "knowledge provenance: PROJECT_LEARNED | VERIFIED_REFERENCE | METHOD_RULE | HUMAN_TAUGHT_PROJECT_RULE"
+      ],
+      "reuse_disposition": "PORT",
+      "authority_effect": "STRUCTURAL_HYPOTHESIS_CANDIDATE_ONLY",
+      "limitations": [
+        "No automatic structural identity",
+        "No automatic canonical geometry",
+        "No canonical write",
+        "Historical branch dependencies require bounded port review"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    {
+      "capability_id": "CEW-CAP-OA3-DETERMINISTIC-SIMILARITY-V1",
+      "name": "Deterministic explainable Find Similar",
+      "status": "QUALIFIED_NONCANONICAL",
+      "source": {
+        "pr": 116,
+        "branch": "work/cew-oa3-deterministic-similarity-v1",
+        "ref": "a7020bef3934156c917f5bfe975d888c6ba9e684"
+      },
+      "key_files": [
+        "automation/CEW_OA3_DETERMINISTIC_SIMILARITY_CONTRACT_v1.json",
+        "docs/PROGRAM/CEW_OA3_DETERMINISTIC_SIMILARITY_LOGIC_v1.md",
+        "scripts/cew_oa3_deterministic_similarity.py",
+        "scripts/validate_cew_oa3_deterministic_similarity.py"
+      ],
+      "responsibility": "Versioned deterministic candidate ranking from a human-taught noncanonical prototype.",
+      "signals": [
+        "geometry_kind",
+        "dimension_ratio",
+        "orientation",
+        "topology_hint",
+        "spatial_context",
+        "associated_text"
+      ],
+      "reuse_disposition": "ADAPT",
+      "authority_effect": "PROPOSAL_ONLY",
+      "limitations": [
+        "Does not create object type",
+        "Does not create family membership",
+        "Does not create structural identity",
+        "Requires human confirmation downstream"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    {
+      "capability_id": "CEW-CAP-VISUAL-PROTOTYPE-LEARNING-V1",
+      "name": "Project-local visual prototype learning",
+      "status": "QUALIFIED_NONCANONICAL",
+      "source": {
+        "pr": 137,
+        "branch": "work/cew-new-project-preacquisition-v1",
+        "ref": "320755e66a7263f1842f73dc14fb9a0ea8ccd7f8"
+      },
+      "key_files": [
+        "analysis/cew/CEW_VISUAL_LEARNING_ARCHITECTURE_v1.md",
+        "automation/CEW_VISUAL_LEARNING_CONTRACT_v1.json",
+        "scripts/cew_visual_learning.py",
+        "scripts/cew_visual_learning_bridge.py",
+        "scripts/cew_visual_learning_multichannel.py",
+        "scripts/validate_cew_visual_learning.py"
+      ],
+      "responsibility": "Project-local prototype memory, positive/negative/ambiguous learning receipts, deterministic replay and similarity proposals.",
+      "interfaces": [
+        "LearningReceipt(POSITIVE|NEGATIVE|AMBIGUOUS)",
+        "PROJECT_LOCAL_PROTOTYPE_MEMORY",
+        "CEW_STRUCTURED_GRAPHIC_DESCRIPTOR_V1",
+        "optional frozen visual embedding provider"
+      ],
+      "reuse_disposition": "PORT",
+      "authority_effect": "NONE_UNTIL_PROJECT_HUMAN_VALIDATION",
+      "limitations": [
+        "No semantic assignment without human teaching",
+        "No canonical geometry",
+        "No structural identity",
+        "Visual foundation provider is optional and separately qualified"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    {
+      "capability_id": "CEW-CAP-ZERO-PRIOR-GRAPHIC-DISCOVERY-V1",
+      "name": "Zero-prior graphic primitive discovery and non-semantic clustering",
+      "status": "QUALIFIED_NONCANONICAL",
+      "source": {
+        "pr": 137,
+        "branch": "work/cew-new-project-preacquisition-v1",
+        "ref": "320755e66a7263f1842f73dc14fb9a0ea8ccd7f8"
+      },
+      "key_files": [
+        "scripts/cew_document_discovery.py",
+        "scripts/cew_new_project_preacquisition.py",
+        "automation/CEW_NEW_PROJECT_PREACQUISITION_CONTRACT_v1.json"
+      ],
+      "responsibility": "Discover source/page/bbox-bound graphic primitives and recurring opaque clusters before assigning semantics.",
+      "reuse_disposition": "ADAPT",
+      "authority_effect": "NONE",
+      "limitations": [
+        "Clusters are non-semantic",
+        "Project-local meaning requires explicit human teaching"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    {
+      "capability_id": "CEW-CAP-B01-V2-COMPOUND-CELL-DETECTOR",
+      "name": "CEW-B01 V2 compound-cell candidate channel",
+      "status": "QUALIFIED_NONCANONICAL",
+      "source": {
+        "branch": "impl/cew-b01-step1-source",
+        "note": "Current CEW-B01 active lineage; exact implementation ref must be recorded by the consuming task."
+      },
+      "responsibility": "High-precision source-bound Step-4 candidate proposal channel on governed TAV.5 raster evidence.",
+      "reuse_disposition": "REUSE",
+      "authority_effect": "EVIDENCE_REGION_CANDIDATE_ONLY",
+      "limitations": [
+        "Known human-review recall omission for plausible numbered structural symbols",
+        "Must remain one channel inside a broader candidate union"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    {
+      "capability_id": "CEW-CAP-B01-CLOSED-FRAME-INTERNAL-MARK-SPIKE",
+      "name": "B01 closed-frame/internal-mark motif proposal spike",
+      "status": "EXPERIMENTAL",
+      "source": {
+        "pr": 165,
+        "branch": "design/cew-b01-detector-v3-recall",
+        "observed_ref": "90d678b53edbb8e29b6162be7b6c1618b92ccd4e"
+      },
+      "key_files": [
+        "cew_b01/drawing_grammar.py",
+        "tests/cew_b01/test_evidence_extraction.py",
+        "tests/cew_b01/test_drawing_grammar_families.py"
+      ],
+      "responsibility": "Experimentally detect closed-frame/internal-mark motifs and compute source-local graphical/context features.",
+      "reuse_disposition": "ADAPT",
+      "authority_effect": "NONE",
+      "limitations": [
+        "Generic motif similarity overlaps OA-3 and visual-learning responsibilities",
+        "Planned local family discovery overlaps PR #137",
+        "Module name currently overstates generic ownership",
+        "Must be narrowed before promotion"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    {
+      "capability_id": "CEW-CAP-B01-CANDIDATE-UNION-QUALIFICATION",
+      "name": "B01 source-bound candidate union and exact-source qualification",
+      "status": "BLOCKED",
+      "source": {
+        "pr": 165,
+        "branch": "design/cew-b01-detector-v3-recall"
+      },
+      "responsibility": "Adapt reusable discovery/learning/similarity capabilities into the active B01 source-bound Step-4 candidate union and qualify on exact TAV.5 evidence.",
+      "reuse_disposition": "ADAPT",
+      "authority_effect": "EVIDENCE_REGION_CANDIDATE_ONLY",
+      "limitations": [
+        "Blocked until duplicate subsystem responsibilities are reconciled",
+        "Automated GREEN does not replace human visual review",
+        "19/22 may be regression witnesses only, never production oracles"
+      ],
+      "last_verified": "2026-10-28"
+    }
+  ]
+}
