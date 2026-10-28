@@ -51,6 +51,8 @@ class ExtractionConfig:
     min_rectangularity: float = 0.55
     max_aspect_ratio: float = 5.0
     duplicate_iou_threshold: float = 0.75
+    duplicate_containment_threshold: float = 0.85
+    min_external_context_density: float = 0.03
     approximation_epsilon_ratio: float = 0.02
 
     def __post_init__(self) -> None:
@@ -68,6 +70,10 @@ class ExtractionConfig:
             raise ValueError("max_aspect_ratio must be at least 1")
         if not 0.0 < float(self.duplicate_iou_threshold) <= 1.0:
             raise ValueError("duplicate_iou_threshold must be within (0, 1]")
+        if not 0.0 < float(self.duplicate_containment_threshold) <= 1.0:
+            raise ValueError("duplicate_containment_threshold must be within (0, 1]")
+        if not 0.0 < float(self.min_external_context_density) <= 1.0:
+            raise ValueError("min_external_context_density must be within (0, 1]")
         if not 0.0 < float(self.approximation_epsilon_ratio) < 1.0:
             raise ValueError("approximation_epsilon_ratio must be within (0, 1)")
 
@@ -81,11 +87,13 @@ class ExtractionConfig:
             "min_rectangularity": self.min_rectangularity,
             "max_aspect_ratio": self.max_aspect_ratio,
             "duplicate_iou_threshold": self.duplicate_iou_threshold,
+            "duplicate_containment_threshold": self.duplicate_containment_threshold,
+            "min_external_context_density": self.min_external_context_density,
             "approximation_epsilon_ratio": self.approximation_epsilon_ratio,
         }
 
 
-def _intersection_over_union(
+def _intersection_area(
     first: tuple[int, int, int, int],
     second: tuple[int, int, int, int],
 ) -> float:
@@ -97,14 +105,35 @@ def _intersection_over_union(
     bottom = min(ay + ah, by + bh)
     if right <= left or bottom <= top:
         return 0.0
-    intersection = float((right - left) * (bottom - top))
-    union = float(aw * ah + bw * bh) - intersection
+    return float((right - left) * (bottom - top))
+
+
+def _intersection_over_union(
+    first: tuple[int, int, int, int],
+    second: tuple[int, int, int, int],
+) -> float:
+    intersection = _intersection_area(first, second)
+    if intersection <= 0:
+        return 0.0
+    first_area = float(first[2] * first[3])
+    second_area = float(second[2] * second[3])
+    union = first_area + second_area - intersection
     return intersection / union if union > 0 else 0.0
+
+
+def _containment_overlap(
+    first: tuple[int, int, int, int],
+    second: tuple[int, int, int, int],
+) -> float:
+    intersection = _intersection_area(first, second)
+    smaller_area = float(min(first[2] * first[3], second[2] * second[3]))
+    return intersection / smaller_area if smaller_area > 0 else 0.0
 
 
 def _deduplicate_rectangles(
     rectangles: Iterable[tuple[int, int, int, int, float]],
     threshold: float,
+    containment_threshold: float = 0.85,
 ) -> list[tuple[int, int, int, int, float]]:
     ordered = sorted(
         rectangles,
@@ -115,6 +144,7 @@ def _deduplicate_rectangles(
         candidate_box = candidate[:4]
         if any(
             _intersection_over_union(candidate_box, existing[:4]) >= threshold
+            or _containment_overlap(candidate_box, existing[:4]) >= containment_threshold
             for existing in accepted
         ):
             continue
@@ -304,7 +334,11 @@ def _assemble_compound_envelopes(
                 6,
             )
             envelopes.append((x1, y1, width, height, confidence))
-    return _deduplicate_rectangles(envelopes, config.duplicate_iou_threshold)
+    return _deduplicate_rectangles(
+        envelopes,
+        config.duplicate_iou_threshold,
+        config.duplicate_containment_threshold,
+    )
 
 
 def _drawing_grammar_rectangles(
@@ -324,6 +358,8 @@ def _drawing_grammar_rectangles(
     )
     rectangles: list[tuple[int, int, int, int, float]] = []
     for motif in extract_drawing_motifs(binary, grammar_config):
+        if max(motif.context_signature, default=0.0) < config.min_external_context_density:
+            continue
         confidence = round(min(1.0, max(0.0, motif.frame_coverage)), 6)
         rectangles.append((motif.x, motif.y, motif.width, motif.height, confidence))
     return rectangles
@@ -356,6 +392,7 @@ def extract_g4_evidence_candidates(
     rectangles = _deduplicate_rectangles(
         [*compound_rectangles, *grammar_rectangles],
         config.duplicate_iou_threshold,
+        config.duplicate_containment_threshold,
     )
 
     tool_version = version(_TOOL_PACKAGE)
