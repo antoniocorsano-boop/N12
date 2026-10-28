@@ -6,9 +6,12 @@ on:
       - '.github/workflows/validate-cew-b01-drawing-grammar.yml'
       - 'cew_b01/drawing_grammar.py'
       - 'cew_b01/evidence_extraction.py'
+      - 'cew_b01/reuse_adapter.py'
+      - 'cew_b01/reused_oa3_similarity.py'
       - 'tests/cew_b01/test_drawing_grammar_families.py'
       - 'tests/cew_b01/test_evidence_extraction.py'
       - 'tests/cew_b01/test_evidence_extraction_v3.py'
+      - 'tests/cew_b01/test_reuse_adapter.py'
 
 permissions:
   contents: read
@@ -38,11 +41,12 @@ jobs:
           assert cv2.__version__ == '5.0.0'
           PY
 
-      - name: Run drawing-grammar unit contracts
+      - name: Run drawing-grammar and reuse-adapter unit contracts
         shell: bash
         run: |
           set -euo pipefail
           python -m unittest \
             tests.cew_b01.test_drawing_grammar_families \
             tests.cew_b01.test_evidence_extraction.DrawingGrammarTests \
-            tests.cew_b01.test_evidence_extraction_v3 -v
+            tests.cew_b01.test_evidence_extraction_v3 \
+            tests.cew_b01.test_reuse_adapter -v
