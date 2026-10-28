@@ -56,6 +56,11 @@ class BIMCraftToolchainContract:
     asset_name: str
     asset_url: str
     asset_sha256: str
+    cli_asset_platform: str
+    cli_asset_name: str
+    cli_asset_url: str
+    cli_asset_sha256: str
+    cli_binary: str
     observed_project_format: int
     project_file_canonical_authority: bool
     regenerable_projection_only: bool
@@ -76,6 +81,7 @@ def load_toolchain_contract(path: str | Path) -> BIMCraftToolchainContract:
     root = _mapping(raw, "contract")
     upstream = _mapping(root.get("upstream"), "upstream")
     asset = _mapping(root.get("asset"), "asset")
+    cli_asset = _mapping(root.get("cli_asset"), "cli_asset")
     project_policy = _mapping(root.get("project_file_policy"), "project_file_policy")
     authority = _mapping(root.get("authority"), "authority")
 
@@ -103,6 +109,11 @@ def load_toolchain_contract(path: str | Path) -> BIMCraftToolchainContract:
         asset_name=_text(asset.get("name"), "asset.name"),
         asset_url=_text(asset.get("url"), "asset.url"),
         asset_sha256=_hex(asset.get("sha256"), "asset.sha256", _HEX64),
+        cli_asset_platform=_text(cli_asset.get("platform"), "cli_asset.platform"),
+        cli_asset_name=_text(cli_asset.get("name"), "cli_asset.name"),
+        cli_asset_url=_text(cli_asset.get("url"), "cli_asset.url"),
+        cli_asset_sha256=_hex(cli_asset.get("sha256"), "cli_asset.sha256", _HEX64),
+        cli_binary=_text(cli_asset.get("binary"), "cli_asset.binary"),
         observed_project_format=observed_format,
         project_file_canonical_authority=_false(
             project_policy.get("canonical_authority"),
