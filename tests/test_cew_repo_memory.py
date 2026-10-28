@@ -97,6 +97,34 @@ class RepositoryMemoryGateTests(unittest.TestCase):
             errors = validator.validate_repository_memory(root)
             self.assertTrue(any("Repository Memory / Reuse Assessment" in error for error in errors), errors)
 
+    def test_governed_legacy_plan_assessment_preserves_historical_plan(self):
+        validator = self._load_validator()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_minimal_repo(root)
+            plan = root / "docs" / "superpowers" / "plans" / "2026-10-28-cew-test.md"
+            historical_bytes = b"# CEW historical plan\n\nPredates repository-memory activation.\n"
+            plan.write_bytes(historical_bytes)
+            sidecar = root / "governance" / "repo-memory" / "CEW_LEGACY_PLAN_REUSE_ASSESSMENTS_v1.json"
+            sidecar.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "CEW_LEGACY_PLAN_REUSE_ASSESSMENTS_v1",
+                        "plans": [
+                            {
+                                "path": "docs/superpowers/plans/2026-10-28-cew-test.md",
+                                "status": "HISTORICAL_PLAN_PREDATES_REPO_MEMORY",
+                                "consulted_capabilities": ["CEW-CAP-TEST"],
+                                "assessment": "REUSE_FIRST_REVIEW_RECORDED_EXTERNALLY",
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.assertEqual(validator.validate_repository_memory(root), [])
+            self.assertEqual(plan.read_bytes(), historical_bytes)
+
 
 if __name__ == "__main__":
     unittest.main()
