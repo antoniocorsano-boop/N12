@@ -66,7 +66,7 @@ jobs:
           set -euo pipefail
           git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
 
-      - name: Materialize source-derived human review package
+      - name: Materialize source-derived V3 human review package
         shell: bash
         run: |
           set -euo pipefail
@@ -83,8 +83,10 @@ jobs:
           from cew_b01.review_package import render_review_package
           from cew_b01.source_contract import load_source_contract, materialize_source
 
-          EXPECTED_STEP4_SET_SHA256 = '72c0a8d08f720c50e9ebb2ac4009eae2f43b201732b4daafd967208c4b0e1099'
-          EXPECTED_STEP4_BUNDLE_SHA256 = '28502f32fa2f360c6422668cc5f6b833a0bcc38523437476f1109897a66c1c87'
+          EXPECTED_STEP4_CANDIDATE_COUNT = 364
+          EXPECTED_STEP4_SET_SHA256 = 'af24687151738259188062fe84f77533cfb17dc830f5fe4c698933433fb61673'
+          EXPECTED_STEP4_BUNDLE_SHA256 = 'd47c0cb1f5018ff71c268fc944dbf0a4ca790c29775d9d09278127ec55e98da3'
+          EXPECTED_METHOD = 'OPENCV_DRAWING_GRAMMAR_CANDIDATE_UNION_V3'
 
           runner_temp = Path(os.environ['RUNNER_TEMP'])
           contract = load_source_contract('governance/cew-b01/N12_TAV5_SOURCE_v1.json')
@@ -109,8 +111,25 @@ jobs:
               separators=(',', ':'),
           ).encode('utf-8')
           candidate_set_sha256 = hashlib.sha256(ordered_identity_payload).hexdigest()
+          assert len(candidates) == EXPECTED_STEP4_CANDIDATE_COUNT
           assert candidate_set_sha256 == EXPECTED_STEP4_SET_SHA256
           assert evidence_bundle['bundle_sha256'] == EXPECTED_STEP4_BUNDLE_SHA256
+          assert evidence_bundle['extraction']['method'] == EXPECTED_METHOD
+          channel_ids = {
+              item['capability_id']
+              for item in evidence_bundle['extraction']['proposal_channels']
+          }
+          assert channel_ids == {
+              'CEW-CAP-B01-V2-COMPOUND-CELL-DETECTOR',
+              'CEW-CAP-B01-CLOSED-FRAME-INTERNAL-MARK-SPIKE',
+          }
+          reconciliation = evidence_bundle['reconciliation_provenance']
+          assert reconciliation['oa3_similarity']['source_ref'] == 'a7020bef3934156c917f5bfe975d888c6ba9e684'
+          assert reconciliation['structured_descriptor']['source_ref'] == '320755e66a7263f1842f73dc14fb9a0ea8ccd7f8'
+          assert reconciliation['engineering_grammar']['source_ref'] == '098f98d2724c0a16b9293adc366a585f356bc9fc'
+          assert reconciliation['oa3_similarity']['execution_state'] == 'AVAILABLE_REQUIRES_HUMAN_TAUGHT_PROTOTYPE'
+          assert evidence_bundle['authority']['structural_identity_authorized'] is False
+          assert evidence_bundle['authority']['canonical_write_authorized'] is False
 
           output_dir = Path('evidence/cew-b01/g4/step5-human-review')
           package = render_review_package(raster_path, candidates, output_dir)
@@ -123,11 +142,15 @@ jobs:
               'candidate_count': len(candidates),
               'candidate_set_sha256': candidate_set_sha256,
               'evidence_bundle_sha256': evidence_bundle['bundle_sha256'],
+              'method': EXPECTED_METHOD,
+              'proposal_channels': evidence_bundle['extraction']['proposal_channels'],
+              'reconciliation_provenance': reconciliation,
               'review_state': 'PENDING_HUMAN',
               'review_decisions_file_created': False,
               'structural_candidates_created': 0,
               'canonical': False,
               'structural_identity_authorized': False,
+              'canonical_write_authorized': False,
               'historical_comparator_loaded': False,
               'overview': Path(package['overview_path']).name,
               'contact_sheet_count': len(package['contact_sheet_paths']),
