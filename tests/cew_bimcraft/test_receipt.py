@@ -52,6 +52,12 @@ class BIMCraftBenchmarkReceiptTests(unittest.TestCase):
 
         self.assertEqual(receipt.result, "PASS")
         self.assertEqual(receipt.command_plan_sha256, plan.sha256)
+        self.assertEqual(receipt.asset_name, "bimcraft-0.9.0-linux-x86_64.tar.gz")
+        self.assertEqual(
+            receipt.asset_sha256,
+            "73ba200369b3f9afa95309ff74c1e873d80f27f2c054ddf6df9a0fdeb5cfccd8",
+        )
+        self.assertEqual(receipt.executable_path, "bin/bimcraft-cli")
         self.assertFalse(receipt.canonical_write_authorized)
         self.assertFalse(receipt.structural_identity_authorized)
         self.assertFalse(receipt.fem_authorized)
