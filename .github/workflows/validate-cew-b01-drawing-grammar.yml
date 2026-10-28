@@ -10,6 +10,7 @@ on:
       - 'cew_b01/reused_oa3_similarity.py'
       - 'tests/cew_b01/test_evidence_extraction.py'
       - 'tests/cew_b01/test_evidence_extraction_v3.py'
+      - 'tests/cew_b01/test_evidence_extraction_v3_hardening.py'
       - 'tests/cew_b01/test_reuse_adapter.py'
 
 permissions:
@@ -47,4 +48,5 @@ jobs:
           python -m unittest \
             tests.cew_b01.test_evidence_extraction.DrawingGrammarTests \
             tests.cew_b01.test_evidence_extraction_v3 \
+            tests.cew_b01.test_evidence_extraction_v3_hardening \
             tests.cew_b01.test_reuse_adapter -v
