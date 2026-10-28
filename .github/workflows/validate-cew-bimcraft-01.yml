@@ -1,0 +1,36 @@
+name: CEW-BIMCRAFT-01 Qualification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/validate-cew-bimcraft-01.yml'
+      - 'cew_bimcraft/**'
+      - 'governance/cew-bimcraft-01/**'
+      - 'tests/cew_bimcraft/**'
+      - 'docs/superpowers/specs/2026-10-28-cew-bimcraft-01-design.md'
+      - 'docs/superpowers/plans/2026-10-28-cew-bimcraft-01-benchmark.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+
+      - name: Run CEW-BIMCRAFT-01 contract tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest tests.cew_bimcraft.test_toolchain_contract -v
