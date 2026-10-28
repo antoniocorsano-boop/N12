@@ -1,0 +1,275 @@
+name: CEW-B01 Steps 1-3 Verification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/validate-cew-b01-step1.yml'
+      - 'cew_b01/**'
+      - 'governance/cew-b01/N12_TAV5_SOURCE_v1.json'
+      - 'governance/cew-b01/EXTERNAL_TOOLCHAIN_v1.json'
+      - 'requirements/cew-b01.lock.txt'
+      - 'tests/cew_b01/test_source_contract.py'
+      - 'tests/cew_b01/test_source_materialization.py'
+      - 'tests/cew_b01/test_toolchain_contract.py'
+      - 'tests/cew_b01/test_pdf_probe.py'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-real-source-and-toolchain-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+
+      - name: Install frozen Tesseract system package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+          tesseract --version | head -n 1 | grep -F 'tesseract 5.3.4'
+
+      - name: Install frozen Python toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-b01-frozen"
+          source "$RUNNER_TEMP/cew-b01-frozen/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
+          python - <<'PY'
+          from importlib.metadata import version
+          from pathlib import Path
+          from cew_b01.toolchain import load_toolchain_contract, validate_lock_text
+
+          manifest_path = Path('governance/cew-b01/EXTERNAL_TOOLCHAIN_v1.json')
+          lock_path = Path('requirements/cew-b01.lock.txt')
+          contract = load_toolchain_contract(manifest_path)
+          validate_lock_text(contract, lock_path.read_text(encoding='utf-8'))
+          for tool in contract.tools:
+              package = tool.get('python_package')
+              if tool.get('install_for_slice') and package:
+                  actual = version(package)
+                  expected = tool['version']
+                  assert actual == expected, (tool['tool_id'], package, expected, actual)
+                  print(f"QUALIFIED {package}=={actual}")
+
+          import docling
+          import docling_parse
+          import pypdfium2
+          import pdfplumber
+          import ocrmypdf
+          import cv2
+          import build123d
+          import OCP
+          print('STEP2_FROZEN_IMPORT_PROBE=PASS')
+          PY
+
+      - name: Fetch frozen archival commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+
+      - name: Verify frozen Git object and SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_COMMIT='78c20a52db4f391ce0d13b9705b9f04737e218c9'
+          SOURCE_PATH='archive/documentazione_originaria/tavola 5.pdf'
+          EXPECTED_BLOB='ec32cd621877e9037cb26ebc083164140a8e3e68'
+          EXPECTED_SHA256='2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580'
+          ACTUAL_BLOB="$(git rev-parse "${SOURCE_COMMIT}:${SOURCE_PATH}")"
+          test "$ACTUAL_BLOB" = "$EXPECTED_BLOB"
+          git cat-file blob "$ACTUAL_BLOB" > "$RUNNER_TEMP/tavola5-direct.pdf"
+          ACTUAL_SHA256="$(sha256sum "$RUNNER_TEMP/tavola5-direct.pdf" | awk '{print $1}')"
+          ACTUAL_SIZE="$(wc -c < "$RUNNER_TEMP/tavola5-direct.pdf")"
+          echo "blob=$ACTUAL_BLOB"
+          echo "actual_sha256=$ACTUAL_SHA256"
+          echo "expected_sha256=$EXPECTED_SHA256"
+          echo "size_bytes=$ACTUAL_SIZE"
+          test "$ACTUAL_SHA256" = "$EXPECTED_SHA256"
+
+      - name: Run focused Step 1 tests
+        run: python -m unittest tests.cew_b01.test_source_contract tests.cew_b01.test_source_materialization -v
+
+      - name: Materialize through CEW-B01 CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m cew_b01.cli materialize-source \
+            --contract governance/cew-b01/N12_TAV5_SOURCE_v1.json \
+            --repository-path . \
+            --destination "$RUNNER_TEMP/tavola5-materialized.pdf" \
+            | tee "$RUNNER_TEMP/materialization.json"
+          cmp "$RUNNER_TEMP/tavola5-direct.pdf" "$RUNNER_TEMP/tavola5-materialized.pdf"
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          direct = Path(os.environ['RUNNER_TEMP']) / 'tavola5-direct.pdf'
+          materialized = Path(os.environ['RUNNER_TEMP']) / 'tavola5-materialized.pdf'
+          expected = '2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580'
+          for path in (direct, materialized):
+              digest = hashlib.sha256(path.read_bytes()).hexdigest()
+              assert digest == expected, (path, digest)
+          record = json.loads((Path(os.environ['RUNNER_TEMP']) / 'materialization.json').read_text())
+          assert record['git_blob_sha'] == 'ec32cd621877e9037cb26ebc083164140a8e3e68'
+          assert record['sha256'] == expected
+          assert record['size_bytes'] == direct.stat().st_size == materialized.stat().st_size
+          print(json.dumps({'real_source_verification':'PASS','sha256':expected,'size_bytes':direct.stat().st_size}, sort_keys=True))
+          PY
+
+      - name: Run Step 2 toolchain contract tests
+        run: python -m unittest tests.cew_b01.test_toolchain_contract -v
+
+      - name: Run Step 3 PDF probe contract tests
+        run: python -m unittest tests.cew_b01.test_pdf_probe -v
+
+      - name: Qualify Step 3 on immutable TAV5 twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-b01-frozen/bin/activate"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          from cew_b01.pdf_probe import probe_pdf
+          from cew_b01.records import ToolResultStatus
+          from cew_b01.source_contract import load_source_contract, materialize_source
+
+          def diff_values(first, replay, path='$'):
+              differences = []
+              if type(first) is not type(replay):
+                  return [{'path': path, 'first': first, 'replay': replay}]
+              if isinstance(first, dict):
+                  keys = sorted(set(first) | set(replay))
+                  for key in keys:
+                      child = f'{path}.{key}'
+                      if key not in first or key not in replay:
+                          differences.append({
+                              'path': child,
+                              'first': first.get(key, '<MISSING>'),
+                              'replay': replay.get(key, '<MISSING>'),
+                          })
+                      else:
+                          differences.extend(diff_values(first[key], replay[key], child))
+                  return differences
+              if isinstance(first, list):
+                  if len(first) != len(replay):
+                      differences.append({'path': f'{path}.length', 'first': len(first), 'replay': len(replay)})
+                  for index, (left, right) in enumerate(zip(first, replay)):
+                      differences.extend(diff_values(left, right, f'{path}[{index}]'))
+                  return differences
+              if first != replay:
+                  differences.append({'path': path, 'first': first, 'replay': replay})
+              return differences
+
+          runner_temp = Path(os.environ['RUNNER_TEMP'])
+          contract = load_source_contract('governance/cew-b01/N12_TAV5_SOURCE_v1.json')
+          materialized = materialize_source(
+              contract,
+              '.',
+              runner_temp / 'tavola5-step3.pdf',
+          )
+          first_dir = Path('evidence/cew-b01/pdf')
+          replay_dir = runner_temp / 'cew-b01-pdf-probe-replay'
+          first = probe_pdf(materialized, first_dir)
+          replay = probe_pdf(materialized, replay_dir)
+
+          first_map = first.to_mapping()
+          replay_map = replay.to_mapping()
+          first_receipt_map = first.receipt_mapping()
+          replay_receipt_map = replay.receipt_mapping()
+          differences = diff_values(first_map, replay_map)
+          allowed_volatile_paths = {
+              f'$.tool_results[{index}].metrics.output_sha256'
+              for index, item in enumerate(first_map['tool_results'])
+              if item['metrics'].get('output_role') == 'OCR_DERIVATIVE_EVIDENCE_NOT_SOURCE_AUTHORITY'
+          }
+          unexpected_differences = [
+              item for item in differences if item['path'] not in allowed_volatile_paths
+          ]
+          diagnostic = {
+              'first_raster_sha256': first.raster_sha256,
+              'replay_raster_sha256': replay.raster_sha256,
+              'first_receipt_sha256': first.deterministic_receipt_sha256(),
+              'replay_receipt_sha256': replay.deterministic_receipt_sha256(),
+              'first_ocr_trigger': first.ocr_trigger.to_mapping(),
+              'replay_ocr_trigger': replay.ocr_trigger.to_mapping(),
+              'differences': differences,
+              'allowed_volatile_paths': sorted(allowed_volatile_paths),
+              'unexpected_differences': unexpected_differences,
+          }
+          first_dir.mkdir(parents=True, exist_ok=True)
+          (first_dir / 'first-pdf-probe-result.json').write_text(
+              json.dumps(first_map, indent=2, sort_keys=True, ensure_ascii=False) + '\n',
+              encoding='utf-8',
+          )
+          (first_dir / 'replay-pdf-probe-result.json').write_text(
+              json.dumps(replay_map, indent=2, sort_keys=True, ensure_ascii=False) + '\n',
+              encoding='utf-8',
+          )
+          (first_dir / 'replay-diff.json').write_text(
+              json.dumps(diagnostic, indent=2, sort_keys=True, ensure_ascii=False) + '\n',
+              encoding='utf-8',
+          )
+          print('STEP3_REPLAY_DIAGNOSTIC=' + json.dumps(diagnostic, sort_keys=True, ensure_ascii=False))
+
+          assert first.raster_sha256 == replay.raster_sha256
+          assert first.deterministic_receipt_sha256() == replay.deterministic_receipt_sha256()
+          assert first_receipt_map == replay_receipt_map
+          assert not unexpected_differences, unexpected_differences
+
+          statuses = {item.tool_id: item.status for item in first.tool_results}
+          assert statuses['pypdfium2'] == ToolResultStatus.PASS
+          assert statuses['pdfplumber'] == ToolResultStatus.PASS
+          assert statuses['docling-parse'] in {ToolResultStatus.PASS, ToolResultStatus.LIMITED}
+          assert statuses['docling'] in {ToolResultStatus.PASS, ToolResultStatus.LIMITED}
+          if first.ocr_trigger.triggered:
+              assert statuses['ocrmypdf'] == ToolResultStatus.PASS
+              assert statuses['tesseract'] == ToolResultStatus.PASS
+          else:
+              assert statuses['ocrmypdf'] == ToolResultStatus.NOT_TRIGGERED
+              assert statuses['tesseract'] == ToolResultStatus.NOT_TRIGGERED
+
+          summary = {
+              'step': 'CEW-B01-STEP-3',
+              'source_sha256': first.source.sha256,
+              'raster_sha256': first.raster_sha256,
+              'receipt_sha256': first.deterministic_receipt_sha256(),
+              'render_dpi': first.render_dpi,
+              'raster_width_px': first.raster_width_px,
+              'raster_height_px': first.raster_height_px,
+              'ocr_trigger': first.ocr_trigger.to_mapping(),
+              'tool_statuses': {key: value.value for key, value in statuses.items()},
+              'deterministic_replay': 'PASS',
+          }
+          (first_dir / 'qualification-summary.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(summary, sort_keys=True))
+          PY
+
+      - name: Upload Step 3 qualification evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-b01-step3-pdf-qualification
+          path: evidence/cew-b01/pdf/
+          if-no-files-found: error
+          retention-days: 30

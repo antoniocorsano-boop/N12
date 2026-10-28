@@ -1,0 +1,11 @@
+# CEW-B01 direct external-tool pins qualified on Python 3.12.15 / ubuntu-24.04.
+# Scope is direct B01 tool packages only; transitive dependencies remain governed
+# by these exact package releases and are not separate CEW authorities.
+docling==2.138.0
+docling-parse==7.22.3
+pypdfium2==5.14.0
+pdfplumber==0.11.10
+ocrmypdf==17.13.0
+opencv-python-headless==5.0.0.93
+build123d==0.13.0
+cadquery-ocp==8.0.1.1.0

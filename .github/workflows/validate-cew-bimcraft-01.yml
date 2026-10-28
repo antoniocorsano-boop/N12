@@ -1,0 +1,263 @@
+name: CEW-BIMCRAFT-01 Qualification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/validate-cew-bimcraft-01.yml'
+      - 'cew_bimcraft/**'
+      - 'governance/cew-bimcraft-01/**'
+      - 'tests/cew_bimcraft/**'
+      - 'docs/superpowers/specs/2026-10-28-cew-bimcraft-01-design.md'
+      - 'docs/superpowers/plans/2026-10-28-cew-bimcraft-01-benchmark.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+
+      - name: Run CEW-BIMCRAFT-01 unit suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests/cew_bimcraft -v
+
+      - name: Install pinned IFC validator
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check 'ifcopenshell==0.9.0.post1'
+          python - <<'PY'
+          import ifcopenshell
+          assert ifcopenshell.version == '0.9.0.post1', ifcopenshell.version
+          print(ifcopenshell.version)
+          PY
+
+      - name: Read frozen CLI asset contract
+        id: lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+          p = json.loads(Path('governance/cew-bimcraft-01/BIMCRAFT_TOOLCHAIN_v1.json').read_text())
+          a = p['cli_asset']
+          print(f"url={a['url']}")
+          print(f"name={a['name']}")
+          print(f"sha256={a['sha256']}")
+          print(f"binary={a['binary']}")
+          print(f"release={p['upstream']['release']}")
+          PY
+
+      - name: Verify and probe exact BIMCraft CLI
+        id: probe
+        shell: bash
+        env:
+          BIMCRAFT_URL: ${{ steps.lock.outputs.url }}
+          BIMCRAFT_NAME: ${{ steps.lock.outputs.name }}
+          BIMCRAFT_SHA256: ${{ steps.lock.outputs.sha256 }}
+          BIMCRAFT_BINARY: ${{ steps.lock.outputs.binary }}
+        run: |
+          set -euo pipefail
+          evidence="$RUNNER_TEMP/cew-bimcraft-01"
+          archive="$RUNNER_TEMP/$BIMCRAFT_NAME"
+          root="$RUNNER_TEMP/bimcraft-extracted"
+          mkdir -p "$evidence" "$root"
+
+          curl --fail --location --silent --show-error "$BIMCRAFT_URL" --output "$archive"
+          printf '%s  %s\n' "$BIMCRAFT_SHA256" "$archive" | sha256sum --check | tee "$evidence/asset-sha256.txt"
+          tar -tzf "$archive" | sort > "$evidence/archive-tree.txt"
+          tar -xzf "$archive" -C "$root"
+
+          mapfile -t candidates < <(find "$root" -type f -path "*/$BIMCRAFT_BINARY" -print | sort)
+          printf '%s\n' "${candidates[@]}" > "$evidence/cli-candidates.txt"
+          if [ "${#candidates[@]}" -ne 1 ]; then
+            echo "BIMCRAFT_CLI_RESOLUTION_FAILED: expected exactly one */$BIMCRAFT_BINARY, found ${#candidates[@]}" >&2
+            exit 1
+          fi
+          cli="${candidates[0]}"
+          test -x "$cli"
+          printf '%s\n' "$cli" > "$evidence/cli-path.txt"
+          printf 'cli_path=%s\n' "$cli" >> "$GITHUB_OUTPUT"
+
+          "$cli" --version | tee "$evidence/version.txt"
+          grep -Fx 'bimcraft-cli 0.9.0' "$evidence/version.txt"
+          "$cli" commands > "$evidence/commands.json"
+          "$cli" run --cmd 'inspect {}' > "$evidence/inspect.json"
+
+          python - "$evidence/commands.json" "$evidence/inspect.json" <<'PY'
+          import json, sys
+          commands = json.load(open(sys.argv[1], encoding='utf-8'))
+          inspect = json.load(open(sys.argv[2], encoding='utf-8'))
+          items = commands if isinstance(commands, list) else commands.get('commands', [])
+          ids = {x.get('id') for x in items if isinstance(x, dict)}
+          required = {'level','type','parameter','structural_column','beam','footing','floor','modify','inspect','elements','save'}
+          missing = sorted(required - ids)
+          result = {
+              'required': sorted(required),
+              'observed_count': len(ids),
+              'missing': missing,
+              'inspect_type': type(inspect).__name__,
+          }
+          with open(sys.argv[1] + '.summary.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, indent=2, sort_keys=True)
+          if missing:
+              raise SystemExit('BIMCRAFT_REQUIRED_COMMANDS_MISSING: ' + ','.join(missing))
+          PY
+
+      - name: Execute, reconcile and validate Stage A
+        shell: bash
+        env:
+          BIMCRAFT_CLI: ${{ steps.probe.outputs.cli_path }}
+        run: |
+          set -euo pipefail
+          evidence="$RUNNER_TEMP/cew-bimcraft-01"
+          mkdir -p "$evidence"
+          python - <<'PY'
+          from dataclasses import asdict
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+
+          import ifcopenshell
+          from ifcopenshell.util.element import get_psets
+
+          from cew_bimcraft.command_plan import compile_command_plan, load_benchmark_fixture
+          from cew_bimcraft.contracts import load_toolchain_contract
+          from cew_bimcraft.mcp_runner import StdioMCPClient, execute_command_plan
+          from cew_bimcraft.receipt import build_benchmark_receipt
+          from cew_bimcraft.reconcile import normalize_bimcraft_queries, reconcile_fixture
+
+          fixture_path = Path('governance/cew-bimcraft-01/fixtures/STAGE_A_STRUCTURAL_FIXTURE_v1.json')
+          contract_path = Path('governance/cew-bimcraft-01/BIMCRAFT_TOOLCHAIN_v1.json')
+          fixture = load_benchmark_fixture(fixture_path)
+          contract = load_toolchain_contract(contract_path)
+          plan = compile_command_plan(fixture)
+          evidence = Path(os.environ['RUNNER_TEMP']) / 'cew-bimcraft-01'
+          model_path = evidence / 'stage-a.bimcraft'
+          ifc_path = evidence / 'stage-a.ifc'
+
+          with StdioMCPClient(os.environ['BIMCRAFT_CLI']) as client:
+              tools = client.request('tools/list', {})
+              execution = execute_command_plan(client, plan)
+              inspect = client.tool('inspect_model', {})
+              queries = {}
+              for category in ('level', 'structuralcolumn', 'beam', 'footing', 'floor'):
+                  queries[category] = client.tool('query_elements', {'category': category, 'limit': 100, 'offset': 0})
+              save_model = client.tool('save', {'path': str(model_path)})
+              save_ifc = client.tool('save', {'path': str(ifc_path)})
+
+          if not model_path.is_file() or model_path.stat().st_size == 0:
+              raise SystemExit('BIMCRAFT_STAGE_A_MODEL_NOT_WRITTEN')
+          if not ifc_path.is_file() or ifc_path.stat().st_size == 0:
+              raise SystemExit('BIMCRAFT_STAGE_A_IFC_NOT_WRITTEN')
+
+          observations = normalize_bimcraft_queries(fixture, queries)
+          reconciliation = reconcile_fixture(fixture, observations)
+          reconciliation_payload = {
+              'status': reconciliation.status,
+              'expected_count': reconciliation.expected_count,
+              'observed_count': reconciliation.observed_count,
+              'differences': [asdict(d) for d in reconciliation.differences],
+              'observations': observations,
+          }
+          if reconciliation.status != 'PASS':
+              (evidence / 'stage-a-reconciliation.json').write_text(json.dumps(reconciliation_payload, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+              raise SystemExit('BIMCRAFT_STAGE_A_RECONCILIATION_REWORK')
+
+          ifc = ifcopenshell.open(str(ifc_path))
+          expected_ifc = {
+              'SYN-COL-001': ('IfcColumn', 'Pset_ColumnCommon'),
+              'SYN-BEAM-001': ('IfcBeam', 'Pset_BeamCommon'),
+              'SYN-FOOT-001': ('IfcFooting', 'Pset_FootingCommon'),
+              'SYN-SLAB-001': ('IfcSlab', 'Pset_SlabCommon'),
+          }
+          ifc_summary = {'schema': ifc.schema, 'ifcopenshell_version': ifcopenshell.version, 'objects': {}}
+          by_cew_id = {}
+          for ifc_class, _ in expected_ifc.values():
+              for element in ifc.by_type(ifc_class):
+                  psets = get_psets(element)
+                  project_params = psets.get('Project Parameters', {})
+                  cew_id = project_params.get('CEW_OBJECT_ID')
+                  if isinstance(cew_id, str):
+                      by_cew_id[cew_id] = (element, psets)
+
+          for obj in fixture.objects:
+              ifc_class, common_pset = expected_ifc[obj.object_id]
+              found = by_cew_id.get(obj.object_id)
+              if found is None:
+                  raise SystemExit(f'BIMCRAFT_IFC_MISSING_CEW_OBJECT:{obj.object_id}')
+              element, psets = found
+              if not element.is_a(ifc_class):
+                  raise SystemExit(f'BIMCRAFT_IFC_CLASS_MISMATCH:{obj.object_id}:{element.is_a()}')
+              project_params = psets.get('Project Parameters', {})
+              for key, expected in obj.provenance.items():
+                  if project_params.get(key) != expected:
+                      raise SystemExit(f'BIMCRAFT_IFC_PROVENANCE_MISMATCH:{obj.object_id}:{key}')
+              common = psets.get(common_pset, {})
+              if common.get('LoadBearing') is not True:
+                  raise SystemExit(f'BIMCRAFT_IFC_LOADBEARING_MISSING:{obj.object_id}')
+              ifc_summary['objects'][obj.object_id] = {
+                  'class': element.is_a(),
+                  'global_id': element.GlobalId,
+                  'load_bearing': True,
+                  'provenance': {key: project_params.get(key) for key in obj.provenance},
+              }
+
+          def digest(path: Path) -> str:
+              return hashlib.sha256(path.read_bytes()).hexdigest()
+
+          tool_names = tuple(sorted(
+              item.get('name') for item in tools.get('tools', [])
+              if isinstance(item, dict) and isinstance(item.get('name'), str)
+          ))
+          candidate_sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          receipt = build_benchmark_receipt(
+              contract=contract,
+              fixture=fixture,
+              command_plan=plan,
+              reconciliation=reconciliation,
+              candidate_sha=candidate_sha,
+              observed_capabilities=tool_names,
+              output_digests={'model': digest(model_path), 'ifc': digest(ifc_path)},
+          )
+          if receipt.result != 'PASS':
+              raise SystemExit('BIMCRAFT_STAGE_A_RECEIPT_NOT_PASS')
+
+          (evidence / 'stage-a-command-plan.json').write_text(plan.canonical_json + '\n', encoding='utf-8')
+          (evidence / 'stage-a-bindings.json').write_text(json.dumps(dict(execution.bindings), indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          (evidence / 'stage-a-inspect.json').write_text(json.dumps(inspect, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          (evidence / 'stage-a-queries.json').write_text(json.dumps(queries, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          (evidence / 'stage-a-reconciliation.json').write_text(json.dumps(reconciliation_payload, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          (evidence / 'stage-a-ifc-summary.json').write_text(json.dumps(ifc_summary, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          (evidence / 'stage-a-tools.json').write_text(json.dumps(tools, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          (evidence / 'stage-a-save-results.json').write_text(json.dumps({'model': save_model, 'ifc': save_ifc}, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          (evidence / 'stage-a-receipt.json').write_text(json.dumps(receipt.as_dict(), indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          PY
+
+          sha256sum "$evidence/stage-a.bimcraft" "$evidence/stage-a.ifc" | tee "$evidence/stage-a-output-sha256.txt"
+
+      - name: Upload BIMCraft diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-bimcraft-01-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/cew-bimcraft-01
+          if-no-files-found: warn
+          retention-days: 14
