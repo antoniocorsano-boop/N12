@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Set up Python 3.12.15
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
@@ -34,3 +34,78 @@ jobs:
         run: |
           set -euo pipefail
           python -m unittest discover -s tests/cew_bimcraft -v
+
+      - name: Read frozen CLI asset contract
+        id: lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+          p = json.loads(Path('governance/cew-bimcraft-01/BIMCRAFT_TOOLCHAIN_v1.json').read_text())
+          a = p['cli_asset']
+          print(f"url={a['url']}")
+          print(f"name={a['name']}")
+          print(f"sha256={a['sha256']}")
+          print(f"binary={a['binary']}")
+          print(f"release={p['upstream']['release']}")
+          PY
+
+      - name: Verify and probe exact BIMCraft CLI
+        id: probe
+        shell: bash
+        env:
+          BIMCRAFT_URL: ${{ steps.lock.outputs.url }}
+          BIMCRAFT_NAME: ${{ steps.lock.outputs.name }}
+          BIMCRAFT_SHA256: ${{ steps.lock.outputs.sha256 }}
+          BIMCRAFT_BINARY: ${{ steps.lock.outputs.binary }}
+        run: |
+          set -euo pipefail
+          evidence="$RUNNER_TEMP/cew-bimcraft-01"
+          archive="$RUNNER_TEMP/$BIMCRAFT_NAME"
+          root="$RUNNER_TEMP/bimcraft-extracted"
+          mkdir -p "$evidence" "$root"
+
+          curl --fail --location --silent --show-error "$BIMCRAFT_URL" --output "$archive"
+          printf '%s  %s\n' "$BIMCRAFT_SHA256" "$archive" | sha256sum --check | tee "$evidence/asset-sha256.txt"
+          tar -xzf "$archive" -C "$root"
+
+          top="${BIMCRAFT_NAME%.tar.gz}"
+          cli="$root/$top/$BIMCRAFT_BINARY"
+          test -x "$cli"
+          printf '%s\n' "$cli" > "$evidence/cli-path.txt"
+
+          "$cli" --version | tee "$evidence/version.txt"
+          grep -Fx 'bimcraft-cli 0.9.0' "$evidence/version.txt"
+          "$cli" commands > "$evidence/commands.json"
+          "$cli" run --cmd 'inspect {}' > "$evidence/inspect.json"
+
+          python - "$evidence/commands.json" "$evidence/inspect.json" <<'PY'
+          import json, sys
+          commands = json.load(open(sys.argv[1], encoding='utf-8'))
+          inspect = json.load(open(sys.argv[2], encoding='utf-8'))
+          items = commands if isinstance(commands, list) else commands.get('commands', [])
+          ids = {x.get('id') for x in items if isinstance(x, dict)}
+          required = {'level','type','parameter','structural_column','beam','footing','floor','modify','inspect','save'}
+          missing = sorted(required - ids)
+          result = {
+              'required': sorted(required),
+              'observed_count': len(ids),
+              'missing': missing,
+              'inspect_type': type(inspect).__name__,
+          }
+          with open(sys.argv[1] + '.summary.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, indent=2, sort_keys=True)
+          if missing:
+              raise SystemExit('BIMCRAFT_REQUIRED_COMMANDS_MISSING: ' + ','.join(missing))
+          PY
+
+      - name: Upload BIMCraft diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-bimcraft-01-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/cew-bimcraft-01
+          if-no-files-found: warn
+          retention-days: 14
