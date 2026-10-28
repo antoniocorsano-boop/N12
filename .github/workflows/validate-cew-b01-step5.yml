@@ -83,9 +83,9 @@ jobs:
           from cew_b01.review_package import render_review_package
           from cew_b01.source_contract import load_source_contract, materialize_source
 
-          EXPECTED_STEP4_CANDIDATE_COUNT = 364
-          EXPECTED_STEP4_SET_SHA256 = 'af2468711352a216f88bbb97d4182a48e8b82e04afd05b960bfefb24f43f2e5d'
-          EXPECTED_STEP4_BUNDLE_SHA256 = 'd47c0cb10ef8245cc33745f83763ca185179e2083c7d71d7cc6a4b6323fdaec6'
+          EXPECTED_STEP4_CANDIDATE_COUNT = 296
+          EXPECTED_STEP4_SET_SHA256 = '069a70055c782bc7929dde25dbf9156dfcb07354ad3a8065713acaf69b87c1d2'
+          EXPECTED_STEP4_BUNDLE_SHA256 = 'df471767177deb4fa9080a0c31796ac5c011f901369f726aa53e40afdbbd37c1'
           EXPECTED_METHOD = 'OPENCV_DRAWING_GRAMMAR_CANDIDATE_UNION_V3'
 
           runner_temp = Path(os.environ['RUNNER_TEMP'])
