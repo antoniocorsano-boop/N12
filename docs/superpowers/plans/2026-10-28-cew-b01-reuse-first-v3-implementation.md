@@ -9,6 +9,19 @@
 - `governance/repo-memory/CEW_B01_REUSE_DECISION_v1.json`
 - `governance/repo-memory/CEW_CAPABILITY_REGISTRY_v1.json`
 
+## Repository Memory / Reuse Assessment
+
+**Repository-memory retrofit (2026-10-28):** this section was added after activation of the CEW repository-memory gate; it does not rewrite the plan's original decisions.
+
+Consulted capabilities and dispositions:
+- `CEW-CAP-ENG-DRAWING-GRAMMAR-V1` → PORT bounded rules/provenance.
+- `CEW-CAP-OA3-DETERMINISTIC-SIMILARITY-V1` → ADAPT/PORT deterministic similarity; do not reimplement locally.
+- `CEW-CAP-VISUAL-PROTOTYPE-LEARNING-V1` → REUSE human-teaching/prototype-memory contract.
+- `CEW-CAP-ZERO-PRIOR-GRAPHIC-DISCOVERY-V1` → ADAPT structured graphic descriptor/discovery contract.
+- `CEW-CAP-B01-V2-COMPOUND-CELL-DETECTOR` → REUSE unchanged as one candidate channel.
+- `CEW-CAP-B01-CLOSED-FRAME-INTERNAL-MARK-SPIKE` → ADAPT as B01 proposal feature channel only.
+- `CEW-CAP-B01-CANDIDATE-UNION-QUALIFICATION` → BUILD/ADAPT because exact-source B01 union/qualification is task-local.
+
 **Reusable sources:**
 - OA-3 deterministic similarity: PR #116, `a7020bef3934156c917f5bfe975d888c6ba9e684`, `scripts/cew_oa3_deterministic_similarity.py`.
 - Zero-prior structured graphic descriptor / visual-learning contracts: PR #137, `320755e66a7263f1842f73dc14fb9a0ea8ccd7f8`, `scripts/cew_new_project_preacquisition.py` and `scripts/cew_visual_learning.py`.
