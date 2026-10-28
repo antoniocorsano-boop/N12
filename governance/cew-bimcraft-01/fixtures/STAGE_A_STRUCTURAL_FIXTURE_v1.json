@@ -1,0 +1,77 @@
+{
+  "schema_id": "CEW_BIMCRAFT_STAGE_A_FIXTURE",
+  "schema_version": 1,
+  "project": "CEW-BIMCRAFT-01-STAGE-A",
+  "authority": "BENCHMARK_ONLY",
+  "canonical": false,
+  "structural_identity_authorized": false,
+  "units": "mm",
+  "source": {
+    "kind": "synthetic_fixture",
+    "source_ref": "CEW-BIMCRAFT-01-STAGE-A-SYNTHETIC-SOURCE-v1",
+    "sha256": "155988ef53273829f9ac98181095bedf5a5320d4bac207e63e040a3441ebe6e7"
+  },
+  "levels": [
+    {"name": "B0", "elevation": 0},
+    {"name": "L1", "elevation": 3000}
+  ],
+  "types": [
+    {"category": "structuralcolumn", "name": "CEW-COL-400x400", "width": 400, "depth": 400},
+    {"category": "beam", "name": "CEW-BEAM-300x600", "width": 300, "depth": 600},
+    {"category": "footing", "name": "CEW-FOOT-1200x1200", "width": 1200, "depth": 1200}
+  ],
+  "objects": [
+    {
+      "object_id": "SYN-COL-001",
+      "command": "structural_column",
+      "params": {"at": [0, 0], "type": "CEW-COL-400x400", "level": "B0", "top_level": "L1"},
+      "provenance": {
+        "CEW_OBJECT_ID": "SYN-COL-001",
+        "CEW_EVIDENCE_ID": "FIXTURE:SYNTHETIC",
+        "CEW_SOURCE_SHA256": "155988ef53273829f9ac98181095bedf5a5320d4bac207e63e040a3441ebe6e7",
+        "CEW_EPISTEMIC_STATE": "RIF",
+        "CEW_REVISION": "stage-a-v1",
+        "CEW_AUTHORITY": "BENCHMARK_ONLY"
+      }
+    },
+    {
+      "object_id": "SYN-BEAM-001",
+      "command": "beam",
+      "params": {"points": [[0, 0], [5000, 0]], "type": "CEW-BEAM-300x600", "level": "L1", "justify": "top"},
+      "provenance": {
+        "CEW_OBJECT_ID": "SYN-BEAM-001",
+        "CEW_EVIDENCE_ID": "FIXTURE:SYNTHETIC",
+        "CEW_SOURCE_SHA256": "155988ef53273829f9ac98181095bedf5a5320d4bac207e63e040a3441ebe6e7",
+        "CEW_EPISTEMIC_STATE": "RIF",
+        "CEW_REVISION": "stage-a-v1",
+        "CEW_AUTHORITY": "BENCHMARK_ONLY"
+      }
+    },
+    {
+      "object_id": "SYN-FOOT-001",
+      "command": "footing",
+      "params": {"at": [0, 0], "type": "CEW-FOOT-1200x1200", "thickness": 500, "level": "B0", "offset": 0},
+      "provenance": {
+        "CEW_OBJECT_ID": "SYN-FOOT-001",
+        "CEW_EVIDENCE_ID": "FIXTURE:SYNTHETIC",
+        "CEW_SOURCE_SHA256": "155988ef53273829f9ac98181095bedf5a5320d4bac207e63e040a3441ebe6e7",
+        "CEW_EPISTEMIC_STATE": "RIF",
+        "CEW_REVISION": "stage-a-v1",
+        "CEW_AUTHORITY": "BENCHMARK_ONLY"
+      }
+    },
+    {
+      "object_id": "SYN-SLAB-001",
+      "command": "floor",
+      "params": {"boundary": [[0, 0], [5000, 0], [5000, 4000], [0, 4000]], "level": "L1", "structural": true},
+      "provenance": {
+        "CEW_OBJECT_ID": "SYN-SLAB-001",
+        "CEW_EVIDENCE_ID": "FIXTURE:SYNTHETIC",
+        "CEW_SOURCE_SHA256": "155988ef53273829f9ac98181095bedf5a5320d4bac207e63e040a3441ebe6e7",
+        "CEW_EPISTEMIC_STATE": "RIF",
+        "CEW_REVISION": "stage-a-v1",
+        "CEW_AUTHORITY": "BENCHMARK_ONLY"
+      }
+    }
+  ]
+}
