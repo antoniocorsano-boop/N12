@@ -68,6 +68,18 @@ A task that overlaps an existing capability records an explicit decision:
 
 The decision is about implementation reuse, not engineering truth.
 
+### Layer 4 — Enforcement
+
+Repository Memory is active, not advisory-only.
+
+- `automation/validate_cew_repo_memory.py` validates registry integrity, capability references, reuse dispositions and plan compliance.
+- `.github/workflows/validate-cew-repo-memory.yml` runs the validator and its tests on candidate heads.
+- New active CEW implementation plans must contain `## Repository Memory / Reuse Assessment`.
+- Historical plans created before memory activation are not rewritten retroactively. A grandfathered plan is accepted only when `governance/repo-memory/CEW_LEGACY_PLAN_REUSE_ASSESSMENTS_v1.json` records an explicit external reuse assessment bound to valid capability IDs.
+- Hidden filename exceptions in validator code are forbidden: exemptions must be data-governed and inspectable.
+
+The enforcement layer changes development process only. It grants no engineering, evidentiary, structural or canonical authority.
+
 ## Required pre-build lookup
 
 Before adding a new CEW capability, the task owner should answer these questions:
