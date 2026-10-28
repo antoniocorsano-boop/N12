@@ -81,6 +81,7 @@ jobs:
           cli="${candidates[0]}"
           test -x "$cli"
           printf '%s\n' "$cli" > "$evidence/cli-path.txt"
+          printf 'cli_path=%s\n' "$cli" >> "$GITHUB_OUTPUT"
 
           "$cli" --version | tee "$evidence/version.txt"
           grep -Fx 'bimcraft-cli 0.9.0' "$evidence/version.txt"
@@ -93,7 +94,7 @@ jobs:
           inspect = json.load(open(sys.argv[2], encoding='utf-8'))
           items = commands if isinstance(commands, list) else commands.get('commands', [])
           ids = {x.get('id') for x in items if isinstance(x, dict)}
-          required = {'level','type','parameter','structural_column','beam','footing','floor','modify','inspect','save'}
+          required = {'level','type','parameter','structural_column','beam','footing','floor','modify','inspect','elements','save'}
           missing = sorted(required - ids)
           result = {
               'required': sorted(required),
@@ -106,6 +107,54 @@ jobs:
           if missing:
               raise SystemExit('BIMCRAFT_REQUIRED_COMMANDS_MISSING: ' + ','.join(missing))
           PY
+
+      - name: Execute Stage A through BIMCraft MCP
+        shell: bash
+        env:
+          BIMCRAFT_CLI: ${{ steps.probe.outputs.cli_path }}
+        run: |
+          set -euo pipefail
+          evidence="$RUNNER_TEMP/cew-bimcraft-01"
+          mkdir -p "$evidence"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          from cew_bimcraft.command_plan import compile_command_plan, load_benchmark_fixture
+          from cew_bimcraft.mcp_runner import StdioMCPClient, execute_command_plan
+
+          fixture_path = Path('governance/cew-bimcraft-01/fixtures/STAGE_A_STRUCTURAL_FIXTURE_v1.json')
+          fixture = load_benchmark_fixture(fixture_path)
+          plan = compile_command_plan(fixture)
+          evidence = Path(os.environ['RUNNER_TEMP']) / 'cew-bimcraft-01'
+          model_path = evidence / 'stage-a.bimcraft'
+          ifc_path = evidence / 'stage-a.ifc'
+
+          with StdioMCPClient(os.environ['BIMCRAFT_CLI']) as client:
+              tools = client.request('tools/list', {})
+              result = execute_command_plan(client, plan)
+              inspect = client.tool('inspect_model', {})
+              queries = {}
+              for category in ('structuralcolumn', 'beam', 'footing', 'floor'):
+                  queries[category] = client.tool('query_elements', {'category': category, 'limit': 100, 'offset': 0})
+              save_model = client.tool('save', {'path': str(model_path)})
+              save_ifc = client.tool('save', {'path': str(ifc_path)})
+
+          (evidence / 'stage-a-command-plan.json').write_text(plan.canonical_json + '\n', encoding='utf-8')
+          (evidence / 'stage-a-bindings.json').write_text(json.dumps(dict(result.bindings), indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          (evidence / 'stage-a-inspect.json').write_text(json.dumps(inspect, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          (evidence / 'stage-a-queries.json').write_text(json.dumps(queries, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          (evidence / 'stage-a-tools.json').write_text(json.dumps(tools, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          (evidence / 'stage-a-save-results.json').write_text(json.dumps({'model': save_model, 'ifc': save_ifc}, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+
+          if not model_path.is_file() or model_path.stat().st_size == 0:
+              raise SystemExit('BIMCRAFT_STAGE_A_MODEL_NOT_WRITTEN')
+          if not ifc_path.is_file() or ifc_path.stat().st_size == 0:
+              raise SystemExit('BIMCRAFT_STAGE_A_IFC_NOT_WRITTEN')
+          PY
+
+          sha256sum "$evidence/stage-a.bimcraft" "$evidence/stage-a.ifc" | tee "$evidence/stage-a-output-sha256.txt"
 
       - name: Upload BIMCraft diagnostic evidence
         if: always()
