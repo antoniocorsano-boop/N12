@@ -67,6 +67,31 @@ class DrawingMotif:
         return self.width / self.height
 
 
+@dataclass(frozen=True)
+class LocalSymbolFamilyCandidate:
+    family_id: str
+    classification: str
+    prototype_motif_id: str
+    member_motif_ids: tuple[str, ...]
+    semantic_identity: None = None
+
+    def __post_init__(self) -> None:
+        if self.classification not in {"LOCAL_FAMILY", "UNKNOWN"}:
+            raise ValueError("classification must be LOCAL_FAMILY or UNKNOWN")
+        if not self.family_id.startswith("CEW-DGF-"):
+            raise ValueError("family_id must use the CEW drawing-family namespace")
+        if not self.member_motif_ids:
+            raise ValueError("local drawing-family candidate must contain at least one motif")
+        if self.prototype_motif_id not in self.member_motif_ids:
+            raise ValueError("prototype motif must belong to the local family")
+        if self.classification == "UNKNOWN" and len(self.member_motif_ids) != 1:
+            raise ValueError("UNKNOWN drawing-family candidates must be singleton residuals")
+        if self.classification == "LOCAL_FAMILY" and len(self.member_motif_ids) < 2:
+            raise ValueError("LOCAL_FAMILY requires at least two motifs")
+        if self.semantic_identity is not None:
+            raise ValueError("drawing-family discovery cannot assign semantic identity")
+
+
 def _intersection_over_union(
     first: tuple[int, int, int, int],
     second: tuple[int, int, int, int],
@@ -160,9 +185,6 @@ def _context_signature(
     image_height, image_width = binary.shape[:2]
     reach = max(8, int(round(min(width, height) * config.context_band_ratio)))
     side_half = max(2, int(round(min(width, height) * 0.12)))
-    # Candidate contours can follow the inner edge of the closed frame. Leave a
-    # dead zone before measuring external context so the frame itself is not
-    # misread as a structural line on every side.
     frame_dead_zone = max(4, int(round(min(width, height) * 0.10)))
     cx = x + width // 2
     cy = y + height // 2
@@ -335,3 +357,115 @@ def motif_similarity(left: DrawingMotif, right: DrawingMotif) -> float:
         + 0.30 * context_score
     )
     return round(max(0.0, min(1.0, score)), 6)
+
+
+def _validate_similarity_threshold(threshold: float) -> float:
+    if isinstance(threshold, bool) or not isinstance(threshold, (int, float)):
+        raise ValueError("similarity threshold must be numeric")
+    value = float(threshold)
+    if not 0.0 < value <= 1.0:
+        raise ValueError("similarity threshold must be within (0, 1]")
+    return value
+
+
+def _feature_signature(motif: DrawingMotif) -> tuple[Any, ...]:
+    active_context = tuple(1 if value >= 0.03 else 0 for value in motif.context_signature)
+    return (
+        round(motif.aspect_ratio, 6),
+        round(motif.frame_coverage, 6),
+        round(motif.internal_ink_ratio, 6),
+        motif.internal_component_count,
+        int(motif.single_full_span_divider),
+        active_context,
+    )
+
+
+def find_similar(
+    prototype: DrawingMotif,
+    motifs: tuple[DrawingMotif, ...] | list[DrawingMotif],
+    threshold: float,
+) -> tuple[DrawingMotif, ...]:
+    limit = _validate_similarity_threshold(threshold)
+    matches = [
+        item
+        for item in motifs
+        if item.motif_id != prototype.motif_id
+        and motif_similarity(prototype, item) >= limit
+    ]
+    return tuple(sorted(matches, key=lambda item: (_feature_signature(item), item.motif_id)))
+
+
+def _prototype_for_cluster(cluster: tuple[DrawingMotif, ...]) -> DrawingMotif:
+    if len(cluster) == 1:
+        return cluster[0]
+
+    def medoid_key(candidate: DrawingMotif) -> tuple[Any, ...]:
+        peers = [item for item in cluster if item.motif_id != candidate.motif_id]
+        mean_similarity = sum(motif_similarity(candidate, item) for item in peers) / len(peers)
+        return (-round(mean_similarity, 9), _feature_signature(candidate), candidate.motif_id)
+
+    return min(cluster, key=medoid_key)
+
+
+def _family_digest(
+    classification: str,
+    members: tuple[DrawingMotif, ...],
+    threshold: float,
+) -> str:
+    payload = {
+        "classification": classification,
+        "threshold": round(threshold, 9),
+        "features": sorted(_feature_signature(item) for item in members),
+    }
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def discover_local_families(
+    motifs: tuple[DrawingMotif, ...] | list[DrawingMotif],
+    threshold: float,
+) -> tuple[LocalSymbolFamilyCandidate, ...]:
+    limit = _validate_similarity_threshold(threshold)
+    ordered = sorted(motifs, key=lambda item: (_feature_signature(item), item.motif_id))
+    clusters: list[list[DrawingMotif]] = []
+    for motif in ordered:
+        compatible_index: int | None = None
+        for index, cluster in enumerate(clusters):
+            if all(motif_similarity(motif, member) >= limit for member in cluster):
+                compatible_index = index
+                break
+        if compatible_index is None:
+            clusters.append([motif])
+        else:
+            clusters[compatible_index].append(motif)
+
+    families: list[LocalSymbolFamilyCandidate] = []
+    for members in clusters:
+        ordered_members = tuple(sorted(members, key=lambda item: (_feature_signature(item), item.motif_id)))
+        classification = "LOCAL_FAMILY" if len(ordered_members) >= 2 else "UNKNOWN"
+        prototype = _prototype_for_cluster(ordered_members)
+        digest = _family_digest(classification, ordered_members, limit)
+        families.append(
+            LocalSymbolFamilyCandidate(
+                family_id="CEW-DGF-" + digest[:24],
+                classification=classification,
+                prototype_motif_id=prototype.motif_id,
+                member_motif_ids=tuple(sorted(item.motif_id for item in ordered_members)),
+            )
+        )
+
+    return tuple(
+        sorted(
+            families,
+            key=lambda item: (
+                0 if item.classification == "LOCAL_FAMILY" else 1,
+                item.family_id,
+                item.prototype_motif_id,
+            ),
+        )
+    )
