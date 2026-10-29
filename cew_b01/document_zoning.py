@@ -39,6 +39,14 @@ def _ink_mask(image: np.ndarray) -> np.ndarray:
 
 
 def _propose_title_block_bbox(ink: np.ndarray) -> tuple[int, int, int, int] | None:
+    """Propose one dense corner-region without assuming which corner it occupies.
+
+    The proposer is deliberately document-functional rather than structural: it
+    only measures source-local ink density on a coarse grid.  Dense connected
+    cell groups are evaluated symmetrically in all four page quadrants and the
+    strongest corner-near group becomes a *proposal* for Human Review.
+    """
+
     height, width = ink.shape[:2]
     rows = 8
     cols = 8
@@ -47,7 +55,7 @@ def _propose_title_block_bbox(ink: np.ndarray) -> tuple[int, int, int, int] | No
     global_density = float((ink > 0).mean())
     threshold = max(0.08, global_density * 2.0)
 
-    dense_cells: list[tuple[int, int]] = []
+    density_grid = np.zeros((rows, cols), dtype=np.float64)
     for row in range(rows):
         y0 = row * cell_h
         y1 = height if row == rows - 1 else min(height, (row + 1) * cell_h)
@@ -55,23 +63,60 @@ def _propose_title_block_bbox(ink: np.ndarray) -> tuple[int, int, int, int] | No
             x0 = col * cell_w
             x1 = width if col == cols - 1 else min(width, (col + 1) * cell_w)
             region = ink[y0:y1, x0:x1]
-            if not region.size:
-                continue
-            density = float((region > 0).mean())
-            # Document title blocks on the pilot are expected toward the right
-            # and/or lower part of the sheet, but this remains only a proposal.
-            in_candidate_sector = col >= cols // 2 and row >= rows // 2
-            if in_candidate_sector and density >= threshold:
-                dense_cells.append((row, col))
+            if region.size:
+                density_grid[row, col] = float((region > 0).mean())
 
-    if not dense_cells:
+    dense = (density_grid >= threshold).astype(np.uint8)
+    half_row = rows // 2
+    half_col = cols // 2
+    corners = (
+        (0, half_row, 0, half_col, 0, 0),
+        (0, half_row, half_col, cols, 0, cols - 1),
+        (half_row, rows, 0, half_col, rows - 1, 0),
+        (half_row, rows, half_col, cols, rows - 1, cols - 1),
+    )
+
+    candidates: list[tuple[float, int, int, int, int]] = []
+    for row0, row1, col0, col1, corner_row, corner_col in corners:
+        sector = dense[row0:row1, col0:col1]
+        if not np.any(sector):
+            continue
+        component_count, labels = cv2.connectedComponents(sector, connectivity=8)
+        for label in range(1, component_count):
+            local_rows, local_cols = np.where(labels == label)
+            if len(local_rows) < 2:
+                continue
+            grid_rows = local_rows + row0
+            grid_cols = local_cols + col0
+            densities = density_grid[grid_rows, grid_cols]
+            corner_distance = min(
+                abs(int(row) - corner_row) + abs(int(col) - corner_col)
+                for row, col in zip(grid_rows, grid_cols)
+            )
+            # A title block is expected near a page corner, but not necessarily
+            # touching the exact outermost cell because scans often include a
+            # border/margin.  Farther clusters remain reviewable graphics, not
+            # title-block proposals.
+            if corner_distance > 2:
+                continue
+            score = float(len(grid_rows)) * float(densities.mean()) / (1.0 + 0.25 * corner_distance)
+            candidates.append(
+                (
+                    score,
+                    int(grid_rows.min()),
+                    int(grid_rows.max()),
+                    int(grid_cols.min()),
+                    int(grid_cols.max()),
+                )
+            )
+
+    if not candidates:
         return None
 
-    min_row = min(row for row, _ in dense_cells)
-    max_row = max(row for row, _ in dense_cells)
-    min_col = min(col for _, col in dense_cells)
-    max_col = max(col for _, col in dense_cells)
-
+    _, min_row, max_row, min_col, max_col = max(
+        candidates,
+        key=lambda item: (item[0], -item[1], -item[3], item[2] - item[1], item[4] - item[3]),
+    )
     x0 = min_col * cell_w
     y0 = min_row * cell_h
     x1 = width if max_col == cols - 1 else min(width, (max_col + 1) * cell_w)
@@ -132,7 +177,7 @@ def propose_document_zones(
                 width=tw,
                 height=th,
                 kind=DocumentRegionKind.TITLE_BLOCK,
-                method="G0_DENSE_ORTHOGONAL_GRID_PROPOSAL_V1",
+                method="G0_DENSE_CORNER_GRID_PROPOSAL_V2",
                 human_confirmed=False,
             )
         )
