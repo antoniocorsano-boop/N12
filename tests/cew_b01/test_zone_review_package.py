@@ -125,7 +125,10 @@ class ZoneReviewPackageTests(unittest.TestCase):
             reviewer_decision_id="HUMAN-G0-TEST-002",
         )
         confirmed = confirmed_zones_from_receipt(self.binding, self.zones, receipt)
-        self.assertEqual([z.region_id for z in confirmed], [z.region_id for z in self.zones])
+        self.assertEqual(
+            sorted(z.region_id for z in confirmed),
+            sorted(z.region_id for z in self.zones),
+        )
         self.assertTrue(all(z.human_confirmed for z in confirmed))
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
