@@ -1,0 +1,25 @@
+{
+  "schema": "TAV5_DOCUMENT_ZONE_REVIEW_RECEIPT_v1",
+  "decision": "CONFIRMED_FOR_G0_DOCUMENT_FUNCTION_ONLY",
+  "reviewer_decision_id": "PR165-COMMENT-6499220555",
+  "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+  "page_index": 0,
+  "raster_sha256": "474ed6c3958d8841b95b1ca9cdfb7702ec552204a30a4de6b646ec1e5f391406",
+  "raster_png_sha256": "3824aedb8d144ca8eab031b82ea8a8ef5419b992951bf98fd7ec651219b217d4",
+  "zone_set_digest": "8a5ad3b57790de12a7b6ba52cdf8b5cdaeb0fc8c814af875b4f7fcef690c3127",
+  "confirmed_region_ids": [
+    "CEW-B01-ZONE-4703537445f40a83045c705a",
+    "CEW-B01-ZONE-a4d60553be44e5ba08dbd3b3",
+    "CEW-B01-ZONE-5e514b89a3b2f98656e3f99d",
+    "CEW-B01-ZONE-45dca2299bdff31353962423"
+  ],
+  "authority_effect": "DOCUMENT_FUNCTION_CLASSIFICATION_ONLY",
+  "structural_identity_authorized": false,
+  "canonical_write_authorized": false,
+  "decision_provenance": {
+    "channel": "HUMAN_DIRECTED_CHAT_REVIEW",
+    "recorded_on": "2026-10-29",
+    "pr_comment_id": 6499220555,
+    "scope": "G0_DOCUMENT_ZONING_ONLY"
+  }
+}
