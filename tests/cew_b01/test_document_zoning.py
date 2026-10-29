@@ -95,6 +95,20 @@ class DocumentZoningTests(unittest.TestCase):
             cv2.line(image, (2, y), (76, y), 0, 1)
         return image
 
+    def _synthetic_upper_left_title_block_after_blank_margin(self) -> np.ndarray:
+        image = np.full((120, 200), 255, dtype=np.uint8)
+        for x in (90, 125, 160):
+            cv2.line(image, (x, 55), (x, 110), 0, 2)
+        for y in (65, 90, 108):
+            cv2.line(image, (75, y), (190, y), 0, 2)
+        # The top blank strip is document margin and must not become TITLE_BLOCK.
+        cv2.rectangle(image, (2, 10), (76, 46), 0, 2)
+        for x in range(8, 76, 10):
+            cv2.line(image, (x, 10), (x, 46), 0, 1)
+        for y in range(16, 46, 7):
+            cv2.line(image, (2, y), (76, y), 0, 1)
+        return image
+
     def test_same_raster_produces_deterministic_document_zone_proposals(self) -> None:
         image = self._synthetic_sheet()
         with tempfile.TemporaryDirectory() as tmp:
@@ -121,6 +135,16 @@ class DocumentZoningTests(unittest.TestCase):
         title = title_blocks[0]
         self.assertLess(title.x, 100)
         self.assertLess(title.y, 60)
+
+    def test_title_block_proposal_does_not_absorb_leading_blank_margin(self) -> None:
+        image = self._synthetic_upper_left_title_block_after_blank_margin()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "sheet-upper-left-with-margin.png"
+            self.assertTrue(cv2.imwrite(str(path), image))
+            zones = propose_document_zones(self.binding, path)
+        title_blocks = [zone for zone in zones if zone.kind == DocumentRegionKind.TITLE_BLOCK]
+        self.assertEqual(len(title_blocks), 1)
+        self.assertGreater(title_blocks[0].y, 0)
 
     def test_overlap_between_exclusion_and_workarea_fails_closed(self) -> None:
         zones = (
