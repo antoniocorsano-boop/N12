@@ -109,6 +109,28 @@ class DocumentZoningTests(unittest.TestCase):
             cv2.line(image, (2, y), (76, y), 0, 1)
         return image
 
+    def _synthetic_upper_left_title_block_with_sparse_header(self) -> np.ndarray:
+        image = np.full((120, 200), 255, dtype=np.uint8)
+        for x in (95, 130, 165):
+            cv2.line(image, (x, 58), (x, 112), 0, 2)
+        for y in (68, 92, 108):
+            cv2.line(image, (82, y), (192, y), 0, 2)
+
+        # True blank page margin above the title block.
+        # The title block itself begins at y=6 with a deliberately sparse header:
+        # too little ink to qualify as a dense grid cell, but still contiguous
+        # document-function content that must be excluded with the dense body.
+        cv2.line(image, (3, 6), (3, 13), 0, 1)
+        cv2.line(image, (12, 8), (28, 8), 0, 1)
+        cv2.line(image, (42, 11), (66, 11), 0, 1)
+
+        cv2.rectangle(image, (3, 14), (76, 48), 0, 2)
+        for x in range(9, 76, 9):
+            cv2.line(image, (x, 14), (x, 48), 0, 1)
+        for y in range(19, 48, 6):
+            cv2.line(image, (3, y), (76, y), 0, 1)
+        return image
+
     def test_same_raster_produces_deterministic_document_zone_proposals(self) -> None:
         image = self._synthetic_sheet()
         with tempfile.TemporaryDirectory() as tmp:
@@ -145,6 +167,18 @@ class DocumentZoningTests(unittest.TestCase):
         title_blocks = [zone for zone in zones if zone.kind == DocumentRegionKind.TITLE_BLOCK]
         self.assertEqual(len(title_blocks), 1)
         self.assertGreater(title_blocks[0].y, 0)
+
+    def test_title_block_proposal_includes_sparse_header_but_keeps_true_blank_margin_out(self) -> None:
+        image = self._synthetic_upper_left_title_block_with_sparse_header()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "sheet-upper-left-sparse-header.png"
+            self.assertTrue(cv2.imwrite(str(path), image))
+            zones = propose_document_zones(self.binding, path)
+        title_blocks = [zone for zone in zones if zone.kind == DocumentRegionKind.TITLE_BLOCK]
+        self.assertEqual(len(title_blocks), 1)
+        title = title_blocks[0]
+        self.assertGreater(title.y, 0)
+        self.assertLessEqual(title.y, 7)
 
     def test_overlap_between_exclusion_and_workarea_fails_closed(self) -> None:
         zones = (
