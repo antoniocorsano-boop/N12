@@ -58,7 +58,7 @@ jobs:
           set -euo pipefail
           git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
 
-      - name: Generate exact-TAV5 G0 zone review package
+      - name: Generate exact-TAV5 G0 confirmed zone package
         shell: bash
         run: |
           set -euo pipefail
@@ -73,7 +73,11 @@ jobs:
           from cew_b01.grammar_schema import DocumentRegionKind
           from cew_b01.pdf_probe import probe_pdf
           from cew_b01.source_contract import load_source_contract, materialize_source
-          from cew_b01.zone_review_package import render_zone_review_package, zone_set_digest
+          from cew_b01.zone_review_package import (
+              confirmed_zones_from_receipt,
+              render_zone_review_package,
+              zone_set_digest,
+          )
 
           runner_temp = Path(os.environ['RUNNER_TEMP'])
           contract = load_source_contract('governance/cew-b01/N12_TAV5_SOURCE_v1.json')
@@ -88,23 +92,37 @@ jobs:
           binding = Task3RasterBinding.from_probe_mapping(probe.to_mapping())
           raster_path = step3_dir / 'tav5-page0-300dpi.png'
 
-          zones = propose_document_zones(binding, raster_path)
+          proposed_zones = propose_document_zones(binding, raster_path)
+          receipt = json.loads(
+              Path('governance/cew-b01/TAV5_DOCUMENT_ZONE_REVIEW_v1.json').read_text(encoding='utf-8')
+          )
+          zones = confirmed_zones_from_receipt(binding, proposed_zones, receipt)
+
           title_blocks = [z for z in zones if z.kind == DocumentRegionKind.TITLE_BLOCK]
           workareas = [z for z in zones if z.kind == DocumentRegionKind.STRUCTURAL_WORKAREA]
-          assert len(title_blocks) == 1, f'G0 requires exactly one proposed TITLE_BLOCK, got {len(title_blocks)}'
-          assert workareas, 'G0 requires at least one proposed STRUCTURAL_WORKAREA'
-          assert all(z.human_confirmed is False for z in zones)
+          assert len(title_blocks) == 1, f'G0 requires exactly one confirmed TITLE_BLOCK, got {len(title_blocks)}'
+          assert workareas, 'G0 requires at least one confirmed STRUCTURAL_WORKAREA'
+          assert all(z.human_confirmed is True for z in zones)
           assert all(z.structural_identity_authorized is False for z in zones)
           assert all(z.canonical_write_authorized is False for z in zones)
 
           output_dir = Path('evidence/cew-b01/g0-zone-review')
-          result = render_zone_review_package(binding, raster_path, zones, output_dir)
+          result = render_zone_review_package(
+              binding,
+              raster_path,
+              zones,
+              output_dir,
+              confirmation_receipt=receipt,
+          )
           manifest = json.loads(Path(result['manifest_path']).read_text(encoding='utf-8'))
-          assert manifest['review_state'] == 'PENDING_HUMAN_ZONE_REVIEW'
-          assert manifest['g0_document_zoning_pass'] is False
+          assert manifest['review_state'] == 'G0_DOCUMENT_ZONING_PASS'
+          assert manifest['g0_document_zoning_pass'] is True
           assert manifest['source']['sha256'] == materialized.sha256
           assert manifest['raster']['png_sha256'] == binding.png_sha256
           assert manifest['zone_set_digest'] == zone_set_digest(zones)
+          assert manifest['authority']['authority_effect'] == 'DOCUMENT_FUNCTION_CLASSIFICATION_ONLY'
+          assert manifest['authority']['structural_identity_authorized'] is False
+          assert manifest['authority']['canonical_write_authorized'] is False
 
           summary = {
               'step': 'CEW-B01-G0-DOCUMENT-ZONING',
@@ -118,7 +136,8 @@ jobs:
               'structural_workarea_count': len(workareas),
               'title_block_geometry': title_blocks[0].to_mapping()['geometry'],
               'review_state': manifest['review_state'],
-              'g0_document_zoning_pass': False,
+              'g0_document_zoning_pass': True,
+              'reviewer_decision_id': receipt['reviewer_decision_id'],
               'structural_identity_authorized': False,
               'canonical_write_authorized': False,
               'historical_object_oracle_used': False,
