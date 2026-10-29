@@ -32,8 +32,6 @@ def _read_grayscale(binding: Task3RasterBinding, raster_path: Path) -> np.ndarra
 
 
 def _ink_mask(image: np.ndarray) -> np.ndarray:
-    # Otsu keeps the proposer source-local and deterministic while avoiding
-    # dependence on any structural detector or historical object oracle.
     _, binary = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
     return binary
 
@@ -44,8 +42,6 @@ def _first_sustained_support(
     support_floor: int,
     gap_tolerance: int,
 ) -> tuple[int, int] | None:
-    """Return the first/last supported bins after closing short scan/text gaps."""
-
     if projection.size == 0:
         return None
     support = (projection >= max(1, support_floor)).astype(np.uint8).reshape(-1, 1)
@@ -70,13 +66,7 @@ def _refine_outward_title_block_bbox(
     cell_h: int,
     cell_w: int,
 ) -> tuple[int, int, int, int]:
-    """Refine only page-facing title-block edges below the coarse-grid scale.
-
-    The dense 16x16 grid is intentionally retained as the region locator. This
-    second pass only resolves the page-facing edge inside/adjacent to the coarse
-    cell so a real blank scan margin is not confused with sparse title-block
-    header text. It never expands the inward edge toward the structural drawing.
-    """
+    """Refine only page-facing title-block edges below the coarse-grid scale."""
 
     height, width = ink.shape[:2]
     x, y, w, h = coarse_bbox
@@ -87,12 +77,12 @@ def _refine_outward_title_block_bbox(
     top_facing = y <= height - y2
 
     global_density = float((ink > 0).mean())
-    low_density = max(0.0015, min(0.015, global_density * 0.20))
+    # This pass intentionally has much higher recall than the coarse locator.
+    # Its search is bounded to one coarse cell around a page-facing edge, so it
+    # can retain sparse header text without granting permission to expand inward
+    # into the structural workarea.
+    low_density = max(0.00075, min(0.008, global_density * 0.10))
 
-    # Refine top/bottom page-facing edge using a window one coarse cell beyond
-    # and one coarse cell inside the detected body. The orthogonal span stays
-    # fixed to the coarse candidate so unrelated page graphics cannot pull the
-    # boundary toward the workarea.
     if top_facing:
         sy0 = max(0, y - cell_h)
         sy1 = min(height, y + cell_h)
@@ -128,7 +118,6 @@ def _refine_outward_title_block_bbox(
                     h = refined_y2 - y
                     y2 = refined_y2
 
-    # Recompute vertical extent before refining the horizontal page-facing edge.
     y2 = y + h
     if left_facing:
         sx0 = max(0, x - cell_w)
@@ -172,12 +161,7 @@ def _refine_outward_title_block_bbox(
 
 
 def _propose_title_block_bbox(ink: np.ndarray) -> tuple[int, int, int, int] | None:
-    """Propose one dense corner-region without assuming which corner it occupies.
-
-    The 16x16 grid localises a dense document-function region. A bounded
-    sub-cell pass then refines only its page-facing edges so sparse title-block
-    headers are retained while true blank page margins stay outside the mask.
-    """
+    """Propose one dense corner-region without assuming which corner it occupies."""
 
     height, width = ink.shape[:2]
     rows = 16
