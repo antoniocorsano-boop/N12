@@ -42,14 +42,16 @@ def _propose_title_block_bbox(ink: np.ndarray) -> tuple[int, int, int, int] | No
     """Propose one dense corner-region without assuming which corner it occupies.
 
     The proposer is deliberately document-functional rather than structural: it
-    only measures source-local ink density on a coarse grid.  Dense connected
-    cell groups are evaluated symmetrically in all four page quadrants and the
-    strongest corner-near group becomes a *proposal* for Human Review.
+    only measures source-local ink density on a moderately fine grid. Dense
+    connected cell groups are evaluated symmetrically in all four page
+    quadrants and the strongest corner-near group becomes a *proposal* for
+    Human Review. The 16x16 grid is fine enough to avoid folding a leading
+    blank page margin into the title-block proposal on the TAV.5 pilot.
     """
 
     height, width = ink.shape[:2]
-    rows = 8
-    cols = 8
+    rows = 16
+    cols = 16
     cell_h = max(1, height // rows)
     cell_w = max(1, width // cols)
     global_density = float((ink > 0).mean())
@@ -95,7 +97,7 @@ def _propose_title_block_bbox(ink: np.ndarray) -> tuple[int, int, int, int] | No
             )
             # A title block is expected near a page corner, but not necessarily
             # touching the exact outermost cell because scans often include a
-            # border/margin.  Farther clusters remain reviewable graphics, not
+            # border/margin. Farther clusters remain reviewable graphics, not
             # title-block proposals.
             if corner_distance > 2:
                 continue
@@ -177,7 +179,7 @@ def propose_document_zones(
                 width=tw,
                 height=th,
                 kind=DocumentRegionKind.TITLE_BLOCK,
-                method="G0_DENSE_CORNER_GRID_PROPOSAL_V2",
+                method="G0_DENSE_CORNER_GRID_PROPOSAL_V3",
                 human_confirmed=False,
             )
         )
