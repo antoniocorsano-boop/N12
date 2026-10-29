@@ -83,9 +83,41 @@ The evidence therefore supports the following refined sequence:
 
 The coalescence step is not allowed to delete provenance. Each bundle must retain every original `primitive_id`, detector, geometry and source locator.
 
+## G2A0 execution on the same eight frozen seeds
+
+The bounded G2A0 step was implemented with a dedicated RED→GREEN gate. The RED run failed causally because `g2a0_observation_bundles` and `g2_composition_bundled_compare` did not exist. After implementation, `CEW-B01 G2A0 Pilot Unit Gate` and `CEW Repository Memory Gate` both passed on exact head `68196cdd1a611b7fca3665df3d7fc68c31d339e9`.
+
+Two byte-identical real-source replays over the exact `5,633`-primitive census produced result SHA-256:
+
+`7a0176ef117daf7302e117b6ec2e02dd6887afee05b17fa76e209f9a35e4d909`
+
+| Candidate | Raw CORE observations | G2A0 CORE bundles | Recoverable original observations |
+|---|---:|---:|---:|
+| C1 | 3 | 3 | 3 |
+| C2 | 24 | 5 | 45 |
+| C3 | 1 | 1 | 1 |
+| C4 | 2 | 2 | 2 |
+| C5 | 1 | 1 | 1 |
+| C6 | 24 | 5 | 29 |
+| C7 | 4 | 4 | 4 |
+| C8 | 10 | 10 | 10 |
+
+The important interpretation is not that C2 or C6 have 45 or 29 symbolic parts. The opposite is demonstrated: many G1 observations describe the same local graphic event. G2A0 reduces the graph-node cardinality from `24 -> 5` for both saturated candidates while retaining complete provenance back to all original observations.
+
+The expanded counts also show that the old raw `24` cap had truncated membership: after coalescence, the selected bundles expand to more than 24 original G1 observations. Therefore the raw cap cannot be used as a completeness or symbolic-cardinality oracle.
+
+## Remaining residual after G2A0
+
+The micro-atlas after coalescence shows that G2A0 solves observation duplication but does **not** by itself solve the CORE/CONTEXT boundary. In particular, some large `RECTILINEAR_CLOSED_SHAPE` or `COMPLEX_GRAPHIC_GROUP` neighbours still enter the candidate CORE because they overlap or touch the seed region.
+
+This is deliberately left as a separate G2B problem. Tightening G2A0 to remove those objects would mix two responsibilities: equivalence of observations and composition membership.
+
 ## What this proves / does not prove
 
-This spike supports introducing a distinct experimental G2 composition layer and, before it, a neutral observation-bundling step.
+The eight-seed experiment now supports both of these statements:
+
+1. primitive-level recurrence is not sufficient to define a compound symbol family;
+2. graph composition must operate on provenance-preserving coalesced observations rather than raw G1 observation cardinality.
 
 It does **not** prove that any candidate is a beam, column, node, section, reinforcement symbol, dimension or other technical object. It does not authorize G3, structural identity, canonical writes or merge.
 
@@ -93,12 +125,12 @@ It does **not** prove that any candidate is a beam, column, node, section, reinf
 
 Do not scale to the full corpus yet.
 
-On the same eight frozen seeds:
+Keep the same eight seeds and G2A0 bundles frozen. The next experiment is only **G2B CORE/CONTEXT boundary refinement**:
 
-1. implement neutral co-spatial bundling of overlapping/near-coincident derived observations;
-2. rebuild the relation graph over bundles rather than raw observations;
+1. distinguish local symbol nucleus from attached/overlapping long structural geometry and larger closed/complex neighbours;
+2. keep those rejected neighbours explicitly in `CONTEXT`, never discard them;
 3. regenerate the same eight-candidate micro-atlas;
-4. compare `before / after` CORE size and envelope growth;
-5. ask only for human decisions `SAME_CONFIGURATION / DIFFERENT_CONFIGURATION / ARTIFACT / NON_SIGNIFICANT / UNCERTAIN`.
+4. compare only candidate nucleus stability, context preservation and envelope growth;
+5. submit the eight candidates to human review with decisions limited to `SAME_CONFIGURATION / DIFFERENT_CONFIGURATION / ARTIFACT / NON_SIGNIFICANT / UNCERTAIN`.
 
-Only if the revised candidates remain visually coherent without cap saturation should G2B be generalized beyond this eight-element pilot.
+Only after that review should candidate-family induction be generalized beyond this eight-element pilot.
