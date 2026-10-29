@@ -38,15 +38,145 @@ def _ink_mask(image: np.ndarray) -> np.ndarray:
     return binary
 
 
+def _first_sustained_support(
+    projection: np.ndarray,
+    *,
+    support_floor: int,
+    gap_tolerance: int,
+) -> tuple[int, int] | None:
+    """Return the first/last supported bins after closing short scan/text gaps."""
+
+    if projection.size == 0:
+        return None
+    support = (projection >= max(1, support_floor)).astype(np.uint8).reshape(-1, 1)
+    if not np.any(support):
+        return None
+    kernel_size = max(1, int(gap_tolerance) * 2 + 1)
+    if kernel_size > 1:
+        kernel = np.ones((kernel_size, 1), dtype=np.uint8)
+        support = cv2.morphologyEx(support, cv2.MORPH_CLOSE, kernel).reshape(-1)
+    else:
+        support = support.reshape(-1)
+    indices = np.flatnonzero(support)
+    if indices.size == 0:
+        return None
+    return int(indices.min()), int(indices.max())
+
+
+def _refine_outward_title_block_bbox(
+    ink: np.ndarray,
+    coarse_bbox: tuple[int, int, int, int],
+    *,
+    cell_h: int,
+    cell_w: int,
+) -> tuple[int, int, int, int]:
+    """Refine only page-facing title-block edges below the coarse-grid scale.
+
+    The dense 16x16 grid is intentionally retained as the region locator. This
+    second pass only resolves the page-facing edge inside/adjacent to the coarse
+    cell so a real blank scan margin is not confused with sparse title-block
+    header text. It never expands the inward edge toward the structural drawing.
+    """
+
+    height, width = ink.shape[:2]
+    x, y, w, h = coarse_bbox
+    x2 = x + w
+    y2 = y + h
+
+    left_facing = x <= width - x2
+    top_facing = y <= height - y2
+
+    global_density = float((ink > 0).mean())
+    low_density = max(0.0015, min(0.015, global_density * 0.20))
+
+    # Refine top/bottom page-facing edge using a window one coarse cell beyond
+    # and one coarse cell inside the detected body. The orthogonal span stays
+    # fixed to the coarse candidate so unrelated page graphics cannot pull the
+    # boundary toward the workarea.
+    if top_facing:
+        sy0 = max(0, y - cell_h)
+        sy1 = min(height, y + cell_h)
+        strip = ink[sy0:sy1, x:x2] > 0
+        if strip.size:
+            support_floor = max(1, int(np.ceil(strip.shape[1] * low_density)))
+            support = _first_sustained_support(
+                strip.sum(axis=1),
+                support_floor=support_floor,
+                gap_tolerance=max(1, cell_h // 16),
+            )
+            if support is not None:
+                first, _last = support
+                refined_y = sy0 + first
+                if refined_y < y2:
+                    y = refined_y
+                    h = y2 - y
+    else:
+        sy0 = max(0, y2 - cell_h)
+        sy1 = min(height, y2 + cell_h)
+        strip = ink[sy0:sy1, x:x2] > 0
+        if strip.size:
+            support_floor = max(1, int(np.ceil(strip.shape[1] * low_density)))
+            support = _first_sustained_support(
+                strip.sum(axis=1),
+                support_floor=support_floor,
+                gap_tolerance=max(1, cell_h // 16),
+            )
+            if support is not None:
+                _first, last = support
+                refined_y2 = sy0 + last + 1
+                if refined_y2 > y:
+                    h = refined_y2 - y
+                    y2 = refined_y2
+
+    # Recompute vertical extent before refining the horizontal page-facing edge.
+    y2 = y + h
+    if left_facing:
+        sx0 = max(0, x - cell_w)
+        sx1 = min(width, x + cell_w)
+        strip = ink[y:y2, sx0:sx1] > 0
+        if strip.size:
+            support_floor = max(1, int(np.ceil(strip.shape[0] * low_density)))
+            support = _first_sustained_support(
+                strip.sum(axis=0),
+                support_floor=support_floor,
+                gap_tolerance=max(1, cell_w // 16),
+            )
+            if support is not None:
+                first, _last = support
+                refined_x = sx0 + first
+                if refined_x < x2:
+                    x = refined_x
+                    w = x2 - x
+    else:
+        sx0 = max(0, x2 - cell_w)
+        sx1 = min(width, x2 + cell_w)
+        strip = ink[y:y2, sx0:sx1] > 0
+        if strip.size:
+            support_floor = max(1, int(np.ceil(strip.shape[0] * low_density)))
+            support = _first_sustained_support(
+                strip.sum(axis=0),
+                support_floor=support_floor,
+                gap_tolerance=max(1, cell_w // 16),
+            )
+            if support is not None:
+                _first, last = support
+                refined_x2 = sx0 + last + 1
+                if refined_x2 > x:
+                    w = refined_x2 - x
+
+    x = max(0, min(int(x), width - 1))
+    y = max(0, min(int(y), height - 1))
+    w = max(1, min(int(w), width - x))
+    h = max(1, min(int(h), height - y))
+    return x, y, w, h
+
+
 def _propose_title_block_bbox(ink: np.ndarray) -> tuple[int, int, int, int] | None:
     """Propose one dense corner-region without assuming which corner it occupies.
 
-    The proposer is deliberately document-functional rather than structural: it
-    only measures source-local ink density on a moderately fine grid. Dense
-    connected cell groups are evaluated symmetrically in all four page
-    quadrants and the strongest corner-near group becomes a *proposal* for
-    Human Review. The 16x16 grid is fine enough to avoid folding a leading
-    blank page margin into the title-block proposal on the TAV.5 pilot.
+    The 16x16 grid localises a dense document-function region. A bounded
+    sub-cell pass then refines only its page-facing edges so sparse title-block
+    headers are retained while true blank page margins stay outside the mask.
     """
 
     height, width = ink.shape[:2]
@@ -95,10 +225,6 @@ def _propose_title_block_bbox(ink: np.ndarray) -> tuple[int, int, int, int] | No
                 abs(int(row) - corner_row) + abs(int(col) - corner_col)
                 for row, col in zip(grid_rows, grid_cols)
             )
-            # A title block is expected near a page corner, but not necessarily
-            # touching the exact outermost cell because scans often include a
-            # border/margin. Farther clusters remain reviewable graphics, not
-            # title-block proposals.
             if corner_distance > 2:
                 continue
             score = float(len(grid_rows)) * float(densities.mean()) / (1.0 + 0.25 * corner_distance)
@@ -125,7 +251,12 @@ def _propose_title_block_bbox(ink: np.ndarray) -> tuple[int, int, int, int] | No
     y1 = height if max_row == rows - 1 else min(height, (max_row + 1) * cell_h)
     if x1 <= x0 or y1 <= y0:
         return None
-    return (x0, y0, x1 - x0, y1 - y0)
+    return _refine_outward_title_block_bbox(
+        ink,
+        (x0, y0, x1 - x0, y1 - y0),
+        cell_h=cell_h,
+        cell_w=cell_w,
+    )
 
 
 def _workareas_around_exclusion(
@@ -179,7 +310,7 @@ def propose_document_zones(
                 width=tw,
                 height=th,
                 kind=DocumentRegionKind.TITLE_BLOCK,
-                method="G0_DENSE_CORNER_GRID_PROPOSAL_V3",
+                method="G0_DENSE_CORNER_GRID_SUBCELL_PROPOSAL_V4",
                 human_confirmed=False,
             )
         )
