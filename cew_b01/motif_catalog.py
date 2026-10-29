@@ -4,7 +4,7 @@ import json
 from collections import defaultdict
 from typing import Iterable
 
-from .grammar_schema import GraphicPrimitiveObservation, PrimitiveFamily, RecurringMotif
+from .grammar_schema import GraphicPrimitiveObservation, RecurringMotif
 
 
 def _quantize(value: object, step: float) -> float | None:
@@ -68,22 +68,9 @@ def neutral_descriptor_for_primitive(item: GraphicPrimitiveObservation) -> dict[
     if isinstance(near_v, bool):
         descriptor["near_vertical_endpoint"] = near_v
 
-    # For UNKNOWN / complex groups preserve a coarse density + aspect signature
-    # so recurring unclassified graphics remain visible instead of collapsing
-    # into one global UNKNOWN bucket.
-    if item.family in {PrimitiveFamily.UNKNOWN_GRAPHIC_GROUP, PrimitiveFamily.COMPLEX_GRAPHIC_GROUP, PrimitiveFamily.TEXT_BLOCK}:
-        area = signature.get("component_area")
-        if isinstance(area, int) and area > 0:
-            # Size class is logarithmic/coarse and therefore scale-tolerant.
-            if area < 64:
-                descriptor["component_size_class"] = "XS"
-            elif area < 256:
-                descriptor["component_size_class"] = "S"
-            elif area < 1024:
-                descriptor["component_size_class"] = "M"
-            else:
-                descriptor["component_size_class"] = "L"
-
+    # Deliberately exclude absolute component area/length. Recurrence discovery
+    # must stay invariant to translation and uniform scale; density/aspect bins
+    # already preserve useful neutral shape information for UNKNOWN groups.
     return descriptor
 
 
