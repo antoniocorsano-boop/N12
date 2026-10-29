@@ -303,11 +303,15 @@ def _family_summary(motifs: Sequence[RecurringMotif]) -> dict[str, dict[str, int
         families[str(motif.neutral_descriptor.get("family", "UNKNOWN"))].append(motif)
     summary: dict[str, dict[str, int]] = {}
     for family, items in sorted(families.items()):
+        is_unknown_family = family == PrimitiveFamily.UNKNOWN_GRAPHIC_GROUP.value
         summary[family] = {
             "motif_count": len(items),
             "recurring_motif_count": sum(item.occurrence_count >= 2 for item in items),
             "singleton_motif_count": sum(item.occurrence_count == 1 for item in items),
-            "priority_review_motif_count": sum(item.occurrence_count >= _PRIORITY_REVIEW_MIN_OCCURRENCES for item in items),
+            "priority_review_motif_count": sum(
+                is_unknown_family or item.occurrence_count >= _PRIORITY_REVIEW_MIN_OCCURRENCES
+                for item in items
+            ),
         }
     return summary
 
@@ -317,8 +321,8 @@ def _priority_review_motifs(motifs: Sequence[RecurringMotif]) -> tuple[Recurring
     for motif in motifs:
         family = motif.neutral_descriptor.get("family")
         is_priority_recurring = motif.occurrence_count >= _PRIORITY_REVIEW_MIN_OCCURRENCES
-        is_recurring_unknown = family == PrimitiveFamily.UNKNOWN_GRAPHIC_GROUP.value and motif.occurrence_count >= 2
-        if is_priority_recurring or is_recurring_unknown:
+        is_unknown = family == PrimitiveFamily.UNKNOWN_GRAPHIC_GROUP.value
+        if is_priority_recurring or is_unknown:
             selected.append(motif)
     return tuple(
         sorted(
@@ -416,7 +420,7 @@ def render_grammar_foundation_review_package(
             "priority_review_min_occurrences": _PRIORITY_REVIEW_MIN_OCCURRENCES,
             "priority_threshold_is_presentation_only": True,
             "singletons_retained_in_catalog": True,
-            "recurring_unknowns_always_prioritized": True,
+            "unknown_motifs_always_prioritized": True,
             "priority_atlas_does_not_imply_functional_classification": True,
         },
         "coverage": {
