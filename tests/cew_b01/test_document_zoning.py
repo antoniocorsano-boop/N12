@@ -67,12 +67,10 @@ class DocumentZoningTests(unittest.TestCase):
 
     def _synthetic_sheet(self) -> np.ndarray:
         image = np.full((120, 200), 255, dtype=np.uint8)
-        # Sparse structural linework in the left / central workarea.
         for x in (20, 55, 90, 125):
             cv2.line(image, (x, 15), (x, 100), 0, 2)
         for y in (25, 60, 95):
             cv2.line(image, (12, y), (135, y), 0, 2)
-        # Dense orthogonal title-block grid in the lower-right corner.
         cv2.rectangle(image, (145, 72), (196, 116), 0, 2)
         for x in range(150, 196, 10):
             cv2.line(image, (x, 72), (x, 116), 0, 1)
@@ -82,12 +80,10 @@ class DocumentZoningTests(unittest.TestCase):
 
     def _synthetic_upper_left_title_block(self) -> np.ndarray:
         image = np.full((120, 200), 255, dtype=np.uint8)
-        # Structural linework occupies the right and lower portions.
         for x in (90, 125, 160):
             cv2.line(image, (x, 35), (x, 110), 0, 2)
         for y in (45, 75, 105):
             cv2.line(image, (75, y), (190, y), 0, 2)
-        # Dense title-block-like region in the upper-left corner.
         cv2.rectangle(image, (2, 2), (76, 38), 0, 2)
         for x in range(8, 76, 10):
             cv2.line(image, (x, 2), (x, 38), 0, 1)
@@ -101,7 +97,6 @@ class DocumentZoningTests(unittest.TestCase):
             cv2.line(image, (x, 55), (x, 110), 0, 2)
         for y in (65, 90, 108):
             cv2.line(image, (75, y), (190, y), 0, 2)
-        # The top blank strip is document margin and must not become TITLE_BLOCK.
         cv2.rectangle(image, (2, 10), (76, 46), 0, 2)
         for x in range(8, 76, 10):
             cv2.line(image, (x, 10), (x, 46), 0, 1)
@@ -121,25 +116,21 @@ class DocumentZoningTests(unittest.TestCase):
             renderer_tool_version="4.30.0",
         )
 
-        # Structural linework is remote from the upper-left title block.
         for x in (420, 540, 660):
             cv2.line(image, (x, 165), (x, 440), 0, 3)
         for y in (190, 300, 410):
             cv2.line(image, (360, y), (760, y), 0, 3)
 
-        # Real blank margin: y=0..29.
-        # Sparse header: y=30..89. With a 16x16 grid, each cell is 50x30;
-        # these few strokes remain well below the dense-cell threshold.
-        cv2.line(image, (12, 34), (12, 86), 0, 2)
-        cv2.line(image, (42, 44), (142, 44), 0, 2)
-        cv2.line(image, (172, 68), (282, 68), 0, 2)
+        # 16x16 => cell_h=30. True blank margin y=0..5, sparse title-block
+        # header y=6..29 (first cell), dense body starts in second cell y=30.
+        cv2.line(image, (12, 7), (12, 28), 0, 2)
+        cv2.line(image, (42, 12), (142, 12), 0, 2)
+        cv2.line(image, (172, 23), (282, 23), 0, 2)
 
-        # Dense title-block body begins around y=100 and is intentionally easy
-        # for the coarse grid to detect.
-        cv2.rectangle(image, (10, 100), (310, 260), 0, 3)
-        for x in range(30, 310, 35):
-            cv2.line(image, (x, 100), (x, 260), 0, 2)
-        for y in range(120, 260, 25):
+        cv2.rectangle(image, (10, 30), (310, 240), 0, 3)
+        for x in range(30, 310, 30):
+            cv2.line(image, (x, 30), (x, 240), 0, 2)
+        for y in range(48, 240, 22):
             cv2.line(image, (10, y), (310, y), 0, 2)
         return image, binding
 
@@ -190,7 +181,7 @@ class DocumentZoningTests(unittest.TestCase):
         self.assertEqual(len(title_blocks), 1)
         title = title_blocks[0]
         self.assertGreater(title.y, 0)
-        self.assertLessEqual(title.y, 35)
+        self.assertLessEqual(title.y, 10)
 
     def test_overlap_between_exclusion_and_workarea_fails_closed(self) -> None:
         zones = (
@@ -228,8 +219,8 @@ class DocumentZoningTests(unittest.TestCase):
         self.assertEqual(masked.shape, image.shape)
         self.assertEqual(int(masked[20, 20]), 255)
         self.assertEqual(int(masked[80, 150]), 0)
-        self.assertEqual(int(masked[60, 142]), 0)  # outside confirmed structural workarea
-        self.assertEqual(int(image[80, 150]), 255)  # source array not mutated
+        self.assertEqual(int(masked[60, 142]), 0)
+        self.assertEqual(int(image[80, 150]), 255)
 
     def test_zone_policy_is_proposal_only_and_requires_human_confirmation(self) -> None:
         policy = json.loads(POLICY_PATH.read_text(encoding="utf-8"))
