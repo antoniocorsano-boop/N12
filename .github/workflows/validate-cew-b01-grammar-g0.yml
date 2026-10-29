@@ -58,7 +58,7 @@ jobs:
           set -euo pipefail
           git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
 
-      - name: Generate exact-TAV5 G0 confirmed zone package
+      - name: Generate exact-TAV5 G0 proposal and qualify confirmed zones
         shell: bash
         run: |
           set -euo pipefail
@@ -93,6 +93,46 @@ jobs:
           raster_path = step3_dir / 'tav5-page0-300dpi.png'
 
           proposed_zones = propose_document_zones(binding, raster_path)
+          output_dir = Path('evidence/cew-b01/g0-zone-review')
+          proposal_result = render_zone_review_package(
+              binding,
+              raster_path,
+              proposed_zones,
+              output_dir,
+              confirmation_receipt=None,
+          )
+          proposal_manifest = json.loads(
+              Path(proposal_result['manifest_path']).read_text(encoding='utf-8')
+          )
+          assert proposal_manifest['review_state'] == 'PENDING_HUMAN_ZONE_REVIEW'
+          assert proposal_manifest['g0_document_zoning_pass'] is False
+          assert proposal_manifest['source']['sha256'] == materialized.sha256
+          assert proposal_manifest['raster']['png_sha256'] == binding.png_sha256
+          assert proposal_manifest['zone_set_digest'] == zone_set_digest(proposed_zones)
+          assert proposal_manifest['authority']['structural_identity_authorized'] is False
+          assert proposal_manifest['authority']['canonical_write_authorized'] is False
+
+          proposal_summary = {
+              'step': 'CEW-B01-G0-DOCUMENT-ZONING-PROPOSAL',
+              'source_sha256': materialized.sha256,
+              'page_index': contract.page_index,
+              'raster_sha256': binding.raster_sha256,
+              'raster_png_sha256': binding.png_sha256,
+              'zone_set_digest': proposal_manifest['zone_set_digest'],
+              'zone_count': len(proposed_zones),
+              'review_state': proposal_manifest['review_state'],
+              'g0_document_zoning_pass': False,
+              'human_reconfirmation_required': True,
+              'structural_identity_authorized': False,
+              'canonical_write_authorized': False,
+              'historical_object_oracle_used': False,
+          }
+          (output_dir / 'proposal-summary.json').write_text(
+              json.dumps(proposal_summary, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          print('G0_PROPOSAL=' + json.dumps(proposal_summary, sort_keys=True))
+
           receipt = json.loads(
               Path('governance/cew-b01/TAV5_DOCUMENT_ZONE_REVIEW_v1.json').read_text(encoding='utf-8')
           )
@@ -106,7 +146,6 @@ jobs:
           assert all(z.structural_identity_authorized is False for z in zones)
           assert all(z.canonical_write_authorized is False for z in zones)
 
-          output_dir = Path('evidence/cew-b01/g0-zone-review')
           result = render_zone_review_package(
               binding,
               raster_path,
