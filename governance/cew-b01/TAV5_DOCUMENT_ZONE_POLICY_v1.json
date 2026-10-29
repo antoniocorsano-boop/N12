@@ -1,0 +1,32 @@
+{
+  "schema": "TAV5_DOCUMENT_ZONE_POLICY_v1",
+  "status": "ACTIVE_G0_PROPOSAL_POLICY",
+  "authority_effect": "NONE",
+  "source_authority": "IMMUTABLE_SOURCEVERSION_AND_GOVERNED_STEP3_RASTER",
+  "proposal_only": true,
+  "human_confirmation_required_for_exclusion": true,
+  "structural_identity_authorized": false,
+  "canonical_write_authorized": false,
+  "allowed_region_kinds": [
+    "STRUCTURAL_WORKAREA",
+    "TITLE_BLOCK",
+    "LOCATION_DIAGRAM",
+    "APPROVAL_STAMP_SIGNATURE",
+    "NOTE_OR_LEGEND_REGION",
+    "MARGIN_VOID",
+    "SCAN_ARTIFACT",
+    "UNKNOWN_DOCUMENT_REGION"
+  ],
+  "forbidden_zoning_oracles": [
+    "OBJECT_DETECTOR_OUTPUT",
+    "HISTORICAL_OBJECT_IDS",
+    "HISTORICAL_OBJECT_COUNTS",
+    "MANUAL_STRUCTURAL_OBJECT_COORDINATES"
+  ],
+  "masking_rules": {
+    "unconfirmed_exclusion_may_suppress_pixels": false,
+    "unknown_region_may_be_silently_excluded": false,
+    "source_pixels_are_never_mutated": true,
+    "output_frame_must_equal_input_frame": true
+  }
+}
