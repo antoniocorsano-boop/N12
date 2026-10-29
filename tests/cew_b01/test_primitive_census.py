@@ -146,6 +146,24 @@ class PrimitiveCensusTests(unittest.TestCase):
             PrimitiveFamily.UNKNOWN_GRAPHIC_GROUP,
         } for item in relevant))
 
+    def test_every_emitted_primitive_bbox_is_fully_inside_confirmed_workarea(self) -> None:
+        image = np.full((220, 320), 255, dtype=np.uint8)
+        # The crossing is centered inside the workarea but its relation box extends
+        # across x=250 into the confirmed TITLE_BLOCK. Center-only admission is unsafe.
+        cv2.line(image, (150, 110), (249, 110), 0, 2)
+        cv2.line(image, (248, 45), (248, 175), 0, 2)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "boundary-crossing.png"
+            self.assertTrue(cv2.imwrite(str(path), image))
+            items = extract_neutral_primitives(self.binding, path, self._zones())
+
+        self.assertTrue(items)
+        for item in items:
+            self.assertGreaterEqual(item.x, 0)
+            self.assertGreaterEqual(item.y, 0)
+            self.assertLessEqual(item.x + item.width, 250)
+            self.assertLessEqual(item.y + item.height, 220)
+
 
 if __name__ == "__main__":
     unittest.main()
