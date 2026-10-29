@@ -57,6 +57,24 @@ class BundledCompositionTests(unittest.TestCase):
         self.assertFalse(candidate["structural_identity_authorized"])
         self.assertFalse(candidate["canonical_write_authorized"])
 
+    def test_context_preserves_all_nearby_rejected_bundles_without_truncation(self):
+        items = [primitive("seed", "RECTILINEAR_CLOSED_SHAPE", x=80, y=80, w=60, h=40)]
+        for index in range(25):
+            items.append(
+                primitive(
+                    f"text-{index:02d}",
+                    "TEXT_BLOCK",
+                    x=20 + (index % 5) * 28,
+                    y=20 + (index // 5) * 24,
+                    w=10,
+                    h=8,
+                )
+            )
+        candidate = build_bundled_candidates(items, ["seed"], max_core_members=24)[0]
+        self.assertEqual(len(candidate["context_bundle_ids"]), 25)
+        self.assertEqual(len(candidate["context_primitive_ids_expanded"]), 25)
+        self.assertEqual(set(candidate["context_primitive_ids_expanded"]), {f"text-{index:02d}" for index in range(25)})
+
 
 if __name__ == "__main__":
     unittest.main()
