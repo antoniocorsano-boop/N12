@@ -58,35 +58,47 @@ The strongest neutral composition similarities are:
 
 These similarity values are ranking aids only. No acceptance threshold or family promotion is authorized by this spike.
 
+## Visual inspection of the eight-candidate micro-atlas
+
+A micro-atlas was generated from the exact qualified TAV.5 overview, with the seed highlighted separately from the other `CORE` members and surrounding `CONTEXT` observations.
+
+The visual inspection confirms the first finding — primitive-level recurrence hides materially different local configurations — but also exposes a second problem that is more important than threshold tuning:
+
+- candidates `2` and `6` both hit the experimental 24-member cap;
+- many of those members are co-spatial or near-coincident observations such as `INTERSECTION`, `CROSS_MOTIF`, `T_JUNCTION` and `T_SHAPED_MOTIF` derived from the same local strokes;
+- therefore raw G1 observation cardinality cannot be treated as physical or symbolic part cardinality;
+- a stricter seed-relative size guard alone does not solve this, because redundant derived observations remain co-located and can still inflate the candidate.
+
+This means the next layer must not be only `relations between primitives`. It needs a preliminary neutral **coalescence/equivalence step** that preserves every G1 observation for provenance while fusing co-spatial observations that describe the same local graphic event into one graph node.
+
 ## Finding
 
 The original G2 primitive-level grouping is too coarse to stand in for a symbol family. Instances drawn from only two recurring closed-shape motifs separate into materially different local compositions once their relations are included.
 
-Most importantly:
+At the same time, the spike shows that direct graph composition over raw G1 observations is also too literal: the same local ink can be represented by several derived primitive observations.
 
-- two cases become dense 24-member compound configurations;
-- two cases remain true singleton-like shapes;
-- two cases are line-coupled compositions;
-- one case is coupled to filled/hatched regions;
-- one case is only a two-member shape/line composition.
+The evidence therefore supports the following refined sequence:
 
-Therefore `primitive -> recurring primitive motif` and `primitive -> local compound candidate` are demonstrably different layers on the real qualified TAV.5 data.
+`G1 observations -> G2A0 co-spatial observation bundles -> G2A relation graph -> G2B CORE/CONTEXT SymbolCandidate -> G2C candidate families -> Human Review -> G3 semantic attribution`
+
+The coalescence step is not allowed to delete provenance. Each bundle must retain every original `primitive_id`, detector, geometry and source locator.
 
 ## What this proves / does not prove
 
-This spike supports introducing a distinct experimental G2B composition layer with `CORE/CONTEXT` separation.
+This spike supports introducing a distinct experimental G2 composition layer and, before it, a neutral observation-bundling step.
 
 It does **not** prove that any candidate is a beam, column, node, section, reinforcement symbol, dimension or other technical object. It does not authorize G3, structural identity, canonical writes or merge.
 
 ## Next bounded experiment
 
-The next useful step is not to run the whole corpus. It is to generate a human micro-atlas for these eight candidates, showing:
+Do not scale to the full corpus yet.
 
-1. source crop;
-2. CORE overlay;
-3. CONTEXT ring;
-4. constituent primitive IDs;
-5. relation graph;
-6. a human decision limited to `SAME_CONFIGURATION / DIFFERENT_CONFIGURATION / ARTIFACT / NON_SIGNIFICANT / UNCERTAIN`.
+On the same eight frozen seeds:
 
-Only after that visual review should the composition rule be hardened or generalized.
+1. implement neutral co-spatial bundling of overlapping/near-coincident derived observations;
+2. rebuild the relation graph over bundles rather than raw observations;
+3. regenerate the same eight-candidate micro-atlas;
+4. compare `before / after` CORE size and envelope growth;
+5. ask only for human decisions `SAME_CONFIGURATION / DIFFERENT_CONFIGURATION / ARTIFACT / NON_SIGNIFICANT / UNCERTAIN`.
+
+Only if the revised candidates remain visually coherent without cap saturation should G2B be generalized beyond this eight-element pilot.
