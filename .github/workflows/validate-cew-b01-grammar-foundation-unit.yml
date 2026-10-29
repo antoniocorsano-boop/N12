@@ -51,4 +51,5 @@ jobs:
           python -m unittest \
             tests.cew_b01.test_grammar_schema \
             tests.cew_b01.test_document_zoning \
-            tests.cew_b01.test_zone_review_package -v
+            tests.cew_b01.test_zone_review_package \
+            tests.cew_b01.test_primitive_census -v
