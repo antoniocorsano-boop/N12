@@ -302,7 +302,10 @@ class RecurringMotif:
     page_index: int
     member_primitive_ids: tuple[str, ...]
     representative_primitive_id: str
+    representative_primitive_ids: tuple[str, ...]
     neutral_descriptor: Mapping[str, Any]
+    context_descriptor: Mapping[str, Any]
+    source_locators: tuple[Mapping[str, Any], ...]
     occurrence_count: int
     classification_state: MotifClassificationState = MotifClassificationState.UNCLASSIFIED
     semantic_meaning: None = None
@@ -317,6 +320,9 @@ class RecurringMotif:
         member_primitive_ids: tuple[str, ...],
         representative_primitive_id: str,
         neutral_descriptor: Mapping[str, Any],
+        representative_primitive_ids: tuple[str, ...] | None = None,
+        context_descriptor: Mapping[str, Any] | None = None,
+        source_locators: tuple[Mapping[str, Any], ...] | None = None,
     ) -> "RecurringMotif":
         if not isinstance(source, SourceIdentity):
             raise GrammarValidationError("RecurringMotif requires SourceIdentity")
@@ -325,7 +331,18 @@ class RecurringMotif:
             raise GrammarValidationError("RecurringMotif requires at least one primitive")
         if representative_primitive_id not in members:
             raise GrammarValidationError("representative primitive must be a motif member")
+        representatives = tuple(dict.fromkeys(representative_primitive_ids or (representative_primitive_id,)))
+        if not representatives or any(item not in members for item in representatives):
+            raise GrammarValidationError("representative primitives must be motif members")
+        if len(representatives) > 4:
+            raise GrammarValidationError("G2 review supports at most four representative primitives per motif")
+        locators = tuple(dict(item) for item in (source_locators or ()))
+        if locators and len(locators) != len(representatives):
+            raise GrammarValidationError("source locators must match representative primitives")
+        if any(locator.get("primitive_id") not in representatives for locator in locators):
+            raise GrammarValidationError("source locator must reference a representative primitive")
         descriptor = dict(neutral_descriptor)
+        context = dict(context_descriptor or {})
         identity = {
             "source_sha256": source.sha256,
             "page_index": source.page_index,
@@ -339,7 +356,10 @@ class RecurringMotif:
             page_index=source.page_index,
             member_primitive_ids=members,
             representative_primitive_id=representative_primitive_id,
+            representative_primitive_ids=representatives,
             neutral_descriptor=descriptor,
+            context_descriptor=context,
+            source_locators=locators,
             occurrence_count=len(members),
         )
 
@@ -350,7 +370,10 @@ class RecurringMotif:
             "page_index": self.page_index,
             "member_primitive_ids": list(self.member_primitive_ids),
             "representative_primitive_id": self.representative_primitive_id,
+            "representative_primitive_ids": list(self.representative_primitive_ids),
             "neutral_descriptor": dict(self.neutral_descriptor),
+            "context_descriptor": dict(self.context_descriptor),
+            "source_locators": [dict(item) for item in self.source_locators],
             "occurrence_count": self.occurrence_count,
             "classification_state": self.classification_state.value,
             "semantic_meaning": self.semantic_meaning,
