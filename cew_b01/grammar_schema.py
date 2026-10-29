@@ -82,8 +82,8 @@ def _validate_geometry(
     width: Any,
     height: Any,
 ) -> tuple[float, float, float, float]:
-    if frame != CoordinateFrame.RASTER_PIXEL:
-        raise GrammarValidationError("G0-G2 raster geometry requires CoordinateFrame.RASTER_PIXEL")
+    if not isinstance(frame, CoordinateFrame) or frame != CoordinateFrame.RASTER_PIXEL:
+        raise GrammarValidationError("G0-G2 raster geometry requires typed CoordinateFrame.RASTER_PIXEL")
     rw = _positive_int(raster_width, "raster_width")
     rh = _positive_int(raster_height, "raster_height")
     gx = _finite(x, "x")
