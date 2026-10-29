@@ -36,4 +36,4 @@ jobs:
             tests.cew_b01.test_g2a0_observation_bundles \
             tests.cew_b01.test_g2_composition_bundled_compare -v
 
-# Final exact-head qualification marker after branch cleanup.
+# Final exact-head qualification marker after branch cleanup and provenance repair.
