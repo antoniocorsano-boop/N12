@@ -155,6 +155,20 @@ class ZoneReviewPackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "ZONE_CONFIRMATION_RECEIPT_MISMATCH"):
             confirmed_zones_from_receipt(self.binding, self.zones, receipt)
 
+    def test_g0_workflow_renders_proposal_before_receipt_validation(self) -> None:
+        workflow_path = Path(__file__).resolve().parents[2] / ".github" / "workflows" / "validate-cew-b01-grammar-g0.yml"
+        workflow = workflow_path.read_text(encoding="utf-8")
+        proposal_render = workflow.find("render_zone_review_package(")
+        receipt_validation = workflow.find("confirmed_zones_from_receipt(")
+        self.assertGreaterEqual(proposal_render, 0, "G0 workflow must render proposal review evidence")
+        self.assertGreaterEqual(receipt_validation, 0, "G0 workflow must keep governed receipt validation")
+        self.assertLess(
+            proposal_render,
+            receipt_validation,
+            "G0 proposal review evidence must be rendered before stale/missing receipt validation can fail",
+        )
+        self.assertIn("confirmation_receipt=None", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
