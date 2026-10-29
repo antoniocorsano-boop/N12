@@ -95,6 +95,37 @@ class EvidenceExtractionV3Tests(unittest.TestCase):
         self.assertAlmostEqual(candidate.geometry.y, 105.0, delta=7.0)
         self.assertFalse(candidate.structural_identity_authorized)
 
+    def test_connected_closed_frame_with_internal_mark_remains_candidate(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            raster = np.full((320, 360), 255, dtype=np.uint8)
+
+            # Source-like junction case: a valid framed mark is connected to
+            # surrounding structural linework. The external connections make
+            # the contour non-quadrilateral, but must not erase the frame as a
+            # proposal candidate.
+            cv2.rectangle(raster, (120, 120), (210, 165), 0, 3)
+            cv2.line(raster, (155, 130), (175, 145), 0, 3)
+            cv2.line(raster, (175, 145), (175, 122), 0, 3)
+            cv2.line(raster, (70, 165), (210, 165), 0, 2)
+            cv2.line(raster, (165, 165), (165, 230), 0, 2)
+            cv2.line(raster, (210, 120), (270, 60), 0, 2)
+
+            path = directory / "connected-framed-mark.png"
+            self.assertTrue(cv2.imwrite(str(path), raster))
+            candidates = extract_g4_evidence_candidates(
+                _binding(path, width=360, height=320),
+                path,
+                config=_config(),
+            )
+
+        self.assertEqual(len(candidates), 1)
+        candidate = candidates[0]
+        self.assertEqual(candidate.method, EXPECTED_METHOD)
+        self.assertAlmostEqual(candidate.geometry.x, 120.0, delta=7.0)
+        self.assertAlmostEqual(candidate.geometry.y, 120.0, delta=7.0)
+        self.assertFalse(candidate.structural_identity_authorized)
+
     def test_overlapping_compound_and_drawing_grammar_channels_deduplicate_to_one_region(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
