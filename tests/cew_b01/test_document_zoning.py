@@ -109,27 +109,39 @@ class DocumentZoningTests(unittest.TestCase):
             cv2.line(image, (2, y), (76, y), 0, 1)
         return image
 
-    def _synthetic_upper_left_title_block_with_sparse_header(self) -> np.ndarray:
-        image = np.full((120, 200), 255, dtype=np.uint8)
-        for x in (95, 130, 165):
-            cv2.line(image, (x, 58), (x, 112), 0, 2)
-        for y in (68, 92, 108):
-            cv2.line(image, (82, y), (192, y), 0, 2)
+    def _synthetic_large_upper_left_title_block_with_sparse_header(self) -> tuple[np.ndarray, Task3RasterBinding]:
+        image = np.full((480, 800), 255, dtype=np.uint8)
+        binding = Task3RasterBinding(
+            source=self.source,
+            raster_width_px=800,
+            raster_height_px=480,
+            raster_sha256="6" * 64,
+            png_sha256="7" * 64,
+            renderer_tool_id="pypdfium2",
+            renderer_tool_version="4.30.0",
+        )
 
-        # True blank page margin above the title block.
-        # The title block itself begins at y=6 with a deliberately sparse header:
-        # too little ink to qualify as a dense grid cell, but still contiguous
-        # document-function content that must be excluded with the dense body.
-        cv2.line(image, (3, 6), (3, 13), 0, 1)
-        cv2.line(image, (12, 8), (28, 8), 0, 1)
-        cv2.line(image, (42, 11), (66, 11), 0, 1)
+        # Structural linework is remote from the upper-left title block.
+        for x in (420, 540, 660):
+            cv2.line(image, (x, 165), (x, 440), 0, 3)
+        for y in (190, 300, 410):
+            cv2.line(image, (360, y), (760, y), 0, 3)
 
-        cv2.rectangle(image, (3, 14), (76, 48), 0, 2)
-        for x in range(9, 76, 9):
-            cv2.line(image, (x, 14), (x, 48), 0, 1)
-        for y in range(19, 48, 6):
-            cv2.line(image, (3, y), (76, y), 0, 1)
-        return image
+        # Real blank margin: y=0..29.
+        # Sparse header: y=30..89. With a 16x16 grid, each cell is 50x30;
+        # these few strokes remain well below the dense-cell threshold.
+        cv2.line(image, (12, 34), (12, 86), 0, 2)
+        cv2.line(image, (42, 44), (142, 44), 0, 2)
+        cv2.line(image, (172, 68), (282, 68), 0, 2)
+
+        # Dense title-block body begins around y=100 and is intentionally easy
+        # for the coarse grid to detect.
+        cv2.rectangle(image, (10, 100), (310, 260), 0, 3)
+        for x in range(30, 310, 35):
+            cv2.line(image, (x, 100), (x, 260), 0, 2)
+        for y in range(120, 260, 25):
+            cv2.line(image, (10, y), (310, y), 0, 2)
+        return image, binding
 
     def test_same_raster_produces_deterministic_document_zone_proposals(self) -> None:
         image = self._synthetic_sheet()
@@ -169,16 +181,16 @@ class DocumentZoningTests(unittest.TestCase):
         self.assertGreater(title_blocks[0].y, 0)
 
     def test_title_block_proposal_includes_sparse_header_but_keeps_true_blank_margin_out(self) -> None:
-        image = self._synthetic_upper_left_title_block_with_sparse_header()
+        image, binding = self._synthetic_large_upper_left_title_block_with_sparse_header()
         with tempfile.TemporaryDirectory() as tmp:
-            path = Path(tmp) / "sheet-upper-left-sparse-header.png"
+            path = Path(tmp) / "sheet-upper-left-sparse-header-large.png"
             self.assertTrue(cv2.imwrite(str(path), image))
-            zones = propose_document_zones(self.binding, path)
+            zones = propose_document_zones(binding, path)
         title_blocks = [zone for zone in zones if zone.kind == DocumentRegionKind.TITLE_BLOCK]
         self.assertEqual(len(title_blocks), 1)
         title = title_blocks[0]
         self.assertGreater(title.y, 0)
-        self.assertLessEqual(title.y, 7)
+        self.assertLessEqual(title.y, 35)
 
     def test_overlap_between_exclusion_and_workarea_fails_closed(self) -> None:
         zones = (
