@@ -80,6 +80,21 @@ class DocumentZoningTests(unittest.TestCase):
             cv2.line(image, (145, y), (196, y), 0, 1)
         return image
 
+    def _synthetic_upper_left_title_block(self) -> np.ndarray:
+        image = np.full((120, 200), 255, dtype=np.uint8)
+        # Structural linework occupies the right and lower portions.
+        for x in (90, 125, 160):
+            cv2.line(image, (x, 35), (x, 110), 0, 2)
+        for y in (45, 75, 105):
+            cv2.line(image, (75, y), (190, y), 0, 2)
+        # Dense title-block-like region in the upper-left corner.
+        cv2.rectangle(image, (2, 2), (76, 38), 0, 2)
+        for x in range(8, 76, 10):
+            cv2.line(image, (x, 2), (x, 38), 0, 1)
+        for y in range(8, 38, 7):
+            cv2.line(image, (2, y), (76, y), 0, 1)
+        return image
+
     def test_same_raster_produces_deterministic_document_zone_proposals(self) -> None:
         image = self._synthetic_sheet()
         with tempfile.TemporaryDirectory() as tmp:
@@ -94,6 +109,18 @@ class DocumentZoningTests(unittest.TestCase):
         for item in first:
             self.assertFalse(item.structural_identity_authorized)
             self.assertFalse(item.canonical_write_authorized)
+
+    def test_title_block_proposal_is_corner_agnostic(self) -> None:
+        image = self._synthetic_upper_left_title_block()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "sheet-upper-left.png"
+            self.assertTrue(cv2.imwrite(str(path), image))
+            zones = propose_document_zones(self.binding, path)
+        title_blocks = [zone for zone in zones if zone.kind == DocumentRegionKind.TITLE_BLOCK]
+        self.assertEqual(len(title_blocks), 1)
+        title = title_blocks[0]
+        self.assertLess(title.x, 100)
+        self.assertLess(title.y, 60)
 
     def test_overlap_between_exclusion_and_workarea_fails_closed(self) -> None:
         zones = (
