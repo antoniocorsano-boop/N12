@@ -57,7 +57,10 @@ def neutral_descriptor_for_primitive(item: GraphicPrimitiveObservation) -> dict[
     if rectangularity is not None:
         descriptor["rectangularity_bin"] = rectangularity
 
-    ink_ratio = _quantize(signature.get("ink_ratio"), 0.1)
+    # Raster ink density is noisy under uniform scale and anti-aliasing. Use a
+    # deliberately coarser neutral bin than rectangularity so near-identical
+    # UNKNOWN/complex motifs are not split by a one-percent density change.
+    ink_ratio = _quantize(signature.get("ink_ratio"), 0.2)
     if ink_ratio is not None:
         descriptor["ink_ratio_bin"] = ink_ratio
 
