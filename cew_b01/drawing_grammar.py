@@ -258,7 +258,12 @@ def _candidate_rectangles(
         if perimeter <= 0:
             continue
         approximation = cv2.approxPolyDP(contour, 0.03 * perimeter, True)
-        if len(approximation) < 4 or len(approximation) > 8:
+        # External structural linework may be connected directly to a valid
+        # rectangular frame. That increases contour vertex count even though
+        # the bounded region still has four well-covered sides. Reject only
+        # contours too simple to bound a frame; frame coverage and interior
+        # evidence below remain the actual geometric guards.
+        if len(approximation) < 4:
             continue
         coverage = _frame_coverage(binary, (x, y, width, height))
         if coverage < config.min_frame_coverage:
