@@ -1,7 +1,7 @@
 # CEW Lessons Learned v1
 
 **Status:** ACTIVE  
-**Date:** 2026-10-28  
+**Date:** 2026-10-29  
 **Purpose:** preserve architectural/process lessons that should change future CEW behavior.
 
 ## LL-001 — Open/draft work is still project knowledge
@@ -169,6 +169,53 @@ When CEW already has provenance, learning, similarity or external-tool capabilit
 `current exact input -> adapter -> reusable capability -> current exact output/assurance`
 
 not another end-to-end subsystem.
+
+---
+
+## LL-015 — Detector recall is not drawing-grammar completeness
+
+**Observation**  
+PR #165 improved the exact-TAV.5 proposal set substantially and recovered previously omitted compatible symbols. Human inspection still showed that the sheet contains multiple graphic languages: beam-column nodes, beam-section symbols, beam/slab section motifs, dimensions, annotations, title-block graphics and other recurring forms.
+
+**Failure mode**  
+Treating a higher candidate count or recovery of known witnesses as “drawing understood” encourages endless threshold/channel tuning and can hide entire symbol families that the detector was never designed to represent.
+
+**Rule**  
+Before specialist object detection becomes the main extraction path, build and review a source-specific neutral graphic inventory plus recurring-motif catalog. Completeness is measured against accounted-for graphic language, not historical object count.
+
+**Affected task:** CEW-B01 / TAV.5 grammar-first redesign, 2026-10-29.
+
+---
+
+## LL-016 — Zone the document before structural extraction
+
+**Observation**  
+The TAV.5 title block and administrative/annotation regions generate many geometrically plausible proposals while carrying a different document function from the structural workarea.
+
+**Failure mode**  
+Running structural proposal channels over the whole page inflates false positives, increases Human Review cost and makes candidate-count metrics difficult to interpret.
+
+**Rule**  
+Create source-bound document-function zones first. Structural extractors operate only on confirmed `STRUCTURAL_WORKAREA`; `TITLE_BLOCK`, notes, stamps and other exclusions remain preserved in the SourceVersion and visible through governed masks.
+
+**Authority constraint:** document zoning grants no structural identity.
+
+---
+
+## LL-017 — Topology and relations must precede object identity when shapes are ambiguous
+
+**Observation**  
+On TAV.5, similar rectangles can occur at beam-network nodes, along beams, or in non-structural document regions. Some valid beam-column-node symbols are fused with beam linework and do not form independent closed contours.
+
+**Failure mode**  
+A shape-first rule such as “rectangle -> column candidate” confuses function and fails on connected/broken symbols. Adding more geometric thresholds does not solve the ambiguity systematically.
+
+**Rule**  
+Use the sequence:
+
+`neutral primitive -> recurring motif -> topology/spatial relation -> functional hypothesis -> human review`.
+
+The existing engineering invariant `TOPOLOGY_OUTRANKS_VISUAL_PROXIMITY_FOR_IDENTITY` must govern downstream interpretation. Specialist detectors belong after grammar/topology foundations, not before them.
 
 ---
 
