@@ -166,6 +166,64 @@ class MotifCatalogTests(unittest.TestCase):
         self.assertEqual(len(catalog), 2)
         self.assertTrue(all(item.occurrence_count == 1 for item in catalog))
 
+    def test_recurring_motif_exposes_multiple_examples_source_locators_and_neutral_context(self) -> None:
+        rectangle_a = self._primitive(
+            PrimitiveFamily.RECTILINEAR_CLOSED_SHAPE,
+            x=100,
+            y=100,
+            width=40,
+            height=20,
+            signature={"vertex_count": 4, "rectangularity": 0.92},
+        )
+        rectangle_b = self._primitive(
+            PrimitiveFamily.RECTILINEAR_CLOSED_SHAPE,
+            x=500,
+            y=500,
+            width=80,
+            height=40,
+            signature={"vertex_count": 4, "rectangularity": 0.90},
+        )
+        nearby_line = self._primitive(
+            PrimitiveFamily.LINE_SEGMENT,
+            x=80,
+            y=118,
+            width=120,
+            height=3,
+            signature={"orientation": "HORIZONTAL", "length_px": 120.0},
+        )
+        nearby_text = self._primitive(
+            PrimitiveFamily.TEXT_BLOCK,
+            x=510,
+            y=545,
+            width=45,
+            height=15,
+            signature={"component_area": 180, "ink_ratio": 0.35},
+        )
+        catalog = build_recurring_motif_catalog((rectangle_a, rectangle_b, nearby_line, nearby_text))
+        rectangles = [
+            item
+            for item in catalog
+            if item.neutral_descriptor.get("family") == PrimitiveFamily.RECTILINEAR_CLOSED_SHAPE.value
+        ]
+        self.assertEqual(len(rectangles), 1)
+        motif = rectangles[0]
+        self.assertEqual(motif.occurrence_count, 2)
+        self.assertEqual(len(motif.representative_primitive_ids), 2)
+        self.assertEqual(
+            set(motif.representative_primitive_ids),
+            {rectangle_a.primitive_id, rectangle_b.primitive_id},
+        )
+        self.assertEqual(len(motif.source_locators), 2)
+        self.assertEqual(
+            {locator["primitive_id"] for locator in motif.source_locators},
+            {rectangle_a.primitive_id, rectangle_b.primitive_id},
+        )
+        self.assertTrue(motif.context_descriptor["nearby_linear"]["present_for_any_member"])
+        self.assertTrue(motif.context_descriptor["associated_text"]["present_for_any_member"])
+        self.assertIsNone(motif.semantic_meaning)
+        self.assertFalse(motif.structural_identity_authorized)
+        self.assertFalse(motif.canonical_write_authorized)
+
 
 if __name__ == "__main__":
     unittest.main()
