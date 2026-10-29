@@ -205,10 +205,15 @@ def extract_neutral_primitives(
         h = min(float(h), height - y)
         if w <= 0 or h <= 0:
             return
-        # The entire primitive must be inside a confirmed structural-workarea pixel envelope.
-        cx = min(width - 1, max(0, int(round(x + w / 2.0))))
-        cy = min(height - 1, max(0, int(round(y + h / 2.0))))
-        if mask[cy, cx] == 0:
+        # Fail closed at the confirmed G0 boundary: every pixel covered by the
+        # emitted observation envelope must belong to STRUCTURAL_WORKAREA.
+        x0 = max(0, min(width, int(np.floor(x))))
+        y0 = max(0, min(height, int(np.floor(y))))
+        x1 = max(0, min(width, int(np.ceil(x + w))))
+        y1 = max(0, min(height, int(np.ceil(y + h))))
+        if x1 <= x0 or y1 <= y0:
+            return
+        if not bool(np.all(mask[y0:y1, x0:x1] > 0)):
             return
         key = (family.value, round(x, 2), round(y, 2), round(w, 2), round(h, 2), detector)
         if key in seen:
