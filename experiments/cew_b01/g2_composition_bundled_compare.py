@@ -121,7 +121,7 @@ def build_bundled_candidates(
         context = sorted(
             {bundle["bundle_id"]: bundle for bundle in context if bundle["bundle_id"] not in core_ids}.values(),
             key=lambda bundle: (_gap(seed_bundle, bundle), bundle["bundle_id"]),
-        )[:20]
+        )
 
         edges: list[dict[str, Any]] = []
         for index, first in enumerate(core):
