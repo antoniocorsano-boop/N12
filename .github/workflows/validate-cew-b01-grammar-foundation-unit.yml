@@ -52,4 +52,5 @@ jobs:
             tests.cew_b01.test_grammar_schema \
             tests.cew_b01.test_document_zoning \
             tests.cew_b01.test_zone_review_package \
-            tests.cew_b01.test_primitive_census -v
+            tests.cew_b01.test_primitive_census \
+            tests.cew_b01.test_motif_catalog -v
