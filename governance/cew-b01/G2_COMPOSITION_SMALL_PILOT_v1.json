@@ -1,0 +1,28 @@
+{
+  "schema_id": "CEW_B01_G2_COMPOSITION_SMALL_PILOT_MANIFEST",
+  "schema_version": 1,
+  "status": "EXPERIMENT_ONLY",
+  "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+  "qualified_head_sha": "e04db7ab21ebb5c1afd69936e17cf13a7421f2af",
+  "workflow_run_id": 40922949263,
+  "workflow_artifact_id": 12918273768,
+  "expected_primitive_count": 5633,
+  "seed_selection": "four representative primitives from each of the two most recurrent RECTILINEAR_CLOSED_SHAPE motifs in the qualified G2 catalog",
+  "seed_primitive_ids": [
+    "CEW-B01-GP-04c0f17c4473a2e454769e74",
+    "CEW-B01-GP-a69f11dbf6233e55947dc2b9",
+    "CEW-B01-GP-46ce698260a1b397cd3e04a2",
+    "CEW-B01-GP-1afaa3535c2c374785dd648a",
+    "CEW-B01-GP-90cefb124e0b97a63acd1d9c",
+    "CEW-B01-GP-d9cd4a30759793fcd45f27ad",
+    "CEW-B01-GP-f5bf9ee85705380152aae053",
+    "CEW-B01-GP-170208dcb885d5ca5beed9ea"
+  ],
+  "max_core_members": 24,
+  "authority": {
+    "semantic_classification_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_write_authorized": false,
+    "g3_authorized": false
+  }
+}
