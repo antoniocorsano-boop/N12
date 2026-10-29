@@ -1,0 +1,38 @@
+{
+  "schema_id": "CEW_B01_G2A0_EIGHT_SEED_RESULT",
+  "schema_version": 1,
+  "status": "EXPERIMENT_ONLY",
+  "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+  "qualified_grammar_head_sha": "e04db7ab21ebb5c1afd69936e17cf13a7421f2af",
+  "workflow_artifact_id": 12918273768,
+  "primitive_count": 5633,
+  "seed_count": 8,
+  "raw_core_counts": [3, 24, 1, 2, 1, 24, 4, 10],
+  "bundled_core_counts": [3, 5, 1, 2, 1, 5, 4, 10],
+  "expanded_original_primitive_counts": [3, 45, 1, 2, 1, 29, 4, 10],
+  "deterministic_replay": {
+    "byte_identical_two_runs": true,
+    "result_sha256": "7a0176ef117daf7302e117b6ec2e02dd6887afee05b17fa76e209f9a35e4d909"
+  },
+  "key_findings": {
+    "candidate_2": {
+      "raw_observations": 24,
+      "bundled_graph_nodes": 5,
+      "recoverable_original_observations": 45
+    },
+    "candidate_6": {
+      "raw_observations": 24,
+      "bundled_graph_nodes": 5,
+      "recoverable_original_observations": 29
+    },
+    "raw_cap_interpretation": "The old 24-observation cap truncated raw observation membership and therefore cannot be interpreted as symbolic part cardinality.",
+    "remaining_residual": "CORE/CONTEXT selection still admits some large closed-shape or complex-graphic neighbours; this is a separate G2B boundary problem and is not solved by G2A0 coalescence."
+  },
+  "authority": {
+    "semantic_classification_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_write_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false
+  }
+}
