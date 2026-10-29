@@ -7,6 +7,8 @@ on:
       - 'experiments/cew_b01/g2_composition_bundled_compare.py'
       - 'tests/cew_b01/test_g2a0_observation_bundles.py'
       - 'tests/cew_b01/test_g2_composition_bundled_compare.py'
+      - 'governance/cew-b01/G2A0_EIGHT_SEED_RESULT_v1.json'
+      - 'docs/experiments/2026-10-29-cew-b01-g2-composition-small-spike.md'
       - '.github/workflows/validate-cew-b01-g2a0-pilot.yml'
   workflow_dispatch:
 
