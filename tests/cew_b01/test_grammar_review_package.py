@@ -179,6 +179,57 @@ class GrammarReviewPackageTests(unittest.TestCase):
             self.assertIn(motif.motif_id, motif_ids)
             self.assertEqual(manifest["motifs"]["unknown_motif_count"], 1)
 
+    def test_review_package_tiers_recurring_motifs_without_hiding_singletons(self) -> None:
+        recurrent_primitives = tuple(
+            self._primitive(
+                PrimitiveFamily.RECTILINEAR_CLOSED_SHAPE,
+                x=20 + index * 25,
+                y=30,
+                width=16,
+                height=12,
+            )
+            for index in range(5)
+        )
+        singleton = self._primitive(PrimitiveFamily.TEXT_BLOCK, x=30, y=110, width=20, height=12)
+        recurrent = RecurringMotif.create(
+            source=self.source,
+            member_primitive_ids=tuple(item.primitive_id for item in recurrent_primitives),
+            representative_primitive_id=recurrent_primitives[0].primitive_id,
+            representative_primitive_ids=tuple(item.primitive_id for item in recurrent_primitives[:4]),
+            neutral_descriptor={"family": PrimitiveFamily.RECTILINEAR_CLOSED_SHAPE.value, "aspect_bin": 1.25},
+        )
+        singleton_motif = RecurringMotif.create(
+            source=self.source,
+            member_primitive_ids=(singleton.primitive_id,),
+            representative_primitive_id=singleton.primitive_id,
+            neutral_descriptor={"family": PrimitiveFamily.TEXT_BLOCK.value, "aspect_bin": 1.5},
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            raster = root / "sheet.png"
+            self._raster(raster)
+            result = render_grammar_foundation_review_package(
+                self.binding,
+                raster,
+                self.zones,
+                recurrent_primitives + (singleton,),
+                (recurrent, singleton_motif),
+                root / "out",
+            )
+            manifest = json.loads(Path(result["manifest_path"]).read_text(encoding="utf-8"))
+            self.assertEqual(manifest["motifs"]["count"], 2)
+            self.assertEqual(manifest["motifs"]["unclassified_motif_count"], 2)
+            self.assertEqual(manifest["motifs"]["recurring_motif_count"], 1)
+            self.assertEqual(manifest["motifs"]["singleton_motif_count"], 1)
+            self.assertEqual(manifest["motifs"]["priority_review_min_occurrences"], 5)
+            self.assertEqual(manifest["motifs"]["priority_review_motif_count"], 1)
+            self.assertEqual(manifest["motifs"]["priority_review_motif_ids"], [recurrent.motif_id])
+            self.assertEqual(manifest["motifs"]["family_summary"][PrimitiveFamily.RECTILINEAR_CLOSED_SHAPE.value]["motif_count"], 1)
+            self.assertEqual(manifest["motifs"]["family_summary"][PrimitiveFamily.TEXT_BLOCK.value]["singleton_motif_count"], 1)
+            all_ids = {item["motif_id"] for item in manifest["motifs"]["items"]}
+            self.assertEqual(all_ids, {recurrent.motif_id, singleton_motif.motif_id})
+            self.assertGreaterEqual(len(result["motif_atlas_paths"]), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
