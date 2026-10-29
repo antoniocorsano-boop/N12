@@ -10,9 +10,11 @@
   "raw_core_counts": [3, 24, 1, 2, 1, 24, 4, 10],
   "bundled_core_counts": [3, 5, 1, 2, 1, 5, 4, 10],
   "expanded_original_primitive_counts": [3, 45, 1, 2, 1, 29, 4, 10],
+  "context_bundle_counts": [33, 47, 30, 34, 16, 50, 28, 39],
+  "context_expanded_original_primitive_counts": [284, 325, 46, 34, 36, 410, 28, 39],
   "deterministic_replay": {
     "byte_identical_two_runs": true,
-    "result_sha256": "7a0176ef117daf7302e117b6ec2e02dd6887afee05b17fa76e209f9a35e4d909"
+    "result_sha256": "4058b10dcb31594ed345bda3a8f900f0b412e5d5a8f5eed1296b875dee700858"
   },
   "key_findings": {
     "candidate_2": {
@@ -26,6 +28,7 @@
       "recoverable_original_observations": 29
     },
     "raw_cap_interpretation": "The old 24-observation cap truncated raw observation membership and therefore cannot be interpreted as symbolic part cardinality.",
+    "context_preservation": "All nearby bundles rejected from CORE remain explicitly represented in CONTEXT; no presentation cap truncates context provenance.",
     "remaining_residual": "CORE/CONTEXT selection still admits some large closed-shape or complex-graphic neighbours; this is a separate G2B boundary problem and is not solved by G2A0 coalescence."
   },
   "authority": {
