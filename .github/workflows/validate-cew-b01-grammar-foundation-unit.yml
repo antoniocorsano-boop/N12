@@ -5,11 +5,13 @@ on:
     paths:
       - 'cew_b01/grammar_schema.py'
       - 'cew_b01/document_zoning.py'
+      - 'cew_b01/zone_review_package.py'
       - 'cew_b01/primitive_census.py'
       - 'cew_b01/motif_catalog.py'
       - 'cew_b01/grammar_review_package.py'
       - 'tests/cew_b01/test_grammar_schema.py'
       - 'tests/cew_b01/test_document_zoning.py'
+      - 'tests/cew_b01/test_zone_review_package.py'
       - 'tests/cew_b01/test_primitive_census.py'
       - 'tests/cew_b01/test_motif_catalog.py'
       - 'tests/cew_b01/test_grammar_review_package.py'
@@ -48,4 +50,5 @@ jobs:
           set -euo pipefail
           python -m unittest \
             tests.cew_b01.test_grammar_schema \
-            tests.cew_b01.test_document_zoning -v
+            tests.cew_b01.test_document_zoning \
+            tests.cew_b01.test_zone_review_package -v
