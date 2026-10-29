@@ -1,0 +1,32 @@
+name: CEW-B01 Grammar Foundation Unit Gate
+
+on:
+  pull_request:
+    paths:
+      - 'cew_b01/grammar_schema.py'
+      - 'cew_b01/document_zoning.py'
+      - 'cew_b01/primitive_census.py'
+      - 'cew_b01/motif_catalog.py'
+      - 'cew_b01/grammar_review_package.py'
+      - 'tests/cew_b01/test_grammar_schema.py'
+      - 'tests/cew_b01/test_document_zoning.py'
+      - 'tests/cew_b01/test_primitive_census.py'
+      - 'tests/cew_b01/test_motif_catalog.py'
+      - 'tests/cew_b01/test_grammar_review_package.py'
+      - '.github/workflows/validate-cew-b01-grammar-foundation-unit.yml'
+  workflow_dispatch:
+
+jobs:
+  grammar-foundation-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run grammar schema contract
+        run: python -m unittest tests.cew_b01.test_grammar_schema -v
