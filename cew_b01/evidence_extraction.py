@@ -9,16 +9,29 @@ from typing import Any, Iterable
 
 import cv2
 
+from .drawing_grammar import (
+    CHANNEL_CAPABILITY_ID,
+    DrawingGrammarConfig,
+    extract_drawing_motifs,
+)
 from .evidence_schema import (
     AxisAlignedEvidenceRegion,
     EvidenceRegionCandidate,
     Task3RasterBinding,
 )
 from .records import CoordinateFrame
+from .reuse_adapter import (
+    PR137_DESCRIPTOR_CAPABILITY_ID,
+    PR137_SOURCE_REF,
+    PR143_GRAMMAR_CAPABILITY_ID,
+    PR143_SOURCE_REF,
+)
+from .reused_oa3_similarity import OA3_CAPABILITY_ID, OA3_SOURCE_REF
 
 
-_METHOD_ID = "OPENCV_COMPOUND_RECTANGULAR_CELL_ENVELOPE_V2"
+_METHOD_ID = "OPENCV_DRAWING_GRAMMAR_CANDIDATE_UNION_V3"
 _TOOL_PACKAGE = "opencv-python-headless"
+_V2_CAPABILITY_ID = "CEW-CAP-B01-V2-COMPOUND-CELL-DETECTOR"
 _CELL_VERTICAL_OVERLAP_RATIO = 0.70
 _CELL_SIZE_RATIO_MAX = 1.50
 _CELL_GAP_MIN_PX = -4
@@ -38,6 +51,8 @@ class ExtractionConfig:
     min_rectangularity: float = 0.55
     max_aspect_ratio: float = 5.0
     duplicate_iou_threshold: float = 0.75
+    duplicate_containment_threshold: float = 0.85
+    min_external_context_density: float = 0.03
     approximation_epsilon_ratio: float = 0.02
 
     def __post_init__(self) -> None:
@@ -55,6 +70,10 @@ class ExtractionConfig:
             raise ValueError("max_aspect_ratio must be at least 1")
         if not 0.0 < float(self.duplicate_iou_threshold) <= 1.0:
             raise ValueError("duplicate_iou_threshold must be within (0, 1]")
+        if not 0.0 < float(self.duplicate_containment_threshold) <= 1.0:
+            raise ValueError("duplicate_containment_threshold must be within (0, 1]")
+        if not 0.0 < float(self.min_external_context_density) <= 1.0:
+            raise ValueError("min_external_context_density must be within (0, 1]")
         if not 0.0 < float(self.approximation_epsilon_ratio) < 1.0:
             raise ValueError("approximation_epsilon_ratio must be within (0, 1)")
 
@@ -68,11 +87,13 @@ class ExtractionConfig:
             "min_rectangularity": self.min_rectangularity,
             "max_aspect_ratio": self.max_aspect_ratio,
             "duplicate_iou_threshold": self.duplicate_iou_threshold,
+            "duplicate_containment_threshold": self.duplicate_containment_threshold,
+            "min_external_context_density": self.min_external_context_density,
             "approximation_epsilon_ratio": self.approximation_epsilon_ratio,
         }
 
 
-def _intersection_over_union(
+def _intersection_area(
     first: tuple[int, int, int, int],
     second: tuple[int, int, int, int],
 ) -> float:
@@ -84,14 +105,35 @@ def _intersection_over_union(
     bottom = min(ay + ah, by + bh)
     if right <= left or bottom <= top:
         return 0.0
-    intersection = float((right - left) * (bottom - top))
-    union = float(aw * ah + bw * bh) - intersection
+    return float((right - left) * (bottom - top))
+
+
+def _intersection_over_union(
+    first: tuple[int, int, int, int],
+    second: tuple[int, int, int, int],
+) -> float:
+    intersection = _intersection_area(first, second)
+    if intersection <= 0:
+        return 0.0
+    first_area = float(first[2] * first[3])
+    second_area = float(second[2] * second[3])
+    union = first_area + second_area - intersection
     return intersection / union if union > 0 else 0.0
+
+
+def _containment_overlap(
+    first: tuple[int, int, int, int],
+    second: tuple[int, int, int, int],
+) -> float:
+    intersection = _intersection_area(first, second)
+    smaller_area = float(min(first[2] * first[3], second[2] * second[3]))
+    return intersection / smaller_area if smaller_area > 0 else 0.0
 
 
 def _deduplicate_rectangles(
     rectangles: Iterable[tuple[int, int, int, int, float]],
     threshold: float,
+    containment_threshold: float = 0.85,
 ) -> list[tuple[int, int, int, int, float]]:
     ordered = sorted(
         rectangles,
@@ -102,6 +144,7 @@ def _deduplicate_rectangles(
         candidate_box = candidate[:4]
         if any(
             _intersection_over_union(candidate_box, existing[:4]) >= threshold
+            or _containment_overlap(candidate_box, existing[:4]) >= containment_threshold
             for existing in accepted
         ):
             continue
@@ -291,7 +334,35 @@ def _assemble_compound_envelopes(
                 6,
             )
             envelopes.append((x1, y1, width, height, confidence))
-    return _deduplicate_rectangles(envelopes, config.duplicate_iou_threshold)
+    return _deduplicate_rectangles(
+        envelopes,
+        config.duplicate_iou_threshold,
+        config.duplicate_containment_threshold,
+    )
+
+
+def _drawing_grammar_rectangles(
+    binary: Any,
+    config: ExtractionConfig,
+) -> list[tuple[int, int, int, int, float]]:
+    grammar_config = DrawingGrammarConfig(
+        min_width_px=config.min_width_px,
+        min_height_px=config.min_height_px,
+        max_width_px=config.max_width_px,
+        max_height_px=config.max_height_px,
+        max_aspect_ratio=min(3.0, config.max_aspect_ratio),
+        min_frame_coverage=0.60,
+        min_internal_ink_ratio=0.008,
+        min_internal_components=1,
+        duplicate_iou_threshold=config.duplicate_iou_threshold,
+    )
+    rectangles: list[tuple[int, int, int, int, float]] = []
+    for motif in extract_drawing_motifs(binary, grammar_config):
+        if max(motif.context_signature, default=0.0) < config.min_external_context_density:
+            continue
+        confidence = round(min(1.0, max(0.0, motif.frame_coverage)), 6)
+        rectangles.append((motif.x, motif.y, motif.width, motif.height, confidence))
+    return rectangles
 
 
 def extract_g4_evidence_candidates(
@@ -313,15 +384,16 @@ def extract_g4_evidence_candidates(
     if width != binding.raster_width_px or height != binding.raster_height_px:
         raise ValueError("Step 3 raster dimensions do not match governed probe output")
 
-    _, binary = cv2.threshold(
-        image,
-        config.threshold,
-        255,
-        cv2.THRESH_BINARY_INV,
-    )
+    _, binary = cv2.threshold(image, config.threshold, 255, cv2.THRESH_BINARY_INV)
     cells = _extract_rectangular_cells(binary, config)
     pairs = _horizontal_cell_pairs(cells, config)
-    rectangles = _assemble_compound_envelopes(binary, cells, pairs, config)
+    compound_rectangles = _assemble_compound_envelopes(binary, cells, pairs, config)
+    grammar_rectangles = _drawing_grammar_rectangles(binary, config)
+    rectangles = _deduplicate_rectangles(
+        [*compound_rectangles, *grammar_rectangles],
+        config.duplicate_iou_threshold,
+        config.duplicate_containment_threshold,
+    )
 
     tool_version = version(_TOOL_PACKAGE)
     candidates = tuple(
@@ -370,8 +442,48 @@ def evidence_bundle_mapping(
             "tool_id": _TOOL_PACKAGE,
             "tool_version": version(_TOOL_PACKAGE),
             "config": config.to_mapping(),
+            "proposal_channels": [
+                {
+                    "capability_id": _V2_CAPABILITY_ID,
+                    "role": "SOURCE_SPECIFIC_HIGH_PRECISION_PROPOSAL_CHANNEL",
+                    "execution_state": "EXECUTED",
+                },
+                {
+                    "capability_id": CHANNEL_CAPABILITY_ID,
+                    "role": "CLOSED_FRAME_INTERNAL_MARK_PROPOSAL_CHANNEL",
+                    "execution_state": "EXECUTED",
+                },
+            ],
             "semantic_identity_assigned": False,
             "structural_identity_authorized": False,
+        },
+        "reconciliation_provenance": {
+            "oa3_similarity": {
+                "capability_id": OA3_CAPABILITY_ID,
+                "source_ref": OA3_SOURCE_REF,
+                "execution_state": "AVAILABLE_REQUIRES_HUMAN_TAUGHT_PROTOTYPE",
+                "authority_effect": "PROPOSAL_ONLY",
+            },
+            "structured_descriptor": {
+                "capability_id": PR137_DESCRIPTOR_CAPABILITY_ID,
+                "source_ref": PR137_SOURCE_REF,
+                "execution_state": "B01_ADAPTER_AVAILABLE",
+                "authority_effect": "NONE",
+            },
+            "engineering_grammar": {
+                "capability_id": PR143_GRAMMAR_CAPABILITY_ID,
+                "source_ref": PR143_SOURCE_REF,
+                "execution_state": "REFERENCE_BOUNDARY_NOT_EXECUTED_STEP4",
+                "authority_effect": "NONE_AT_STEP4",
+            },
+        },
+        "authority": {
+            "human_review_required": True,
+            "semantic_identity_assigned": False,
+            "structural_identity_authorized": False,
+            "canonical_geometry_authorized": False,
+            "canonical_write_authorized": False,
+            "engineering_authority_effect": "NONE",
         },
         "candidate_count": len(ordered),
         "candidates": [candidate.to_mapping() for candidate in ordered],

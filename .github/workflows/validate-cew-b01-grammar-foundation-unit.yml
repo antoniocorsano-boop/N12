@@ -1,0 +1,57 @@
+name: CEW-B01 Grammar Foundation Unit Gate
+
+on:
+  pull_request:
+    paths:
+      - 'cew_b01/grammar_schema.py'
+      - 'cew_b01/document_zoning.py'
+      - 'cew_b01/zone_review_package.py'
+      - 'cew_b01/primitive_census.py'
+      - 'cew_b01/motif_catalog.py'
+      - 'cew_b01/grammar_review_package.py'
+      - 'tests/cew_b01/test_grammar_schema.py'
+      - 'tests/cew_b01/test_document_zoning.py'
+      - 'tests/cew_b01/test_zone_review_package.py'
+      - 'tests/cew_b01/test_primitive_census.py'
+      - 'tests/cew_b01/test_motif_catalog.py'
+      - 'tests/cew_b01/test_grammar_review_package.py'
+      - 'governance/cew-b01/TAV5_DOCUMENT_ZONE_POLICY_v1.json'
+      - '.github/workflows/validate-cew-b01-grammar-foundation-unit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  grammar-foundation-unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+      - name: Install frozen OpenCV grammar-foundation dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check 'opencv-python-headless==5.0.0.93'
+          python - <<'PY'
+          import cv2
+          assert cv2.__version__ == '5.0.0'
+          PY
+      - name: Run grammar foundation unit contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest \
+            tests.cew_b01.test_grammar_schema \
+            tests.cew_b01.test_document_zoning \
+            tests.cew_b01.test_zone_review_package \
+            tests.cew_b01.test_primitive_census \
+            tests.cew_b01.test_motif_catalog \
+            tests.cew_b01.test_grammar_review_package -v

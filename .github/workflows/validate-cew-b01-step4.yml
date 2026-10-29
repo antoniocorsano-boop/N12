@@ -9,6 +9,8 @@ on:
       - 'governance/cew-b01/EXTERNAL_TOOLCHAIN_v1.json'
       - 'requirements/cew-b01.lock.txt'
       - 'tests/cew_b01/test_evidence_extraction.py'
+      - 'tests/cew_b01/test_evidence_extraction_v3.py'
+      - 'tests/cew_b01/test_reuse_adapter.py'
       - 'tests/cew_b01/test_coordinate_frames.py'
 
 permissions:
@@ -55,6 +57,8 @@ jobs:
           source "$RUNNER_TEMP/cew-b01-step4/bin/activate"
           python -m unittest \
             tests.cew_b01.test_evidence_extraction \
+            tests.cew_b01.test_evidence_extraction_v3 \
+            tests.cew_b01.test_reuse_adapter \
             tests.cew_b01.test_coordinate_frames -v
 
       - name: Fetch frozen archival source commit
@@ -121,6 +125,22 @@ jobs:
           first_bundle = write_evidence_bundle(binding, first, destination)
           replay_bundle = evidence_bundle_mapping(binding, replay)
           assert first_bundle == replay_bundle
+          assert first_bundle['extraction']['method'] == 'OPENCV_DRAWING_GRAMMAR_CANDIDATE_UNION_V3'
+          channel_ids = {
+              item['capability_id']
+              for item in first_bundle['extraction']['proposal_channels']
+          }
+          assert channel_ids == {
+              'CEW-CAP-B01-V2-COMPOUND-CELL-DETECTOR',
+              'CEW-CAP-B01-CLOSED-FRAME-INTERNAL-MARK-SPIKE',
+          }
+          reconciliation = first_bundle['reconciliation_provenance']
+          assert reconciliation['oa3_similarity']['source_ref'] == 'a7020bef3934156c917f5bfe975d888c6ba9e684'
+          assert reconciliation['structured_descriptor']['source_ref'] == '320755e66a7263f1842f73dc14fb9a0ea8ccd7f8'
+          assert reconciliation['engineering_grammar']['source_ref'] == '098f98d2724c0a16b9293adc366a585f356bc9fc'
+          assert reconciliation['oa3_similarity']['execution_state'] == 'AVAILABLE_REQUIRES_HUMAN_TAUGHT_PROTOTYPE'
+          assert first_bundle['authority']['structural_identity_authorized'] is False
+          assert first_bundle['authority']['canonical_write_authorized'] is False
 
           ordered_identity_payload = json.dumps(
               [
@@ -142,12 +162,17 @@ jobs:
                   'tool_id': binding.renderer_tool_id,
                   'tool_version': binding.renderer_tool_version,
               },
+              'method': first_bundle['extraction']['method'],
+              'proposal_channels': first_bundle['extraction']['proposal_channels'],
+              'reconciliation_provenance': reconciliation,
               'candidate_count': len(first),
               'candidate_set_sha256': candidate_set_sha256,
               'evidence_bundle_sha256': first_bundle['bundle_sha256'],
               'coordinate_frame': 'RASTER_PIXEL',
               'semantic_identity_assigned': False,
               'structural_identity_authorized': False,
+              'canonical_write_authorized': False,
+              'engineering_authority_effect': 'NONE',
               'historical_oracle_used': False,
               'deterministic_replay': 'PASS',
           }

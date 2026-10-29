@@ -1,0 +1,198 @@
+name: CEW-B01 G0 Document Zoning Qualification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/validate-cew-b01-grammar-g0.yml'
+      - 'cew_b01/document_zoning.py'
+      - 'cew_b01/zone_review_package.py'
+      - 'cew_b01/grammar_schema.py'
+      - 'governance/cew-b01/TAV5_DOCUMENT_ZONE_POLICY_v1.json'
+      - 'governance/cew-b01/TAV5_DOCUMENT_ZONE_REVIEW_v1.json'
+      - 'governance/cew-b01/N12_TAV5_SOURCE_v1.json'
+      - 'requirements/cew-b01.lock.txt'
+      - 'tests/cew_b01/test_document_zoning.py'
+      - 'tests/cew_b01/test_zone_review_package.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-g0-document-zoning:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+
+      - name: Install frozen Tesseract system package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+          tesseract --version | head -n 1 | grep -F 'tesseract 5.3.4'
+
+      - name: Install frozen B01 toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-b01-g0"
+          source "$RUNNER_TEMP/cew-b01-g0/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
+
+      - name: Fetch frozen archival source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+
+      - name: Generate exact-TAV5 G0 proposal and qualify confirmed zones
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-b01-g0/bin/activate"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          from cew_b01.document_zoning import propose_document_zones
+          from cew_b01.evidence_schema import Task3RasterBinding
+          from cew_b01.grammar_schema import DocumentRegionKind
+          from cew_b01.pdf_probe import probe_pdf
+          from cew_b01.source_contract import load_source_contract, materialize_source
+          from cew_b01.zone_review_package import (
+              confirmed_zones_from_receipt,
+              render_zone_review_package,
+              zone_set_digest,
+          )
+
+          runner_temp = Path(os.environ['RUNNER_TEMP'])
+          contract = load_source_contract('governance/cew-b01/N12_TAV5_SOURCE_v1.json')
+          materialized = materialize_source(
+              contract,
+              '.',
+              runner_temp / 'tavola5-g0-source.pdf',
+          )
+
+          step3_dir = runner_temp / 'cew-b01-g0-task3-input'
+          probe = probe_pdf(materialized, step3_dir)
+          binding = Task3RasterBinding.from_probe_mapping(probe.to_mapping())
+          raster_path = step3_dir / 'tav5-page0-300dpi.png'
+
+          proposed_zones = propose_document_zones(binding, raster_path)
+          output_dir = Path('evidence/cew-b01/g0-zone-review')
+          proposal_result = render_zone_review_package(
+              binding,
+              raster_path,
+              proposed_zones,
+              output_dir,
+              confirmation_receipt=None,
+          )
+          proposal_manifest = json.loads(
+              Path(proposal_result['manifest_path']).read_text(encoding='utf-8')
+          )
+          assert proposal_manifest['review_state'] == 'PENDING_HUMAN_ZONE_REVIEW'
+          assert proposal_manifest['g0_document_zoning_pass'] is False
+          assert proposal_manifest['source']['sha256'] == materialized.sha256
+          assert proposal_manifest['raster']['png_sha256'] == binding.png_sha256
+          assert proposal_manifest['zone_set_digest'] == zone_set_digest(proposed_zones)
+          assert proposal_manifest['authority']['structural_identity_authorized'] is False
+          assert proposal_manifest['authority']['canonical_write_authorized'] is False
+
+          proposal_summary = {
+              'step': 'CEW-B01-G0-DOCUMENT-ZONING-PROPOSAL',
+              'source_sha256': materialized.sha256,
+              'page_index': contract.page_index,
+              'raster_sha256': binding.raster_sha256,
+              'raster_png_sha256': binding.png_sha256,
+              'zone_set_digest': proposal_manifest['zone_set_digest'],
+              'zone_count': len(proposed_zones),
+              'review_state': proposal_manifest['review_state'],
+              'g0_document_zoning_pass': False,
+              'human_reconfirmation_required': True,
+              'structural_identity_authorized': False,
+              'canonical_write_authorized': False,
+              'historical_object_oracle_used': False,
+          }
+          (output_dir / 'proposal-summary.json').write_text(
+              json.dumps(proposal_summary, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          print('G0_PROPOSAL=' + json.dumps(proposal_summary, sort_keys=True))
+
+          receipt = json.loads(
+              Path('governance/cew-b01/TAV5_DOCUMENT_ZONE_REVIEW_v1.json').read_text(encoding='utf-8')
+          )
+          zones = confirmed_zones_from_receipt(binding, proposed_zones, receipt)
+
+          title_blocks = [z for z in zones if z.kind == DocumentRegionKind.TITLE_BLOCK]
+          workareas = [z for z in zones if z.kind == DocumentRegionKind.STRUCTURAL_WORKAREA]
+          assert len(title_blocks) == 1, f'G0 requires exactly one confirmed TITLE_BLOCK, got {len(title_blocks)}'
+          assert workareas, 'G0 requires at least one confirmed STRUCTURAL_WORKAREA'
+          assert all(z.human_confirmed is True for z in zones)
+          assert all(z.structural_identity_authorized is False for z in zones)
+          assert all(z.canonical_write_authorized is False for z in zones)
+
+          result = render_zone_review_package(
+              binding,
+              raster_path,
+              zones,
+              output_dir,
+              confirmation_receipt=receipt,
+          )
+          manifest = json.loads(Path(result['manifest_path']).read_text(encoding='utf-8'))
+          assert manifest['review_state'] == 'G0_DOCUMENT_ZONING_PASS'
+          assert manifest['g0_document_zoning_pass'] is True
+          assert manifest['source']['sha256'] == materialized.sha256
+          assert manifest['raster']['png_sha256'] == binding.png_sha256
+          assert manifest['zone_set_digest'] == zone_set_digest(zones)
+          assert manifest['authority']['authority_effect'] == 'DOCUMENT_FUNCTION_CLASSIFICATION_ONLY'
+          assert manifest['authority']['structural_identity_authorized'] is False
+          assert manifest['authority']['canonical_write_authorized'] is False
+
+          summary = {
+              'step': 'CEW-B01-G0-DOCUMENT-ZONING',
+              'source_sha256': materialized.sha256,
+              'page_index': contract.page_index,
+              'raster_sha256': binding.raster_sha256,
+              'raster_png_sha256': binding.png_sha256,
+              'zone_set_digest': manifest['zone_set_digest'],
+              'zone_count': len(zones),
+              'title_block_count': len(title_blocks),
+              'structural_workarea_count': len(workareas),
+              'title_block_geometry': title_blocks[0].to_mapping()['geometry'],
+              'review_state': manifest['review_state'],
+              'g0_document_zoning_pass': True,
+              'reviewer_decision_id': receipt['reviewer_decision_id'],
+              'structural_identity_authorized': False,
+              'canonical_write_authorized': False,
+              'historical_object_oracle_used': False,
+          }
+          (output_dir / 'qualification-summary.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          print('G0_QUALIFICATION=' + json.dumps(summary, sort_keys=True))
+          PY
+
+      - name: Upload G0 zone review evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-b01-grammar-g0-zone-review
+          path: evidence/cew-b01/g0-zone-review/
+          if-no-files-found: error
+          retention-days: 30

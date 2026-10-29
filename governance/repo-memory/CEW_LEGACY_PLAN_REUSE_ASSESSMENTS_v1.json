@@ -1,0 +1,28 @@
+{
+  "schema_version": "CEW_LEGACY_PLAN_REUSE_ASSESSMENTS_v1",
+  "activation_date": "2026-10-28",
+  "purpose": "Preserve pre-existing implementation plans byte-for-byte while recording the repository-memory reuse assessment required after activation of the CEW reuse-first gate.",
+  "plans": [
+    {
+      "path": "docs/superpowers/plans/2026-10-28-cew-bimcraft-01-benchmark.md",
+      "status": "HISTORICAL_PLAN_PREDATES_REPO_MEMORY",
+      "assessment": "REUSE_FIRST_REVIEW_RECORDED_EXTERNALLY",
+      "consulted_capabilities": [
+        "CEW-CAP-MASTER-BUILD-LAST-REUSE-FIRST"
+      ],
+      "disposition": "PRESERVE_HISTORICAL_PLAN",
+      "rationale": "The benchmark was already executed and qualified before repository-memory activation. Its architecture explicitly used a thin CEW adapter around an external replaceable BIM engine and reused IfcOpenShell rather than implementing a BIM/IFC engine internally. No retroactive rewrite of the historical plan is required."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-28-cew-bimcraft-adoption.md",
+      "status": "HISTORICAL_PLAN_PREDATES_REPO_MEMORY",
+      "assessment": "REUSE_FIRST_REVIEW_RECORDED_EXTERNALLY",
+      "consulted_capabilities": [
+        "CEW-CAP-MASTER-BUILD-LAST-REUSE-FIRST"
+      ],
+      "disposition": "PRESERVE_HISTORICAL_PLAN",
+      "rationale": "The adoption plan was already executed before repository-memory activation and preserved the replaceable-engine boundary, build123d geometry role, IfcOpenShell IFC role, and existing CEW-B01 human/source-binding gate. The original plan remains historical evidence."
+    }
+  ],
+  "authority_effect": "GOVERNANCE_ONLY"
+}

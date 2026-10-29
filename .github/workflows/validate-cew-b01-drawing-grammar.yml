@@ -1,0 +1,52 @@
+name: CEW-B01 Drawing Grammar Unit Gate
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/validate-cew-b01-drawing-grammar.yml'
+      - 'cew_b01/drawing_grammar.py'
+      - 'cew_b01/evidence_extraction.py'
+      - 'cew_b01/reuse_adapter.py'
+      - 'cew_b01/reused_oa3_similarity.py'
+      - 'tests/cew_b01/test_evidence_extraction.py'
+      - 'tests/cew_b01/test_evidence_extraction_v3.py'
+      - 'tests/cew_b01/test_evidence_extraction_v3_hardening.py'
+      - 'tests/cew_b01/test_reuse_adapter.py'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-drawing-grammar:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+
+      - name: Install frozen OpenCV unit dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check 'opencv-python-headless==5.0.0.93'
+          python - <<'PY'
+          import cv2
+          assert cv2.__version__ == '5.0.0'
+          PY
+
+      - name: Run B01 proposal-channel and reuse-adapter unit contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest \
+            tests.cew_b01.test_evidence_extraction.DrawingGrammarTests \
+            tests.cew_b01.test_evidence_extraction_v3 \
+            tests.cew_b01.test_evidence_extraction_v3_hardening \
+            tests.cew_b01.test_reuse_adapter -v
