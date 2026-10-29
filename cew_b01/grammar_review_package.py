@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections import Counter
+from collections import Counter, defaultdict
 import json
 from pathlib import Path
 from typing import Iterable, Sequence
@@ -14,10 +14,13 @@ from .grammar_schema import (
     DocumentRegionKind,
     DocumentRegionMask,
     GraphicPrimitiveObservation,
+    MotifClassificationState,
     PrimitiveFamily,
     RecurringMotif,
 )
 
+
+_PRIORITY_REVIEW_MIN_OCCURRENCES = 5
 
 _EXCLUSION_KINDS = {
     DocumentRegionKind.TITLE_BLOCK,
@@ -113,6 +116,8 @@ def _validate_motifs(
         if motif.source != binding.source or motif.page_index != binding.source.page_index:
             raise ValueError("GRAMMAR_REVIEW_MOTIF_SOURCE_MISMATCH")
         if motif.representative_primitive_id not in primitive_by_id:
+            raise ValueError("GRAMMAR_REVIEW_MOTIF_REPRESENTATIVE_MISSING")
+        if any(rep_id not in primitive_by_id for rep_id in motif.representative_primitive_ids):
             raise ValueError("GRAMMAR_REVIEW_MOTIF_REPRESENTATIVE_MISSING")
         if any(member_id not in primitive_by_id for member_id in motif.member_primitive_ids):
             raise ValueError("GRAMMAR_REVIEW_MOTIF_MEMBER_MISSING")
@@ -217,6 +222,41 @@ def _context_crop(image: np.ndarray, item: GraphicPrimitiveObservation) -> np.nd
     return crop
 
 
+def _render_motif_tile(
+    image: np.ndarray,
+    primitive_by_id: dict[str, GraphicPrimitiveObservation],
+    motif: RecurringMotif,
+    width: int,
+    height: int,
+) -> np.ndarray:
+    tile = np.full((height, width, 3), 255, dtype=np.uint8)
+    header_height = 62
+    family = str(motif.neutral_descriptor.get("family", "UNKNOWN"))
+    cv2.putText(tile, f"{family}  n={motif.occurrence_count}", (8, 23), cv2.FONT_HERSHEY_SIMPLEX, 0.44, (0, 0, 0), 1, cv2.LINE_AA)
+    cv2.putText(tile, motif.motif_id, (8, 45), cv2.FONT_HERSHEY_SIMPLEX, 0.31, (0, 0, 0), 1, cv2.LINE_AA)
+
+    representative_ids = motif.representative_primitive_ids or (motif.representative_primitive_id,)
+    representative_ids = representative_ids[:4]
+    inner_width = width - 16
+    inner_height = height - header_height - 12
+    columns = 2 if len(representative_ids) > 1 else 1
+    rows = 2 if len(representative_ids) > 2 else 1
+    cell_width = max(1, inner_width // columns)
+    cell_height = max(1, inner_height // rows)
+    for index, primitive_id in enumerate(representative_ids):
+        primitive = primitive_by_id[primitive_id]
+        crop = _context_crop(image, primitive)
+        fitted = _fit_inside(crop, cell_width - 8, cell_height - 8)
+        row = index // columns
+        col = index % columns
+        cell_x = 8 + col * cell_width
+        cell_y = header_height + row * cell_height
+        paste_x = cell_x + (cell_width - fitted.shape[1]) // 2
+        paste_y = cell_y + (cell_height - fitted.shape[0]) // 2
+        tile[paste_y : paste_y + fitted.shape[0], paste_x : paste_x + fitted.shape[1]] = fitted
+    return tile
+
+
 def _render_motif_atlas(
     image: np.ndarray,
     primitive_by_id: dict[str, GraphicPrimitiveObservation],
@@ -244,26 +284,52 @@ def _render_motif_atlas(
         items = ordered[start : start + per_sheet]
         sheet = np.full((rows * tile_height, columns * tile_width, 3), 255, dtype=np.uint8)
         for offset, motif in enumerate(items):
-            representative = primitive_by_id[motif.representative_primitive_id]
-            crop = _context_crop(image, representative)
-            header_height = 58
-            fitted = _fit_inside(crop, tile_width - 16, tile_height - header_height - 16)
+            tile = _render_motif_tile(image, primitive_by_id, motif, tile_width, tile_height)
             row = offset // columns
             col = offset % columns
             x0 = col * tile_width
             y0 = row * tile_height
-            paste_x = x0 + (tile_width - fitted.shape[1]) // 2
-            paste_y = y0 + header_height + (tile_height - header_height - fitted.shape[0]) // 2
-            sheet[paste_y : paste_y + fitted.shape[0], paste_x : paste_x + fitted.shape[1]] = fitted
-            family = str(motif.neutral_descriptor.get("family", "UNKNOWN"))
-            label = f"{family}  n={motif.occurrence_count}"
-            cv2.putText(sheet, label, (x0 + 8, y0 + 24), cv2.FONT_HERSHEY_SIMPLEX, 0.46, (0, 0, 0), 1, cv2.LINE_AA)
-            cv2.putText(sheet, motif.motif_id, (x0 + 8, y0 + 46), cv2.FONT_HERSHEY_SIMPLEX, 0.34, (0, 0, 0), 1, cv2.LINE_AA)
+            sheet[y0 : y0 + tile_height, x0 : x0 + tile_width] = tile
         path = destination / f"motif-atlas-{start // per_sheet + 1:02d}.png"
         if not cv2.imwrite(str(path), sheet):
             raise ValueError("GRAMMAR_REVIEW_MOTIF_ATLAS_WRITE_FAILED")
         paths.append(str(path))
     return paths
+
+
+def _family_summary(motifs: Sequence[RecurringMotif]) -> dict[str, dict[str, int]]:
+    families: dict[str, list[RecurringMotif]] = defaultdict(list)
+    for motif in motifs:
+        families[str(motif.neutral_descriptor.get("family", "UNKNOWN"))].append(motif)
+    summary: dict[str, dict[str, int]] = {}
+    for family, items in sorted(families.items()):
+        summary[family] = {
+            "motif_count": len(items),
+            "recurring_motif_count": sum(item.occurrence_count >= 2 for item in items),
+            "singleton_motif_count": sum(item.occurrence_count == 1 for item in items),
+            "priority_review_motif_count": sum(item.occurrence_count >= _PRIORITY_REVIEW_MIN_OCCURRENCES for item in items),
+        }
+    return summary
+
+
+def _priority_review_motifs(motifs: Sequence[RecurringMotif]) -> tuple[RecurringMotif, ...]:
+    selected: list[RecurringMotif] = []
+    for motif in motifs:
+        family = motif.neutral_descriptor.get("family")
+        is_priority_recurring = motif.occurrence_count >= _PRIORITY_REVIEW_MIN_OCCURRENCES
+        is_recurring_unknown = family == PrimitiveFamily.UNKNOWN_GRAPHIC_GROUP.value and motif.occurrence_count >= 2
+        if is_priority_recurring or is_recurring_unknown:
+            selected.append(motif)
+    return tuple(
+        sorted(
+            selected,
+            key=lambda motif: (
+                -motif.occurrence_count,
+                str(motif.neutral_descriptor.get("family", "")),
+                motif.motif_id,
+            ),
+        )
+    )
 
 
 def render_grammar_foundation_review_package(
@@ -291,7 +357,9 @@ def render_grammar_foundation_review_package(
 
     ink, accounted_ink, unaccounted = _coverage_masks(image, workarea_mask, primitive_items)
     _render_coverage_overlay(image, workarea_mask, unaccounted, coverage_overlay_path)
-    motif_atlas_paths = _render_motif_atlas(image, primitive_by_id, motif_items, destination / "atlas")
+
+    priority_motifs = _priority_review_motifs(motif_items)
+    motif_atlas_paths = _render_motif_atlas(image, primitive_by_id, priority_motifs, destination / "atlas-priority")
 
     total_ink = int(np.count_nonzero(ink))
     accounted_ink_pixels = int(np.count_nonzero(accounted_ink))
@@ -303,6 +371,11 @@ def render_grammar_foundation_review_package(
         for motif in motif_items
         if motif.neutral_descriptor.get("family") == PrimitiveFamily.UNKNOWN_GRAPHIC_GROUP.value
     ]
+    unclassified_motifs = [
+        motif for motif in motif_items if motif.classification_state == MotifClassificationState.UNCLASSIFIED
+    ]
+    recurring_motifs = [motif for motif in motif_items if motif.occurrence_count >= 2]
+    singleton_motifs = [motif for motif in motif_items if motif.occurrence_count == 1]
 
     manifest = {
         "schema_id": "CEW_B01_GRAMMAR_FOUNDATION_REVIEW_PACKAGE",
@@ -329,8 +402,22 @@ def render_grammar_foundation_review_package(
         },
         "motifs": {
             "count": len(motif_items),
+            "unclassified_motif_count": len(unclassified_motifs),
+            "recurring_motif_count": len(recurring_motifs),
+            "singleton_motif_count": len(singleton_motifs),
             "unknown_motif_count": len(unknown_motifs),
+            "priority_review_min_occurrences": _PRIORITY_REVIEW_MIN_OCCURRENCES,
+            "priority_review_motif_count": len(priority_motifs),
+            "priority_review_motif_ids": [motif.motif_id for motif in priority_motifs],
+            "family_summary": _family_summary(motif_items),
             "items": [motif.to_mapping() for motif in sorted(motif_items, key=lambda motif: motif.motif_id)],
+        },
+        "review_policy": {
+            "priority_review_min_occurrences": _PRIORITY_REVIEW_MIN_OCCURRENCES,
+            "priority_threshold_is_presentation_only": True,
+            "singletons_retained_in_catalog": True,
+            "recurring_unknowns_always_prioritized": True,
+            "priority_atlas_does_not_imply_functional_classification": True,
         },
         "coverage": {
             "workarea_ink_pixels": total_ink,
