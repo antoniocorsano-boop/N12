@@ -1,0 +1,20 @@
+{
+  "schema_version": "cew-mobile-candidate-review-v1",
+  "review_id": "CEW-MOBILE-REVIEW-FIXTURE-v1",
+  "source": {
+    "source_id": "CEW-MOBILE-FIXTURE",
+    "authority": "TEST_FIXTURE_ONLY"
+  },
+  "candidates": [
+    {
+      "candidate_id": "MOB-CAND-001",
+      "image_uri": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='800'%3E%3Crect width='640' height='800' fill='white'/%3E%3Crect x='220' y='250' width='170' height='260' fill='none' stroke='black' stroke-width='10'/%3E%3C/svg%3E",
+      "prompt": "Fixture: valuta solo la sagoma grafica proposta."
+    },
+    {
+      "candidate_id": "MOB-CAND-002",
+      "image_uri": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='800'%3E%3Crect width='640' height='800' fill='white'/%3E%3Cline x1='80' y1='360' x2='560' y2='360' stroke='black' stroke-width='10'/%3E%3Cline x1='80' y1='420' x2='560' y2='420' stroke='black' stroke-width='10'/%3E%3C/svg%3E",
+      "prompt": "Fixture: verifica un possibile falso positivo lineare."
+    }
+  ]
+}
