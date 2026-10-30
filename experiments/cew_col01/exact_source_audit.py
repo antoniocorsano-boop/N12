@@ -21,8 +21,9 @@ def evaluate_benchmark(
     benchmark = sorted({str(value) for value in benchmark_ids}, key=_identifier_sort_key)
     elongated = sorted({str(value) for value in elongated_ids}, key=_identifier_sort_key)
 
+    eligible_records = [record for record in records if bool(record.get("review_eligible"))]
     observations: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for record in records:
+    for record in eligible_records:
         identifier = record.get("anchor_id")
         if identifier is None:
             continue
@@ -37,7 +38,7 @@ def evaluate_benchmark(
         for identifier, count in sorted(
             Counter(
                 str(record.get("anchor_id"))
-                for record in records
+                for record in eligible_records
                 if record.get("anchor_id") is not None
             ).items(),
             key=lambda item: _identifier_sort_key(item[0]),
@@ -71,6 +72,7 @@ def evaluate_benchmark(
 
     return {
         "benchmark_count": len(benchmark),
+        "eligible_record_count": len(eligible_records),
         "matched_count": len(matched),
         "unmatched_count": len(unmatched),
         "matched_ids": matched,
