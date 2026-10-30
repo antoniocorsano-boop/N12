@@ -1,0 +1,35 @@
+name: CEW-COL-01 Number-Anchored Column Recovery
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/validate-cew-col01-number-anchored-column-recovery.yml'
+      - 'experiments/cew_col01/**'
+      - 'tests/cew_col01/**'
+      - 'docs/experiments/2026-10-30-cew-col01-number-anchored-column-recovery-design.md'
+      - 'docs/superpowers/plans/2026-10-30-cew-col01-number-anchored-column-recovery.md'
+      - 'governance/cew-col01/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+
+      - name: Run COL-01 unit tests
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests/cew_col01 -p 'test_*.py' -v
