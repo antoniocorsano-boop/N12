@@ -31,6 +31,22 @@ class ExactSourceAuditContractTests(unittest.TestCase):
         self.assertEqual(result["elongated_witnesses"][0]["identifier"], "2")
         self.assertEqual(result["elongated_witnesses"][0]["observation_count"], 2)
 
+    def test_number_without_plausible_footprint_does_not_count_as_support_match(self):
+        result = evaluate_benchmark(
+            [
+                record("18", "NO_PLAUSIBLE_FOOTPRINT"),
+                record("23", "P2_NUMBER_FOOTPRINT_NO_AXES"),
+            ],
+            benchmark_ids=["18", "23"],
+            elongated_ids=["18", "23"],
+        )
+        self.assertEqual(result["matched_ids"], ["23"])
+        self.assertEqual(result["unmatched_ids"], ["18"])
+        self.assertAlmostEqual(result["coverage_fraction"], 0.5)
+        by_id = {item["identifier"]: item for item in result["elongated_witnesses"]}
+        self.assertEqual(by_id["18"]["observation_count"], 0)
+        self.assertEqual(by_id["23"]["observation_count"], 1)
+
     def test_ninety_percent_identifier_coverage_supports_hypothesis_only(self):
         records = [record(str(value)) for value in range(1, 10)]
         result = evaluate_benchmark(
