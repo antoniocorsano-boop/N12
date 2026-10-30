@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 import unittest
+from pathlib import Path
 
 from experiments.cew_b01.hosted_marker_occurrence_search import analyze_hosted_marker_occurrences
 
@@ -120,6 +122,56 @@ class HostedMarkerAnnotationNoiseTests(unittest.TestCase):
         self.assertEqual(evidence["ignored_tiny_text_block_ids"], [])
         self.assertEqual(evidence["text_component_areas"]["TEXT"], 88.0)
         self.assertTrue(evidence["annotation_dominated"])
+
+
+class HostedMarkerGovernanceReceiptTests(unittest.TestCase):
+    def test_receipt_matches_reworked_exact_source_result(self):
+        receipt_path = Path("governance/cew-b01/HOSTED_MARKER_OCCURRENCE_SEARCH_v1.json")
+        receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(receipt["schema_id"], "CEW_B01_HOSTED_MARKER_OCCURRENCE_SEARCH_RESULT")
+        self.assertEqual(receipt["schema_version"], 2)
+        self.assertEqual(receipt["status"], "SEARCH_REWORK_PASS_HUMAN_GRAPHICAL_REVIEW_PENDING")
+
+        result = receipt["search_result"]
+        self.assertEqual(result["all_bound_occurrence_count"], 50)
+        self.assertEqual(result["review_eligible_occurrence_count"], 46)
+        self.assertEqual(result["annotation_dominated_count"], 4)
+        self.assertEqual(
+            result["review_eligible_counts_by_graphical_state"],
+            {
+                "RECT_ALONE_ON_CARRIER": 25,
+                "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE": 21,
+            },
+        )
+        self.assertEqual(result["additional_ranked_count"], 44)
+        self.assertEqual(
+            result["additional_ranked_counts_by_graphical_state"],
+            {
+                "RECT_ALONE_ON_CARRIER": 24,
+                "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE": 20,
+            },
+        )
+
+        self.assertEqual(
+            receipt["evidence"]["replay_sha256"],
+            "f68cfaccb496bd5c8d6b90ed4dbc68d4a3c242bcb9b905c5d01bfbf7ffd76459",
+        )
+        self.assertEqual(
+            receipt["annotation_dominated_marker_ids"],
+            [
+                "CEW-B01-GP-8b7eae9c9f25bb1d73c6f504",
+                "CEW-B01-GP-cf4860204d8bb1c826d35f40",
+                "CEW-B01-GP-dd6f0d8649bb8b6add8e0507",
+                "CEW-B01-GP-f417c150f3a1b9a8d30c7d03",
+            ],
+        )
+        self.assertFalse(receipt["authority"]["semantic_classification_authorized"])
+        self.assertFalse(receipt["authority"]["structural_identity_authorized"])
+        self.assertFalse(receipt["authority"]["canonical_write_authorized"])
+        self.assertFalse(receipt["authority"]["g2c_promotion_authorized"])
+        self.assertFalse(receipt["authority"]["g3_authorized"])
+        self.assertFalse(receipt["authority"]["merge_authorized"])
 
 
 if __name__ == "__main__":
