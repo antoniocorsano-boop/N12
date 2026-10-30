@@ -125,23 +125,36 @@ def _annotation_evidence(
             marker_scope = _scope_key(primitive)
             break
 
+    marker_area = max(float(geometry["width"]) * float(geometry["height"]), 1.0)
+    minimum_text_overlap_area = max(8.0, marker_area * 0.002)
     overlapping_text_ids: list[str] = []
+    ignored_tiny_text_ids: list[str] = []
+    text_overlap_areas: dict[str, float] = {}
     if marker_scope is not None and inner["width"] > 0.0 and inner["height"] > 0.0:
         for primitive in primitives:
             if primitive.get("family") != "TEXT_BLOCK" or _scope_key(primitive) != marker_scope:
                 continue
-            if _intersect_area(inner, primitive["geometry"]) > 0.0:
-                overlapping_text_ids.append(str(primitive["primitive_id"]))
+            primitive_id = str(primitive["primitive_id"])
+            overlap_area = _intersect_area(inner, primitive["geometry"])
+            if overlap_area <= 0.0:
+                continue
+            text_overlap_areas[primitive_id] = round(overlap_area, 6)
+            if overlap_area >= minimum_text_overlap_area:
+                overlapping_text_ids.append(primitive_id)
+            else:
+                ignored_tiny_text_ids.append(primitive_id)
 
     components = _enclosed_ink_components(binary_ink, geometry)
     component_area = sum(components)
-    marker_area = max(float(geometry["width"]) * float(geometry["height"]), 1.0)
     minimum_annotation_area = max(8, int(round(marker_area * 0.01)))
     enclosed_annotation_like = bool(components) and component_area >= minimum_annotation_area
     annotation_dominated = bool(overlapping_text_ids) or enclosed_annotation_like
 
     return {
         "overlapping_text_block_ids": sorted(overlapping_text_ids),
+        "ignored_tiny_text_block_ids": sorted(ignored_tiny_text_ids),
+        "text_overlap_areas": {key: text_overlap_areas[key] for key in sorted(text_overlap_areas)},
+        "minimum_text_overlap_area": round(minimum_text_overlap_area, 6),
         "enclosed_component_count": len(components),
         "enclosed_component_areas": components,
         "enclosed_component_area": component_area,
