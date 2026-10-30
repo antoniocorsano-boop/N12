@@ -1,0 +1,130 @@
+{
+  "schema_id": "CEW_B01_BEAM_GRAPHICAL_TYPE_MATCH_REVIEW",
+  "schema_version": 1,
+  "status": "PROTOTYPE_GUIDED_MATCH_HUMAN_REVIEW_PENDING",
+  "scope": "TAV5_FROZEN_DOUBLE_CANDIDATES",
+  "source": {
+    "repository": "antoniocorsano-boop/N12",
+    "path": "archive/documentazione_originaria/tavola 5.pdf",
+    "page_index": 0,
+    "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+    "exact_source_run": 41044608383,
+    "artifact_id": 12971414043,
+    "artifact_digest": "sha256:fbec5e5eedebb122b666bc0db8bdb660fadaa8a00f1ae194618f38bfe09b26a3",
+    "candidate_manifest": "beam-type-approval/double-candidates-manifest.json",
+    "frozen_candidate_count": 8
+  },
+  "prototype_registry": "governance/cew-b01/BEAM_GRAPHICAL_TYPE_PROTOTYPES_v1.json",
+  "matching_policy": {
+    "visual_authority": "SOURCE_ONLY_300_DPI_CROP",
+    "comparison_kind": "RELATIONAL_GRAPHICAL_SIMILARITY",
+    "t1_relation": "DOUBLE_BAND_ORTHOGONAL_TO_MARKER_MAJOR_AXIS",
+    "t2_relation": "DOUBLE_BAND_PARALLEL_TO_MARKER_MAJOR_AXIS",
+    "allowed_review_buckets": [
+      "SIMILAR_TO_T1",
+      "SIMILAR_TO_T2",
+      "NEITHER",
+      "UNCERTAIN"
+    ],
+    "automatic_semantic_classification": false,
+    "threshold_tuning": false,
+    "re_extraction": false
+  },
+  "prototypes": {
+    "T1": {
+      "prototype_id": "CEW-B01-BEAM-GRAPH-T1-v1",
+      "marker_primitive_id": "CEW-B01-GP-0585efea6643bfdd101c7e7b",
+      "human_reference_label": "trave emergente"
+    },
+    "T2": {
+      "prototype_id": "CEW-B01-BEAM-GRAPH-T2-v1",
+      "marker_primitive_id": "CEW-B01-GP-218cf82b7d4970047f846baf",
+      "human_reference_label": "trave a spessore di solaio"
+    }
+  },
+  "candidates": [
+    {
+      "panel_id": "D01",
+      "marker_primitive_id": "CEW-B01-GP-0585efea6643bfdd101c7e7b",
+      "marker_major_axis": "VERTICAL",
+      "proposed_graphical_match": "REFERENCE_T1",
+      "review_basis": "APPROVED_PROTOTYPE_ANCHOR",
+      "human_review_state": "REFERENCE_ALREADY_APPROVED"
+    },
+    {
+      "panel_id": "D02",
+      "marker_primitive_id": "CEW-B01-GP-170208dcb885d5ca5beed9ea",
+      "marker_major_axis": "VERTICAL",
+      "proposed_graphical_match": "SIMILAR_TO_T1",
+      "review_basis": "VISIBLE_DOUBLE_BAND_ORTHOGONAL_TO_MARKER_MAJOR_AXIS",
+      "human_review_state": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "D03",
+      "marker_primitive_id": "CEW-B01-GP-185b1f5d7a45a56581f5998b",
+      "marker_major_axis": "VERTICAL",
+      "proposed_graphical_match": "SIMILAR_TO_T2",
+      "review_basis": "VISIBLE_DOUBLE_BAND_PARALLEL_TO_MARKER_MAJOR_AXIS",
+      "human_review_state": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "D04",
+      "marker_primitive_id": "CEW-B01-GP-1f49c4d9edcd5646e25622ab",
+      "marker_major_axis": "HORIZONTAL",
+      "proposed_graphical_match": "SIMILAR_TO_T2",
+      "review_basis": "VISIBLE_DOUBLE_BAND_PARALLEL_TO_MARKER_MAJOR_AXIS",
+      "human_review_state": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "D05",
+      "marker_primitive_id": "CEW-B01-GP-218cf82b7d4970047f846baf",
+      "marker_major_axis": "HORIZONTAL",
+      "proposed_graphical_match": "REFERENCE_T2",
+      "review_basis": "APPROVED_PROTOTYPE_ANCHOR",
+      "human_review_state": "REFERENCE_ALREADY_APPROVED"
+    },
+    {
+      "panel_id": "D06",
+      "marker_primitive_id": "CEW-B01-GP-41699fd8bcc089c40f86c0d3",
+      "marker_major_axis": "VERTICAL",
+      "proposed_graphical_match": "SIMILAR_TO_T2",
+      "review_basis": "VISIBLE_DOUBLE_BAND_PARALLEL_TO_MARKER_MAJOR_AXIS",
+      "human_review_state": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "D07",
+      "marker_primitive_id": "CEW-B01-GP-7605114de6159e5b95019f2f",
+      "marker_major_axis": "HORIZONTAL",
+      "proposed_graphical_match": "SIMILAR_TO_T2",
+      "review_basis": "VISIBLE_DOUBLE_BAND_PARALLEL_TO_MARKER_MAJOR_AXIS",
+      "human_review_state": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "D08",
+      "marker_primitive_id": "CEW-B01-GP-9c2baa902b81c5f3aa35c7b6",
+      "marker_major_axis": "HORIZONTAL",
+      "proposed_graphical_match": "SIMILAR_TO_T2",
+      "review_basis": "VISIBLE_DOUBLE_BAND_PARALLEL_TO_MARKER_MAJOR_AXIS",
+      "human_review_state": "PENDING_HUMAN_REVIEW"
+    }
+  ],
+  "summary": {
+    "reference_t1": 1,
+    "reference_t2": 1,
+    "pending_similar_to_t1": 1,
+    "pending_similar_to_t2": 5,
+    "pending_neither": 0,
+    "pending_uncertain": 0,
+    "human_review_required_for_non_reference_candidates": true
+  },
+  "authority": {
+    "graphical_prototypes_human_approved": true,
+    "graphical_candidate_matches_human_approved": false,
+    "semantic_classification_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false
+  }
+}
