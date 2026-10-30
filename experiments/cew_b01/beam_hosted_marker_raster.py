@@ -58,26 +58,19 @@ def _first_valid_pair(
     return []
 
 
-def detect_local_transverse_pair_from_binary(
+def _side_transverse_results(
     binary_ink: Sequence[Sequence[Any]],
     *,
     marker_geometry: dict[str, float | int],
     carrier_orientation: str,
     carrier_track_centerlines: Sequence[float | int],
-    search_depth_factor: float = 2.5,
-    minimum_axis_coverage: float = 0.55,
-    longitudinal_margin_fraction: float = 0.10,
-    max_stroke_width_fraction: float = 0.20,
-    min_pair_separation_fraction: float = 0.03,
-    max_pair_separation_fraction: float = 0.60,
-) -> dict[str, Any]:
-    """Detect two persistent strokes transverse to a carrier near one marker.
-
-    `binary_ink` is a two-dimensional truthy/falsey raster in the same pixel
-    coordinate frame as the marker/carrier geometry. The detector is neutral:
-    it reports only local stroke geometry and never assigns technical meaning.
-    """
-
+    search_depth_factor: float,
+    minimum_axis_coverage: float,
+    longitudinal_margin_fraction: float,
+    max_stroke_width_fraction: float,
+    min_pair_separation_fraction: float,
+    max_pair_separation_fraction: float,
+) -> tuple[list[dict[str, Any]], int, int]:
     height = len(binary_ink)
     if height <= 0:
         raise ValueError("HOSTED_MARKER_RASTER_EMPTY")
@@ -158,7 +151,39 @@ def detect_local_transverse_pair_from_binary(
             "cross_end": cross_b,
             "stroke_runs": strokes,
             "pair_strokes": pair,
+            "pair_detected": len(pair) == 2,
         })
+
+    return side_results, long_a, long_b
+
+
+def detect_local_transverse_pair_from_binary(
+    binary_ink: Sequence[Sequence[Any]],
+    *,
+    marker_geometry: dict[str, float | int],
+    carrier_orientation: str,
+    carrier_track_centerlines: Sequence[float | int],
+    search_depth_factor: float = 2.5,
+    minimum_axis_coverage: float = 0.55,
+    longitudinal_margin_fraction: float = 0.10,
+    max_stroke_width_fraction: float = 0.20,
+    min_pair_separation_fraction: float = 0.03,
+    max_pair_separation_fraction: float = 0.60,
+) -> dict[str, Any]:
+    """Detect one local transverse pair while preserving the legacy selection rule."""
+
+    side_results, long_a, long_b = _side_transverse_results(
+        binary_ink,
+        marker_geometry=marker_geometry,
+        carrier_orientation=carrier_orientation,
+        carrier_track_centerlines=carrier_track_centerlines,
+        search_depth_factor=search_depth_factor,
+        minimum_axis_coverage=minimum_axis_coverage,
+        longitudinal_margin_fraction=longitudinal_margin_fraction,
+        max_stroke_width_fraction=max_stroke_width_fraction,
+        min_pair_separation_fraction=min_pair_separation_fraction,
+        max_pair_separation_fraction=max_pair_separation_fraction,
+    )
 
     if not side_results:
         return {
@@ -187,4 +212,62 @@ def detect_local_transverse_pair_from_binary(
         "longitudinal_search_end": long_b,
         "cross_search_start": selected["cross_start"],
         "cross_search_end": selected["cross_end"],
+    }
+
+
+def detect_bilateral_transverse_section_from_binary(
+    binary_ink: Sequence[Sequence[Any]],
+    *,
+    marker_geometry: dict[str, float | int],
+    carrier_orientation: str,
+    carrier_track_centerlines: Sequence[float | int],
+    search_depth_factor: float = 2.5,
+    minimum_axis_coverage: float = 0.55,
+    longitudinal_margin_fraction: float = 0.10,
+    max_stroke_width_fraction: float = 0.20,
+    min_pair_separation_fraction: float = 0.03,
+    max_pair_separation_fraction: float = 0.60,
+) -> dict[str, Any]:
+    """Evaluate the two cross-axis sides independently for a neutral double-pair section."""
+
+    side_results, long_a, long_b = _side_transverse_results(
+        binary_ink,
+        marker_geometry=marker_geometry,
+        carrier_orientation=carrier_orientation,
+        carrier_track_centerlines=carrier_track_centerlines,
+        search_depth_factor=search_depth_factor,
+        minimum_axis_coverage=minimum_axis_coverage,
+        longitudinal_margin_fraction=longitudinal_margin_fraction,
+        max_stroke_width_fraction=max_stroke_width_fraction,
+        min_pair_separation_fraction=min_pair_separation_fraction,
+        max_pair_separation_fraction=max_pair_separation_fraction,
+    )
+    by_side = {item["side"]: item for item in side_results}
+    empty_side = {
+        "cross_start": None,
+        "cross_end": None,
+        "stroke_runs": [],
+        "pair_strokes": [],
+        "pair_detected": False,
+    }
+    before = dict(by_side.get("BEFORE_CROSS_AXIS", empty_side))
+    after = dict(by_side.get("AFTER_CROSS_AXIS", empty_side))
+    before.pop("side", None)
+    after.pop("side", None)
+    pair_side_count = int(bool(before.get("pair_detected"))) + int(bool(after.get("pair_detected")))
+    if pair_side_count == 2:
+        section_state = "BILATERAL_DOUBLE_PAIR"
+    elif pair_side_count == 1 or before.get("stroke_runs") or after.get("stroke_runs"):
+        section_state = "UNILATERAL_PAIR_OR_PARTIAL"
+    else:
+        section_state = "NO_TRANSVERSE_SECTION"
+
+    return {
+        "bilateral_double_pair_detected": pair_side_count == 2,
+        "pair_side_count": pair_side_count,
+        "section_state": section_state,
+        "before": before,
+        "after": after,
+        "longitudinal_search_start": long_a,
+        "longitudinal_search_end": long_b,
     }
