@@ -1,0 +1,71 @@
+{
+  "schema_id": "CEW_COL02_PROTOTYPE_GUIDED_HUMAN_REVIEW",
+  "schema_version": 1,
+  "source": {
+    "repository": "antoniocorsano-boop/N12",
+    "pull_request": 173,
+    "candidate_exact_head": "51436197491bad6c023275a8001287d536200bc5",
+    "artifact_id": 12994292845,
+    "artifact_digest": "sha256:d9c21dfa762eab9bd7229c7e0d0d653f1cc44c9aa38dcfafd2181b1ac487cb90",
+    "search_replay_sha256": "11dc8a03789628c6167a8c7cc10fe41d318c5fa22535065598e1c36aa56fd1ac",
+    "source_document_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580"
+  },
+  "human_review": {
+    "positive_count": 15,
+    "negative_count": 9,
+    "positive_panel_ids": ["S01", "S02", "S03", "S04", "S06", "S08", "S09", "S11", "S14", "S15", "S17", "S18", "S20", "S22", "S24"],
+    "negative_panel_ids": ["S05", "S07", "S10", "S12", "S13", "S16", "S19", "S21", "S23"],
+    "misframed_positive_panel_ids": ["S18", "S24"],
+    "decisions": [
+      {"panel_id":"S01","candidate_id":"COL02-FP-0353","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S02","candidate_id":"COL02-FP-0364","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S03","candidate_id":"COL02-FP-0488","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S04","candidate_id":"COL02-FP-0389","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S05","candidate_id":"COL02-FP-0546","graphical_decision":"NOT_COLUMN","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S06","candidate_id":"COL02-FP-0459","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S07","candidate_id":"COL02-FP-0537","graphical_decision":"NOT_COLUMN","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S08","candidate_id":"COL02-FP-0331","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S09","candidate_id":"COL02-FP-0312","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S10","candidate_id":"COL02-FP-0522","graphical_decision":"NOT_COLUMN","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S11","candidate_id":"COL02-FP-0381","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S12","candidate_id":"COL02-FP-0529","graphical_decision":"NOT_COLUMN","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S13","candidate_id":"COL02-FP-0541","graphical_decision":"NOT_COLUMN","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S14","candidate_id":"COL02-FP-0346","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S15","candidate_id":"COL02-FP-0538","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S16","candidate_id":"COL02-FP-0486","graphical_decision":"NOT_COLUMN","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S17","candidate_id":"COL02-FP-0140","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S18","candidate_id":"COL02-FP-0443","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"MISFRAMED_POSITIVE"},
+      {"panel_id":"S19","candidate_id":"COL02-FP-0111","graphical_decision":"NOT_COLUMN","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S20","candidate_id":"COL02-FP-0558","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S21","candidate_id":"COL02-FP-0568","graphical_decision":"NOT_COLUMN","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S22","candidate_id":"COL02-FP-0248","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S23","candidate_id":"COL02-FP-0231","graphical_decision":"NOT_COLUMN","framing_quality":"ADEQUATE_FOR_TARGET_DECISION"},
+      {"panel_id":"S24","candidate_id":"COL02-FP-0100","graphical_decision":"COLUMN_FOOTPRINT_CONFIRMED","framing_quality":"MISFRAMED_POSITIVE"}
+    ],
+    "additional_occurrence_finding": {
+      "observed": true,
+      "scope": "AT_LEAST_ONE_REVIEW_PANEL",
+      "panel_ids": "NOT_YET_LOCALIZED_BY_HUMAN",
+      "finding": "At least one review image contained an additional visible column footprint that was not the red target candidate.",
+      "implication": "TARGET_ONLY_REVIEW_IS_NOT_OCCURRENCE_COMPLETE",
+      "required_follow_up": "SECONDARY_VISIBLE_OCCURRENCE_SWEEP_REQUIRED"
+    }
+  },
+  "governance": {
+    "graphical_column_decisions_authorized": true,
+    "target_occurrence_coverage_complete": false,
+    "support_identity_authorized": false,
+    "text_identity_binding_authorized": false,
+    "family_assignment_authorized": false,
+    "section_assignment_authorized": false,
+    "fixed_line_assignment_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false
+  },
+  "status": "HUMAN_REVIEW_COMPLETE_FOR_TARGETS_SECONDARY_OCCURRENCE_SWEEP_REQUIRED",
+  "next_required_action": "Build an occurrence-completeness pass that inspects each reviewed source crop for non-target column footprints, with explicit whole-footprint framing, before claiming coverage completeness."
+}

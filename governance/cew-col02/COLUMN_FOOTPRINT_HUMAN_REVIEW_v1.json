@@ -1,0 +1,66 @@
+{
+  "schema_id": "CEW-COL02-COLUMN-FOOTPRINT-HUMAN-REVIEW",
+  "schema_version": "1.0.1",
+  "status": "HUMAN_COLUMN_GRAPHIC_REVIEW_COMPLETE",
+  "review_scope": "TAV-05S neutral prototype-selection atlas P01-P16",
+  "source": {
+    "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
+    "page_id": "CEW-N12-PAGE-TAV05S-P001",
+    "sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580"
+  },
+  "qualified_input": {
+    "candidate_head_sha": "d73fdc102a4c2f179e8b43cad01ccfa67a8202da",
+    "workflow_run_id": 41078290005,
+    "artifact_id": 12988437836,
+    "artifact_name": "cew-col02-footprint-text-binding",
+    "artifact_digest": "sha256:4fe2571668698477afa251e3872b9577c66964b1985729c0efdf980b9b12eda6"
+  },
+  "human_decision": {
+    "statement": "Only P01 and P02 are columns. P03 through P16 are not columns.",
+    "positive_panel_ids": ["P01", "P02"],
+    "negative_panel_ids": ["P03", "P04", "P05", "P06", "P07", "P08", "P09", "P10", "P11", "P12", "P13", "P14", "P15", "P16"]
+  },
+  "panel_decisions": [
+    {"panel_id":"P01","candidate_id":"COL02-FP-0363","column_graphic_decision":"COLUMN_FOOTPRINT_CONFIRMED","prototype_eligible":true,"text_binding_decision":"NOT_PROMOTED_BY_THIS_REVIEW","observed_internal_ocr":[{"token_id":"TXT-006","raw_text":"30"}]},
+    {"panel_id":"P02","candidate_id":"COL02-FP-0493","column_graphic_decision":"COLUMN_FOOTPRINT_CONFIRMED","prototype_eligible":true,"text_binding_decision":"NOT_PROMOTED_BY_THIS_REVIEW","observed_internal_ocr":[{"token_id":"TXT-001","raw_text":"4"}]},
+    {"panel_id":"P03","candidate_id":"COL02-FP-0518","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"},
+    {"panel_id":"P04","candidate_id":"COL02-FP-0575","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"},
+    {"panel_id":"P05","candidate_id":"COL02-FP-0001","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"},
+    {"panel_id":"P06","candidate_id":"COL02-FP-0002","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"},
+    {"panel_id":"P07","candidate_id":"COL02-FP-0003","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"},
+    {"panel_id":"P08","candidate_id":"COL02-FP-0004","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"},
+    {"panel_id":"P09","candidate_id":"COL02-FP-0005","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"},
+    {"panel_id":"P10","candidate_id":"COL02-FP-0006","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"},
+    {"panel_id":"P11","candidate_id":"COL02-FP-0007","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"},
+    {"panel_id":"P12","candidate_id":"COL02-FP-0008","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"},
+    {"panel_id":"P13","candidate_id":"COL02-FP-0009","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"},
+    {"panel_id":"P14","candidate_id":"COL02-FP-0010","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"},
+    {"panel_id":"P15","candidate_id":"COL02-FP-0011","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"},
+    {"panel_id":"P16","candidate_id":"COL02-FP-0012","column_graphic_decision":"NOT_COLUMN","prototype_eligible":false,"text_binding_decision":"NOT_APPLICABLE"}
+  ],
+  "interpretation": {
+    "graphical_column_examples_confirmed": 2,
+    "graphical_negative_examples_confirmed": 14,
+    "p01_p02_may_seed_project_local_graphical_prototype_search": true,
+    "p01_p02_are_parallel_positive_graphical_examples": true,
+    "no_primary_prototype_preference_asserted_by_human_review": true,
+    "internal_ocr_token_is_not_structural_identity": true,
+    "human_review_does_not_assign_support_number": true
+  },
+  "authority": {
+    "graphical_column_footprint_review_authorized": true,
+    "prototype_eligibility_authorized": true,
+    "support_identity_authorized": false,
+    "text_identity_binding_authorized": false,
+    "family_assignment_authorized": false,
+    "section_assignment_authorized": false,
+    "fixed_line_assignment_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false
+  },
+  "next_gate": "PROTOTYPE_GUIDED_COLUMN_FOOTPRINT_SEARCH_FROM_HUMAN_POSITIVES"
+}
