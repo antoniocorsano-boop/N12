@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import unittest
+from types import SimpleNamespace
 
-from experiments.cew_col01.exact_source_audit import evaluate_benchmark
+from experiments.cew_col01.exact_source_audit import (
+    evaluate_benchmark,
+    source_identity_metadata,
+)
 
 
 def record(identifier: str, state: str = "P2_NUMBER_FOOTPRINT_NO_AXES") -> dict:
@@ -14,6 +18,34 @@ def record(identifier: str, state: str = "P2_NUMBER_FOOTPRINT_NO_AXES") -> dict:
 
 
 class ExactSourceAuditContractTests(unittest.TestCase):
+    def test_source_identity_metadata_uses_canonical_contract_path(self):
+        contract = SimpleNamespace(
+            repository="antoniocorsano-boop/N12",
+            commit="78c20a52db4f391ce0d13b9705b9f04737e218c9",
+            path="archive/documentazione_originaria/tavola 5.pdf",
+            git_blob_sha="ec32cd621877e9037cb26ebc083164140a8e3e68",
+            sha256="2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+            page_index=0,
+            source_role="PRIMARY_IMMUTABLE_QUALIFICATION_SOURCE",
+        )
+        materialized = SimpleNamespace(sha256=contract.sha256)
+        binding = SimpleNamespace(raster_width_px=7016, raster_height_px=12530)
+        metadata = source_identity_metadata(
+            contract,
+            materialized,
+            binding,
+            zone_set_digest="zone-digest",
+        )
+        self.assertEqual(metadata["path"], contract.path)
+        self.assertEqual(metadata["repository"], contract.repository)
+        self.assertEqual(metadata["commit"], contract.commit)
+        self.assertEqual(metadata["git_blob_sha"], contract.git_blob_sha)
+        self.assertEqual(metadata["sha256"], contract.sha256)
+        self.assertEqual(metadata["page_index"], 0)
+        self.assertEqual(metadata["raster_width_px"], 7016)
+        self.assertEqual(metadata["raster_height_px"], 12530)
+        self.assertEqual(metadata["zone_set_digest"], "zone-digest")
+
     def test_benchmark_reports_matches_misses_duplicates_without_creating_candidates(self):
         records = [record("1"), record("2"), record("2")]
         before = list(records)
