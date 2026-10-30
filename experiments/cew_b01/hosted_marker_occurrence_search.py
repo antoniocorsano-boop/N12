@@ -1,21 +1,165 @@
 from __future__ import annotations
 
 import math
+from collections import deque
 from typing import Any, Sequence
 
 from .beam_hosted_marker_hybrid import build_hybrid_hosted_marker_candidates
 
 
-def discover_hosted_marker_occurrences(
+def _scope_key(item: dict[str, Any]) -> tuple[str, int, str]:
+    source = item.get("source", {})
+    return (
+        str(source.get("sha256", "")),
+        int(item.get("page_index", 0)),
+        str(item.get("frame", "")),
+    )
+
+
+def _intersect_area(first: dict[str, Any], second: dict[str, Any]) -> float:
+    ax0 = float(first["x"])
+    ay0 = float(first["y"])
+    ax1 = ax0 + float(first["width"])
+    ay1 = ay0 + float(first["height"])
+    bx0 = float(second["x"])
+    by0 = float(second["y"])
+    bx1 = bx0 + float(second["width"])
+    by1 = by0 + float(second["height"])
+    return max(0.0, min(ax1, bx1) - max(ax0, bx0)) * max(0.0, min(ay1, by1) - max(ay0, by0))
+
+
+def _inner_geometry(geometry: dict[str, Any]) -> dict[str, float]:
+    width = max(float(geometry["width"]), 1.0)
+    height = max(float(geometry["height"]), 1.0)
+    inset = max(2.0, round(min(width, height) * 0.08, 6))
+    inner_width = max(0.0, width - 2.0 * inset)
+    inner_height = max(0.0, height - 2.0 * inset)
+    return {
+        "x": float(geometry["x"]) + inset,
+        "y": float(geometry["y"]) + inset,
+        "width": inner_width,
+        "height": inner_height,
+    }
+
+
+def _binary_dimensions(binary_ink: Sequence[Sequence[Any]]) -> tuple[int, int]:
+    height = len(binary_ink)
+    width = len(binary_ink[0]) if height else 0
+    return width, height
+
+
+def _enclosed_ink_components(
+    binary_ink: Sequence[Sequence[Any]],
+    geometry: dict[str, Any],
+) -> list[int]:
+    """Return areas of ink components enclosed inside the marker footprint.
+
+    Marker borders and carrier/transverse lines reach the marker boundary and
+    are intentionally excluded. Compact components fully enclosed away from the
+    boundary are retained as neutral evidence of annotation-like internal ink.
+    """
+
+    image_width, image_height = _binary_dimensions(binary_ink)
+    if image_width <= 0 or image_height <= 0:
+        return []
+
+    x0 = max(0, int(math.floor(float(geometry["x"]))))
+    y0 = max(0, int(math.floor(float(geometry["y"]))))
+    x1 = min(image_width, int(math.ceil(float(geometry["x"]) + float(geometry["width"]))))
+    y1 = min(image_height, int(math.ceil(float(geometry["y"]) + float(geometry["height"]))))
+    if x1 <= x0 or y1 <= y0:
+        return []
+
+    width = x1 - x0
+    height = y1 - y0
+    border_band = max(2, int(round(min(width, height) * 0.08)))
+    visited: set[tuple[int, int]] = set()
+    enclosed: list[int] = []
+
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            if (x, y) in visited or not bool(binary_ink[y][x]):
+                continue
+            queue: deque[tuple[int, int]] = deque([(x, y)])
+            visited.add((x, y))
+            area = 0
+            touches_border_band = False
+            while queue:
+                px, py = queue.popleft()
+                area += 1
+                if (
+                    px < x0 + border_band
+                    or px >= x1 - border_band
+                    or py < y0 + border_band
+                    or py >= y1 - border_band
+                ):
+                    touches_border_band = True
+                for dy in (-1, 0, 1):
+                    for dx in (-1, 0, 1):
+                        if dx == 0 and dy == 0:
+                            continue
+                        nx, ny = px + dx, py + dy
+                        if nx < x0 or nx >= x1 or ny < y0 or ny >= y1:
+                            continue
+                        if (nx, ny) in visited or not bool(binary_ink[ny][nx]):
+                            continue
+                        visited.add((nx, ny))
+                        queue.append((nx, ny))
+            if not touches_border_band and area >= 4:
+                enclosed.append(area)
+
+    return sorted(enclosed, reverse=True)
+
+
+def _annotation_evidence(
+    candidate: dict[str, Any],
     primitives: list[dict[str, Any]],
     binary_ink: Sequence[Sequence[Any]],
-) -> list[dict[str, Any]]:
-    """Run the qualified hybrid hosted-marker pipeline on every rectilinear seed.
+) -> dict[str, Any]:
+    geometry = dict(candidate["marker_geometry"])
+    inner = _inner_geometry(geometry)
+    marker_scope = None
+    marker_id = str(candidate["marker_primitive_id"])
+    for primitive in primitives:
+        if str(primitive.get("primitive_id")) == marker_id:
+            marker_scope = _scope_key(primitive)
+            break
 
-    Discovery adds no new carrier rules, semantics, or promotion authority. A
-    rectilinear observation is emitted only when the existing hybrid pipeline
-    can bind it to a local carrier.
-    """
+    overlapping_text_ids: list[str] = []
+    if marker_scope is not None and inner["width"] > 0.0 and inner["height"] > 0.0:
+        for primitive in primitives:
+            if primitive.get("family") != "TEXT_BLOCK" or _scope_key(primitive) != marker_scope:
+                continue
+            if _intersect_area(inner, primitive["geometry"]) > 0.0:
+                overlapping_text_ids.append(str(primitive["primitive_id"]))
+
+    components = _enclosed_ink_components(binary_ink, geometry)
+    component_area = sum(components)
+    marker_area = max(float(geometry["width"]) * float(geometry["height"]), 1.0)
+    minimum_annotation_area = max(8, int(round(marker_area * 0.01)))
+    enclosed_annotation_like = bool(components) and component_area >= minimum_annotation_area
+    annotation_dominated = bool(overlapping_text_ids) or enclosed_annotation_like
+
+    return {
+        "overlapping_text_block_ids": sorted(overlapping_text_ids),
+        "enclosed_component_count": len(components),
+        "enclosed_component_areas": components,
+        "enclosed_component_area": component_area,
+        "enclosed_component_area_fraction": round(component_area / marker_area, 12),
+        "minimum_annotation_area": minimum_annotation_area,
+        "annotation_dominated": annotation_dominated,
+        "signals": sorted(
+            (["TEXT_BLOCK_OVERLAP"] if overlapping_text_ids else [])
+            + (["ENCLOSED_INTERNAL_INK"] if enclosed_annotation_like else [])
+        ),
+    }
+
+
+def analyze_hosted_marker_occurrences(
+    primitives: list[dict[str, Any]],
+    binary_ink: Sequence[Sequence[Any]],
+) -> dict[str, list[dict[str, Any]]]:
+    """Preserve all bound occurrences while separating annotation-dominated cases."""
 
     marker_seed_ids = sorted(
         str(item["primitive_id"])
@@ -23,16 +167,87 @@ def discover_hosted_marker_occurrences(
         if item.get("family") == "RECTILINEAR_CLOSED_SHAPE"
     )
     if not marker_seed_ids:
-        return []
+        return {"all_bound": [], "review_eligible": [], "annotation_dominated": []}
 
-    occurrences = build_hybrid_hosted_marker_candidates(
-        primitives,
-        marker_seed_ids,
-        binary_ink,
-    )
+    bound = build_hybrid_hosted_marker_candidates(primitives, marker_seed_ids, binary_ink)
+    all_bound: list[dict[str, Any]] = []
+    review_eligible: list[dict[str, Any]] = []
+    annotation_dominated: list[dict[str, Any]] = []
+
+    for candidate in bound:
+        item = dict(candidate)
+        evidence = _annotation_evidence(item, primitives, binary_ink)
+        item["annotation_evidence"] = evidence
+        item["candidate_role"] = "ANNOTATION_DOMINATED" if evidence["annotation_dominated"] else "REVIEW_ELIGIBLE"
+        all_bound.append(item)
+        if evidence["annotation_dominated"]:
+            annotation_dominated.append(item)
+        else:
+            review_eligible.append(item)
+
+    key = lambda item: (str(item["marker_primitive_id"]), str(item["hosted_marker_id"]))
+    return {
+        "all_bound": sorted(all_bound, key=key),
+        "review_eligible": sorted(review_eligible, key=key),
+        "annotation_dominated": sorted(annotation_dominated, key=key),
+    }
+
+
+def discover_hosted_marker_occurrences(
+    primitives: list[dict[str, Any]],
+    binary_ink: Sequence[Sequence[Any]],
+) -> list[dict[str, Any]]:
+    """Return only review-eligible hosted markers; preserve rejects via analyze()."""
+
+    return analyze_hosted_marker_occurrences(primitives, binary_ink)["review_eligible"]
+
+
+def pair_evidence_overlay_spec(
+    candidate: dict[str, Any],
+    tracks: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Expose primitive and raster pair evidence separately for review rendering."""
+
+    track_by_id = {str(track["track_id"]): track for track in tracks}
+    overlays: list[dict[str, Any]] = []
+    for track_id in candidate.get("transverse_pair_track_ids", []):
+        track = track_by_id.get(str(track_id))
+        if track is None:
+            continue
+        overlays.append({
+            "source": "PRIMITIVE_LOCAL_TRACK_PAIR",
+            "track_id": str(track_id),
+            "orientation": str(track["orientation"]),
+            "centerline": float(track["centerline"]),
+            "start": float(track["start"]),
+            "end": float(track["end"]),
+        })
+
+    raster = candidate.get("raster_transverse_evidence") or {}
+    pair_strokes = list(raster.get("pair_strokes") or [])
+    if bool(raster.get("pair_detected")) and len(pair_strokes) >= 2:
+        orientation = "VERTICAL" if candidate.get("carrier_orientation") == "HORIZONTAL" else "HORIZONTAL"
+        start = float(raster.get("cross_search_start", 0.0))
+        end = float(raster.get("cross_search_end", 0.0))
+        for stroke in pair_strokes[:2]:
+            overlays.append({
+                "source": "RASTER_LOCAL_PROFILE",
+                "track_id": None,
+                "orientation": orientation,
+                "centerline": float(stroke["center"]),
+                "start": start,
+                "end": end,
+                "width": float(stroke.get("width", 0.0)),
+            })
+
     return sorted(
-        occurrences,
-        key=lambda item: (str(item["marker_primitive_id"]), str(item["hosted_marker_id"])),
+        overlays,
+        key=lambda item: (
+            item["source"],
+            item["orientation"],
+            item["centerline"],
+            str(item.get("track_id") or ""),
+        ),
     )
 
 
