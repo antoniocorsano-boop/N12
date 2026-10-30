@@ -103,3 +103,66 @@ def classify_text_relation(
         "structural_identity_authorized": False,
         "canonical_write_authorized": False,
     }
+
+
+def bind_text_observations(
+    footprint: dict[str, Any],
+    observations: list[dict[str, Any]],
+    *,
+    near_radius: float = 0.35,
+) -> dict[str, Any]:
+    """Bind text observations geometrically without assigning support identity."""
+
+    seen: set[str] = set()
+    bindings: list[dict[str, Any]] = []
+    internal_ids: list[str] = []
+
+    for observation in observations:
+        token_id = str(observation.get("token_id", "")).strip()
+        if not token_id:
+            raise ValueError("each text observation requires a non-empty token_id")
+        if token_id in seen:
+            raise ValueError(f"duplicate token_id: {token_id}")
+        seen.add(token_id)
+        if not isinstance(observation.get("bbox"), dict):
+            raise ValueError(f"text observation {token_id} requires bbox")
+
+        relation = classify_text_relation(
+            footprint,
+            observation["bbox"],
+            near_radius=near_radius,
+        )
+        is_internal = relation["relation"] == "INSIDE_FOOTPRINT"
+        if is_internal:
+            internal_ids.append(token_id)
+        bindings.append(
+            {
+                "token_id": token_id,
+                "raw_text": observation.get("raw_text"),
+                "bbox": dict(observation["bbox"]),
+                **relation,
+                "preferred_internal_text": False,
+            }
+        )
+
+    if len(internal_ids) == 1:
+        binding_state = "ONE_INTERNAL_TEXT"
+        preferred = internal_ids[0]
+        for binding in bindings:
+            binding["preferred_internal_text"] = binding["token_id"] == preferred
+    elif len(internal_ids) > 1:
+        binding_state = "MULTIPLE_INTERNAL_TEXT_AMBIGUOUS"
+        preferred = None
+    else:
+        binding_state = "NO_INTERNAL_TEXT"
+        preferred = None
+
+    return {
+        "bindings": bindings,
+        "internal_token_ids": internal_ids,
+        "preferred_internal_token_id": preferred,
+        "binding_state": binding_state,
+        "support_identity_authorized": False,
+        "structural_identity_authorized": False,
+        "canonical_write_authorized": False,
+    }
