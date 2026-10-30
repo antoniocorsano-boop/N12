@@ -4,7 +4,7 @@
   "status": "EXPERIMENT_ONLY",
   "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
   "g2a0_input_result_sha256": "4058b10dcb31594ed345bda3a8f900f0b412e5d5a8f5eed1296b875dee700858",
-  "real_replay_result_sha256": "a15937547ccf2ae69e71fe306abfa2ed5d48534365ce8a3ba30d06b1210c859b",
+  "real_replay_result_sha256": "5a10ac1aa57411a239e10dfbcf63fd5e1cb836884fc85cb5851b6396fa7701a1",
   "primitive_count": 5633,
   "seed_count": 8,
   "g2a0_core_bundle_counts": [3, 5, 1, 2, 1, 5, 4, 10],
@@ -18,6 +18,7 @@
     "NEAR_ONLY": 5
   },
   "membership_conserved_all_candidates": true,
+  "directional_relations_normalized_from_seed_viewpoint": true,
   "deterministic_replay": {
     "byte_identical_two_runs": true
   },
@@ -31,7 +32,8 @@
     "UNREVIEWED",
     "UNREVIEWED"
   ],
-  "key_finding": "G2B can isolate a compact nucleus without losing provenance, but several materially different candidates collapse to seed-only nuclei. Therefore G2C must not compare nucleus alone: preserved attached/near context and its relation/reason signature remain part of neutral configuration evidence.",
+  "key_finding": "G2B can isolate a compact nucleus without losing provenance, but several materially different candidates collapse to seed-only nuclei. G2C must therefore combine nucleus evidence with a neutral relational descriptor for preserved attached/near context rather than compare nucleus alone.",
+  "known_boundary": "G2B preserves all incoming CONTEXT bundle and primitive identities, but the current G2A0 candidate payload exposes relation edges primarily for incoming CORE bundles. A future G2C experiment must first export or reconstruct the selected existing-CONTEXT relations; complete context provenance must not be mistaken for a complete context-relation signature.",
   "next_human_decisions": [
     "SAME_CONFIGURATION",
     "DIFFERENT_CONFIGURATION",
