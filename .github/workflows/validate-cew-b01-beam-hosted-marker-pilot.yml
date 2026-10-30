@@ -8,6 +8,7 @@ on:
       - 'experiments/cew_b01/beam_hosted_marker_hybrid.py'
       - 'experiments/cew_b01/hosted_marker_occurrence_search.py'
       - 'experiments/cew_b01/marker_topology_repair.py'
+      - 'experiments/cew_b01/marker_transverse_cross_axis.py'
       - 'tests/cew_b01/test_beam_hosted_markers.py'
       - 'tests/cew_b01/test_beam_hosted_marker_raster.py'
       - 'tests/cew_b01/test_beam_hosted_marker_hybrid.py'
