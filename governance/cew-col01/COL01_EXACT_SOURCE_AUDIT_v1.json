@@ -1,0 +1,114 @@
+{
+  "schema_id": "CEW_COL01_EXACT_SOURCE_AUDIT_RECEIPT",
+  "schema_version": 1,
+  "status": "EXACT_SOURCE_AUDIT_QUALIFIED_HUMAN_REVIEW_PENDING",
+  "audit_scope": "TAV5_NUMBER_ANCHORED_COLUMN_RECOVERY_FIRST_PASS",
+  "source": {
+    "repository": "antoniocorsano-boop/N12",
+    "commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+    "path": "archive/documentazione_originaria/tavola 5.pdf",
+    "git_blob_sha": "ec32cd621877e9037cb26ebc083164140a8e3e68",
+    "sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+    "page_index": 0
+  },
+  "qualified_implementation": {
+    "exact_head": "46042603c6726b19a9038b518fc2899647ce4310",
+    "workflow_run_id": 41064652715,
+    "artifact_id": 12982202822,
+    "artifact_name": "cew-col01-number-anchored-column-recovery",
+    "artifact_digest": "sha256:61b4569d3efc259191d2e9de4419e92d6e2d92904e70eb61bfe951aba8c4d670",
+    "replay_sha256": "3e79b4da96517a254e89f8f7239c16ea0220fdd1c1b7a8c4cf2b37a8da7b06cf",
+    "unit_job": "PASS",
+    "exact_source_job": "PASS",
+    "repository_memory_gate": "PASS"
+  },
+  "candidate_generation": {
+    "starts_from_exact_source_ocr": true,
+    "historical_ids_used_to_generate_candidates": false,
+    "symmetry_axes_required": false,
+    "raw_text_anchor_count": 9,
+    "graphical_state_counts": {
+      "NO_PLAUSIBLE_FOOTPRINT": 1,
+      "P1_NUMBER_FOOTPRINT_AXES": 2,
+      "P2_NUMBER_FOOTPRINT_NO_AXES": 3,
+      "P3_NUMBER_PARTIAL_FOOTPRINT": 3
+    }
+  },
+  "raw_text_anchor_benchmark": {
+    "benchmark_count": 34,
+    "matched_count": 6,
+    "coverage_fraction": 0.17647058823529413,
+    "matched_ids": ["1", "4", "7", "9", "19", "30"],
+    "unmatched_ids": ["2", "3", "5", "6", "8", "10", "11", "12", "13", "14", "15", "16", "17", "18", "20", "21", "22", "22'", "23", "24", "25", "26", "27", "28", "29", "31", "32", "33"],
+    "duplicate_ids": {"7": 3},
+    "interpretation": "OCR_TEXT_ANCHOR_COVERAGE_ONLY_NOT_COLUMN_IDENTITY"
+  },
+  "footprint_supported_benchmark": {
+    "benchmark_count": 34,
+    "eligible_record_count": 8,
+    "matched_count": 5,
+    "coverage_fraction": 0.14705882352941177,
+    "matched_ids": ["1", "4", "7", "19", "30"],
+    "unmatched_ids": ["2", "3", "5", "6", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "20", "21", "22", "22'", "23", "24", "25", "26", "27", "28", "29", "31", "32", "33"],
+    "duplicate_ids": {"7": 3}
+  },
+  "hypothesis": {
+    "id": "H-COL-01",
+    "statement": "Support identifiers are present/detectable on all or nearly all relevant column footprints and can serve as the primary first-pass retrieval anchor.",
+    "experimental_threshold_fraction": 0.9,
+    "result": "REJECTED_BY_CURRENT_EXACT_SOURCE_OCR_PIPELINE",
+    "reason": "Only 5 of 34 benchmark identifiers were both OCR-detected and supported by plausible local footprint evidence.",
+    "epistemic_note": "This rejects the current number-anchored retrieval pipeline as a sufficient primary detector. It does not prove that identifiers are absent from the drawing; OCR miss and graphical presence remain distinct questions.",
+    "engineering_fact_authorized": false
+  },
+  "elongated_witnesses": [
+    {
+      "identifier": "18",
+      "historical_candidate_family": "COL-G4-30X110",
+      "observation_count": 0,
+      "graphical_states": [],
+      "result": "NOT_RETRIEVED_BY_CURRENT_OCR_FIRST_PASS"
+    },
+    {
+      "identifier": "23",
+      "historical_candidate_family": "COL-G4-30X110",
+      "observation_count": 0,
+      "graphical_states": [],
+      "result": "NOT_RETRIEVED_BY_CURRENT_OCR_FIRST_PASS"
+    },
+    {
+      "identifier": "30",
+      "historical_candidate_family": "COL-G4-110X30",
+      "observation_count": 1,
+      "graphical_states": ["P3_NUMBER_PARTIAL_FOOTPRINT"],
+      "result": "RETRIEVED_WITH_PARTIAL_LOCAL_FOOTPRINT"
+    }
+  ],
+  "human_review": {
+    "status": "PENDING",
+    "panel_count": 9,
+    "atlas_path_in_artifact": "col01-review-atlas.png",
+    "allowed_outcomes": ["COLUMN_GRAPHIC_CONFIRMED", "NOT_COLUMN", "UNCERTAIN", "TEXT_ANCHOR_WRONG"],
+    "purpose": "Validate which retrieved OCR anchors correspond to real column graphics and separate OCR failure from identifier absence."
+  },
+  "next_design_implication": {
+    "number_anchor_can_be_optional_cue": true,
+    "number_anchor_can_be_mandatory_primary_gate": false,
+    "axes_can_be_mandatory_gate": false,
+    "recommended_next_retrieval": "FOOTPRINT_OR_PROTOTYPE_FIRST_WITH_OPTIONAL_TEXT_AND_AXIS_EVIDENCE",
+    "hardcoded_historical_ids_prohibited": true
+  },
+  "authority": {
+    "graphical_retrieval_audit_authorized": true,
+    "human_review_authorized": true,
+    "semantic_classification_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "section_assignment_authorized": false,
+    "fixed_line_assignment_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false
+  }
+}
