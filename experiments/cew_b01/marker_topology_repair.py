@@ -327,3 +327,236 @@ def describe_carrier_topology(
         "g3_authorized": False,
         "merge_authorized": False,
     }
+
+
+def _cluster_positions(entries: list[dict[str, Any]], tolerance_px: float) -> list[dict[str, Any]]:
+    if not entries:
+        return []
+    ordered = sorted(entries, key=lambda item: (float(item["centerline"]), str(item.get("id", ""))))
+    clusters: list[list[dict[str, Any]]] = []
+    for item in ordered:
+        if not clusters:
+            clusters.append([item])
+            continue
+        previous_center = sum(float(member["centerline"]) for member in clusters[-1]) / len(clusters[-1])
+        if abs(float(item["centerline"]) - previous_center) <= tolerance_px:
+            clusters[-1].append(item)
+        else:
+            clusters.append([item])
+    result: list[dict[str, Any]] = []
+    for cluster in clusters:
+        result.append({
+            "centerline": round(sum(float(member["centerline"]) for member in cluster) / len(cluster), 6),
+            "members": sorted(str(member.get("id", "")) for member in cluster if member.get("id") is not None),
+            "sources": sorted(set(str(member["source"]) for member in cluster)),
+        })
+    return result
+
+
+def _raster_strokes_for_side(
+    binary_ink: Sequence[Sequence[Any]],
+    *,
+    orientation: str,
+    long_start: float,
+    long_end: float,
+    cross_lo: float,
+    cross_hi: float,
+    minimum_profile_fraction: float,
+) -> list[dict[str, Any]]:
+    image_width, image_height = _binary_dimensions(binary_ink)
+    lo = max(0, int(math.floor(long_start)))
+    hi_limit = image_width - 1 if orientation == "HORIZONTAL" else image_height - 1
+    hi = min(hi_limit, int(math.ceil(long_end)))
+    if hi < lo:
+        return []
+
+    active: list[int] = []
+    cross_start = int(round(min(cross_lo, cross_hi)))
+    cross_end = int(round(max(cross_lo, cross_hi)))
+    for position in range(lo, hi + 1):
+        if orientation == "HORIZONTAL":
+            profile = _vertical_support(binary_ink, x=position, y0=cross_start, y1=cross_end)
+        else:
+            profile = _horizontal_support(binary_ink, y=position, x0=cross_start, x1=cross_end)
+        if profile >= minimum_profile_fraction:
+            active.append(position)
+
+    runs: list[list[int]] = []
+    for position in active:
+        if not runs or position > runs[-1][-1] + 1:
+            runs.append([position])
+        else:
+            runs[-1].append(position)
+    return [
+        {
+            "centerline": round((run[0] + run[-1]) / 2.0, 6),
+            "width_px": int(run[-1] - run[0] + 1),
+        }
+        for run in runs
+    ]
+
+
+def describe_transverse_band(
+    candidate: dict[str, Any],
+    tracks: list[dict[str, Any]],
+    binary_ink: Sequence[Sequence[Any]],
+    *,
+    local_window_fraction: float = 1.5,
+    local_window_min_px: float = 30.0,
+    side_gap_px: float = 2.0,
+    carrier_cross_tolerance_px: float = 4.0,
+    dedupe_tolerance_px: float = 3.0,
+    raster_profile_fraction: float = 0.60,
+    spacing_ratio_min: float = 0.50,
+) -> dict[str, Any]:
+    """Describe neutral local transverse traces as side-aware 0/partial/2+2 evidence."""
+
+    orientation = str(candidate["carrier_orientation"])
+    if orientation not in {"HORIZONTAL", "VERTICAL"}:
+        raise ValueError("TRANSVERSE_BAND_INVALID_CARRIER_ORIENTATION")
+    long_start, long_end, long_span = _marker_long_interval(candidate)
+    local_window = max(local_window_min_px, local_window_fraction * long_span)
+
+    track_by_id = {str(track["track_id"]): track for track in tracks}
+    carrier_track_ids = sorted(str(track_id) for track_id in candidate.get("carrier_track_ids", []))
+    carrier_tracks = [track_by_id[track_id] for track_id in carrier_track_ids if track_id in track_by_id]
+    carrier_centerlines = sorted(float(track["centerline"]) for track in carrier_tracks)
+    if carrier_centerlines:
+        cross_lo = carrier_centerlines[0]
+        cross_hi = carrier_centerlines[-1]
+    else:
+        geometry = _geometry_float(candidate.get("review_marker_geometry") or candidate["marker_geometry"])
+        if orientation == "HORIZONTAL":
+            cross_lo, cross_hi = geometry["y"], geometry["y"] + geometry["height"]
+        else:
+            cross_lo, cross_hi = geometry["x"], geometry["x"] + geometry["width"]
+
+    negative_range = (long_start - local_window, long_start - side_gap_px)
+    positive_range = (long_end + side_gap_px, long_end + local_window)
+    orthogonal = "VERTICAL" if orientation == "HORIZONTAL" else "HORIZONTAL"
+
+    primitive_negative: list[dict[str, Any]] = []
+    primitive_positive: list[dict[str, Any]] = []
+    for track in tracks:
+        track_id = str(track.get("track_id", ""))
+        if track_id in carrier_track_ids or str(track.get("orientation")) != orthogonal:
+            continue
+        if float(track["start"]) > cross_lo + carrier_cross_tolerance_px:
+            continue
+        if float(track["end"]) < cross_hi - carrier_cross_tolerance_px:
+            continue
+        position = float(track["centerline"])
+        target = None
+        if negative_range[0] <= position <= negative_range[1]:
+            target = primitive_negative
+        elif positive_range[0] <= position <= positive_range[1]:
+            target = primitive_positive
+        if target is not None:
+            target.append({"id": track_id, "centerline": position, "source": "G1_LINE_TRACKS"})
+
+    negative_primitive_clusters = _cluster_positions(primitive_negative, dedupe_tolerance_px)
+    positive_primitive_clusters = _cluster_positions(primitive_positive, dedupe_tolerance_px)
+    primitive_negative_ids = sorted(
+        cluster["members"][0] for cluster in negative_primitive_clusters if cluster["members"]
+    )
+    primitive_positive_ids = sorted(
+        cluster["members"][0] for cluster in positive_primitive_clusters if cluster["members"]
+    )
+
+    raster_negative = _raster_strokes_for_side(
+        binary_ink,
+        orientation=orientation,
+        long_start=negative_range[0],
+        long_end=negative_range[1],
+        cross_lo=cross_lo,
+        cross_hi=cross_hi,
+        minimum_profile_fraction=raster_profile_fraction,
+    )
+    raster_positive = _raster_strokes_for_side(
+        binary_ink,
+        orientation=orientation,
+        long_start=positive_range[0],
+        long_end=positive_range[1],
+        cross_lo=cross_lo,
+        cross_hi=cross_hi,
+        minimum_profile_fraction=raster_profile_fraction,
+    )
+
+    combined_negative = _cluster_positions(
+        [
+            {"id": cluster["members"][0] if cluster["members"] else None, "centerline": cluster["centerline"], "source": "G1_LINE_TRACKS"}
+            for cluster in negative_primitive_clusters
+        ]
+        + [
+            {"id": None, "centerline": stroke["centerline"], "source": "RASTER_LOCAL_PROFILE"}
+            for stroke in raster_negative
+        ],
+        dedupe_tolerance_px,
+    )
+    combined_positive = _cluster_positions(
+        [
+            {"id": cluster["members"][0] if cluster["members"] else None, "centerline": cluster["centerline"], "source": "G1_LINE_TRACKS"}
+            for cluster in positive_primitive_clusters
+        ]
+        + [
+            {"id": None, "centerline": stroke["centerline"], "source": "RASTER_LOCAL_PROFILE"}
+            for stroke in raster_positive
+        ],
+        dedupe_tolerance_px,
+    )
+
+    negative_centers = [float(cluster["centerline"]) for cluster in combined_negative]
+    positive_centers = [float(cluster["centerline"]) for cluster in combined_positive]
+    negative_count = len(negative_centers)
+    positive_count = len(positive_centers)
+
+    def closest_pair_spacing(centers: list[float], *, negative_side: bool) -> float | None:
+        if len(centers) < 2:
+            return None
+        ordered = sorted(centers)
+        chosen = ordered[-2:] if negative_side else ordered[:2]
+        return abs(chosen[1] - chosen[0])
+
+    negative_spacing = closest_pair_spacing(negative_centers, negative_side=True)
+    positive_spacing = closest_pair_spacing(positive_centers, negative_side=False)
+    spacing_consistent = False
+    if negative_spacing is not None and positive_spacing is not None:
+        larger = max(negative_spacing, positive_spacing)
+        smaller = min(negative_spacing, positive_spacing)
+        spacing_consistent = larger > 0.0 and smaller / larger >= spacing_ratio_min
+
+    if negative_count >= 2 and positive_count >= 2 and spacing_consistent:
+        graphical_state = "RECT_PLUS_DOUBLE_TRANSVERSE_BAND"
+    elif negative_count + positive_count > 0:
+        graphical_state = "RECT_PLUS_PARTIAL_TRANSVERSE_TRACES"
+    else:
+        graphical_state = "RECT_ALONE_ON_CARRIER"
+
+    evidence_sources: list[str] = []
+    if negative_primitive_clusters or positive_primitive_clusters:
+        evidence_sources.append("G1_LINE_TRACKS")
+    if raster_negative or raster_positive:
+        evidence_sources.append("RASTER_LOCAL_PROFILE")
+
+    return {
+        "graphical_state": graphical_state,
+        "carrier_orientation": orientation,
+        "local_window_px": round(local_window, 6),
+        "negative_side_count": negative_count,
+        "positive_side_count": positive_count,
+        "negative_side_centers": [round(value, 6) for value in negative_centers],
+        "positive_side_centers": [round(value, 6) for value in positive_centers],
+        "negative_pair_spacing_px": None if negative_spacing is None else round(negative_spacing, 6),
+        "positive_pair_spacing_px": None if positive_spacing is None else round(positive_spacing, 6),
+        "spacing_consistent": spacing_consistent,
+        "primitive_negative_track_ids": primitive_negative_ids,
+        "primitive_positive_track_ids": primitive_positive_ids,
+        "raster_negative_strokes": raster_negative,
+        "raster_positive_strokes": raster_positive,
+        "evidence_sources": evidence_sources,
+        "semantic_meaning": None,
+        "structural_identity_authorized": False,
+        "canonical_write_authorized": False,
+        "g3_authorized": False,
+        "merge_authorized": False,
+    }
