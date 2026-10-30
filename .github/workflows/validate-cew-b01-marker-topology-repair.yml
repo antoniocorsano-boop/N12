@@ -1,0 +1,456 @@
+name: CEW-B01 Marker Topology Repair Exact-Source
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/validate-cew-b01-marker-topology-repair.yml'
+      - 'experiments/cew_b01/marker_topology_repair.py'
+      - 'experiments/cew_b01/hosted_marker_occurrence_search.py'
+      - 'experiments/cew_b01/beam_hosted_markers.py'
+      - 'tests/cew_b01/test_marker_grounding_repair.py'
+      - 'tests/cew_b01/test_carrier_topology_descriptor.py'
+      - 'tests/cew_b01/test_transverse_band_signature.py'
+      - 'governance/cew-b01/N12_TAV5_SOURCE_v1.json'
+      - 'governance/cew-b01/TAV5_DOCUMENT_ZONE_REVIEW_v1.json'
+      - 'governance/cew-b01/MARKER_TOPOLOGY_REPAIR_v1.json'
+      - 'requirements/cew-b01.lock.txt'
+      - 'docs/experiments/2026-10-30-cew-b01-marker-topology-slab-signature-repair-design.md'
+      - 'docs/superpowers/plans/2026-10-30-cew-b01-marker-topology-slab-signature-repair.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-marker-topology-repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+
+      - name: Install frozen Tesseract system package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+
+      - name: Install frozen B01 toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-b01-marker-topology-repair"
+          source "$RUNNER_TEMP/cew-b01-marker-topology-repair/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
+
+      - name: Fetch frozen archival source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+
+      - name: Execute exact TAV.5 topology repair twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-b01-marker-topology-repair/bin/activate"
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from collections import Counter
+          from pathlib import Path
+
+          import cv2
+          import numpy as np
+
+          from cew_b01.document_zoning import propose_document_zones
+          from cew_b01.evidence_schema import Task3RasterBinding
+          from cew_b01.pdf_probe import probe_pdf
+          from cew_b01.primitive_census import _analysis_binary, _confirmed_analysis_mask, extract_neutral_primitives
+          from cew_b01.source_contract import load_source_contract, materialize_source
+          from cew_b01.zone_review_package import confirmed_zones_from_receipt, zone_set_digest
+          from experiments.cew_b01.beam_hosted_markers import build_line_tracks
+          from experiments.cew_b01.hosted_marker_occurrence_search import analyze_hosted_marker_occurrences
+          from experiments.cew_b01.marker_topology_repair import (
+              describe_carrier_topology,
+              describe_transverse_band,
+              refine_marker_grounding,
+          )
+
+          SOURCE_SHA = '2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580'
+          C5 = 'CEW-B01-GP-90cefb124e0b97a63acd1d9c'
+          C7 = 'CEW-B01-GP-f5bf9ee85705380152aae053'
+          A10 = 'CEW-B01-GP-cf4860204d8bb1c826d35f40'
+          A17 = 'CEW-B01-GP-8b7eae9c9f25bb1d73c6f504'
+          ALONE = 'RECT_ALONE_ON_CARRIER'
+          DOUBLE = 'RECT_PLUS_DOUBLE_TRANSVERSE_BAND'
+
+          def canonical_bytes(value):
+              return (json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False) + '\n').encode('utf-8')
+
+          runner_temp = Path(os.environ['RUNNER_TEMP'])
+          out = Path('evidence/cew-b01/marker-topology-repair')
+          out.mkdir(parents=True, exist_ok=True)
+
+          contract = load_source_contract('governance/cew-b01/N12_TAV5_SOURCE_v1.json')
+          materialized = materialize_source(contract, '.', runner_temp / 'tavola5-marker-topology-repair-source.pdf')
+          assert materialized.sha256 == SOURCE_SHA
+
+          probe_dir = runner_temp / 'cew-b01-marker-topology-repair-probe'
+          probe = probe_pdf(materialized, probe_dir)
+          binding = Task3RasterBinding.from_probe_mapping(probe.to_mapping())
+          raster_path = probe_dir / 'tav5-page0-300dpi.png'
+
+          proposed_zones = propose_document_zones(binding, raster_path)
+          zone_receipt = json.loads(Path('governance/cew-b01/TAV5_DOCUMENT_ZONE_REVIEW_v1.json').read_text(encoding='utf-8'))
+          zones = confirmed_zones_from_receipt(binding, proposed_zones, zone_receipt)
+          assert all(zone.human_confirmed for zone in zones)
+          assert zone_set_digest(zones) == zone_receipt['zone_set_digest']
+
+          primitives_a = [item.to_mapping() for item in extract_neutral_primitives(binding, raster_path, zones)]
+          primitives_b = [item.to_mapping() for item in extract_neutral_primitives(binding, raster_path, zones)]
+          assert canonical_bytes(primitives_a) == canonical_bytes(primitives_b)
+          assert len(primitives_a) == 5633
+          axis_line_count = sum(
+              item.get('family') == 'LINE_SEGMENT'
+              and item.get('feature_signature', {}).get('orientation') in {'HORIZONTAL', 'VERTICAL'}
+              for item in primitives_a
+          )
+          assert axis_line_count == 733
+
+          image = cv2.imread(str(raster_path), cv2.IMREAD_GRAYSCALE)
+          assert image is not None
+          mask = _confirmed_analysis_mask(binding, zones)
+          _analysis, binary = _analysis_binary(image, mask)
+          binary_bool = binary > 0
+
+          def repair_payload(primitives):
+              parent = analyze_hosted_marker_occurrences(primitives, binary_bool)
+              review = parent['review_eligible']
+              rejected = parent['annotation_dominated']
+              assert len(parent['all_bound']) == 50
+              assert len(review) == 46
+              assert len(rejected) == 4
+              tracks = build_line_tracks(primitives)
+              assert len(tracks) == 158
+              records = []
+              for candidate in review:
+                  grounded = refine_marker_grounding(candidate, binary_bool)
+                  topology = describe_carrier_topology(grounded, tracks)
+                  band = describe_transverse_band(grounded, tracks, binary_bool)
+                  records.append({
+                      'marker_primitive_id': candidate['marker_primitive_id'],
+                      'candidate_role': candidate['candidate_role'],
+                      'parent_graphical_state': candidate['graphical_state'],
+                      'carrier_id': candidate['carrier_id'],
+                      'carrier_orientation': candidate['carrier_orientation'],
+                      'carrier_track_ids': candidate['carrier_track_ids'],
+                      'source_marker_geometry': grounded['source_marker_geometry'],
+                      'review_marker_geometry': grounded['review_marker_geometry'],
+                      'marker_grounding': grounded['marker_grounding'],
+                      'carrier_topology': topology,
+                      'transverse_band': band,
+                      'semantic_meaning': None,
+                      'structural_identity_authorized': False,
+                      'canonical_write_authorized': False,
+                      'g2c_promotion_authorized': False,
+                      'g3_authorized': False,
+                      'merge_authorized': False,
+                  })
+              records.sort(key=lambda item: item['marker_primitive_id'])
+              rejected_controls = sorted(
+                  [
+                      {
+                          'marker_primitive_id': item['marker_primitive_id'],
+                          'candidate_role': item['candidate_role'],
+                          'marker_geometry': item['marker_geometry'],
+                          'annotation_evidence': item['annotation_evidence'],
+                      }
+                      for item in rejected
+                  ],
+                  key=lambda item: item['marker_primitive_id'],
+              )
+              return {'records': records, 'annotation_controls': rejected_controls}, tracks
+
+          repaired_a, tracks_a = repair_payload(primitives_a)
+          repaired_b, _tracks_b = repair_payload(primitives_b)
+          assert canonical_bytes(repaired_a) == canonical_bytes(repaired_b)
+
+          records = repaired_a['records']
+          by_id = {item['marker_primitive_id']: item for item in records}
+          assert C5 in by_id and C7 in by_id
+          assert by_id[C5]['transverse_band']['graphical_state'] == ALONE, by_id[C5]
+          assert A10 not in by_id and A17 not in by_id
+
+          for item in records:
+              assert item['semantic_meaning'] is None
+              assert item['structural_identity_authorized'] is False
+              assert item['canonical_write_authorized'] is False
+              assert item['g2c_promotion_authorized'] is False
+              assert item['g3_authorized'] is False
+              assert item['merge_authorized'] is False
+
+          topology_counts = Counter(item['carrier_topology']['topology_state'] for item in records)
+          band_counts = Counter(item['transverse_band']['graphical_state'] for item in records)
+          grounding_counts = Counter(item['marker_grounding']['method'] for item in records)
+
+          selected_ids = []
+          def add(marker_id):
+              if marker_id in by_id and marker_id not in selected_ids and len(selected_ids) < 12:
+                  selected_ids.append(marker_id)
+          add(C5)
+          add(C7)
+
+          grounding_outliers = sorted(
+              records,
+              key=lambda item: (-float(item['marker_grounding']['center_shift_px']), item['marker_primitive_id']),
+          )
+          for item in [item for item in grounding_outliers if float(item['marker_grounding']['center_shift_px']) > 0][:4]:
+              add(item['marker_primitive_id'])
+
+          topology_priority = {'JUNCTION_COMPLEX': 0, 'TERMINAL_OR_STEM': 1, 'AMBIGUOUS': 2}
+          topology_outliers = sorted(
+              [item for item in records if item['carrier_topology']['topology_state'] != 'THROUGH_CONTINUOUS'],
+              key=lambda item: (
+                  topology_priority.get(item['carrier_topology']['topology_state'], 9),
+                  item['marker_primitive_id'],
+              ),
+          )
+          for item in topology_outliers[:4]:
+              add(item['marker_primitive_id'])
+
+          selected_records = [by_id[marker_id] for marker_id in selected_ids]
+          controls_by_id = {item['marker_primitive_id']: item for item in repaired_a['annotation_controls']}
+          control_ids = [marker_id for marker_id in (A10, A17) if marker_id in controls_by_id]
+          for marker_id in sorted(controls_by_id):
+              if len(control_ids) >= 2:
+                  break
+              if marker_id not in control_ids:
+                  control_ids.append(marker_id)
+
+          payload = {
+              'schema_id': 'CEW_B01_MARKER_TOPOLOGY_REPAIR_EXACT_SOURCE',
+              'schema_version': 1,
+              'status': (
+                  'GRAPHICAL_REPAIR_CANDIDATE_HUMAN_REVIEW_PENDING'
+                  if by_id[C7]['transverse_band']['graphical_state'] == DOUBLE
+                  else 'REWORK_C7_TRANSVERSE_SIGNATURE'
+              ),
+              'source_sha256': materialized.sha256,
+              'page_index': contract.page_index,
+              'primitive_count': len(primitives_a),
+              'axis_line_segment_count': axis_line_count,
+              'review_eligible_input_count': len(records),
+              'annotation_control_count': len(repaired_a['annotation_controls']),
+              'topology_counts': dict(sorted(topology_counts.items())),
+              'transverse_band_counts': dict(sorted(band_counts.items())),
+              'grounding_method_counts': dict(sorted(grounding_counts.items())),
+              'selected_review_marker_ids': selected_ids,
+              'selected_annotation_control_ids': control_ids,
+              'c5': by_id[C5],
+              'c7': by_id[C7],
+              'records': records,
+              'annotation_controls': repaired_a['annotation_controls'],
+              'authority': {
+                  'semantic_classification_authorized': False,
+                  'structural_identity_authorized': False,
+                  'canonical_write_authorized': False,
+                  'g2c_promotion_authorized': False,
+                  'g3_authorized': False,
+                  'merge_authorized': False,
+              },
+          }
+          digest = hashlib.sha256(canonical_bytes(payload)).hexdigest()
+          payload['replay_sha256'] = digest
+          result_path = out / 'marker-topology-repair.json'
+          result_path.write_text(json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + '\n', encoding='utf-8')
+
+          colour = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+          track_by_id = {str(track['track_id']): track for track in tracks_a}
+
+          def draw_dashed_line(canvas, p0, p1, colour_value, thickness=2, dash=10):
+              x0, y0 = p0
+              x1, y1 = p1
+              length = max(abs(x1-x0), abs(y1-y0))
+              if length == 0:
+                  return
+              steps = max(1, int(length // dash))
+              for step in range(0, steps + 1, 2):
+                  t0 = step / max(1, steps)
+                  t1 = min(1.0, (step + 1) / max(1, steps))
+                  a = (int(round(x0 + (x1-x0)*t0)), int(round(y0 + (y1-y0)*t0)))
+                  b = (int(round(x0 + (x1-x0)*t1)), int(round(y0 + (y1-y0)*t1)))
+                  cv2.line(canvas, a, b, colour_value, thickness)
+
+          def draw_dashed_rect(canvas, x0, y0, x1, y1):
+              draw_dashed_line(canvas, (x0,y0), (x1,y0), (0,0,180))
+              draw_dashed_line(canvas, (x1,y0), (x1,y1), (0,0,180))
+              draw_dashed_line(canvas, (x1,y1), (x0,y1), (0,0,180))
+              draw_dashed_line(canvas, (x0,y1), (x0,y0), (0,0,180))
+
+          def review_panel(record, index):
+              source = record['source_marker_geometry']
+              review = record['review_marker_geometry']
+              cx = float(review['x']) + float(review['width'])/2.0
+              cy = float(review['y']) + float(review['height'])/2.0
+              margin_x, margin_y = 330, 280
+              left = max(0, int(round(cx - margin_x)))
+              right = min(colour.shape[1], int(round(cx + margin_x)))
+              top = max(0, int(round(cy - margin_y)))
+              bottom = min(colour.shape[0], int(round(cy + margin_y)))
+              crop = colour[top:bottom, left:right].copy()
+
+              sx0 = int(round(float(source['x']))) - left
+              sy0 = int(round(float(source['y']))) - top
+              sx1 = int(round(float(source['x']) + float(source['width']))) - left
+              sy1 = int(round(float(source['y']) + float(source['height']))) - top
+              rx0 = int(round(float(review['x']))) - left
+              ry0 = int(round(float(review['y']))) - top
+              rx1 = int(round(float(review['x']) + float(review['width']))) - left
+              ry1 = int(round(float(review['y']) + float(review['height']))) - top
+              if record['marker_grounding']['method'] == 'RASTER_REFINED_LOCAL_RECT':
+                  draw_dashed_rect(crop, sx0, sy0, sx1, sy1)
+              cv2.rectangle(crop, (rx0,ry0), (rx1,ry1), (0,0,255), 3)
+
+              for track_id in record['carrier_track_ids']:
+                  track = track_by_id.get(str(track_id))
+                  if not track:
+                      continue
+                  if track['orientation'] == 'HORIZONTAL':
+                      yy = int(round(float(track['centerline']))) - top
+                      xx0 = max(0, int(round(float(track['start']))) - left)
+                      xx1 = min(crop.shape[1]-1, int(round(float(track['end']))) - left)
+                      if 0 <= yy < crop.shape[0]:
+                          cv2.line(crop, (xx0,yy), (xx1,yy), (0,160,0), 2)
+                  else:
+                      xx = int(round(float(track['centerline']))) - left
+                      yy0 = max(0, int(round(float(track['start']))) - top)
+                      yy1 = min(crop.shape[0]-1, int(round(float(track['end']))) - top)
+                      if 0 <= xx < crop.shape[1]:
+                          cv2.line(crop, (xx,yy0), (xx,yy1), (0,160,0), 2)
+
+              band = record['transverse_band']
+              primitive_ids = band['primitive_negative_track_ids'] + band['primitive_positive_track_ids']
+              for track_id in primitive_ids:
+                  track = track_by_id.get(str(track_id))
+                  if not track:
+                      continue
+                  if track['orientation'] == 'VERTICAL':
+                      xx = int(round(float(track['centerline']))) - left
+                      yy0 = max(0, int(round(float(track['start']))) - top)
+                      yy1 = min(crop.shape[0]-1, int(round(float(track['end']))) - top)
+                      if 0 <= xx < crop.shape[1]:
+                          cv2.line(crop, (xx,yy0), (xx,yy1), (180,0,180), 2)
+                  else:
+                      yy = int(round(float(track['centerline']))) - top
+                      xx0 = max(0, int(round(float(track['start']))) - left)
+                      xx1 = min(crop.shape[1]-1, int(round(float(track['end']))) - left)
+                      if 0 <= yy < crop.shape[0]:
+                          cv2.line(crop, (xx0,yy), (xx1,yy), (180,0,180), 2)
+
+              carrier_tracks = [track_by_id[str(tid)] for tid in record['carrier_track_ids'] if str(tid) in track_by_id]
+              centers = sorted(float(track['centerline']) for track in carrier_tracks)
+              if centers:
+                  cross_lo, cross_hi = centers[0]-18, centers[-1]+18
+                  for stroke in band['raster_negative_strokes'] + band['raster_positive_strokes']:
+                      pos = float(stroke['centerline'])
+                      if record['carrier_orientation'] == 'HORIZONTAL':
+                          xx = int(round(pos)) - left
+                          yy0 = max(0, int(round(cross_lo)) - top)
+                          yy1 = min(crop.shape[0]-1, int(round(cross_hi)) - top)
+                          if 0 <= xx < crop.shape[1]:
+                              cv2.line(crop, (xx,yy0), (xx,yy1), (255,0,0), 3)
+                      else:
+                          yy = int(round(pos)) - top
+                          xx0 = max(0, int(round(cross_lo)) - left)
+                          xx1 = min(crop.shape[1]-1, int(round(cross_hi)) - left)
+                          if 0 <= yy < crop.shape[0]:
+                              cv2.line(crop, (xx0,yy), (xx1,yy), (255,0,0), 3)
+
+              title = (
+                  f"M{index:02d} {record['carrier_topology']['topology_state']} "
+                  f"{band['graphical_state']} n={band['negative_side_count']} p={band['positive_side_count']} "
+                  f"shift={record['marker_grounding']['center_shift_px']:.1f} {record['marker_primitive_id']}"
+              )
+              crop = cv2.copyMakeBorder(crop, 60, 0, 0, 0, cv2.BORDER_CONSTANT, value=(255,255,255))
+              cv2.putText(crop, title, (10,38), cv2.FONT_HERSHEY_SIMPLEX, 0.48, (0,0,0), 1, cv2.LINE_AA)
+              return crop
+
+          panels = [review_panel(record, index+1) for index, record in enumerate(selected_records)]
+          max_w = max(panel.shape[1] for panel in panels)
+          padded = [
+              cv2.copyMakeBorder(panel, 0, 0, 0, max_w-panel.shape[1], cv2.BORDER_CONSTANT, value=(255,255,255))
+              if panel.shape[1] < max_w else panel
+              for panel in panels
+          ]
+          atlas = cv2.vconcat(padded)
+          atlas_path = out / 'marker-topology-repair-atlas.png'
+          assert cv2.imwrite(str(atlas_path), atlas)
+
+          control_panels = []
+          for index, marker_id in enumerate(control_ids, start=1):
+              control = controls_by_id[marker_id]
+              geometry = control['marker_geometry']
+              cx = float(geometry['x']) + float(geometry['width'])/2.0
+              cy = float(geometry['y']) + float(geometry['height'])/2.0
+              left = max(0, int(round(cx-260))); right = min(colour.shape[1], int(round(cx+260)))
+              top = max(0, int(round(cy-220))); bottom = min(colour.shape[0], int(round(cy+220)))
+              crop = colour[top:bottom, left:right].copy()
+              x0 = int(round(float(geometry['x']))) - left; y0 = int(round(float(geometry['y']))) - top
+              x1 = int(round(float(geometry['x'])+float(geometry['width']))) - left
+              y1 = int(round(float(geometry['y'])+float(geometry['height']))) - top
+              cv2.rectangle(crop, (x0,y0), (x1,y1), (0,0,255), 3)
+              crop = cv2.copyMakeBorder(crop, 55, 0, 0, 0, cv2.BORDER_CONSTANT, value=(255,255,255))
+              cv2.putText(crop, f"C{index:02d} ANNOTATION_CONTROL {marker_id}", (10,34), cv2.FONT_HERSHEY_SIMPLEX, 0.48, (0,0,0), 1, cv2.LINE_AA)
+              control_panels.append(crop)
+          if control_panels:
+              max_cw = max(panel.shape[1] for panel in control_panels)
+              controls_atlas = cv2.vconcat([
+                  cv2.copyMakeBorder(panel, 0, 0, 0, max_cw-panel.shape[1], cv2.BORDER_CONSTANT, value=(255,255,255))
+                  if panel.shape[1] < max_cw else panel
+                  for panel in control_panels
+              ])
+              assert cv2.imwrite(str(out / 'marker-topology-repair-controls.png'), controls_atlas)
+
+          summary = {
+              'status': payload['status'],
+              'primitive_count': payload['primitive_count'],
+              'review_eligible_input_count': payload['review_eligible_input_count'],
+              'topology_counts': payload['topology_counts'],
+              'transverse_band_counts': payload['transverse_band_counts'],
+              'grounding_method_counts': payload['grounding_method_counts'],
+              'c5_band_state': by_id[C5]['transverse_band']['graphical_state'],
+              'c7_band_state': by_id[C7]['transverse_band']['graphical_state'],
+              'c7_side_counts': [
+                  by_id[C7]['transverse_band']['negative_side_count'],
+                  by_id[C7]['transverse_band']['positive_side_count'],
+              ],
+              'selected_review_marker_ids': selected_ids,
+              'replay_sha256': digest,
+              'semantic_authority': False,
+              'g3_authorized': False,
+              'merge_authorized': False,
+          }
+          print('MARKER_TOPOLOGY_REPAIR=' + json.dumps(summary, sort_keys=True))
+          PY
+
+      - name: Upload marker-topology repair evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-b01-marker-topology-repair
+          path: evidence/cew-b01/marker-topology-repair/
+          if-no-files-found: error
+          retention-days: 30
