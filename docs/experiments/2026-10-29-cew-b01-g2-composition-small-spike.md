@@ -29,64 +29,35 @@ The spike builds a local geometric graph around each seed and records neutral re
 - `ALIGNED_H / ALIGNED_V`
 - `PARALLEL / ORTHOGONAL` when orientation evidence exists
 
-`CORE` admits nearby nonsemantic primitives only when the local relation is sufficiently strong and the primitive is not geometrically dominant. Long linework, text, dimensions/callouts and geometrically huge neighbours stay in `CONTEXT`.
-
-The `24`-member core cap is an experiment/presentation bound only. It is not a production threshold and carries no structural meaning.
+The original experimental `24`-member CORE cap was a presentation bound only. It was never a production threshold and carried no structural meaning.
 
 ## Exact small-run result before G2A0
 
-Running `experiments/cew_b01/g2_composition_small_spike.py` against the qualified `primitive-census.json` produced eight candidates:
+Running `experiments/cew_b01/g2_composition_small_spike.py` against the qualified `primitive-census.json` produced raw CORE vector:
 
-| # | Seed primitive | Raw CORE count | Main neutral core content |
-|---|---|---:|---|
-| 1 | `...54769e74` | 3 | 1 closed rectilinear shape + 2 filled/hatched regions |
-| 2 | `...947dc2b9` | 24 | closed shape + intersections/cross/T motifs + parallel-line pairs |
-| 3 | `...cd3e04a2` | 1 | closed shape only |
-| 4 | `...85dd648a` | 2 | closed shape + touching line segment |
-| 5 | `...3acd1d9c` | 1 | closed shape only |
-| 6 | `...d45f27ad` | 24 | closed shape + complex group + intersections/cross/T motifs |
-| 7 | `...52aae053` | 4 | closed shape + line segments |
-| 8 | `...5beed9ea` | 10 | closed shape + line segments |
+`3, 24, 1, 2, 1, 24, 4, 10`.
 
-Raw CORE vector: `3, 24, 1, 2, 1, 24, 4, 10`.
-
-The strongest neutral composition similarities in the first spike were `3 ↔ 5 = 0.683`, `2 ↔ 6 = 0.598`, `7 ↔ 8 = 0.521`. These are ranking aids only. No acceptance threshold or family promotion is authorized.
+The strongest neutral composition similarities in the first spike were `3 ↔ 5 = 0.683`, `2 ↔ 6 = 0.598`, `7 ↔ 8 = 0.521`. These were ranking aids only. No acceptance threshold or family promotion was authorized.
 
 ## Visual finding from the first micro-atlas
 
-Candidates `2` and `6` both hit the experimental 24-member cap, but many of those members are co-spatial or near-coincident observations such as `INTERSECTION`, `CROSS_MOTIF`, `T_JUNCTION` and `T_SHAPED_MOTIF` derived from the same local strokes.
+Candidates `2` and `6` both hit the experimental 24-member cap, but many of those members were co-spatial or near-coincident observations such as `INTERSECTION`, `CROSS_MOTIF`, `T_JUNCTION` and `T_SHAPED_MOTIF` derived from the same local strokes.
 
-Therefore raw G1 observation cardinality cannot be treated as physical or symbolic part cardinality. A stricter seed-relative size guard alone does not solve this because redundant derived observations remain co-located and can still inflate the candidate.
+Therefore raw G1 observation cardinality cannot be treated as physical or symbolic part cardinality. The architecture was consequently refined to:
 
-The architecture was consequently refined to:
-
-`G1 observations -> G2A0 co-spatial observation bundles -> G2A relation graph -> G2B CORE/CONTEXT SymbolCandidate -> G2C candidate families -> Human Review -> G3 semantic attribution`
+`G1 observations -> G2A0 co-spatial observation bundles -> G2A relation graph -> G2B CORE/CONTEXT boundary -> G2C candidate families -> Human Review -> G3 semantic attribution`
 
 G2A0 is provenance-preserving: every bundle retains every original `primitive_id`, detector, geometry and source binding.
 
-## G2A0 implementation and RED→GREEN evidence
+## G2A0 RED→GREEN and exact replay
 
-The first TDD cycle introduced contracts for:
+The first TDD cycle introduced contracts for fusion of strongly co-spatial derived observations, separation of nearby distinct events, long-line exclusion from compact bundles, determinism and complete primitive-to-bundle provenance.
 
-- fusion of strongly co-spatial derived observations;
-- separation of nearby but distinct events;
-- exclusion of a long crossing line from a compact local-event bundle;
-- deterministic behavior under reversed input order;
-- complete primitive-to-bundle provenance;
-- expansion of candidate bundles back to original G1 primitive IDs;
-- unchanged non-authority flags.
+RED head `4e4d46c3d395f5c1afd69936e17cf13a7421f2af` was not used; the actual G2A0 RED head was `4e4d46c3d395f5c16b8c66a371185f9cac5d042b`, which failed causally because the two G2A0 production modules did not yet exist. After implementation the focused gate passed.
 
-The RED head `4e4d46c3d395f5c16b8c66a371185f9cac5d042b` failed causally because the two G2A0 production modules did not yet exist. After implementation, the focused G2A0 gate and Repository Memory Gate passed.
+A final self-review found an Important residual: CONTEXT still inherited an artificial `[:20]` presentation truncation. A second TDD cycle produced exact RED `20 != 25` on head `39f53ab067ac6cf6f0b32c95d7b624909ef69ea7`; the cap was removed and the G2A0 and Repository Memory gates returned GREEN.
 
-During final self-review an Important residual was found: the new candidate builder still inherited the old presentation truncation `CONTEXT[:20]`. That contradicted the requirement that rejected nearby geometry remain explicitly available as context.
-
-A second test-first cycle added a fixture with 25 nearby rejected context bundles. The RED head `39f53ab067ac6cf6f0b32c95d7b624909ef69ea7` failed exactly with `20 != 25`. The implementation was then corrected by removing the artificial context cap while leaving the experimental CORE cap unchanged. On fix head `966284535bfab363f9ad74a4b05361acc818f516`, both `CEW-B01 G2A0 Pilot Unit Gate` and `CEW Repository Memory Gate` passed.
-
-## Final exact real-source replay
-
-After the context-preservation repair, the exact `5,633`-primitive census was replayed twice. Both result files were byte-for-byte identical.
-
-Final result SHA-256:
+The final exact `5,633`-primitive G2A0 replay was byte-identical across two runs, SHA-256:
 
 `4058b10dcb31594ed345bda3a8f900f0b412e5d5a8f5eed1296b875dee700858`
 
@@ -101,38 +72,114 @@ Final result SHA-256:
 | C7 | 4 | 4 | 4 | 28 |
 | C8 | 10 | 10 | 10 | 39 |
 
-The corresponding numbers of original G1 observations recoverable from CONTEXT are `284, 325, 46, 34, 36, 410, 28, 39`.
+This established that graph composition must operate on provenance-preserving bundles rather than raw G1 cardinality.
 
-The important interpretation is not that C2 or C6 have 45 or 29 symbolic parts. The opposite is demonstrated: many G1 observations describe the same local graphic event. G2A0 reduces the graph-node cardinality from `24 -> 5` for both saturated candidates while retaining full provenance back to the original observations.
+## G2B bounded boundary experiment
 
-The expanded counts also show that the old raw `24` cap had truncated membership: after coalescence, the selected bundles expand to more than 24 original G1 observations. Therefore the raw cap cannot be used as a completeness or symbolic-cardinality oracle.
+G2B was then executed only on the same eight frozen candidates. It does not change G2A0 bundles and does not add meaning. It can only retain an incoming CORE bundle or move it into CONTEXT.
 
-## Remaining residual after G2A0
+The experimental neutral rules are intentionally narrow:
 
-G2A0 solves observation duplication and now preserves the complete nearby context, but it does **not** by itself solve the CORE/CONTEXT boundary.
+- seed bundle always remains CORE;
+- a non-seed bundle related to the seed only by `NEAR` moves to CONTEXT;
+- line-only bundles whose major span exceeds `2.0 ×` the seed major span move to CONTEXT;
+- non-seed `RECTILINEAR_CLOSED_SHAPE` or `COMPLEX_GRAPHIC_GROUP` bundles move to CONTEXT when area exceeds `1.8 ×` seed area or major span exceeds `1.6 ×` seed major span;
+- compact directly contacting derived-event bundles remain CORE;
+- moved bundles and all their original primitive IDs remain explicitly preserved in CONTEXT.
 
-The micro-atlas still shows some large `RECTILINEAR_CLOSED_SHAPE` or `COMPLEX_GRAPHIC_GROUP` neighbours entering the candidate CORE because they overlap or touch the seed region. This is deliberately left as a separate G2B problem. Tightening G2A0 to remove those objects would mix two responsibilities: equivalence of observations and composition membership.
+These thresholds are experiment rules, not production, semantic or structural criteria.
+
+### G2B RED→GREEN evidence
+
+The dedicated G2B RED head `28e99717dca4b08a6de218e880eeb2ad9a59da06` failed causally with:
+
+`ModuleNotFoundError: No module named 'experiments.cew_b01.g2b_core_context_refinement'`
+
+After minimal implementation, exact head `89b71d35f4ebb2aaa47e6a0ce867a82ad81e7e04` passed:
+
+- `CEW-B01 G2B Pilot Unit Gate` — PASS;
+- `CEW Repository Memory Gate` — PASS;
+- `CEW-B01 G2A0 Pilot Unit Gate` — PASS.
+
+The contracts cover NEAR-only demotion, dominant attached-line demotion, dominant closed/complex demotion, compact-contact retention, exact membership/provenance conservation, determinism and unchanged non-authority flags.
+
+### Exact real-source G2B replay
+
+Two executions over the exact G2A0 result were byte-identical. Full replay SHA-256:
+
+`a15937547ccf2ae69e71fe306abfa2ed5d48534365ce8a3ba30d06b1210c859b`
+
+| Candidate | G2A0 CORE bundles | G2B nucleus bundles | Moved CORE→CONTEXT | Final CONTEXT bundles | Original observations remaining in nucleus |
+|---|---:|---:|---:|---:|---:|
+| C1 | 3 | 1 | 2 | 35 | 1 |
+| C2 | 5 | 3 | 2 | 49 | 43 |
+| C3 | 1 | 1 | 0 | 30 | 1 |
+| C4 | 2 | 1 | 1 | 35 | 1 |
+| C5 | 1 | 1 | 0 | 16 | 1 |
+| C6 | 5 | 3 | 2 | 52 | 27 |
+| C7 | 4 | 1 | 3 | 31 | 1 |
+| C8 | 10 | 1 | 9 | 48 | 1 |
+
+Total moves by neutral reason:
+
+- `DOMINANT_LINEAR_CONTEXT`: `13`;
+- `NEAR_ONLY`: `5`;
+- `DOMINANT_CLOSED_OR_COMPLEX_CONTEXT`: `1`.
+
+For all eight candidates:
+
+`incoming CORE ∪ incoming CONTEXT == G2B CORE ∪ G2B CONTEXT`
+
+both at bundle-ID level and at expanded original-primitive level. No evidence is dropped.
+
+## Important G2B finding
+
+G2B succeeds at isolating a compact local nucleus, but the eight-case result also shows why **CORE alone cannot become the G2C family descriptor**.
+
+C1, C3, C4, C5, C7 and C8 reduce to seed-only nuclei, although their attached or nearby graphic configurations are materially different. C7 and C8 are the clearest examples: their long attached linework is correctly excluded from the compact nucleus, but it remains potentially discriminative configuration evidence.
+
+Therefore the output of G2B must be interpreted as:
+
+`NUCLEUS + PRESERVED RELATIONAL CONTEXT`
+
+not as a complete symbol definition. G2C must compare at least the nucleus together with a neutral signature of attached/near context and the relations/reason codes that caused the boundary decision. Otherwise distinct configurations could collapse into the same family simply because their nuclei are similar.
+
+This is still fully pre-semantic. The context signature says how geometry is attached or positioned, not what that geometry means technically.
+
+## Human review boundary
+
+All eight G2B candidates remain `UNREVIEWED`. No automated result is allowed to assign beam/column/node/section/reinforcement or other technical meaning.
+
+Permitted human decisions remain limited to:
+
+- `SAME_CONFIGURATION`
+- `DIFFERENT_CONFIGURATION`
+- `ARTIFACT`
+- `NON_SIGNIFICANT`
+- `UNCERTAIN`
+
+The micro-atlas must show the seed, retained G2B nucleus and every bundle moved from G2A0 CORE to CONTEXT so that the reviewer can judge the boundary rather than only the cropped nucleus.
 
 ## What this proves / does not prove
 
-The eight-seed experiment supports these statements:
+The bounded eight-seed evidence now supports:
 
-1. primitive-level recurrence is not sufficient to define a compound symbol family;
-2. graph composition should operate on provenance-preserving coalesced observations rather than raw G1 observation cardinality;
-3. observations rejected from CORE must remain explicitly available as CONTEXT rather than being silently truncated.
+1. primitive recurrence is insufficient for compound-symbol families;
+2. co-spatial G1 observations require provenance-preserving G2A0 bundling;
+3. G2B can isolate a compact nucleus while conserving all evidence;
+4. binary nucleus membership alone is too lossy for G2C family induction unless preserved relational context remains part of the configuration descriptor.
 
-It does **not** prove that any candidate is a beam, column, node, section, reinforcement symbol, dimension or other technical object. It does not authorize G3, structural identity, canonical writes or merge.
+It does **not** prove that any candidate has a particular technical or structural identity. It does not authorize G3, structural identity, canonical writes, corpus-wide generalization or merge.
 
-## Next bounded experiment
+## Next bounded step
 
-Do not scale to the full corpus yet.
+Do not scale beyond these eight candidates yet.
 
-Keep the same eight seeds and G2A0 bundles frozen. The next experiment is only **G2B CORE/CONTEXT boundary refinement**:
+The next permitted action is a **human configuration review of the G2B micro-atlas**, followed by a neutral G2C descriptor experiment only if the review supports the boundaries. That future descriptor must combine:
 
-1. distinguish the local symbol nucleus from attached/overlapping long structural geometry and larger closed/complex neighbours;
-2. keep every rejected neighbour explicitly in `CONTEXT`, never discard it;
-3. regenerate the same eight-candidate micro-atlas;
-4. compare candidate nucleus stability, context preservation and envelope growth;
-5. submit the eight candidates to human review with decisions limited to `SAME_CONFIGURATION / DIFFERENT_CONFIGURATION / ARTIFACT / NON_SIGNIFICANT / UNCERTAIN`.
+- G2B nucleus topology/proportions;
+- attached-context relation signature;
+- near-context signature where relevant;
+- full provenance links back to G2A0/G1.
 
-Only after that review should candidate-family induction be generalized beyond this eight-element pilot.
+No semantic label enters before that review.
