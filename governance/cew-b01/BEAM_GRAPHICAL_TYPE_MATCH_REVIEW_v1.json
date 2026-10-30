@@ -1,7 +1,7 @@
 {
   "schema_id": "CEW_B01_BEAM_GRAPHICAL_TYPE_MATCH_REVIEW",
   "schema_version": 1,
-  "status": "PROTOTYPE_GUIDED_MATCH_HUMAN_REVIEW_PENDING",
+  "status": "PROTOTYPE_GUIDED_GRAPHICAL_MATCHES_HUMAN_APPROVED",
   "scope": "TAV5_FROZEN_DOUBLE_CANDIDATES",
   "source": {
     "repository": "antoniocorsano-boop/N12",
@@ -30,6 +30,14 @@
     "threshold_tuning": false,
     "re_extraction": false
   },
+  "human_review": {
+    "review_date": "2026-10-30",
+    "review_source": "INTERACTIVE_HUMAN_REVIEW",
+    "explicit_decision": "T1_AND_T2_GROUPINGS_COHERENT",
+    "graphical_grouping_review_complete": true,
+    "approved_non_reference_match_count": 6,
+    "scope_note": "Human Review confirms the graphical coherence of the proposed T1/T2 grouping for the frozen DOUBLE candidates. Approval is limited to graphical similarity to the approved prototypes and does not authorize automatic semantic classification, structural identity, canonical writes, G2C, G3 or merge."
+  },
   "prototypes": {
     "T1": {
       "prototype_id": "CEW-B01-BEAM-GRAPH-T1-v1",
@@ -47,7 +55,7 @@
       "panel_id": "D01",
       "marker_primitive_id": "CEW-B01-GP-0585efea6643bfdd101c7e7b",
       "marker_major_axis": "VERTICAL",
-      "proposed_graphical_match": "REFERENCE_T1",
+      "graphical_match": "REFERENCE_T1",
       "review_basis": "APPROVED_PROTOTYPE_ANCHOR",
       "human_review_state": "REFERENCE_ALREADY_APPROVED"
     },
@@ -55,31 +63,31 @@
       "panel_id": "D02",
       "marker_primitive_id": "CEW-B01-GP-170208dcb885d5ca5beed9ea",
       "marker_major_axis": "VERTICAL",
-      "proposed_graphical_match": "SIMILAR_TO_T1",
+      "graphical_match": "SIMILAR_TO_T1",
       "review_basis": "VISIBLE_DOUBLE_BAND_ORTHOGONAL_TO_MARKER_MAJOR_AXIS",
-      "human_review_state": "PENDING_HUMAN_REVIEW"
+      "human_review_state": "HUMAN_APPROVED_GRAPHICAL_MATCH"
     },
     {
       "panel_id": "D03",
       "marker_primitive_id": "CEW-B01-GP-185b1f5d7a45a56581f5998b",
       "marker_major_axis": "VERTICAL",
-      "proposed_graphical_match": "SIMILAR_TO_T2",
+      "graphical_match": "SIMILAR_TO_T2",
       "review_basis": "VISIBLE_DOUBLE_BAND_PARALLEL_TO_MARKER_MAJOR_AXIS",
-      "human_review_state": "PENDING_HUMAN_REVIEW"
+      "human_review_state": "HUMAN_APPROVED_GRAPHICAL_MATCH"
     },
     {
       "panel_id": "D04",
       "marker_primitive_id": "CEW-B01-GP-1f49c4d9edcd5646e25622ab",
       "marker_major_axis": "HORIZONTAL",
-      "proposed_graphical_match": "SIMILAR_TO_T2",
+      "graphical_match": "SIMILAR_TO_T2",
       "review_basis": "VISIBLE_DOUBLE_BAND_PARALLEL_TO_MARKER_MAJOR_AXIS",
-      "human_review_state": "PENDING_HUMAN_REVIEW"
+      "human_review_state": "HUMAN_APPROVED_GRAPHICAL_MATCH"
     },
     {
       "panel_id": "D05",
       "marker_primitive_id": "CEW-B01-GP-218cf82b7d4970047f846baf",
       "marker_major_axis": "HORIZONTAL",
-      "proposed_graphical_match": "REFERENCE_T2",
+      "graphical_match": "REFERENCE_T2",
       "review_basis": "APPROVED_PROTOTYPE_ANCHOR",
       "human_review_state": "REFERENCE_ALREADY_APPROVED"
     },
@@ -87,39 +95,39 @@
       "panel_id": "D06",
       "marker_primitive_id": "CEW-B01-GP-41699fd8bcc089c40f86c0d3",
       "marker_major_axis": "VERTICAL",
-      "proposed_graphical_match": "SIMILAR_TO_T2",
+      "graphical_match": "SIMILAR_TO_T2",
       "review_basis": "VISIBLE_DOUBLE_BAND_PARALLEL_TO_MARKER_MAJOR_AXIS",
-      "human_review_state": "PENDING_HUMAN_REVIEW"
+      "human_review_state": "HUMAN_APPROVED_GRAPHICAL_MATCH"
     },
     {
       "panel_id": "D07",
       "marker_primitive_id": "CEW-B01-GP-7605114de6159e5b95019f2f",
       "marker_major_axis": "HORIZONTAL",
-      "proposed_graphical_match": "SIMILAR_TO_T2",
+      "graphical_match": "SIMILAR_TO_T2",
       "review_basis": "VISIBLE_DOUBLE_BAND_PARALLEL_TO_MARKER_MAJOR_AXIS",
-      "human_review_state": "PENDING_HUMAN_REVIEW"
+      "human_review_state": "HUMAN_APPROVED_GRAPHICAL_MATCH"
     },
     {
       "panel_id": "D08",
       "marker_primitive_id": "CEW-B01-GP-9c2baa902b81c5f3aa35c7b6",
       "marker_major_axis": "HORIZONTAL",
-      "proposed_graphical_match": "SIMILAR_TO_T2",
+      "graphical_match": "SIMILAR_TO_T2",
       "review_basis": "VISIBLE_DOUBLE_BAND_PARALLEL_TO_MARKER_MAJOR_AXIS",
-      "human_review_state": "PENDING_HUMAN_REVIEW"
+      "human_review_state": "HUMAN_APPROVED_GRAPHICAL_MATCH"
     }
   ],
   "summary": {
     "reference_t1": 1,
     "reference_t2": 1,
-    "pending_similar_to_t1": 1,
-    "pending_similar_to_t2": 5,
-    "pending_neither": 0,
-    "pending_uncertain": 0,
-    "human_review_required_for_non_reference_candidates": true
+    "human_approved_similar_to_t1": 1,
+    "human_approved_similar_to_t2": 5,
+    "human_approved_neither": 0,
+    "human_approved_uncertain": 0,
+    "graphical_grouping_human_review_complete": true
   },
   "authority": {
     "graphical_prototypes_human_approved": true,
-    "graphical_candidate_matches_human_approved": false,
+    "graphical_candidate_matches_human_approved": true,
     "semantic_classification_authorized": false,
     "structural_identity_authorized": false,
     "canonical_write_authorized": false,
