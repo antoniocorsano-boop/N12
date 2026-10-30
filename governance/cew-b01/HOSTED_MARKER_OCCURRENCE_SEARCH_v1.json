@@ -50,6 +50,7 @@
     "artifact_digest": "sha256:d65d9cbea92be7cd150fb5889bb7f6ca79e2884db4605f29cd2f81423ddf5cb9",
     "artifact_id": 12965071190,
     "artifact_name": "cew-b01-hosted-marker-occurrence-search",
+    "documentation_pre_freeze_head": "d50afc5505f796cac482fb1d8d82335ac4fcba5f",
     "double_replay_deterministic": true,
     "exact_source_search_run": 41028668771,
     "implementation_evidence_head": "2f2b1229df35996f434b2664baa097e2c89f3d8b",
