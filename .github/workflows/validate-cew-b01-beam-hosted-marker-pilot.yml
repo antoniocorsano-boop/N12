@@ -52,4 +52,5 @@ jobs:
             tests.cew_b01.test_beam_hosted_marker_binding_hardening \
             tests.cew_b01.test_hosted_marker_occurrence_search \
             tests.cew_b01.test_hosted_marker_annotation_noise \
-            tests.cew_b01.test_marker_grounding_repair -v
+            tests.cew_b01.test_marker_grounding_repair \
+            tests.cew_b01.test_carrier_topology_descriptor -v
