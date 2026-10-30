@@ -138,7 +138,7 @@ class HostedMarkerGovernanceReceiptTests(unittest.TestCase):
         self.assertEqual(result["review_eligible_occurrence_count"], 46)
         self.assertEqual(result["annotation_dominated_count"], 4)
         self.assertEqual(
-            result["review_eligible_counts_by_graphical_state"],
+            result["counts_by_graphical_state"],
             {
                 "RECT_ALONE_ON_CARRIER": 25,
                 "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE": 21,
@@ -152,13 +152,17 @@ class HostedMarkerGovernanceReceiptTests(unittest.TestCase):
                 "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE": 20,
             },
         )
+        self.assertEqual(
+            result["review_eligible_occurrence_count"] + result["annotation_dominated_count"],
+            result["all_bound_occurrence_count"],
+        )
 
         self.assertEqual(
             receipt["evidence"]["replay_sha256"],
             "f68cfaccb496bd5c8d6b90ed4dbc68d4a3c242bcb9b905c5d01bfbf7ffd76459",
         )
         self.assertEqual(
-            receipt["annotation_dominated_marker_ids"],
+            [item["marker_primitive_id"] for item in receipt["annotation_dominated"]],
             [
                 "CEW-B01-GP-8b7eae9c9f25bb1d73c6f504",
                 "CEW-B01-GP-cf4860204d8bb1c826d35f40",
@@ -166,6 +170,11 @@ class HostedMarkerGovernanceReceiptTests(unittest.TestCase):
                 "CEW-B01-GP-f417c150f3a1b9a8d30c7d03",
             ],
         )
+        self.assertEqual(
+            receipt["regression_cases"]["R03_recovered"]["expected_role"],
+            "REVIEW_ELIGIBLE",
+        )
+        self.assertTrue(receipt["annotation_separation"]["ignored_text_noise_preserved"])
         self.assertFalse(receipt["authority"]["semantic_classification_authorized"])
         self.assertFalse(receipt["authority"]["structural_identity_authorized"])
         self.assertFalse(receipt["authority"]["canonical_write_authorized"])
