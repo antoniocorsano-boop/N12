@@ -272,6 +272,12 @@ def _same_scope(marker: dict[str, Any], carrier_or_track: dict[str, Any]) -> boo
     )
 
 
+def _distance_to_interval(value: float, start: float, end: float) -> float:
+    if start <= value <= end:
+        return 0.0
+    return min(abs(value - start), abs(value - end))
+
+
 def build_hosted_marker_candidates(
     primitives: list[dict[str, Any]],
     marker_seed_ids: list[str],
@@ -279,11 +285,15 @@ def build_hosted_marker_candidates(
     carrier_cross_tolerance_px: float = 4.0,
     max_marker_to_carrier_overlap_fraction: float = 0.35,
     transverse_window_factor: float = 2.5,
+    local_pair_edge_tolerance_px: float = 15.0,
+    local_pair_edge_fraction: float = 0.25,
 ) -> list[dict[str, Any]]:
     """Bind frozen rectilinear markers to neutral carriers and describe local crossing tracks.
 
-    This function emits graphical states only. It deliberately does not encode
-    beam identity, slab support, or any other technical/structural meaning.
+    The broad transverse window preserves contextual crossing tracks. Pair
+    promotion is stricter: both tracks must lie locally at or near the marker
+    footprint. This function emits graphical states only and deliberately does
+    not encode beam identity, slab support, or any other technical meaning.
     """
 
     primitive_by_id = {str(item.get("primitive_id")): item for item in primitives}
@@ -362,7 +372,17 @@ def build_hosted_marker_candidates(
             ),
         )
         transverse_track_ids = [str(track["track_id"]) for track in qualifying_tracks]
-        transverse_pair_track_ids = transverse_track_ids[:2] if len(transverse_track_ids) >= 2 else []
+        local_pair_tolerance = max(local_pair_edge_tolerance_px, local_pair_edge_fraction * long_span)
+        local_pair_tracks = [
+            track
+            for track in qualifying_tracks
+            if _distance_to_interval(float(track["centerline"]), long_start, long_end) <= local_pair_tolerance
+        ]
+        transverse_pair_track_ids = (
+            [str(track["track_id"]) for track in local_pair_tracks[:2]]
+            if len(local_pair_tracks) >= 2
+            else []
+        )
         transverse_primitive_ids = sorted({
             primitive_id
             for track in qualifying_tracks
