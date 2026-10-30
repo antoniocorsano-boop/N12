@@ -24,6 +24,27 @@ def canonical_bytes(value: Any) -> bytes:
     ).encode("utf-8")
 
 
+def source_identity_metadata(
+    contract: Any,
+    materialized: Any,
+    binding: Any,
+    *,
+    zone_set_digest: str,
+) -> dict[str, Any]:
+    return {
+        "repository": contract.repository,
+        "commit": contract.commit,
+        "path": contract.path,
+        "git_blob_sha": contract.git_blob_sha,
+        "sha256": materialized.sha256,
+        "page_index": contract.page_index,
+        "source_role": contract.source_role,
+        "raster_width_px": binding.raster_width_px,
+        "raster_height_px": binding.raster_height_px,
+        "zone_set_digest": zone_set_digest,
+    }
+
+
 def _identifier_sort_key(value: str) -> tuple[int, int, str]:
     text = str(value)
     digits = "".join(ch for ch in text if ch.isdigit())
@@ -380,18 +401,17 @@ def main() -> None:
         assert record["semantic_meaning"] is None
         assert all(value is False for value in record["authority"].values())
 
+    source_metadata = source_identity_metadata(
+        contract,
+        materialized,
+        binding,
+        zone_set_digest=zone_receipt["zone_set_digest"],
+    )
     payload = {
         "schema_id": "CEW_COL01_NUMBER_ANCHORED_COLUMN_RECOVERY_EXACT_SOURCE",
         "schema_version": 1,
         "status": "H_COL_01_AUDIT_READY_FOR_HUMAN_REVIEW",
-        "source": {
-            "path": contract.source_path,
-            "sha256": materialized.sha256,
-            "page_index": contract.page_index,
-            "raster_width_px": binding.raster_width_px,
-            "raster_height_px": binding.raster_height_px,
-            "zone_set_digest": zone_receipt["zone_set_digest"],
-        },
+        "source": source_metadata,
         "toolchain": {"tesseract": tesseract_version_a},
         "candidate_generation": {
             "starts_from_exact_source_ocr": True,
