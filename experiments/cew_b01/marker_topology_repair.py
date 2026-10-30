@@ -230,3 +230,100 @@ def refine_marker_grounding(
     result["g3_authorized"] = False
     result["merge_authorized"] = False
     return result
+
+
+def _marker_long_interval(candidate: dict[str, Any]) -> tuple[float, float, float]:
+    geometry = _geometry_float(candidate.get("review_marker_geometry") or candidate["marker_geometry"])
+    orientation = str(candidate["carrier_orientation"])
+    if orientation == "HORIZONTAL":
+        start = geometry["x"]
+        end = geometry["x"] + geometry["width"]
+    elif orientation == "VERTICAL":
+        start = geometry["y"]
+        end = geometry["y"] + geometry["height"]
+    else:
+        raise ValueError("MARKER_TOPOLOGY_INVALID_CARRIER_ORIENTATION")
+    return start, end, max(1.0, end - start)
+
+
+def describe_carrier_topology(
+    candidate: dict[str, Any],
+    tracks: list[dict[str, Any]],
+    *,
+    carrier_cross_tolerance_px: float = 4.0,
+    through_fraction: float = 0.75,
+    terminal_fraction: float = 0.25,
+    junction_edge_fraction: float = 0.25,
+    junction_edge_min_px: float = 8.0,
+) -> dict[str, Any]:
+    """Describe local carrier continuity and junction geometry without technical semantics."""
+
+    orientation = str(candidate["carrier_orientation"])
+    if orientation not in {"HORIZONTAL", "VERTICAL"}:
+        raise ValueError("MARKER_TOPOLOGY_INVALID_CARRIER_ORIENTATION")
+
+    long_start, long_end, long_span = _marker_long_interval(candidate)
+    overlap_start = float(candidate["carrier_overlap_start"])
+    overlap_end = float(candidate["carrier_overlap_end"])
+    continuation_before = max(0.0, long_start - overlap_start)
+    continuation_after = max(0.0, overlap_end - long_end)
+
+    track_by_id = {str(track["track_id"]): track for track in tracks}
+    carrier_track_ids = sorted(str(track_id) for track_id in candidate.get("carrier_track_ids", []))
+    carrier_tracks = [track_by_id[track_id] for track_id in carrier_track_ids if track_id in track_by_id]
+    centerlines = sorted(float(track["centerline"]) for track in carrier_tracks)
+    band_lo = centerlines[0] if centerlines else float("nan")
+    band_hi = centerlines[-1] if centerlines else float("nan")
+
+    orthogonal = "VERTICAL" if orientation == "HORIZONTAL" else "HORIZONTAL"
+    junction_window = max(junction_edge_min_px, junction_edge_fraction * long_span)
+    end_junction_tracks: list[dict[str, Any]] = []
+    if centerlines:
+        for track in tracks:
+            track_id = str(track.get("track_id", ""))
+            if track_id in carrier_track_ids or str(track.get("orientation")) != orthogonal:
+                continue
+            if float(track["start"]) > band_lo + carrier_cross_tolerance_px:
+                continue
+            if float(track["end"]) < band_hi - carrier_cross_tolerance_px:
+                continue
+            long_position = float(track["centerline"])
+            edge_distance = min(abs(long_position - long_start), abs(long_position - long_end))
+            if edge_distance <= junction_window:
+                end_junction_tracks.append(track)
+
+    end_junction_track_ids = sorted(str(track["track_id"]) for track in end_junction_tracks)
+    through_threshold = through_fraction * long_span
+    terminal_threshold = terminal_fraction * long_span
+    through = continuation_before >= through_threshold and continuation_after >= through_threshold
+    terminal_asymmetry = (
+        continuation_before <= terminal_threshold and continuation_after >= through_threshold
+    ) or (
+        continuation_after <= terminal_threshold and continuation_before >= through_threshold
+    )
+
+    if len(end_junction_track_ids) >= 2:
+        topology_state = "JUNCTION_COMPLEX"
+    elif terminal_asymmetry:
+        topology_state = "TERMINAL_OR_STEM"
+    elif through:
+        topology_state = "THROUGH_CONTINUOUS"
+    else:
+        topology_state = "AMBIGUOUS"
+
+    return {
+        "topology_state": topology_state,
+        "carrier_orientation": orientation,
+        "carrier_track_ids": carrier_track_ids,
+        "continuation_before_px": round(continuation_before, 6),
+        "continuation_after_px": round(continuation_after, 6),
+        "through_threshold_px": round(through_threshold, 6),
+        "terminal_threshold_px": round(terminal_threshold, 6),
+        "junction_edge_window_px": round(junction_window, 6),
+        "end_junction_track_ids": end_junction_track_ids,
+        "semantic_meaning": None,
+        "structural_identity_authorized": False,
+        "canonical_write_authorized": False,
+        "g3_authorized": False,
+        "merge_authorized": False,
+    }
