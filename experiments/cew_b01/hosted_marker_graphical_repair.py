@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from typing import Any
+import copy
+import math
+from typing import Any, Sequence
+
+from .beam_hosted_marker_raster import detect_bilateral_transverse_section_from_binary
 
 
 def _marker_long_interval(candidate: dict[str, Any]) -> tuple[float, float, float]:
@@ -69,3 +73,187 @@ def carrier_topology_evidence(
         "end_run_ratio_threshold": round(float(end_run_ratio_threshold), 12),
         "minimum_through_overlap_ratio": round(float(minimum_through_overlap_ratio), 12),
     }
+
+
+def _binary_shape(binary_ink: Sequence[Sequence[Any]]) -> tuple[int, int]:
+    height = len(binary_ink)
+    if height <= 0:
+        raise ValueError("HOSTED_MARKER_ALIGNMENT_EMPTY_RASTER")
+    width = len(binary_ink[0])
+    if width <= 0 or any(len(row) != width for row in binary_ink):
+        raise ValueError("HOSTED_MARKER_ALIGNMENT_INVALID_RASTER")
+    return width, height
+
+
+def _horizontal_edge_support(
+    binary_ink: Sequence[Sequence[Any]],
+    *,
+    x0: int,
+    x1: int,
+    y: int,
+    tolerance_px: int,
+    width: int,
+    height: int,
+) -> float:
+    start = max(0, min(x0, x1))
+    end = min(width - 1, max(x0, x1))
+    if end < start:
+        return 0.0
+    supported = 0
+    total = end - start + 1
+    for x in range(start, end + 1):
+        found = False
+        for yy in range(max(0, y - tolerance_px), min(height - 1, y + tolerance_px) + 1):
+            if bool(binary_ink[yy][x]):
+                found = True
+                break
+        supported += int(found)
+    return supported / total if total else 0.0
+
+
+def _vertical_edge_support(
+    binary_ink: Sequence[Sequence[Any]],
+    *,
+    y0: int,
+    y1: int,
+    x: int,
+    tolerance_px: int,
+    width: int,
+    height: int,
+) -> float:
+    start = max(0, min(y0, y1))
+    end = min(height - 1, max(y0, y1))
+    if end < start:
+        return 0.0
+    supported = 0
+    total = end - start + 1
+    for y in range(start, end + 1):
+        found = False
+        for xx in range(max(0, x - tolerance_px), min(width - 1, x + tolerance_px) + 1):
+            if bool(binary_ink[y][xx]):
+                found = True
+                break
+        supported += int(found)
+    return supported / total if total else 0.0
+
+
+def marker_alignment_evidence(
+    binary_ink: Sequence[Sequence[Any]],
+    marker_geometry: dict[str, Any],
+    *,
+    tolerance_px: int = 2,
+    aligned_minimum_side_support: float = 0.55,
+    mismatch_minimum_side_support: float = 0.15,
+) -> dict[str, Any]:
+    """Measure raster support for the four edges of the frozen marker geometry.
+
+    The function is diagnostic only. It never returns replacement or snapped
+    geometry; the supplied G1 rectangle remains the provenance anchor.
+    """
+
+    width, height = _binary_shape(binary_ink)
+    x0 = int(round(float(marker_geometry["x"])))
+    y0 = int(round(float(marker_geometry["y"])))
+    marker_width = max(1, int(round(float(marker_geometry["width"]))))
+    marker_height = max(1, int(round(float(marker_geometry["height"]))))
+    x1 = x0 + marker_width - 1
+    y1 = y0 + marker_height - 1
+
+    side_support = {
+        "top": _horizontal_edge_support(
+            binary_ink,
+            x0=x0,
+            x1=x1,
+            y=y0,
+            tolerance_px=tolerance_px,
+            width=width,
+            height=height,
+        ),
+        "bottom": _horizontal_edge_support(
+            binary_ink,
+            x0=x0,
+            x1=x1,
+            y=y1,
+            tolerance_px=tolerance_px,
+            width=width,
+            height=height,
+        ),
+        "left": _vertical_edge_support(
+            binary_ink,
+            y0=y0,
+            y1=y1,
+            x=x0,
+            tolerance_px=tolerance_px,
+            width=width,
+            height=height,
+        ),
+        "right": _vertical_edge_support(
+            binary_ink,
+            y0=y0,
+            y1=y1,
+            x=x1,
+            tolerance_px=tolerance_px,
+            width=width,
+            height=height,
+        ),
+    }
+    side_support = {key: round(value, 12) for key, value in sorted(side_support.items())}
+    minimum_side_support = min(side_support.values())
+    mean_side_support = sum(side_support.values()) / len(side_support)
+
+    if minimum_side_support >= aligned_minimum_side_support:
+        alignment_state = "ALIGNED"
+    elif minimum_side_support < mismatch_minimum_side_support:
+        alignment_state = "GEOMETRY_MISMATCH"
+    else:
+        alignment_state = "WEAK_EDGE_SUPPORT"
+
+    return {
+        "alignment_state": alignment_state,
+        "side_support": side_support,
+        "minimum_side_support": round(minimum_side_support, 12),
+        "mean_side_support": round(mean_side_support, 12),
+        "tolerance_px": int(tolerance_px),
+        "aligned_minimum_side_support": round(float(aligned_minimum_side_support), 12),
+        "mismatch_minimum_side_support": round(float(mismatch_minimum_side_support), 12),
+    }
+
+
+def refine_graphical_candidate(
+    candidate: dict[str, Any],
+    carrier: dict[str, Any],
+    binary_ink: Sequence[Sequence[Any]],
+) -> dict[str, Any]:
+    """Add neutral repair evidence without mutating or semantically promoting input."""
+
+    item = copy.deepcopy(candidate)
+    topology = carrier_topology_evidence(candidate, carrier)
+    alignment = marker_alignment_evidence(binary_ink, candidate["marker_geometry"])
+    transverse = detect_bilateral_transverse_section_from_binary(
+        binary_ink,
+        marker_geometry=candidate["marker_geometry"],
+        carrier_orientation=str(candidate["carrier_orientation"]),
+        carrier_track_centerlines=list(carrier["track_centerlines"]),
+    )
+
+    if alignment["alignment_state"] != "ALIGNED":
+        role = "MARKER_ALIGNMENT_REVIEW"
+    elif topology["topology_state"] != "THROUGH_LINEAR_CARRIER":
+        role = "CARRIER_TOPOLOGY_REVIEW"
+    elif transverse["section_state"] == "UNILATERAL_PAIR_OR_PARTIAL":
+        role = "PARTIAL_TRANSVERSE_REVIEW"
+    elif transverse["section_state"] == "BILATERAL_DOUBLE_PAIR":
+        role = "REVIEW_ELIGIBLE_BILATERAL_DOUBLE_PAIR"
+    else:
+        role = "REVIEW_ELIGIBLE_ALONE"
+
+    item["carrier_topology_evidence"] = topology
+    item["marker_alignment_evidence"] = alignment
+    item["transverse_section_evidence"] = transverse
+    item["graphical_repair_role"] = role
+    item["semantic_meaning"] = None
+    item["structural_identity_authorized"] = False
+    item["canonical_write_authorized"] = False
+    item["g3_authorized"] = False
+    item["merge_authorized"] = False
+    return item
