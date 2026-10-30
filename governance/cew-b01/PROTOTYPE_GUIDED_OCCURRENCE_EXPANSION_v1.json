@@ -1,7 +1,7 @@
 {
   "schema_id": "CEW_B01_PROTOTYPE_GUIDED_OCCURRENCE_EXPANSION_RECEIPT",
   "schema_version": 1,
-  "status": "PROTOTYPE_GUIDED_OCCURRENCE_HUMAN_REVIEW_PENDING",
+  "status": "PROTOTYPE_GUIDED_OCCURRENCE_HUMAN_REVIEW_APPROVED",
   "scope": "TAV5_FIRST_PASS_PARTIAL_THROUGH_CONTINUOUS",
   "source": {
     "repository": "antoniocorsano-boop/N12",
@@ -50,6 +50,17 @@
     "NEITHER",
     "UNCERTAIN"
   ],
+  "human_review": {
+    "review_date": "2026-10-30",
+    "review_source": "INTERACTIVE_HUMAN_REVIEW",
+    "review_complete": true,
+    "explicit_decision": "EXPANSION_GROUPING_APPROVED",
+    "similar_to_t1_count": 10,
+    "similar_to_t2_count": 1,
+    "neither_count": 0,
+    "uncertain_count": 0,
+    "scope_note": "Human approval is limited to graphical similarity against the approved T1/T2 references. It does not authorize automatic semantic classification, structural identity, canonical CAD writes, G2C promotion, G3, or merge."
+  },
   "candidates": [
     {
       "panel_id": "E01",
@@ -59,7 +70,7 @@
       "cross_axis_side_counts": [1, 4],
       "matched_cross_side_pair_count": 1,
       "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
-      "human_decision": "PENDING_HUMAN_REVIEW"
+      "human_decision": "SIMILAR_TO_T1"
     },
     {
       "panel_id": "E02",
@@ -69,7 +80,7 @@
       "cross_axis_side_counts": [1, 4],
       "matched_cross_side_pair_count": 1,
       "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
-      "human_decision": "PENDING_HUMAN_REVIEW"
+      "human_decision": "SIMILAR_TO_T1"
     },
     {
       "panel_id": "E03",
@@ -79,7 +90,7 @@
       "cross_axis_side_counts": [1, 4],
       "matched_cross_side_pair_count": 1,
       "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
-      "human_decision": "PENDING_HUMAN_REVIEW"
+      "human_decision": "SIMILAR_TO_T1"
     },
     {
       "panel_id": "E04",
@@ -89,7 +100,7 @@
       "cross_axis_side_counts": [1, 4],
       "matched_cross_side_pair_count": 1,
       "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
-      "human_decision": "PENDING_HUMAN_REVIEW"
+      "human_decision": "SIMILAR_TO_T1"
     },
     {
       "panel_id": "E05",
@@ -99,7 +110,7 @@
       "cross_axis_side_counts": [1, 4],
       "matched_cross_side_pair_count": 1,
       "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
-      "human_decision": "PENDING_HUMAN_REVIEW"
+      "human_decision": "SIMILAR_TO_T1"
     },
     {
       "panel_id": "E06",
@@ -109,7 +120,7 @@
       "cross_axis_side_counts": [1, 1],
       "matched_cross_side_pair_count": 1,
       "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
-      "human_decision": "PENDING_HUMAN_REVIEW"
+      "human_decision": "SIMILAR_TO_T2"
     },
     {
       "panel_id": "E07",
@@ -119,7 +130,7 @@
       "cross_axis_side_counts": [0, 4],
       "matched_cross_side_pair_count": 0,
       "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
-      "human_decision": "PENDING_HUMAN_REVIEW"
+      "human_decision": "SIMILAR_TO_T1"
     },
     {
       "panel_id": "E08",
@@ -129,7 +140,7 @@
       "cross_axis_side_counts": [3, 0],
       "matched_cross_side_pair_count": 0,
       "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
-      "human_decision": "PENDING_HUMAN_REVIEW"
+      "human_decision": "SIMILAR_TO_T1"
     },
     {
       "panel_id": "E09",
@@ -139,7 +150,7 @@
       "cross_axis_side_counts": [3, 0],
       "matched_cross_side_pair_count": 0,
       "evidence_sources": ["RASTER_LOCAL_PROFILE"],
-      "human_decision": "PENDING_HUMAN_REVIEW"
+      "human_decision": "SIMILAR_TO_T1"
     },
     {
       "panel_id": "E10",
@@ -149,7 +160,7 @@
       "cross_axis_side_counts": [3, 0],
       "matched_cross_side_pair_count": 0,
       "evidence_sources": ["RASTER_LOCAL_PROFILE"],
-      "human_decision": "PENDING_HUMAN_REVIEW"
+      "human_decision": "SIMILAR_TO_T1"
     },
     {
       "panel_id": "E11",
@@ -159,11 +170,20 @@
       "cross_axis_side_counts": [4, 0],
       "matched_cross_side_pair_count": 0,
       "evidence_sources": ["RASTER_LOCAL_PROFILE"],
-      "human_decision": "PENDING_HUMAN_REVIEW"
+      "human_decision": "SIMILAR_TO_T1"
     }
   ],
+  "summary": {
+    "candidate_count": 11,
+    "human_approved_similar_to_t1": 10,
+    "human_approved_similar_to_t2": 1,
+    "human_approved_neither": 0,
+    "human_approved_uncertain": 0,
+    "human_review_complete": true
+  },
   "authority": {
     "graphical_shortlist_authorized_for_human_review": true,
+    "graphical_candidate_matches_human_approved": true,
     "semantic_classification_authorized": false,
     "structural_identity_authorized": false,
     "canonical_write_authorized": false,
