@@ -1,6 +1,6 @@
 # CEW-COL-02 — Footprint-first column recovery with explicit text binding
 
-**Status:** DESIGN APPROVED BY PRIOR USER DIRECTION / IMPLEMENTATION NOT YET STARTED  
+**Status:** HUMAN GRAPHICAL REVIEW COMPLETE / PROTOTYPE-GUIDED SEARCH NEXT  
 **Date:** 2026-10-30  
 **Branch:** `spike/cew-col02-footprint-text-binding`  
 **Base:** qualified COL-01 Human Review criterion head `badd2511c1fce8ff9578c6dddfe00fa3f1f86dbc`
@@ -239,7 +239,23 @@ Primary measurements:
 9. exact-source replay and deterministic artifact qualification.
 10. Human Review; only then record governed graphical/text-binding receipt.
 
-## 11. Success criteria
+## 11. Human Review result
+
+The exact-source atlas contained 16 neutral panels. Human Review established:
+
+- `P01 / COL02-FP-0363` → `COLUMN_FOOTPRINT_CONFIRMED`;
+- `P02 / COL02-FP-0493` → `COLUMN_FOOTPRINT_CONFIRMED`;
+- `P03` through `P16` → `NOT_COLUMN`.
+
+Therefore COL-02 now has **two human-confirmed positive graphical examples and fourteen human-confirmed negatives**.
+
+P01 and P02 are parallel positive examples. The Human Review does not express a preference that one of the two is the unique or primary prototype. A subsequent bounded search may reuse both as the project-local graphical prototype set, provided the matched source prototype is preserved in each candidate's evidence.
+
+The OCR observations internal to P01 (`30`) and P02 (`4`) remain observations only. This review does not confirm them as support identifiers and does not authorize text-to-structural identity binding.
+
+Governed receipt: `governance/cew-col02/COLUMN_FOOTPRINT_HUMAN_REVIEW_v1.json`.
+
+## 12. Success criteria
 
 COL-02 is successful when:
 
@@ -251,3 +267,9 @@ COL-02 is successful when:
 - exact-source replay is deterministic on a frozen candidate SHA.
 
 COL-02 does **not** require 34/34 automatic recovery to be a useful result. Misses and ambiguous bindings must remain visible and drive the next governed iteration.
+
+## 13. Next gate
+
+`PROTOTYPE_GUIDED_COLUMN_FOOTPRINT_SEARCH_FROM_HUMAN_POSITIVES`
+
+The next bounded search uses P01 and P02 only as human-approved graphical examples. It must not derive support identity, family, section or structural identity from those examples.
