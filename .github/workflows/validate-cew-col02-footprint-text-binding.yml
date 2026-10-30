@@ -1,0 +1,32 @@
+name: CEW-COL-02 Footprint Text Binding
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/cew_col02/**'
+      - 'tests/cew_col02/**'
+      - 'governance/cew-col02/**'
+      - 'docs/experiments/2026-10-30-cew-col02-footprint-text-binding-design.md'
+      - 'docs/superpowers/plans/2026-10-30-cew-col02-footprint-text-binding.md'
+      - '.github/workflows/validate-cew-col02-footprint-text-binding.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Run COL-02 unit tests
+        run: python -m unittest discover -s tests/cew_col02 -p 'test_*.py' -v
