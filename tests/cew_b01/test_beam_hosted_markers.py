@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import unittest
 
-from experiments.cew_b01.beam_hosted_markers import build_line_tracks, build_linear_carriers
+from experiments.cew_b01.beam_hosted_markers import (
+    build_hosted_marker_candidates,
+    build_line_tracks,
+    build_linear_carriers,
+)
 
 
 def line(pid: str, *, x: float, y: float, width: float, height: float, orientation: str) -> dict:
@@ -11,6 +15,18 @@ def line(pid: str, *, x: float, y: float, width: float, height: float, orientati
         "family": "LINE_SEGMENT",
         "geometry": {"x": x, "y": y, "width": width, "height": height},
         "feature_signature": {"orientation": orientation},
+        "source": {"sha256": "source"},
+        "page_index": 0,
+        "frame": "RASTER_PIXEL",
+    }
+
+
+def rect(pid: str, *, x: float, y: float, width: float, height: float) -> dict:
+    return {
+        "primitive_id": pid,
+        "family": "RECTILINEAR_CLOSED_SHAPE",
+        "geometry": {"x": x, "y": y, "width": width, "height": height},
+        "feature_signature": {"vertex_count": 4, "rectangularity": 0.95},
         "source": {"sha256": "source"},
         "page_index": 0,
         "frame": "RASTER_PIXEL",
@@ -104,6 +120,65 @@ class BeamHostedMarkerCarrierTests(unittest.TestCase):
         ]
         tracks = build_line_tracks(primitives)
         self.assertEqual(build_linear_carriers(tracks), build_linear_carriers(list(reversed(tracks))))
+
+
+class BeamHostedMarkerSignatureTests(unittest.TestCase):
+    def _base_horizontal(self) -> list[dict]:
+        return [
+            line("TOP", x=100, y=200, width=1000, height=2, orientation="HORIZONTAL"),
+            line("BOTTOM", x=100, y=260, width=1000, height=2, orientation="HORIZONTAL"),
+            rect("R", x=420, y=208, width=60, height=46),
+        ]
+
+    def test_hosted_rectangle_without_two_transverse_tracks_is_alone_state(self):
+        candidates = build_hosted_marker_candidates(self._base_horizontal(), ["R"])
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0]["graphical_state"], "RECT_ALONE_ON_CARRIER")
+        self.assertEqual(candidates[0]["transverse_track_ids"], [])
+
+    def test_two_distinct_orthogonal_tracks_crossing_carrier_form_transverse_pair_state(self):
+        primitives = self._base_horizontal() + [
+            line("V1", x=410, y=170, width=2, height=130, orientation="VERTICAL"),
+            line("V2", x=490, y=170, width=2, height=130, orientation="VERTICAL"),
+        ]
+        candidates = build_hosted_marker_candidates(primitives, ["R"])
+        self.assertEqual(candidates[0]["graphical_state"], "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE")
+        self.assertEqual(len(candidates[0]["transverse_pair_track_ids"]), 2)
+        self.assertEqual(set(candidates[0]["transverse_primitive_ids"]), {"V1", "V2"})
+
+    def test_single_orthogonal_track_is_not_a_pair(self):
+        primitives = self._base_horizontal() + [
+            line("V1", x=450, y=170, width=2, height=130, orientation="VERTICAL"),
+        ]
+        candidates = build_hosted_marker_candidates(primitives, ["R"])
+        self.assertEqual(candidates[0]["graphical_state"], "RECT_ALONE_ON_CARRIER")
+        self.assertEqual(len(candidates[0]["transverse_track_ids"]), 1)
+
+    def test_marker_outside_carrier_band_is_not_bound(self):
+        primitives = [
+            line("TOP", x=100, y=200, width=1000, height=2, orientation="HORIZONTAL"),
+            line("BOTTOM", x=100, y=260, width=1000, height=2, orientation="HORIZONTAL"),
+            rect("R", x=420, y=300, width=60, height=46),
+        ]
+        self.assertEqual(build_hosted_marker_candidates(primitives, ["R"]), [])
+
+    def test_multiple_plausible_carriers_resolve_deterministically(self):
+        primitives = self._base_horizontal() + [
+            line("OUTER_TOP", x=90, y=190, width=1020, height=2, orientation="HORIZONTAL"),
+            line("OUTER_BOTTOM", x=90, y=270, width=1020, height=2, orientation="HORIZONTAL"),
+        ]
+        forward = build_hosted_marker_candidates(primitives, ["R"])
+        reverse = build_hosted_marker_candidates(list(reversed(primitives)), ["R"])
+        self.assertEqual(forward, reverse)
+        self.assertEqual(len(forward), 1)
+
+    def test_authority_flags_remain_false_and_semantics_absent(self):
+        candidate = build_hosted_marker_candidates(self._base_horizontal(), ["R"])[0]
+        self.assertIsNone(candidate["semantic_meaning"])
+        self.assertFalse(candidate["structural_identity_authorized"])
+        self.assertFalse(candidate["canonical_write_authorized"])
+        self.assertFalse(candidate["g3_authorized"])
+        self.assertFalse(candidate["merge_authorized"])
 
 
 if __name__ == "__main__":
