@@ -7,15 +7,21 @@ on:
       - 'experiments/cew_b01/beam_hosted_marker_raster.py'
       - 'experiments/cew_b01/beam_hosted_marker_hybrid.py'
       - 'experiments/cew_b01/hosted_marker_occurrence_search.py'
+      - 'experiments/cew_b01/marker_topology_repair.py'
       - 'tests/cew_b01/test_beam_hosted_markers.py'
       - 'tests/cew_b01/test_beam_hosted_marker_raster.py'
       - 'tests/cew_b01/test_beam_hosted_marker_hybrid.py'
       - 'tests/cew_b01/test_beam_hosted_marker_binding_hardening.py'
       - 'tests/cew_b01/test_hosted_marker_occurrence_search.py'
       - 'tests/cew_b01/test_hosted_marker_annotation_noise.py'
+      - 'tests/cew_b01/test_marker_grounding_repair.py'
+      - 'tests/cew_b01/test_carrier_topology_descriptor.py'
+      - 'tests/cew_b01/test_transverse_band_signature.py'
       - 'governance/cew-b01/BEAM_HOSTED_MARKER_PILOT_RESULT_v1.json'
       - 'governance/cew-b01/HOSTED_MARKER_OCCURRENCE_SEARCH_v1.json'
+      - 'governance/cew-b01/MARKER_TOPOLOGY_REPAIR_v1.json'
       - 'docs/experiments/2026-10-30-cew-b01-beam-hosted-marker-design.md'
+      - 'docs/experiments/2026-10-30-cew-b01-marker-topology-slab-signature-repair-design.md'
       - '.github/workflows/validate-cew-b01-beam-hosted-marker-pilot.yml'
   workflow_dispatch:
 
@@ -45,4 +51,5 @@ jobs:
             tests.cew_b01.test_beam_hosted_marker_hybrid \
             tests.cew_b01.test_beam_hosted_marker_binding_hardening \
             tests.cew_b01.test_hosted_marker_occurrence_search \
-            tests.cew_b01.test_hosted_marker_annotation_noise -v
+            tests.cew_b01.test_hosted_marker_annotation_noise \
+            tests.cew_b01.test_marker_grounding_repair -v
