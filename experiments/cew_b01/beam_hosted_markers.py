@@ -159,3 +159,93 @@ def build_line_tracks(
             track["track_id"],
         ),
     )
+
+
+def build_linear_carriers(
+    tracks: list[dict[str, Any]],
+    *,
+    min_track_length_px: float = 200.0,
+    min_separation_px: float = 8.0,
+    min_overlap_fraction: float = 0.55,
+    max_separation_to_overlap: float = 0.25,
+) -> list[dict[str, Any]]:
+    """Pair neutral, distinct parallel tracks into carrier candidates."""
+
+    grouped: dict[tuple[str, int, str, str], list[dict[str, Any]]] = defaultdict(list)
+    for track in tracks:
+        orientation = str(track.get("orientation", ""))
+        if orientation not in _ORIENTATIONS:
+            continue
+        if float(track.get("length", 0.0)) < min_track_length_px:
+            continue
+        grouped[(
+            str(track.get("source_sha256", "")),
+            int(track.get("page_index", 0)),
+            str(track.get("frame", "")),
+            orientation,
+        )].append(track)
+
+    carriers: list[dict[str, Any]] = []
+    for group_key in sorted(grouped):
+        source_sha, page_index, frame, orientation = group_key
+        items = sorted(
+            grouped[group_key],
+            key=lambda track: (
+                float(track["centerline"]),
+                float(track["start"]),
+                float(track["end"]),
+                str(track["track_id"]),
+            ),
+        )
+        for index, first in enumerate(items):
+            for second in items[index + 1 :]:
+                separation = abs(float(second["centerline"]) - float(first["centerline"]))
+                if separation < min_separation_px:
+                    continue
+                overlap_start = max(float(first["start"]), float(second["start"]))
+                overlap_end = min(float(first["end"]), float(second["end"]))
+                overlap_length = max(0.0, overlap_end - overlap_start)
+                shorter = min(float(first["length"]), float(second["length"]))
+                if shorter <= 0.0 or overlap_length <= 0.0:
+                    continue
+                if overlap_length / shorter < min_overlap_fraction:
+                    continue
+                if separation / overlap_length > max_separation_to_overlap:
+                    continue
+
+                track_ids = sorted([str(first["track_id"]), str(second["track_id"])])
+                primitive_ids = sorted(set(first.get("member_primitive_ids", [])) | set(second.get("member_primitive_ids", [])))
+                identity = {
+                    "source_sha256": source_sha,
+                    "page_index": page_index,
+                    "frame": frame,
+                    "orientation": orientation,
+                    "track_ids": track_ids,
+                }
+                carriers.append({
+                    "carrier_id": "CEW-B01-LC-" + _canonical_hash(identity)[:24],
+                    "source_sha256": source_sha,
+                    "page_index": page_index,
+                    "frame": frame,
+                    "orientation": orientation,
+                    "track_ids": track_ids,
+                    "member_primitive_ids": primitive_ids,
+                    "separation": round(separation, 6),
+                    "overlap_start": round(overlap_start, 6),
+                    "overlap_end": round(overlap_end, 6),
+                    "overlap_length": round(overlap_length, 6),
+                    "track_centerlines": sorted([round(float(first["centerline"]), 6), round(float(second["centerline"]), 6)]),
+                })
+
+    return sorted(
+        carriers,
+        key=lambda carrier: (
+            carrier["source_sha256"],
+            carrier["page_index"],
+            carrier["frame"],
+            carrier["orientation"],
+            carrier["overlap_start"],
+            carrier["track_centerlines"],
+            carrier["carrier_id"],
+        ),
+    )
