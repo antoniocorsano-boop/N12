@@ -1,7 +1,7 @@
 {
   "schema_id": "CEW_B01_BEAM_TYPE_APPROVAL_MICRO_PILOT",
   "schema_version": 1,
-  "status": "HUMAN_TYPE_APPROVAL_PENDING",
+  "status": "POSITIVE_TYPES_APPROVED_NEGATIVE_CONTROLS_PENDING",
   "scope": "TAV5_FOUR_PANEL_TYPE_APPROVAL",
   "source": {
     "repository": "antoniocorsano-boop/N12",
@@ -24,13 +24,26 @@
       "provenance completeness"
     ]
   },
+  "human_review": {
+    "review_date": "2026-10-30",
+    "review_source": "INTERACTIVE_HUMAN_REVIEW",
+    "explicit_decision": "P1_AND_P2_TYPE_APPROVED",
+    "positive_type_approval_complete": true,
+    "negative_control_review_complete": false,
+    "micro_pilot_review_complete": false,
+    "approved_graphical_prototypes": [
+      "CEW-B01-GP-0585efea6643bfdd101c7e7b",
+      "CEW-B01-GP-218cf82b7d4970047f846baf"
+    ],
+    "scope_note": "Human approval applies to the two positive graphical type prototypes and their human reference labels. It does not authorize automatic semantic classification, structural identity, canonical writes, G2C, G3, merge, or unreviewed negative controls."
+  },
   "panels": [
     {
       "panel_id": "P1",
       "role": "POSITIVE_TYPE_CANDIDATE",
       "proposed_neutral_type": "CROSS_AXIS_DOUBLE_BAND_CANDIDATE",
       "proposed_human_interpretation": "trave emergente",
-      "interpretation_status": "UNVALIDATED_HUMAN_HYPOTHESIS",
+      "interpretation_status": "HUMAN_APPROVED_REFERENCE_MAPPING",
       "marker_primitive_id": "CEW-B01-GP-0585efea6643bfdd101c7e7b",
       "source_crop": "beam-type-approval/double-01-CEW-B01-GP-0585efea6643bfdd101c7e7b.png",
       "marker_major_axis": "VERTICAL",
@@ -45,7 +58,8 @@
       "observed_cross_axis_counts": [3, 3],
       "matched_cross_side_pair_count": 3,
       "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
-      "review_state": "UNREVIEWED",
+      "review_state": "TYPE_APPROVED",
+      "human_approved": true,
       "allowed_human_decisions": ["TYPE_APPROVED", "TYPE_REJECTED", "TYPE_UNCERTAIN"]
     },
     {
@@ -53,7 +67,7 @@
       "role": "POSITIVE_TYPE_CANDIDATE",
       "proposed_neutral_type": "LONG_AXIS_DOUBLE_BAND_CANDIDATE",
       "proposed_human_interpretation": "trave a spessore di solaio",
-      "interpretation_status": "UNVALIDATED_HUMAN_HYPOTHESIS",
+      "interpretation_status": "HUMAN_APPROVED_REFERENCE_MAPPING",
       "marker_primitive_id": "CEW-B01-GP-218cf82b7d4970047f846baf",
       "source_crop": "beam-type-approval/double-05-CEW-B01-GP-218cf82b7d4970047f846baf.png",
       "marker_major_axis": "HORIZONTAL",
@@ -68,7 +82,8 @@
       "observed_cross_axis_counts": [2, 2],
       "matched_cross_side_pair_count": 2,
       "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
-      "review_state": "UNREVIEWED",
+      "review_state": "TYPE_APPROVED",
+      "human_approved": true,
       "allowed_human_decisions": ["TYPE_APPROVED", "TYPE_REJECTED", "TYPE_UNCERTAIN"]
     },
     {
@@ -105,7 +120,9 @@
     }
   ],
   "authority": {
-    "graphical_type_approved": false,
+    "graphical_type_approved": true,
+    "approved_graphical_type_count": 2,
+    "semantic_reference_mapping_human_approved": true,
     "semantic_classification_authorized": false,
     "structural_identity_authorized": false,
     "canonical_write_authorized": false,
