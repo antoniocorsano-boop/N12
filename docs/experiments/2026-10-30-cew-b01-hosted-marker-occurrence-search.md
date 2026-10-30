@@ -113,8 +113,6 @@ RED head:
 
 `16cd129744aa84fcf23c974813876d1567d40e06`
 
-The new APIs were absent; inherited contracts remained unaffected.
-
 Initial implementation head:
 
 `9c19b8209631c9882a67888f993235793a3e4755`
@@ -123,13 +121,11 @@ Unit Gate `41025595241` — PASS.
 
 ### Exact-source finding: tiny G1 TEXT_BLOCK noise on C7
 
-The first exact-source hardening correctly rejected A10/A17 but incorrectly rejected C7. A dedicated exact-source diagnostic established the cause:
+The first exact-source hardening correctly rejected A10/A17 but incorrectly rejected C7. Exact-source diagnosis established:
 
 - C7 internal raster component: only `4 px`, below the annotation threshold;
 - C7 nevertheless contained a spurious G1 `TEXT_BLOCK` of only `2×2 px`;
 - therefore “any TEXT_BLOCK overlap” was too permissive.
-
-A TDD regression was introduced so a 2×2 text speck remains recorded as ignored evidence rather than blocking the marker.
 
 RED head `82962dc5c41bb0cd0288d0b4d9f31351543f8368`:
 
@@ -228,13 +224,23 @@ The exact-source artifact contains:
 - `hosted-marker-occurrence-atlas.png` — 24 nearest **review-eligible** additional candidates;
 - `hosted-marker-annotation-dominated-atlas.png` — the four excluded annotation cases.
 
-Pair provenance is now visible in the atlas:
+Pair provenance is visible in the atlas:
 
 - magenta = G1 primitive local-track pair;
 - blue = raster local-profile pair;
 - both may coexist;
 - green = carrier;
 - red = marker.
+
+## Governance freeze
+
+The annotation-hardened result is frozen in:
+
+`governance/cew-b01/HOSTED_MARKER_OCCURRENCE_SEARCH_v1.json`
+
+Receipt schema version: `2`.
+
+The temporary exact-source diagnostic workflow used to isolate the C7/A10/A17 discrepancy was removed after its findings were converted into deterministic regression tests and the governed search gate.
 
 ## Current disposition
 
