@@ -8,10 +8,14 @@ on:
       - 'experiments/cew_b01/marker_transverse_cross_axis.py'
       - 'experiments/cew_b01/marker_topology_repair.py'
       - 'experiments/cew_b01/beam_type_approval_export.py'
+      - 'experiments/cew_b01/prototype_guided_occurrence_search.py'
+      - 'experiments/cew_b01/prototype_guided_occurrence_export.py'
       - 'experiments/cew_b01/hosted_marker_occurrence_search.py'
       - 'experiments/cew_b01/beam_hosted_markers.py'
       - 'governance/cew-b01/N12_TAV5_SOURCE_v1.json'
       - 'governance/cew-b01/TAV5_DOCUMENT_ZONE_REVIEW_v1.json'
+      - 'governance/cew-b01/BEAM_GRAPHICAL_TYPE_PROTOTYPES_v1.json'
+      - 'governance/cew-b01/BEAM_TYPE_APPROVAL_MICRO_PILOT_v1.json'
       - 'requirements/cew-b01.lock.txt'
   workflow_dispatch:
 
@@ -112,6 +116,19 @@ jobs:
             --result evidence/cew-b01/marker-cross-axis-repair/marker-cross-axis-repair.json \
             --raster "$RUNNER_TEMP/cew-b01-marker-cross-axis-probe/tav5-page0-300dpi.png" \
             --out evidence/cew-b01/marker-cross-axis-repair/beam-type-approval
+
+      - name: Export prototype-guided occurrence expansion candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-b01-marker-cross-axis-repair/bin/activate"
+          python -m experiments.cew_b01.prototype_guided_occurrence_export \
+            --result evidence/cew-b01/marker-cross-axis-repair/marker-cross-axis-repair.json \
+            --raster "$RUNNER_TEMP/cew-b01-marker-cross-axis-probe/tav5-page0-300dpi.png" \
+            --prototype-registry governance/cew-b01/BEAM_GRAPHICAL_TYPE_PROTOTYPES_v1.json \
+            --negative-control-receipt governance/cew-b01/BEAM_TYPE_APPROVAL_MICRO_PILOT_v1.json \
+            --beam-type-dir evidence/cew-b01/marker-cross-axis-repair/beam-type-approval \
+            --out evidence/cew-b01/marker-cross-axis-repair/prototype-guided-occurrence-expansion
 
       - name: Upload marker cross-axis repair evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
