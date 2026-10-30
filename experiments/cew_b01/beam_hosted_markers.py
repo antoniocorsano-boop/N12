@@ -249,3 +249,156 @@ def build_linear_carriers(
             carrier["carrier_id"],
         ),
     )
+
+
+def _marker_axes(marker: dict[str, Any], carrier_orientation: str) -> tuple[float, float, float, float]:
+    geometry = marker["geometry"]
+    x = float(geometry["x"])
+    y = float(geometry["y"])
+    width = float(geometry["width"])
+    height = float(geometry["height"])
+    if carrier_orientation == "HORIZONTAL":
+        return x, x + width, y, y + height
+    if carrier_orientation == "VERTICAL":
+        return y, y + height, x, x + width
+    raise ValueError("HOSTED_MARKER_INVALID_CARRIER_ORIENTATION")
+
+
+def _same_scope(marker: dict[str, Any], carrier_or_track: dict[str, Any]) -> bool:
+    return (
+        _source_sha(marker) == str(carrier_or_track.get("source_sha256", ""))
+        and int(marker.get("page_index", 0)) == int(carrier_or_track.get("page_index", 0))
+        and str(marker.get("frame", "")) == str(carrier_or_track.get("frame", ""))
+    )
+
+
+def build_hosted_marker_candidates(
+    primitives: list[dict[str, Any]],
+    marker_seed_ids: list[str],
+    *,
+    carrier_cross_tolerance_px: float = 4.0,
+    max_marker_to_carrier_overlap_fraction: float = 0.35,
+    transverse_window_factor: float = 2.5,
+) -> list[dict[str, Any]]:
+    """Bind frozen rectilinear markers to neutral carriers and describe local crossing tracks.
+
+    This function emits graphical states only. It deliberately does not encode
+    beam identity, slab support, or any other technical/structural meaning.
+    """
+
+    primitive_by_id = {str(item.get("primitive_id")): item for item in primitives}
+    missing = sorted(set(marker_seed_ids) - set(primitive_by_id))
+    if missing:
+        raise ValueError("HOSTED_MARKER_SEED_MISSING:" + ",".join(missing))
+
+    tracks = build_line_tracks(primitives)
+    carriers = build_linear_carriers(tracks)
+    results: list[dict[str, Any]] = []
+
+    for marker_id in marker_seed_ids:
+        marker = primitive_by_id[marker_id]
+        if marker.get("family") != "RECTILINEAR_CLOSED_SHAPE":
+            raise ValueError("HOSTED_MARKER_SEED_NOT_RECTILINEAR")
+
+        bindings: list[tuple[tuple[float, float, float, str], dict[str, Any], tuple[float, float, float, float]]] = []
+        for carrier in carriers:
+            if not _same_scope(marker, carrier):
+                continue
+            long_start, long_end, cross_start, cross_end = _marker_axes(marker, str(carrier["orientation"]))
+            long_span = max(0.0, long_end - long_start)
+            long_center = (long_start + long_end) / 2.0
+            band_lo, band_hi = sorted(float(value) for value in carrier["track_centerlines"])
+            if cross_start < band_lo - carrier_cross_tolerance_px:
+                continue
+            if cross_end > band_hi + carrier_cross_tolerance_px:
+                continue
+            if long_center < float(carrier["overlap_start"]) or long_center > float(carrier["overlap_end"]):
+                continue
+            overlap_length = float(carrier["overlap_length"])
+            if overlap_length <= 0.0 or long_span > max_marker_to_carrier_overlap_fraction * overlap_length:
+                continue
+
+            edge_fit_residual = abs(cross_start - band_lo) + abs(cross_end - band_hi)
+            center_fit_residual = abs(((cross_start + cross_end) / 2.0) - ((band_lo + band_hi) / 2.0))
+            score = (
+                round(edge_fit_residual, 6),
+                round(center_fit_residual, 6),
+                -round(overlap_length, 6),
+                str(carrier["carrier_id"]),
+            )
+            bindings.append((score, carrier, (long_start, long_end, cross_start, cross_end)))
+
+        if not bindings:
+            continue
+
+        bindings.sort(key=lambda item: item[0])
+        _score, carrier, marker_axes = bindings[0]
+        long_start, long_end, _cross_start, _cross_end = marker_axes
+        long_span = max(1.0, long_end - long_start)
+        long_center = (long_start + long_end) / 2.0
+        band_lo, band_hi = sorted(float(value) for value in carrier["track_centerlines"])
+        orthogonal = "VERTICAL" if carrier["orientation"] == "HORIZONTAL" else "HORIZONTAL"
+        window = transverse_window_factor * long_span
+
+        qualifying_tracks: list[dict[str, Any]] = []
+        for track in tracks:
+            if str(track.get("orientation")) != orthogonal:
+                continue
+            if not _same_scope(marker, track):
+                continue
+            if float(track["start"]) > band_lo + carrier_cross_tolerance_px:
+                continue
+            if float(track["end"]) < band_hi - carrier_cross_tolerance_px:
+                continue
+            if abs(float(track["centerline"]) - long_center) > window:
+                continue
+            qualifying_tracks.append(track)
+
+        qualifying_tracks = sorted(
+            qualifying_tracks,
+            key=lambda track: (
+                abs(float(track["centerline"]) - long_center),
+                str(track["track_id"]),
+            ),
+        )
+        transverse_track_ids = [str(track["track_id"]) for track in qualifying_tracks]
+        transverse_pair_track_ids = transverse_track_ids[:2] if len(transverse_track_ids) >= 2 else []
+        transverse_primitive_ids = sorted({
+            primitive_id
+            for track in qualifying_tracks
+            for primitive_id in track.get("member_primitive_ids", [])
+        })
+        graphical_state = (
+            "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE"
+            if len(transverse_pair_track_ids) == 2
+            else "RECT_ALONE_ON_CARRIER"
+        )
+        identity = {
+            "marker_primitive_id": marker_id,
+            "carrier_id": carrier["carrier_id"],
+            "transverse_track_ids": transverse_track_ids,
+        }
+        results.append({
+            "hosted_marker_id": "CEW-B01-HM-" + _canonical_hash(identity)[:24],
+            "marker_primitive_id": marker_id,
+            "marker_geometry": dict(marker["geometry"]),
+            "carrier_id": carrier["carrier_id"],
+            "carrier_orientation": carrier["orientation"],
+            "carrier_track_ids": list(carrier["track_ids"]),
+            "carrier_primitive_ids": list(carrier["member_primitive_ids"]),
+            "carrier_separation": carrier["separation"],
+            "carrier_overlap_start": carrier["overlap_start"],
+            "carrier_overlap_end": carrier["overlap_end"],
+            "transverse_track_ids": transverse_track_ids,
+            "transverse_pair_track_ids": transverse_pair_track_ids,
+            "transverse_primitive_ids": transverse_primitive_ids,
+            "graphical_state": graphical_state,
+            "semantic_meaning": None,
+            "structural_identity_authorized": False,
+            "canonical_write_authorized": False,
+            "g3_authorized": False,
+            "merge_authorized": False,
+            "review_state": "UNREVIEWED",
+        })
+
+    return sorted(results, key=lambda item: (item["marker_primitive_id"], item["hosted_marker_id"]))
