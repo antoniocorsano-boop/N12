@@ -1,0 +1,174 @@
+{
+  "schema_id": "CEW_B01_PROTOTYPE_GUIDED_OCCURRENCE_EXPANSION_RECEIPT",
+  "schema_version": 1,
+  "status": "PROTOTYPE_GUIDED_OCCURRENCE_HUMAN_REVIEW_PENDING",
+  "scope": "TAV5_FIRST_PASS_PARTIAL_THROUGH_CONTINUOUS",
+  "source": {
+    "repository": "antoniocorsano-boop/N12",
+    "path": "archive/documentazione_originaria/tavola 5.pdf",
+    "page_index": 0,
+    "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+    "exact_head": "012fefb8f7e3f97fe727fe2bf5cb7945ac496e69",
+    "cross_axis_run": 41049414215,
+    "topology_run": 41049413994,
+    "artifact_id": 12974595944,
+    "artifact_digest": "sha256:1e8d5d0f59fc7af9055cf18392dfca5b3fd4e1394aae7d72ed18d83dcfe672ba",
+    "manifest_path": "prototype-guided-occurrence-expansion/prototype-guided-occurrence-candidates.json",
+    "review_atlas_path": "prototype-guided-occurrence-expansion/prototype-guided-occurrence-review-atlas.png"
+  },
+  "selection_policy": {
+    "input_scope": "EXISTING_EXACT_SOURCE_REVIEW_ELIGIBLE_RECORDS_ONLY",
+    "source_only_is_visual_authority": true,
+    "already_reviewed_double_candidates_excluded": true,
+    "known_negative_controls_excluded": true,
+    "required_graphical_state": "RECT_PLUS_PARTIAL_TRANSVERSE_TRACES",
+    "required_topology_state": "THROUGH_CONTINUOUS",
+    "detector_thresholds_changed": false,
+    "automatic_prototype_assignment": false,
+    "candidate_count": 11,
+    "priority_counts": {
+      "A": 6,
+      "B": 2,
+      "C": 3
+    }
+  },
+  "prototype_references": [
+    {
+      "prototype_id": "CEW-B01-BEAM-GRAPH-T1-v1",
+      "marker_primitive_id": "CEW-B01-GP-0585efea6643bfdd101c7e7b",
+      "human_reference_label": "trave emergente"
+    },
+    {
+      "prototype_id": "CEW-B01-BEAM-GRAPH-T2-v1",
+      "marker_primitive_id": "CEW-B01-GP-218cf82b7d4970047f846baf",
+      "human_reference_label": "trave a spessore di solaio"
+    }
+  ],
+  "allowed_human_decisions": [
+    "SIMILAR_TO_T1",
+    "SIMILAR_TO_T2",
+    "NEITHER",
+    "UNCERTAIN"
+  ],
+  "candidates": [
+    {
+      "panel_id": "E01",
+      "marker_primitive_id": "CEW-B01-GP-0a419c52f5c0e4b0fd89dde2",
+      "review_priority": "A",
+      "carrier_orientation": "HORIZONTAL",
+      "cross_axis_side_counts": [1, 4],
+      "matched_cross_side_pair_count": 1,
+      "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
+      "human_decision": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "E02",
+      "marker_primitive_id": "CEW-B01-GP-74cc5059c1b58bfbc0d58648",
+      "review_priority": "A",
+      "carrier_orientation": "VERTICAL",
+      "cross_axis_side_counts": [1, 4],
+      "matched_cross_side_pair_count": 1,
+      "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
+      "human_decision": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "E03",
+      "marker_primitive_id": "CEW-B01-GP-9c98843c92f3fb881f22a4ef",
+      "review_priority": "A",
+      "carrier_orientation": "VERTICAL",
+      "cross_axis_side_counts": [1, 4],
+      "matched_cross_side_pair_count": 1,
+      "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
+      "human_decision": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "E04",
+      "marker_primitive_id": "CEW-B01-GP-a69f11dbf6233e55947dc2b9",
+      "review_priority": "A",
+      "carrier_orientation": "HORIZONTAL",
+      "cross_axis_side_counts": [1, 4],
+      "matched_cross_side_pair_count": 1,
+      "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
+      "human_decision": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "E05",
+      "marker_primitive_id": "CEW-B01-GP-d9cd4a30759793fcd45f27ad",
+      "review_priority": "A",
+      "carrier_orientation": "VERTICAL",
+      "cross_axis_side_counts": [1, 4],
+      "matched_cross_side_pair_count": 1,
+      "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
+      "human_decision": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "E06",
+      "marker_primitive_id": "CEW-B01-GP-e4b578de60bfef89c5a032eb",
+      "review_priority": "A",
+      "carrier_orientation": "HORIZONTAL",
+      "cross_axis_side_counts": [1, 1],
+      "matched_cross_side_pair_count": 1,
+      "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
+      "human_decision": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "E07",
+      "marker_primitive_id": "CEW-B01-GP-32dc63bd88eba7cfcf3846b3",
+      "review_priority": "B",
+      "carrier_orientation": "HORIZONTAL",
+      "cross_axis_side_counts": [0, 4],
+      "matched_cross_side_pair_count": 0,
+      "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
+      "human_decision": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "E08",
+      "marker_primitive_id": "CEW-B01-GP-ac943ba66078cb4acc385cf4",
+      "review_priority": "B",
+      "carrier_orientation": "HORIZONTAL",
+      "cross_axis_side_counts": [3, 0],
+      "matched_cross_side_pair_count": 0,
+      "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
+      "human_decision": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "E09",
+      "marker_primitive_id": "CEW-B01-GP-55981018f3091029ea46a41f",
+      "review_priority": "C",
+      "carrier_orientation": "VERTICAL",
+      "cross_axis_side_counts": [3, 0],
+      "matched_cross_side_pair_count": 0,
+      "evidence_sources": ["RASTER_LOCAL_PROFILE"],
+      "human_decision": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "E10",
+      "marker_primitive_id": "CEW-B01-GP-5cb66f258949a784ec3b6f46",
+      "review_priority": "C",
+      "carrier_orientation": "HORIZONTAL",
+      "cross_axis_side_counts": [3, 0],
+      "matched_cross_side_pair_count": 0,
+      "evidence_sources": ["RASTER_LOCAL_PROFILE"],
+      "human_decision": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "panel_id": "E11",
+      "marker_primitive_id": "CEW-B01-GP-7c4f026034b4c156b84eacc5",
+      "review_priority": "C",
+      "carrier_orientation": "VERTICAL",
+      "cross_axis_side_counts": [4, 0],
+      "matched_cross_side_pair_count": 0,
+      "evidence_sources": ["RASTER_LOCAL_PROFILE"],
+      "human_decision": "PENDING_HUMAN_REVIEW"
+    }
+  ],
+  "authority": {
+    "graphical_shortlist_authorized_for_human_review": true,
+    "semantic_classification_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false
+  }
+}
