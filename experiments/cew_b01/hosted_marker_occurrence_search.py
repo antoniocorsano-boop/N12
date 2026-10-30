@@ -111,6 +111,29 @@ def _enclosed_ink_components(
     return sorted(enclosed, reverse=True)
 
 
+def _effective_text_component_area(primitive: dict[str, Any], overlap_area: float) -> float:
+    """Estimate real TEXT_BLOCK ink inside the marker, not its bounding-box area."""
+
+    geometry = primitive.get("geometry", {})
+    bbox_area = max(float(geometry.get("width", 0.0)) * float(geometry.get("height", 0.0)), 0.0)
+    if bbox_area <= 0.0 or overlap_area <= 0.0:
+        return 0.0
+
+    signature = primitive.get("feature_signature") or {}
+    component_area = signature.get("component_area")
+    if component_area is not None:
+        full_component_area = max(float(component_area), 0.0)
+    elif signature.get("ink_ratio") is not None:
+        full_component_area = max(bbox_area * float(signature["ink_ratio"]), 0.0)
+    else:
+        # Compatibility fallback for legacy/synthetic TEXT_BLOCK observations
+        # without ink metadata. The overlap is kept conservatively as evidence.
+        full_component_area = bbox_area
+
+    overlap_fraction = min(1.0, max(0.0, overlap_area / bbox_area))
+    return full_component_area * overlap_fraction
+
+
 def _annotation_evidence(
     candidate: dict[str, Any],
     primitives: list[dict[str, Any]],
@@ -126,10 +149,11 @@ def _annotation_evidence(
             break
 
     marker_area = max(float(geometry["width"]) * float(geometry["height"]), 1.0)
-    minimum_text_overlap_area = max(8.0, marker_area * 0.002)
+    minimum_text_component_area = max(8.0, marker_area * 0.01)
     overlapping_text_ids: list[str] = []
     ignored_tiny_text_ids: list[str] = []
     text_overlap_areas: dict[str, float] = {}
+    text_component_areas: dict[str, float] = {}
     if marker_scope is not None and inner["width"] > 0.0 and inner["height"] > 0.0:
         for primitive in primitives:
             if primitive.get("family") != "TEXT_BLOCK" or _scope_key(primitive) != marker_scope:
@@ -138,8 +162,10 @@ def _annotation_evidence(
             overlap_area = _intersect_area(inner, primitive["geometry"])
             if overlap_area <= 0.0:
                 continue
+            effective_component_area = _effective_text_component_area(primitive, overlap_area)
             text_overlap_areas[primitive_id] = round(overlap_area, 6)
-            if overlap_area >= minimum_text_overlap_area:
+            text_component_areas[primitive_id] = round(effective_component_area, 6)
+            if effective_component_area >= minimum_text_component_area:
                 overlapping_text_ids.append(primitive_id)
             else:
                 ignored_tiny_text_ids.append(primitive_id)
@@ -154,7 +180,8 @@ def _annotation_evidence(
         "overlapping_text_block_ids": sorted(overlapping_text_ids),
         "ignored_tiny_text_block_ids": sorted(ignored_tiny_text_ids),
         "text_overlap_areas": {key: text_overlap_areas[key] for key in sorted(text_overlap_areas)},
-        "minimum_text_overlap_area": round(minimum_text_overlap_area, 6),
+        "text_component_areas": {key: text_component_areas[key] for key in sorted(text_component_areas)},
+        "minimum_text_component_area": round(minimum_text_component_area, 6),
         "enclosed_component_count": len(components),
         "enclosed_component_areas": components,
         "enclosed_component_area": component_area,
