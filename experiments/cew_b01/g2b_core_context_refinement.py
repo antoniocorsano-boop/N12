@@ -5,6 +5,10 @@ from typing import Any
 LINEISH = {"LINE_SEGMENT", "PARALLEL_LINE_PAIR"}
 CLOSED_OR_COMPLEX = {"RECTILINEAR_CLOSED_SHAPE", "COMPLEX_GRAPHIC_GROUP"}
 CONTACT_RELATIONS = {"OVERLAPS", "TOUCHING", "CONTAINS", "CONTAINED_BY"}
+INVERSE_DIRECTIONAL_RELATION = {
+    "CONTAINS": "CONTAINED_BY",
+    "CONTAINED_BY": "CONTAINS",
+}
 
 
 def _major_span(bundle: dict[str, Any]) -> float:
@@ -23,10 +27,15 @@ def _seed_relation_map(candidate: dict[str, Any]) -> dict[str, set[str]]:
     for edge in candidate.get("relations", []):
         first = edge.get("a")
         second = edge.get("b")
+        relations = set(edge.get("relations", []))
         if first == seed_bundle_id and isinstance(second, str):
-            result.setdefault(second, set()).update(edge.get("relations", []))
+            result.setdefault(second, set()).update(relations)
         elif second == seed_bundle_id and isinstance(first, str):
-            result.setdefault(first, set()).update(edge.get("relations", []))
+            normalized = {
+                INVERSE_DIRECTIONAL_RELATION.get(relation, relation)
+                for relation in relations
+            }
+            result.setdefault(first, set()).update(normalized)
     return result
 
 
