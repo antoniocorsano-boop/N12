@@ -157,7 +157,7 @@ def describe_transverse_band(
     carrier_cross_tolerance_px: float = 4.0,
     dedupe_tolerance_px: float = 3.0,
     raster_profile_fraction: float = 0.60,
-    longitudinal_margin_fraction: float = 0.50,
+    longitudinal_margin_fraction: float = 0.20,
     side_depth_cross_fraction: float = 2.50,
     minimum_side_depth_px: float = 24.0,
     pair_alignment_fraction: float = 0.12,
@@ -165,7 +165,7 @@ def describe_transverse_band(
 ) -> dict[str, Any]:
     """Describe orthogonal traces on opposite sides of the carrier cross-axis.
 
-    This is deliberately graphical and non-semantic.  For a horizontal carrier,
+    This is deliberately graphical and non-semantic. For a horizontal carrier,
     the two sides are ABOVE/BELOW; for a vertical carrier they are LEFT/RIGHT.
     A complete double band requires two longitudinally matched cross-side pairs.
     """
