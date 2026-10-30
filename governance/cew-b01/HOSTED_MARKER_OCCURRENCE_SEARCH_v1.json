@@ -1,0 +1,127 @@
+{
+  "annotation_dominated": [
+    {
+      "enclosed_component_area": 103,
+      "graphical_state": "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE",
+      "marker_primitive_id": "CEW-B01-GP-8b7eae9c9f25bb1d73c6f504",
+      "signals": ["ENCLOSED_INTERNAL_INK", "TEXT_BLOCK_OVERLAP"],
+      "text_component_areas": {"CEW-B01-GP-5d043aa4204b8534ab7a64fa": 15.0, "CEW-B01-GP-f13d2a58bf20485d97e1a7df": 88.0}
+    },
+    {
+      "enclosed_component_area": 567,
+      "graphical_state": "RECT_ALONE_ON_CARRIER",
+      "marker_primitive_id": "CEW-B01-GP-cf4860204d8bb1c826d35f40",
+      "signals": ["ENCLOSED_INTERNAL_INK"],
+      "text_component_areas": {}
+    },
+    {
+      "enclosed_component_area": 424,
+      "graphical_state": "RECT_ALONE_ON_CARRIER",
+      "marker_primitive_id": "CEW-B01-GP-dd6f0d8649bb8b6add8e0507",
+      "signals": ["ENCLOSED_INTERNAL_INK", "TEXT_BLOCK_OVERLAP"],
+      "text_component_areas": {"CEW-B01-GP-a909cd989485759172eb47dc": 232.0}
+    },
+    {
+      "enclosed_component_area": 504,
+      "graphical_state": "RECT_ALONE_ON_CARRIER",
+      "marker_primitive_id": "CEW-B01-GP-f417c150f3a1b9a8d30c7d03",
+      "signals": ["ENCLOSED_INTERNAL_INK", "TEXT_BLOCK_OVERLAP"],
+      "text_component_areas": {"CEW-B01-GP-7293ee2d60265dafed50f95a": 294.0}
+    }
+  ],
+  "annotation_separation": {
+    "ignored_text_noise_preserved": true,
+    "internal_ink_materiality": "Require enclosed ink area >= max(8 px, 1% marker area). Components reaching marker border band are not internal annotation ink.",
+    "pair_provenance_overlay": {"CARRIER": "GREEN", "MARKER": "RED", "PRIMITIVE_LOCAL_TRACK_PAIR": "MAGENTA", "RASTER_LOCAL_PROFILE": "BLUE"},
+    "principle": "Preserve every carrier-bound occurrence; separate candidate role rather than delete evidence.",
+    "roles": ["REVIEW_ELIGIBLE", "ANNOTATION_DOMINATED"],
+    "signals": ["TEXT_BLOCK_OVERLAP", "ENCLOSED_INTERNAL_INK"],
+    "text_materiality": "Use effective G1 TEXT_BLOCK component_area inside marker when available; require >= max(8 px, 1% marker area). Bounding-box overlap is localization/provenance only."
+  },
+  "authority": {
+    "canonical_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false,
+    "semantic_classification_authorized": false,
+    "structural_identity_authorized": false
+  },
+  "evidence": {
+    "artifact_digest": "sha256:d65d9cbea92be7cd150fb5889bb7f6ca79e2884db4605f29cd2f81423ddf5cb9",
+    "artifact_id": 12965071190,
+    "artifact_name": "cew-b01-hosted-marker-occurrence-search",
+    "documentation_pre_freeze_head": "d50afc5505f796cac482fb1d8d82335ac4fcba5f",
+    "double_replay_deterministic": true,
+    "exact_source_search_run": 41028668771,
+    "implementation_evidence_head": "2f2b1229df35996f434b2664baa097e2c89f3d8b",
+    "memory_gate_run": 41028668719,
+    "replay_sha256": "f68cfaccb496bd5c8d6b90ed4dbc68d4a3c242bcb9b905c5d01bfbf7ffd76459",
+    "unit_contract_count": 41,
+    "unit_gate_run": 41028668720
+  },
+  "findings": [
+    "All 50 carrier-bound rectangles remain preserved in all_bound_occurrences.",
+    "Human review findings A10/A17 exposed annotation/dimension contamination in the initial review set.",
+    "Exact-source debugging showed C7 contained a spurious 2x2 G1 TEXT_BLOCK; any-overlap filtering was invalid.",
+    "A second visual audit found a valid PAIR marker falsely rejected by a 19x7 TEXT_BLOCK whose real component ink was only 41 px (~0.51% marker area).",
+    "Using real TEXT_BLOCK component area rather than bounding-box area yields 46 review-eligible and 4 annotation-dominated occurrences.",
+    "The four remaining annotation-dominated cases are visually annotation/dimension boxes; the formerly rejected valid PAIR marker is restored.",
+    "Pair evidence provenance is now rendered for both G1 primitive pairs and raster local-profile recovery."
+  ],
+  "frozen_prototypes": {
+    "RECT_ALONE_ON_CARRIER": {
+      "human_semantic_hypothesis": "BEAM_DOES_NOT_CARRY_SLAB",
+      "hypothesis_status": "UNVALIDATED_HUMAN_HYPOTHESIS",
+      "marker_primitive_id": "CEW-B01-GP-90cefb124e0b97a63acd1d9c"
+    },
+    "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE": {
+      "human_semantic_hypothesis": "BEAM_CARRIES_SLAB",
+      "hypothesis_status": "UNVALIDATED_HUMAN_HYPOTHESIS",
+      "marker_primitive_id": "CEW-B01-GP-f5bf9ee85705380152aae053"
+    }
+  },
+  "human_review": {
+    "allowed_decisions": ["GRAPHICAL_MATCH", "GRAPHICAL_NON_MATCH", "ARTIFACT", "UNCERTAIN"],
+    "note": "Similarity ranking orders review only; annotation separation is evidence filtering, not semantic promotion.",
+    "semantic_decisions_allowed": false,
+    "status": "PENDING_REVISED_ATLAS"
+  },
+  "next_gate": "HUMAN_GRAPHICAL_REVIEW_OF_REVISED_24_PANEL_ATLAS",
+  "qualified_parent": {
+    "code_head": "5daa6e1f8dd43654a3627b155c0d6dc0c37c820e",
+    "documentation_freeze_head": "69ea22a55cef6e3361ce88d80df3ac15a64ea3d0",
+    "pr": 167
+  },
+  "regression_cases": {
+    "A10": {"expected_role": "ANNOTATION_DOMINATED", "marker_primitive_id": "CEW-B01-GP-cf4860204d8bb1c826d35f40"},
+    "A17": {"expected_role": "ANNOTATION_DOMINATED", "marker_primitive_id": "CEW-B01-GP-8b7eae9c9f25bb1d73c6f504"},
+    "C5": {"expected_graphical_state": "RECT_ALONE_ON_CARRIER", "expected_role": "REVIEW_ELIGIBLE", "marker_primitive_id": "CEW-B01-GP-90cefb124e0b97a63acd1d9c"},
+    "C7": {"expected_graphical_state": "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE", "expected_role": "REVIEW_ELIGIBLE", "marker_primitive_id": "CEW-B01-GP-f5bf9ee85705380152aae053"},
+    "R03_recovered": {"expected_role": "REVIEW_ELIGIBLE", "marker_primitive_id": "CEW-B01-GP-7c4f026034b4c156b84eacc5", "note": "41 px TEXT_BLOCK component (~0.51% marker area) preserved as ignored tiny text evidence"}
+  },
+  "schema_id": "CEW_B01_HOSTED_MARKER_OCCURRENCE_SEARCH_RESULT",
+  "schema_version": 2,
+  "scope": "TAV5_ONLY",
+  "search_result": {
+    "additional_ranked_count": 44,
+    "additional_ranked_counts_by_graphical_state": {"RECT_ALONE_ON_CARRIER": 24, "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE": 20},
+    "all_bound_occurrence_count": 50,
+    "annotation_dominated_count": 4,
+    "atlas_limit_per_state": 12,
+    "atlas_selected_count": 24,
+    "counts_by_graphical_state": {"RECT_ALONE_ON_CARRIER": 25, "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE": 21},
+    "neutral_carrier_candidate_count": 71,
+    "reconstructed_line_track_count": 158,
+    "review_eligible_occurrence_count": 46
+  },
+  "source": {
+    "axis_line_segment_count": 733,
+    "page_index": 0,
+    "path": "archive/documentazione_originaria/tavola 5.pdf",
+    "primitive_count": 5633,
+    "rectilinear_seed_count": 124,
+    "repository": "antoniocorsano-boop/N12",
+    "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580"
+  },
+  "status": "SEARCH_REWORK_PASS_HUMAN_GRAPHICAL_REVIEW_PENDING"
+}
