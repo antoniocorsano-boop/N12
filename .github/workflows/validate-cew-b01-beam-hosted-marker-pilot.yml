@@ -12,6 +12,7 @@ on:
       - 'tests/cew_b01/test_beam_hosted_marker_hybrid.py'
       - 'tests/cew_b01/test_beam_hosted_marker_binding_hardening.py'
       - 'tests/cew_b01/test_hosted_marker_occurrence_search.py'
+      - 'tests/cew_b01/test_hosted_marker_annotation_noise.py'
       - 'governance/cew-b01/BEAM_HOSTED_MARKER_PILOT_RESULT_v1.json'
       - 'governance/cew-b01/HOSTED_MARKER_OCCURRENCE_SEARCH_v1.json'
       - 'docs/experiments/2026-10-30-cew-b01-beam-hosted-marker-design.md'
@@ -43,4 +44,5 @@ jobs:
             tests.cew_b01.test_beam_hosted_marker_raster \
             tests.cew_b01.test_beam_hosted_marker_hybrid \
             tests.cew_b01.test_beam_hosted_marker_binding_hardening \
-            tests.cew_b01.test_hosted_marker_occurrence_search -v
+            tests.cew_b01.test_hosted_marker_occurrence_search \
+            tests.cew_b01.test_hosted_marker_annotation_noise -v
