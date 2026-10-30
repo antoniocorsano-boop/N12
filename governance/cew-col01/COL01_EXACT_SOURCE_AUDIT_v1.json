@@ -1,7 +1,7 @@
 {
   "schema_id": "CEW_COL01_EXACT_SOURCE_AUDIT_RECEIPT",
   "schema_version": 1,
-  "status": "EXACT_SOURCE_AUDIT_QUALIFIED_HUMAN_REVIEW_TARGETING_REWORK_REQUIRED",
+  "status": "EXACT_SOURCE_AUDIT_QUALIFIED_HUMAN_REVIEW_CRITERION_CAPTURED_TARGET_ASSOCIATION_REWORK_REQUIRED",
   "audit_scope": "TAV5_NUMBER_ANCHORED_COLUMN_RECOVERY_FIRST_PASS",
   "source": {
     "repository": "antoniocorsano-boop/N12",
@@ -86,50 +86,42 @@
   ],
   "human_review": {
     "status": "CRITERION_CAPTURED_TARGET_ASSOCIATION_REWORK_REQUIRED",
-    "review_date": "2026-10-30",
-    "review_source": "INTERACTIVE_HUMAN_REVIEW",
     "panel_count": 9,
     "atlas_path_in_artifact": "col01-review-atlas.png",
-    "human_criterion": {
-      "scope": "CURRENT_COL01_REVIEW_PANEL_SET_ONLY",
-      "positive_rule": "A column graphic is confirmed only when a numeric identifier is visibly inside the column footprint.",
-      "negative_rule": "Panel graphics without a numeric identifier inside the candidate footprint are not columns for this review set.",
-      "not_globalized": true,
-      "reason": "The criterion is a human observation on this TAV-05S review set and must not be encoded as a universal rule for every drawing before broader exact-source validation."
-    },
-    "panel_level_visual_observation": {
-      "column_graphic_present_panels": ["C01", "C02", "C05", "C06"],
-      "not_column_panels": ["C03", "C04", "C07", "C08", "C09"],
-      "candidate_identity_authorized": false,
-      "note": "These are image-level visual observations derived from the human internal-number criterion. They are not yet machine-candidate identity decisions because the current atlas does not mark the exact OCR anchor and footprint target."
-    },
-    "target_association_finding": {
-      "status": "REWORK_REQUIRED",
-      "finding": "The current review atlas can show a real numbered column in the same crop while the machine panel identifier refers to a nearby dimension or annotation value.",
-      "example": "C01 is machine-labelled id=30, but the visible 30 is external to the numbered rectangular column graphic; therefore machine id=30 must not be promoted as the column identifier from this panel.",
-      "required_repair": "Generate a target-explicit review atlas that marks the OCR anchor, the proposed footprint, and whether a numeric token is geometrically contained inside that footprint. Preserve source-only crops separately.",
-      "ocr_identifier_equals_internal_support_identifier": "NOT_ADJUDICATED"
-    },
-    "allowed_candidate_outcomes_after_target_repair": [
-      "COLUMN_GRAPHIC_CONFIRMED",
-      "NOT_COLUMN",
-      "UNCERTAIN",
-      "TEXT_ANCHOR_WRONG"
+    "panel_level_visible_column_graphics": ["C01", "C02", "C05", "C06"],
+    "panel_level_not_column": ["C03", "C04", "C07", "C08", "C09"],
+    "source_local_criterion": "A column graphic is recognized in the current panel set where a rectangular footprint contains a numeric identifier internally; graphics without an internal number are rejected as columns in this review set.",
+    "target_binding_warning": "Panel-level visual recognition does not validate the OCR identifier printed in the panel header. The current atlas does not explicitly mark the exact machine OCR anchor and proposed footprint; nearby dimension text may be bound incorrectly to a visible column.",
+    "required_repair": [
+      "mark_exact_ocr_anchor",
+      "mark_proposed_footprint",
+      "record_numeric_token_containment_inside_footprint",
+      "preserve_source_only_crop"
     ],
-    "purpose": "Separate real column graphics from nearby dimension/annotation OCR and validate internal identifier containment without promoting OCR text to structural identity."
+    "allowed_outcomes": ["COLUMN_GRAPHIC_CONFIRMED", "NOT_COLUMN", "UNCERTAIN", "TEXT_ANCHOR_WRONG"],
+    "candidate_level_identity_authorized": false
+  },
+  "fresh_receipt_head_qualification": {
+    "exact_head": "badd2511c1fce8ff9578c6dddfe00fa3f1f86dbc",
+    "repository_memory_gate_run_id": 41070006336,
+    "repository_memory_gate": "PASS",
+    "col01_workflow_run_id": 41070006495,
+    "unit_job": "PASS",
+    "exact_source_job": "PASS",
+    "artifact_id": 12984173589,
+    "artifact_digest": "sha256:f3079f7a926115d2f966f6f4f6123327d53776fc3b65b619d357ebb54650d8b5"
   },
   "next_design_implication": {
     "number_anchor_can_be_optional_cue": true,
     "number_anchor_can_be_mandatory_primary_gate": false,
     "axes_can_be_mandatory_gate": false,
-    "internal_number_containment_is_high_value_human_cue": true,
-    "recommended_next_retrieval": "FOOTPRINT_OR_PROTOTYPE_FIRST_THEN_INTERNAL_OR_STRONGLY_RELATED_TEXT_THEN_OPTIONAL_AXIS_EVIDENCE",
-    "review_target_overlay_required": true,
+    "recommended_next_retrieval": "FOOTPRINT_OR_PROTOTYPE_FIRST_WITH_INTERNAL_OR_STRONGLY_RELATED_TEXT_OPTIONAL_AXIS_EVIDENCE_AND_TARGET_EXPLICIT_HUMAN_REVIEW",
     "hardcoded_historical_ids_prohibited": true
   },
   "authority": {
     "graphical_retrieval_audit_authorized": true,
-    "human_review_authorized": true,
+    "human_review_criterion_capture_authorized": true,
+    "machine_candidate_identity_from_current_atlas_authorized": false,
     "semantic_classification_authorized": false,
     "structural_identity_authorized": false,
     "canonical_geometry_authorized": false,
