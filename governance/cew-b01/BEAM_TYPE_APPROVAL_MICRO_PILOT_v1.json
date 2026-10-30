@@ -1,0 +1,116 @@
+{
+  "schema_id": "CEW_B01_BEAM_TYPE_APPROVAL_MICRO_PILOT",
+  "schema_version": 1,
+  "status": "HUMAN_TYPE_APPROVAL_PENDING",
+  "scope": "TAV5_FOUR_PANEL_TYPE_APPROVAL",
+  "source": {
+    "repository": "antoniocorsano-boop/N12",
+    "path": "archive/documentazione_originaria/tavola 5.pdf",
+    "page_index": 0,
+    "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+    "evidence_head": "38220caba175f9e2029878ccfe98fb09f58f80c7",
+    "cross_axis_run": 41044608383,
+    "artifact_id": 12971414043,
+    "artifact_digest": "sha256:fbec5e5eedebb122b666bc0db8bdb660fadaa8a00f1ae194618f38bfe09b26a3"
+  },
+  "selection_policy": {
+    "source_only_is_visual_authority": true,
+    "threshold_tuning_for_selection": false,
+    "selected_from_all_current_double_candidates": 8,
+    "selection_basis": [
+      "visible orientation of slab-band lines relative to marker major axis",
+      "source-only clarity",
+      "absence of annotation dominance",
+      "provenance completeness"
+    ]
+  },
+  "panels": [
+    {
+      "panel_id": "P1",
+      "role": "POSITIVE_TYPE_CANDIDATE",
+      "proposed_neutral_type": "CROSS_AXIS_DOUBLE_BAND_CANDIDATE",
+      "proposed_human_interpretation": "trave emergente",
+      "interpretation_status": "UNVALIDATED_HUMAN_HYPOTHESIS",
+      "marker_primitive_id": "CEW-B01-GP-0585efea6643bfdd101c7e7b",
+      "source_crop": "beam-type-approval/double-01-CEW-B01-GP-0585efea6643bfdd101c7e7b.png",
+      "marker_major_axis": "VERTICAL",
+      "carrier_orientation": "VERTICAL",
+      "source_marker_geometry": {"x": 6073.0, "y": 6760.0, "width": 54.0, "height": 162.0},
+      "review_marker_geometry": {"x": 6073.0, "y": 6760.0, "width": 54.0, "height": 162.0},
+      "carrier_id": "CEW-B01-LC-be66d300ee92916659a5d561",
+      "carrier_track_ids": [
+        "CEW-B01-LT-1c45dd2cc7c57b1c16d5dfcb",
+        "CEW-B01-LT-414f48be2c6ca6827716f7e6"
+      ],
+      "observed_cross_axis_counts": [3, 3],
+      "matched_cross_side_pair_count": 3,
+      "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
+      "review_state": "UNREVIEWED",
+      "allowed_human_decisions": ["TYPE_APPROVED", "TYPE_REJECTED", "TYPE_UNCERTAIN"]
+    },
+    {
+      "panel_id": "P2",
+      "role": "POSITIVE_TYPE_CANDIDATE",
+      "proposed_neutral_type": "LONG_AXIS_DOUBLE_BAND_CANDIDATE",
+      "proposed_human_interpretation": "trave a spessore di solaio",
+      "interpretation_status": "UNVALIDATED_HUMAN_HYPOTHESIS",
+      "marker_primitive_id": "CEW-B01-GP-218cf82b7d4970047f846baf",
+      "source_crop": "beam-type-approval/double-05-CEW-B01-GP-218cf82b7d4970047f846baf.png",
+      "marker_major_axis": "HORIZONTAL",
+      "carrier_orientation": "HORIZONTAL",
+      "source_marker_geometry": {"x": 4368.0, "y": 10110.0, "width": 276.0, "height": 39.0},
+      "review_marker_geometry": {"x": 4368.0, "y": 10110.0, "width": 276.0, "height": 39.0},
+      "carrier_id": "CEW-B01-LC-bc4c9b1043de346a69577ba4",
+      "carrier_track_ids": [
+        "CEW-B01-LT-3b317599d919d54bb0a6ee5e",
+        "CEW-B01-LT-fd4862355ae1cd60178b0264"
+      ],
+      "observed_cross_axis_counts": [2, 2],
+      "matched_cross_side_pair_count": 2,
+      "evidence_sources": ["G1_LINE_TRACKS", "RASTER_LOCAL_PROFILE"],
+      "review_state": "UNREVIEWED",
+      "allowed_human_decisions": ["TYPE_APPROVED", "TYPE_REJECTED", "TYPE_UNCERTAIN"]
+    },
+    {
+      "panel_id": "P3",
+      "role": "NEGATIVE_CONTROL",
+      "proposed_neutral_type": "NEGATIVE_CONTROL",
+      "control_reason": "RECT_ALONE_ON_CARRIER",
+      "marker_primitive_id": "CEW-B01-GP-90cefb124e0b97a63acd1d9c",
+      "source_crop": "c5-source-only.png",
+      "source_marker_geometry": {"x": 4114.0, "y": 5135.0, "width": 44.0, "height": 116.0},
+      "review_marker_geometry": {"x": 4114.0, "y": 5135.0, "width": 44.0, "height": 116.0},
+      "carrier_orientation": "HORIZONTAL",
+      "carrier_id": "CEW-B01-LC-f08c6cf6b6ec2b114bd27e72",
+      "observed_cross_axis_counts": [0, 0],
+      "matched_cross_side_pair_count": 0,
+      "review_state": "UNREVIEWED",
+      "allowed_human_decisions": ["NEGATIVE_CONTROL_CONFIRMED", "NEGATIVE_CONTROL_FAILED", "UNCERTAIN"]
+    },
+    {
+      "panel_id": "P4",
+      "role": "NEGATIVE_CONTROL",
+      "proposed_neutral_type": "NEGATIVE_CONTROL",
+      "control_reason": "PARTIAL_TRANSVERSE_TRACES_NOT_COMPLETE_TYPE",
+      "marker_primitive_id": "CEW-B01-GP-f5bf9ee85705380152aae053",
+      "source_crop": "c7-source-only.png",
+      "source_marker_geometry": {"x": 2141.0, "y": 8628.0, "width": 154.0, "height": 54.0},
+      "review_marker_geometry": {"x": 2141.0, "y": 8628.0, "width": 154.0, "height": 54.0},
+      "carrier_orientation": "HORIZONTAL",
+      "carrier_id": "CEW-B01-LC-e46c764f56e3efdc17905bb8",
+      "observed_cross_axis_counts": [3, 1],
+      "matched_cross_side_pair_count": 1,
+      "review_state": "UNREVIEWED",
+      "allowed_human_decisions": ["NEGATIVE_CONTROL_CONFIRMED", "NEGATIVE_CONTROL_FAILED", "UNCERTAIN"]
+    }
+  ],
+  "authority": {
+    "graphical_type_approved": false,
+    "semantic_classification_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false
+  }
+}
