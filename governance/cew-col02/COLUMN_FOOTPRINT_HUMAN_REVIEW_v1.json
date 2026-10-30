@@ -1,6 +1,6 @@
 {
   "schema_id": "CEW-COL02-COLUMN-FOOTPRINT-HUMAN-REVIEW",
-  "schema_version": "1.0.0",
+  "schema_version": "1.0.1",
   "status": "HUMAN_COLUMN_GRAPHIC_REVIEW_COMPLETE",
   "review_scope": "TAV-05S neutral prototype-selection atlas P01-P16",
   "source": {
@@ -42,6 +42,8 @@
     "graphical_column_examples_confirmed": 2,
     "graphical_negative_examples_confirmed": 14,
     "p01_p02_may_seed_project_local_graphical_prototype_search": true,
+    "p01_p02_are_parallel_positive_graphical_examples": true,
+    "no_primary_prototype_preference_asserted_by_human_review": true,
     "internal_ocr_token_is_not_structural_identity": true,
     "human_review_does_not_assign_support_number": true
   },
