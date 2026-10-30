@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from experiments.cew_b01.beam_hosted_markers import detect_local_transverse_pair_from_binary
+from experiments.cew_b01.beam_hosted_marker_raster import detect_local_transverse_pair_from_binary
 
 
 def blank(width: int = 400, height: int = 400) -> list[list[bool]]:
