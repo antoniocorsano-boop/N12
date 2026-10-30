@@ -4,8 +4,10 @@ import json
 import unittest
 
 from experiments.cew_b01.hosted_marker_occurrence_search import (
+    analyze_hosted_marker_occurrences,
     discover_hosted_marker_occurrences,
     hosted_marker_signature,
+    pair_evidence_overlay_spec,
     prototype_distance,
     rank_occurrences_for_review,
 )
@@ -35,11 +37,28 @@ def rect(pid: str, *, x: float, y: float, width: float, height: float) -> dict:
     }
 
 
+def text_block(pid: str, *, x: float, y: float, width: float, height: float) -> dict:
+    return {
+        "primitive_id": pid,
+        "family": "TEXT_BLOCK",
+        "geometry": {"x": x, "y": y, "width": width, "height": height},
+        "source": {"sha256": "source"},
+        "page_index": 0,
+        "frame": "RASTER_PIXEL",
+    }
+
+
 def blank(width: int = 1200, height: int = 500) -> list[list[bool]]:
     return [[False for _ in range(width)] for _ in range(height)]
 
 
 def vertical_stroke(binary: list[list[bool]], x0: int, x1: int, y0: int, y1: int) -> None:
+    for y in range(y0, y1 + 1):
+        for x in range(x0, x1 + 1):
+            binary[y][x] = True
+
+
+def ink_box(binary: list[list[bool]], x0: int, x1: int, y0: int, y1: int) -> None:
     for y in range(y0, y1 + 1):
         for x in range(x0, x1 + 1):
             binary[y][x] = True
@@ -61,6 +80,7 @@ def review_candidate(
     carrier_separation: float = 50.0,
     carrier_overlap_length: float = 600.0,
     pair_centers: tuple[float, float] | None = None,
+    transverse_pair_track_ids: list[str] | None = None,
 ) -> dict:
     raster = {
         "pair_detected": pair_centers is not None,
@@ -69,7 +89,15 @@ def review_candidate(
             if pair_centers is not None
             else []
         ),
+        "cross_search_start": 150.0,
+        "cross_search_end": 300.0,
     }
+    primitive_pair_ids = list(transverse_pair_track_ids or [])
+    sources = []
+    if len(primitive_pair_ids) == 2:
+        sources.append("PRIMITIVE_LOCAL_TRACK_PAIR")
+    if pair_centers is not None:
+        sources.append("RASTER_LOCAL_PROFILE")
     return {
         "hosted_marker_id": f"HM-{pid}",
         "marker_primitive_id": pid,
@@ -79,9 +107,14 @@ def review_candidate(
         "carrier_separation": carrier_separation,
         "carrier_overlap_start": 0.0,
         "carrier_overlap_end": carrier_overlap_length,
-        "primitive_graphical_state": "RECT_ALONE_ON_CARRIER",
+        "transverse_pair_track_ids": primitive_pair_ids,
+        "primitive_graphical_state": (
+            "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE"
+            if len(primitive_pair_ids) == 2
+            else "RECT_ALONE_ON_CARRIER"
+        ),
         "raster_transverse_evidence": raster,
-        "pair_evidence_sources": ["RASTER_LOCAL_PROFILE"] if pair_centers is not None else [],
+        "pair_evidence_sources": sources,
         "graphical_state": state,
         "semantic_meaning": None,
         "structural_identity_authorized": False,
@@ -100,14 +133,7 @@ class HostedMarkerOccurrenceDiscoveryTests(unittest.TestCase):
             rect("R_ALONE", x=420, y=208, width=60, height=46),
             rect("R_PAIR", x=620, y=208, width=60, height=46),
             rect("R_OUTSIDE", x=420, y=320, width=60, height=46),
-            {
-                "primitive_id": "TEXT",
-                "family": "TEXT_BLOCK",
-                "geometry": {"x": 500, "y": 210, "width": 50, "height": 20},
-                "source": {"sha256": "source"},
-                "page_index": 0,
-                "frame": "RASTER_PIXEL",
-            },
+            text_block("TEXT", x=500, y=210, width=50, height=20),
         ]
 
     def _binary(self) -> list[list[bool]]:
@@ -140,9 +166,74 @@ class HostedMarkerOccurrenceDiscoveryTests(unittest.TestCase):
             self.assertFalse(item["merge_authorized"])
 
     def test_reversed_primitive_input_is_byte_deterministic(self):
-        forward = discover_hosted_marker_occurrences(self._primitives(), self._binary())
-        reverse = discover_hosted_marker_occurrences(list(reversed(self._primitives())), self._binary())
+        forward = analyze_hosted_marker_occurrences(self._primitives(), self._binary())
+        reverse = analyze_hosted_marker_occurrences(list(reversed(self._primitives())), self._binary())
         self.assertEqual(payload_bytes(forward), payload_bytes(reverse))
+
+    def test_text_block_overlapping_marker_is_preserved_but_excluded_from_review_eligible(self):
+        primitives = self._primitives() + [
+            rect("R_TEXT", x=760, y=208, width=60, height=46),
+            text_block("T_INSIDE", x=778, y=220, width=20, height=12),
+        ]
+        analysis = analyze_hosted_marker_occurrences(primitives, self._binary())
+        self.assertNotIn("R_TEXT", [item["marker_primitive_id"] for item in analysis["review_eligible"]])
+        rejected = {item["marker_primitive_id"]: item for item in analysis["annotation_dominated"]}
+        self.assertIn("R_TEXT", rejected)
+        self.assertEqual(rejected["R_TEXT"]["candidate_role"], "ANNOTATION_DOMINATED")
+        self.assertEqual(rejected["R_TEXT"]["annotation_evidence"]["overlapping_text_block_ids"], ["T_INSIDE"])
+
+    def test_enclosed_internal_ink_without_text_block_excludes_annotation_like_box(self):
+        primitives = self._primitives() + [rect("R_INK", x=760, y=208, width=60, height=46)]
+        binary = self._binary()
+        # Two compact components fully enclosed in the marker mimic a numeric annotation.
+        ink_box(binary, 775, 780, 222, 235)
+        ink_box(binary, 790, 797, 220, 236)
+        analysis = analyze_hosted_marker_occurrences(primitives, binary)
+        self.assertNotIn("R_INK", [item["marker_primitive_id"] for item in analysis["review_eligible"]])
+        rejected = {item["marker_primitive_id"]: item for item in analysis["annotation_dominated"]}
+        self.assertGreaterEqual(rejected["R_INK"]["annotation_evidence"]["enclosed_component_count"], 2)
+        self.assertGreater(rejected["R_INK"]["annotation_evidence"]["enclosed_component_area"], 0)
+
+    def test_border_crossing_pair_strokes_do_not_count_as_enclosed_annotation_ink(self):
+        primitives = self._primitives()
+        analysis = analyze_hosted_marker_occurrences(primitives, self._binary())
+        pair = {item["marker_primitive_id"]: item for item in analysis["review_eligible"]}["R_PAIR"]
+        self.assertEqual(pair["annotation_evidence"]["enclosed_component_count"], 0)
+        self.assertEqual(pair["candidate_role"], "REVIEW_ELIGIBLE")
+
+
+class HostedMarkerOccurrenceOverlayTests(unittest.TestCase):
+    def test_primitive_only_pair_emits_two_overlay_tracks_even_without_raster_pair(self):
+        candidate = review_candidate(
+            "P",
+            state="RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE",
+            pair_centers=None,
+            transverse_pair_track_ids=["T1", "T2"],
+        )
+        tracks = [
+            {"track_id": "T1", "orientation": "VERTICAL", "centerline": 125.0, "start": 150.0, "end": 300.0},
+            {"track_id": "T2", "orientation": "VERTICAL", "centerline": 150.0, "start": 150.0, "end": 300.0},
+        ]
+        overlays = pair_evidence_overlay_spec(candidate, tracks)
+        primitive = [item for item in overlays if item["source"] == "PRIMITIVE_LOCAL_TRACK_PAIR"]
+        raster = [item for item in overlays if item["source"] == "RASTER_LOCAL_PROFILE"]
+        self.assertEqual(len(primitive), 2)
+        self.assertEqual(raster, [])
+
+    def test_mixed_pair_preserves_primitive_and_raster_provenance_separately(self):
+        candidate = review_candidate(
+            "P",
+            state="RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE",
+            pair_centers=(130.0, 160.0),
+            transverse_pair_track_ids=["T1", "T2"],
+        )
+        tracks = [
+            {"track_id": "T1", "orientation": "VERTICAL", "centerline": 125.0, "start": 150.0, "end": 300.0},
+            {"track_id": "T2", "orientation": "VERTICAL", "centerline": 150.0, "start": 150.0, "end": 300.0},
+        ]
+        overlays = pair_evidence_overlay_spec(candidate, tracks)
+        self.assertEqual([item["source"] for item in overlays].count("PRIMITIVE_LOCAL_TRACK_PAIR"), 2)
+        self.assertEqual([item["source"] for item in overlays].count("RASTER_LOCAL_PROFILE"), 2)
 
 
 class HostedMarkerOccurrenceRankingTests(unittest.TestCase):
