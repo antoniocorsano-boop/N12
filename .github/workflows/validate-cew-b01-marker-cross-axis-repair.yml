@@ -7,6 +7,7 @@ on:
       - 'experiments/cew_b01/marker_cross_axis_exact_source.py'
       - 'experiments/cew_b01/marker_transverse_cross_axis.py'
       - 'experiments/cew_b01/marker_topology_repair.py'
+      - 'experiments/cew_b01/beam_type_approval_export.py'
       - 'experiments/cew_b01/hosted_marker_occurrence_search.py'
       - 'experiments/cew_b01/beam_hosted_markers.py'
       - 'governance/cew-b01/N12_TAV5_SOURCE_v1.json'
@@ -101,6 +102,16 @@ jobs:
               assert crop.size > 0
               assert cv2.imwrite(str(out / filename), crop)
           PY
+
+      - name: Export all DOUBLE candidates for beam-type approval
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-b01-marker-cross-axis-repair/bin/activate"
+          python -m experiments.cew_b01.beam_type_approval_export \
+            --result evidence/cew-b01/marker-cross-axis-repair/marker-cross-axis-repair.json \
+            --raster "$RUNNER_TEMP/cew-b01-marker-cross-axis-probe/tav5-page0-300dpi.png" \
+            --out evidence/cew-b01/marker-cross-axis-repair/beam-type-approval
 
       - name: Upload marker cross-axis repair evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
