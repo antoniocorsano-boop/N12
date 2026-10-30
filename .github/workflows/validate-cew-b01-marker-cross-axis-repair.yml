@@ -1,0 +1,72 @@
+name: CEW-B01 Marker Cross-Axis Repair Exact-Source
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/validate-cew-b01-marker-cross-axis-repair.yml'
+      - 'experiments/cew_b01/marker_cross_axis_exact_source.py'
+      - 'experiments/cew_b01/marker_transverse_cross_axis.py'
+      - 'experiments/cew_b01/marker_topology_repair.py'
+      - 'experiments/cew_b01/hosted_marker_occurrence_search.py'
+      - 'experiments/cew_b01/beam_hosted_markers.py'
+      - 'governance/cew-b01/N12_TAV5_SOURCE_v1.json'
+      - 'governance/cew-b01/TAV5_DOCUMENT_ZONE_REVIEW_v1.json'
+      - 'requirements/cew-b01.lock.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-marker-cross-axis-repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+
+      - name: Install frozen Tesseract system package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+
+      - name: Install frozen B01 toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-b01-marker-cross-axis-repair"
+          source "$RUNNER_TEMP/cew-b01-marker-cross-axis-repair/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
+
+      - name: Fetch frozen archival source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+
+      - name: Execute exact TAV.5 cross-axis repair twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-b01-marker-cross-axis-repair/bin/activate"
+          python experiments/cew_b01/marker_cross_axis_exact_source.py
+
+      - name: Upload marker cross-axis repair evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-b01-marker-cross-axis-repair
+          path: evidence/cew-b01/marker-cross-axis-repair/
+          if-no-files-found: error
+          retention-days: 30
