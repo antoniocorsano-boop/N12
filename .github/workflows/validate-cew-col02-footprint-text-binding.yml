@@ -78,6 +78,12 @@ jobs:
           set -euo pipefail
           source "$RUNNER_TEMP/cew-col02/bin/activate"
           python -m experiments.cew_col02.review_atlas evidence/cew-col02/footprint-text-binding/col02-audit.json
+      - name: Execute exact-source P01 P02 prototype-guided search
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col02/bin/activate"
+          python -m experiments.cew_col02.prototype_guided_exact_source
       - name: Upload COL-02 evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
