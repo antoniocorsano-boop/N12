@@ -61,7 +61,7 @@ jobs:
         run: |
           set -euo pipefail
           source "$RUNNER_TEMP/cew-b01-marker-cross-axis-repair/bin/activate"
-          python experiments/cew_b01/marker_cross_axis_exact_source.py
+          python -m experiments.cew_b01.marker_cross_axis_exact_source
 
       - name: Upload marker cross-axis repair evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
