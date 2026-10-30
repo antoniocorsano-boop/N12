@@ -3,6 +3,7 @@ name: Validate CEW Mobile Review Bar
 on:
   pull_request:
     paths:
+      - 'automation/CEW_MOBILE_REVIEW_FIXTURE_v1.json'
       - 'docs/experiments/2026-10-30-cew-mobile-review-bar-design.md'
       - 'docs/superpowers/plans/2026-10-30-cew-mobile-review-bar.md'
       - 'scripts/cew_mobile_review.py'
@@ -28,7 +29,24 @@ jobs:
       - name: Syntax
         run: |
           python -m py_compile scripts/validate_cew_mobile_review_bar.py
-          if test -f scripts/cew_mobile_review.py; then python -m py_compile scripts/cew_mobile_review.py; fi
-          if test -f scripts/build_cew_mobile_review_pack.py; then python -m py_compile scripts/build_cew_mobile_review_pack.py; fi
+          python -m py_compile scripts/cew_mobile_review.py
+          python -m py_compile scripts/build_cew_mobile_review_pack.py
       - name: Validate smartphone-first review contract
         run: python scripts/validate_cew_mobile_review_bar.py
+      - name: Build neutral smartphone fixture
+        run: |
+          python scripts/build_cew_mobile_review_pack.py \
+            automation/CEW_MOBILE_REVIEW_FIXTURE_v1.json \
+            --output artifacts/cew-mobile-review/index.html
+      - name: Assert preview is non-authoritative
+        run: |
+          grep -F 'canonical_write_authorized:false' artifacts/cew-mobile-review/index.html
+          grep -F 'canonical_write_performed:false' artifacts/cew-mobile-review/index.html
+          grep -F 'env(safe-area-inset-bottom)' artifacts/cew-mobile-review/index.html
+      - name: Upload smartphone preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: cew-mobile-review-preview
+          path: artifacts/cew-mobile-review/
+          if-no-files-found: error
+          retention-days: 14
