@@ -3,40 +3,50 @@
 **Status:** ACTIVE  
 **Date:** 2026-10-30  
 **Lesson ID:** LL-021  
-**Source:** CEW-COL-01 exact-source TAV-05S audit, PR #172, qualified implementation `46042603c6726b19a9038b518fc2899647ce4310`, workflow run `41064652715`, followed by interactive Human Review on the generated C01-C09 atlas.
+**Source:** historical OAR/OA work plus CEW-COL-01 exact-source TAV-05S audit, PR #172, qualified implementation `46042603c6726b19a9038b518fc2899647ce4310`, followed by interactive Human Review on the generated C01-C09 atlas.
 
-## LL-021 — Numeric identifiers are optional relational evidence, not a primary detector gate
+## LL-021 — COL-01 confirms historical multi-cue column grammar and exposes a target-binding defect
 
-### Observation
+### Historical reconciliation
 
-The first exact-source CEW-COL-01 audit tested a number-first recovery strategy on immutable TAV-05S.
+COL-01 did **not** originate the project idea that columns must be recognized from multiple cues rather than from axes or text alone. Repository history already contained the relevant building blocks:
 
-Measured result against the historical 34-support G4 benchmark:
+- PR #132 established the governed Object Acquisition process `document acquisition -> object recognition -> prototypes/families -> similar search -> guided human validation -> canonical CAD object -> structural identity -> project material`, with the G4/TAV-05S column pilot as the bounded first pilot;
+- the governed G4 pilot contains 34 supports in five candidate families, including elongated `30x110` supports `18` and `23` and `110x30` support `30`; family membership remained candidate evidence, not structural identity;
+- PR #118/OA-3 already included `ASSOCIATED_TEXT` as an explicit similarity signal while forbidding similarity from creating identity;
+- PR #136 already used the human-taught footprint as the primary retrieval prototype, with page-wide `FIND_SIMILAR`; its fallback detector explicitly suppressed long drawing axes and fixed an `internal cell` versus `full column footprint` defect;
+- issues #2 and #5 already required geometric reference, analytical axis and section footprint to remain distinct and prohibited section/fixed-line promotion by analogy.
 
-- 9 support-like OCR text anchors observed in the structural workarea;
+Therefore the durable project lesson is also a **reuse lesson**: before creating another column detector, reconcile historical OAR/OA capabilities and port the smallest qualified slice needed by the active exact-source task.
+
+### What COL-01 actually added
+
+The first exact-source COL-01 audit tested a **number-first OCR pipeline** on immutable TAV-05S. Measured against the historical 34-support benchmark:
+
+- 9 support-like OCR text anchors were observed;
 - 6/34 benchmark identifiers matched at raw OCR level (`1, 4, 7, 9, 19, 30`), coverage 17.65%;
-- only 5/34 identifiers also had plausible local footprint evidence (`1, 4, 7, 19, 30`), coverage 14.71%;
-- identifier `7` was observed three times;
-- elongated historical witnesses `18` and `23` were not retrieved;
-- elongated witness `30` was retrieved only as `P3_NUMBER_PARTIAL_FOOTPRINT`.
+- only 5/34 also had plausible local footprint evidence (`1, 4, 7, 19, 30`), coverage 14.71%;
+- elongated witnesses `18` and `23` were not retrieved;
+- witness `30` was retrieved only as `P3_NUMBER_PARTIAL_FOOTPRINT`.
 
-Visual inspection and Human Review of the review package showed that several OCR numeric anchors are **dimension/annotation numbers near structural graphics**, not necessarily the support identifier inside a column footprint.
+This rejects only the current **number-first OCR pipeline as a sufficient mandatory primary retrieval gate**. It does not establish that identifiers are absent from the drawing.
 
-The Human Review supplied a stronger source-local discriminant for the current panel set: **column graphics are the rectangular footprints containing a numeric identifier internally; graphics without an internal number were rejected as columns in this review set.** This observation is source-local and must not be generalized to every carpenteria until tested on additional exact sources.
+The genuinely new finding is the **target-binding defect**: a crop may contain a true numbered column while the machine panel identifier refers to a different nearby dimensional value. A human can correctly recognize the column but the system can still bind the wrong number to it.
 
-### Failure mode
+### Human Review evidence from C01-C09
 
-The rule `number -> nearby rectangle -> column candidate` is under-constrained in a structural carpenteria because the same workarea contains many dimensions, sizes and annotations. Requiring the number first causes severe recall loss when OCR misses identifiers; accepting any nearby number also creates false associations with dimensional text.
+For the visible graphics in the current panel set:
 
-A second failure mode was exposed by the first Human Review atlas: **a crop can contain a real numbered column while the machine panel identifier refers to a different nearby dimension value**. If the target object and target OCR token are not explicitly marked, a human can correctly recognize a column in the image while the system incorrectly records the nearby OCR number as that column's identifier.
+- column graphic visible with a numeric identifier inside the footprint: `C01`, `C02`, `C05`, `C06`;
+- not a column under this source-local criterion: `C03`, `C04`, `C07`, `C08`, `C09`.
 
-The exact-source result therefore rejects the current **number-first OCR pipeline as a sufficient mandatory primary retrieval gate**. It does not establish that support identifiers are absent from the source drawing; graphical presence and OCR detectability are distinct questions.
+These are panel-level graphical observations, **not machine-candidate identity receipts**. The current atlas does not explicitly mark the exact proposed OCR anchor and exact proposed footprint strongly enough to bind the human decision safely to a machine identifier.
 
 ### Durable rule
 
-For future column recovery use:
+For the successor column-recovery tranche, reuse the historical prototype-led architecture and apply the sequence:
 
-`footprint/prototype candidate -> topology/local geometry -> internal-or-strongly-related text evidence -> optional axis evidence -> Human Review`
+`footprint/prototype candidate -> topology/local geometry -> text contained inside or strongly bound to the footprint -> optional axis evidence -> target-explicit Human Review`
 
 not:
 
@@ -44,33 +54,15 @@ not:
 
 Specific constraints:
 
-1. symmetry axes remain optional evidence;
-2. numeric identifiers remain useful, but only as relational evidence after/with a plausible object footprint;
-3. **text containment inside the footprint is a high-value cue and must be represented separately from nearby dimensional text**;
-4. Human Review panels must make the machine target explicit: mark the proposed footprint and OCR anchor while retaining an unmodified source-only crop as evidence;
-5. a panel-level observation that a column is visible must not automatically validate the machine OCR identifier shown in the panel header;
-6. historical support IDs may measure recall or select review witnesses but must never generate missing candidates;
-7. OCR failure must remain visible and must not be repaired by hard-coded expected identifiers;
-8. footprint/prototype retrieval should be the next primary search channel, with text and axes used to rank/explain candidates rather than to exclude them.
-
-### Human Review evidence from the current panel set
-
-For C01-C09, applying the human criterion to the **visible graphics** gives:
-
-- column graphic visible with internal numeric identifier: `C01`, `C02`, `C05`, `C06`;
-- not a column under the current review criterion: `C03`, `C04`, `C07`, `C08`, `C09`.
-
-These are **panel-level visual observations**, not machine-candidate identity receipts. The existing atlas does not make the exact proposed OCR anchor/footprint target explicit enough to bind those observations safely to machine identifiers. Candidate-level Human Review therefore requires a repaired target-explicit atlas before final promotion of any candidate decision.
-
-### Affected capabilities
-
-- CEW-COL-01 and successor column-recovery tranche;
-- TAV-05S/TAV-07 column acquisition;
-- OA-2/OA-3 prototype and similarity reuse;
-- future carpenteria reconstruction across TAV-03S/04S/05S/06S;
-- support/text association grammar;
-- Human Review artifact design and candidate-target binding.
+1. symmetry axes are optional supporting evidence;
+2. text is relational evidence and must not create structural identity;
+3. containment of text inside a plausible footprint is a high-value source-local cue and must be distinguished from nearby dimensions/annotations;
+4. the Human Review artifact must mark separately the machine footprint target and the machine OCR target while preserving an unmodified source-only crop;
+5. historical support IDs/counts/families may benchmark recall but must never generate missing candidates;
+6. the 34-support/5-family register is reusable project evidence, not a production oracle;
+7. fixed lines, analytical axes, section dimensions and structural identity remain downstream governed questions;
+8. new code is justified only for the residual gap after OA/OAR reuse reconciliation.
 
 ### Authority boundary
 
-This lesson is process/architecture memory only. It does not identify any structural object, assign a section or fixed line, authorize canonical geometry/write, or promote any OCR observation to engineering fact.
+This lesson is process/architecture memory only. It does not identify a structural object, assign a section or fixed line, authorize canonical geometry/write, or promote OCR observations to engineering facts.
