@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from experiments.cew_b01.marker_topology_repair import describe_transverse_band
+from experiments.cew_b01.marker_transverse_cross_axis import describe_transverse_band
 
 
 def blank(width: int = 260, height: int = 180) -> list[list[bool]]:
