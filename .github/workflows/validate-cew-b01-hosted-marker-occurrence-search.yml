@@ -67,7 +67,6 @@ jobs:
           python - <<'PY'
           import hashlib
           import json
-          import math
           import os
           from collections import Counter
           from pathlib import Path
@@ -87,16 +86,20 @@ jobs:
           from cew_b01.zone_review_package import confirmed_zones_from_receipt, zone_set_digest
           from experiments.cew_b01.beam_hosted_markers import build_line_tracks, build_linear_carriers
           from experiments.cew_b01.hosted_marker_occurrence_search import (
-              discover_hosted_marker_occurrences,
+              analyze_hosted_marker_occurrences,
+              pair_evidence_overlay_spec,
               rank_occurrences_for_review,
           )
 
           SOURCE_SHA = '2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580'
           C5 = 'CEW-B01-GP-90cefb124e0b97a63acd1d9c'
           C7 = 'CEW-B01-GP-f5bf9ee85705380152aae053'
+          A10_REJECT = 'CEW-B01-GP-cf4860204d8bb1c826d35f40'
+          A17_REJECT = 'CEW-B01-GP-8b7eae9c9f25bb1d73c6f504'
           ALONE = 'RECT_ALONE_ON_CARRIER'
           PAIR = 'RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE'
           REVIEW_LIMIT_PER_STATE = 12
+          REJECT_ATLAS_LIMIT = 12
 
           def canonical_bytes(value):
               return (json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False) + '\n').encode('utf-8')
@@ -149,19 +152,33 @@ jobs:
           _analysis, binary = _analysis_binary(image, mask)
           binary_bool = binary > 0
 
-          occurrences_a = discover_hosted_marker_occurrences(mappings_a, binary_bool)
-          occurrences_b = discover_hosted_marker_occurrences(mappings_a, binary_bool)
-          assert canonical_bytes(occurrences_a) == canonical_bytes(occurrences_b)
+          analysis_a = analyze_hosted_marker_occurrences(mappings_a, binary_bool)
+          analysis_b = analyze_hosted_marker_occurrences(mappings_a, binary_bool)
+          assert canonical_bytes(analysis_a) == canonical_bytes(analysis_b)
+
+          occurrences_a = analysis_a['review_eligible']
+          occurrences_b = analysis_b['review_eligible']
+          rejected_a = analysis_a['annotation_dominated']
+          all_bound_a = analysis_a['all_bound']
 
           by_id = {item['marker_primitive_id']: item for item in occurrences_a}
-          assert C5 in by_id, 'C5 missing from full-TAV.5 hosted-marker discovery'
-          assert C7 in by_id, 'C7 missing from full-TAV.5 hosted-marker discovery'
+          rejected_by_id = {item['marker_primitive_id']: item for item in rejected_a}
+          assert C5 in by_id, 'C5 missing from review-eligible hosted-marker discovery'
+          assert C7 in by_id, 'C7 missing from review-eligible hosted-marker discovery'
+          assert A10_REJECT not in by_id, 'A10 annotation box remained review-eligible'
+          assert A17_REJECT not in by_id, 'A17 annotation box remained review-eligible'
+          assert A10_REJECT in rejected_by_id, 'A10 missing from annotation-dominated evidence'
+          assert A17_REJECT in rejected_by_id, 'A17 missing from annotation-dominated evidence'
+          assert rejected_by_id[A10_REJECT]['annotation_evidence']['annotation_dominated'] is True
+          assert rejected_by_id[A17_REJECT]['annotation_evidence']['annotation_dominated'] is True
+          assert by_id[C5]['candidate_role'] == 'REVIEW_ELIGIBLE'
+          assert by_id[C7]['candidate_role'] == 'REVIEW_ELIGIBLE'
           assert by_id[C5]['graphical_state'] == ALONE, by_id[C5]
           assert by_id[C7]['graphical_state'] == PAIR, by_id[C7]
           assert by_id[C7]['raster_transverse_evidence']['pair_detected'] is True
           assert 'RASTER_LOCAL_PROFILE' in by_id[C7]['pair_evidence_sources']
 
-          for item in occurrences_a:
+          for item in all_bound_a:
               assert item['semantic_meaning'] is None
               assert item['structural_identity_authorized'] is False
               assert item['canonical_write_authorized'] is False
@@ -175,6 +192,11 @@ jobs:
 
           counts = Counter(item['graphical_state'] for item in occurrences_a)
           ranked_counts = Counter(item['graphical_state'] for item in ranked_a)
+          rejected_signal_counts = Counter(
+              signal
+              for item in rejected_a
+              for signal in item.get('annotation_evidence', {}).get('signals', [])
+          )
 
           tracks = build_line_tracks(mappings_a)
           carriers = build_linear_carriers(tracks)
@@ -185,10 +207,19 @@ jobs:
               state_items = [item for item in ranked_a if item['graphical_state'] == state]
               selected.extend(state_items[:REVIEW_LIMIT_PER_STATE])
 
+          reject_priority = {A10_REJECT: 0, A17_REJECT: 1}
+          selected_rejected = sorted(
+              rejected_a,
+              key=lambda item: (
+                  reject_priority.get(item['marker_primitive_id'], 2),
+                  item['marker_primitive_id'],
+              ),
+          )[:REJECT_ATLAS_LIMIT]
+
           occurrence_payload = {
               'schema_id': 'CEW_B01_HOSTED_MARKER_OCCURRENCE_SEARCH',
-              'schema_version': 1,
-              'status': 'EXPERIMENT_ONLY',
+              'schema_version': 2,
+              'status': 'EXPERIMENT_ONLY_REWORKED',
               'scope': 'TAV5_ONLY',
               'source_sha256': materialized.sha256,
               'page_index': contract.page_index,
@@ -205,13 +236,19 @@ jobs:
                   ALONE: C5,
                   PAIR: C7,
               },
-              'hosted_marker_occurrence_count': len(occurrences_a),
+              'all_bound_occurrence_count': len(all_bound_a),
+              'review_eligible_occurrence_count': len(occurrences_a),
+              'annotation_dominated_count': len(rejected_a),
+              'annotation_dominated_signal_counts': dict(sorted(rejected_signal_counts.items())),
               'counts_by_graphical_state': dict(sorted(counts.items())),
               'additional_ranked_count': len(ranked_a),
               'additional_ranked_counts_by_graphical_state': dict(sorted(ranked_counts.items())),
               'atlas_limit_per_state': REVIEW_LIMIT_PER_STATE,
               'atlas_selected_marker_ids': [item['marker_primitive_id'] for item in selected],
-              'occurrences': occurrences_a,
+              'annotation_atlas_selected_marker_ids': [item['marker_primitive_id'] for item in selected_rejected],
+              'review_eligible_occurrences': occurrences_a,
+              'annotation_dominated_occurrences': rejected_a,
+              'all_bound_occurrences': all_bound_a,
               'ranked_additional_occurrences': ranked_a,
               'authority': {
                   'semantic_classification_authorized': False,
@@ -232,7 +269,7 @@ jobs:
 
           colour = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 
-          def candidate_panel(candidate, index):
+          def candidate_panel(candidate, index, prefix='A'):
               geometry = candidate['marker_geometry']
               x0 = int(round(float(geometry['x'])))
               y0 = int(round(float(geometry['y'])))
@@ -250,10 +287,8 @@ jobs:
               bottom = min(colour.shape[0], y1 + margin_y)
               crop = colour[top:bottom, left:right].copy()
 
-              # Marker rectangle.
               cv2.rectangle(crop, (x0-left, y0-top), (x1-left, y1-top), (0,0,255), 4)
 
-              # Local carrier edges reconstructed from the selected carrier.
               carrier = carrier_by_id.get(candidate['carrier_id'])
               if carrier is not None:
                   centers = sorted(float(v) for v in carrier['track_centerlines'])
@@ -268,32 +303,39 @@ jobs:
                           if 0 <= xx < crop.shape[1]:
                               cv2.line(crop, (xx, 0), (xx, crop.shape[0]-1), (0,160,0), 2)
 
-              # Exact raster pair strokes when detected.
-              evidence = candidate.get('raster_transverse_evidence') or {}
-              if evidence.get('pair_detected'):
-                  if orientation == 'HORIZONTAL':
-                      cross_a = max(0, int(evidence.get('cross_search_start', top)) - top)
-                      cross_b = min(crop.shape[0]-1, int(evidence.get('cross_search_end', bottom)) - top)
-                      for stroke in evidence.get('pair_strokes', []):
-                          sx = int(round(float(stroke['center']))) - left
-                          if 0 <= sx < crop.shape[1]:
-                              cv2.line(crop, (sx, cross_a), (sx, cross_b), (255,0,0), 3)
+              for overlay in pair_evidence_overlay_spec(candidate, tracks):
+                  source = overlay['source']
+                  # Primitive/G1 pair: magenta. Raster-recovered pair: blue.
+                  draw_colour = (180,0,180) if source == 'PRIMITIVE_LOCAL_TRACK_PAIR' else (255,0,0)
+                  thickness = 2 if source == 'PRIMITIVE_LOCAL_TRACK_PAIR' else 3
+                  if overlay['orientation'] == 'VERTICAL':
+                      xx = int(round(float(overlay['centerline']))) - left
+                      yy0 = max(0, int(round(float(overlay['start']))) - top)
+                      yy1 = min(crop.shape[0]-1, int(round(float(overlay['end']))) - top)
+                      if 0 <= xx < crop.shape[1] and yy1 >= yy0:
+                          cv2.line(crop, (xx, yy0), (xx, yy1), draw_colour, thickness)
                   else:
-                      cross_a = max(0, int(evidence.get('cross_search_start', left)) - left)
-                      cross_b = min(crop.shape[1]-1, int(evidence.get('cross_search_end', right)) - left)
-                      for stroke in evidence.get('pair_strokes', []):
-                          sy = int(round(float(stroke['center']))) - top
-                          if 0 <= sy < crop.shape[0]:
-                              cv2.line(crop, (cross_a, sy), (cross_b, sy), (255,0,0), 3)
+                      yy = int(round(float(overlay['centerline']))) - top
+                      xx0 = max(0, int(round(float(overlay['start']))) - left)
+                      xx1 = min(crop.shape[1]-1, int(round(float(overlay['end']))) - left)
+                      if 0 <= yy < crop.shape[0] and xx1 >= xx0:
+                          cv2.line(crop, (xx0, yy), (xx1, yy), draw_colour, thickness)
 
+              source_labels = []
+              if 'PRIMITIVE_LOCAL_TRACK_PAIR' in candidate.get('pair_evidence_sources', []):
+                  source_labels.append('G1')
+              if 'RASTER_LOCAL_PROFILE' in candidate.get('pair_evidence_sources', []):
+                  source_labels.append('RASTER')
+              source_text = '+'.join(source_labels) if source_labels else '-'
+              distance = candidate.get('prototype_distance')
+              distance_text = f" d={float(distance):.3f}" if distance is not None else ''
               title = (
-                  f"A{index:02d} {candidate['graphical_state']} "
-                  f"d={float(candidate['prototype_distance']):.3f} "
-                  f"{candidate['marker_primitive_id']}"
+                  f"{prefix}{index:02d} {candidate['candidate_role']} {candidate['graphical_state']}"
+                  f" src={source_text}{distance_text} {candidate['marker_primitive_id']}"
               )
               header_h = 54
               crop = cv2.copyMakeBorder(crop, header_h, 0, 0, 0, cv2.BORDER_CONSTANT, value=(255,255,255))
-              cv2.putText(crop, safe_text(title), (12, 34), cv2.FONT_HERSHEY_SIMPLEX, 0.58, (0,0,0), 2, cv2.LINE_AA)
+              cv2.putText(crop, safe_text(title), (12, 34), cv2.FONT_HERSHEY_SIMPLEX, 0.54, (0,0,0), 2, cv2.LINE_AA)
 
               target_w = 900
               scale = min(1.0, target_w / max(1, crop.shape[1]))
@@ -305,47 +347,52 @@ jobs:
                   )
               return crop
 
-          panels = [candidate_panel(candidate, index + 1) for index, candidate in enumerate(selected)]
-          if panels:
+          def vertical_atlas(candidates, prefix, empty_message):
+              panels = [candidate_panel(candidate, index + 1, prefix) for index, candidate in enumerate(candidates)]
+              if not panels:
+                  atlas = np.full((220, 1200, 3), 255, dtype=np.uint8)
+                  cv2.putText(atlas, empty_message, (25, 115), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,0), 2, cv2.LINE_AA)
+                  return atlas
               max_w = max(panel.shape[1] for panel in panels)
               padded = []
               for panel in panels:
                   if panel.shape[1] < max_w:
                       panel = cv2.copyMakeBorder(
-                          panel,
-                          0,
-                          0,
-                          0,
-                          max_w - panel.shape[1],
-                          cv2.BORDER_CONSTANT,
-                          value=(255,255,255),
+                          panel, 0, 0, 0, max_w - panel.shape[1],
+                          cv2.BORDER_CONSTANT, value=(255,255,255),
                       )
                   padded.append(panel)
-              atlas = cv2.vconcat(padded)
-          else:
-              atlas = np.full((220, 1200, 3), 255, dtype=np.uint8)
-              cv2.putText(
-                  atlas,
-                  'No additional hosted-marker occurrences found under frozen rules',
-                  (25, 115),
-                  cv2.FONT_HERSHEY_SIMPLEX,
-                  0.75,
-                  (0,0,0),
-                  2,
-                  cv2.LINE_AA,
-              )
+              return cv2.vconcat(padded)
+
+          atlas = vertical_atlas(
+              selected,
+              'A',
+              'No additional review-eligible hosted-marker occurrences found under frozen rules',
+          )
           atlas_path = out / 'hosted-marker-occurrence-atlas.png'
           assert cv2.imwrite(str(atlas_path), atlas)
+
+          rejected_atlas = vertical_atlas(
+              selected_rejected,
+              'R',
+              'No annotation-dominated hosted-marker occurrences detected',
+          )
+          rejected_atlas_path = out / 'hosted-marker-annotation-dominated-atlas.png'
+          assert cv2.imwrite(str(rejected_atlas_path), rejected_atlas)
 
           summary = {
               'source_sha256': materialized.sha256,
               'primitive_count': len(mappings_a),
               'rectilinear_seed_count': rectilinear_seed_count,
-              'hosted_marker_occurrence_count': len(occurrences_a),
+              'all_bound_occurrence_count': len(all_bound_a),
+              'review_eligible_occurrence_count': len(occurrences_a),
+              'annotation_dominated_count': len(rejected_a),
+              'annotation_dominated_signal_counts': dict(sorted(rejected_signal_counts.items())),
               'counts_by_graphical_state': dict(sorted(counts.items())),
               'additional_ranked_count': len(ranked_a),
               'additional_ranked_counts_by_graphical_state': dict(sorted(ranked_counts.items())),
               'atlas_selected_count': len(selected),
+              'annotation_atlas_selected_count': len(selected_rejected),
               'replay_sha256': replay_digest,
               'semantic_authority': False,
               'g3_authorized': False,
