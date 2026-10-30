@@ -1,107 +1,163 @@
 {
-  "schema_id": "CEW_B01_BEAM_HOSTED_MARKER_PILOT_RESULT",
-  "schema_version": 1,
-  "status": "REWORK_UPSTREAM_G1",
-  "scope": "C5_C7_ONLY",
-  "source": {
-    "repository": "antoniocorsano-boop/N12",
-    "path": "archive/documentazione_originaria/tavola 5.pdf",
-    "page_index": 0,
-    "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
-    "archival_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
-    "grammar_artifact_run": 40922949263,
-    "grammar_artifact_id": 12918273768,
-    "primitive_count": 5633
-  },
-  "implementation": {
-    "implementation_head": "ba39724ce857f2c25476eb56bac16cb91b7aba83",
-    "line_track_count": 158,
-    "neutral_carrier_count": 71,
-    "uses_complete_line_segment_census": true,
-    "depends_on_existing_parallel_line_pair": false,
-    "existing_g1_axis_segment_pair_cap": 220
-  },
-  "tdd": {
-    "remote_pair_red_head": "65af148488fab908602daf039787166379187cb8",
-    "remote_pair_red_run": 41014714989,
-    "remote_pair_red_failure": "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE != RECT_ALONE_ON_CARRIER",
-    "green_head": "ba39724ce857f2c25476eb56bac16cb91b7aba83",
-    "green_unit_run": 41014931858,
-    "green_memory_run": 41014931897
-  },
-  "deterministic_replay": {
-    "executions": 2,
-    "reversed_input_equal": true,
-    "candidate_payload_sha256": "5840bb0f8acb59df35cb30ac0d34e66d61cdd6f7c4a2f25d1ab123a93f6f0710"
+  "authority": {
+    "canonical_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false,
+    "semantic_classification_authorized": false,
+    "structural_identity_authorized": false
   },
   "cases": [
     {
-      "case_id": "C5",
-      "marker_primitive_id": "CEW-B01-GP-90cefb124e0b97a63acd1d9c",
-      "marker_geometry": {
-        "x": 4114.0,
-        "y": 5135.0,
-        "width": 44.0,
-        "height": 116.0
-      },
       "carrier_id": "CEW-B01-LC-f08c6cf6b6ec2b114bd27e72",
       "carrier_orientation": "HORIZONTAL",
+      "carrier_overlap": [
+        3358.0,
+        4366.0
+      ],
       "carrier_separation": 122.0,
-      "carrier_overlap": [3358.0, 4366.0],
-      "broad_transverse_track_ids": [],
-      "local_pair_eligible_track_ids": [],
-      "transverse_pair_track_ids": [],
+      "case_id": "C5",
       "graphical_state": "RECT_ALONE_ON_CARRIER",
+      "marker_geometry": {
+        "height": 116.0,
+        "width": 44.0,
+        "x": 4114.0,
+        "y": 5135.0
+      },
+      "marker_primitive_id": "CEW-B01-GP-90cefb124e0b97a63acd1d9c",
+      "pair_evidence_sources": [],
+      "primitive_graphical_state": "RECT_ALONE_ON_CARRIER",
+      "primitive_local_pair_track_ids": [],
+      "primitive_transverse_track_ids": [],
+      "raster_pair_detected": false,
+      "raster_pair_side": "AFTER_CROSS_AXIS",
+      "raster_pair_strokes": [],
       "review_state": "UNREVIEWED"
     },
     {
-      "case_id": "C7",
-      "marker_primitive_id": "CEW-B01-GP-f5bf9ee85705380152aae053",
-      "marker_geometry": {
-        "x": 2141.0,
-        "y": 8628.0,
-        "width": 154.0,
-        "height": 54.0
-      },
       "carrier_id": "CEW-B01-LC-e46c764f56e3efdc17905bb8",
       "carrier_orientation": "HORIZONTAL",
+      "carrier_overlap": [
+        1745.0,
+        3201.0
+      ],
       "carrier_separation": 62.388888,
-      "carrier_overlap": [1745.0, 3201.0],
-      "broad_transverse_track_ids": [
+      "case_id": "C7",
+      "graphical_state": "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE",
+      "marker_geometry": {
+        "height": 54.0,
+        "width": 154.0,
+        "x": 2141.0,
+        "y": 8628.0
+      },
+      "marker_primitive_id": "CEW-B01-GP-f5bf9ee85705380152aae053",
+      "pair_evidence_sources": [
+        "RASTER_LOCAL_PROFILE"
+      ],
+      "primitive_graphical_state": "RECT_ALONE_ON_CARRIER",
+      "primitive_local_pair_track_ids": [],
+      "primitive_transverse_track_ids": [
         "CEW-B01-LT-e3e1145e321e8fb0066be55b",
         "CEW-B01-LT-3bee5f46d8dbd7b35da25794",
         "CEW-B01-LT-c0d866f41dc34384d347075b"
       ],
-      "broad_transverse_track_centerlines": [2297.5, 2559.5, 1863.666667],
-      "local_pair_eligible_track_ids": [
-        "CEW-B01-LT-e3e1145e321e8fb0066be55b"
+      "raster_pair_detected": true,
+      "raster_pair_side": "BEFORE_CROSS_AXIS",
+      "raster_pair_strokes": [
+        {
+          "center": 2257.5,
+          "end": 2262,
+          "start": 2253,
+          "width": 10
+        },
+        {
+          "center": 2290.5,
+          "end": 2293,
+          "start": 2288,
+          "width": 6
+        }
       ],
-      "local_pair_eligible_track_count": 1,
-      "transverse_pair_track_ids": [],
-      "graphical_state": "RECT_ALONE_ON_CARRIER",
-      "review_state": "REWORK_UPSTREAM_G1"
+      "review_state": "UNREVIEWED"
     }
   ],
   "findings": [
-    "Carrier-first reconstruction removes the spatial bias introduced by the existing first-220 axis-segment cap.",
-    "The initial 2.5x broad transverse window could combine a local crossing track with a remote track and create a false pair.",
-    "The pair rule now requires both pair members to lie locally at or near the marker longitudinal footprint while broad-window tracks remain preserved as context.",
-    "After the correction C5 remains RECT_ALONE_ON_CARRIER.",
-    "After the correction C7 has only one local pair-eligible transverse track in the qualified G1 census, so the expected two-line graphical configuration cannot be established from current G1 evidence.",
-    "The C7 mismatch must be investigated upstream in line detection/track coverage rather than repaired by forcing G2/G3 meaning."
+    "The existing G1 PARALLEL_LINE_PAIR detector is spatially incomplete because it uses only the first 220 of 733 axis-aligned line observations.",
+    "Carrier-first reconstruction from the complete LINE_SEGMENT census removes that positional cap for this bounded pilot.",
+    "Broad primitive-only transverse context is not sufficient to form a pair; remote tracks are retained as context but cannot promote the local graphical state.",
+    "C7 contains only one local pair-eligible primitive track, while exact 300-dpi raster evidence contains two distinct persistent transverse strokes near the hosted marker.",
+    "Hybrid evidence keeps primitive and raster observations separate and records which layer supports the final neutral graphical state.",
+    "A local marker cannot bind to a generic parallel carrier whose separation exceeds 1.6 times the marker cross-span.",
+    "C5 and C7 are graphically distinguishable on exact-source evidence, but the proposed technical meanings remain unvalidated human hypotheses."
   ],
   "human_hypotheses": {
-    "RECT_ALONE_ON_CARRIER": "may correspond to a beam that does not carry the slab",
-    "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE": "may correspond to a beam that carries the slab",
-    "status": "UNVALIDATED_HUMAN_HYPOTHESIS",
-    "executable": false
+    "RECT_ALONE_ON_CARRIER": {
+      "executable": false,
+      "proposed_meaning": "BEAM_DOES_NOT_CARRY_SLAB",
+      "status": "UNVALIDATED_HUMAN_HYPOTHESIS"
+    },
+    "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE": {
+      "executable": false,
+      "proposed_meaning": "BEAM_CARRIES_SLAB",
+      "status": "UNVALIDATED_HUMAN_HYPOTHESIS"
+    }
   },
-  "authority": {
-    "semantic_classification_authorized": false,
-    "structural_identity_authorized": false,
-    "canonical_write_authorized": false,
-    "g2c_promotion_authorized": false,
-    "g3_authorized": false,
-    "merge_authorized": false
+  "implementation": {
+    "depends_on_existing_parallel_line_pair": false,
+    "evidence_layers": [
+      "PRIMITIVE_LOCAL_TRACK_PAIR",
+      "RASTER_LOCAL_PROFILE"
+    ],
+    "existing_g1_axis_segment_pair_cap": 220,
+    "line_track_count": 158,
+    "marker_carrier_max_cross_span_ratio": 1.6,
+    "neutral_carrier_count": 71,
+    "qualified_code_head": "5daa6e1f8dd43654a3627b155c0d6dc0c37c820e",
+    "uses_complete_line_segment_census": true
+  },
+  "qualification": {
+    "exact_source_artifact_digest": "sha256:20a515869b9074ea7847d3348e2393d62ff35a2c382da621ef1b89d4bfb28255",
+    "exact_source_artifact_id": 12960036457,
+    "exact_source_replay_sha256": "2d16982664b702258c2dc3ed15e277ca7db4c29b9fe66fbd4ebacd9ae15800ef",
+    "exact_source_run": 41016327209,
+    "exact_source_status": "PASS",
+    "repository_memory_run": 41016327176,
+    "repository_memory_status": "PASS",
+    "unit_contract_count": 24,
+    "unit_gate_run": 41016327090,
+    "unit_gate_status": "PASS"
+  },
+  "review": {
+    "human_graphical_review": "PENDING_BROADER_SAMPLE",
+    "independent_code_review": "PENDING_BEFORE_INTEGRATION"
+  },
+  "schema_id": "CEW_B01_BEAM_HOSTED_MARKER_PILOT_RESULT",
+  "schema_version": 2,
+  "scope": "C5_C7_ONLY",
+  "source": {
+    "archival_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+    "axis_line_segment_count": 733,
+    "grammar_artifact_id": 12918273768,
+    "grammar_artifact_run": 40922949263,
+    "page_index": 0,
+    "path": "archive/documentazione_originaria/tavola 5.pdf",
+    "primitive_count": 5633,
+    "raster_height_px": 12530,
+    "raster_sha256": "474ed6c3958d8841b95b1ca9cdfb7702ec552204a30a4de6b646ec1e5f391406",
+    "raster_width_px": 7016,
+    "repository": "antoniocorsano-boop/N12",
+    "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+    "zone_set_digest": "685d10d5ca456afb80939b8add51e7d5f98682d411759c34ab47f7fc11fa165d"
+  },
+  "status": "GRAPHICAL_DISCRIMINATION_PASS_SEMANTIC_VALIDATION_PENDING",
+  "tdd": {
+    "final_green_head": "5daa6e1f8dd43654a3627b155c0d6dc0c37c820e",
+    "module_red_head": "c5e893f6eef41d9ff355f15801c8c39f9b72fec2",
+    "module_red_run": 41013793695,
+    "overwide_carrier_red_failure": "marker incorrectly bound to carrier with separation 5x marker cross-span",
+    "overwide_carrier_red_head": "3d6732e95d95e906d332c34ad0bb7e0d268e6ce6",
+    "overwide_carrier_red_run": 41016177287,
+    "remote_pair_red_failure": "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE != RECT_ALONE_ON_CARRIER",
+    "remote_pair_red_head": "65af148488fab908602daf039787166379187cb8",
+    "remote_pair_red_run": 41014714989
   }
 }
