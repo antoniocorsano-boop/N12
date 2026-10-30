@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import math
 from typing import Any, Sequence
 
 from .beam_hosted_marker_raster import detect_bilateral_transverse_section_from_binary
@@ -16,6 +15,20 @@ def _marker_long_interval(candidate: dict[str, Any]) -> tuple[float, float, floa
     elif orientation == "VERTICAL":
         start = float(geometry["y"])
         span = max(float(geometry["height"]), 1.0)
+    else:
+        raise ValueError("HOSTED_MARKER_REPAIR_INVALID_CARRIER_ORIENTATION")
+    return start, start + span, span
+
+
+def _marker_cross_interval(candidate: dict[str, Any]) -> tuple[float, float, float]:
+    geometry = candidate["marker_geometry"]
+    orientation = str(candidate["carrier_orientation"])
+    if orientation == "HORIZONTAL":
+        start = float(geometry["y"])
+        span = max(float(geometry["height"]), 1.0)
+    elif orientation == "VERTICAL":
+        start = float(geometry["x"])
+        span = max(float(geometry["width"]), 1.0)
     else:
         raise ValueError("HOSTED_MARKER_REPAIR_INVALID_CARRIER_ORIENTATION")
     return start, start + span, span
@@ -72,6 +85,55 @@ def carrier_topology_evidence(
         "carrier_overlap_to_marker_long_span": round(overlap_ratio, 12),
         "end_run_ratio_threshold": round(float(end_run_ratio_threshold), 12),
         "minimum_through_overlap_ratio": round(float(minimum_through_overlap_ratio), 12),
+    }
+
+
+def marker_carrier_alignment_evidence(
+    candidate: dict[str, Any],
+    carrier: dict[str, Any],
+    *,
+    max_center_offset_ratio: float = 0.25,
+) -> dict[str, Any]:
+    """Measure marker centering relative to the selected carrier band.
+
+    This is a neutral relationship check. It never moves the marker or rewrites
+    the carrier; it only records whether the frozen G1 marker is centered on the
+    two-track carrier band within a scale-normalized tolerance.
+    """
+
+    marker_cross_start, marker_cross_end, marker_cross_span = _marker_cross_interval(candidate)
+    marker_cross_center = (marker_cross_start + marker_cross_end) / 2.0
+    centerlines = sorted(float(value) for value in carrier.get("track_centerlines", []))
+    if len(centerlines) != 2:
+        raise ValueError("HOSTED_MARKER_REPAIR_REQUIRES_TWO_CARRIER_TRACKS")
+
+    carrier_band_start, carrier_band_end = centerlines
+    carrier_band_center = (carrier_band_start + carrier_band_end) / 2.0
+    carrier_separation = abs(carrier_band_end - carrier_band_start)
+    center_offset_px = abs(marker_cross_center - carrier_band_center)
+    center_offset_ratio = center_offset_px / marker_cross_span
+    separation_ratio = carrier_separation / marker_cross_span
+
+    carrier_alignment_state = (
+        "CARRIER_ALIGNED"
+        if center_offset_ratio <= max_center_offset_ratio
+        else "CARRIER_MISALIGNED"
+    )
+
+    return {
+        "carrier_alignment_state": carrier_alignment_state,
+        "marker_cross_start": round(marker_cross_start, 6),
+        "marker_cross_end": round(marker_cross_end, 6),
+        "marker_cross_span": round(marker_cross_span, 6),
+        "marker_cross_center": round(marker_cross_center, 6),
+        "carrier_band_start": round(carrier_band_start, 6),
+        "carrier_band_end": round(carrier_band_end, 6),
+        "carrier_band_center": round(carrier_band_center, 6),
+        "carrier_separation": round(carrier_separation, 6),
+        "center_offset_px": round(center_offset_px, 6),
+        "center_offset_to_marker_cross_span": round(center_offset_ratio, 12),
+        "carrier_separation_to_marker_cross_span": round(separation_ratio, 12),
+        "max_center_offset_ratio": round(float(max_center_offset_ratio), 12),
     }
 
 
@@ -229,6 +291,7 @@ def refine_graphical_candidate(
     item = copy.deepcopy(candidate)
     topology = carrier_topology_evidence(candidate, carrier)
     alignment = marker_alignment_evidence(binary_ink, candidate["marker_geometry"])
+    carrier_alignment = marker_carrier_alignment_evidence(candidate, carrier)
     transverse = detect_bilateral_transverse_section_from_binary(
         binary_ink,
         marker_geometry=candidate["marker_geometry"],
@@ -236,7 +299,10 @@ def refine_graphical_candidate(
         carrier_track_centerlines=list(carrier["track_centerlines"]),
     )
 
-    if alignment["alignment_state"] != "ALIGNED":
+    if (
+        alignment["alignment_state"] != "ALIGNED"
+        or carrier_alignment["carrier_alignment_state"] != "CARRIER_ALIGNED"
+    ):
         role = "MARKER_ALIGNMENT_REVIEW"
     elif topology["topology_state"] != "THROUGH_LINEAR_CARRIER":
         role = "CARRIER_TOPOLOGY_REVIEW"
@@ -249,6 +315,7 @@ def refine_graphical_candidate(
 
     item["carrier_topology_evidence"] = topology
     item["marker_alignment_evidence"] = alignment
+    item["marker_carrier_alignment_evidence"] = carrier_alignment
     item["transverse_section_evidence"] = transverse
     item["graphical_repair_role"] = role
     item["semantic_meaning"] = None
