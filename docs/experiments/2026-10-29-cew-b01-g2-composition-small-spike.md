@@ -53,7 +53,7 @@ G2A0 is provenance-preserving: every bundle retains every original `primitive_id
 
 The first TDD cycle introduced contracts for fusion of strongly co-spatial derived observations, separation of nearby distinct events, long-line exclusion from compact bundles, determinism and complete primitive-to-bundle provenance.
 
-RED head `4e4d46c3d395f5c1afd69936e17cf13a7421f2af` was not used; the actual G2A0 RED head was `4e4d46c3d395f5c16b8c66a371185f9cac5d042b`, which failed causally because the two G2A0 production modules did not yet exist. After implementation the focused gate passed.
+The G2A0 RED head `4e4d46c3d395f5c16b8c66a371185f9cac5d042b` failed causally because the two G2A0 production modules did not yet exist. After implementation the focused gate passed.
 
 A final self-review found an Important residual: CONTEXT still inherited an artificial `[:20]` presentation truncation. A second TDD cycle produced exact RED `20 != 25` on head `39f53ab067ac6cf6f0b32c95d7b624909ef69ea7`; the cap was removed and the G2A0 and Repository Memory gates returned GREEN.
 
@@ -89,7 +89,7 @@ The experimental neutral rules are intentionally narrow:
 
 These thresholds are experiment rules, not production, semantic or structural criteria.
 
-### G2B RED→GREEN evidence
+### G2B first RED→GREEN cycle
 
 The dedicated G2B RED head `28e99717dca4b08a6de218e880eeb2ad9a59da06` failed causally with:
 
@@ -103,11 +103,23 @@ After minimal implementation, exact head `89b71d35f4ebb2aaa47e6a0ce867a82ad81e7e
 
 The contracts cover NEAR-only demotion, dominant attached-line demotion, dominant closed/complex demotion, compact-contact retention, exact membership/provenance conservation, determinism and unchanged non-authority flags.
 
-### Exact real-source G2B replay
+### Final self-review correction: directional relations
 
-Two executions over the exact G2A0 result were byte-identical. Full replay SHA-256:
+Final self-review found one Important issue that did not alter membership counts but would have corrupted a future G2C relational signature: when the seed was the second endpoint of a relation edge, directional relations were copied without inversion. For example, if the other bundle `CONTAINS` the seed, the relation from the seed viewpoint must be `CONTAINED_BY`.
 
-`a15937547ccf2ae69e71fe306abfa2ed5d48534365ce8a3ba30d06b1210c859b`
+A new test-first cycle on head `89c73ef5493d4d611233bfc84d95a5638754cad8` produced the exact RED:
+
+`['CONTAINS', 'OVERLAPS'] != ['CONTAINED_BY', 'OVERLAPS']`
+
+All other seven G2B contracts passed on that RED. The implementation was then corrected so `CONTAINS <-> CONTAINED_BY` is normalized from the seed viewpoint while symmetric relations remain unchanged. On fix head `5e339fa96350cdb8501b835c9fee3ebb0f247615`, G2B, G2A0 and Repository Memory all passed.
+
+### Final exact real-source G2B replay
+
+Two post-fix executions over the exact G2A0 result were byte-identical. Final replay SHA-256:
+
+`5a10ac1aa57411a239e10dfbcf63fd5e1cb836884fc85cb5851b6396fa7701a1`
+
+The membership counts are unchanged by the directional correction:
 
 | Candidate | G2A0 CORE bundles | G2B nucleus bundles | Moved CORE→CONTEXT | Final CONTEXT bundles | Original observations remaining in nucleus |
 |---|---:|---:|---:|---:|---:|
@@ -132,6 +144,8 @@ For all eight candidates:
 
 both at bundle-ID level and at expanded original-primitive level. No evidence is dropped.
 
+The corrected replay also verifies the real reversed-containment case in C6: the dominant complex bundle is recorded from the seed viewpoint as `CONTAINED_BY + OVERLAPS`, not `CONTAINS + OVERLAPS`.
+
 ## Important G2B finding
 
 G2B succeeds at isolating a compact local nucleus, but the eight-case result also shows why **CORE alone cannot become the G2C family descriptor**.
@@ -140,11 +154,15 @@ C1, C3, C4, C5, C7 and C8 reduce to seed-only nuclei, although their attached or
 
 Therefore the output of G2B must be interpreted as:
 
-`NUCLEUS + PRESERVED RELATIONAL CONTEXT`
+`NUCLEUS + PRESERVED CONTEXT`
 
-not as a complete symbol definition. G2C must compare at least the nucleus together with a neutral signature of attached/near context and the relations/reason codes that caused the boundary decision. Otherwise distinct configurations could collapse into the same family simply because their nuclei are similar.
+not as a complete symbol definition.
 
-This is still fully pre-semantic. The context signature says how geometry is attached or positioned, not what that geometry means technically.
+A precise boundary is important here: G2B now preserves **all context bundle IDs and all original primitive provenance**, and it records normalized seed-relative relations for bundles represented by the incoming G2A0 relation graph. It does **not yet expose a complete relational descriptor for every pre-existing CONTEXT bundle**. Complete provenance must not be mistaken for a complete context-relation signature.
+
+Accordingly, a future G2C experiment must first export or reconstruct the selected relations for the preserved attached/near CONTEXT, then combine those neutral relations with the nucleus. Otherwise distinct configurations could collapse into the same family simply because their nuclei are similar.
+
+This remains fully pre-semantic: the descriptor may say how geometry is attached or positioned, not what that geometry means technically.
 
 ## Human review boundary
 
@@ -167,7 +185,8 @@ The bounded eight-seed evidence now supports:
 1. primitive recurrence is insufficient for compound-symbol families;
 2. co-spatial G1 observations require provenance-preserving G2A0 bundling;
 3. G2B can isolate a compact nucleus while conserving all evidence;
-4. binary nucleus membership alone is too lossy for G2C family induction unless preserved relational context remains part of the configuration descriptor.
+4. binary nucleus membership alone is too lossy for G2C family induction;
+5. directional relation evidence must be normalized from the seed viewpoint before it can participate in a neutral family descriptor.
 
 It does **not** prove that any candidate has a particular technical or structural identity. It does not authorize G3, structural identity, canonical writes, corpus-wide generalization or merge.
 
@@ -175,7 +194,7 @@ It does **not** prove that any candidate has a particular technical or structura
 
 Do not scale beyond these eight candidates yet.
 
-The next permitted action is a **human configuration review of the G2B micro-atlas**, followed by a neutral G2C descriptor experiment only if the review supports the boundaries. That future descriptor must combine:
+The next permitted action is a **human configuration review of the G2B micro-atlas**, followed by a neutral G2C descriptor experiment only if the review supports the boundaries. Before G2C comparison, the experiment must make the selected preserved-CONTEXT relations explicit. The future descriptor may then combine:
 
 - G2B nucleus topology/proportions;
 - attached-context relation signature;
