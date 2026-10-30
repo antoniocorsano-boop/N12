@@ -1,7 +1,7 @@
 # CEW Lessons Learned v1
 
 **Status:** ACTIVE  
-**Date:** 2026-10-29  
+**Date:** 2026-10-30  
 **Purpose:** preserve architectural/process lessons that should change future CEW behavior.
 
 ## LL-001 — Open/draft work is still project knowledge
@@ -216,6 +216,71 @@ Use the sequence:
 `neutral primitive -> recurring motif -> topology/spatial relation -> functional hypothesis -> human review`.
 
 The existing engineering invariant `TOPOLOGY_OUTRANKS_VISUAL_PROXIMITY_FOR_IDENTITY` must govern downstream interpretation. Specialist detectors belong after grammar/topology foundations, not before them.
+
+---
+
+## LL-018 — Column recognition must be multi-cue; symmetry axes are optional evidence
+
+**Observation**  
+The historical G4/TAV-05S pilot already contains five column footprint families, including elongated `30x110` supports 18 and 23 and `110x30` support 30. Human review of the drawing indicates that some elongated columns may lack drawn symmetry axes even though the support identifier is still visible or expected to be visible in/near the footprint.
+
+**Failure mode**  
+A detector that requires crossed symmetry axes before admitting a column candidate systematically loses valid elongated footprints and conflates “axis not drawn” with “column absent”. Conversely, treating a number alone as structural identity would over-promote text evidence.
+
+**Rule**  
+For column recovery, use a multi-cue sequence:
+
+`numeric/text anchor candidate -> local footprint geometry -> aspect ratio/orientation -> optional axis evidence -> prototype/family similarity -> human review`.
+
+Symmetry axes are supporting evidence, not a mandatory precondition. The numeric identifier is a localization cue, not structural identity.
+
+**Hypothesis to test:** `H-COL-01` — support identifiers are present for all or nearly all column footprints on the relevant carpenterie. This must be measured on the exact sources before becoming a project fact; do not encode “always present” as a detector assumption until verified.
+
+**Affected tasks/capabilities:** proposed `CEW-COL-01`, TAV-05S/TAV-07 column recovery, OA prototype/similarity reuse.
+
+**Source context:** qualified PR #169 checkpoint `f0b54e14f236aadba8a8950fe3a95c91b1c1b740`; historical G4 pilot families; issues #2 and #5.
+
+---
+
+## LL-019 — Carpenteria recognition should emerge from typed objects and relations, not from one-shot line extraction
+
+**Observation**  
+Independent raster analysis of TAV-03S/04S/05S/06S showed that long-line detectors also recover folds, sheet borders, title-block geometry and other non-structural lines. At the same time, current CEW work has shown that bounded object families can be learned and reviewed effectively through prototypes and Human Review.
+
+**Failure mode**  
+Attempting to recognize an entire carpenteria directly from page-wide linework creates a brittle mixture of structural elements and document graphics. A single global detector also hides which object category is incomplete or ambiguous.
+
+**Rule**  
+Reconstruct the carpenteria incrementally through separate typed passes, then compose their relations:
+
+`columns -> beams -> walls/setti -> slab edges/openings -> auxiliary axes/dimensions -> connectivity graph`.
+
+The final carpenteria is a graph/composition of reviewed objects and relations, not a page-level image classification result. Line evidence may support geometry but never creates structural identity by itself.
+
+**Affected tasks/capabilities:** CEW object acquisition, TAV-03S/04S/05S/06S reconstruction, future geometric model and connectivity graph.
+
+**Source context:** PR #59 raster concordance findings; PR #169 graphical beam prototypes and Human Review.
+
+---
+
+## LL-020 — Human graphical review should expand reusable project-local prototypes across object categories
+
+**Observation**  
+On PR #169, two approved graphical beam prototypes were sufficient to review the frozen DOUBLE set and a first expansion set, producing durable human decisions without automatic semantic promotion. The same pattern is directly applicable to columns and other carpenteria elements.
+
+**Failure mode**  
+Starting each object category with a new standalone detector discards validated human examples and repeats expensive threshold tuning. Keeping review decisions only in chat or screenshots also loses project learning.
+
+**Rule**  
+For each new object category, prefer:
+
+`small human-approved prototype set -> deterministic candidate retrieval -> visual Human Review -> governed reusable learning receipt -> next expansion pass`.
+
+Positive, negative and uncertain examples should remain durable project-local evidence. Prototype match remains graphical/retrieval evidence until downstream semantic and structural gates explicitly authorize promotion.
+
+**Affected tasks/capabilities:** proposed `CEW-COL-01`, future beam/column/setto/opening passes, OA-2/OA-3/OA-4 reuse.
+
+**Source context:** PR #169 Human Review `T1=10, T2=1` for expansion set E01–E11; existing LL-006 and LL-007.
 
 ---
 
