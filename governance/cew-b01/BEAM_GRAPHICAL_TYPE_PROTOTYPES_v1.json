@@ -1,0 +1,100 @@
+{
+  "schema_id": "CEW_B01_BEAM_GRAPHICAL_TYPE_PROTOTYPES",
+  "schema_version": 1,
+  "status": "HUMAN_APPROVED_GRAPHICAL_PROTOTYPES",
+  "scope": "TAV5_GRAPHICAL_REFERENCE_PROTOTYPES_ONLY",
+  "source": {
+    "repository": "antoniocorsano-boop/N12",
+    "path": "archive/documentazione_originaria/tavola 5.pdf",
+    "page_index": 0,
+    "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+    "approval_receipt": "governance/cew-b01/BEAM_TYPE_APPROVAL_MICRO_PILOT_v1.json",
+    "approval_commit": "83661985fbf1678adef397a6d0e3f3071bafe779"
+  },
+  "human_review": {
+    "review_date": "2026-10-30",
+    "decision": "BOTH_POSITIVE_TYPES_APPROVED",
+    "prototype_count": 2,
+    "negative_controls_still_pending": true
+  },
+  "prototypes": [
+    {
+      "prototype_id": "CEW-B01-BEAM-GRAPH-T1-v1",
+      "neutral_graphical_type": "CROSS_AXIS_DOUBLE_BAND_CANDIDATE",
+      "human_reference_label": "trave emergente",
+      "reference_mapping_status": "HUMAN_APPROVED",
+      "marker_primitive_id": "CEW-B01-GP-0585efea6643bfdd101c7e7b",
+      "marker_major_axis": "VERTICAL",
+      "carrier_orientation": "VERTICAL",
+      "source_marker_geometry": {
+        "x": 6073.0,
+        "y": 6760.0,
+        "width": 54.0,
+        "height": 162.0
+      },
+      "review_marker_geometry": {
+        "x": 6073.0,
+        "y": 6760.0,
+        "width": 54.0,
+        "height": 162.0
+      },
+      "carrier_id": "CEW-B01-LC-be66d300ee92916659a5d561",
+      "carrier_track_ids": [
+        "CEW-B01-LT-1c45dd2cc7c57b1c16d5dfcb",
+        "CEW-B01-LT-414f48be2c6ca6827716f7e6"
+      ],
+      "observed_cross_axis_counts": [3, 3],
+      "matched_cross_side_pair_count": 3,
+      "evidence_sources": [
+        "G1_LINE_TRACKS",
+        "RASTER_LOCAL_PROFILE"
+      ],
+      "source_crop": "beam-type-approval/double-01-CEW-B01-GP-0585efea6643bfdd101c7e7b.png",
+      "human_approved": true
+    },
+    {
+      "prototype_id": "CEW-B01-BEAM-GRAPH-T2-v1",
+      "neutral_graphical_type": "LONG_AXIS_DOUBLE_BAND_CANDIDATE",
+      "human_reference_label": "trave a spessore di solaio",
+      "reference_mapping_status": "HUMAN_APPROVED",
+      "marker_primitive_id": "CEW-B01-GP-218cf82b7d4970047f846baf",
+      "marker_major_axis": "HORIZONTAL",
+      "carrier_orientation": "HORIZONTAL",
+      "source_marker_geometry": {
+        "x": 4368.0,
+        "y": 10110.0,
+        "width": 276.0,
+        "height": 39.0
+      },
+      "review_marker_geometry": {
+        "x": 4368.0,
+        "y": 10110.0,
+        "width": 276.0,
+        "height": 39.0
+      },
+      "carrier_id": "CEW-B01-LC-bc4c9b1043de346a69577ba4",
+      "carrier_track_ids": [
+        "CEW-B01-LT-3b317599d919d54bb0a6ee5e",
+        "CEW-B01-LT-fd4862355ae1cd60178b0264"
+      ],
+      "observed_cross_axis_counts": [2, 2],
+      "matched_cross_side_pair_count": 2,
+      "evidence_sources": [
+        "G1_LINE_TRACKS",
+        "RASTER_LOCAL_PROFILE"
+      ],
+      "source_crop": "beam-type-approval/double-05-CEW-B01-GP-218cf82b7d4970047f846baf.png",
+      "human_approved": true
+    }
+  ],
+  "usage_boundary": {
+    "may_be_used_as_human_review_reference": true,
+    "may_seed_future_graphical_matching_experiment": true,
+    "automatic_semantic_classification_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_cad_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false
+  }
+}
