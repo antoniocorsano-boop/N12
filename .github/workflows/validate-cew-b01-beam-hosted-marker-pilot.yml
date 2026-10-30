@@ -4,8 +4,11 @@ on:
   pull_request:
     paths:
       - 'experiments/cew_b01/beam_hosted_markers.py'
+      - 'experiments/cew_b01/beam_hosted_marker_raster.py'
+      - 'experiments/cew_b01/beam_hosted_marker_hybrid.py'
       - 'tests/cew_b01/test_beam_hosted_markers.py'
       - 'tests/cew_b01/test_beam_hosted_marker_raster.py'
+      - 'tests/cew_b01/test_beam_hosted_marker_hybrid.py'
       - 'governance/cew-b01/BEAM_HOSTED_MARKER_PILOT_RESULT_v1.json'
       - 'docs/experiments/2026-10-30-cew-b01-beam-hosted-marker-design.md'
       - '.github/workflows/validate-cew-b01-beam-hosted-marker-pilot.yml'
@@ -33,4 +36,5 @@ jobs:
           set -euo pipefail
           python -m unittest \
             tests.cew_b01.test_beam_hosted_markers \
-            tests.cew_b01.test_beam_hosted_marker_raster -v
+            tests.cew_b01.test_beam_hosted_marker_raster \
+            tests.cew_b01.test_beam_hosted_marker_hybrid -v
