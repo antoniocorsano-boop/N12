@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from experiments.cew_col02.exact_source_audit import _pad_panel_to_width
+from experiments.cew_col02.review_atlas import _pad_panel_to_width
 
 
 class AtlasPaddingTests(unittest.TestCase):
