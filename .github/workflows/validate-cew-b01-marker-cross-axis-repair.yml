@@ -63,6 +63,45 @@ jobs:
           source "$RUNNER_TEMP/cew-b01-marker-cross-axis-repair/bin/activate"
           python -m experiments.cew_b01.marker_cross_axis_exact_source
 
+      - name: Export source-only review crops
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-b01-marker-cross-axis-repair/bin/activate"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import cv2
+
+          result_path = Path('evidence/cew-b01/marker-cross-axis-repair/marker-cross-axis-repair.json')
+          payload = json.loads(result_path.read_text(encoding='utf-8'))
+          raster = Path(os.environ['RUNNER_TEMP']) / 'cew-b01-marker-cross-axis-probe' / 'tav5-page0-300dpi.png'
+          image = cv2.imread(str(raster), cv2.IMREAD_GRAYSCALE)
+          assert image is not None
+          out = result_path.parent
+
+          cases = {
+              'c5-source-only.png': payload['c5'],
+              'c7-source-only.png': payload['c7'],
+              'legacy-double-source-only.png': payload['legacy_double_marker'],
+          }
+          for filename, record in cases.items():
+              assert record is not None
+              g = record['review_marker_geometry']
+              cx = float(g['x']) + float(g['width']) / 2.0
+              cy = float(g['y']) + float(g['height']) / 2.0
+              margin_x = max(260, int(round(float(g['width']) * 1.8)))
+              margin_y = max(220, int(round(float(g['height']) * 1.8)))
+              left = max(0, int(round(cx - margin_x)))
+              right = min(image.shape[1], int(round(cx + margin_x)))
+              top = max(0, int(round(cy - margin_y)))
+              bottom = min(image.shape[0], int(round(cy + margin_y)))
+              crop = image[top:bottom, left:right]
+              assert crop.size > 0
+              assert cv2.imwrite(str(out / filename), crop)
+          PY
+
       - name: Upload marker cross-axis repair evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
