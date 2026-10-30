@@ -1,0 +1,33 @@
+name: CEW-B01 Beam-Hosted Marker Pilot Unit Gate
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/cew_b01/beam_hosted_markers.py'
+      - 'tests/cew_b01/test_beam_hosted_markers.py'
+      - 'governance/cew-b01/BEAM_HOSTED_MARKER_PILOT_RESULT_v1.json'
+      - 'docs/experiments/2026-10-30-cew-b01-beam-hosted-marker-design.md'
+      - '.github/workflows/validate-cew-b01-beam-hosted-marker-pilot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  beam-hosted-marker-pilot-unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+      - name: Run beam-hosted marker pilot contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest tests.cew_b01.test_beam_hosted_markers -v
