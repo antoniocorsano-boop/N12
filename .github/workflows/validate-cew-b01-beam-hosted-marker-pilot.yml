@@ -53,4 +53,5 @@ jobs:
             tests.cew_b01.test_hosted_marker_occurrence_search \
             tests.cew_b01.test_hosted_marker_annotation_noise \
             tests.cew_b01.test_marker_grounding_repair \
-            tests.cew_b01.test_carrier_topology_descriptor -v
+            tests.cew_b01.test_carrier_topology_descriptor \
+            tests.cew_b01.test_transverse_band_signature -v
