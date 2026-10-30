@@ -154,6 +154,16 @@ class BeamHostedMarkerSignatureTests(unittest.TestCase):
         self.assertEqual(candidates[0]["graphical_state"], "RECT_ALONE_ON_CARRIER")
         self.assertEqual(len(candidates[0]["transverse_track_ids"]), 1)
 
+    def test_remote_orthogonal_track_inside_broad_window_does_not_complete_pair(self):
+        primitives = self._base_horizontal() + [
+            line("LOCAL", x=410, y=170, width=2, height=130, orientation="VERTICAL"),
+            line("REMOTE", x=585, y=170, width=2, height=130, orientation="VERTICAL"),
+        ]
+        candidate = build_hosted_marker_candidates(primitives, ["R"])[0]
+        self.assertEqual(candidate["graphical_state"], "RECT_ALONE_ON_CARRIER")
+        self.assertEqual(candidate["transverse_pair_track_ids"], [])
+        self.assertEqual(set(candidate["transverse_primitive_ids"]), {"LOCAL", "REMOTE"})
+
     def test_marker_outside_carrier_band_is_not_bound(self):
         primitives = [
             line("TOP", x=100, y=200, width=1000, height=2, orientation="HORIZONTAL"),
