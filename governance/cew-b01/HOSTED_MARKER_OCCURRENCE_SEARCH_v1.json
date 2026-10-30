@@ -1,41 +1,126 @@
 {
-  "atlas_review_candidates": [
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_ALONE_ON_CARRIER","marker_primitive_id":"CEW-B01-GP-c32b8a8b1dd37809a52ca78b","pair_evidence_sources":[],"prototype_distance":0.040506697319,"prototype_marker_primitive_id":"CEW-B01-GP-90cefb124e0b97a63acd1d9c","raster_pair_detected":false,"review_rank":1,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_ALONE_ON_CARRIER","marker_primitive_id":"CEW-B01-GP-5e3a391c3123ca8865575f40","pair_evidence_sources":[],"prototype_distance":0.042771068227,"prototype_marker_primitive_id":"CEW-B01-GP-90cefb124e0b97a63acd1d9c","raster_pair_detected":false,"review_rank":2,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_ALONE_ON_CARRIER","marker_primitive_id":"CEW-B01-GP-b1adb1855dd70b17b05b1d28","pair_evidence_sources":[],"prototype_distance":0.123333182233,"prototype_marker_primitive_id":"CEW-B01-GP-90cefb124e0b97a63acd1d9c","raster_pair_detected":false,"review_rank":3,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_ALONE_ON_CARRIER","marker_primitive_id":"CEW-B01-GP-36ecfa4b1eadae26244b2a5f","pair_evidence_sources":[],"prototype_distance":0.168372161683,"prototype_marker_primitive_id":"CEW-B01-GP-90cefb124e0b97a63acd1d9c","raster_pair_detected":false,"review_rank":4,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_ALONE_ON_CARRIER","marker_primitive_id":"CEW-B01-GP-aa78db57dbc3c0c6f01135c0","pair_evidence_sources":[],"prototype_distance":0.191464609891,"prototype_marker_primitive_id":"CEW-B01-GP-90cefb124e0b97a63acd1d9c","raster_pair_detected":false,"review_rank":5,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_ALONE_ON_CARRIER","marker_primitive_id":"CEW-B01-GP-0f028215d315571ebbccfbdc","pair_evidence_sources":[],"prototype_distance":0.204213154756,"prototype_marker_primitive_id":"CEW-B01-GP-90cefb124e0b97a63acd1d9c","raster_pair_detected":false,"review_rank":6,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"VERTICAL","graphical_state":"RECT_ALONE_ON_CARRIER","marker_primitive_id":"CEW-B01-GP-47fc0aa31c18f3587ddd55df","pair_evidence_sources":[],"prototype_distance":0.271993170274,"prototype_marker_primitive_id":"CEW-B01-GP-90cefb124e0b97a63acd1d9c","raster_pair_detected":false,"review_rank":7,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"VERTICAL","graphical_state":"RECT_ALONE_ON_CARRIER","marker_primitive_id":"CEW-B01-GP-26941b7c8361df52b09667c8","pair_evidence_sources":[],"prototype_distance":0.29277351954,"prototype_marker_primitive_id":"CEW-B01-GP-90cefb124e0b97a63acd1d9c","raster_pair_detected":false,"review_rank":8,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_ALONE_ON_CARRIER","marker_primitive_id":"CEW-B01-GP-5e196b651f40c22f746589d4","pair_evidence_sources":[],"prototype_distance":0.409758949051,"prototype_marker_primitive_id":"CEW-B01-GP-90cefb124e0b97a63acd1d9c","raster_pair_detected":false,"review_rank":9,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_ALONE_ON_CARRIER","marker_primitive_id":"CEW-B01-GP-cf4860204d8bb1c826d35f40","pair_evidence_sources":[],"prototype_distance":0.440516693907,"prototype_marker_primitive_id":"CEW-B01-GP-90cefb124e0b97a63acd1d9c","raster_pair_detected":false,"review_rank":10,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_ALONE_ON_CARRIER","marker_primitive_id":"CEW-B01-GP-8ad9210f08c2745f09b95152","pair_evidence_sources":[],"prototype_distance":0.458683241709,"prototype_marker_primitive_id":"CEW-B01-GP-90cefb124e0b97a63acd1d9c","raster_pair_detected":false,"review_rank":11,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_ALONE_ON_CARRIER","marker_primitive_id":"CEW-B01-GP-7ceac4b00b99f9713a87f05d","pair_evidence_sources":[],"prototype_distance":0.46338496412,"prototype_marker_primitive_id":"CEW-B01-GP-90cefb124e0b97a63acd1d9c","raster_pair_detected":false,"review_rank":12,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE","marker_primitive_id":"CEW-B01-GP-ac943ba66078cb4acc385cf4","pair_evidence_sources":["RASTER_LOCAL_PROFILE"],"prototype_distance":0.131463139562,"prototype_marker_primitive_id":"CEW-B01-GP-f5bf9ee85705380152aae053","raster_pair_detected":true,"review_rank":13,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE","marker_primitive_id":"CEW-B01-GP-6dd4d51dc1e635ed15ed3abd","pair_evidence_sources":["PRIMITIVE_LOCAL_TRACK_PAIR"],"prototype_distance":0.377588142599,"prototype_marker_primitive_id":"CEW-B01-GP-f5bf9ee85705380152aae053","raster_pair_detected":false,"review_rank":14,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE","marker_primitive_id":"CEW-B01-GP-5cb66f258949a784ec3b6f46","pair_evidence_sources":["RASTER_LOCAL_PROFILE"],"prototype_distance":0.797392220567,"prototype_marker_primitive_id":"CEW-B01-GP-f5bf9ee85705380152aae053","raster_pair_detected":true,"review_rank":15,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"VERTICAL","graphical_state":"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE","marker_primitive_id":"CEW-B01-GP-55981018f3091029ea46a41f","pair_evidence_sources":["RASTER_LOCAL_PROFILE"],"prototype_distance":0.917786496489,"prototype_marker_primitive_id":"CEW-B01-GP-f5bf9ee85705380152aae053","raster_pair_detected":true,"review_rank":16,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE","marker_primitive_id":"CEW-B01-GP-8b7eae9c9f25bb1d73c6f504","pair_evidence_sources":["PRIMITIVE_LOCAL_TRACK_PAIR"],"prototype_distance":1.069758140647,"prototype_marker_primitive_id":"CEW-B01-GP-f5bf9ee85705380152aae053","raster_pair_detected":false,"review_rank":17,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"VERTICAL","graphical_state":"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE","marker_primitive_id":"CEW-B01-GP-d9cd4a30759793fcd45f27ad","pair_evidence_sources":["RASTER_LOCAL_PROFILE"],"prototype_distance":1.260298184402,"prototype_marker_primitive_id":"CEW-B01-GP-f5bf9ee85705380152aae053","raster_pair_detected":true,"review_rank":18,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"VERTICAL","graphical_state":"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE","marker_primitive_id":"CEW-B01-GP-7c4f026034b4c156b84eacc5","pair_evidence_sources":["RASTER_LOCAL_PROFILE"],"prototype_distance":1.727577087799,"prototype_marker_primitive_id":"CEW-B01-GP-f5bf9ee85705380152aae053","raster_pair_detected":true,"review_rank":19,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"VERTICAL","graphical_state":"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE","marker_primitive_id":"CEW-B01-GP-74cc5059c1b58bfbc0d58648","pair_evidence_sources":["RASTER_LOCAL_PROFILE"],"prototype_distance":1.753001549154,"prototype_marker_primitive_id":"CEW-B01-GP-f5bf9ee85705380152aae053","raster_pair_detected":true,"review_rank":20,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE","marker_primitive_id":"CEW-B01-GP-a69f11dbf6233e55947dc2b9","pair_evidence_sources":["RASTER_LOCAL_PROFILE"],"prototype_distance":1.935106056847,"prototype_marker_primitive_id":"CEW-B01-GP-f5bf9ee85705380152aae053","raster_pair_detected":true,"review_rank":21,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"HORIZONTAL","graphical_state":"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE","marker_primitive_id":"CEW-B01-GP-0a419c52f5c0e4b0fd89dde2","pair_evidence_sources":["RASTER_LOCAL_PROFILE"],"prototype_distance":1.960423864846,"prototype_marker_primitive_id":"CEW-B01-GP-f5bf9ee85705380152aae053","raster_pair_detected":true,"review_rank":22,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"VERTICAL","graphical_state":"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE","marker_primitive_id":"CEW-B01-GP-492fa7e2d60f0f48b26c62b9","pair_evidence_sources":["PRIMITIVE_LOCAL_TRACK_PAIR","RASTER_LOCAL_PROFILE"],"prototype_distance":1.975694394244,"prototype_marker_primitive_id":"CEW-B01-GP-f5bf9ee85705380152aae053","raster_pair_detected":true,"review_rank":23,"review_state":"UNREVIEWED"},
-    {"carrier_orientation":"VERTICAL","graphical_state":"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE","marker_primitive_id":"CEW-B01-GP-170208dcb885d5ca5beed9ea","pair_evidence_sources":["PRIMITIVE_LOCAL_TRACK_PAIR","RASTER_LOCAL_PROFILE"],"prototype_distance":2.082882599187,"prototype_marker_primitive_id":"CEW-B01-GP-f5bf9ee85705380152aae053","raster_pair_detected":true,"review_rank":24,"review_state":"UNREVIEWED"}
+  "annotation_dominated": [
+    {
+      "enclosed_component_area": 103,
+      "graphical_state": "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE",
+      "marker_primitive_id": "CEW-B01-GP-8b7eae9c9f25bb1d73c6f504",
+      "signals": ["ENCLOSED_INTERNAL_INK", "TEXT_BLOCK_OVERLAP"],
+      "text_component_areas": {"CEW-B01-GP-5d043aa4204b8534ab7a64fa": 15.0, "CEW-B01-GP-f13d2a58bf20485d97e1a7df": 88.0}
+    },
+    {
+      "enclosed_component_area": 567,
+      "graphical_state": "RECT_ALONE_ON_CARRIER",
+      "marker_primitive_id": "CEW-B01-GP-cf4860204d8bb1c826d35f40",
+      "signals": ["ENCLOSED_INTERNAL_INK"],
+      "text_component_areas": {}
+    },
+    {
+      "enclosed_component_area": 424,
+      "graphical_state": "RECT_ALONE_ON_CARRIER",
+      "marker_primitive_id": "CEW-B01-GP-dd6f0d8649bb8b6add8e0507",
+      "signals": ["ENCLOSED_INTERNAL_INK", "TEXT_BLOCK_OVERLAP"],
+      "text_component_areas": {"CEW-B01-GP-a909cd989485759172eb47dc": 232.0}
+    },
+    {
+      "enclosed_component_area": 504,
+      "graphical_state": "RECT_ALONE_ON_CARRIER",
+      "marker_primitive_id": "CEW-B01-GP-f417c150f3a1b9a8d30c7d03",
+      "signals": ["ENCLOSED_INTERNAL_INK", "TEXT_BLOCK_OVERLAP"],
+      "text_component_areas": {"CEW-B01-GP-7293ee2d60265dafed50f95a": 294.0}
+    }
   ],
-  "authority": {"canonical_write_authorized":false,"g2c_promotion_authorized":false,"g3_authorized":false,"merge_authorized":false,"semantic_classification_authorized":false,"structural_identity_authorized":false},
-  "evidence": {"artifact_digest":"sha256:71f518e9c4b547dfae9504e20dd3428ee3067fbdbe9c0cdd0b5dd2ec39cfa520","artifact_id":12962641547,"artifact_name":"cew-b01-hosted-marker-occurrence-search","double_replay_deterministic":true,"exact_source_search_run":41022519552,"memory_gate_run":41022519482,"replay_sha256":"b94f267a50e204712a50e66b731beff2bc29694e80312bc39936ed2bcc427c04","search_head":"38ddcab4032811635ee289eb0142f2f57b89c3ef","unit_gate_run":41022519713},
-  "findings": ["All 124 exact-source RECTILINEAR_CLOSED_SHAPE observations were scanned through the frozen local-carrier and hybrid raster pipeline.","50 observations bind to a local carrier under the qualified rules: 28 RECT_ALONE_ON_CARRIER and 22 RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE.","After excluding frozen C5/C7 prototypes, 48 additional occurrences remain: 27 ALONE and 21 PAIR.","The bounded atlas contains the 12 nearest additional occurrences per graphical state, 24 panels total.","The review set contains both horizontal and vertical carriers and heterogeneous evidence sources, so prototype distance is review ordering only.","No threshold was relaxed and no minimum additional-occurrence count was required."],
-  "frozen_prototypes": {"RECT_ALONE_ON_CARRIER":{"human_semantic_hypothesis":"BEAM_DOES_NOT_CARRY_SLAB","hypothesis_status":"UNVALIDATED_HUMAN_HYPOTHESIS","marker_primitive_id":"CEW-B01-GP-90cefb124e0b97a63acd1d9c"},"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE":{"human_semantic_hypothesis":"BEAM_CARRIES_SLAB","hypothesis_status":"UNVALIDATED_HUMAN_HYPOTHESIS","marker_primitive_id":"CEW-B01-GP-f5bf9ee85705380152aae053"}},
-  "human_review": {"allowed_decisions":["GRAPHICAL_MATCH","GRAPHICAL_NON_MATCH","ARTIFACT","UNCERTAIN"],"note":"Similarity ranking orders review only; it does not promote graphical or structural identity.","semantic_decisions_allowed":false,"status":"PENDING"},
-  "next_gate":"HUMAN_GRAPHICAL_REVIEW_OF_24_PANEL_ATLAS",
-  "qualified_parent": {"code_head":"5daa6e1f8dd43654a3627b155c0d6dc0c37c820e","documentation_freeze_head":"69ea22a55cef6e3361ce88d80df3ac15a64ea3d0","pr":167},
-  "schema_id":"CEW_B01_HOSTED_MARKER_OCCURRENCE_SEARCH_RESULT",
-  "schema_version":1,
-  "scope":"TAV5_ONLY",
-  "search_result": {"additional_ranked_count":48,"additional_ranked_counts_by_graphical_state":{"RECT_ALONE_ON_CARRIER":27,"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE":21},"atlas_limit_per_state":12,"atlas_selected_count":24,"counts_by_graphical_state":{"RECT_ALONE_ON_CARRIER":28,"RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE":22},"hosted_marker_occurrence_count":50,"neutral_carrier_candidate_count":71,"reconstructed_line_track_count":158},
-  "source": {"axis_line_segment_count":733,"page_index":0,"path":"archive/documentazione_originaria/tavola 5.pdf","primitive_count":5633,"rectilinear_seed_count":124,"repository":"antoniocorsano-boop/N12","source_sha256":"2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580"},
-  "status":"SEARCH_PASS_HUMAN_REVIEW_PENDING"
+  "annotation_separation": {
+    "ignored_text_noise_preserved": true,
+    "internal_ink_materiality": "Require enclosed ink area >= max(8 px, 1% marker area). Components reaching marker border band are not internal annotation ink.",
+    "pair_provenance_overlay": {"CARRIER": "GREEN", "MARKER": "RED", "PRIMITIVE_LOCAL_TRACK_PAIR": "MAGENTA", "RASTER_LOCAL_PROFILE": "BLUE"},
+    "principle": "Preserve every carrier-bound occurrence; separate candidate role rather than delete evidence.",
+    "roles": ["REVIEW_ELIGIBLE", "ANNOTATION_DOMINATED"],
+    "signals": ["TEXT_BLOCK_OVERLAP", "ENCLOSED_INTERNAL_INK"],
+    "text_materiality": "Use effective G1 TEXT_BLOCK component_area inside marker when available; require >= max(8 px, 1% marker area). Bounding-box overlap is localization/provenance only."
+  },
+  "authority": {
+    "canonical_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false,
+    "semantic_classification_authorized": false,
+    "structural_identity_authorized": false
+  },
+  "evidence": {
+    "artifact_digest": "sha256:d65d9cbea92be7cd150fb5889bb7f6ca79e2884db4605f29cd2f81423ddf5cb9",
+    "artifact_id": 12965071190,
+    "artifact_name": "cew-b01-hosted-marker-occurrence-search",
+    "double_replay_deterministic": true,
+    "exact_source_search_run": 41028668771,
+    "implementation_evidence_head": "2f2b1229df35996f434b2664baa097e2c89f3d8b",
+    "memory_gate_run": 41028668719,
+    "replay_sha256": "f68cfaccb496bd5c8d6b90ed4dbc68d4a3c242bcb9b905c5d01bfbf7ffd76459",
+    "unit_contract_count": 41,
+    "unit_gate_run": 41028668720
+  },
+  "findings": [
+    "All 50 carrier-bound rectangles remain preserved in all_bound_occurrences.",
+    "Human review findings A10/A17 exposed annotation/dimension contamination in the initial review set.",
+    "Exact-source debugging showed C7 contained a spurious 2x2 G1 TEXT_BLOCK; any-overlap filtering was invalid.",
+    "A second visual audit found a valid PAIR marker falsely rejected by a 19x7 TEXT_BLOCK whose real component ink was only 41 px (~0.51% marker area).",
+    "Using real TEXT_BLOCK component area rather than bounding-box area yields 46 review-eligible and 4 annotation-dominated occurrences.",
+    "The four remaining annotation-dominated cases are visually annotation/dimension boxes; the formerly rejected valid PAIR marker is restored.",
+    "Pair evidence provenance is now rendered for both G1 primitive pairs and raster local-profile recovery."
+  ],
+  "frozen_prototypes": {
+    "RECT_ALONE_ON_CARRIER": {
+      "human_semantic_hypothesis": "BEAM_DOES_NOT_CARRY_SLAB",
+      "hypothesis_status": "UNVALIDATED_HUMAN_HYPOTHESIS",
+      "marker_primitive_id": "CEW-B01-GP-90cefb124e0b97a63acd1d9c"
+    },
+    "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE": {
+      "human_semantic_hypothesis": "BEAM_CARRIES_SLAB",
+      "hypothesis_status": "UNVALIDATED_HUMAN_HYPOTHESIS",
+      "marker_primitive_id": "CEW-B01-GP-f5bf9ee85705380152aae053"
+    }
+  },
+  "human_review": {
+    "allowed_decisions": ["GRAPHICAL_MATCH", "GRAPHICAL_NON_MATCH", "ARTIFACT", "UNCERTAIN"],
+    "note": "Similarity ranking orders review only; annotation separation is evidence filtering, not semantic promotion.",
+    "semantic_decisions_allowed": false,
+    "status": "PENDING_REVISED_ATLAS"
+  },
+  "next_gate": "HUMAN_GRAPHICAL_REVIEW_OF_REVISED_24_PANEL_ATLAS",
+  "qualified_parent": {
+    "code_head": "5daa6e1f8dd43654a3627b155c0d6dc0c37c820e",
+    "documentation_freeze_head": "69ea22a55cef6e3361ce88d80df3ac15a64ea3d0",
+    "pr": 167
+  },
+  "regression_cases": {
+    "A10": {"expected_role": "ANNOTATION_DOMINATED", "marker_primitive_id": "CEW-B01-GP-cf4860204d8bb1c826d35f40"},
+    "A17": {"expected_role": "ANNOTATION_DOMINATED", "marker_primitive_id": "CEW-B01-GP-8b7eae9c9f25bb1d73c6f504"},
+    "C5": {"expected_graphical_state": "RECT_ALONE_ON_CARRIER", "expected_role": "REVIEW_ELIGIBLE", "marker_primitive_id": "CEW-B01-GP-90cefb124e0b97a63acd1d9c"},
+    "C7": {"expected_graphical_state": "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE", "expected_role": "REVIEW_ELIGIBLE", "marker_primitive_id": "CEW-B01-GP-f5bf9ee85705380152aae053"},
+    "R03_recovered": {"expected_role": "REVIEW_ELIGIBLE", "marker_primitive_id": "CEW-B01-GP-7c4f026034b4c156b84eacc5", "note": "41 px TEXT_BLOCK component (~0.51% marker area) preserved as ignored tiny text evidence"}
+  },
+  "schema_id": "CEW_B01_HOSTED_MARKER_OCCURRENCE_SEARCH_RESULT",
+  "schema_version": 2,
+  "scope": "TAV5_ONLY",
+  "search_result": {
+    "additional_ranked_count": 44,
+    "additional_ranked_counts_by_graphical_state": {"RECT_ALONE_ON_CARRIER": 24, "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE": 20},
+    "all_bound_occurrence_count": 50,
+    "annotation_dominated_count": 4,
+    "atlas_limit_per_state": 12,
+    "atlas_selected_count": 24,
+    "counts_by_graphical_state": {"RECT_ALONE_ON_CARRIER": 25, "RECT_PLUS_TRANSVERSE_PAIR_CANDIDATE": 21},
+    "neutral_carrier_candidate_count": 71,
+    "reconstructed_line_track_count": 158,
+    "review_eligible_occurrence_count": 46
+  },
+  "source": {
+    "axis_line_segment_count": 733,
+    "page_index": 0,
+    "path": "archive/documentazione_originaria/tavola 5.pdf",
+    "primitive_count": 5633,
+    "rectilinear_seed_count": 124,
+    "repository": "antoniocorsano-boop/N12",
+    "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580"
+  },
+  "status": "SEARCH_REWORK_PASS_HUMAN_GRAPHICAL_REVIEW_PENDING"
 }
