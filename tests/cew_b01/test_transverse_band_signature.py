@@ -126,6 +126,29 @@ class TransverseBandSignatureTests(unittest.TestCase):
         self.assertEqual(len(result["raster_positive_strokes"]), 2)
         self.assertEqual(result["evidence_sources"], ["RASTER_LOCAL_PROFILE"])
 
+    def test_marker_edge_bleed_is_preserved_but_not_counted_as_transverse_band(self):
+        binary = blank()
+        draw_vertical(binary, 96, 84, 116, width=4)
+        draw_vertical(binary, 141, 84, 116, width=4)
+        result = describe_transverse_band(horizontal_candidate(), carrier_tracks(), binary)
+        self.assertEqual(result["graphical_state"], "RECT_ALONE_ON_CARRIER")
+        self.assertEqual(result["negative_side_count"], 0)
+        self.assertEqual(result["positive_side_count"], 0)
+        self.assertEqual(result["raster_negative_strokes"], [])
+        self.assertEqual(result["raster_positive_strokes"], [])
+        self.assertEqual(len(result["raster_marker_edge_bleed_strokes"]), 2)
+
+    def test_true_two_plus_two_outside_edge_halo_remains_complete(self):
+        binary = blank()
+        for x in (76, 86, 154, 164):
+            draw_vertical(binary, x, 84, 116, width=2)
+        draw_vertical(binary, 96, 84, 116, width=4)
+        draw_vertical(binary, 141, 84, 116, width=4)
+        result = describe_transverse_band(horizontal_candidate(), carrier_tracks(), binary)
+        self.assertEqual(result["graphical_state"], "RECT_PLUS_DOUBLE_TRANSVERSE_BAND")
+        self.assertEqual((result["negative_side_count"], result["positive_side_count"]), (2, 2))
+        self.assertEqual(len(result["raster_marker_edge_bleed_strokes"]), 2)
+
     def test_reversed_tracks_are_byte_deterministic(self):
         tracks = carrier_tracks() + [
             track("N1", orientation="VERTICAL", centerline=76, start=80, end=120),
