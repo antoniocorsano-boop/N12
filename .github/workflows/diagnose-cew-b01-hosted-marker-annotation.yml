@@ -1,0 +1,118 @@
+name: CEW-B01 Hosted-Marker Annotation Diagnostic
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/diagnose-cew-b01-hosted-marker-annotation.yml'
+      - 'experiments/cew_b01/hosted_marker_occurrence_search.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose-hosted-marker-annotation:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+      - name: Install frozen Tesseract system package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+      - name: Install frozen B01 toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-b01-annotation-diag"
+          source "$RUNNER_TEMP/cew-b01-annotation-diag/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
+      - name: Fetch frozen archival source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+      - name: Diagnose exact TAV.5 annotation evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-b01-annotation-diag/bin/activate"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import cv2
+          from cew_b01.document_zoning import propose_document_zones
+          from cew_b01.evidence_schema import Task3RasterBinding
+          from cew_b01.pdf_probe import probe_pdf
+          from cew_b01.primitive_census import _analysis_binary, _confirmed_analysis_mask, extract_neutral_primitives
+          from cew_b01.source_contract import load_source_contract, materialize_source
+          from cew_b01.zone_review_package import confirmed_zones_from_receipt, zone_set_digest
+          from experiments.cew_b01.hosted_marker_occurrence_search import analyze_hosted_marker_occurrences
+
+          SOURCE_SHA = '2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580'
+          CASES = {
+              'C5': 'CEW-B01-GP-90cefb124e0b97a63acd1d9c',
+              'C7': 'CEW-B01-GP-f5bf9ee85705380152aae053',
+              'A10': 'CEW-B01-GP-cf4860204d8bb1c826d35f40',
+              'A17': 'CEW-B01-GP-8b7eae9c9f25bb1d73c6f504',
+          }
+          runner_temp = Path(os.environ['RUNNER_TEMP'])
+          out = Path('evidence/cew-b01/hosted-marker-annotation-diagnostic')
+          out.mkdir(parents=True, exist_ok=True)
+          contract = load_source_contract('governance/cew-b01/N12_TAV5_SOURCE_v1.json')
+          materialized = materialize_source(contract, '.', runner_temp / 'tavola5-annotation-diag-source.pdf')
+          assert materialized.sha256 == SOURCE_SHA
+          probe_dir = runner_temp / 'cew-b01-annotation-diag-probe'
+          probe = probe_pdf(materialized, probe_dir)
+          binding = Task3RasterBinding.from_probe_mapping(probe.to_mapping())
+          raster_path = probe_dir / 'tav5-page0-300dpi.png'
+          proposed = propose_document_zones(binding, raster_path)
+          receipt = json.loads(Path('governance/cew-b01/TAV5_DOCUMENT_ZONE_REVIEW_v1.json').read_text(encoding='utf-8'))
+          zones = confirmed_zones_from_receipt(binding, proposed, receipt)
+          assert zone_set_digest(zones) == receipt['zone_set_digest']
+          primitives = [item.to_mapping() for item in extract_neutral_primitives(binding, raster_path, zones)]
+          assert len(primitives) == 5633
+          image = cv2.imread(str(raster_path), cv2.IMREAD_GRAYSCALE)
+          assert image is not None
+          mask = _confirmed_analysis_mask(binding, zones)
+          _analysis, binary = _analysis_binary(image, mask)
+          result = analyze_hosted_marker_occurrences(primitives, binary > 0)
+          by_id = {item['marker_primitive_id']: item for item in result['all_bound']}
+          diagnostics = {}
+          for label, pid in CASES.items():
+              item = by_id[pid]
+              diagnostics[label] = {
+                  'marker_primitive_id': pid,
+                  'candidate_role': item['candidate_role'],
+                  'graphical_state': item['graphical_state'],
+                  'pair_evidence_sources': item.get('pair_evidence_sources', []),
+                  'primitive_pair_track_ids': item.get('transverse_pair_track_ids', []),
+                  'raster_pair_detected': bool((item.get('raster_transverse_evidence') or {}).get('pair_detected')),
+                  'annotation_evidence': item['annotation_evidence'],
+                  'marker_geometry': item['marker_geometry'],
+              }
+          path = out / 'annotation-diagnostic.json'
+          path.write_text(json.dumps(diagnostics, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print('ANNOTATION_DIAGNOSTIC=' + json.dumps(diagnostics, sort_keys=True))
+          PY
+      - name: Upload annotation diagnostic
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-b01-hosted-marker-annotation-diagnostic
+          path: evidence/cew-b01/hosted-marker-annotation-diagnostic/
+          if-no-files-found: error
+          retention-days: 30
