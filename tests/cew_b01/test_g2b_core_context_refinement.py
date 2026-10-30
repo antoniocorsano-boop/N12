@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import unittest
 
 from experiments.cew_b01.g2b_core_context_refinement import refine_candidate
@@ -59,6 +58,16 @@ class G2BCoreContextRefinementTests(unittest.TestCase):
         out = refine_candidate(c)
         self.assertEqual(out["g2b_core_bundle_ids"], ["seed"])
         self.assertEqual(out["boundary_decisions"]["large"]["reason"], "DOMINANT_CLOSED_OR_COMPLEX_CONTEXT")
+
+    def test_directional_relations_are_normalized_from_seed_viewpoint(self):
+        seed = bundle("seed", ["RECTILINEAR_CLOSED_SHAPE"], x=100, y=100, w=100, h=50)
+        large = bundle("large", ["COMPLEX_GRAPHIC_GROUP"], x=90, y=90, w=180, h=90)
+        c = candidate([seed, large], [{"a": "large", "b": "seed", "relations": ["CONTAINS", "OVERLAPS"]}])
+        out = refine_candidate(c)
+        self.assertEqual(
+            out["boundary_decisions"]["large"]["seed_relations"],
+            ["CONTAINED_BY", "OVERLAPS"],
+        )
 
     def test_compact_overlapping_derived_event_stays_core(self):
         seed = bundle("seed", ["RECTILINEAR_CLOSED_SHAPE"], x=100, y=100, w=100, h=50)
