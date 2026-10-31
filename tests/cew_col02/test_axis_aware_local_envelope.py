@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import unittest
+from unittest import mock
 
 import cv2
 import numpy as np
 
+import experiments.cew_col02.axis_aware_local_envelope as local_envelope
 from experiments.cew_col02.axis_aware_local_envelope import reconstruct_local_axis_envelope
 
 
@@ -87,6 +89,37 @@ class LocalAxisEnvelopeTests(unittest.TestCase):
         self.assertAlmostEqual(bbox["y"], y / 2400, delta=0.004)
         self.assertAlmostEqual(bbox["width"], width / 1800, delta=0.004)
         self.assertAlmostEqual(bbox["height"], height / 2400, delta=0.004)
+
+    def test_large_source_retries_legacy_half_scale_only_after_native_failure(self) -> None:
+        image = np.full((2400, 1800), 255, dtype=np.uint8)
+        seed = {"x": 0.50, "y": 0.45, "width": 0.02, "height": 0.01}
+        legacy_result = {
+            "bbox": {"x": 0.49, "y": 0.44, "width": 0.04, "height": 0.02},
+            "detector": "LOCAL_AXIS_AWARE_FOUR_SIDE_ENVELOPE_REPAIR",
+        }
+
+        single_scale = getattr(local_envelope, "_reconstruct_local_axis_envelope_single_scale", None)
+        self.assertTrue(callable(single_scale), "single-scale detector seam is missing")
+        with mock.patch.object(
+            local_envelope,
+            "_reconstruct_local_axis_envelope_single_scale",
+            side_effect=[None, legacy_result],
+        ) as detector:
+            result = reconstruct_local_axis_envelope(image, seed)
+
+        self.assertEqual(detector.call_count, 2)
+        native_call, legacy_call = detector.call_args_list
+        self.assertEqual(native_call.args[0].shape, (2400, 1800))
+        self.assertEqual(native_call.kwargs["margin_floor"], 180)
+        self.assertEqual(native_call.kwargs["margin_cap"], 840)
+        self.assertEqual(legacy_call.args[0].shape, (1200, 900))
+        self.assertEqual(legacy_call.kwargs["margin_floor"], 90)
+        self.assertEqual(legacy_call.kwargs["margin_cap"], 420)
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertEqual(result["bbox"], legacy_result["bbox"])
+        self.assertEqual(result["detector"], "LOCAL_AXIS_AWARE_FOUR_SIDE_ENVELOPE_REPAIR_HALF_SCALE_FALLBACK")
+        self.assertEqual(result["analysis_scale_factor"], 0.5)
 
 
 if __name__ == "__main__":
