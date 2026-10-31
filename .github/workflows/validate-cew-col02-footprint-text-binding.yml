@@ -7,7 +7,9 @@ on:
       - 'tests/cew_col02/**'
       - 'governance/cew-col02/**'
       - 'docs/experiments/2026-10-30-cew-col02-footprint-text-binding-design.md'
+      - 'docs/experiments/2026-10-31-cew-col02-residual-occurrence-reconciliation-design.md'
       - 'docs/superpowers/plans/2026-10-30-cew-col02-footprint-text-binding.md'
+      - 'docs/superpowers/plans/2026-10-31-cew-col02-residual-occurrence-reconciliation.md'
       - '.github/workflows/validate-cew-col02-footprint-text-binding.yml'
   workflow_dispatch:
 
@@ -90,6 +92,31 @@ jobs:
           set -euo pipefail
           source "$RUNNER_TEMP/cew-col02/bin/activate"
           python -m experiments.cew_col02.occurrence_sweep_exact_source
+      - name: Execute residual occurrence reconciliation
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col02/bin/activate"
+          python -m experiments.cew_col02.residual_occurrence_reconciliation_exact_source
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('evidence/cew-col02/footprint-text-binding/col02-residual-occurrence-reconciliation.json')
+          data=json.loads(p.read_text(encoding='utf-8'))
+          assert data['residual_candidate_review_complete'] is True
+          assert data['occurrence_coverage_complete'] is False
+          assert data['authority']['graphical_reconciliation_review_authorized'] is True
+          for key in (
+              'support_identity_authorized','text_identity_binding_authorized','family_assignment_authorized',
+              'section_assignment_authorized','fixed_line_assignment_authorized','structural_identity_authorized',
+              'canonical_geometry_authorized','canonical_write_authorized','g2c_promotion_authorized',
+              'g3_authorized','merge_authorized'
+          ):
+              assert data['authority'][key] is False, key
+          assert len(data['reframe_tasks']) == 2
+          assert len(data['point_reconciliation']) == 4
+          print('CEW_COL02_RESIDUAL_RECONCILIATION_AUTHORITY=PASS')
+          PY
       - name: Upload COL-02 evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
