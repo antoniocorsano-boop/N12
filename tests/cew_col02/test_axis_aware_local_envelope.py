@@ -177,6 +177,51 @@ class LocalAxisEnvelopeTests(unittest.TestCase):
 
         self.assertIsNone(selector([first, competing]))
 
+    def test_composite_projection_band_exposes_edge_boundary_hypotheses(self) -> None:
+        variants = getattr(local_envelope, "_boundary_band_variants", None)
+        self.assertTrue(callable(variants), "composite boundary-band variant seam is missing")
+        assert callable(variants)
+
+        ordinary = {"position": 20, "start": 18, "end": 22, "support": 50}
+        composite = {"position": 40, "start": 30, "end": 45, "support": 80}
+        rows = variants([ordinary, composite], line_run=10)
+
+        self.assertEqual([row["position"] for row in rows], [20, 30, 40, 45])
+        self.assertEqual(ordinary, {"position": 20, "start": 18, "end": 22, "support": 50})
+        self.assertEqual(composite, {"position": 40, "start": 30, "end": 45, "support": 80})
+
+    def test_bilateral_external_axis_continuation_bridges_interior_axis_gap(self) -> None:
+        image = np.full((500, 700), 255, dtype=np.uint8)
+
+        # Complete rectangular symbol with a horizontal structural axis.
+        cv2.rectangle(image, (200, 220), (520, 300), 0, 3)
+        cv2.line(image, (30, 260), (670, 260), 0, 2)
+
+        # The vertical structural axis is collinear above and below the symbol,
+        # but deliberately interrupted inside it. This models the exact-source
+        # WSR-003 failure class: bilateral continuation is the graphical evidence
+        # that must permit bounded axis-gap bridging without inventing identity.
+        cv2.line(image, (360, 20), (360, 216), 0, 2)
+        cv2.line(image, (360, 304), (360, 480), 0, 2)
+
+        seed = {
+            "x": 360 / 700,
+            "y": 220 / 500,
+            "width": 160 / 700,
+            "height": 40 / 500,
+        }
+        result = reconstruct_local_axis_envelope(image, seed)
+
+        self.assertIsNotNone(result)
+        assert result is not None
+        bbox = result["bbox"]
+        self.assertAlmostEqual(bbox["x"], 200 / 700, delta=0.012)
+        self.assertAlmostEqual(bbox["y"], 220 / 500, delta=0.018)
+        self.assertAlmostEqual(bbox["width"], 320 / 700, delta=0.018)
+        self.assertAlmostEqual(bbox["height"], 80 / 500, delta=0.025)
+        self.assertGreater(result["axis_external_continuation"]["vertical"]["above"], 0.20)
+        self.assertGreater(result["axis_external_continuation"]["vertical"]["below"], 0.20)
+
 
 if __name__ == "__main__":
     unittest.main()
