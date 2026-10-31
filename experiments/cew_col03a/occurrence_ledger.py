@@ -371,6 +371,223 @@ def detect_ambiguous_duplicates(
     return conflicts
 
 
+def _validate_human_equivalence_receipt(receipt: dict[str, Any]) -> list[dict[str, Any]]:
+    if not isinstance(receipt, dict):
+        raise ValueError("human equivalence receipt must be an object")
+    if receipt.get("schema_id") != "CEW_COL03A_OCCURRENCE_EQUIVALENCE_HUMAN_REVIEW":
+        raise ValueError("unexpected human equivalence receipt schema")
+    if receipt.get("schema_version") != 1:
+        raise ValueError("unexpected human equivalence receipt version")
+    if receipt.get("status") != "HUMAN_GRAPHICAL_EQUIVALENCE_REVIEW_COMPLETE":
+        raise ValueError("human equivalence review is not complete")
+    authority = receipt.get("authority")
+    if not isinstance(authority, dict) or authority.get("graphical_occurrence_equivalence_authorized") is not True:
+        raise ValueError("graphical occurrence equivalence is not authorized")
+    for key in CLOSED_AUTHORITY:
+        if authority.get(key) is not False:
+            raise ValueError(f"human equivalence authority drift: {key}")
+    human_decision = receipt.get("human_decision")
+    if not isinstance(human_decision, dict) or not isinstance(human_decision.get("decisions"), list):
+        raise ValueError("human equivalence decisions missing")
+    decisions: list[dict[str, Any]] = []
+    seen_ids: set[str] = set()
+    seen_pairs: set[tuple[str, str]] = set()
+    for row in human_decision["decisions"]:
+        if not isinstance(row, dict):
+            raise ValueError("human equivalence decision must be an object")
+        decision_id = str(row.get("decision_id") or "")
+        if not decision_id or decision_id in seen_ids:
+            raise ValueError("human equivalence decision IDs must be unique")
+        candidate_ids = _stable_unique_strings(row.get("candidate_ids") if isinstance(row.get("candidate_ids"), list) else [])
+        if len(candidate_ids) != 2:
+            raise ValueError(f"human equivalence decision must bind exactly two candidates: {decision_id}")
+        pair = (candidate_ids[0], candidate_ids[1])
+        if pair in seen_pairs:
+            raise ValueError("duplicate human equivalence candidate pair")
+        if row.get("decision") != "SAME_OCCURRENCE":
+            raise ValueError(f"unsupported human equivalence decision: {decision_id}")
+        if row.get("scope") != "GRAPHICAL_OCCURRENCE_EQUIVALENCE_ONLY":
+            raise ValueError(f"human equivalence scope drift: {decision_id}")
+        seen_ids.add(decision_id)
+        seen_pairs.add(pair)
+        decisions.append({"decision_id": decision_id, "candidate_ids": list(pair)})
+    if not decisions:
+        raise ValueError("human equivalence receipt contains no decisions")
+    return sorted(decisions, key=lambda row: row["decision_id"])
+
+
+def _equivalence_primary_representation(members: list[dict[str, Any]]) -> dict[str, Any]:
+    repaired = [
+        deepcopy(row["primary_graphical_representation"])
+        for row in members
+        if isinstance(row.get("primary_graphical_representation"), dict)
+        and row["primary_graphical_representation"].get("kind") == "GOVERNED_WHOLE_SYMBOL_REPAIR"
+    ]
+    if repaired:
+        canonical = sorted(repaired, key=lambda item: _canonical_bytes(item))
+        first = canonical[0]
+        if any(item != first for item in canonical[1:]):
+            raise ValueError("multiple incompatible governed repairs in one human-equivalence component")
+        return first
+    proposals = sorted(
+        (
+            deepcopy(row["primary_graphical_representation"])
+            for row in members
+            if isinstance(row.get("primary_graphical_representation"), dict)
+        ),
+        key=lambda item: str(item.get("candidate_id") or ""),
+    )
+    if not proposals:
+        raise ValueError("human-equivalence component lacks graphical representation")
+    return proposals[0]
+
+
+def apply_human_occurrence_equivalence(
+    *,
+    groups: list[dict[str, Any]],
+    receipt: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Collapse only geometry conflicts explicitly confirmed as the same graphical occurrence by human review."""
+    if not isinstance(groups, list):
+        raise ValueError("groups must be a list")
+    decisions = _validate_human_equivalence_receipt(receipt)
+    by_candidate: dict[str, dict[str, Any]] = {}
+    for row in groups:
+        if not isinstance(row, dict):
+            raise ValueError("every equivalence input group must be an object")
+        candidate_id = str(row.get("candidate_id") or "")
+        if not candidate_id or candidate_id in by_candidate:
+            raise ValueError("equivalence input groups must have unique candidate IDs")
+        by_candidate[candidate_id] = deepcopy(row)
+
+    actual_conflict_pairs = {
+        tuple(sorted(str(value) for value in conflict.get("candidate_ids", [])))
+        for conflict in detect_ambiguous_duplicates(groups)
+        if conflict.get("conflict_state") == "AMBIGUOUS_DUPLICATE"
+    }
+    reviewed_pairs = {tuple(row["candidate_ids"]) for row in decisions}
+    if reviewed_pairs != actual_conflict_pairs:
+        raise ValueError("human equivalence receipt does not resolve the exact current ambiguous conflict set")
+    for pair in reviewed_pairs:
+        if pair[0] not in by_candidate or pair[1] not in by_candidate:
+            raise ValueError("human equivalence candidate is missing from current groups")
+
+    parent = {candidate_id: candidate_id for candidate_id in by_candidate}
+
+    def find(candidate_id: str) -> str:
+        while parent[candidate_id] != candidate_id:
+            parent[candidate_id] = parent[parent[candidate_id]]
+            candidate_id = parent[candidate_id]
+        return candidate_id
+
+    def union(left: str, right: str) -> None:
+        root_left = find(left)
+        root_right = find(right)
+        if root_left == root_right:
+            return
+        if root_left < root_right:
+            parent[root_right] = root_left
+        else:
+            parent[root_left] = root_right
+
+    for decision in decisions:
+        union(decision["candidate_ids"][0], decision["candidate_ids"][1])
+
+    components: dict[str, list[dict[str, Any]]] = {}
+    for candidate_id, row in by_candidate.items():
+        components.setdefault(find(candidate_id), []).append(row)
+
+    receipt_ref = str(
+        receipt.get("receipt_ref")
+        or "governance/cew-col03a/COL03A_OCCURRENCE_EQUIVALENCE_HUMAN_REVIEW_v1.json"
+    )
+    decision_by_pair = {tuple(row["candidate_ids"]): row["decision_id"] for row in decisions}
+    collapsed: list[dict[str, Any]] = []
+    for component in components.values():
+        members = sorted(component, key=lambda row: str(row.get("candidate_id") or ""))
+        if len(members) == 1:
+            collapsed.append(members[0])
+            continue
+        candidate_ids = sorted(str(row["candidate_id"]) for row in members)
+        component_decision_ids = sorted(
+            decision_id
+            for pair, decision_id in decision_by_pair.items()
+            if pair[0] in candidate_ids and pair[1] in candidate_ids
+        )
+        if not component_decision_ids:
+            raise ValueError("human-equivalence component lacks an explicit review decision")
+        first = members[0]
+        for row in members[1:]:
+            for key in _SOURCE_KEYS:
+                if row.get(key) != first.get(key):
+                    raise ValueError(f"source lineage drift inside human-equivalence component: {key}")
+        primary = _equivalence_primary_representation(members)
+        primary_candidate_id = str(primary.get("candidate_id") or "")
+        primary_member = next(
+            (row for row in members if str(row.get("candidate_id") or "") == primary_candidate_id),
+            None,
+        )
+        if primary_member is None:
+            raise ValueError("primary representation candidate missing from equivalence component")
+
+        source_proposal_ids: list[Any] = []
+        evidence_ids: list[Any] = []
+        evidence_classes: list[Any] = []
+        graphical_decisions: list[Any] = []
+        discovery_paths: list[Any] = []
+        human_review_receipts: list[Any] = [receipt_ref]
+        repair_lineage: list[Any] = []
+        human_events: list[Any] = []
+        lineage: list[Any] = []
+        representations: list[dict[str, Any]] = []
+        for row in members:
+            source_proposal_ids.extend(row.get("source_proposal_ids") or [row.get("candidate_id")])
+            evidence_ids.extend(row.get("evidence_ids") or [])
+            evidence_classes.extend(row.get("evidence_classes") or [])
+            graphical_decisions.extend(row.get("graphical_decisions") or [])
+            discovery_paths.extend(row.get("discovery_paths") or [])
+            human_review_receipts.extend(row.get("human_review_receipts") or [])
+            repair_lineage.extend(row.get("repair_lineage") or [])
+            human_events.extend(row.get("human_added_point_event_ids") or [])
+            if isinstance(row.get("lineage"), list):
+                lineage.extend(deepcopy(row["lineage"]))
+            rep = row.get("primary_graphical_representation")
+            if isinstance(rep, dict):
+                representations.append(deepcopy(rep))
+
+        merged = {
+            "candidate_id": primary_candidate_id,
+            "source_proposal_ids": _stable_unique_strings(source_proposal_ids),
+            "evidence_ids": _stable_unique_strings(evidence_ids),
+            "evidence_classes": _stable_unique_strings(evidence_classes),
+            "graphical_decisions": _stable_unique_strings(graphical_decisions),
+            "discovery_paths": _stable_unique_strings(discovery_paths),
+            "human_review_receipts": _stable_unique_strings(human_review_receipts),
+            "repair_lineage": _stable_unique_strings(repair_lineage),
+            "human_added_point_event_ids": _stable_unique_strings(human_events),
+            "lineage": lineage,
+            "anchor_bbox": deepcopy(primary_member["anchor_bbox"]),
+            "normalized_bbox": deepcopy(primary["bbox"]),
+            "primary_graphical_representation": deepcopy(primary),
+            "equivalent_graphical_representations": sorted(representations, key=lambda item: _canonical_bytes(item)),
+            "source_geometry_ref": primary_candidate_id,
+            "exact_source_reconstructible": all(row.get("exact_source_reconstructible") is True for row in members),
+            "lineage_complete": all(row.get("lineage_complete") is True for row in members),
+            "dedup_state": "HUMAN_EQUIVALENCE_COLLAPSED",
+            "conflict_state": "NONE",
+            "graphical_equivalence_receipts": [receipt_ref],
+            "human_equivalence_decision_ids": component_decision_ids,
+        }
+        for key in _SOURCE_KEYS:
+            merged[key] = deepcopy(first.get(key))
+        collapsed.append(merged)
+
+    collapsed = sorted(collapsed, key=lambda row: str(row.get("candidate_id") or ""))
+    if detect_ambiguous_duplicates(collapsed):
+        raise ValueError("human equivalence review left unresolved ambiguous duplicates")
+    return collapsed
+
+
 def _occurrence_sort_key(row: dict[str, Any]) -> tuple[Any, ...]:
     candidate_id = str(row.get("candidate_id") or "")
     if not candidate_id:
@@ -504,8 +721,15 @@ def build_reconciliation_report(
             occurrence_id = claims[0]
             evidence_to_occurrence[evidence_id] = occurrence_id
             source_candidate = str(evidence_by_id[evidence_id].get("candidate_id") or "")
-            occurrence_candidate = str(occurrence_by_id[occurrence_id].get("candidate_id") or "")
-            if source_candidate and source_candidate != occurrence_candidate:
+            occurrence = occurrence_by_id[occurrence_id]
+            occurrence_candidate = str(occurrence.get("candidate_id") or "")
+            raw_source_proposals = occurrence.get("source_proposal_ids")
+            allowed_candidates = (
+                set(_stable_unique_strings(raw_source_proposals))
+                if isinstance(raw_source_proposals, list)
+                else {occurrence_candidate}
+            )
+            if source_candidate and source_candidate not in allowed_candidates:
                 candidate_drift.append(
                     {
                         "evidence_id": evidence_id,
