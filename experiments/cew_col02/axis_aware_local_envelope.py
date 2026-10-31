@@ -142,6 +142,44 @@ def _near_duplicate(a: tuple[int, int, int, int], b: tuple[int, int, int, int]) 
     )
 
 
+def _minimum_boundary_coverage(candidate: dict[str, Any]) -> float:
+    coverage = candidate.get("coverage")
+    if not isinstance(coverage, dict):
+        return 0.0
+    return min(float(coverage.get(side, 0.0)) for side in ("left", "right", "top", "bottom"))
+
+
+def _select_plausible_envelope(candidates: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Select one nested graphical envelope without overriding stronger side evidence."""
+
+    if not candidates:
+        return None
+    ranked = sorted(candidates, key=lambda row: float(row["score"]), reverse=True)
+    top_score = float(ranked[0]["score"])
+    plausible = [row for row in ranked if float(row["score"]) >= top_score - 0.08]
+    if not plausible:
+        return None
+
+    reference_box = plausible[0]["box"]
+    for competing in plausible[1:]:
+        if _contained(competing["box"], reference_box) or _contained(reference_box, competing["box"]):
+            continue
+        return None
+
+    boundary_floor = _minimum_boundary_coverage(plausible[0])
+    eligible = [
+        row
+        for row in plausible
+        if _minimum_boundary_coverage(row) + 1e-12 >= boundary_floor
+    ]
+    if not eligible:
+        return None
+    return min(
+        eligible,
+        key=lambda row: (_box_area(row["box"]), -float(row["score"])),
+    )
+
+
 def _reconstruct_local_axis_envelope_single_scale(
     image: np.ndarray,
     seed_bbox: dict[str, float],
@@ -335,19 +373,9 @@ def _reconstruct_local_axis_envelope_single_scale(
             continue
         unique.append(candidate)
 
-    if not unique:
+    chosen = _select_plausible_envelope(unique)
+    if chosen is None:
         return None
-    top_score = float(unique[0]["score"])
-    plausible = [row for row in unique if float(row["score"]) >= top_score - 0.08]
-    reference_box = plausible[0]["box"]
-    for competing in plausible[1:]:
-        if _contained(competing["box"], reference_box) or _contained(reference_box, competing["box"]):
-            continue
-        return None
-    chosen = min(
-        plausible,
-        key=lambda row: (_box_area(row["box"]), -float(row["score"])),
-    )
 
     x, y, box_w, box_h = chosen["box"]
     horizontal_support, horizontal_continuation, horizontal_band, horizontal_sides = chosen["horizontal_axis"]
