@@ -65,10 +65,10 @@ class AxisAwareWholeSymbolGeometryTests(unittest.TestCase):
         image = np.full((600, 600), 255, dtype=np.uint8)
         # Whole graphical symbol.
         cv2.rectangle(image, (240, 245), (360, 355), 0, 5)
-        # Short local axes: long enough to divide the symbol into four visual parts,
-        # but deliberately too short for the page-scale axis detector.
-        cv2.line(image, (205, 300), (395, 300), 0, 2)
-        cv2.line(image, (300, 210), (300, 390), 0, 2)
+        # Short local axes: they split the symbol into four visual parts but extend
+        # only 15 px beyond it, intentionally below the page-scale axis threshold.
+        cv2.line(image, (225, 300), (375, 300), 0, 2)
+        cv2.line(image, (300, 230), (300, 370), 0, 2)
         # One-sided beam-like continuation from the right border.
         cv2.line(image, (360, 270), (450, 270), 0, 2)
         cv2.line(image, (360, 330), (450, 330), 0, 2)
