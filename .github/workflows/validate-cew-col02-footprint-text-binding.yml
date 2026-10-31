@@ -135,23 +135,28 @@ jobs:
               _regenerate_source_analysis_and_proposals,
           )
 
-          _image, analysis, payload = _regenerate_source_analysis_and_proposals()
+          image, analysis, payload = _regenerate_source_analysis_and_proposals()
           proposals = {row['candidate_id']: row for row in payload['candidates']}
           for task_id, candidate_id in EXPECTED_REPAIR_TASKS.items():
               seed = proposals[candidate_id]['bbox']
               primary = reconstruct_axis_split_whole_symbol(analysis, seed)
-              fallback = None if primary is not None else reconstruct_local_axis_envelope(analysis, seed)
-              result = primary if primary is not None else fallback
+              analysis_fallback = None if primary is not None else reconstruct_local_axis_envelope(analysis, seed)
+              result = primary if primary is not None else analysis_fallback
+              raw_fallback = reconstruct_local_axis_envelope(image, seed) if task_id == 'R01' else None
               print('CEW_COL02_WSR_DIAGNOSTIC=' + json.dumps({
                   'review_task_id': task_id,
                   'candidate_id': candidate_id,
                   'primary_ready': primary is not None,
-                  'fallback_ready': fallback is not None,
+                  'analysis_fallback_ready': analysis_fallback is not None,
                   'result_detector': None if result is None else result.get('detector'),
                   'result_bbox': None if result is None else result.get('bbox'),
                   'axis_cross': None if result is None else result.get('axis_cross'),
                   'axis_external_continuation': None if result is None else result.get('axis_external_continuation'),
                   'boundary_coverage': None if result is None else result.get('boundary_coverage'),
+                  'r01_raw_fallback_ready': None if task_id != 'R01' else raw_fallback is not None,
+                  'r01_raw_fallback_bbox': None if raw_fallback is None else raw_fallback.get('bbox'),
+                  'r01_raw_fallback_axis_cross': None if raw_fallback is None else raw_fallback.get('axis_cross'),
+                  'r01_raw_fallback_boundary_coverage': None if raw_fallback is None else raw_fallback.get('boundary_coverage'),
               }, sort_keys=True))
           PY
       - name: Execute axis-aware whole-symbol repair
