@@ -64,6 +64,54 @@ def _edge_coverage(mask: np.ndarray, box: tuple[int, int, int, int], tolerance: 
     return coverage
 
 
+def _horizontal_external_continuation(
+    mask: np.ndarray,
+    *,
+    position: int,
+    left: int,
+    right: int,
+    extension: int,
+    gap: int,
+) -> dict[str, float]:
+    image_h, image_w = mask.shape[:2]
+    top = max(0, position - 1)
+    bottom = min(image_h, position + 2)
+    left_start = max(0, left - extension)
+    left_end = max(left_start, left - gap)
+    right_start = min(image_w, right + gap + 1)
+    right_end = min(image_w, right + extension + 1)
+
+    left_window = mask[top:bottom, left_start:left_end]
+    right_window = mask[top:bottom, right_start:right_end]
+    left_support = float(np.mean(np.any(left_window > 0, axis=0))) if left_window.size else 0.0
+    right_support = float(np.mean(np.any(right_window > 0, axis=0))) if right_window.size else 0.0
+    return {"left": left_support, "right": right_support}
+
+
+def _vertical_external_continuation(
+    mask: np.ndarray,
+    *,
+    position: int,
+    top: int,
+    bottom: int,
+    extension: int,
+    gap: int,
+) -> dict[str, float]:
+    image_h, image_w = mask.shape[:2]
+    left = max(0, position - 1)
+    right = min(image_w, position + 2)
+    above_start = max(0, top - extension)
+    above_end = max(above_start, top - gap)
+    below_start = min(image_h, bottom + gap + 1)
+    below_end = min(image_h, bottom + extension + 1)
+
+    above_window = mask[above_start:above_end, left:right]
+    below_window = mask[below_start:below_end, left:right]
+    above_support = float(np.mean(np.any(above_window > 0, axis=1))) if above_window.size else 0.0
+    below_support = float(np.mean(np.any(below_window > 0, axis=1))) if below_window.size else 0.0
+    return {"above": above_support, "below": below_support}
+
+
 def _contained(inner: tuple[int, int, int, int], outer: tuple[int, int, int, int], tolerance: int = 2) -> bool:
     ix, iy, iw, ih = inner
     ox, oy, ow, oh = outer
@@ -98,9 +146,9 @@ def reconstruct_local_axis_envelope(
 
     This is a bounded graphical fallback. It uses only raster geometry around the
     supplied seed: four-side boundary continuity plus one interior horizontal and
-    one interior vertical line. It does not infer support identity, section,
-    family, structural identity, or canonical geometry and fails closed on a
-    materially different near-tie.
+    one interior vertical axis that each continue beyond the candidate envelope.
+    It does not infer support identity, section, family, structural identity, or
+    canonical geometry and fails closed on a materially different near-tie.
     """
 
     if image is None or not isinstance(image, np.ndarray) or image.ndim != 2 or image.size == 0:
@@ -206,7 +254,11 @@ def reconstruct_local_axis_envelope(
                         continue
 
                     interior_margin = max(2, int(round(min(box_w, box_h) * 0.08)))
-                    interior_horizontal: list[tuple[float, dict[str, int]]] = []
+                    continuation_gap = max(2, tolerance)
+                    horizontal_extension = max(10, min(80, int(round(box_w * 0.30))))
+                    vertical_extension = max(10, min(80, int(round(box_h * 0.50))))
+
+                    interior_horizontal: list[tuple[float, float, dict[str, int], dict[str, float]]] = []
                     for band in horizontal_bands:
                         position = int(band["position"])
                         if not (y1 + interior_margin < position < y2 - interior_margin):
@@ -216,10 +268,22 @@ def reconstruct_local_axis_envelope(
                             x1 : x2 + 1,
                         ]
                         support = float(np.mean(np.any(sample > 0, axis=0))) if sample.size else 0.0
-                        if support >= 0.12:
-                            interior_horizontal.append((support, band))
+                        if support < 0.12:
+                            continue
+                        continuation = _horizontal_external_continuation(
+                            horizontal_lines,
+                            position=position,
+                            left=x1,
+                            right=x2,
+                            extension=horizontal_extension,
+                            gap=continuation_gap,
+                        )
+                        minimum_continuation = min(continuation.values())
+                        if minimum_continuation < 0.20:
+                            continue
+                        interior_horizontal.append((support, minimum_continuation, band, continuation))
 
-                    interior_vertical: list[tuple[float, dict[str, int]]] = []
+                    interior_vertical: list[tuple[float, float, dict[str, int], dict[str, float]]] = []
                     for band in vertical_bands:
                         position = int(band["position"])
                         if not (x1 + interior_margin < position < x2 - interior_margin):
@@ -229,20 +293,34 @@ def reconstruct_local_axis_envelope(
                             max(0, position - 1) : min(local.shape[1], position + 2),
                         ]
                         support = float(np.mean(np.any(sample > 0, axis=1))) if sample.size else 0.0
-                        if support >= 0.12:
-                            interior_vertical.append((support, band))
+                        if support < 0.12:
+                            continue
+                        continuation = _vertical_external_continuation(
+                            vertical_lines,
+                            position=position,
+                            top=y1,
+                            bottom=y2,
+                            extension=vertical_extension,
+                            gap=continuation_gap,
+                        )
+                        minimum_continuation = min(continuation.values())
+                        if minimum_continuation < 0.20:
+                            continue
+                        interior_vertical.append((support, minimum_continuation, band, continuation))
 
                     if not interior_horizontal or not interior_vertical:
                         continue
-                    horizontal_axis = max(interior_horizontal, key=lambda item: item[0])
-                    vertical_axis = max(interior_vertical, key=lambda item: item[0])
+                    horizontal_axis = max(interior_horizontal, key=lambda item: (item[1], item[0]))
+                    vertical_axis = max(interior_vertical, key=lambda item: (item[1], item[0]))
                     minimum_boundary = min(coverage.values())
                     mean_boundary = sum(coverage.values()) / 4.0
                     axis_support = min(horizontal_axis[0], vertical_axis[0])
+                    axis_continuation = min(horizontal_axis[1], vertical_axis[1])
                     score = (
-                        0.50 * minimum_boundary
-                        + 0.25 * mean_boundary
+                        0.45 * minimum_boundary
+                        + 0.20 * mean_boundary
                         + 0.15 * axis_support
+                        + 0.10 * axis_continuation
                         + 0.10 * seed_overlap
                     )
                     candidates.append(
@@ -276,8 +354,8 @@ def reconstruct_local_axis_envelope(
         return None
 
     x, y, box_w, box_h = chosen["box"]
-    horizontal_support, horizontal_band = chosen["horizontal_axis"]
-    vertical_support, vertical_band = chosen["vertical_axis"]
+    horizontal_support, horizontal_continuation, horizontal_band, horizontal_sides = chosen["horizontal_axis"]
+    vertical_support, vertical_continuation, vertical_band, vertical_sides = chosen["vertical_axis"]
     global_x = x + local_left
     global_y = y + local_top
     cross_x = int(vertical_band["position"]) + local_left
@@ -299,6 +377,11 @@ def reconstruct_local_axis_envelope(
         "axis_run_length_px": {
             "horizontal": int(horizontal_band["support"]),
             "vertical": int(vertical_band["support"]),
+        },
+        "axis_external_continuation": {
+            "horizontal": dict(horizontal_sides),
+            "vertical": dict(vertical_sides),
+            "minimum": float(min(horizontal_continuation, vertical_continuation)),
         },
         "boundary_side_count": 4,
         "boundary_coverage": dict(chosen["coverage"]),
