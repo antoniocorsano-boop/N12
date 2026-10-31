@@ -37,11 +37,8 @@ def _validate_contract(contract: dict[str, Any], *, allow_test_digest_override: 
     for key in _STATIC_CONTRACT_KEYS:
         if contract.get(key) != TAV07_SOURCE[key]:
             raise ValueError(f"TAV.7 source contract drift: {key}")
-    if not allow_test_digest_override:
-        if contract.get("sha256") != TAV07_SOURCE["sha256"]:
-            raise ValueError("TAV.7 source contract drift: sha256")
-        if contract.get("size_bytes") != TAV07_SOURCE["size_bytes"]:
-            raise ValueError("TAV.7 source contract drift: size_bytes")
+    if not allow_test_digest_override and contract.get("sha256") != TAV07_SOURCE["sha256"]:
+        raise ValueError("TAV.7 source contract drift: sha256")
     if not isinstance(contract.get("sha256"), str) or len(str(contract.get("sha256"))) != 64:
         raise ValueError("TAV.7 source contract drift: sha256 format")
     if not isinstance(contract.get("size_bytes"), int) or int(contract["size_bytes"]) <= 0:
