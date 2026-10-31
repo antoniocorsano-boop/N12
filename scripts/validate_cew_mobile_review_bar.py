@@ -115,8 +115,9 @@ def assert_contract() -> None:
     for fragment in required_fragments:
         assert fragment in html, f"missing mobile contract fragment: {fragment}"
 
-    # Four primary actions exactly: no fifth hidden decision button.
-    assert html.count('data-action="') == 4
+    # Four primary decision buttons exactly. CSS selectors may also contain
+    # data-action attributes and must not be counted as interactive controls.
+    assert html.count('<button class="primary-action" data-action="') == 4
 
     print("CEW_MOBILE_REVIEW_BAR_CONTRACT=PASS")
     print(json.dumps({"actions": list(PRIMARY_ACTIONS), "authority": AUTHORITY_CLOSED}, sort_keys=True))
