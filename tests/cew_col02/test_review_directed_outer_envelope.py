@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import importlib
 import importlib.util
 import json
@@ -11,6 +12,7 @@ import numpy as np
 
 
 MODULE_NAME = "experiments.cew_col02.review_directed_outer_envelope"
+EXACT_SOURCE_MODULE_NAME = "experiments.cew_col02.axis_aware_whole_symbol_exact_source"
 REVIEW_RECEIPT = Path("governance/cew-col02/COL02_AXIS_AWARE_WHOLE_SYMBOL_HUMAN_REVIEW_v1.json")
 SUPPORTED_FINDING = "TOP_TRUNCATED_INTERNAL_LINE_SELECTED"
 
@@ -20,6 +22,12 @@ class ReviewDirectedOuterEnvelopeTests(unittest.TestCase):
         spec = importlib.util.find_spec(MODULE_NAME)
         self.assertIsNotNone(spec, "review-directed outer-envelope module is missing")
         return importlib.import_module(MODULE_NAME)
+
+    def _exact_source_module(self):
+        module = importlib.import_module(EXACT_SOURCE_MODULE_NAME)
+        adapter = getattr(module, "_apply_review_directed_completions", None)
+        self.assertTrue(callable(adapter), "exact-source review-directed completion adapter is missing")
+        return module
 
     @staticmethod
     def _base_result(*, x: int, y: int, width: int, height: int, image_w: int, image_h: int) -> dict:
@@ -108,6 +116,52 @@ class ReviewDirectedOuterEnvelopeTests(unittest.TestCase):
         authorized = module.authorized_completion_requests(receipt)
 
         self.assertEqual(authorized, {"COL02-FP-0241": SUPPORTED_FINDING})
+
+    def test_exact_source_adapter_changes_only_authorized_wsr003_candidate(self) -> None:
+        exact_source = self._exact_source_module()
+        image = np.full((400, 500), 255, dtype=np.uint8)
+        cv2.rectangle(image, (150, 80), (350, 260), 0, 3)
+        cv2.line(image, (150, 150), (350, 150), 0, 3)
+        target = self._base_result(x=150, y=150, width=201, height=111, image_w=500, image_h=400)
+        preserved = self._base_result(x=40, y=200, width=80, height=80, image_w=500, image_h=400)
+        original = {
+            "COL02-FP-0241": target,
+            "COL02-FP-0073": preserved,
+        }
+        snapshot = copy.deepcopy(original)
+        receipt = json.loads(REVIEW_RECEIPT.read_text(encoding="utf-8"))
+
+        result = exact_source._apply_review_directed_completions(
+            image=image,
+            repair_results=original,
+            review_receipt=receipt,
+        )
+
+        self.assertEqual(original, snapshot, "adapter must not mutate the generic repair result map")
+        self.assertEqual(set(result), set(original))
+        self.assertEqual(result["COL02-FP-0073"], preserved)
+        self.assertIsNotNone(result["COL02-FP-0241"])
+        assert result["COL02-FP-0241"] is not None
+        self.assertEqual(result["COL02-FP-0241"]["detector"], "REVIEW_DIRECTED_OUTER_ENVELOPE_COMPLETION")
+
+    def test_exact_source_adapter_drops_known_invalid_wsr003_when_completion_is_unresolved(self) -> None:
+        exact_source = self._exact_source_module()
+        image = np.full((400, 500), 255, dtype=np.uint8)
+        cv2.line(image, (150, 80), (350, 80), 0, 3)
+        cv2.line(image, (150, 150), (350, 150), 0, 3)
+        cv2.line(image, (150, 260), (350, 260), 0, 3)
+        target = self._base_result(x=150, y=150, width=201, height=111, image_w=500, image_h=400)
+        preserved = self._base_result(x=40, y=200, width=80, height=80, image_w=500, image_h=400)
+        receipt = json.loads(REVIEW_RECEIPT.read_text(encoding="utf-8"))
+
+        result = exact_source._apply_review_directed_completions(
+            image=image,
+            repair_results={"COL02-FP-0241": target, "COL02-FP-0073": preserved},
+            review_receipt=receipt,
+        )
+
+        self.assertIsNone(result["COL02-FP-0241"])
+        self.assertEqual(result["COL02-FP-0073"], preserved)
 
 
 if __name__ == "__main__":
