@@ -1,0 +1,55 @@
+{
+  "schema_id": "CEW_COL03A_OCCURRENCE_EQUIVALENCE_HUMAN_REVIEW",
+  "schema_version": 1,
+  "status": "HUMAN_GRAPHICAL_EQUIVALENCE_REVIEW_COMPLETE",
+  "review_scope": "COL-03A exact-source ambiguous duplicate reconciliation only",
+  "review_basis": {
+    "pull_request": 176,
+    "exact_candidate_head": "81a333241abee367d763ee3011834e4a6b86957c",
+    "workflow_run_id": 41234030468,
+    "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
+    "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+    "observed_occurrence_count_before_review": 24,
+    "observed_conflict_count_before_review": 2
+  },
+  "human_decision": {
+    "statement": "A stessa; B stessa.",
+    "normalized_meaning": "Both reviewed ambiguous pairs represent the same graphical occurrence within each pair.",
+    "decisions": [
+      {
+        "decision_id": "A",
+        "candidate_ids": ["COL02-FP-0248", "COL02-FP-0331"],
+        "decision": "SAME_OCCURRENCE",
+        "scope": "GRAPHICAL_OCCURRENCE_EQUIVALENCE_ONLY"
+      },
+      {
+        "decision_id": "B",
+        "candidate_ids": ["COL02-FP-0073", "COL02-FP-0538"],
+        "repair_ids": ["COL02-WSR-002"],
+        "decision": "SAME_OCCURRENCE",
+        "scope": "GRAPHICAL_OCCURRENCE_EQUIVALENCE_ONLY"
+      }
+    ]
+  },
+  "expected_effect": {
+    "governed_input_evidence_count": 24,
+    "final_occurrence_count": 22,
+    "unresolved_conflict_count": 0,
+    "all_source_proposal_lineage_preserved": true,
+    "structural_identity_unchanged": true
+  },
+  "authority": {
+    "graphical_occurrence_equivalence_authorized": true,
+    "support_identity_authorized": false,
+    "text_identity_binding_authorized": false,
+    "family_assignment_authorized": false,
+    "section_assignment_authorized": false,
+    "fixed_line_assignment_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false
+  }
+}
