@@ -1,0 +1,33 @@
+name: CEW-COL-03C Governed Cross-Document Materialization
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/cew_col03c/**'
+      - 'tests/cew_col03c/**'
+      - 'docs/superpowers/specs/2026-10-31-cew-col03c-governed-cross-document-materialization-design.md'
+      - 'docs/superpowers/plans/2026-10-31-cew-col03c-governed-cross-document-materialization.md'
+      - '.github/workflows/validate-cew-col03c-governed-cross-document-materialization.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Run COL-03C unit tests
+        run: python -m unittest discover -s tests/cew_col03c -p 'test_*.py' -v
+      - name: Run COL-03B regression tests
+        run: python -m unittest discover -s tests/cew_col03b -p 'test_*.py' -v
