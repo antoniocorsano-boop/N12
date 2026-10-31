@@ -4,7 +4,7 @@
 
 **Goal:** Correct only the two whole-symbol repairs rejected by bounded Human Graphical Review (`COL02-WSR-001` / `COL02-FP-0252` and `COL02-WSR-003` / `COL02-FP-0241`) while preserving the three accepted repairs and all closed authority boundaries.
 
-**Architecture:** Keep the frozen 611 neutral proposals and the existing seeded local detector unchanged up to candidate scoring. Replace only the final nested-candidate choice so that the strongest graphical four-side evidence remains authoritative; area is at most a tie-breaker, never a reason to override a materially stronger boundary score. Non-nested plausible competitors continue to fail closed.
+**Architecture:** Keep the frozen 611 neutral proposals and the existing seeded local detector unchanged through candidate generation and scoring. Refine only final selection among nested plausible envelopes: the top-score candidate establishes the minimum four-side boundary quality; a smaller nested candidate may replace it only when its weakest boundary is not worse. This preserves the useful smallest-envelope bias for WSR-001 while preventing WSR-003's weak internal top edge from overriding a stronger outer envelope. Materially non-nested plausible competitors continue to fail closed.
 
 **Tech Stack:** Python 3.12, OpenCV, unittest, GitHub Actions exact-source replay.
 
@@ -17,13 +17,14 @@
 - `COL02-FP-0106` remains rejected as `MISLOCALIZED_NOT_COLUMN`.
 - `COL02-WSR-002`, `COL02-WSR-004`, and `COL02-WSR-005` are regression anchors and must not change geometrically.
 - Any materially non-nested competing envelope remains `UNRESOLVED`.
+- Reuse the existing `top_score - 0.08` plausibility window; introduce no new geometric acceptance threshold.
 - `canonical_geometry_authorized=false`, `canonical_write_authorized=false`, `g2c_promotion_authorized=false`, `g3_authorized=false`, `merge_authorized=false`.
 - No merge or deploy.
 
 ## Review Focus
 
 - Nested internal horizontal line must not beat a stronger outer top boundary.
-- Lower overshoot with weaker bottom evidence must not beat the true lower outer boundary.
+- Lower overshoot must collapse to a smaller nested envelope when that smaller envelope has equal-or-better weakest-side boundary evidence.
 - Equal/near-equal non-nested envelopes remain unresolved.
 - Previously accepted WSR-002/004/005 bboxes remain unchanged on exact-source replay.
 - Half-scale fallback remains available only after native-scale failure.
@@ -39,22 +40,23 @@
 - Consumes: candidate rows with `score`, `box`, and four-side `coverage`.
 - Produces: regression contracts for nested candidate selection.
 
-- [ ] Add a test proving a smaller nested candidate with an internal/weak top edge cannot override a larger candidate with stronger four-side evidence.
-- [ ] Add a test proving an overshooting candidate with weaker bottom evidence cannot override the stronger true envelope.
-- [ ] Run the focused test file and observe causal RED against the current selector policy/seam.
+- [ ] Add a test proving a smaller nested candidate with a materially weaker top edge cannot override the top-score outer envelope.
+- [ ] Add a test proving a smaller nested true envelope with equal-or-better weakest-side evidence is preferred over a lower overshoot.
+- [ ] Add a test proving materially non-nested plausible candidates still fail closed.
+- [ ] Run the focused test file and observe causal RED because the bounded selector seam does not yet exist.
 - [ ] Commit test-only RED.
 
-### Task 2: Make graphical evidence primary in nested selection
+### Task 2: Make weakest-side graphical evidence the guard on nested selection
 
 **Files:**
 - Modify: `experiments/cew_col02/axis_aware_local_envelope.py`
 - Test: `tests/cew_col02/test_axis_aware_local_envelope.py`
 
 **Interfaces:**
-- Produces: `_select_plausible_envelope(candidates) -> dict[str, Any] | None` used only after candidate generation.
+- Produces: `_select_plausible_envelope(candidates) -> dict[str, Any] | None` used only after candidate generation/deduplication.
 
-- [ ] Implement the minimal selector: sort by existing repair score; retain the existing `top_score - 0.08` plausibility window; fail closed for materially non-nested competitors; among nested plausible candidates choose strongest score, using smaller area only as exact/near-exact tie-breaker.
-- [ ] Replace the old unconditional minimum-area selection with the helper.
+- [ ] Implement the minimal selector: sort by existing repair score; retain the existing `top_score - 0.08` plausibility window; fail closed for materially non-nested competitors; use the top-score candidate's weakest-side coverage as a floor; among nested plausible candidates meeting that floor choose the smallest area, then the stronger score.
+- [ ] Replace the inline final selection with the helper; do not alter candidate-generation thresholds or scale fallback.
 - [ ] Run the focused tests and the complete COL-02 unit suite; require GREEN.
 - [ ] Commit implementation.
 
