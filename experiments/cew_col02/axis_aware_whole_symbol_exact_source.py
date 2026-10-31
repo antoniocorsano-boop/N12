@@ -17,10 +17,15 @@ from experiments.cew_col02.axis_aware_whole_symbol import (
     reconstruct_axis_split_whole_symbol,
 )
 from experiments.cew_col02.exact_source_audit import SOURCE_SHA256, canonical_bytes
+from experiments.cew_col02.review_directed_outer_envelope import (
+    authorized_completion_requests,
+    complete_review_directed_outer_envelope,
+)
 
 
 EVIDENCE_ROOT = Path("evidence/cew-col02/footprint-text-binding")
 RECEIPT_PATH = Path("governance/cew-col02/COL02_RESIDUAL_RECONCILIATION_HUMAN_REVIEW_v1.json")
+GRAPHICAL_REVIEW_RECEIPT_PATH = Path("governance/cew-col02/COL02_AXIS_AWARE_WHOLE_SYMBOL_HUMAN_REVIEW_v1.json")
 OUTPUT_JSON = EVIDENCE_ROOT / "col02-axis-aware-whole-symbol-repair.json"
 ASSET_DIR = EVIDENCE_ROOT / "axis-aware-whole-symbol-repair"
 ATLAS_PATH = EVIDENCE_ROOT / "col02-axis-aware-whole-symbol-repair-atlas.png"
@@ -58,6 +63,31 @@ def _validate_receipt_payload(receipt: dict[str, Any]) -> None:
             or row.get("repair_eligible") is not False
         ):
             raise ValueError(f"repair receipt rejected-seed drift: {task_id}")
+
+
+def _apply_review_directed_completions(
+    *,
+    image: np.ndarray,
+    repair_results: dict[str, dict[str, Any] | None],
+    review_receipt: dict[str, Any],
+) -> dict[str, dict[str, Any] | None]:
+    """Replace only explicitly authorized known-invalid repairs; unresolved stays unresolved."""
+
+    authorized = authorized_completion_requests(review_receipt)
+    updated = dict(repair_results)
+    for candidate_id, finding in authorized.items():
+        if candidate_id not in updated:
+            raise ValueError(f"authorized completion candidate missing from repair results: {candidate_id}")
+        base_result = updated[candidate_id]
+        if base_result is None:
+            updated[candidate_id] = None
+            continue
+        updated[candidate_id] = complete_review_directed_outer_envelope(
+            image,
+            base_result,
+            finding=finding,
+        )
+    return updated
 
 
 def build_axis_aware_repair_manifest(
@@ -107,6 +137,8 @@ def build_axis_aware_repair_manifest(
             record["boundary_side_count"] = 4
             record["boundary_coverage"] = dict(result.get("boundary_coverage", {}))
             record["detector"] = str(result.get("detector", "AXIS_AWARE_WHOLE_SYMBOL_REPAIR"))
+            if isinstance(result.get("review_directed_completion"), dict):
+                record["review_directed_completion"] = dict(result["review_directed_completion"])
         repairs.append(record)
 
     rejected = [
@@ -278,6 +310,7 @@ def main() -> None:
     EVIDENCE_ROOT.mkdir(parents=True, exist_ok=True)
     receipt = json.loads(RECEIPT_PATH.read_text(encoding="utf-8"))
     _validate_receipt_payload(receipt)
+    graphical_review_receipt = json.loads(GRAPHICAL_REVIEW_RECEIPT_PATH.read_text(encoding="utf-8"))
 
     image, analysis, proposals_payload = _regenerate_source_analysis_and_proposals()
     proposals = list(proposals_payload["candidates"])
@@ -292,6 +325,12 @@ def main() -> None:
         if result is None:
             result = reconstruct_local_axis_envelope(analysis, proposal["bbox"])
         repair_results[candidate_id] = result
+
+    repair_results = _apply_review_directed_completions(
+        image=image,
+        repair_results=repair_results,
+        review_receipt=graphical_review_receipt,
+    )
 
     source_replay_sha256 = hashlib.sha256(canonical_bytes(proposals_payload)).hexdigest()
     manifest = build_axis_aware_repair_manifest(
