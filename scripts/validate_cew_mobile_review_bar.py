@@ -111,9 +111,15 @@ def assert_contract() -> None:
         'UNDO_LAST',
         'canonical_write_authorized:false',
         'canonical_write_performed:false',
+        # Android touch regression: while point-picking, browser pan/pinch must not
+        # consume the gesture and the evidence must receive a real pointer event.
+        '.evidence-viewport.pick-mode{outline:4px solid #c77700;outline-offset:-4px;touch-action:none}',
+        "document.getElementById('evidence').addEventListener('pointerup',pickAdditional)",
     ]
     for fragment in required_fragments:
         assert fragment in html, f"missing mobile contract fragment: {fragment}"
+
+    assert "document.getElementById('evidence').addEventListener('click',pickAdditional)" not in html
 
     # Four primary decision buttons exactly. CSS selectors may also contain
     # data-action attributes and must not be counted as interactive controls.
