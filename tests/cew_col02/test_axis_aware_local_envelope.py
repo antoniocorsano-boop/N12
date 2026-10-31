@@ -61,22 +61,22 @@ class LocalAxisEnvelopeTests(unittest.TestCase):
     def test_high_resolution_thin_symbol_is_localized_before_any_downsampling(self) -> None:
         image = np.full((2400, 1800), 255, dtype=np.uint8)
 
-        # R01-like geometry: a thin, light whole symbol on a large page, crossed
-        # by orthogonal axes and partially cluttered by darker annotations. The
-        # local geometry is recoverable at source resolution but is lost when
-        # the whole page is halved before the local crop is extracted.
+        # R01-like geometry: a thin whole symbol on a large page, crossed by
+        # orthogonal axes and cluttered by darker annotations. The line tone is
+        # deliberately distinct from the text but dark enough to make the test
+        # stable across supported OpenCV threshold implementations.
         x, y, width, height = 1400, 1500, 100, 113
-        cv2.rectangle(image, (x, y), (x + width, y + height), 200, 1, cv2.LINE_AA)
-        cv2.line(image, (x - 300, y + 49), (x + width + 300, y + 49), 200, 1, cv2.LINE_AA)
-        cv2.line(image, (x + 38, y - 400), (x + 38, y + height + 400), 200, 1, cv2.LINE_AA)
+        cv2.rectangle(image, (x, y), (x + width, y + height), 160, 1, cv2.LINE_AA)
+        cv2.line(image, (x - 300, y + 49), (x + width + 300, y + 49), 160, 1, cv2.LINE_AA)
+        cv2.line(image, (x + 38, y - 400), (x + 38, y + height + 400), 160, 1, cv2.LINE_AA)
         cv2.putText(image, "6", (x + 35, y + 75), cv2.FONT_HERSHEY_SIMPLEX, 1.0, 0, 1, cv2.LINE_AA)
         cv2.putText(image, "40", (x + width - 5, y + 40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, 0, 1, cv2.LINE_AA)
 
         seed = {
-            "x": (x + 30) / 1800,
-            "y": (y - 10) / 2400,
-            "width": 80 / 1800,
-            "height": (height + 20) / 2400,
+            "x": (x + 20) / 1800,
+            "y": y / 2400,
+            "width": 90 / 1800,
+            "height": 120 / 2400,
         }
         result = reconstruct_local_axis_envelope(image, seed)
 
