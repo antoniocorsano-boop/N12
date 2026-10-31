@@ -119,6 +119,25 @@ def _no_evidence_marker(*, occurrence_id: str, channel: str, reason: str) -> dic
     }
 
 
+def _not_applicable_marker(
+    *,
+    occurrence_id: str,
+    channel: str,
+    reason: str,
+    inventory_ref: str,
+) -> dict[str, Any]:
+    return {
+        "evidence_id": f"NA-{occurrence_id}-{channel}",
+        "occurrence_id": occurrence_id,
+        "channel": channel,
+        "evidence_class": "NOT_APPLICABLE",
+        "status": "NOT_APPLICABLE",
+        "reason": reason,
+        "inventory_ref": inventory_ref,
+        "exact_source_reconstructible": True,
+    }
+
+
 def build_exact_source_bundles(
     *,
     ledger: dict[str, Any],
@@ -159,6 +178,7 @@ def build_exact_source_bundles(
             "intersecting_text_evidence": [],
             "nearby_text_evidence": [],
         }
+        local_machine_observation_ids: list[str] = []
         for observation in sorted_text:
             text_bbox = observation.get("bbox")
             if not isinstance(text_bbox, dict):
@@ -178,6 +198,7 @@ def build_exact_source_bundles(
             token_id = str(observation.get("token_id") or "")
             if not token_id:
                 continue
+            local_machine_observation_ids.append(token_id)
             evidence = build_text_evidence(
                 evidence_id=f"{occurrence_id}-{token_id}",
                 occurrence_id=occurrence_id,
@@ -229,6 +250,7 @@ def build_exact_source_bundles(
                 "MULTIPLE_CANDIDATES" if len(bundle["hypotheses"]) > 1 else "CANDIDATE_ONLY"
             )
 
+        machine_observation_ids = sorted(set(local_machine_observation_ids))
         bundle["high_resolution_read_evidence"] = [
             {
                 "evidence_id": f"HR-{occurrence_id}",
@@ -236,6 +258,9 @@ def build_exact_source_bundles(
                 "channel": "high_resolution_read_evidence",
                 "evidence_class": "HIGH_RESOLUTION_SOURCE_REGION",
                 "status": "OBSERVED",
+                "read_state": "MACHINE_OBSERVATIONS_PRESENT" if machine_observation_ids else "NO_MACHINE_TEXT_OBSERVED",
+                "machine_observation_ids": machine_observation_ids,
+                "machine_observation_count": len(machine_observation_ids),
                 "region_bbox": local_region,
                 "raster_sha256": raster_sha256,
                 "raster_width_px": raster_width_px,
@@ -264,10 +289,11 @@ def build_exact_source_bundles(
         topology["topology_scope"] = "DOCUMENTARY_OCCURRENCE_NEIGHBORHOOD_ONLY"
         bundle["local_topology_evidence"] = [topology]
         bundle["cross_document_evidence"] = [
-            _no_evidence_marker(
+            _not_applicable_marker(
                 occurrence_id=occurrence_id,
                 channel="cross_document_evidence",
-                reason="NO_GOVERNED_HISTORICAL_COORDINATE_CORRESPONDENCE_ESTABLISHED",
+                reason="HISTORICAL_ARTIFACTS_INVENTORIED_NOT_MATERIALIZED",
+                inventory_ref="archive/ARTEFATTI_STORICI.md",
             )
         ]
         bundles.append(finalize_evidence_bundle(bundle))
@@ -313,7 +339,8 @@ def build_documentary_reconciliation(
             )
             if channel == "cross_document_evidence":
                 uses_historical = uses_historical or any(
-                    isinstance(item, dict) and item.get("evidence_class") != "NO_EVIDENCE" for item in values
+                    isinstance(item, dict) and item.get("evidence_class") not in {"NO_EVIDENCE", "NOT_APPLICABLE"}
+                    for item in values
                 )
         for hypothesis in bundle.get("hypotheses", []):
             if isinstance(hypothesis, dict):
@@ -351,6 +378,9 @@ def build_documentary_reconciliation(
         "contradictory_occurrence_ids": contradictory_occurrences,
         "historical_artifact_count": len(artifacts) if isinstance(artifacts, list) else 0,
         "historical_provenance_complete": historical_provenance_complete,
+        "historical_artifacts_materialized": bool(historical_manifest.get("materialized_artifacts")) if isinstance(historical_manifest, dict) else False,
+        "historical_inventory_ref": historical_manifest.get("inventory_ref") if isinstance(historical_manifest, dict) else None,
+        "historical_gap_reason": historical_manifest.get("reason") if isinstance(historical_manifest, dict) else None,
         "human_review_required": bool(ambiguous_occurrences or contradictory_occurrences),
         "bundle_digest": hashlib.sha256(_canonical_bytes(ordered)).hexdigest(),
     }
