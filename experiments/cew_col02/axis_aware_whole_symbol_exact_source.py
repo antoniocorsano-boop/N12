@@ -9,6 +9,7 @@ from typing import Any
 import cv2
 import numpy as np
 
+from experiments.cew_col02.axis_aware_local_envelope import reconstruct_local_axis_envelope
 from experiments.cew_col02.axis_aware_whole_symbol import (
     CLOSED_AUTHORITY_KEYS,
     EXPECTED_REJECTED_TASKS,
@@ -287,7 +288,10 @@ def main() -> None:
         proposal = proposal_by_id.get(candidate_id)
         if proposal is None:
             raise ValueError(f"missing repair seed proposal: {candidate_id}")
-        repair_results[candidate_id] = reconstruct_axis_split_whole_symbol(analysis, proposal["bbox"])
+        result = reconstruct_axis_split_whole_symbol(analysis, proposal["bbox"])
+        if result is None:
+            result = reconstruct_local_axis_envelope(analysis, proposal["bbox"])
+        repair_results[candidate_id] = result
 
     source_replay_sha256 = hashlib.sha256(canonical_bytes(proposals_payload)).hexdigest()
     manifest = build_axis_aware_repair_manifest(
