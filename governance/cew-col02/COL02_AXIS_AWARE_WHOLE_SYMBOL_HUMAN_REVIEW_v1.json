@@ -1,0 +1,73 @@
+{
+  "schema_id": "CEW_COL02_AXIS_AWARE_WHOLE_SYMBOL_HUMAN_REVIEW",
+  "schema_version": 1,
+  "review_scope": "graphical_whole_symbol_geometry_only",
+  "source": {
+    "pull_request": 175,
+    "exact_head_sha": "27af5771e4b052b1791edbc40175c4ac3fd7fa55",
+    "workflow_run_id": 41216401785,
+    "workflow_run_number": 70,
+    "artifact_id": 13048377101,
+    "artifact_name": "cew-col02-footprint-text-binding",
+    "artifact_sha256": "30b72f3d78d70cb4cb259bdf57415e0209d40523283953e8cf16e4e663d7d36e",
+    "atlas": "col02-axis-aware-whole-symbol-repair-atlas.png"
+  },
+  "decisions": [
+    {
+      "repair_id": "COL02-WSR-001",
+      "source_candidate_id": "COL02-FP-0252",
+      "decision": "REWORK",
+      "finding": "BOTTOM_OVERSHOOT",
+      "reason": "The reconstructed red bbox extends below the visible lower outer edge of the symbol and includes adjacent annotation/space; it is not a tight whole-symbol envelope."
+    },
+    {
+      "repair_id": "COL02-WSR-002",
+      "source_candidate_id": "COL02-FP-0073",
+      "decision": "PASS",
+      "finding": "WHOLE_SYMBOL_ENVELOPE_CONFIRMED",
+      "reason": "The reconstructed bbox follows the visible outer rectangular boundary of the complete symbol."
+    },
+    {
+      "repair_id": "COL02-WSR-003",
+      "source_candidate_id": "COL02-FP-0241",
+      "decision": "REWORK",
+      "finding": "TOP_TRUNCATED_INTERNAL_LINE_SELECTED",
+      "reason": "The reconstructed red bbox starts on an internal horizontal line and excludes the visible upper portion of the outer symbol."
+    },
+    {
+      "repair_id": "COL02-WSR-004",
+      "source_candidate_id": "COL02-FP-0261",
+      "decision": "PASS",
+      "finding": "WHOLE_SYMBOL_ENVELOPE_CONFIRMED",
+      "reason": "The reconstructed bbox follows the visible outer rectangular boundary of the complete symbol."
+    },
+    {
+      "repair_id": "COL02-WSR-005",
+      "source_candidate_id": "COL02-FP-0071",
+      "decision": "PASS",
+      "finding": "WHOLE_SYMBOL_ENVELOPE_CONFIRMED",
+      "reason": "The reconstructed bbox follows the visible outer rectangular boundary of the complete elongated symbol."
+    }
+  ],
+  "summary": {
+    "reviewed": 5,
+    "pass": 3,
+    "rework": 2,
+    "unreviewed": 0,
+    "occurrence_coverage_complete": false
+  },
+  "authority": {
+    "graphical_review_record_authorized": true,
+    "support_identity_authorized": false,
+    "text_identity_binding_authorized": false,
+    "family_assignment_authorized": false,
+    "section_assignment_authorized": false,
+    "fixed_line_assignment_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false
+  }
+}
