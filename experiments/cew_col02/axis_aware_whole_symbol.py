@@ -4,6 +4,9 @@ import json
 from pathlib import Path
 from typing import Any
 
+import cv2
+import numpy as np
+
 
 EXPECTED_SCHEMA_ID = "CEW_COL02_RESIDUAL_RECONCILIATION_HUMAN_REVIEW"
 EXPECTED_SCHEMA_VERSION = 1
@@ -81,3 +84,270 @@ def load_axis_aware_repair_receipt(path: str | Path) -> dict[str, Any]:
     result["repair_candidate_ids"] = repair_candidate_ids
     result["rejected_candidate_ids"] = rejected_candidate_ids
     return result
+
+
+def _pixel_iou(a: tuple[int, int, int, int], b: tuple[int, int, int, int]) -> float:
+    ax, ay, aw, ah = a
+    bx, by, bw, bh = b
+    ix = max(0, min(ax + aw, bx + bw) - max(ax, bx))
+    iy = max(0, min(ay + ah, by + bh) - max(ay, by))
+    intersection = ix * iy
+    union = aw * ah + bw * bh - intersection
+    return intersection / union if union > 0 else 0.0
+
+
+def _edge_coverage(mask: np.ndarray, box: tuple[int, int, int, int], tolerance: int) -> dict[str, float]:
+    x, y, width, height = box
+    image_h, image_w = mask.shape[:2]
+    right = x + width
+    bottom = y + height
+    t = max(1, int(tolerance))
+    bands = {
+        "left": mask[max(0, y):min(image_h, bottom), max(0, x - t):min(image_w, x + t + 1)],
+        "right": mask[max(0, y):min(image_h, bottom), max(0, right - 1 - t):min(image_w, right + t)],
+        "top": mask[max(0, y - t):min(image_h, y + t + 1), max(0, x):min(image_w, right)],
+        "bottom": mask[max(0, bottom - 1 - t):min(image_h, bottom + t), max(0, x):min(image_w, right)],
+    }
+    coverage: dict[str, float] = {}
+    for side, band in bands.items():
+        if band.size == 0:
+            coverage[side] = 0.0
+        elif side in {"left", "right"}:
+            coverage[side] = float(np.mean(np.any(band > 0, axis=1)))
+        else:
+            coverage[side] = float(np.mean(np.any(band > 0, axis=0)))
+    return coverage
+
+
+def _run_length_horizontal(mask: np.ndarray, x: int, y: int) -> int:
+    row = mask[y] > 0
+    if not row[x]:
+        return 0
+    left = x
+    while left > 0 and row[left - 1]:
+        left -= 1
+    right = x
+    while right + 1 < row.shape[0] and row[right + 1]:
+        right += 1
+    return right - left + 1
+
+
+def _run_length_vertical(mask: np.ndarray, x: int, y: int) -> int:
+    column = mask[:, x] > 0
+    if not column[y]:
+        return 0
+    top = y
+    while top > 0 and column[top - 1]:
+        top -= 1
+    bottom = y
+    while bottom + 1 < column.shape[0] and column[bottom + 1]:
+        bottom += 1
+    return bottom - top + 1
+
+
+def _near_duplicate_envelope(a: tuple[int, int, int, int], b: tuple[int, int, int, int]) -> bool:
+    if _pixel_iou(a, b) < 0.80:
+        return False
+    _ax, _ay, aw, ah = a
+    _bx, _by, bw, bh = b
+    width_delta = abs(aw - bw) / max(aw, bw)
+    height_delta = abs(ah - bh) / max(ah, bh)
+    return width_delta <= 0.15 and height_delta <= 0.15
+
+
+def reconstruct_axis_split_whole_symbol(
+    image: np.ndarray,
+    seed_bbox: dict[str, float],
+) -> dict[str, Any] | None:
+    """Reconstruct one review-only whole symbol around long orthogonal axes.
+
+    The function is intentionally seeded: it may only repair geometry already
+    classified by Human Review as an axis-fragmented graphical column symbol.
+    It never assigns support or structural identity and fails closed when the
+    source raster does not yield one unambiguous four-side envelope.
+    """
+
+    if image is None or not isinstance(image, np.ndarray) or image.ndim != 2 or image.size == 0:
+        raise ValueError("image must be a non-empty grayscale numpy array")
+    required = {"x", "y", "width", "height"}
+    if set(seed_bbox) != required:
+        raise ValueError("seed_bbox must contain x, y, width and height")
+    if any(float(seed_bbox[key]) < 0.0 for key in required):
+        raise ValueError("seed_bbox values must be non-negative")
+    if float(seed_bbox["width"]) <= 0.0 or float(seed_bbox["height"]) <= 0.0:
+        raise ValueError("seed_bbox must have positive area")
+    if float(seed_bbox["x"]) + float(seed_bbox["width"]) > 1.0 or float(seed_bbox["y"]) + float(seed_bbox["height"]) > 1.0:
+        raise ValueError("seed_bbox must lie inside normalized source bounds")
+
+    original_h, original_w = image.shape[:2]
+    if min(original_w, original_h) >= 1200:
+        work = cv2.resize(
+            image,
+            (max(1, original_w // 2), max(1, original_h // 2)),
+            interpolation=cv2.INTER_AREA,
+        )
+    else:
+        work = image.copy()
+    height, width = work.shape[:2]
+
+    seed_x = int(round(float(seed_bbox["x"]) * width))
+    seed_y = int(round(float(seed_bbox["y"]) * height))
+    seed_w = max(1, int(round(float(seed_bbox["width"]) * width)))
+    seed_h = max(1, int(round(float(seed_bbox["height"]) * height)))
+    seed_center_x = seed_x + seed_w / 2.0
+    seed_center_y = seed_y + seed_h / 2.0
+
+    blurred = cv2.GaussianBlur(work, (3, 3), 0)
+    _, binary = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=1)
+
+    # A repair axis must be materially longer than the reviewed fragment. This
+    # keeps local column/beam edges from being reclassified as page-scale axes.
+    page_axis_run = max(
+        61,
+        int(round(max(seed_w, seed_h) * 3.0)),
+        int(round(min(width, height) * 0.12)),
+    )
+    page_axis_run = min(page_axis_run, max(61, int(round(min(width, height) * 0.50))))
+    horizontal_axes = cv2.morphologyEx(
+        closed,
+        cv2.MORPH_OPEN,
+        cv2.getStructuringElement(cv2.MORPH_RECT, (page_axis_run, 1)),
+    )
+    vertical_axes = cv2.morphologyEx(
+        closed,
+        cv2.MORPH_OPEN,
+        cv2.getStructuringElement(cv2.MORPH_RECT, (1, page_axis_run)),
+    )
+    cross_mask = cv2.bitwise_and(horizontal_axes, vertical_axes)
+    count, _labels, stats, centroids = cv2.connectedComponentsWithStats(
+        (cross_mask > 0).astype(np.uint8),
+        8,
+    )
+
+    crossing_candidates: list[dict[str, float | int]] = []
+    search_radius = max(page_axis_run, int(round(max(seed_w, seed_h) * 2.5)))
+    for component in range(1, count):
+        _x, _y, cross_w, cross_h, _area = stats[component]
+        cross_x, cross_y = centroids[component]
+        if abs(cross_x - seed_center_x) > search_radius or abs(cross_y - seed_center_y) > search_radius:
+            continue
+        px = max(0, min(width - 1, int(round(cross_x))))
+        py = max(0, min(height - 1, int(round(cross_y))))
+        horizontal_run = _run_length_horizontal(horizontal_axes, px, py)
+        vertical_run = _run_length_vertical(vertical_axes, px, py)
+        if horizontal_run < page_axis_run or vertical_run < page_axis_run:
+            continue
+        crossing_candidates.append(
+            {
+                "x": float(cross_x),
+                "y": float(cross_y),
+                "width": int(cross_w),
+                "height": int(cross_h),
+                "horizontal_run": int(horizontal_run),
+                "vertical_run": int(vertical_run),
+                "strength": int(horizontal_run * vertical_run),
+            }
+        )
+    if not crossing_candidates:
+        return None
+
+    strongest = max(int(row["strength"]) for row in crossing_candidates)
+    comparable = [row for row in crossing_candidates if int(row["strength"]) >= strongest * 0.80]
+    comparable.sort(
+        key=lambda row: (
+            (float(row["x"]) - seed_center_x) ** 2 + (float(row["y"]) - seed_center_y) ** 2,
+            -int(row["strength"]),
+        )
+    )
+    crossing = comparable[0]
+    cross_x = float(crossing["x"])
+    cross_y = float(crossing["y"])
+    cross_w = int(crossing["width"])
+    cross_h = int(crossing["height"])
+
+    # Remove only the selected class of long axes, then bridge the observed
+    # axis-width gaps locally. The original closed mask remains the source for
+    # four-side boundary evidence.
+    axis_suppressed = cv2.subtract(closed, cv2.bitwise_or(horizontal_axes, vertical_axes))
+    bridge_x = max(5, cross_w * 2 + 3)
+    bridge_y = max(5, cross_h * 2 + 3)
+    repaired = cv2.morphologyEx(
+        axis_suppressed,
+        cv2.MORPH_CLOSE,
+        cv2.getStructuringElement(cv2.MORPH_RECT, (bridge_x, 1)),
+    )
+    repaired = cv2.morphologyEx(
+        repaired,
+        cv2.MORPH_CLOSE,
+        cv2.getStructuringElement(cv2.MORPH_RECT, (1, bridge_y)),
+    )
+    repaired = cv2.morphologyEx(repaired, cv2.MORPH_CLOSE, kernel, iterations=1)
+
+    contours, _ = cv2.findContours(repaired, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    max_local_side = min(
+        int(round(min(width, height) * 0.30)),
+        max(40, int(round(max(seed_w, seed_h) * 4.0))),
+    )
+    envelope_candidates: list[tuple[tuple[int, int, int, int], dict[str, float]]] = []
+    for contour in contours:
+        x, y, box_w, box_h = cv2.boundingRect(contour)
+        if box_w < 5 or box_h < 5 or box_w > max_local_side or box_h > max_local_side:
+            continue
+        if not (x < cross_x < x + box_w and y < cross_y < y + box_h):
+            continue
+        overlap_w = max(0, min(x + box_w, seed_x + seed_w) - max(x, seed_x))
+        overlap_h = max(0, min(y + box_h, seed_y + seed_h) - max(y, seed_y))
+        if overlap_w * overlap_h <= 0:
+            continue
+        if box_w * box_h <= seed_w * seed_h * 1.05:
+            continue
+        tolerance = max(2, int(round(min(box_w, box_h) * 0.06)))
+        coverage = _edge_coverage(closed, (x, y, box_w, box_h), tolerance)
+        if min(coverage.values()) < 0.45:
+            continue
+        envelope_candidates.append(((x, y, box_w, box_h), coverage))
+
+    unique_envelopes: list[tuple[tuple[int, int, int, int], dict[str, float]]] = []
+    for candidate in sorted(
+        envelope_candidates,
+        key=lambda row: row[0][2] * row[0][3],
+        reverse=True,
+    ):
+        if any(_near_duplicate_envelope(candidate[0], existing[0]) for existing in unique_envelopes):
+            continue
+        unique_envelopes.append(candidate)
+
+    # Multiple materially different enclosing rectangles are epistemically
+    # ambiguous; do not choose one by size, contour order or candidate ID.
+    if len(unique_envelopes) != 1:
+        return None
+
+    (x, y, box_w, box_h), coverage = unique_envelopes[0]
+    return {
+        "schema": "CEW_COL02_AXIS_AWARE_WHOLE_SYMBOL_REPAIR_v1",
+        "bbox": {
+            "x": x / width,
+            "y": y / height,
+            "width": box_w / width,
+            "height": box_h / height,
+        },
+        "seed_bbox": dict(seed_bbox),
+        "axis_cross": {"x": cross_x / width, "y": cross_y / height},
+        "axis_thickness_px": {
+            "horizontal": cross_h,
+            "vertical": cross_w,
+        },
+        "axis_run_length_px": {
+            "horizontal": int(crossing["horizontal_run"]),
+            "vertical": int(crossing["vertical_run"]),
+        },
+        "boundary_side_count": 4,
+        "boundary_coverage": coverage,
+        "detector": "AXIS_AWARE_WHOLE_SYMBOL_REPAIR",
+        "support_identity": None,
+        "structural_identity": None,
+        "canonical_geometry_authorized": False,
+        "canonical_write_authorized": False,
+    }
