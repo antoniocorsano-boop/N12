@@ -1,0 +1,407 @@
+from __future__ import annotations
+
+from typing import Any
+
+import cv2
+import numpy as np
+
+
+def _projection_bands(projection: np.ndarray, threshold: int) -> list[dict[str, int]]:
+    indices = np.where(projection >= threshold)[0]
+    if len(indices) == 0:
+        return []
+    bands: list[dict[str, int]] = []
+    start = previous = int(indices[0])
+    for raw in indices[1:]:
+        value = int(raw)
+        if value <= previous + 1:
+            previous = value
+            continue
+        segment = projection[start : previous + 1]
+        peak = start + int(np.argmax(segment))
+        bands.append(
+            {
+                "position": peak,
+                "start": start,
+                "end": previous,
+                "support": int(segment.max()),
+            }
+        )
+        start = previous = value
+    segment = projection[start : previous + 1]
+    peak = start + int(np.argmax(segment))
+    bands.append(
+        {
+            "position": peak,
+            "start": start,
+            "end": previous,
+            "support": int(segment.max()),
+        }
+    )
+    return bands
+
+
+def _edge_coverage(mask: np.ndarray, box: tuple[int, int, int, int], tolerance: int) -> dict[str, float]:
+    x, y, width, height = box
+    image_h, image_w = mask.shape[:2]
+    right = x + width
+    bottom = y + height
+    t = max(1, tolerance)
+    bands = {
+        "left": mask[max(0, y) : min(image_h, bottom), max(0, x - t) : min(image_w, x + t + 1)],
+        "right": mask[max(0, y) : min(image_h, bottom), max(0, right - 1 - t) : min(image_w, right + t)],
+        "top": mask[max(0, y - t) : min(image_h, y + t + 1), max(0, x) : min(image_w, right)],
+        "bottom": mask[max(0, bottom - 1 - t) : min(image_h, bottom + t), max(0, x) : min(image_w, right)],
+    }
+    coverage: dict[str, float] = {}
+    for side, band in bands.items():
+        if band.size == 0:
+            coverage[side] = 0.0
+        elif side in {"left", "right"}:
+            coverage[side] = float(np.mean(np.any(band > 0, axis=1)))
+        else:
+            coverage[side] = float(np.mean(np.any(band > 0, axis=0)))
+    return coverage
+
+
+def _horizontal_external_continuation(
+    mask: np.ndarray,
+    *,
+    position: int,
+    left: int,
+    right: int,
+    extension: int,
+    gap: int,
+) -> dict[str, float]:
+    image_h, image_w = mask.shape[:2]
+    top = max(0, position - 1)
+    bottom = min(image_h, position + 2)
+    left_start = max(0, left - extension)
+    left_end = max(left_start, left - gap)
+    right_start = min(image_w, right + gap + 1)
+    right_end = min(image_w, right + extension + 1)
+
+    left_window = mask[top:bottom, left_start:left_end]
+    right_window = mask[top:bottom, right_start:right_end]
+    left_support = float(np.mean(np.any(left_window > 0, axis=0))) if left_window.size else 0.0
+    right_support = float(np.mean(np.any(right_window > 0, axis=0))) if right_window.size else 0.0
+    return {"left": left_support, "right": right_support}
+
+
+def _vertical_external_continuation(
+    mask: np.ndarray,
+    *,
+    position: int,
+    top: int,
+    bottom: int,
+    extension: int,
+    gap: int,
+) -> dict[str, float]:
+    image_h, image_w = mask.shape[:2]
+    left = max(0, position - 1)
+    right = min(image_w, position + 2)
+    above_start = max(0, top - extension)
+    above_end = max(above_start, top - gap)
+    below_start = min(image_h, bottom + gap + 1)
+    below_end = min(image_h, bottom + extension + 1)
+
+    above_window = mask[above_start:above_end, left:right]
+    below_window = mask[below_start:below_end, left:right]
+    above_support = float(np.mean(np.any(above_window > 0, axis=1))) if above_window.size else 0.0
+    below_support = float(np.mean(np.any(below_window > 0, axis=1))) if below_window.size else 0.0
+    return {"above": above_support, "below": below_support}
+
+
+def _contained(inner: tuple[int, int, int, int], outer: tuple[int, int, int, int], tolerance: int = 2) -> bool:
+    ix, iy, iw, ih = inner
+    ox, oy, ow, oh = outer
+    return (
+        ix >= ox - tolerance
+        and iy >= oy - tolerance
+        and ix + iw <= ox + ow + tolerance
+        and iy + ih <= oy + oh + tolerance
+    )
+
+
+def _box_area(box: tuple[int, int, int, int]) -> int:
+    return int(box[2]) * int(box[3])
+
+
+def _near_duplicate(a: tuple[int, int, int, int], b: tuple[int, int, int, int]) -> bool:
+    ax, ay, aw, ah = a
+    bx, by, bw, bh = b
+    ix = max(0, min(ax + aw, bx + bw) - max(ax, bx))
+    iy = max(0, min(ay + ah, by + bh) - max(ay, by))
+    intersection = ix * iy
+    union = aw * ah + bw * bh - intersection
+    iou = intersection / union if union else 0.0
+    return (
+        iou >= 0.80
+        and abs(aw - bw) / max(aw, bw) <= 0.15
+        and abs(ah - bh) / max(ah, bh) <= 0.15
+    )
+
+
+def reconstruct_local_axis_envelope(
+    image: np.ndarray,
+    seed_bbox: dict[str, float],
+) -> dict[str, Any] | None:
+    """Recover one local four-side envelope around a reviewed fragmented seed.
+
+    This is a bounded graphical fallback. It uses only raster geometry around the
+    supplied seed: four-side boundary continuity plus one interior horizontal and
+    one interior vertical axis that each continue beyond the candidate envelope.
+    It does not infer support identity, section, family, structural identity, or
+    canonical geometry and fails closed on a materially different near-tie.
+    """
+
+    if image is None or not isinstance(image, np.ndarray) or image.ndim != 2 or image.size == 0:
+        raise ValueError("image must be a non-empty grayscale numpy array")
+    required = {"x", "y", "width", "height"}
+    if set(seed_bbox) != required:
+        raise ValueError("seed_bbox must contain x, y, width and height")
+    if any(float(seed_bbox[key]) < 0.0 for key in required):
+        raise ValueError("seed_bbox values must be non-negative")
+    if float(seed_bbox["width"]) <= 0.0 or float(seed_bbox["height"]) <= 0.0:
+        raise ValueError("seed_bbox must have positive area")
+    if float(seed_bbox["x"]) + float(seed_bbox["width"]) > 1.0 or float(seed_bbox["y"]) + float(seed_bbox["height"]) > 1.0:
+        raise ValueError("seed_bbox must lie inside normalized source bounds")
+
+    original_h, original_w = image.shape[:2]
+    if min(original_w, original_h) >= 1200:
+        work = cv2.resize(
+            image,
+            (max(1, original_w // 2), max(1, original_h // 2)),
+            interpolation=cv2.INTER_AREA,
+        )
+    else:
+        work = image.copy()
+    height, width = work.shape[:2]
+
+    seed_x = int(round(float(seed_bbox["x"]) * width))
+    seed_y = int(round(float(seed_bbox["y"]) * height))
+    seed_w = max(1, int(round(float(seed_bbox["width"]) * width)))
+    seed_h = max(1, int(round(float(seed_bbox["height"]) * height)))
+
+    margin = min(420, max(90, int(round(max(seed_w, seed_h) * 3.0))))
+    local_left = max(0, seed_x - margin)
+    local_top = max(0, seed_y - margin)
+    local_right = min(width, seed_x + seed_w + margin)
+    local_bottom = min(height, seed_y + seed_h + margin)
+    local = work[local_top:local_bottom, local_left:local_right]
+    if local.size == 0:
+        return None
+
+    sx1 = seed_x - local_left
+    sy1 = seed_y - local_top
+    sx2 = sx1 + seed_w
+    sy2 = sy1 + seed_h
+
+    blurred = cv2.GaussianBlur(local, (3, 3), 0)
+    _, binary = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=1)
+
+    line_run = max(9, int(round(min(seed_w, seed_h) * 0.22)))
+    horizontal_lines = cv2.morphologyEx(
+        closed,
+        cv2.MORPH_OPEN,
+        cv2.getStructuringElement(cv2.MORPH_RECT, (line_run, 1)),
+    )
+    vertical_lines = cv2.morphologyEx(
+        closed,
+        cv2.MORPH_OPEN,
+        cv2.getStructuringElement(cv2.MORPH_RECT, (1, line_run)),
+    )
+    horizontal_bands = _projection_bands(np.sum(horizontal_lines > 0, axis=1), line_run)
+    vertical_bands = _projection_bands(np.sum(vertical_lines > 0, axis=0), line_run)
+    if len(horizontal_bands) < 3 or len(vertical_bands) < 3:
+        return None
+
+    max_side = min(max(local.shape[:2]), max(40, int(round(max(seed_w, seed_h) * 4.5))))
+    min_height = max(5, min(20, int(round(seed_h * 0.45))))
+    min_width = max(5, min(20, int(round(seed_w * 0.45))))
+    seed_area = float(seed_w * seed_h)
+    candidates: list[dict[str, Any]] = []
+
+    for top_index, top_band in enumerate(horizontal_bands):
+        for bottom_band in horizontal_bands[top_index + 1 :]:
+            y1 = int(top_band["position"])
+            y2 = int(bottom_band["position"])
+            box_h = y2 - y1 + 1
+            if box_h < min_height or box_h > max_side:
+                continue
+            overlap_h = max(0, min(y2 + 1, sy2) - max(y1, sy1))
+            if overlap_h / seed_h < 0.25:
+                continue
+
+            for left_index, left_band in enumerate(vertical_bands):
+                for right_band in vertical_bands[left_index + 1 :]:
+                    x1 = int(left_band["position"])
+                    x2 = int(right_band["position"])
+                    box_w = x2 - x1 + 1
+                    if box_w < min_width or box_w > max_side:
+                        continue
+                    overlap_w = max(0, min(x2 + 1, sx2) - max(x1, sx1))
+                    seed_overlap = (overlap_w * overlap_h) / seed_area
+                    if seed_overlap < 0.28:
+                        continue
+                    if box_w * box_h <= seed_area * 1.02:
+                        continue
+                    aspect_ratio = box_w / box_h
+                    if aspect_ratio < 0.10 or aspect_ratio > 10.0:
+                        continue
+
+                    tolerance = max(2, int(round(min(box_w, box_h) * 0.035)))
+                    coverage = _edge_coverage(closed, (x1, y1, box_w, box_h), tolerance)
+                    if min(coverage.values()) < 0.35:
+                        continue
+
+                    interior_margin = max(2, int(round(min(box_w, box_h) * 0.08)))
+                    continuation_gap = max(2, tolerance)
+                    horizontal_extension = max(10, min(80, int(round(box_w * 0.30))))
+                    vertical_extension = max(10, min(80, int(round(box_h * 0.50))))
+
+                    interior_horizontal: list[tuple[float, float, dict[str, int], dict[str, float]]] = []
+                    for band in horizontal_bands:
+                        position = int(band["position"])
+                        if not (y1 + interior_margin < position < y2 - interior_margin):
+                            continue
+                        sample = horizontal_lines[
+                            max(0, position - 1) : min(local.shape[0], position + 2),
+                            x1 : x2 + 1,
+                        ]
+                        support = float(np.mean(np.any(sample > 0, axis=0))) if sample.size else 0.0
+                        if support < 0.12:
+                            continue
+                        continuation = _horizontal_external_continuation(
+                            horizontal_lines,
+                            position=position,
+                            left=x1,
+                            right=x2,
+                            extension=horizontal_extension,
+                            gap=continuation_gap,
+                        )
+                        minimum_continuation = min(continuation.values())
+                        if minimum_continuation < 0.20:
+                            continue
+                        interior_horizontal.append((support, minimum_continuation, band, continuation))
+
+                    interior_vertical: list[tuple[float, float, dict[str, int], dict[str, float]]] = []
+                    for band in vertical_bands:
+                        position = int(band["position"])
+                        if not (x1 + interior_margin < position < x2 - interior_margin):
+                            continue
+                        sample = vertical_lines[
+                            y1 : y2 + 1,
+                            max(0, position - 1) : min(local.shape[1], position + 2),
+                        ]
+                        support = float(np.mean(np.any(sample > 0, axis=1))) if sample.size else 0.0
+                        if support < 0.12:
+                            continue
+                        continuation = _vertical_external_continuation(
+                            vertical_lines,
+                            position=position,
+                            top=y1,
+                            bottom=y2,
+                            extension=vertical_extension,
+                            gap=continuation_gap,
+                        )
+                        minimum_continuation = min(continuation.values())
+                        if minimum_continuation < 0.20:
+                            continue
+                        interior_vertical.append((support, minimum_continuation, band, continuation))
+
+                    if not interior_horizontal or not interior_vertical:
+                        continue
+                    horizontal_axis = max(interior_horizontal, key=lambda item: (item[1], item[0]))
+                    vertical_axis = max(interior_vertical, key=lambda item: (item[1], item[0]))
+                    minimum_boundary = min(coverage.values())
+                    mean_boundary = sum(coverage.values()) / 4.0
+                    axis_support = min(horizontal_axis[0], vertical_axis[0])
+                    axis_continuation = min(horizontal_axis[1], vertical_axis[1])
+                    score = (
+                        0.45 * minimum_boundary
+                        + 0.20 * mean_boundary
+                        + 0.15 * axis_support
+                        + 0.10 * axis_continuation
+                        + 0.10 * seed_overlap
+                    )
+                    candidates.append(
+                        {
+                            "score": score,
+                            "box": (x1, y1, box_w, box_h),
+                            "coverage": coverage,
+                            "seed_overlap": seed_overlap,
+                            "horizontal_axis": horizontal_axis,
+                            "vertical_axis": vertical_axis,
+                        }
+                    )
+
+    if not candidates:
+        return None
+    candidates.sort(key=lambda row: float(row["score"]), reverse=True)
+    unique: list[dict[str, Any]] = []
+    for candidate in candidates:
+        if any(_near_duplicate(candidate["box"], existing["box"]) for existing in unique):
+            continue
+        unique.append(candidate)
+
+    if not unique:
+        return None
+    top_score = float(unique[0]["score"])
+    plausible = [row for row in unique if float(row["score"]) >= top_score - 0.08]
+    reference_box = plausible[0]["box"]
+    for competing in plausible[1:]:
+        if _contained(competing["box"], reference_box) or _contained(reference_box, competing["box"]):
+            continue
+        return None
+    chosen = min(
+        plausible,
+        key=lambda row: (_box_area(row["box"]), -float(row["score"])),
+    )
+
+    x, y, box_w, box_h = chosen["box"]
+    horizontal_support, horizontal_continuation, horizontal_band, horizontal_sides = chosen["horizontal_axis"]
+    vertical_support, vertical_continuation, vertical_band, vertical_sides = chosen["vertical_axis"]
+    global_x = x + local_left
+    global_y = y + local_top
+    cross_x = int(vertical_band["position"]) + local_left
+    cross_y = int(horizontal_band["position"]) + local_top
+    return {
+        "schema": "CEW_COL02_AXIS_AWARE_WHOLE_SYMBOL_REPAIR_v1",
+        "bbox": {
+            "x": global_x / width,
+            "y": global_y / height,
+            "width": box_w / width,
+            "height": box_h / height,
+        },
+        "seed_bbox": dict(seed_bbox),
+        "axis_cross": {"x": cross_x / width, "y": cross_y / height},
+        "axis_thickness_px": {
+            "horizontal": int(horizontal_band["end"]) - int(horizontal_band["start"]) + 1,
+            "vertical": int(vertical_band["end"]) - int(vertical_band["start"]) + 1,
+        },
+        "axis_run_length_px": {
+            "horizontal": int(horizontal_band["support"]),
+            "vertical": int(vertical_band["support"]),
+        },
+        "axis_external_continuation": {
+            "horizontal": dict(horizontal_sides),
+            "vertical": dict(vertical_sides),
+            "minimum": float(min(horizontal_continuation, vertical_continuation)),
+        },
+        "boundary_side_count": 4,
+        "boundary_coverage": dict(chosen["coverage"]),
+        "seed_overlap_fraction": float(chosen["seed_overlap"]),
+        "repair_score": float(chosen["score"]),
+        "interior_axis_support": {
+            "horizontal": float(horizontal_support),
+            "vertical": float(vertical_support),
+        },
+        "detector": "LOCAL_AXIS_AWARE_FOUR_SIDE_ENVELOPE_REPAIR",
+        "support_identity": None,
+        "structural_identity": None,
+        "canonical_geometry_authorized": False,
+        "canonical_write_authorized": False,
+    }

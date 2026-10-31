@@ -7,7 +7,11 @@ on:
       - 'tests/cew_col02/**'
       - 'governance/cew-col02/**'
       - 'docs/experiments/2026-10-30-cew-col02-footprint-text-binding-design.md'
+      - 'docs/experiments/2026-10-31-cew-col02-residual-occurrence-reconciliation-design.md'
+      - 'docs/superpowers/specs/2026-10-31-cew-col02-axis-aware-whole-symbol-design.md'
       - 'docs/superpowers/plans/2026-10-30-cew-col02-footprint-text-binding.md'
+      - 'docs/superpowers/plans/2026-10-31-cew-col02-residual-occurrence-reconciliation.md'
+      - 'docs/superpowers/plans/2026-10-31-cew-col02-axis-aware-whole-symbol.md'
       - '.github/workflows/validate-cew-col02-footprint-text-binding.yml'
   workflow_dispatch:
 
@@ -90,6 +94,134 @@ jobs:
           set -euo pipefail
           source "$RUNNER_TEMP/cew-col02/bin/activate"
           python -m experiments.cew_col02.occurrence_sweep_exact_source
+      - name: Execute residual occurrence reconciliation
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col02/bin/activate"
+          python -m experiments.cew_col02.residual_occurrence_reconciliation_exact_source
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('evidence/cew-col02/footprint-text-binding/col02-residual-occurrence-reconciliation.json')
+          data=json.loads(p.read_text(encoding='utf-8'))
+          assert data['residual_candidate_review_complete'] is True
+          assert data['occurrence_coverage_complete'] is False
+          assert data['authority']['graphical_reconciliation_review_authorized'] is True
+          for key in (
+              'support_identity_authorized','text_identity_binding_authorized','family_assignment_authorized',
+              'section_assignment_authorized','fixed_line_assignment_authorized','structural_identity_authorized',
+              'canonical_geometry_authorized','canonical_write_authorized','g2c_promotion_authorized',
+              'g3_authorized','merge_authorized'
+          ):
+              assert data['authority'][key] is False, key
+          assert len(data['reframe_tasks']) == 2
+          assert len(data['point_reconciliation']) == 4
+          print('CEW_COL02_RESIDUAL_RECONCILIATION_AUTHORITY=PASS')
+          PY
+      - name: Diagnose axis-aware whole-symbol repair candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col02/bin/activate"
+          python - <<'PY'
+          import json
+          from experiments.cew_col02.axis_aware_local_envelope import reconstruct_local_axis_envelope
+          from experiments.cew_col02.axis_aware_whole_symbol import (
+              EXPECTED_REPAIR_TASKS,
+              reconstruct_axis_split_whole_symbol,
+          )
+          from experiments.cew_col02.axis_aware_whole_symbol_exact_source import (
+              _regenerate_source_analysis_and_proposals,
+          )
+
+          image, analysis, payload = _regenerate_source_analysis_and_proposals()
+          proposals = {row['candidate_id']: row for row in payload['candidates']}
+          for task_id, candidate_id in EXPECTED_REPAIR_TASKS.items():
+              seed = proposals[candidate_id]['bbox']
+              primary = reconstruct_axis_split_whole_symbol(analysis, seed)
+              analysis_fallback = None if primary is not None else reconstruct_local_axis_envelope(analysis, seed)
+              result = primary if primary is not None else analysis_fallback
+              raw_fallback = reconstruct_local_axis_envelope(image, seed) if task_id == 'R01' else None
+              local_full_res = None
+              local_full_res_mapped_bbox = None
+              if task_id == 'R01':
+                  image_h, image_w = image.shape[:2]
+                  seed_x = int(round(float(seed['x']) * image_w))
+                  seed_y = int(round(float(seed['y']) * image_h))
+                  seed_w = max(1, int(round(float(seed['width']) * image_w)))
+                  seed_h = max(1, int(round(float(seed['height']) * image_h)))
+                  margin = min(840, max(180, int(round(max(seed_w, seed_h) * 3.0))))
+                  left = max(0, seed_x - margin)
+                  top = max(0, seed_y - margin)
+                  right = min(image_w, seed_x + seed_w + margin)
+                  bottom = min(image_h, seed_y + seed_h + margin)
+                  crop = image[top:bottom, left:right]
+                  crop_h, crop_w = crop.shape[:2]
+                  local_seed = {
+                      'x': (seed_x - left) / crop_w,
+                      'y': (seed_y - top) / crop_h,
+                      'width': seed_w / crop_w,
+                      'height': seed_h / crop_h,
+                  }
+                  local_full_res = reconstruct_local_axis_envelope(crop, local_seed)
+                  if local_full_res is not None:
+                      box = local_full_res['bbox']
+                      local_full_res_mapped_bbox = {
+                          'x': (left + float(box['x']) * crop_w) / image_w,
+                          'y': (top + float(box['y']) * crop_h) / image_h,
+                          'width': float(box['width']) * crop_w / image_w,
+                          'height': float(box['height']) * crop_h / image_h,
+                      }
+              print('CEW_COL02_WSR_DIAGNOSTIC=' + json.dumps({
+                  'review_task_id': task_id,
+                  'candidate_id': candidate_id,
+                  'primary_ready': primary is not None,
+                  'analysis_fallback_ready': analysis_fallback is not None,
+                  'result_detector': None if result is None else result.get('detector'),
+                  'result_bbox': None if result is None else result.get('bbox'),
+                  'axis_cross': None if result is None else result.get('axis_cross'),
+                  'axis_external_continuation': None if result is None else result.get('axis_external_continuation'),
+                  'boundary_coverage': None if result is None else result.get('boundary_coverage'),
+                  'r01_raw_fallback_ready': None if task_id != 'R01' else raw_fallback is not None,
+                  'r01_raw_fallback_bbox': None if raw_fallback is None else raw_fallback.get('bbox'),
+                  'r01_raw_fallback_axis_cross': None if raw_fallback is None else raw_fallback.get('axis_cross'),
+                  'r01_raw_fallback_boundary_coverage': None if raw_fallback is None else raw_fallback.get('boundary_coverage'),
+                  'r01_full_res_local_ready': None if task_id != 'R01' else local_full_res is not None,
+                  'r01_full_res_local_bbox': local_full_res_mapped_bbox,
+                  'r01_full_res_local_boundary_coverage': None if local_full_res is None else local_full_res.get('boundary_coverage'),
+              }, sort_keys=True))
+          PY
+      - name: Execute axis-aware whole-symbol repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col02/bin/activate"
+          python -m experiments.cew_col02.axis_aware_whole_symbol_exact_source
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('evidence/cew-col02/footprint-text-binding/col02-axis-aware-whole-symbol-repair.json')
+          data=json.loads(p.read_text(encoding='utf-8'))
+          assert data['proposal_count'] == 611
+          assert data['original_proposal_id_space_immutable'] is True
+          assert data['repair_candidate_count'] == 5
+          assert data['ready_for_human_review_count'] == 5
+          assert data['unresolved_repair_count'] == 0
+          assert data['rejected_candidates'] == [
+              {'candidate_id': 'COL02-FP-0106', 'reason': 'MISLOCALIZED_NOT_COLUMN'}
+          ]
+          assert data['occurrence_coverage_complete'] is False
+          assert data['authority']['graphical_whole_symbol_repair_authorized'] is True
+          for key in (
+              'support_identity_authorized','text_identity_binding_authorized','family_assignment_authorized',
+              'section_assignment_authorized','fixed_line_assignment_authorized','structural_identity_authorized',
+              'canonical_geometry_authorized','canonical_write_authorized','g2c_promotion_authorized',
+              'g3_authorized','merge_authorized'
+          ):
+              assert data['authority'][key] is False, key
+          print('CEW_COL02_AXIS_AWARE_WHOLE_SYMBOL_AUTHORITY=PASS')
+          PY
       - name: Upload COL-02 evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
