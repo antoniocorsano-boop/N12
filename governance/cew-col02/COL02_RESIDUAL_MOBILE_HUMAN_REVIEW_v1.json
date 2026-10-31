@@ -1,0 +1,294 @@
+{
+  "schema_version": "cew-mobile-review-bundle-v1",
+  "review_id": "CEW-COL02-VISIBLE-SIBLING-RESIDUAL-MOBILE-v1",
+  "source": {
+    "authority": "EXACT_SOURCE_DERIVED_HUMAN_GRAPHICAL_REVIEW_ONLY",
+    "occurrence_sweep_replay_sha256": "bdf6dbdb6a071312727a3ca8146159d4f47514a7bcaec5225235987b0ccb1070",
+    "page_id": "CEW-N12-PAGE-TAV05S-P001",
+    "page_transform_id": "CEW-N12-XFORM-TAV05S-P001",
+    "producer_exact_sha": "5664614d813cd11cf357bed40d7cdfaa843720f2",
+    "prototype_guided_replay_sha256": "11dc8a03789628c6167a8c7cc10fe41d318c5fa22535065598e1c36aa56fd1ac",
+    "residual_candidate_count": 10,
+    "source_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+    "source_id": "CEW-COL02:CEW-N12-SRC-TAV05S-V2143DBCF",
+    "source_path": "archive/documentazione_originaria/tavola 5.pdf",
+    "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+    "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF"
+  },
+  "candidate_ids": [
+    "COL02-FP-0515",
+    "COL02-FP-0252",
+    "COL02-FP-0028",
+    "COL02-FP-0581",
+    "COL02-FP-0577",
+    "COL02-FP-0605",
+    "COL02-FP-0490",
+    "COL02-FP-0106",
+    "COL02-FP-0572",
+    "COL02-FP-0243"
+  ],
+  "events": [
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00001-1793425154481",
+      "timestamp": "2026-10-31T05:39:14.482Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0515",
+      "action": "NON_PILASTRO",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00002-1793425162971",
+      "timestamp": "2026-10-31T05:39:22.971Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0252",
+      "action": "INQUADRATO_MALE",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00003-1793425167434",
+      "timestamp": "2026-10-31T05:39:27.434Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0028",
+      "action": "NON_PILASTRO",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00004-1793425172238",
+      "timestamp": "2026-10-31T05:39:32.238Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0581",
+      "action": "PILASTRO",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00005-1793425176479",
+      "timestamp": "2026-10-31T05:39:36.479Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0577",
+      "action": "NON_PILASTRO",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00006-1793425178494",
+      "timestamp": "2026-10-31T05:39:38.494Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0605",
+      "action": "PILASTRO",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00007-1793425180957",
+      "timestamp": "2026-10-31T05:39:40.957Z",
+      "event_type": "UNDO_LAST",
+      "undoes_event_id": "EV-00006-1793425178494",
+      "candidate_id": "COL02-FP-0605",
+      "terminal": false
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00008-1793425185738",
+      "timestamp": "2026-10-31T05:39:45.738Z",
+      "event_type": "ADDITIONAL_OCCURRENCE",
+      "candidate_id": "COL02-FP-0605",
+      "action": "ALTRO_PILASTRO",
+      "point": {
+        "x": 0.47868218880441527,
+        "y": 0.4925075139530242
+      },
+      "terminal": false
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00009-1793425189809",
+      "timestamp": "2026-10-31T05:39:49.809Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0605",
+      "action": "PILASTRO",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00010-1793425192538",
+      "timestamp": "2026-10-31T05:39:52.538Z",
+      "event_type": "UNDO_LAST",
+      "undoes_event_id": "EV-00009-1793425189809",
+      "candidate_id": "COL02-FP-0605",
+      "terminal": false
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00011-1793425201415",
+      "timestamp": "2026-10-31T05:40:01.415Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0605",
+      "action": "PILASTRO",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00012-1793425205126",
+      "timestamp": "2026-10-31T05:40:05.126Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0490",
+      "action": "NON_PILASTRO",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00013-1793425209897",
+      "timestamp": "2026-10-31T05:40:09.897Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0106",
+      "action": "INQUADRATO_MALE",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00014-1793425214337",
+      "timestamp": "2026-10-31T05:40:14.337Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0572",
+      "action": "NON_PILASTRO",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00015-1793425218559",
+      "timestamp": "2026-10-31T05:40:18.559Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0243",
+      "action": "NON_PILASTRO",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00016-1793425220485",
+      "timestamp": "2026-10-31T05:40:20.485Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0243",
+      "action": "NON_PILASTRO",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00017-1793425226239",
+      "timestamp": "2026-10-31T05:40:26.239Z",
+      "event_type": "UNDO_LAST",
+      "undoes_event_id": "EV-00016-1793425220485",
+      "candidate_id": "COL02-FP-0243",
+      "terminal": false
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00018-1793425227711",
+      "timestamp": "2026-10-31T05:40:27.711Z",
+      "event_type": "UNDO_LAST",
+      "undoes_event_id": "EV-00015-1793425218559",
+      "candidate_id": "COL02-FP-0243",
+      "terminal": false
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00019-1793425228923",
+      "timestamp": "2026-10-31T05:40:28.923Z",
+      "event_type": "UNDO_LAST",
+      "undoes_event_id": "EV-00014-1793425214337",
+      "candidate_id": "COL02-FP-0572",
+      "terminal": false
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00020-1793425233167",
+      "timestamp": "2026-10-31T05:40:33.167Z",
+      "event_type": "ADDITIONAL_OCCURRENCE",
+      "candidate_id": "COL02-FP-0572",
+      "action": "ALTRO_PILASTRO",
+      "point": {
+        "x": 0.6317829569062605,
+        "y": 0.9185485394250348
+      },
+      "terminal": false
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00021-1793425237086",
+      "timestamp": "2026-10-31T05:40:37.086Z",
+      "event_type": "ADDITIONAL_OCCURRENCE",
+      "candidate_id": "COL02-FP-0572",
+      "action": "ALTRO_PILASTRO",
+      "point": {
+        "x": 0.1686046467303199,
+        "y": 0.9111152394102054
+      },
+      "terminal": false
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00022-1793425239605",
+      "timestamp": "2026-10-31T05:40:39.605Z",
+      "event_type": "ADDITIONAL_OCCURRENCE",
+      "candidate_id": "COL02-FP-0572",
+      "action": "ALTRO_PILASTRO",
+      "point": {
+        "x": 0.594961226421669,
+        "y": 0.41732903940222044
+      },
+      "terminal": false
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00023-1793425264084",
+      "timestamp": "2026-10-31T05:41:04.084Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0572",
+      "action": "NON_PILASTRO",
+      "reason": null,
+      "terminal": true
+    },
+    {
+      "schema_version": "cew-mobile-review-event-v1",
+      "event_id": "EV-00024-1793425265868",
+      "timestamp": "2026-10-31T05:41:05.868Z",
+      "event_type": "CANDIDATE_DECISION",
+      "candidate_id": "COL02-FP-0243",
+      "action": "NON_PILASTRO",
+      "reason": null,
+      "terminal": true
+    }
+  ],
+  "authority": {
+    "support_identity_authorized": false,
+    "text_identity_binding_authorized": false,
+    "family_assignment_authorized": false,
+    "section_assignment_authorized": false,
+    "fixed_line_assignment_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false
+  },
+  "canonical_write_authorized": false,
+  "canonical_write_performed": false
+}
