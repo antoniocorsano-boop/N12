@@ -9,6 +9,7 @@ from experiments.cew_col03b.predecessor import (
 
 
 QUALIFIED_SHA = "0d4a43cf02eadd2ab6f4b2641888395586c08a98"
+COL03A_INTERNAL_COL02_BASE_SHA = "0191c1bdb0b1cd8387aa2260f31a7764cbe0f2b4"
 
 
 def _occurrence(index: int) -> dict:
@@ -87,7 +88,7 @@ def _reconciliation() -> dict:
 
 def _closure() -> dict:
     return {
-        "qualified_base_sha": QUALIFIED_SHA,
+        "qualified_base_sha": COL03A_INTERNAL_COL02_BASE_SHA,
         "occurrence_ledger_complete": True,
         "blocking_reasons": [],
         "authority": {
@@ -107,7 +108,7 @@ def _closure() -> dict:
 
 
 class PredecessorContractTests(unittest.TestCase):
-    def test_accepts_exact_22_occurrence_predecessor(self) -> None:
+    def test_accepts_exact_22_occurrence_predecessor_with_historical_internal_base(self) -> None:
         occurrences = validate_col03a_predecessor(
             ledger=_ledger(),
             reconciliation=_reconciliation(),
@@ -119,6 +120,26 @@ class PredecessorContractTests(unittest.TestCase):
         self.assertEqual(len(collapsed), 2)
         self.assertEqual(collapsed[0]["human_equivalence_decision_ids"], ["A"])
         self.assertEqual(collapsed[1]["human_equivalence_decision_ids"], ["B"])
+
+    def test_rejects_wrong_exact_col03a_head_even_when_internal_base_is_valid(self) -> None:
+        with self.assertRaisesRegex(ValueError, "qualified predecessor SHA"):
+            validate_col03a_predecessor(
+                ledger=_ledger(),
+                reconciliation=_reconciliation(),
+                closure=_closure(),
+                expected_sha="f" * 40,
+            )
+
+    def test_rejects_internal_col02_base_drift(self) -> None:
+        closure = _closure()
+        closure["qualified_base_sha"] = "e" * 40
+        with self.assertRaisesRegex(ValueError, "internal COL-02 base drift"):
+            validate_col03a_predecessor(
+                ledger=_ledger(),
+                reconciliation=_reconciliation(),
+                closure=closure,
+                expected_sha=QUALIFIED_SHA,
+            )
 
     def test_rejects_authority_drift(self) -> None:
         ledger = _ledger()
