@@ -142,20 +142,14 @@ def _near_duplicate(a: tuple[int, int, int, int], b: tuple[int, int, int, int]) 
     )
 
 
-def reconstruct_local_axis_envelope(
+def _reconstruct_local_axis_envelope_single_scale(
     image: np.ndarray,
     seed_bbox: dict[str, float],
+    *,
+    margin_floor: int,
+    margin_cap: int,
 ) -> dict[str, Any] | None:
-    """Recover one local four-side envelope around a reviewed fragmented seed.
-
-    This is a bounded graphical fallback. It uses only raster geometry around the
-    supplied seed: four-side boundary continuity plus one interior horizontal and
-    one interior vertical axis that each continue beyond the candidate envelope.
-    The local source region is extracted before any page-scale reduction so thin
-    source geometry is not destroyed before localisation. It does not infer
-    support identity, section, family, structural identity, or canonical geometry
-    and fails closed on a materially different near-tie.
-    """
+    """Run the bounded local envelope detector at exactly one raster scale."""
 
     if image is None or not isinstance(image, np.ndarray) or image.ndim != 2 or image.size == 0:
         raise ValueError("image must be a non-empty grayscale numpy array")
@@ -168,6 +162,8 @@ def reconstruct_local_axis_envelope(
         raise ValueError("seed_bbox must have positive area")
     if float(seed_bbox["x"]) + float(seed_bbox["width"]) > 1.0 or float(seed_bbox["y"]) + float(seed_bbox["height"]) > 1.0:
         raise ValueError("seed_bbox must lie inside normalized source bounds")
+    if margin_floor <= 0 or margin_cap < margin_floor:
+        raise ValueError("invalid local margin bounds")
 
     original_h, original_w = image.shape[:2]
     seed_x = int(round(float(seed_bbox["x"]) * original_w))
@@ -175,9 +171,6 @@ def reconstruct_local_axis_envelope(
     seed_w = max(1, int(round(float(seed_bbox["width"]) * original_w)))
     seed_h = max(1, int(round(float(seed_bbox["height"]) * original_h)))
 
-    large_source = min(original_w, original_h) >= 1200
-    margin_cap = 840 if large_source else 420
-    margin_floor = 180 if large_source else 90
     margin = min(margin_cap, max(margin_floor, int(round(max(seed_w, seed_h) * 3.0))))
     local_left = max(0, seed_x - margin)
     local_top = max(0, seed_y - margin)
@@ -400,3 +393,51 @@ def reconstruct_local_axis_envelope(
         "canonical_geometry_authorized": False,
         "canonical_write_authorized": False,
     }
+
+
+def reconstruct_local_axis_envelope(
+    image: np.ndarray,
+    seed_bbox: dict[str, float],
+) -> dict[str, Any] | None:
+    """Recover one bounded local four-side envelope with a scale-safe fallback.
+
+    Native source resolution is authoritative for the first attempt so thin source
+    geometry is not destroyed before localisation. If and only if that attempt is
+    unresolved on a large raster, the detector retries the historical half-scale
+    representation with the historical local-margin profile. The fallback remains
+    graphical only and does not infer support identity, section, family,
+    structural identity, or canonical geometry.
+    """
+
+    if image is None or not isinstance(image, np.ndarray) or image.ndim != 2 or image.size == 0:
+        raise ValueError("image must be a non-empty grayscale numpy array")
+
+    original_h, original_w = image.shape[:2]
+    large_source = min(original_w, original_h) >= 1200
+    native = _reconstruct_local_axis_envelope_single_scale(
+        image,
+        seed_bbox,
+        margin_floor=180 if large_source else 90,
+        margin_cap=840 if large_source else 420,
+    )
+    if native is not None or not large_source:
+        return native
+
+    reduced = cv2.resize(
+        image,
+        (max(1, original_w // 2), max(1, original_h // 2)),
+        interpolation=cv2.INTER_AREA,
+    )
+    fallback = _reconstruct_local_axis_envelope_single_scale(
+        reduced,
+        seed_bbox,
+        margin_floor=90,
+        margin_cap=420,
+    )
+    if fallback is None:
+        return None
+
+    result = dict(fallback)
+    result["detector"] = "LOCAL_AXIS_AWARE_FOUR_SIDE_ENVELOPE_REPAIR_HALF_SCALE_FALLBACK"
+    result["analysis_scale_factor"] = 0.5
+    return result
