@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import hashlib
+import json
+from pathlib import Path
 from typing import Any
 
 
 EXPECTED_RECONCILIATION_REPLAY_SHA256 = "b68526f71e77a072b0849d2d3cd2fcab886b03c86a99681717d7aee5cd13bf3c"
+EXPECTED_REPAIR_MANIFEST_SHA256 = "e688c22753d8804edfdded8e9f89651c60b7a864a016b400a027d708329b1228"
 EXPECTED_TASKS = {
     "R01": "COL02-FP-0252",
     "R02": "COL02-FP-0106",
@@ -39,6 +42,13 @@ CLOSED_AUTHORITY_KEYS = (
     "g3_authorized",
     "merge_authorized",
 )
+
+EVIDENCE_ROOT = Path("evidence/cew-col02/footprint-text-binding")
+RECONCILIATION_PATH = EVIDENCE_ROOT / "col02-residual-occurrence-reconciliation.json"
+REPAIR_MANIFEST_PATH = EVIDENCE_ROOT / "col02-axis-aware-whole-symbol-repair.json"
+RECONCILIATION_RECEIPT_PATH = Path("governance/cew-col02/COL02_RESIDUAL_RECONCILIATION_HUMAN_REVIEW_v1.json")
+GRAPHICAL_REVIEW_RECEIPT_PATH = Path("governance/cew-col02/COL02_AXIS_AWARE_WHOLE_SYMBOL_HUMAN_REVIEW_v2.json")
+OUTPUT_PATH = EVIDENCE_ROOT / "col02-occurrence-coverage-closure.json"
 
 
 def _require_closed_authority(payload: dict[str, Any], label: str) -> None:
@@ -248,3 +258,63 @@ def build_occurrence_coverage_closure(
         "occurrence_coverage_complete": True,
         "authority": {key: False for key in CLOSED_AUTHORITY_KEYS},
     }
+
+
+def write_occurrence_coverage_closure(
+    *,
+    reconciliation_path: Path,
+    reconciliation_receipt_path: Path,
+    repair_manifest_path: Path,
+    graphical_review_receipt_path: Path,
+    output_path: Path,
+    expected_repair_manifest_sha256: str,
+) -> dict[str, Any]:
+    reconciliation_manifest = json.loads(reconciliation_path.read_text(encoding="utf-8"))
+    reconciliation_receipt = json.loads(reconciliation_receipt_path.read_text(encoding="utf-8"))
+    repair_manifest_bytes = repair_manifest_path.read_bytes()
+    repair_manifest = json.loads(repair_manifest_bytes.decode("utf-8"))
+    graphical_review_receipt = json.loads(graphical_review_receipt_path.read_text(encoding="utf-8"))
+
+    closure = build_occurrence_coverage_closure(
+        reconciliation_manifest=reconciliation_manifest,
+        reconciliation_receipt=reconciliation_receipt,
+        repair_manifest=repair_manifest,
+        repair_manifest_bytes=repair_manifest_bytes,
+        graphical_review_receipt=graphical_review_receipt,
+        expected_repair_manifest_sha256=expected_repair_manifest_sha256,
+    )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(
+        json.dumps(closure, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    return closure
+
+
+def main() -> None:
+    closure = write_occurrence_coverage_closure(
+        reconciliation_path=RECONCILIATION_PATH,
+        reconciliation_receipt_path=RECONCILIATION_RECEIPT_PATH,
+        repair_manifest_path=REPAIR_MANIFEST_PATH,
+        graphical_review_receipt_path=GRAPHICAL_REVIEW_RECEIPT_PATH,
+        output_path=OUTPUT_PATH,
+        expected_repair_manifest_sha256=EXPECTED_REPAIR_MANIFEST_SHA256,
+    )
+    print(
+        "CEW_COL02_OCCURRENCE_COVERAGE_CLOSURE="
+        + json.dumps(
+            {
+                "status": closure["status"],
+                "occurrence_coverage_complete": closure["occurrence_coverage_complete"],
+                "terminal_successor_item_count": closure["terminal_successor_item_count"],
+                "bound_human_point_count": closure["bound_human_point_count"],
+                "repair_pass_count": closure["repair_pass_count"],
+                "rejected_candidate_count": closure["rejected_candidate_count"],
+            },
+            sort_keys=True,
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()
