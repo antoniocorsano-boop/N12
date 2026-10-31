@@ -125,6 +125,21 @@ def assert_contract() -> None:
         'function renderPointMarkers()',
         'renderPointMarkers();',
         "setStatus('Altro pilastro registrato e marcato. Ora valuta il candidato evidenziato in rosso.')",
+        # Human-use completion regression from the real 10/10 review: once every
+        # candidate has an effective terminal decision, the four decision controls
+        # must be locked while Undo and JSON export remain available. Completion is
+        # derived from the append-only effective event log, not merely model.index.
+        'id="completionBanner"',
+        'class="completion-banner"',
+        'Revisione completata — 10/10.',
+        'function effectiveTerminalCandidateIds()',
+        'function reviewComplete()',
+        'const complete=reviewComplete();',
+        "document.getElementById('completionBanner').hidden=!complete;",
+        "document.querySelectorAll('.primary-action').forEach(b=>b.disabled=complete);",
+        "if(reviewComplete()){setStatus('Revisione già completata: usa ↶ per correggere oppure esporta JSON.');return}",
+        "setStatus('Revisione completata — '+MANIFEST.candidates.length+'/'+MANIFEST.candidates.length+'. Puoi annullare o esportare JSON.');",
+        '.primary-action:disabled{opacity:.45;transform:none;cursor:not-allowed}',
     ]
     for fragment in required_fragments:
         assert fragment in html, f"missing mobile contract fragment: {fragment}"
