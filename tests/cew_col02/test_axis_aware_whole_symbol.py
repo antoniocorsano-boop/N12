@@ -61,6 +61,30 @@ class AxisAwareWholeSymbolGeometryTests(unittest.TestCase):
         self.assertGreaterEqual(result["axis_thickness_px"]["horizontal"], 5)
         self.assertGreaterEqual(result["axis_thickness_px"]["vertical"], 5)
 
+    def test_short_local_axes_still_reconstruct_maximal_four_side_envelope(self) -> None:
+        image = np.full((600, 600), 255, dtype=np.uint8)
+        # Whole graphical symbol.
+        cv2.rectangle(image, (240, 245), (360, 355), 0, 5)
+        # Short local axes: long enough to divide the symbol into four visual parts,
+        # but deliberately too short for the page-scale axis detector.
+        cv2.line(image, (205, 300), (395, 300), 0, 2)
+        cv2.line(image, (300, 210), (300, 390), 0, 2)
+        # One-sided beam-like continuation from the right border.
+        cv2.line(image, (360, 270), (450, 270), 0, 2)
+        cv2.line(image, (360, 330), (450, 330), 0, 2)
+        seed = _bbox(302, 302, 362, 357)
+
+        result = self._repair(image, seed)
+        self.assertIsNotNone(result)
+        assert result is not None
+        repaired = result["bbox"]
+        self.assertAlmostEqual(repaired["x"], 240 / 600, delta=0.02)
+        self.assertAlmostEqual(repaired["y"], 245 / 600, delta=0.02)
+        self.assertAlmostEqual(repaired["width"], 120 / 600, delta=0.03)
+        self.assertAlmostEqual(repaired["height"], 110 / 600, delta=0.03)
+        self.assertEqual(result["boundary_side_count"], 4)
+        self.assertIn(result["detector"], {"AXIS_AWARE_WHOLE_SYMBOL_REPAIR", "MAXIMAL_FOUR_SIDE_ENVELOPE_REPAIR"})
+
     def test_beam_column_junction_seed_without_four_side_envelope_is_rejected(self) -> None:
         image = np.full((600, 600), 255, dtype=np.uint8)
         cv2.rectangle(image, (240, 240), (290, 360), 0, 3)
@@ -73,13 +97,15 @@ class AxisAwareWholeSymbolGeometryTests(unittest.TestCase):
         result = self._repair(image, seed)
         self.assertIsNone(result)
 
-    def test_nested_equal_envelopes_fail_closed_as_ambiguous(self) -> None:
+    def test_two_non_nested_maximal_envelopes_fail_closed_as_ambiguous(self) -> None:
         image = np.full((600, 600), 255, dtype=np.uint8)
-        cv2.rectangle(image, (245, 245), (355, 355), 0, 3)
-        cv2.rectangle(image, (260, 260), (340, 340), 0, 3)
-        cv2.line(image, (50, 300), (550, 300), 0, 3)
-        cv2.line(image, (300, 50), (300, 550), 0, 3)
-        seed = _bbox(302, 302, 342, 342)
+        # Two materially different four-side rectangles overlap around the seed;
+        # neither contains the other, so geometry alone cannot choose one safely.
+        cv2.rectangle(image, (210, 250), (330, 350), 0, 4)
+        cv2.rectangle(image, (270, 250), (390, 350), 0, 4)
+        cv2.line(image, (180, 300), (420, 300), 0, 2)
+        cv2.line(image, (300, 220), (300, 380), 0, 2)
+        seed = _bbox(292, 292, 332, 332)
 
         result = self._repair(image, seed)
         self.assertIsNone(result)
