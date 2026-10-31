@@ -41,6 +41,25 @@ def _projection_bands(projection: np.ndarray, threshold: int) -> list[dict[str, 
     return bands
 
 
+def _boundary_band_variants(
+    bands: list[dict[str, int]],
+    *,
+    line_run: int,
+) -> list[dict[str, int]]:
+    """Expose bounded outer-edge hypotheses without changing axis evidence bands."""
+
+    variants: list[dict[str, int]] = []
+    for band in bands:
+        positions = [int(band["position"])]
+        if int(band["end"]) - int(band["start"]) + 1 > line_run:
+            positions.extend([int(band["start"]), int(band["end"])])
+        for position in dict.fromkeys(positions):
+            variant = dict(band)
+            variant["position"] = position
+            variants.append(variant)
+    return sorted(variants, key=lambda row: int(row["position"]))
+
+
 def _edge_coverage(mask: np.ndarray, box: tuple[int, int, int, int], tolerance: int) -> dict[str, float]:
     x, y, width, height = box
     image_h, image_w = mask.shape[:2]
@@ -243,6 +262,8 @@ def _reconstruct_local_axis_envelope_single_scale(
     vertical_bands = _projection_bands(np.sum(vertical_lines > 0, axis=0), line_run)
     if len(horizontal_bands) < 3 or len(vertical_bands) < 3:
         return None
+    horizontal_boundary_bands = _boundary_band_variants(horizontal_bands, line_run=line_run)
+    vertical_boundary_bands = _boundary_band_variants(vertical_bands, line_run=line_run)
 
     max_side = min(max(local.shape[:2]), max(40, int(round(max(seed_w, seed_h) * 4.5))))
     min_height = max(5, min(20, int(round(seed_h * 0.45))))
@@ -250,8 +271,8 @@ def _reconstruct_local_axis_envelope_single_scale(
     seed_area = float(seed_w * seed_h)
     candidates: list[dict[str, Any]] = []
 
-    for top_index, top_band in enumerate(horizontal_bands):
-        for bottom_band in horizontal_bands[top_index + 1 :]:
+    for top_index, top_band in enumerate(horizontal_boundary_bands):
+        for bottom_band in horizontal_boundary_bands[top_index + 1 :]:
             y1 = int(top_band["position"])
             y2 = int(bottom_band["position"])
             box_h = y2 - y1 + 1
@@ -261,8 +282,8 @@ def _reconstruct_local_axis_envelope_single_scale(
             if overlap_h / seed_h < 0.25:
                 continue
 
-            for left_index, left_band in enumerate(vertical_bands):
-                for right_band in vertical_bands[left_index + 1 :]:
+            for left_index, left_band in enumerate(vertical_boundary_bands):
+                for right_band in vertical_boundary_bands[left_index + 1 :]:
                     x1 = int(left_band["position"])
                     x2 = int(right_band["position"])
                     box_w = x2 - x1 + 1
@@ -298,8 +319,6 @@ def _reconstruct_local_axis_envelope_single_scale(
                             x1 : x2 + 1,
                         ]
                         support = float(np.mean(np.any(sample > 0, axis=0))) if sample.size else 0.0
-                        if support < 0.12:
-                            continue
                         continuation = _horizontal_external_continuation(
                             horizontal_lines,
                             position=position,
@@ -323,8 +342,6 @@ def _reconstruct_local_axis_envelope_single_scale(
                             max(0, position - 1) : min(local.shape[1], position + 2),
                         ]
                         support = float(np.mean(np.any(sample > 0, axis=1))) if sample.size else 0.0
-                        if support < 0.12:
-                            continue
                         continuation = _vertical_external_continuation(
                             vertical_lines,
                             position=position,
