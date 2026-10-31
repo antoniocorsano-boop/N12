@@ -4,6 +4,8 @@ import hashlib
 import importlib
 import importlib.util
 import json
+from pathlib import Path
+import tempfile
 import unittest
 
 
@@ -169,6 +171,41 @@ class OccurrenceCoverageClosureTests(unittest.TestCase):
             repair["authority"]["canonical_geometry_authorized"] = True
         with self.assertRaises(ValueError):
             self._build(mutate=mutate)
+
+    def test_exact_source_writer_emits_canonical_closure_artifact(self):
+        module = self._module()
+        writer = getattr(module, "write_occurrence_coverage_closure", None)
+        self.assertTrue(callable(writer), "exact-source occurrence-coverage writer is missing")
+        reconciliation, receipt, repair_manifest, _repair_bytes, graphical = self._fixtures()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reconciliation_path = root / "reconciliation.json"
+            receipt_path = root / "reconciliation-review.json"
+            repair_path = root / "repair.json"
+            graphical_path = root / "graphical-review.json"
+            output_path = root / "closure.json"
+            reconciliation_path.write_text(json.dumps(reconciliation), encoding="utf-8")
+            receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+            repair_path.write_text(json.dumps(repair_manifest, sort_keys=True), encoding="utf-8")
+            graphical_path.write_text(json.dumps(graphical), encoding="utf-8")
+            expected_digest = hashlib.sha256(repair_path.read_bytes()).hexdigest()
+
+            result = writer(
+                reconciliation_path=reconciliation_path,
+                reconciliation_receipt_path=receipt_path,
+                repair_manifest_path=repair_path,
+                graphical_review_receipt_path=graphical_path,
+                output_path=output_path,
+                expected_repair_manifest_sha256=expected_digest,
+            )
+
+            self.assertTrue(output_path.exists())
+            emitted = json.loads(output_path.read_text(encoding="utf-8"))
+            self.assertEqual(emitted, result)
+            self.assertTrue(emitted["occurrence_coverage_complete"])
+            self.assertEqual(emitted["reconciliation_replay_sha256"], EXPECTED_RECONCILIATION_REPLAY)
+            self.assertEqual(emitted["reviewed_repair_manifest_sha256"], expected_digest)
+            self.assertEqual(emitted["authority"], CLOSED_AUTHORITY)
 
 
 if __name__ == "__main__":
