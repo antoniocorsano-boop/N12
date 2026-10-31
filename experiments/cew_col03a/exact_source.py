@@ -13,7 +13,7 @@ from experiments.cew_col03a.occurrence_ledger import (
     build_occurrence_ledger,
     build_proposal_geometry_index,
     build_reconciliation_report,
-    canonical_bytes,
+    _canonical_bytes as canonical_bytes,
     collapse_strong_lineage,
 )
 
