@@ -54,11 +54,16 @@ REQUIRED_HISTORICAL_ARTIFACTS = (
 
 
 def _canonical_bytes(value: Any) -> bytes:
-    return (json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n").encode("utf-8")
+    return (
+        json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        + "\n"
+    ).encode("utf-8")
 
 
 def _pretty_bytes(value: Any) -> bytes:
-    return (json.dumps(value, sort_keys=True, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+    return (
+        json.dumps(value, sort_keys=True, indent=2, ensure_ascii=False) + "\n"
+    ).encode("utf-8")
 
 
 def _sha256(data: bytes) -> str:
@@ -80,7 +85,10 @@ def _parse_csv_bytes(data: bytes, *, delimiter: str) -> list[dict[str, str]]:
     reader = csv.DictReader(io.StringIO(text), delimiter=delimiter)
     if not reader.fieldnames:
         raise ValueError("derived reference CSV has no header")
-    return [{str(key): str(value or "") for key, value in row.items()} for row in reader]
+    return [
+        {str(key): str(value or "") for key, value in row.items()}
+        for row in reader
+    ]
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -91,16 +99,25 @@ def _materialize_tav07(temp_root: Path) -> tuple[Path, dict[str, Any]]:
     data = _git_show_bytes(FROZEN_ARCHIVE_COMMIT, TAV07_SOURCE["path"])
     path = temp_root / "cew-col03c-tavola7.pdf"
     path.write_bytes(data)
-    metadata = build_pdf_source_metadata(path, TAV07_SOURCE)
-    return path, metadata
+    return path, build_pdf_source_metadata(path, TAV07_SOURCE)
 
 
 def _tesseract_version() -> str:
-    completed = subprocess.run(["tesseract", "--version"], check=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    completed = subprocess.run(
+        ["tesseract", "--version"],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
     return completed.stdout.splitlines()[0].strip()
 
 
-def _ocr_pdf(path: Path, source_metadata: dict[str, Any], temp_root: Path) -> tuple[list[dict[str, Any]], str]:
+def _ocr_pdf(
+    path: Path,
+    source_metadata: dict[str, Any],
+    temp_root: Path,
+) -> tuple[list[dict[str, Any]], str]:
     import pypdfium2 as pdfium
 
     version = _tesseract_version()
@@ -117,6 +134,7 @@ def _ocr_pdf(path: Path, source_metadata: dict[str, Any], temp_root: Path) -> tu
                     bitmap.close()
             finally:
                 page.close()
+
             image_path = temp_root / f"cew-col03c-tav07-page-{page_index:03d}.png"
             image.save(image_path, format="PNG")
             width, height = image.size
@@ -157,44 +175,80 @@ def _ocr_pdf(path: Path, source_metadata: dict[str, Any], temp_root: Path) -> tu
                 )
     finally:
         document.close()
-    return normalize_tav07_text_observations(raw, source_metadata=source_metadata), version
+
+    return (
+        normalize_tav07_text_observations(raw, source_metadata=source_metadata),
+        version,
+    )
 
 
 def _historical_artifacts() -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    inventory_bytes = _git_show_bytes(HISTORICAL_REGISTRATION_COMMIT, HISTORICAL_INVENTORY_PATH)
-    inventory_text = inventory_bytes.decode("utf-8")
+    inventory_bytes = _git_show_bytes(
+        HISTORICAL_REGISTRATION_COMMIT,
+        HISTORICAL_INVENTORY_PATH,
+    )
     parsed = parse_historical_inventory(
-        inventory_text,
-        source_ref=f"commit:{HISTORICAL_REGISTRATION_COMMIT}:{HISTORICAL_INVENTORY_PATH}",
+        inventory_bytes.decode("utf-8"),
+        source_ref=(
+            f"commit:{HISTORICAL_REGISTRATION_COMMIT}:"
+            f"{HISTORICAL_INVENTORY_PATH}"
+        ),
     )
     by_name = {str(row.get("artifact_name") or ""): row for row in parsed}
     classified: list[dict[str, Any]] = []
     for name in REQUIRED_HISTORICAL_ARTIFACTS:
-        record = deepcopy(by_name.get(name)) if name in by_name else {
-            "artifact_name": name,
-            "inventory_source_ref": f"commit:{HISTORICAL_REGISTRATION_COMMIT}:{HISTORICAL_INVENTORY_PATH}",
-            "historical_package_refs": [],
-            "inventory_notes": [],
-            "authority": "REFERENCE_ONLY",
-        }
-        classified.append(classify_historical_artifact(record, materialized_path=None, sha256=None))
+        record = (
+            deepcopy(by_name[name])
+            if name in by_name
+            else {
+                "artifact_name": name,
+                "inventory_source_ref": (
+                    f"commit:{HISTORICAL_REGISTRATION_COMMIT}:"
+                    f"{HISTORICAL_INVENTORY_PATH}"
+                ),
+                "historical_package_refs": [],
+                "inventory_notes": [],
+                "authority": "REFERENCE_ONLY",
+            }
+        )
+        classified.append(
+            classify_historical_artifact(
+                record,
+                materialized_path=None,
+                sha256=None,
+            )
+        )
+
     manifest = {
         "registration_commit": HISTORICAL_REGISTRATION_COMMIT,
         "inventory_path": HISTORICAL_INVENTORY_PATH,
         "inventory_sha256": _sha256(inventory_bytes),
-        "required_artifact_names": list(REQUIRED_HISTORICAL_ARTIFACTS),
+        "required_artifact_names": sorted(REQUIRED_HISTORICAL_ARTIFACTS),
         "required_artifact_count": len(REQUIRED_HISTORICAL_ARTIFACTS),
     }
-    return sorted(classified, key=lambda row: str(row["artifact_name"])), manifest
+    return (
+        sorted(classified, key=lambda row: str(row["artifact_name"])),
+        manifest,
+    )
 
 
 def _derived_reference_quality() -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    node_bytes = _git_show_bytes(FROZEN_ARCHIVE_COMMIT, DERIVED_REFERENCE_PATHS["nodes"])
-    connection_bytes = _git_show_bytes(FROZEN_ARCHIVE_COMMIT, DERIVED_REFERENCE_PATHS["connections"])
-    matrix_bytes = _git_show_bytes(FROZEN_ARCHIVE_COMMIT, DERIVED_REFERENCE_PATHS["candidate_matrix"])
+    node_bytes = _git_show_bytes(
+        FROZEN_ARCHIVE_COMMIT,
+        DERIVED_REFERENCE_PATHS["nodes"],
+    )
+    connection_bytes = _git_show_bytes(
+        FROZEN_ARCHIVE_COMMIT,
+        DERIVED_REFERENCE_PATHS["connections"],
+    )
+    matrix_bytes = _git_show_bytes(
+        FROZEN_ARCHIVE_COMMIT,
+        DERIVED_REFERENCE_PATHS["candidate_matrix"],
+    )
     nodes = _parse_csv_bytes(node_bytes, delimiter=";")
     connections = _parse_csv_bytes(connection_bytes, delimiter=";")
     matrix = _parse_csv_bytes(matrix_bytes, delimiter=",")
+
     node_descriptor = materialize_reference_descriptor(
         path=DERIVED_REFERENCE_PATHS["nodes"],
         archive_commit=FROZEN_ARCHIVE_COMMIT,
@@ -213,19 +267,34 @@ def _derived_reference_quality() -> tuple[dict[str, Any], list[dict[str, Any]]]:
         bytes_sha256=_sha256(matrix_bytes),
         rows=matrix,
     )
+
     topology = audit_topology_reference(
         nodes=nodes,
         connections=connections,
-        provenance={"node_source": node_descriptor, "connection_source": connection_descriptor},
-        historical_inventory_claim={"node_count": 57, "connection_count": 38, "component_count": 10},
+        provenance={
+            "node_source": node_descriptor,
+            "connection_source": connection_descriptor,
+        },
+        historical_inventory_claim={
+            "node_count": 57,
+            "connection_count": 38,
+            "component_count": 10,
+        },
     )
-    candidate_matrix = audit_candidate_matrix_reference(rows=matrix, provenance=matrix_descriptor)
+    candidate_matrix = audit_candidate_matrix_reference(
+        rows=matrix,
+        provenance=matrix_descriptor,
+    )
     quality = {
         "schema": "CEW_COL03C_DERIVED_REFERENCE_QUALITY_v1",
         "topology_reference": topology,
         "candidate_matrix_reference": candidate_matrix,
     }
-    return quality, [node_descriptor, connection_descriptor, matrix_descriptor]
+    return quality, [
+        node_descriptor,
+        connection_descriptor,
+        matrix_descriptor,
+    ]
 
 
 def write_col03c_artifacts(
@@ -253,6 +322,20 @@ def write_col03c_artifacts(
     return digests
 
 
+def _canonical_observation_inventory(
+    observation_inventory: dict[str, Any],
+) -> dict[str, Any]:
+    result = deepcopy(observation_inventory)
+    observations = result.get("observations")
+    if not isinstance(observations, list):
+        raise ValueError("COL-03C observation inventory lacks observations")
+    result["observations"] = sorted(
+        (deepcopy(row) for row in observations),
+        key=lambda row: str(row.get("observation_id") or ""),
+    )
+    return result
+
+
 def _build_payloads(
     *,
     predecessor_occurrences: list[dict[str, Any]],
@@ -262,18 +345,33 @@ def _build_payloads(
     historical_manifest: dict[str, Any],
     quality: dict[str, Any],
     derived_descriptors: list[dict[str, Any]],
-) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
-    observations = observation_inventory["observations"]
+) -> tuple[
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+]:
+    canonical_inventory = _canonical_observation_inventory(observation_inventory)
+    canonical_history = sorted(
+        (deepcopy(row) for row in historical_artifacts),
+        key=lambda row: str(row.get("artifact_name") or ""),
+    )
+    canonical_descriptors = sorted(
+        (deepcopy(row) for row in derived_descriptors),
+        key=lambda row: str(row.get("path") or ""),
+    )
+
     bundles = build_cross_document_bundles(
         predecessor_occurrences=predecessor_occurrences,
         tav07_source=tav07_metadata,
-        tav07_observations=observations,
-        historical_artifacts=historical_artifacts,
+        tav07_observations=canonical_inventory["observations"],
+        historical_artifacts=canonical_history,
         derived_reference_quality=quality,
     )
     reconciliation = build_cross_document_reconciliation(
         bundles=bundles,
-        historical_artifacts=historical_artifacts,
+        historical_artifacts=canonical_history,
         derived_reference_quality=quality,
         tav07_source=tav07_metadata,
     )
@@ -282,16 +380,17 @@ def _build_payloads(
         reconciliation=reconciliation,
         qualified_col03b_sha=QUALIFIED_COL03B_SHA,
     )
+
     source_manifest = {
         "schema": "CEW_COL03C_SOURCE_MATERIALIZATION_MANIFEST_v1",
         "qualified_col03b_sha": QUALIFIED_COL03B_SHA,
         "primary_sources": [deepcopy(tav07_metadata)],
         "historical_inventory": deepcopy(historical_manifest),
-        "historical_derived_artifacts": deepcopy(historical_artifacts),
-        "derived_reference_sources": sorted((deepcopy(row) for row in derived_descriptors), key=lambda row: str(row.get("path") or "")),
+        "historical_derived_artifacts": canonical_history,
+        "derived_reference_sources": canonical_descriptors,
         "tav07_observation_inventory": {
             key: deepcopy(value)
-            for key, value in observation_inventory.items()
+            for key, value in canonical_inventory.items()
             if key != "observations"
         },
     }
@@ -299,18 +398,30 @@ def _build_payloads(
         "schema": "CEW_COL03C_CROSS_DOCUMENT_EVIDENCE_LEDGER_v1",
         "occurrence_count": len(bundles),
         "occurrences": bundles,
-        "tav07_observation_inventory": deepcopy(observation_inventory),
+        "tav07_observation_inventory": canonical_inventory,
     }
-    reconciliation = {"schema": "CEW_COL03C_CROSS_DOCUMENT_RECONCILIATION_v1", **reconciliation}
-    closure = {"schema": "CEW_COL03C_CROSS_DOCUMENT_EVIDENCE_CLOSURE_v1", **closure}
+    reconciliation = {
+        "schema": "CEW_COL03C_CROSS_DOCUMENT_RECONCILIATION_v1",
+        **reconciliation,
+    }
+    closure = {
+        "schema": "CEW_COL03C_CROSS_DOCUMENT_EVIDENCE_CLOSURE_v1",
+        **closure,
+    }
     return source_manifest, deepcopy(quality), ledger, reconciliation, closure
 
 
 def main() -> None:
     predecessor_root = Path("evidence/cew-col03b")
-    ledger_b = _load_json(predecessor_root / "documentary-identity-evidence-ledger.json")
-    reconciliation_b = _load_json(predecessor_root / "documentary-identity-reconciliation.json")
-    closure_b = _load_json(predecessor_root / "documentary-identity-evidence-closure.json")
+    ledger_b = _load_json(
+        predecessor_root / "documentary-identity-evidence-ledger.json"
+    )
+    reconciliation_b = _load_json(
+        predecessor_root / "documentary-identity-reconciliation.json"
+    )
+    closure_b = _load_json(
+        predecessor_root / "documentary-identity-evidence-closure.json"
+    )
     predecessor_occurrences = validate_col03b_predecessor(
         ledger=ledger_b,
         reconciliation=reconciliation_b,
@@ -321,10 +432,22 @@ def main() -> None:
     temp_root = Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "cew-col03c"
     temp_root.mkdir(parents=True, exist_ok=True)
     tav07_path, tav07_metadata = _materialize_tav07(temp_root)
-    observations_a, tesseract_version_a = _ocr_pdf(tav07_path, tav07_metadata, temp_root)
-    observations_b, tesseract_version_b = _ocr_pdf(tav07_path, tav07_metadata, temp_root)
-    if tesseract_version_a != tesseract_version_b or _canonical_bytes(observations_a) != _canonical_bytes(observations_b):
+    observations_a, tesseract_version_a = _ocr_pdf(
+        tav07_path,
+        tav07_metadata,
+        temp_root,
+    )
+    observations_b, tesseract_version_b = _ocr_pdf(
+        tav07_path,
+        tav07_metadata,
+        temp_root,
+    )
+    if (
+        tesseract_version_a != tesseract_version_b
+        or _canonical_bytes(observations_a) != _canonical_bytes(observations_b)
+    ):
         raise ValueError("COL-03C TAV.7 OCR replay is not deterministic")
+
     observation_inventory = build_tav07_observation_inventory(
         observations_a,
         extraction_method="TESSERACT_PSM11_300DPI",
@@ -345,21 +468,31 @@ def main() -> None:
     payloads_b = _build_payloads(
         predecessor_occurrences=list(reversed(deepcopy(predecessor_occurrences))),
         tav07_metadata=deepcopy(tav07_metadata),
-        observation_inventory={**deepcopy(observation_inventory), "observations": list(reversed(deepcopy(observation_inventory["observations"])))},
+        observation_inventory={
+            **deepcopy(observation_inventory),
+            "observations": list(
+                reversed(deepcopy(observation_inventory["observations"]))
+            ),
+        },
         historical_artifacts=list(reversed(deepcopy(historical_artifacts))),
         historical_manifest=deepcopy(historical_manifest),
         quality=deepcopy(quality),
         derived_descriptors=list(reversed(deepcopy(derived_descriptors))),
     )
-    if any(_canonical_bytes(left) != _canonical_bytes(right) for left, right in zip(payloads_a, payloads_b)):
+    if any(
+        _canonical_bytes(left) != _canonical_bytes(right)
+        for left, right in zip(payloads_a, payloads_b)
+    ):
         raise ValueError("COL-03C payload replay is not deterministic")
 
     source_manifest, quality_payload, ledger, reconciliation, closure = payloads_a
     if closure["available_cross_document_evidence_evaluated"] is not True:
-        raise ValueError(f"COL-03C closure blocked: {closure['blocking_reasons']}")
-    output_root = Path("evidence/cew-col03c")
+        raise ValueError(
+            f"COL-03C closure blocked: {closure['blocking_reasons']}"
+        )
+
     digests = write_col03c_artifacts(
-        output_root,
+        Path("evidence/cew-col03c"),
         source_manifest=source_manifest,
         quality=quality_payload,
         ledger=ledger,
@@ -373,10 +506,18 @@ def main() -> None:
                 "occurrence_count": ledger["occurrence_count"],
                 "tav07_observation_count": observation_inventory["observation_count"],
                 "tav07_sha256": tav07_metadata["sha256"],
-                "topology_identity_use_state": quality["topology_reference"]["identity_use_state"],
-                "topology_unresolved_endpoint_count": len(quality["topology_reference"]["unresolved_endpoint_ids"]),
-                "historical_derived_artifact_recovery_complete": closure["historical_derived_artifact_recovery_complete"],
-                "all_occurrences_cross_document_resolved": closure["all_occurrences_cross_document_resolved"],
+                "topology_identity_use_state": quality["topology_reference"][
+                    "identity_use_state"
+                ],
+                "topology_unresolved_endpoint_count": len(
+                    quality["topology_reference"]["unresolved_endpoint_ids"]
+                ),
+                "historical_derived_artifact_recovery_complete": closure[
+                    "historical_derived_artifact_recovery_complete"
+                ],
+                "all_occurrences_cross_document_resolved": closure[
+                    "all_occurrences_cross_document_resolved"
+                ],
                 "human_review_required": reconciliation["human_review_required"],
                 "tesseract_version": tesseract_version_a,
                 "digests": digests,
