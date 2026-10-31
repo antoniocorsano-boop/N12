@@ -177,6 +177,90 @@ def reconcile_human_points(
     return results
 
 
+def _expanded_context_bbox(
+    target_bbox: dict[str, Any],
+    *,
+    source_width: int,
+    source_height: int,
+) -> dict[str, float]:
+    if source_width <= 0 or source_height <= 0:
+        raise ValueError("source dimensions must be positive")
+    target = _validate_bbox(target_bbox, "target_bbox")
+    left = int(round(target["x"] * source_width))
+    top = int(round(target["y"] * source_height))
+    right = int(round((target["x"] + target["width"]) * source_width))
+    bottom = int(round((target["y"] + target["height"]) * source_height))
+    span = max(right - left, bottom - top, 1)
+    margin = max(120, int(round(span * 3.0)))
+    x1 = max(0, left - margin)
+    y1 = max(0, top - margin)
+    x2 = min(source_width, right + margin)
+    y2 = min(source_height, bottom + margin)
+    return {
+        "x": x1 / source_width,
+        "y": y1 / source_height,
+        "width": (x2 - x1) / source_width,
+        "height": (y2 - y1) / source_height,
+    }
+
+
+def build_reframe_tasks(
+    search: dict[str, Any],
+    effective_decisions: list[dict[str, Any]],
+    *,
+    source_width: int,
+    source_height: int,
+) -> list[dict[str, Any]]:
+    """Build context-only review tasks for human-positive misframed candidates.
+
+    The original candidate ID and target bbox are preserved verbatim; only context expands.
+    """
+    panels = search.get("review_panels")
+    if not isinstance(panels, list):
+        raise ValueError("search.review_panels must be a list")
+    panels_by_candidate: dict[str, dict[str, Any]] = {}
+    for panel in panels:
+        if not isinstance(panel, dict):
+            raise ValueError("every review panel must be an object")
+        candidate_id = str(panel.get("candidate_id") or "").strip()
+        if not candidate_id:
+            raise ValueError("review panel candidate_id must be non-empty")
+        if candidate_id in panels_by_candidate:
+            raise ValueError(f"duplicate review panel candidate_id: {candidate_id}")
+        panels_by_candidate[candidate_id] = panel
+
+    tasks: list[dict[str, Any]] = []
+    seen_candidates: set[str] = set()
+    for decision in effective_decisions:
+        if not isinstance(decision, dict) or decision.get("action") != "INQUADRATO_MALE":
+            continue
+        candidate_id = str(decision.get("candidate_id") or "").strip()
+        if not candidate_id or candidate_id in seen_candidates:
+            raise ValueError(f"duplicate or empty misframed candidate decision: {candidate_id!r}")
+        seen_candidates.add(candidate_id)
+        panel = panels_by_candidate.get(candidate_id)
+        if panel is None:
+            raise ValueError(f"missing review panel for misframed candidate {candidate_id}")
+        original_bbox = panel.get("bbox")
+        _validate_bbox(original_bbox, f"review panel {candidate_id} bbox")
+        tasks.append(
+            {
+                "task_type": "REFRAME_CONFIRMATION",
+                "candidate_id": candidate_id,
+                "source_panel_id": panel.get("panel_id"),
+                "source_event_id": decision.get("event_id"),
+                "original_action": "INQUADRATO_MALE",
+                "target_bbox": dict(original_bbox),
+                "context_bbox": _expanded_context_bbox(
+                    original_bbox,
+                    source_width=source_width,
+                    source_height=source_height,
+                ),
+            }
+        )
+    return tasks
+
+
 def replay_mobile_review(bundle: dict[str, Any]) -> dict[str, Any]:
     """Replay the append-only mobile receipt and return its effective graphical state.
 
