@@ -79,6 +79,11 @@ class ExactSourceBundleTests(unittest.TestCase):
         self.assertFalse(first["support_identity_authorized"])
         self.assertFalse(first["canonical_write_authorized"])
 
+        high_resolution = first["high_resolution_read_evidence"][0]
+        self.assertEqual(high_resolution["read_state"], "MACHINE_OBSERVATIONS_PRESENT")
+        self.assertEqual(high_resolution["machine_observation_ids"], ["TXT-001"])
+        self.assertEqual(high_resolution["machine_observation_count"], 1)
+
     def test_nearby_text_remains_proximity_evidence_and_does_not_create_identity_hypothesis(self) -> None:
         ledger = _ledger()
         first_bbox = ledger["occurrences"][0]["primary_graphical_representation"]["bbox"]
@@ -121,7 +126,17 @@ class ExactSourceBundleTests(unittest.TestCase):
             self.assertEqual(len(bundle["high_resolution_read_evidence"]), 1)
             self.assertEqual(len(bundle["local_topology_evidence"]), 1)
             self.assertEqual(bundle["callout_evidence"][0]["status"], "NO_EVIDENCE")
-            self.assertEqual(bundle["cross_document_evidence"][0]["status"], "NO_EVIDENCE")
+
+            high_resolution = bundle["high_resolution_read_evidence"][0]
+            self.assertEqual(high_resolution["read_state"], "NO_MACHINE_TEXT_OBSERVED")
+            self.assertEqual(high_resolution["machine_observation_ids"], [])
+            self.assertEqual(high_resolution["machine_observation_count"], 0)
+
+            historical = bundle["cross_document_evidence"][0]
+            self.assertEqual(historical["status"], "NOT_APPLICABLE")
+            self.assertEqual(historical["evidence_class"], "NOT_APPLICABLE")
+            self.assertEqual(historical["reason"], "HISTORICAL_ARTIFACTS_INVENTORIED_NOT_MATERIALIZED")
+            self.assertEqual(historical["inventory_ref"], "archive/ARTEFATTI_STORICI.md")
 
     def test_text_input_order_does_not_change_bundle_payloads(self) -> None:
         ledger = _ledger()
