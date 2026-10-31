@@ -1,0 +1,280 @@
+name: CEW-COL-03C Governed Cross-Document Materialization
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/cew_col03c/**'
+      - 'tests/cew_col03c/**'
+      - 'docs/superpowers/specs/2026-10-31-cew-col03c-governed-cross-document-materialization-design.md'
+      - 'docs/superpowers/plans/2026-10-31-cew-col03c-governed-cross-document-materialization.md'
+      - '.github/workflows/validate-cew-col03c-governed-cross-document-materialization.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install focused PDF test dependency
+        run: python -m pip install 'pypdfium2==5.14.0'
+      - name: Run COL-03C unit tests
+        run: python -m unittest discover -s tests/cew_col03c -p 'test_*.py' -v
+      - name: Run COL-03B regression tests
+        run: python -m unittest discover -s tests/cew_col03b -p 'test_*.py' -v
+
+  exact-source:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Verify qualified COL-03B ancestry and exact candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor cfd9382b703d0a974daf63c23dc2b6d3d81eadad HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install frozen Tesseract system package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+      - name: Install frozen B01 toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-col03c"
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
+      - name: Fetch frozen archive and historical registration commits
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+          git fetch --no-tags --depth=1 origin 643dc8934ec0c8ac37613ec2880cf9e02f5a9df2
+      - name: Execute exact TAV.5 COL-02 audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python -m experiments.cew_col02.exact_source_audit
+      - name: Rebuild target-explicit review atlas
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python -m experiments.cew_col02.review_atlas evidence/cew-col02/footprint-text-binding/col02-audit.json
+      - name: Execute exact-source prototype-guided search
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python -m experiments.cew_col02.prototype_guided_exact_source
+      - name: Execute visible sibling occurrence sweep
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python -m experiments.cew_col02.occurrence_sweep_exact_source
+      - name: Execute residual occurrence reconciliation
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python -m experiments.cew_col02.residual_occurrence_reconciliation_exact_source
+      - name: Execute axis-aware whole-symbol repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python -m experiments.cew_col02.axis_aware_whole_symbol_exact_source
+      - name: Close bounded COL-02 graphical occurrence coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python -m experiments.cew_col02.occurrence_coverage_closure
+      - name: Rebuild qualified COL-03A occurrence ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python -m experiments.cew_col03a.exact_source
+      - name: Verify frozen COL-03A predecessor digests
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+
+          expected = {
+              'column-occurrence-ledger.json': '8d77811401f3804bdc9aa89c758035ff6dd6edc9d43ad6b3a504ccced0f89be0',
+              'column-occurrence-reconciliation.json': '996b3a08bfa5cd2f67d862c6dd1f118e4498521059399d662ed011cfc6200c65',
+              'column-occurrence-ledger-closure.json': 'ec3b8f34ec85b00ca2dee63f9dbaf2b858ea943821acf9879a5c7717c9ac8165',
+          }
+          root = Path('evidence/cew-col03a')
+          for name, digest in expected.items():
+              actual = hashlib.sha256((root / name).read_bytes()).hexdigest()
+              assert actual == digest, (name, actual, digest)
+          print('CEW_COL03A_FROZEN_DIGESTS=PASS')
+          PY
+      - name: Rebuild qualified COL-03B documentary evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python -m experiments.cew_col03b.exact_source
+      - name: Verify COL-03B predecessor boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('evidence/cew-col03b')
+          ledger = json.loads((root / 'documentary-identity-evidence-ledger.json').read_text(encoding='utf-8'))
+          reconciliation = json.loads((root / 'documentary-identity-reconciliation.json').read_text(encoding='utf-8'))
+          closure = json.loads((root / 'documentary-identity-evidence-closure.json').read_text(encoding='utf-8'))
+          assert ledger['occurrence_count'] == 22
+          assert [row['occurrence_id'] for row in ledger['occurrences']] == [f'COL-OCC-{i:04d}' for i in range(1, 23)]
+          assert reconciliation['historical_artifacts_materialized'] is False
+          assert reconciliation['historical_inventory_ref'] == 'archive/ARTEFATTI_STORICI.md'
+          assert closure['documentary_identity_evidence_collection_complete'] is True
+          assert closure['all_occurrences_identity_resolved'] is False
+          assert closure['blocking_reasons'] == []
+          print('CEW_COL03B_PREDECESSOR_BOUNDARY=PASS')
+          PY
+      - name: Build COL-03C governed cross-document evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python -m experiments.cew_col03c.exact_source
+      - name: Assert COL-03C exact-source qualification
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03c/bin/activate"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('evidence/cew-col03c')
+          source = json.loads((root / 'source-materialization-manifest.json').read_text(encoding='utf-8'))
+          quality = json.loads((root / 'derived-reference-quality.json').read_text(encoding='utf-8'))
+          ledger = json.loads((root / 'cross-document-evidence-ledger.json').read_text(encoding='utf-8'))
+          reconciliation = json.loads((root / 'cross-document-reconciliation.json').read_text(encoding='utf-8'))
+          closure = json.loads((root / 'cross-document-evidence-closure.json').read_text(encoding='utf-8'))
+
+          authority_keys = (
+              'support_identity_authorized',
+              'text_identity_binding_authorized',
+              'family_assignment_authorized',
+              'section_assignment_authorized',
+              'fixed_line_assignment_authorized',
+              'vertical_chain_assignment_authorized',
+              'structural_identity_authorized',
+              'canonical_node_assignment_authorized',
+              'canonical_geometry_authorized',
+              'canonical_write_authorized',
+              'g2c_promotion_authorized',
+              'g3_authorized',
+              'merge_authorized',
+          )
+
+          assert source['qualified_col03b_sha'] == 'cfd9382b703d0a974daf63c23dc2b6d3d81eadad'
+          assert len(source['primary_sources']) == 1
+          tav07 = source['primary_sources'][0]
+          assert tav07['catalogue_id'] == 'TAV-07A'
+          assert tav07['archive_commit'] == '78c20a52db4f391ce0d13b9705b9f04737e218c9'
+          assert tav07['source_path'] == 'archive/documentazione_originaria/tavola7.pdf'
+          assert tav07['sha256'] == '38a0cce18dcda0b9a36d8473f0d428735c4b89934975d551d4bfffd24fe54a2b'
+          assert tav07['materialization_state'] == 'MATERIALIZED_VERIFIED'
+          assert tav07['authority'] == 'PRIMARY_DOCUMENTARY_SOURCE'
+          assert tav07['identity_promotion_authorized'] is False
+
+          historical = source['historical_derived_artifacts']
+          assert len(historical) == 5
+          assert all(row['materialization_state'] == 'KNOWN_INVENTORY_NOT_MATERIALIZED' for row in historical)
+          assert all(row['row_level_evidence_usable'] is False for row in historical)
+          assert all(row.get('evidence_class') != 'NO_EVIDENCE' for row in historical)
+
+          topology = quality['topology_reference']
+          assert topology['identity_use_state'] == 'DATA_QUALITY_BLOCKED'
+          assert topology['identity_evidence_usable'] is False
+          assert topology['unresolved_endpoint_ids']
+          matrix = quality['candidate_matrix_reference']
+          assert matrix['historical_27x5_matrix'] is False
+          assert matrix['identity_evidence_usable'] is False
+          assert matrix['reference_role'] == 'CANDIDATE_HYPOTHESES_ONLY'
+
+          assert ledger['occurrence_count'] == 22
+          occurrences = ledger['occurrences']
+          assert [row['occurrence_id'] for row in occurrences] == [f'COL-OCC-{i:04d}' for i in range(1, 23)]
+          for row in occurrences:
+              assert row['cross_document_evidence_evaluated'] is True
+              assert row['cross_document_identity_resolved'] is False
+              for key in authority_keys:
+                  assert row[key] is False, (row['occurrence_id'], key)
+              for hypothesis in row['hypotheses']:
+                  assert hypothesis['promotion_authorized'] is False
+
+          assert reconciliation['occurrence_count'] == 22
+          assert reconciliation['tav07_source_state'] == 'MATERIALIZED_VERIFIED'
+          assert reconciliation['historical_derived_artifact_recovery_complete'] is False
+          assert reconciliation['topology_reference_identity_use_state'] == 'DATA_QUALITY_BLOCKED'
+
+          assert closure['qualified_col03b_sha'] == 'cfd9382b703d0a974daf63c23dc2b6d3d81eadad'
+          assert closure['available_cross_document_evidence_evaluated'] is True
+          assert closure['historical_derived_artifact_recovery_complete'] is False
+          assert closure['all_occurrences_cross_document_resolved'] is False
+          assert closure['blocking_reasons'] == []
+          for key in authority_keys:
+              assert closure['authority'][key] is False, key
+
+          print('CEW_COL03C_EXACT_SOURCE_QUALIFICATION=PASS')
+          PY
+      - name: Verify COL-03C artifact surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find evidence/cew-col03c -maxdepth 1 -type f | wc -l)" -eq 5
+          test -f evidence/cew-col03c/source-materialization-manifest.json
+          test -f evidence/cew-col03c/derived-reference-quality.json
+          test -f evidence/cew-col03c/cross-document-evidence-ledger.json
+          test -f evidence/cew-col03c/cross-document-reconciliation.json
+          test -f evidence/cew-col03c/cross-document-evidence-closure.json
+      - name: Upload COL-03C governed cross-document evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-col03c-governed-cross-document-evidence
+          path: evidence/cew-col03c/
+          if-no-files-found: error
+          retention-days: 30
