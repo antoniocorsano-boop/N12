@@ -1,1 +1,0 @@
-This temporary file records an interrupted recovery. It will be removed in the next corrective tree commit.

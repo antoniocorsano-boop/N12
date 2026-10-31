@@ -50,7 +50,7 @@ class SourceMaterializationTests(unittest.TestCase):
             contract = dict(TAV07_SOURCE)
             contract["size_bytes"] = len(b"wrong")
             with self.assertRaisesRegex(ValueError, "PROVENANCE_MISMATCH"):
-                verify_materialized_source(path, contract, allow_test_digest_override=True)
+                verify_materialized_source(path, contract)
 
     def test_wrong_archive_contract_fails_closed_before_bytes(self):
         self.assertIsNotNone(verify_materialized_source, "TAV.7 materialization implementation missing")
