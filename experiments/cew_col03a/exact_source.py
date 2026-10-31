@@ -8,6 +8,7 @@ from typing import Any
 from experiments.cew_col03a.governed_inputs import collect_governed_positive_evidence
 from experiments.cew_col03a.occurrence_ledger import (
     QUALIFIED_BASE_SHA,
+    apply_human_occurrence_equivalence,
     attach_exact_source_geometry,
     build_ledger_closure,
     build_occurrence_ledger,
@@ -31,6 +32,7 @@ PROTOTYPE_GUIDED_RECEIPT_PATH = Path("governance/cew-col02/COL02_PROTOTYPE_GUIDE
 MOBILE_RECEIPT_PATH = Path("governance/cew-col02/COL02_RESIDUAL_MOBILE_HUMAN_REVIEW_v1.json")
 RECONCILIATION_RECEIPT_PATH = Path("governance/cew-col02/COL02_RESIDUAL_RECONCILIATION_HUMAN_REVIEW_v1.json")
 REPAIR_REVIEW_RECEIPT_PATH = Path("governance/cew-col02/COL02_AXIS_AWARE_WHOLE_SYMBOL_HUMAN_REVIEW_v2.json")
+EQUIVALENCE_RECEIPT_PATH = Path("governance/cew-col03a/COL03A_OCCURRENCE_EQUIVALENCE_HUMAN_REVIEW_v1.json")
 
 AUDIT_PATH = COL02_ROOT / "col02-audit.json"
 PROTOTYPE_SEARCH_PATH = COL02_ROOT / "col02-prototype-guided-search.json"
@@ -76,6 +78,7 @@ def build_col03a_from_payloads(
     col02_closure: dict[str, Any],
     source: dict[str, Any],
     qualified_base_sha: str = QUALIFIED_BASE_SHA,
+    equivalence_receipt: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     """Build the three COL-03A payloads from already-governed evidence only."""
     normalized_source = _normalized_source(source)
@@ -87,6 +90,8 @@ def build_col03a_from_payloads(
         source=normalized_source,
     )
     groups = collapse_strong_lineage(attached)
+    if equivalence_receipt is not None:
+        groups = apply_human_occurrence_equivalence(groups=groups, receipt=equivalence_receipt)
     ledger_source = {
         "source_version_id": normalized_source["source_version_id"],
         "source_path": normalized_source["source_path"],
@@ -118,6 +123,7 @@ def _require_deterministic_build(
     col02_closure: dict[str, Any],
     source: dict[str, Any],
     qualified_base_sha: str,
+    equivalence_receipt: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     first = build_col03a_from_payloads(
         evidence_items=evidence_items,
@@ -126,6 +132,7 @@ def _require_deterministic_build(
         col02_closure=col02_closure,
         source=source,
         qualified_base_sha=qualified_base_sha,
+        equivalence_receipt=equivalence_receipt,
     )
     second = build_col03a_from_payloads(
         evidence_items=list(reversed(evidence_items)),
@@ -134,6 +141,7 @@ def _require_deterministic_build(
         col02_closure=col02_closure,
         source=source,
         qualified_base_sha=qualified_base_sha,
+        equivalence_receipt=equivalence_receipt,
     )
     if any(canonical_bytes(a) != canonical_bytes(b) for a, b in zip(first, second, strict=True)):
         raise ValueError("COL-03A build is not deterministic under evidence ordering")
@@ -149,12 +157,14 @@ def write_col03a_artifacts(
     source_path: Path,
     output_root: Path,
     qualified_base_sha: str = QUALIFIED_BASE_SHA,
+    equivalence_receipt_path: Path | None = None,
 ) -> dict[str, Any]:
     evidence_items = _load_json(evidence_items_path)
     proposals = _load_json(proposals_path)
     repair_manifest = _load_json(repair_manifest_path)
     col02_closure = _load_json(col02_closure_path)
     source = _load_json(source_path)
+    equivalence_receipt = _load_json(equivalence_receipt_path) if equivalence_receipt_path is not None else None
     if not isinstance(evidence_items, list):
         raise ValueError("normalized governed evidence must be a list")
 
@@ -165,6 +175,7 @@ def write_col03a_artifacts(
         col02_closure=col02_closure,
         source=source,
         qualified_base_sha=qualified_base_sha,
+        equivalence_receipt=equivalence_receipt,
     )
 
     output_root.mkdir(parents=True, exist_ok=True)
@@ -254,6 +265,7 @@ def main() -> None:
     repair_manifest_bytes = REPAIR_MANIFEST_PATH.read_bytes()
     repair_manifest = json.loads(repair_manifest_bytes.decode("utf-8"))
     coverage_closure = _load_json(COVERAGE_CLOSURE_PATH)
+    equivalence_receipt = _load_json(EQUIVALENCE_RECEIPT_PATH)
     source = _validate_fresh_col02_lineage(
         audit=audit,
         prototype_search=prototype_search,
@@ -276,6 +288,7 @@ def main() -> None:
         col02_closure=coverage_closure,
         source=source,
         qualified_base_sha=QUALIFIED_BASE_SHA,
+        equivalence_receipt=equivalence_receipt,
     )
 
     OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
