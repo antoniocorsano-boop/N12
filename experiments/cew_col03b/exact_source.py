@@ -3,6 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 import hashlib
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -13,7 +14,10 @@ from experiments.cew_col03b.local_evidence import (
     classify_text_relation,
     derive_local_region,
 )
-from experiments.cew_col03b.predecessor import build_evidence_bundle_skeleton
+from experiments.cew_col03b.predecessor import (
+    build_evidence_bundle_skeleton,
+    validate_col03a_predecessor,
+)
 
 
 QUALIFIED_COL03A_SHA = "0d4a43cf02eadd2ab6f4b2641888395586c08a98"
@@ -429,3 +433,121 @@ def write_col03b_artifacts(
         (output_dir / filename).write_bytes(data)
         digests[filename] = _digest_bytes(data)
     return digests
+
+
+def _load_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _replay_exact_source_text() -> tuple[list[dict[str, Any]], str, int, int, str]:
+    import cv2
+
+    from experiments.cew_col02.axis_aware_whole_symbol_exact_source import (
+        _regenerate_source_analysis_and_proposals,
+    )
+    from experiments.cew_col02.exact_source_audit import (
+        _normalized_text_observations,
+        _tesseract_tsv,
+        canonical_bytes,
+    )
+
+    image, analysis, _proposals = _regenerate_source_analysis_and_proposals()
+    runner_temp = Path(os.environ["RUNNER_TEMP"])
+    analysis_path = runner_temp / "cew-col03b-structural-workarea.png"
+    if not cv2.imwrite(str(analysis_path), analysis):
+        raise RuntimeError("cannot write deterministic COL-03B analysis raster")
+
+    tsv_a, version_a = _tesseract_tsv(analysis_path)
+    tsv_b, version_b = _tesseract_tsv(analysis_path)
+    if version_a != version_b:
+        raise ValueError("Tesseract version drift during COL-03B replay")
+
+    height, width = image.shape[:2]
+    text_a = _normalized_text_observations(tsv_a, width, height)
+    text_b = _normalized_text_observations(tsv_b, width, height)
+    if canonical_bytes(text_a) != canonical_bytes(text_b):
+        raise ValueError("COL-03B text observation replay is not deterministic")
+
+    ok, encoded = cv2.imencode(".png", image)
+    if not ok:
+        raise RuntimeError("cannot encode exact-source raster for provenance digest")
+    raster_sha256 = hashlib.sha256(encoded.tobytes()).hexdigest()
+    return text_a, raster_sha256, width, height, version_a
+
+
+def main() -> None:
+    predecessor_root = Path("evidence/cew-col03a")
+    ledger = _load_json(predecessor_root / "column-occurrence-ledger.json")
+    reconciliation_a = _load_json(predecessor_root / "column-occurrence-reconciliation.json")
+    closure_a = _load_json(predecessor_root / "column-occurrence-ledger-closure.json")
+
+    validate_col03a_predecessor(
+        ledger=ledger,
+        reconciliation=reconciliation_a,
+        closure=closure_a,
+        expected_sha=QUALIFIED_COL03A_SHA,
+    )
+
+    text_observations, raster_sha256, width, height, tesseract_version = _replay_exact_source_text()
+    bundles_a = build_exact_source_bundles(
+        ledger=ledger,
+        text_observations=text_observations,
+        raster_sha256=raster_sha256,
+        raster_width_px=width,
+        raster_height_px=height,
+    )
+    bundles_b = build_exact_source_bundles(
+        ledger=deepcopy(ledger),
+        text_observations=list(reversed(deepcopy(text_observations))),
+        raster_sha256=raster_sha256,
+        raster_width_px=width,
+        raster_height_px=height,
+    )
+    if _canonical_bytes(bundles_a) != _canonical_bytes(bundles_b):
+        raise ValueError("COL-03B bundle replay is not deterministic")
+
+    historical_manifest = {
+        "artifacts": [],
+        "inventory_ref": "archive/ARTEFATTI_STORICI.md",
+        "materialized_artifacts": False,
+        "reason": "INVENTORY_PRESENT_HISTORICAL_DXF_CSV_NOT_MATERIALIZED_ON_QUALIFIED_BRANCH",
+    }
+    reconciliation_b = build_documentary_reconciliation(
+        bundles_a,
+        historical_manifest=historical_manifest,
+    )
+    closure_b = build_documentary_closure(
+        bundles=bundles_a,
+        reconciliation=reconciliation_b,
+        predecessor_closure=closure_a,
+        qualified_base_sha=QUALIFIED_COL03A_SHA,
+    )
+    if closure_b["documentary_identity_evidence_collection_complete"] is not True:
+        raise ValueError(f"COL-03B closure blocked: {closure_b['blocking_reasons']}")
+
+    output_root = Path("evidence/cew-col03b")
+    digests = write_col03b_artifacts(
+        output_root,
+        bundles=bundles_a,
+        reconciliation=reconciliation_b,
+        closure=closure_b,
+    )
+    print(
+        json.dumps(
+            {
+                "status": "CEW_COL03B_EXACT_SOURCE_EVIDENCE_COLLECTION_PASS",
+                "occurrence_count": len(bundles_a),
+                "text_observation_count": len(text_observations),
+                "hypothesis_count": sum(len(row.get("hypotheses", [])) for row in bundles_a),
+                "human_review_required": reconciliation_b["human_review_required"],
+                "historical_artifacts_materialized": False,
+                "tesseract_version": tesseract_version,
+                "digests": digests,
+            },
+            sort_keys=True,
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()
