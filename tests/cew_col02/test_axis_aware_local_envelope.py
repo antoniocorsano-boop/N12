@@ -222,6 +222,67 @@ class LocalAxisEnvelopeTests(unittest.TestCase):
         self.assertGreater(result["axis_external_continuation"]["vertical"]["above"], 0.20)
         self.assertGreater(result["axis_external_continuation"]["vertical"]["below"], 0.20)
 
+    def test_boundary_edge_variant_cannot_reuse_the_selected_axis_band(self) -> None:
+        guard = getattr(local_envelope, "_boundary_reuses_axis_band", None)
+        self.assertTrue(callable(guard), "axis-band boundary reuse guard seam is missing")
+        assert callable(guard)
+
+        axis_band = {"position": 40, "start": 30, "end": 45, "support": 80}
+        edge_variant = {
+            "position": 30,
+            "start": 30,
+            "end": 45,
+            "support": 80,
+            "boundary_variant": "start",
+        }
+        independent_boundary = {
+            "position": 18,
+            "start": 16,
+            "end": 20,
+            "support": 70,
+            "boundary_variant": "peak",
+        }
+
+        self.assertTrue(guard(edge_variant, axis_band))
+        self.assertFalse(guard(independent_boundary, axis_band))
+
+    def test_near_duplicate_prefers_stronger_boundary_then_peak_origin(self) -> None:
+        deduplicate = getattr(local_envelope, "_deduplicate_envelope_candidates", None)
+        self.assertTrue(callable(deduplicate), "evidence-aware candidate deduplication seam is missing")
+        assert callable(deduplicate)
+
+        edge_variant = {
+            "score": 0.94,
+            "box": (10, 8, 100, 82),
+            "coverage": {"left": 1.0, "right": 1.0, "top": 1.0, "bottom": 1.0},
+            "boundary_variant_count": 1,
+        }
+        peak_candidate = {
+            "score": 0.90,
+            "box": (10, 10, 100, 80),
+            "coverage": {"left": 1.0, "right": 1.0, "top": 1.0, "bottom": 1.0},
+            "boundary_variant_count": 0,
+        }
+        rows = deduplicate([edge_variant, peak_candidate])
+        self.assertEqual(len(rows), 1)
+        self.assertIs(rows[0], peak_candidate)
+
+        weak_peak = {
+            "score": 0.96,
+            "box": (10, 10, 100, 84),
+            "coverage": {"left": 0.90, "right": 0.96, "top": 1.0, "bottom": 0.84},
+            "boundary_variant_count": 0,
+        }
+        strong_edge = {
+            "score": 0.92,
+            "box": (10, 10, 100, 80),
+            "coverage": {"left": 1.0, "right": 1.0, "top": 1.0, "bottom": 1.0},
+            "boundary_variant_count": 1,
+        }
+        rows = deduplicate([weak_peak, strong_edge])
+        self.assertEqual(len(rows), 1)
+        self.assertIs(rows[0], strong_edge)
+
 
 if __name__ == "__main__":
     unittest.main()
