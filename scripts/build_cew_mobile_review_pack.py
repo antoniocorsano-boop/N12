@@ -41,6 +41,7 @@ body{{padding-bottom:calc(var(--bar-height) + env(safe-area-inset-bottom) + 12px
 #candidateId{{font-size:.76rem;color:#536273;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 .review-main{{max-width:980px;margin:0 auto;padding:8px}}
 .prompt{{font-size:.9rem;margin:4px 2px 8px;color:#425466}}
+.completion-banner{{margin:6px 0 10px;padding:12px;border:2px solid #4f7f55;border-radius:12px;background:#edf7ef;color:#234b29;font-weight:800;text-align:center}}
 .evidence-viewport{{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:auto;min-height:58vh;display:flex;align-items:flex-start;justify-content:center;touch-action:pan-x pan-y pinch-zoom;overscroll-behavior:contain}}
 .evidence-viewport.pick-mode{{outline:4px solid #c77700;outline-offset:-4px;touch-action:none}}
 .evidence-stage{{position:relative;width:100%;line-height:0}}
@@ -59,6 +60,7 @@ body{{padding-bottom:calc(var(--bar-height) + env(safe-area-inset-bottom) + 12px
 .mobile-action-bar{{position:fixed;left:0;right:0;bottom:0;z-index:10;background:rgba(255,255,255,.98);border-top:1px solid var(--border);padding:8px 8px calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr;gap:8px;min-height:var(--bar-height)}}
 .primary-action{{min-height:48px;border:1px solid #bdc5cf;border-radius:12px;background:#fff;font-size:.94rem;font-weight:800;padding:6px 8px}}
 .primary-action:active{{transform:scale(.99)}}
+.primary-action:disabled{{opacity:.45;transform:none;cursor:not-allowed}}
 .primary-action[data-action="PILASTRO"]{{border-width:2px}}
 .primary-action[data-action="NON_PILASTRO"]{{border-width:2px}}
 #export{{font-size:.78rem}}
@@ -73,6 +75,7 @@ body{{padding-bottom:calc(var(--bar-height) + env(safe-area-inset-bottom) + 12px
 </header>
 <main class="review-main">
   <div id="prompt" class="prompt"></div>
+  <div id="completionBanner" class="completion-banner" hidden></div>
   <div id="viewport" class="evidence-viewport"><div id="evidenceStage" class="evidence-stage"><img id="evidence" alt="Evidenza da revisionare"><div id="pointMarkers" class="point-markers" aria-hidden="true"></div></div></div>
   <div class="pick-hint">Tocca direttamente il centro dell'altro pilastro visibile.</div>
   <details class="optional-reason">
@@ -105,6 +108,14 @@ function current(){{return MANIFEST.candidates[Math.min(model.index,MANIFEST.can
 function appendEvent(event){{model.events.push({{schema_version:'cew-mobile-review-event-v1',event_id:eventId(),timestamp:new Date().toISOString(),...event}});saveModel()}}
 function undoneIds(){{return new Set(model.events.filter(e=>e.event_type==='UNDO_LAST').map(e=>e.undoes_event_id))}}
 function lastEffectiveEvent(){{const undone=undoneIds();for(let i=model.events.length-1;i>=0;i--){{const e=model.events[i];if(e.event_type!=='UNDO_LAST'&&!undone.has(e.event_id))return e}}return null}}
+function effectiveTerminalCandidateIds(){{
+ const undone=undoneIds();
+ return new Set(model.events.filter(e=>e.event_type==='CANDIDATE_DECISION'&&e.terminal===true&&!undone.has(e.event_id)).map(e=>e.candidate_id));
+}}
+function reviewComplete(){{
+ const terminal=effectiveTerminalCandidateIds();
+ return MANIFEST.candidates.every(c=>terminal.has(c.candidate_id));
+}}
 function effectiveAdditionalPoints(candidateId){{
  const undone=undoneIds();
  return model.events.filter(e=>e.event_type==='ADDITIONAL_OCCURRENCE'&&e.candidate_id===candidateId&&!undone.has(e.event_id)&&e.point).map(e=>e.point);
@@ -120,21 +131,27 @@ function renderPointMarkers(){{
 function setStatus(text){{document.getElementById('status').textContent=text}}
 function render(){{
  const c=current(),total=MANIFEST.candidates.length;
+ const complete=reviewComplete();
+ if(complete)pickMode=false;
  document.getElementById('progress').textContent=(model.index+1)+' / '+total;
  document.getElementById('candidateId').textContent=c.candidate_id;
  document.getElementById('prompt').textContent=c.prompt||'Valuta solo l’impronta grafica proposta.';
  const img=document.getElementById('evidence');img.src=c.overlay_image_uri||c.image_uri;img.dataset.sourceUri=c.image_uri;
  document.getElementById('viewport').classList.toggle('pick-mode',pickMode);
+ document.getElementById('completionBanner').hidden=!complete;
+ document.getElementById('completionBanner').textContent='Revisione completata — '+MANIFEST.candidates.length+'/'+MANIFEST.candidates.length+'.';
+ document.querySelectorAll('.primary-action').forEach(b=>b.disabled=complete);
  renderPointMarkers();
 }}
 function advance(){{if(model.index<MANIFEST.candidates.length-1)model.index+=1;saveModel();pickMode=false;document.getElementById('negativeReason').value='';render()}}
 function decide(action){{
+ if(reviewComplete()){{setStatus('Revisione già completata: usa ↶ per correggere oppure esporta JSON.');return}}
  const c=current();
  if(action==='ALTRO_PILASTRO'){{pickMode=true;render();setStatus('Modalità “Altro pilastro”: tocca il pilastro nell’immagine.');return}}
  const reason=action==='NON_PILASTRO'?(document.getElementById('negativeReason').value||null):null;
  appendEvent({{event_type:'CANDIDATE_DECISION',candidate_id:c.candidate_id,action,reason,terminal:true}});
  setStatus(action==='INQUADRATO_MALE'?'Positivo registrato: inquadratura da correggere.':'Scelta registrata.');
- if(TERMINAL.has(action))advance();
+ if(TERMINAL.has(action)){{advance();if(reviewComplete())setStatus('Revisione completata — '+MANIFEST.candidates.length+'/'+MANIFEST.candidates.length+'. Puoi annullare o esportare JSON.');}}
 }}
 function undoLast(){{
  const target=lastEffectiveEvent();if(!target){{setStatus('Nessuna scelta da annullare.');return}}
@@ -142,7 +159,7 @@ function undoLast(){{
  const idx=MANIFEST.candidates.findIndex(c=>c.candidate_id===target.candidate_id);if(idx>=0)model.index=idx;saveModel();pickMode=false;render();setStatus('Ultima scelta annullata; lo storico resta append-only.');
 }}
 function normalizedPoint(evt,img){{const r=img.getBoundingClientRect();return {{x:Math.max(0,Math.min(1,(evt.clientX-r.left)/r.width)),y:Math.max(0,Math.min(1,(evt.clientY-r.top)/r.height))}}}}
-function pickAdditional(evt){{if(!pickMode)return;if(evt.pointerType==='mouse'&&evt.button!==0)return;evt.preventDefault();const img=document.getElementById('evidence');const p=normalizedPoint(evt,img);appendEvent({{event_type:'ADDITIONAL_OCCURRENCE',candidate_id:current().candidate_id,action:'ALTRO_PILASTRO',point:p,terminal:false}});pickMode=false;render();setStatus('Altro pilastro registrato e marcato. Ora valuta il candidato evidenziato in rosso.')}}
+function pickAdditional(evt){{if(!pickMode||reviewComplete())return;if(evt.pointerType==='mouse'&&evt.button!==0)return;evt.preventDefault();const img=document.getElementById('evidence');const p=normalizedPoint(evt,img);appendEvent({{event_type:'ADDITIONAL_OCCURRENCE',candidate_id:current().candidate_id,action:'ALTRO_PILASTRO',point:p,terminal:false}});pickMode=false;render();setStatus('Altro pilastro registrato e marcato. Ora valuta il candidato evidenziato in rosso.')}}
 function exportBundle(){{
  const bundle={{schema_version:'cew-mobile-review-bundle-v1',review_id:MANIFEST.review_id,source:MANIFEST.source,candidate_ids:MANIFEST.candidates.map(c=>c.candidate_id),events:model.events,authority:AUTHORITY,canonical_write_authorized:false,canonical_write_performed:false}};
  const blob=new Blob([JSON.stringify(bundle,null,2)],{{type:'application/json'}}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=MANIFEST.review_id+'-review.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),0);setStatus('Revisione esportata in JSON.');
