@@ -151,8 +151,10 @@ def reconstruct_local_axis_envelope(
     This is a bounded graphical fallback. It uses only raster geometry around the
     supplied seed: four-side boundary continuity plus one interior horizontal and
     one interior vertical axis that each continue beyond the candidate envelope.
-    It does not infer support identity, section, family, structural identity, or
-    canonical geometry and fails closed on a materially different near-tie.
+    The local source region is extracted before any page-scale reduction so thin
+    source geometry is not destroyed before localisation. It does not infer
+    support identity, section, family, structural identity, or canonical geometry
+    and fails closed on a materially different near-tie.
     """
 
     if image is None or not isinstance(image, np.ndarray) or image.ndim != 2 or image.size == 0:
@@ -168,27 +170,20 @@ def reconstruct_local_axis_envelope(
         raise ValueError("seed_bbox must lie inside normalized source bounds")
 
     original_h, original_w = image.shape[:2]
-    if min(original_w, original_h) >= 1200:
-        work = cv2.resize(
-            image,
-            (max(1, original_w // 2), max(1, original_h // 2)),
-            interpolation=cv2.INTER_AREA,
-        )
-    else:
-        work = image.copy()
-    height, width = work.shape[:2]
+    seed_x = int(round(float(seed_bbox["x"]) * original_w))
+    seed_y = int(round(float(seed_bbox["y"]) * original_h))
+    seed_w = max(1, int(round(float(seed_bbox["width"]) * original_w)))
+    seed_h = max(1, int(round(float(seed_bbox["height"]) * original_h)))
 
-    seed_x = int(round(float(seed_bbox["x"]) * width))
-    seed_y = int(round(float(seed_bbox["y"]) * height))
-    seed_w = max(1, int(round(float(seed_bbox["width"]) * width)))
-    seed_h = max(1, int(round(float(seed_bbox["height"]) * height)))
-
-    margin = min(420, max(90, int(round(max(seed_w, seed_h) * 3.0))))
+    large_source = min(original_w, original_h) >= 1200
+    margin_cap = 840 if large_source else 420
+    margin_floor = 180 if large_source else 90
+    margin = min(margin_cap, max(margin_floor, int(round(max(seed_w, seed_h) * 3.0))))
     local_left = max(0, seed_x - margin)
     local_top = max(0, seed_y - margin)
-    local_right = min(width, seed_x + seed_w + margin)
-    local_bottom = min(height, seed_y + seed_h + margin)
-    local = work[local_top:local_bottom, local_left:local_right]
+    local_right = min(original_w, seed_x + seed_w + margin)
+    local_bottom = min(original_h, seed_y + seed_h + margin)
+    local = image[local_top:local_bottom, local_left:local_right].copy()
     if local.size == 0:
         return None
 
@@ -371,13 +366,13 @@ def reconstruct_local_axis_envelope(
     return {
         "schema": "CEW_COL02_AXIS_AWARE_WHOLE_SYMBOL_REPAIR_v1",
         "bbox": {
-            "x": global_x / width,
-            "y": global_y / height,
-            "width": box_w / width,
-            "height": box_h / height,
+            "x": global_x / original_w,
+            "y": global_y / original_h,
+            "width": box_w / original_w,
+            "height": box_h / original_h,
         },
         "seed_bbox": dict(seed_bbox),
-        "axis_cross": {"x": cross_x / width, "y": cross_y / height},
+        "axis_cross": {"x": cross_x / original_w, "y": cross_y / original_h},
         "axis_thickness_px": {
             "horizontal": int(horizontal_band["end"]) - int(horizontal_band["start"]) + 1,
             "vertical": int(vertical_band["end"]) - int(vertical_band["start"]) + 1,
