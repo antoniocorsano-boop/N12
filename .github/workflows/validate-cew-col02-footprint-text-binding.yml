@@ -8,8 +8,10 @@ on:
       - 'governance/cew-col02/**'
       - 'docs/experiments/2026-10-30-cew-col02-footprint-text-binding-design.md'
       - 'docs/experiments/2026-10-31-cew-col02-residual-occurrence-reconciliation-design.md'
+      - 'docs/superpowers/specs/2026-10-31-cew-col02-axis-aware-whole-symbol-design.md'
       - 'docs/superpowers/plans/2026-10-30-cew-col02-footprint-text-binding.md'
       - 'docs/superpowers/plans/2026-10-31-cew-col02-residual-occurrence-reconciliation.md'
+      - 'docs/superpowers/plans/2026-10-31-cew-col02-axis-aware-whole-symbol.md'
       - '.github/workflows/validate-cew-col02-footprint-text-binding.yml'
   workflow_dispatch:
 
@@ -116,6 +118,35 @@ jobs:
           assert len(data['reframe_tasks']) == 2
           assert len(data['point_reconciliation']) == 4
           print('CEW_COL02_RESIDUAL_RECONCILIATION_AUTHORITY=PASS')
+          PY
+      - name: Execute axis-aware whole-symbol repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col02/bin/activate"
+          python -m experiments.cew_col02.axis_aware_whole_symbol_exact_source
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('evidence/cew-col02/footprint-text-binding/col02-axis-aware-whole-symbol-repair.json')
+          data=json.loads(p.read_text(encoding='utf-8'))
+          assert data['proposal_count'] == 611
+          assert data['original_proposal_id_space_immutable'] is True
+          assert data['repair_candidate_count'] == 5
+          assert data['ready_for_human_review_count'] + data['unresolved_repair_count'] == 5
+          assert data['rejected_candidates'] == [
+              {'candidate_id': 'COL02-FP-0106', 'reason': 'MISLOCALIZED_NOT_COLUMN'}
+          ]
+          assert data['occurrence_coverage_complete'] is False
+          assert data['authority']['graphical_whole_symbol_repair_authorized'] is True
+          for key in (
+              'support_identity_authorized','text_identity_binding_authorized','family_assignment_authorized',
+              'section_assignment_authorized','fixed_line_assignment_authorized','structural_identity_authorized',
+              'canonical_geometry_authorized','canonical_write_authorized','g2c_promotion_authorized',
+              'g3_authorized','merge_authorized'
+          ):
+              assert data['authority'][key] is False, key
+          print('CEW_COL02_AXIS_AWARE_WHOLE_SYMBOL_AUTHORITY=PASS')
           PY
       - name: Upload COL-02 evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
