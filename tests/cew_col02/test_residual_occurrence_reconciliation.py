@@ -1,6 +1,10 @@
 import unittest
 
-from experiments.cew_col02.residual_occurrence_reconciliation import replay_mobile_review
+from experiments.cew_col02.residual_occurrence_reconciliation import (
+    project_crop_point,
+    reconcile_human_points,
+    replay_mobile_review,
+)
 
 
 RESIDUAL_IDS = [
@@ -112,6 +116,54 @@ class ResidualOccurrenceReplayTests(unittest.TestCase):
         bundle["events"] = [e for e in bundle["events"] if e.get("candidate_id") != "COL02-FP-0243"]
         with self.assertRaisesRegex(ValueError, "exactly one effective terminal decision"):
             replay_mobile_review(bundle)
+
+
+class HumanPointReconciliationTests(unittest.TestCase):
+    def test_project_crop_point_maps_mobile_coordinates_to_source_coordinates(self):
+        source_point = project_crop_point(
+            {"x": 0.5, "y": 0.25},
+            {"x": 0.10, "y": 0.20, "width": 0.20, "height": 0.40},
+        )
+        self.assertEqual(source_point, {"x": 0.20, "y": 0.30})
+
+    def test_point_inside_unique_proposal_binds_to_existing_candidate(self):
+        points = [{"event_id": "P1", "source_point": {"x": 0.15, "y": 0.15}}]
+        proposals = [
+            {"candidate_id": "A", "bbox": {"x": 0.10, "y": 0.10, "width": 0.10, "height": 0.10}},
+            {"candidate_id": "B", "bbox": {"x": 0.40, "y": 0.40, "width": 0.10, "height": 0.10}},
+        ]
+        result = reconcile_human_points(points, proposals, reviewed_ids=set())
+        self.assertEqual(result[0]["status"], "REVIEW_REQUIRED_EXISTING_PROPOSAL")
+        self.assertEqual(result[0]["proposal_candidate_id"], "A")
+
+    def test_point_resolving_to_reviewed_candidate_is_duplicate_not_review_task(self):
+        points = [{"event_id": "P1", "source_point": {"x": 0.15, "y": 0.15}}]
+        proposals = [{"candidate_id": "A", "bbox": {"x": 0.10, "y": 0.10, "width": 0.10, "height": 0.10}}]
+        result = reconcile_human_points(points, proposals, reviewed_ids={"A"})
+        self.assertEqual(result[0]["status"], "DUPLICATE_EXISTING_OCCURRENCE")
+        self.assertEqual(result[0]["proposal_candidate_id"], "A")
+
+    def test_two_points_resolving_to_same_new_proposal_create_one_review_task(self):
+        points = [
+            {"event_id": "P1", "source_point": {"x": 0.14, "y": 0.14}},
+            {"event_id": "P2", "source_point": {"x": 0.16, "y": 0.16}},
+        ]
+        proposals = [{"candidate_id": "A", "bbox": {"x": 0.10, "y": 0.10, "width": 0.10, "height": 0.10}}]
+        result = reconcile_human_points(points, proposals, reviewed_ids=set())
+        self.assertEqual(result[0]["status"], "REVIEW_REQUIRED_EXISTING_PROPOSAL")
+        self.assertEqual(result[1]["status"], "DUPLICATE_POINT_RESOLUTION")
+        self.assertEqual(result[1]["duplicate_of_event_id"], "P1")
+
+    def test_equal_geometric_candidates_fail_closed_as_unbound(self):
+        points = [{"event_id": "P1", "source_point": {"x": 0.15, "y": 0.15}}]
+        proposals = [
+            {"candidate_id": "B", "bbox": {"x": 0.10, "y": 0.10, "width": 0.10, "height": 0.10}},
+            {"candidate_id": "A", "bbox": {"x": 0.10, "y": 0.10, "width": 0.10, "height": 0.10}},
+        ]
+        result = reconcile_human_points(points, proposals, reviewed_ids=set())
+        self.assertEqual(result[0]["status"], "HUMAN_POINT_UNBOUND")
+        self.assertEqual(result[0]["ambiguous_candidate_ids"], ["A", "B"])
+        self.assertNotIn("proposal_candidate_id", result[0])
 
 
 if __name__ == "__main__":
