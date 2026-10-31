@@ -66,7 +66,7 @@ jobs:
                   with urllib.request.urlopen('http://127.0.0.1:8766/review/mobile', timeout=1) as r:
                       page=r.read().decode('utf-8')
                   assert 'class="mobile-action-bar"' in page
-                  assert page.count('data-action="') == 4
+                  assert page.count('<button class="primary-action" data-action="') == 4
                   assert 'canonical_write_authorized:false' in page
                   print('CEW_MOBILE_REVIEW_HTTP=PASS')
                   break
