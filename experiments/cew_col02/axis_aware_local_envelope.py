@@ -45,17 +45,27 @@ def _boundary_band_variants(
     bands: list[dict[str, int]],
     *,
     line_run: int,
-) -> list[dict[str, int]]:
+) -> list[dict[str, Any]]:
     """Expose bounded outer-edge hypotheses without changing axis evidence bands."""
 
-    variants: list[dict[str, int]] = []
+    variants: list[dict[str, Any]] = []
     for band in bands:
-        positions = [int(band["position"])]
+        hypotheses: list[tuple[int, str]] = [(int(band["position"]), "peak")]
         if int(band["end"]) - int(band["start"]) + 1 > line_run:
-            positions.extend([int(band["start"]), int(band["end"])])
-        for position in dict.fromkeys(positions):
-            variant = dict(band)
+            hypotheses.extend(
+                [
+                    (int(band["start"]), "start"),
+                    (int(band["end"]), "end"),
+                ]
+            )
+        seen: set[int] = set()
+        for position, origin in hypotheses:
+            if position in seen:
+                continue
+            seen.add(position)
+            variant: dict[str, Any] = dict(band)
             variant["position"] = position
+            variant["boundary_variant"] = origin
             variants.append(variant)
     return sorted(variants, key=lambda row: int(row["position"]))
 
@@ -166,6 +176,48 @@ def _minimum_boundary_coverage(candidate: dict[str, Any]) -> float:
     if not isinstance(coverage, dict):
         return 0.0
     return min(float(coverage.get(side, 0.0)) for side in ("left", "right", "top", "bottom"))
+
+
+def _boundary_reuses_axis_band(boundary_band: dict[str, Any], axis_band: dict[str, Any]) -> bool:
+    """Reject a composite band edge masquerading as a boundary around its own axis peak."""
+
+    if str(boundary_band.get("boundary_variant", "peak")) == "peak":
+        return False
+    return (
+        int(boundary_band["start"]) == int(axis_band["start"])
+        and int(boundary_band["end"]) == int(axis_band["end"])
+    )
+
+
+def _deduplicate_envelope_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Deduplicate by graphical evidence before score so edge variants cannot displace stable peaks."""
+
+    unique: list[dict[str, Any]] = []
+
+    def evidence_key(row: dict[str, Any]) -> tuple[float, int, float]:
+        return (
+            _minimum_boundary_coverage(row),
+            -int(row.get("boundary_variant_count", 0)),
+            float(row["score"]),
+        )
+
+    for candidate in candidates:
+        duplicate_index = next(
+            (
+                index
+                for index, existing in enumerate(unique)
+                if _near_duplicate(candidate["box"], existing["box"])
+            ),
+            None,
+        )
+        if duplicate_index is None:
+            unique.append(candidate)
+            continue
+        existing = unique[duplicate_index]
+        if evidence_key(candidate) > evidence_key(existing):
+            unique[duplicate_index] = candidate
+
+    return sorted(unique, key=lambda row: float(row["score"]), reverse=True)
 
 
 def _select_plausible_envelope(candidates: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -359,6 +411,13 @@ def _reconstruct_local_axis_envelope_single_scale(
                         continue
                     horizontal_axis = max(interior_horizontal, key=lambda item: (item[1], item[0]))
                     vertical_axis = max(interior_vertical, key=lambda item: (item[1], item[0]))
+                    if (
+                        _boundary_reuses_axis_band(top_band, horizontal_axis[2])
+                        or _boundary_reuses_axis_band(bottom_band, horizontal_axis[2])
+                        or _boundary_reuses_axis_band(left_band, vertical_axis[2])
+                        or _boundary_reuses_axis_band(right_band, vertical_axis[2])
+                    ):
+                        continue
                     minimum_boundary = min(coverage.values())
                     mean_boundary = sum(coverage.values()) / 4.0
                     axis_support = min(horizontal_axis[0], vertical_axis[0])
@@ -370,6 +429,10 @@ def _reconstruct_local_axis_envelope_single_scale(
                         + 0.10 * axis_continuation
                         + 0.10 * seed_overlap
                     )
+                    boundary_variant_count = sum(
+                        str(band.get("boundary_variant", "peak")) != "peak"
+                        for band in (top_band, bottom_band, left_band, right_band)
+                    )
                     candidates.append(
                         {
                             "score": score,
@@ -378,17 +441,14 @@ def _reconstruct_local_axis_envelope_single_scale(
                             "seed_overlap": seed_overlap,
                             "horizontal_axis": horizontal_axis,
                             "vertical_axis": vertical_axis,
+                            "boundary_variant_count": boundary_variant_count,
                         }
                     )
 
     if not candidates:
         return None
     candidates.sort(key=lambda row: float(row["score"]), reverse=True)
-    unique: list[dict[str, Any]] = []
-    for candidate in candidates:
-        if any(_near_duplicate(candidate["box"], existing["box"]) for existing in unique):
-            continue
-        unique.append(candidate)
+    unique = _deduplicate_envelope_candidates(candidates)
 
     chosen = _select_plausible_envelope(unique)
     if chosen is None:
