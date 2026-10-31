@@ -115,6 +115,16 @@ def assert_contract() -> None:
         # consume the gesture and the evidence must receive a real pointer event.
         '.evidence-viewport.pick-mode{outline:4px solid #c77700;outline-offset:-4px;touch-action:none}',
         "document.getElementById('evidence').addEventListener('pointerup',pickAdditional)",
+        # Human feedback regression: a recorded additional occurrence must remain
+        # visibly marked, survive reload via the append-only event log and vanish
+        # when its source event is undone.
+        'id="pointMarkers"',
+        'class="point-markers"',
+        'className=\'point-marker\'',
+        'function effectiveAdditionalPoints(candidateId)',
+        'function renderPointMarkers()',
+        'renderPointMarkers();',
+        "setStatus('Altro pilastro registrato e marcato. Ora valuta il candidato evidenziato in rosso.')",
     ]
     for fragment in required_fragments:
         assert fragment in html, f"missing mobile contract fragment: {fragment}"
