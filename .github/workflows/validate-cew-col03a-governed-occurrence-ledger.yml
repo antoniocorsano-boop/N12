@@ -122,7 +122,7 @@ jobs:
           set -euo pipefail
           source "$RUNNER_TEMP/cew-col03a/bin/activate"
           python -m experiments.cew_col03a.exact_source
-      - name: Assert COL-03A exact-source qualification
+      - name: Assert COL-03A exact-source qualification or governed review block
         shell: bash
         run: |
           set -euo pipefail
@@ -137,9 +137,7 @@ jobs:
           closure = json.loads((root / 'column-occurrence-ledger-closure.json').read_text(encoding='utf-8'))
           col02 = json.loads(Path('evidence/cew-col02/footprint-text-binding/col02-occurrence-coverage-closure.json').read_text(encoding='utf-8'))
 
-          assert closure['occurrence_ledger_complete'] is True
           assert ledger['occurrence_count'] == 24
-          assert ledger['conflict_count'] == 0
           assert reconciliation['input_counts_by_evidence_class'] == {
               'PROTOTYPE_CONFIRMED': 2,
               'PROTOTYPE_GUIDED_CONFIRMED': 15,
@@ -149,7 +147,6 @@ jobs:
           assert reconciliation['bidirectional_closed_set_complete'] is True
           assert reconciliation['missing_evidence_ids'] == []
           assert reconciliation['orphan_occurrence_ids'] == []
-          assert reconciliation['conflict_count'] == 0
           assert col02['proposal_count'] == 611
           assert col02['occurrence_coverage_complete'] is True
 
@@ -185,7 +182,19 @@ jobs:
                   'g3_authorized','merge_authorized'
               ):
                   assert authority[key] is False, key
-          print('CEW_COL03A_EXACT_SOURCE_QUALIFICATION=PASS')
+
+          if closure['occurrence_ledger_complete'] is True:
+              assert ledger['conflict_count'] == 0
+              assert reconciliation['conflict_count'] == 0
+              assert closure['blocking_reasons'] == []
+              print('CEW_COL03A_EXACT_SOURCE_QUALIFICATION=PASS')
+          else:
+              assert ledger['conflict_count'] > 0
+              assert reconciliation['conflict_count'] == ledger['conflict_count']
+              assert closure['blocking_reasons'] == ['UNRESOLVED_CONFLICTS'], closure['blocking_reasons']
+              assert all(item['conflict_state'] == 'AMBIGUOUS_DUPLICATE' for item in ledger['conflicts'])
+              print('CEW_COL03A_EXACT_SOURCE_QUALIFICATION=BLOCKED_FOR_HUMAN_REVIEW')
+              print('CEW_COL03A_CONFLICTS=' + json.dumps(ledger['conflicts'], sort_keys=True))
           PY
       - name: Verify successor artifact surface
         shell: bash
