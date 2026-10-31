@@ -132,6 +132,15 @@ class ExactSourceBundleTests(unittest.TestCase):
             self.assertEqual(high_resolution["machine_observation_ids"], [])
             self.assertEqual(high_resolution["machine_observation_count"], 0)
 
+    def test_unmaterialized_historical_inventory_is_not_reported_as_no_evidence(self) -> None:
+        bundles = build_exact_source_bundles(
+            ledger=_ledger(),
+            text_observations=[],
+            raster_sha256="r" * 64,
+            raster_width_px=4000,
+            raster_height_px=3000,
+        )
+        for bundle in bundles:
             historical = bundle["cross_document_evidence"][0]
             self.assertEqual(historical["status"], "NOT_APPLICABLE")
             self.assertEqual(historical["evidence_class"], "NOT_APPLICABLE")
