@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import copy
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -58,6 +60,34 @@ class AxisAwareWholeSymbolReceiptTests(unittest.TestCase):
             "merge_authorized",
         ):
             self.assertFalse(payload["authority"][key], key)
+
+    def test_loader_returns_only_explicit_repair_seeds_and_rejects_authority_drift(self) -> None:
+        try:
+            from experiments.cew_col02.axis_aware_whole_symbol import load_axis_aware_repair_receipt
+        except ModuleNotFoundError:
+            self.fail("axis-aware whole-symbol receipt loader is missing")
+
+        payload = load_axis_aware_repair_receipt(RECEIPT)
+        self.assertEqual(
+            payload["repair_candidate_ids"],
+            [
+                "COL02-FP-0252",
+                "COL02-FP-0073",
+                "COL02-FP-0241",
+                "COL02-FP-0261",
+                "COL02-FP-0071",
+            ],
+        )
+        self.assertEqual(payload["rejected_candidate_ids"], ["COL02-FP-0106"])
+
+        tampered = json.loads(RECEIPT.read_text(encoding="utf-8"))
+        tampered = copy.deepcopy(tampered)
+        tampered["authority"]["canonical_write_authorized"] = True
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "tampered.json"
+            path.write_text(json.dumps(tampered), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "authority"):
+                load_axis_aware_repair_receipt(path)
 
 
 if __name__ == "__main__":
