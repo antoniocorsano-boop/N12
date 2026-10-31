@@ -1,0 +1,74 @@
+{
+  "schema_id": "CEW_COL02_AXIS_AWARE_WHOLE_SYMBOL_HUMAN_REVIEW",
+  "schema_version": 2,
+  "review_scope": "graphical_whole_symbol_geometry_only",
+  "review_method": "agent_assisted_visual_inspection_under_user_authorization",
+  "source": {
+    "pull_request": 175,
+    "exact_head_sha": "cc584a0f413c856d3d2d82e54dd2f913e6c18b39",
+    "workflow_run_id": 41224620834,
+    "workflow_run_number": 86,
+    "artifact_id": 13051072555,
+    "artifact_name": "cew-col02-footprint-text-binding",
+    "artifact_sha256": "1222dbd555e51fe88ef4703190a2d5db623feaa97cd54226db4e2b666faaadef",
+    "atlas": "col02-axis-aware-whole-symbol-repair-atlas.png"
+  },
+  "decisions": [
+    {
+      "repair_id": "COL02-WSR-001",
+      "source_candidate_id": "COL02-FP-0252",
+      "decision": "PASS",
+      "finding": "WHOLE_SYMBOL_ENVELOPE_CONFIRMED_AFTER_REWORK",
+      "reason": "The repaired bbox is tight to the visible whole-symbol outer envelope; the prior lower overshoot is removed and all four boundary coverages are 1.0."
+    },
+    {
+      "repair_id": "COL02-WSR-002",
+      "source_candidate_id": "COL02-FP-0073",
+      "decision": "PASS",
+      "finding": "WHOLE_SYMBOL_ENVELOPE_CONFIRMED_PRESERVED",
+      "reason": "The previously accepted whole-symbol envelope is visually preserved and its reconstructed coordinates are unchanged from the qualified run-80 baseline."
+    },
+    {
+      "repair_id": "COL02-WSR-003",
+      "source_candidate_id": "COL02-FP-0241",
+      "decision": "PASS",
+      "finding": "WHOLE_SYMBOL_ENVELOPE_CONFIRMED_AFTER_REVIEW_DIRECTED_COMPLETION",
+      "reason": "The review-directed completion preserves left, right and bottom and moves only the top edge to the visible outer boundary, including the upper portion previously excluded by the internal horizontal line; all four boundary coverages are 1.0."
+    },
+    {
+      "repair_id": "COL02-WSR-004",
+      "source_candidate_id": "COL02-FP-0261",
+      "decision": "PASS",
+      "finding": "WHOLE_SYMBOL_ENVELOPE_CONFIRMED_PRESERVED",
+      "reason": "The previously accepted whole-symbol envelope is visually preserved and its reconstructed coordinates are unchanged from the qualified run-80 baseline."
+    },
+    {
+      "repair_id": "COL02-WSR-005",
+      "source_candidate_id": "COL02-FP-0071",
+      "decision": "PASS",
+      "finding": "WHOLE_SYMBOL_ENVELOPE_CONFIRMED_PRESERVED",
+      "reason": "The previously accepted elongated whole-symbol envelope is visually preserved and its reconstructed coordinates are unchanged from the qualified run-80 baseline."
+    }
+  ],
+  "summary": {
+    "reviewed": 5,
+    "pass": 5,
+    "rework": 0,
+    "unreviewed": 0,
+    "occurrence_coverage_complete": false
+  },
+  "authority": {
+    "graphical_review_record_authorized": true,
+    "support_identity_authorized": false,
+    "text_identity_binding_authorized": false,
+    "family_assignment_authorized": false,
+    "section_assignment_authorized": false,
+    "fixed_line_assignment_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false
+  }
+}

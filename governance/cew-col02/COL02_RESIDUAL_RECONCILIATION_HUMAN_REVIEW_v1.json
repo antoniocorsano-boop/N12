@@ -1,0 +1,73 @@
+{
+  "schema_id": "CEW_COL02_RESIDUAL_RECONCILIATION_HUMAN_REVIEW",
+  "schema_version": 1,
+  "review_scope": "BOUNDED_GRAPHICAL_GEOMETRY_ADJUDICATION_ONLY",
+  "source_exact_sha": "ead0c9a85a9c6e639dc8d94af7e0902f7b7744c4",
+  "source_exact_run_id": 41177499085,
+  "source_artifact_id": 13034035414,
+  "source_artifact_sha256": "cc419f9f2170d515a2ed26ffe9a47d437edf406aa7853d398cdec34fa085c6b0",
+  "source_reconciliation_replay_sha256": "b68526f71e77a072b0849d2d3cd2fcab886b03c86a99681717d7aee5cd13bf3c",
+  "human_observation": {
+    "summary": "Five red targets are incomplete fragments of a column symbol split by orthogonal axes; one red target is between a beam section and the column and does not hit the column.",
+    "axis_rule": "When orthogonal structural axes pass through a column symbol, the visible portions divided by the axes belong to one whole graphical object and must not be treated as independent column footprints.",
+    "beam_boundary_rule": "Beam geometry adjoining a column remains separate and a target between beam section and column is not a column occurrence."
+  },
+  "decisions": [
+    {
+      "review_task_id": "R01",
+      "candidate_id": "COL02-FP-0252",
+      "decision": "FRAGMENTED_SYMBOL_INCOMPLETE_GEOMETRY",
+      "axis_partition_observed": true,
+      "repair_eligible": true
+    },
+    {
+      "review_task_id": "R02",
+      "candidate_id": "COL02-FP-0106",
+      "decision": "MISLOCALIZED_NOT_COLUMN",
+      "axis_partition_observed": false,
+      "repair_eligible": false
+    },
+    {
+      "review_task_id": "R03",
+      "candidate_id": "COL02-FP-0073",
+      "decision": "FRAGMENTED_SYMBOL_INCOMPLETE_GEOMETRY",
+      "axis_partition_observed": true,
+      "repair_eligible": true
+    },
+    {
+      "review_task_id": "R04",
+      "candidate_id": "COL02-FP-0241",
+      "decision": "FRAGMENTED_SYMBOL_INCOMPLETE_GEOMETRY",
+      "axis_partition_observed": true,
+      "repair_eligible": true
+    },
+    {
+      "review_task_id": "R05",
+      "candidate_id": "COL02-FP-0261",
+      "decision": "FRAGMENTED_SYMBOL_INCOMPLETE_GEOMETRY",
+      "axis_partition_observed": true,
+      "repair_eligible": true
+    },
+    {
+      "review_task_id": "R06",
+      "candidate_id": "COL02-FP-0071",
+      "decision": "FRAGMENTED_SYMBOL_INCOMPLETE_GEOMETRY",
+      "axis_partition_observed": true,
+      "repair_eligible": true
+    }
+  ],
+  "authority": {
+    "graphical_whole_symbol_repair_authorized": true,
+    "support_identity_authorized": false,
+    "text_identity_binding_authorized": false,
+    "family_assignment_authorized": false,
+    "section_assignment_authorized": false,
+    "fixed_line_assignment_authorized": false,
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "g2c_promotion_authorized": false,
+    "g3_authorized": false,
+    "merge_authorized": false
+  }
+}
