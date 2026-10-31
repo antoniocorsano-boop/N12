@@ -191,8 +191,25 @@ jobs:
                   assert row[key] is False, (row['occurrence_id'], key)
               assert not (forbidden & set(row)), (row['occurrence_id'], forbidden & set(row))
 
+              high_resolution = row['high_resolution_read_evidence'][0]
+              assert high_resolution['read_state'] in {
+                  'MACHINE_OBSERVATIONS_PRESENT',
+                  'NO_MACHINE_TEXT_OBSERVED',
+              }
+              assert high_resolution['machine_observation_count'] == len(high_resolution['machine_observation_ids'])
+              assert high_resolution['machine_observation_ids'] == sorted(set(high_resolution['machine_observation_ids']))
+
+              historical = row['cross_document_evidence'][0]
+              assert historical['status'] == 'NOT_APPLICABLE'
+              assert historical['evidence_class'] == 'NOT_APPLICABLE'
+              assert historical['reason'] == 'HISTORICAL_ARTIFACTS_INVENTORIED_NOT_MATERIALIZED'
+              assert historical['inventory_ref'] == 'archive/ARTEFATTI_STORICI.md'
+
           assert reconciliation['occurrence_count'] == 22
           assert reconciliation['historical_provenance_complete'] is True
+          assert reconciliation['historical_artifacts_materialized'] is False
+          assert reconciliation['historical_inventory_ref'] == 'archive/ARTEFATTI_STORICI.md'
+          assert reconciliation['historical_gap_reason'] == 'INVENTORY_PRESENT_HISTORICAL_DXF_CSV_NOT_MATERIALIZED_ON_QUALIFIED_BRANCH'
           assert reconciliation['evidence_counts_by_channel']['high_resolution_read_evidence'] == 22
           assert reconciliation['evidence_counts_by_channel']['local_topology_evidence'] == 22
           assert reconciliation['explicit_no_evidence_counts_by_channel']['callout_evidence'] == 22
