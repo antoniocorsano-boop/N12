@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from typing import Any
 
 
@@ -41,6 +42,139 @@ def _validate_point(point: Any, event_id: str) -> dict[str, float]:
     if not (0.0 <= x <= 1.0 and 0.0 <= y <= 1.0):
         raise ValueError(f"additional occurrence {event_id} point must be normalized")
     return {"x": x, "y": y}
+
+
+def _validate_bbox(box: Any, label: str) -> dict[str, float]:
+    if not isinstance(box, dict):
+        raise ValueError(f"{label} must be an object")
+    try:
+        x = float(box["x"])
+        y = float(box["y"])
+        width = float(box["width"])
+        height = float(box["height"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError(f"{label} must contain numeric x/y/width/height") from exc
+    if not (0.0 <= x <= 1.0 and 0.0 <= y <= 1.0 and width > 0.0 and height > 0.0):
+        raise ValueError(f"{label} has invalid normalized geometry")
+    if x + width > 1.0 + 1e-12 or y + height > 1.0 + 1e-12:
+        raise ValueError(f"{label} exceeds normalized source bounds")
+    return {"x": x, "y": y, "width": width, "height": height}
+
+
+def project_crop_point(point: dict[str, Any], crop_bbox: dict[str, Any]) -> dict[str, float]:
+    """Project a point normalized to a review crop back to normalized source coordinates."""
+    local = _validate_point(point, "crop-point")
+    crop = _validate_bbox(crop_bbox, "crop_bbox")
+    return {
+        "x": crop["x"] + local["x"] * crop["width"],
+        "y": crop["y"] + local["y"] * crop["height"],
+    }
+
+
+def _point_inside_bbox(point: dict[str, float], box: dict[str, float]) -> bool:
+    return (
+        box["x"] <= point["x"] <= box["x"] + box["width"]
+        and box["y"] <= point["y"] <= box["y"] + box["height"]
+    )
+
+
+def _center_distance(point: dict[str, float], box: dict[str, float]) -> float:
+    cx = box["x"] + box["width"] / 2.0
+    cy = box["y"] + box["height"] / 2.0
+    return math.hypot(point["x"] - cx, point["y"] - cy)
+
+
+def reconcile_human_points(
+    points: list[dict[str, Any]],
+    proposals: list[dict[str, Any]],
+    reviewed_ids: set[str],
+) -> list[dict[str, Any]]:
+    """Bind source-normalized human points to the frozen proposal set, fail-closed.
+
+    Proposal IDs are only graphical occurrence identifiers. Equal geometric evidence remains
+    ambiguous; lexical candidate order is used only to make ambiguity reporting deterministic.
+    """
+    normalized_proposals: list[dict[str, Any]] = []
+    proposal_ids: set[str] = set()
+    for proposal in proposals:
+        candidate_id = str(proposal.get("candidate_id") or "").strip()
+        if not candidate_id or candidate_id in proposal_ids:
+            raise ValueError(f"proposal candidate_id must be non-empty and unique: {candidate_id!r}")
+        proposal_ids.add(candidate_id)
+        normalized_proposals.append(
+            {
+                "candidate_id": candidate_id,
+                "bbox": _validate_bbox(proposal.get("bbox"), f"proposal {candidate_id} bbox"),
+            }
+        )
+
+    results: list[dict[str, Any]] = []
+    claimed_by_event: dict[str, str] = {}
+    seen_event_ids: set[str] = set()
+
+    for raw_point in points:
+        event_id = str(raw_point.get("event_id") or "").strip()
+        if not event_id or event_id in seen_event_ids:
+            raise ValueError(f"point event_id must be non-empty and unique: {event_id!r}")
+        seen_event_ids.add(event_id)
+        source_point = _validate_point(raw_point.get("source_point"), event_id)
+
+        ranked: list[tuple[bool, float, str, dict[str, float]]] = []
+        for proposal in normalized_proposals:
+            box = proposal["bbox"]
+            contains = _point_inside_bbox(source_point, box)
+            distance = _center_distance(source_point, box)
+            local_limit = 1.5 * max(box["width"], box["height"])
+            if contains or distance <= local_limit:
+                ranked.append((contains, distance, proposal["candidate_id"], box))
+
+        ranked.sort(key=lambda item: (not item[0], item[1], item[2]))
+        base = {"event_id": event_id, "source_point": source_point}
+        if not ranked:
+            results.append({**base, "status": "HUMAN_POINT_UNBOUND", "ambiguous_candidate_ids": []})
+            continue
+
+        top = ranked[0]
+        same_geometric_rank = [
+            item
+            for item in ranked
+            if item[0] == top[0] and math.isclose(item[1], top[1], rel_tol=0.0, abs_tol=1e-12)
+        ]
+        if len(same_geometric_rank) > 1:
+            results.append(
+                {
+                    **base,
+                    "status": "HUMAN_POINT_UNBOUND",
+                    "ambiguous_candidate_ids": sorted(item[2] for item in same_geometric_rank),
+                }
+            )
+            continue
+
+        candidate_id = top[2]
+        matched = {
+            **base,
+            "proposal_candidate_id": candidate_id,
+            "proposal_bbox": dict(top[3]),
+            "point_inside_proposal": bool(top[0]),
+            "center_distance": top[1],
+        }
+        if candidate_id in reviewed_ids:
+            results.append({**matched, "status": "DUPLICATE_EXISTING_OCCURRENCE"})
+            continue
+        if candidate_id in claimed_by_event:
+            results.append(
+                {
+                    **matched,
+                    "status": "DUPLICATE_POINT_RESOLUTION",
+                    "duplicate_of_event_id": claimed_by_event[candidate_id],
+                }
+            )
+            continue
+
+        claimed_by_event[candidate_id] = event_id
+        results.append({**matched, "status": "REVIEW_REQUIRED_EXISTING_PROPOSAL"})
+
+    return results
 
 
 def replay_mobile_review(bundle: dict[str, Any]) -> dict[str, Any]:
