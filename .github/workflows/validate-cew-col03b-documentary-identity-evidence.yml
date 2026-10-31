@@ -1,0 +1,250 @@
+name: CEW-COL-03B Documentary Identity Evidence
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/cew_col03b/**'
+      - 'tests/cew_col03b/**'
+      - 'governance/cew-col03b/**'
+      - 'docs/superpowers/specs/2026-10-31-cew-col03b-documentary-identity-evidence-design.md'
+      - 'docs/superpowers/plans/2026-10-31-cew-col03b-documentary-identity-evidence.md'
+      - '.github/workflows/validate-cew-col03b-documentary-identity-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Run COL-03B unit tests
+        run: python -m unittest discover -s tests/cew_col03b -p 'test_*.py' -v
+      - name: Run COL-03A regression tests
+        run: python -m unittest discover -s tests/cew_col03a -p 'test_*.py' -v
+
+  exact-source:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Verify qualified COL-03A ancestry and exact candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor 0d4a43cf02eadd2ab6f4b2641888395586c08a98 HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install frozen Tesseract system package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+      - name: Install frozen B01 toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-col03b"
+          source "$RUNNER_TEMP/cew-col03b/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
+      - name: Fetch frozen archival source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+      - name: Execute exact TAV.5 COL-02 audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03b/bin/activate"
+          python -m experiments.cew_col02.exact_source_audit
+      - name: Rebuild target-explicit review atlas
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03b/bin/activate"
+          python -m experiments.cew_col02.review_atlas evidence/cew-col02/footprint-text-binding/col02-audit.json
+      - name: Execute exact-source prototype-guided search
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03b/bin/activate"
+          python -m experiments.cew_col02.prototype_guided_exact_source
+      - name: Execute visible sibling occurrence sweep
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03b/bin/activate"
+          python -m experiments.cew_col02.occurrence_sweep_exact_source
+      - name: Execute residual occurrence reconciliation
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03b/bin/activate"
+          python -m experiments.cew_col02.residual_occurrence_reconciliation_exact_source
+      - name: Execute axis-aware whole-symbol repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03b/bin/activate"
+          python -m experiments.cew_col02.axis_aware_whole_symbol_exact_source
+      - name: Close bounded COL-02 graphical occurrence coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03b/bin/activate"
+          python -m experiments.cew_col02.occurrence_coverage_closure
+      - name: Rebuild qualified COL-03A occurrence ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03b/bin/activate"
+          python -m experiments.cew_col03a.exact_source
+      - name: Verify frozen COL-03A predecessor digests
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03b/bin/activate"
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+
+          expected = {
+              'column-occurrence-ledger.json': '8d77811401f3804bdc9aa89c758035ff6dd6edc9d43ad6b3a504ccced0f89be0',
+              'column-occurrence-reconciliation.json': '996b3a08bfa5cd2f67d862c6dd1f118e4498521059399d662ed011cfc6200c65',
+              'column-occurrence-ledger-closure.json': 'ec3b8f34ec85b00ca2dee63f9dbaf2b858ea943821acf9879a5c7717c9ac8165',
+          }
+          root = Path('evidence/cew-col03a')
+          for name, digest in expected.items():
+              actual = hashlib.sha256((root / name).read_bytes()).hexdigest()
+              assert actual == digest, (name, actual, digest)
+          print('CEW_COL03A_FROZEN_DIGESTS=PASS')
+          PY
+      - name: Build COL-03B documentary identity evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03b/bin/activate"
+          python -m experiments.cew_col03b.exact_source
+      - name: Assert COL-03B exact-source qualification
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03b/bin/activate"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('evidence/cew-col03b')
+          ledger = json.loads((root / 'documentary-identity-evidence-ledger.json').read_text(encoding='utf-8'))
+          hypotheses = json.loads((root / 'documentary-identity-hypotheses.json').read_text(encoding='utf-8'))
+          reconciliation = json.loads((root / 'documentary-identity-reconciliation.json').read_text(encoding='utf-8'))
+          closure = json.loads((root / 'documentary-identity-evidence-closure.json').read_text(encoding='utf-8'))
+
+          assert ledger['occurrence_count'] == 22
+          occurrences = ledger['occurrences']
+          assert [row['occurrence_id'] for row in occurrences] == [f'COL-OCC-{i:04d}' for i in range(1, 23)]
+          channels = (
+              'internal_text_evidence','intersecting_text_evidence','nearby_text_evidence',
+              'high_resolution_read_evidence','callout_evidence','local_topology_evidence',
+              'cross_document_evidence',
+          )
+          forbidden = {
+              'support_identity','support_number','family','family_id','section','section_id',
+              'fixed_line','fixed_line_id','vertical_chain_id','canonical_node_id','structural_identity',
+          }
+          authority_keys = (
+              'support_identity_authorized','text_identity_binding_authorized','family_assignment_authorized',
+              'section_assignment_authorized','fixed_line_assignment_authorized','structural_identity_authorized',
+              'canonical_geometry_authorized','canonical_write_authorized','g2c_promotion_authorized',
+              'g3_authorized','merge_authorized',
+          )
+          for row in occurrences:
+              assert row['documentary_evidence_state'] == 'COMPLETE'
+              assert row['missing_channels'] == []
+              assert row['exact_source_reconstructible'] is True
+              assert row['lineage_complete'] is True
+              for channel in channels:
+                  assert isinstance(row[channel], list) and row[channel], (row['occurrence_id'], channel)
+              for key in authority_keys:
+                  assert row[key] is False, (row['occurrence_id'], key)
+              assert not (forbidden & set(row)), (row['occurrence_id'], forbidden & set(row))
+
+              high_resolution = row['high_resolution_read_evidence'][0]
+              assert high_resolution['read_state'] in {
+                  'MACHINE_OBSERVATIONS_PRESENT',
+                  'NO_MACHINE_TEXT_OBSERVED',
+              }
+              assert high_resolution['machine_observation_count'] == len(high_resolution['machine_observation_ids'])
+              assert high_resolution['machine_observation_ids'] == sorted(set(high_resolution['machine_observation_ids']))
+
+              historical = row['cross_document_evidence'][0]
+              assert historical['status'] == 'NOT_APPLICABLE'
+              assert historical['evidence_class'] == 'NOT_APPLICABLE'
+              assert historical['reason'] == 'HISTORICAL_ARTIFACTS_INVENTORIED_NOT_MATERIALIZED'
+              assert historical['inventory_ref'] == 'archive/ARTEFATTI_STORICI.md'
+
+          assert reconciliation['occurrence_count'] == 22
+          assert reconciliation['historical_provenance_complete'] is True
+          assert reconciliation['historical_artifacts_materialized'] is False
+          assert reconciliation['historical_inventory_ref'] == 'archive/ARTEFATTI_STORICI.md'
+          assert reconciliation['historical_gap_reason'] == 'INVENTORY_PRESENT_HISTORICAL_DXF_CSV_NOT_MATERIALIZED_ON_QUALIFIED_BRANCH'
+          assert reconciliation['evidence_counts_by_channel']['high_resolution_read_evidence'] == 22
+          assert reconciliation['evidence_counts_by_channel']['local_topology_evidence'] == 22
+          assert reconciliation['explicit_no_evidence_counts_by_channel']['callout_evidence'] == 22
+          assert reconciliation['explicit_no_evidence_counts_by_channel']['cross_document_evidence'] == 22
+
+          assert closure['qualified_col03a_sha'] == '0d4a43cf02eadd2ab6f4b2641888395586c08a98'
+          assert closure['documentary_identity_evidence_collection_complete'] is True
+          assert closure['all_occurrences_identity_resolved'] is False
+          assert closure['blocking_reasons'] == []
+          for key in authority_keys:
+              assert closure['authority'][key] is False, key
+
+          for row in hypotheses['hypotheses']:
+              assert row['promotion_authorized'] is False
+              assert row['hypothesis_kind'] in {
+                  'DOCUMENTARY_LABEL_CANDIDATE',
+                  'SUPPORT_NUMBER_CANDIDATE',
+                  'CROSS_DOCUMENT_COUNTERPART_CANDIDATE',
+              }
+
+          print('CEW_COL03B_EXACT_SOURCE_QUALIFICATION=PASS')
+          PY
+      - name: Verify COL-03B artifact surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find evidence/cew-col03b -maxdepth 1 -type f | wc -l)" -eq 4
+          test -f evidence/cew-col03b/documentary-identity-evidence-ledger.json
+          test -f evidence/cew-col03b/documentary-identity-hypotheses.json
+          test -f evidence/cew-col03b/documentary-identity-reconciliation.json
+          test -f evidence/cew-col03b/documentary-identity-evidence-closure.json
+      - name: Upload COL-03B documentary identity evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-col03b-documentary-identity-evidence
+          path: evidence/cew-col03b/
+          if-no-files-found: error
+          retention-days: 30
