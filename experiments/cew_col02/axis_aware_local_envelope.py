@@ -123,6 +123,10 @@ def _contained(inner: tuple[int, int, int, int], outer: tuple[int, int, int, int
     )
 
 
+def _box_area(box: tuple[int, int, int, int]) -> int:
+    return int(box[2]) * int(box[3])
+
+
 def _near_duplicate(a: tuple[int, int, int, int], b: tuple[int, int, int, int]) -> bool:
     ax, ay, aw, ah = a
     bx, by, bw, bh = b
@@ -345,13 +349,17 @@ def reconstruct_local_axis_envelope(
 
     if not unique:
         return None
-    chosen = unique[0]
-    for competing in unique[1:]:
-        if float(competing["score"]) < float(chosen["score"]) - 0.08:
-            break
-        if _contained(competing["box"], chosen["box"]) or _contained(chosen["box"], competing["box"]):
+    top_score = float(unique[0]["score"])
+    plausible = [row for row in unique if float(row["score"]) >= top_score - 0.08]
+    reference_box = plausible[0]["box"]
+    for competing in plausible[1:]:
+        if _contained(competing["box"], reference_box) or _contained(reference_box, competing["box"]):
             continue
         return None
+    chosen = min(
+        plausible,
+        key=lambda row: (_box_area(row["box"]), -float(row["score"])),
+    )
 
     x, y, box_w, box_h = chosen["box"]
     horizontal_support, horizontal_continuation, horizontal_band, horizontal_sides = chosen["horizontal_axis"]
