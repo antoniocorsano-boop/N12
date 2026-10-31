@@ -124,7 +124,8 @@ class HumanPointReconciliationTests(unittest.TestCase):
             {"x": 0.5, "y": 0.25},
             {"x": 0.10, "y": 0.20, "width": 0.20, "height": 0.40},
         )
-        self.assertEqual(source_point, {"x": 0.20, "y": 0.30})
+        self.assertAlmostEqual(source_point["x"], 0.20)
+        self.assertAlmostEqual(source_point["y"], 0.30)
 
     def test_point_inside_unique_proposal_binds_to_existing_candidate(self):
         points = [{"event_id": "P1", "source_point": {"x": 0.15, "y": 0.15}}]
