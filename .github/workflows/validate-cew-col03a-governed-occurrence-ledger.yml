@@ -1,0 +1,242 @@
+name: CEW-COL-03A Governed Column Occurrence Ledger
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/cew_col03a/**'
+      - 'tests/cew_col03a/**'
+      - 'governance/cew-col03a/**'
+      - 'docs/superpowers/specs/2026-10-31-cew-col03a-governed-column-occurrence-ledger-design.md'
+      - 'docs/superpowers/plans/2026-10-31-cew-col03a-governed-column-occurrence-ledger.md'
+      - '.github/workflows/validate-cew-col03a-governed-occurrence-ledger.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install frozen OpenCV regression dependency
+        run: python -m pip install opencv-python-headless==5.0.0.93
+      - name: Run COL-03A unit tests
+        run: python -m unittest discover -s tests/cew_col03a -p 'test_*.py' -v
+      - name: Run COL-02 regression tests
+        run: python -m unittest discover -s tests/cew_col02 -p 'test_*.py' -v
+
+  exact-source:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Verify qualified COL-02 ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor 0191c1bdb0b1cd8387aa2260f31a7764cbe0f2b4 HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install frozen Tesseract system package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+      - name: Install frozen B01 toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-col03a"
+          source "$RUNNER_TEMP/cew-col03a/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
+      - name: Fetch frozen archival source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+      - name: Execute exact TAV.5 COL-02 audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03a/bin/activate"
+          python -m experiments.cew_col02.exact_source_audit
+      - name: Rebuild target-explicit review atlas
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03a/bin/activate"
+          python -m experiments.cew_col02.review_atlas evidence/cew-col02/footprint-text-binding/col02-audit.json
+      - name: Execute exact-source prototype-guided search
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03a/bin/activate"
+          python -m experiments.cew_col02.prototype_guided_exact_source
+      - name: Execute visible sibling occurrence sweep
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03a/bin/activate"
+          python -m experiments.cew_col02.occurrence_sweep_exact_source
+      - name: Execute residual occurrence reconciliation
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03a/bin/activate"
+          python -m experiments.cew_col02.residual_occurrence_reconciliation_exact_source
+      - name: Execute axis-aware whole-symbol repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03a/bin/activate"
+          python -m experiments.cew_col02.axis_aware_whole_symbol_exact_source
+      - name: Close bounded COL-02 graphical occurrence coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03a/bin/activate"
+          python -m experiments.cew_col02.occurrence_coverage_closure
+      - name: Build COL-03A governed occurrence ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03a/bin/activate"
+          python -m experiments.cew_col03a.exact_source
+      - name: Assert COL-03A exact-source qualification after human equivalence review
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03a/bin/activate"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('evidence/cew-col03a')
+          ledger = json.loads((root / 'column-occurrence-ledger.json').read_text(encoding='utf-8'))
+          reconciliation = json.loads((root / 'column-occurrence-reconciliation.json').read_text(encoding='utf-8'))
+          closure = json.loads((root / 'column-occurrence-ledger-closure.json').read_text(encoding='utf-8'))
+          col02 = json.loads(Path('evidence/cew-col02/footprint-text-binding/col02-occurrence-coverage-closure.json').read_text(encoding='utf-8'))
+          receipt = json.loads(Path('governance/cew-col03a/COL03A_OCCURRENCE_EQUIVALENCE_HUMAN_REVIEW_v1.json').read_text(encoding='utf-8'))
+
+          assert receipt['status'] == 'HUMAN_GRAPHICAL_EQUIVALENCE_REVIEW_COMPLETE'
+          assert {
+              row['decision_id']: (set(row['candidate_ids']), row['decision'])
+              for row in receipt['human_decision']['decisions']
+          } == {
+              'A': ({'COL02-FP-0248', 'COL02-FP-0331'}, 'SAME_OCCURRENCE'),
+              'B': ({'COL02-FP-0073', 'COL02-FP-0538'}, 'SAME_OCCURRENCE'),
+          }
+          assert receipt['authority']['graphical_occurrence_equivalence_authorized'] is True
+
+          assert reconciliation['input_evidence_count'] == 24
+          assert reconciliation['input_counts_by_evidence_class'] == {
+              'PROTOTYPE_CONFIRMED': 2,
+              'PROTOTYPE_GUIDED_CONFIRMED': 15,
+              'REPAIRED_SUCCESSOR_CONFIRMED': 5,
+              'RESIDUAL_DIRECT_CONFIRMED': 2,
+          }
+          assert ledger['occurrence_count'] == 22
+          assert ledger['conflict_count'] == 0
+          assert reconciliation['final_occurrence_count'] == 22
+          assert reconciliation['conflict_count'] == 0
+          assert reconciliation['bidirectional_closed_set_complete'] is True
+          assert reconciliation['missing_evidence_ids'] == []
+          assert reconciliation['orphan_occurrence_ids'] == []
+          assert col02['proposal_count'] == 611
+          assert col02['occurrence_coverage_complete'] is True
+          assert closure['occurrence_ledger_complete'] is True
+          assert closure['blocking_reasons'] == []
+
+          occurrences = ledger['occurrences']
+          assert len(occurrences) == 22
+          assert [row['occurrence_id'] for row in occurrences] == [f'COL-OCC-{i:04d}' for i in range(1, 23)]
+          assert len({row['occurrence_id'] for row in occurrences}) == 22
+
+          human_collapsed = [row for row in occurrences if row['dedup_state'] == 'HUMAN_EQUIVALENCE_COLLAPSED']
+          assert len(human_collapsed) == 2
+          collapsed_by_sources = {frozenset(row['source_proposal_ids']): row for row in human_collapsed}
+          assert set(collapsed_by_sources) == {
+              frozenset({'COL02-FP-0248', 'COL02-FP-0331'}),
+              frozenset({'COL02-FP-0073', 'COL02-FP-0538'}),
+          }
+          assert collapsed_by_sources[frozenset({'COL02-FP-0248', 'COL02-FP-0331'})]['human_equivalence_decision_ids'] == ['A']
+          b = collapsed_by_sources[frozenset({'COL02-FP-0073', 'COL02-FP-0538'})]
+          assert b['human_equivalence_decision_ids'] == ['B']
+          assert b['primary_graphical_representation']['kind'] == 'GOVERNED_WHOLE_SYMBOL_REPAIR'
+          assert b['primary_graphical_representation']['repair_id'] == 'COL02-WSR-002'
+
+          forbidden = {
+              'support_identity', 'support_number', 'documentary_label', 'family', 'family_id',
+              'section', 'section_id', 'fixed_line', 'fixed_line_id', 'vertical_chain_id',
+              'canonical_node_id', 'structural_identity'
+          }
+          for row in occurrences:
+              assert row['exact_source_reconstructible'] is True
+              assert row['lineage_complete'] is True
+              assert row['documentary_label_state'] == 'NOT_EVALUATED'
+              assert row['structural_identity_state'] == 'NOT_EVALUATED'
+              assert row['canonical_geometry_state'] == 'NOT_AUTHORIZED'
+              assert row['canonical_write_authorized'] is False
+              assert row['g2c_promotion_authorized'] is False
+              assert row['g3_promotion_authorized'] is False
+              assert not (forbidden & set(row)), forbidden & set(row)
+              assert row['candidate_id'].startswith('COL02-FP-')
+              assert row['source_geometry_ref'].startswith('COL02-FP-')
+              assert all(value.startswith('COL02-FP-') for value in row['source_proposal_ids'])
+
+          for payload in (ledger, closure, col02):
+              authority = payload['authority']
+              for key in (
+                  'support_identity_authorized','text_identity_binding_authorized','family_assignment_authorized',
+                  'section_assignment_authorized','fixed_line_assignment_authorized','structural_identity_authorized',
+                  'canonical_geometry_authorized','canonical_write_authorized','g2c_promotion_authorized',
+                  'g3_authorized','merge_authorized'
+              ):
+                  assert authority[key] is False, key
+
+          for key in (
+              'support_identity_authorized','text_identity_binding_authorized','family_assignment_authorized',
+              'section_assignment_authorized','fixed_line_assignment_authorized','structural_identity_authorized',
+              'canonical_geometry_authorized','canonical_write_authorized','g2c_promotion_authorized',
+              'g3_authorized','merge_authorized'
+          ):
+              assert receipt['authority'][key] is False, key
+
+          print('CEW_COL03A_EXACT_SOURCE_QUALIFICATION=PASS')
+          PY
+      - name: Verify successor artifact surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find evidence/cew-col03a -maxdepth 1 -type f | wc -l)" -eq 3
+          test -f evidence/cew-col03a/column-occurrence-ledger.json
+          test -f evidence/cew-col03a/column-occurrence-reconciliation.json
+          test -f evidence/cew-col03a/column-occurrence-ledger-closure.json
+      - name: Upload COL-03A governed occurrence ledger
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-col03a-governed-occurrence-ledger
+          path: evidence/cew-col03a/
+          if-no-files-found: error
+          retention-days: 30
