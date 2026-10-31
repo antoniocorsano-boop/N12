@@ -42,7 +42,7 @@ body{{padding-bottom:calc(var(--bar-height) + env(safe-area-inset-bottom) + 12px
 .review-main{{max-width:980px;margin:0 auto;padding:8px}}
 .prompt{{font-size:.9rem;margin:4px 2px 8px;color:#425466}}
 .evidence-viewport{{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:auto;min-height:58vh;display:flex;align-items:flex-start;justify-content:center;touch-action:pan-x pan-y pinch-zoom;overscroll-behavior:contain}}
-.evidence-viewport.pick-mode{{outline:4px solid #c77700;outline-offset:-4px}}
+.evidence-viewport.pick-mode{{outline:4px solid #c77700;outline-offset:-4px;touch-action:none}}
 #evidence{{display:block;width:100%;height:auto;max-width:none;user-select:none;-webkit-user-drag:none}}
 .pick-hint{{display:none;position:sticky;bottom:8px;margin:8px;background:#fff3d6;border:1px solid #d99b2b;border-radius:10px;padding:10px;font-weight:700;text-align:center}}
 .pick-mode + .pick-hint{{display:block}}
@@ -123,13 +123,13 @@ function undoLast(){{
  const idx=MANIFEST.candidates.findIndex(c=>c.candidate_id===target.candidate_id);if(idx>=0)model.index=idx;saveModel();pickMode=false;render();setStatus('Ultima scelta annullata; lo storico resta append-only.');
 }}
 function normalizedPoint(evt,img){{const r=img.getBoundingClientRect();return {{x:Math.max(0,Math.min(1,(evt.clientX-r.left)/r.width)),y:Math.max(0,Math.min(1,(evt.clientY-r.top)/r.height))}}}}
-function pickAdditional(evt){{if(!pickMode)return;const img=document.getElementById('evidence');const p=normalizedPoint(evt,img);appendEvent({{event_type:'ADDITIONAL_OCCURRENCE',candidate_id:current().candidate_id,action:'ALTRO_PILASTRO',point:p,terminal:false}});pickMode=false;render();setStatus('Altro pilastro segnalato. Puoi continuare la valutazione del candidato corrente.')}}
+function pickAdditional(evt){{if(!pickMode)return;if(evt.pointerType==='mouse'&&evt.button!==0)return;evt.preventDefault();const img=document.getElementById('evidence');const p=normalizedPoint(evt,img);appendEvent({{event_type:'ADDITIONAL_OCCURRENCE',candidate_id:current().candidate_id,action:'ALTRO_PILASTRO',point:p,terminal:false}});pickMode=false;render();setStatus('Altro pilastro segnalato. Puoi continuare la valutazione del candidato corrente.')}}
 function exportBundle(){{
  const bundle={{schema_version:'cew-mobile-review-bundle-v1',review_id:MANIFEST.review_id,source:MANIFEST.source,candidate_ids:MANIFEST.candidates.map(c=>c.candidate_id),events:model.events,authority:AUTHORITY,canonical_write_authorized:false,canonical_write_performed:false}};
  const blob=new Blob([JSON.stringify(bundle,null,2)],{{type:'application/json'}}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=MANIFEST.review_id+'-review.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),0);setStatus('Revisione esportata in JSON.');
 }}
 document.querySelectorAll('.primary-action').forEach(b=>b.addEventListener('click',()=>decide(b.dataset.action)));
-document.getElementById('evidence').addEventListener('click',pickAdditional);
+document.getElementById('evidence').addEventListener('pointerup',pickAdditional);
 document.getElementById('undo').addEventListener('click',undoLast);
 document.getElementById('export').addEventListener('click',exportBundle);
 render();
