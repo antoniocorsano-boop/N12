@@ -133,7 +133,8 @@ jobs:
           assert data['proposal_count'] == 611
           assert data['original_proposal_id_space_immutable'] is True
           assert data['repair_candidate_count'] == 5
-          assert data['ready_for_human_review_count'] + data['unresolved_repair_count'] == 5
+          assert data['ready_for_human_review_count'] == 5
+          assert data['unresolved_repair_count'] == 0
           assert data['rejected_candidates'] == [
               {'candidate_id': 'COL02-FP-0106', 'reason': 'MISLOCALIZED_NOT_COLUMN'}
           ]
