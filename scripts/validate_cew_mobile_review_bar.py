@@ -131,11 +131,11 @@ def assert_contract() -> None:
         # derived from the append-only effective event log, not merely model.index.
         'id="completionBanner"',
         'class="completion-banner"',
-        'Revisione completata — 10/10.',
         'function effectiveTerminalCandidateIds()',
         'function reviewComplete()',
         'const complete=reviewComplete();',
         "document.getElementById('completionBanner').hidden=!complete;",
+        "document.getElementById('completionBanner').textContent='Revisione completata — '+MANIFEST.candidates.length+'/'+MANIFEST.candidates.length+'.';",
         "document.querySelectorAll('.primary-action').forEach(b=>b.disabled=complete);",
         "if(reviewComplete()){setStatus('Revisione già completata: usa ↶ per correggere oppure esporta JSON.');return}",
         "setStatus('Revisione completata — '+MANIFEST.candidates.length+'/'+MANIFEST.candidates.length+'. Puoi annullare o esportare JSON.');",
