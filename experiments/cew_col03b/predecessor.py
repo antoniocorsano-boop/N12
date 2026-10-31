@@ -5,6 +5,7 @@ from typing import Any
 
 
 QUALIFIED_COL03A_SHA = "0d4a43cf02eadd2ab6f4b2641888395586c08a98"
+COL03A_INTERNAL_COL02_BASE_SHA = "0191c1bdb0b1cd8387aa2260f31a7764cbe0f2b4"
 
 _CLOSED_AUTHORITY_KEYS = (
     "support_identity_authorized",
@@ -49,8 +50,8 @@ def validate_col03a_predecessor(
 ) -> list[dict[str, Any]]:
     if expected_sha != QUALIFIED_COL03A_SHA:
         raise ValueError("unexpected COL-03A qualified predecessor SHA")
-    if closure.get("qualified_base_sha") not in (None, expected_sha):
-        raise ValueError("COL-03A qualified predecessor SHA drift")
+    if closure.get("qualified_base_sha") not in (None, COL03A_INTERNAL_COL02_BASE_SHA):
+        raise ValueError("COL-03A internal COL-02 base drift")
     if closure.get("occurrence_ledger_complete") is not True:
         raise ValueError("COL-03A occurrence ledger is not complete")
     if closure.get("blocking_reasons") not in (None, []):
