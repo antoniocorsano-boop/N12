@@ -121,6 +121,62 @@ class LocalAxisEnvelopeTests(unittest.TestCase):
         self.assertEqual(result["detector"], "LOCAL_AXIS_AWARE_FOUR_SIDE_ENVELOPE_REPAIR_HALF_SCALE_FALLBACK")
         self.assertEqual(result["analysis_scale_factor"], 0.5)
 
+    def test_nested_selection_keeps_outer_envelope_when_smaller_top_edge_is_weaker(self) -> None:
+        selector = getattr(local_envelope, "_select_plausible_envelope", None)
+        self.assertTrue(callable(selector), "bounded nested-envelope selector seam is missing")
+        assert callable(selector)
+
+        outer = {
+            "score": 0.90,
+            "box": (10, 10, 100, 80),
+            "coverage": {"left": 0.98, "right": 0.97, "top": 0.96, "bottom": 0.98},
+        }
+        internal_top = {
+            "score": 0.87,
+            "box": (10, 25, 100, 65),
+            "coverage": {"left": 1.0, "right": 1.0, "top": 0.52, "bottom": 1.0},
+        }
+
+        chosen = selector([internal_top, outer])
+        self.assertIs(chosen, outer)
+
+    def test_nested_selection_collapses_lower_overshoot_when_smaller_boundary_is_not_weaker(self) -> None:
+        selector = getattr(local_envelope, "_select_plausible_envelope", None)
+        self.assertTrue(callable(selector), "bounded nested-envelope selector seam is missing")
+        assert callable(selector)
+
+        overshoot = {
+            "score": 0.90,
+            "box": (10, 10, 100, 100),
+            "coverage": {"left": 0.90, "right": 0.96, "top": 1.0, "bottom": 0.84},
+        }
+        true_envelope = {
+            "score": 0.87,
+            "box": (10, 10, 100, 80),
+            "coverage": {"left": 0.94, "right": 0.96, "top": 1.0, "bottom": 0.92},
+        }
+
+        chosen = selector([overshoot, true_envelope])
+        self.assertIs(chosen, true_envelope)
+
+    def test_nested_selection_still_fails_closed_for_non_nested_plausible_envelopes(self) -> None:
+        selector = getattr(local_envelope, "_select_plausible_envelope", None)
+        self.assertTrue(callable(selector), "bounded nested-envelope selector seam is missing")
+        assert callable(selector)
+
+        first = {
+            "score": 0.90,
+            "box": (10, 10, 100, 80),
+            "coverage": {"left": 0.95, "right": 0.95, "top": 0.95, "bottom": 0.95},
+        }
+        competing = {
+            "score": 0.87,
+            "box": (40, 10, 100, 80),
+            "coverage": {"left": 0.96, "right": 0.96, "top": 0.96, "bottom": 0.96},
+        }
+
+        self.assertIsNone(selector([first, competing]))
+
 
 if __name__ == "__main__":
     unittest.main()
