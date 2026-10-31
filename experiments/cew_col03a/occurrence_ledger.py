@@ -533,7 +533,7 @@ def build_reconciliation_report(
         or orphan_occurrences
         or duplicate_source_evidence_ids
         or duplicate_occurrence_claims
-        or all_conflicts
+        or candidate_drift
     )
     payload = {
         "schema_id": "CEW_COL03A_COLUMN_OCCURRENCE_RECONCILIATION",
