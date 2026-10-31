@@ -143,6 +143,36 @@ jobs:
               analysis_fallback = None if primary is not None else reconstruct_local_axis_envelope(analysis, seed)
               result = primary if primary is not None else analysis_fallback
               raw_fallback = reconstruct_local_axis_envelope(image, seed) if task_id == 'R01' else None
+              local_full_res = None
+              local_full_res_mapped_bbox = None
+              if task_id == 'R01':
+                  image_h, image_w = image.shape[:2]
+                  seed_x = int(round(float(seed['x']) * image_w))
+                  seed_y = int(round(float(seed['y']) * image_h))
+                  seed_w = max(1, int(round(float(seed['width']) * image_w)))
+                  seed_h = max(1, int(round(float(seed['height']) * image_h)))
+                  margin = min(840, max(180, int(round(max(seed_w, seed_h) * 3.0))))
+                  left = max(0, seed_x - margin)
+                  top = max(0, seed_y - margin)
+                  right = min(image_w, seed_x + seed_w + margin)
+                  bottom = min(image_h, seed_y + seed_h + margin)
+                  crop = image[top:bottom, left:right]
+                  crop_h, crop_w = crop.shape[:2]
+                  local_seed = {
+                      'x': (seed_x - left) / crop_w,
+                      'y': (seed_y - top) / crop_h,
+                      'width': seed_w / crop_w,
+                      'height': seed_h / crop_h,
+                  }
+                  local_full_res = reconstruct_local_axis_envelope(crop, local_seed)
+                  if local_full_res is not None:
+                      box = local_full_res['bbox']
+                      local_full_res_mapped_bbox = {
+                          'x': (left + float(box['x']) * crop_w) / image_w,
+                          'y': (top + float(box['y']) * crop_h) / image_h,
+                          'width': float(box['width']) * crop_w / image_w,
+                          'height': float(box['height']) * crop_h / image_h,
+                      }
               print('CEW_COL02_WSR_DIAGNOSTIC=' + json.dumps({
                   'review_task_id': task_id,
                   'candidate_id': candidate_id,
@@ -157,6 +187,9 @@ jobs:
                   'r01_raw_fallback_bbox': None if raw_fallback is None else raw_fallback.get('bbox'),
                   'r01_raw_fallback_axis_cross': None if raw_fallback is None else raw_fallback.get('axis_cross'),
                   'r01_raw_fallback_boundary_coverage': None if raw_fallback is None else raw_fallback.get('boundary_coverage'),
+                  'r01_full_res_local_ready': None if task_id != 'R01' else local_full_res is not None,
+                  'r01_full_res_local_bbox': local_full_res_mapped_bbox,
+                  'r01_full_res_local_boundary_coverage': None if local_full_res is None else local_full_res.get('boundary_coverage'),
               }, sort_keys=True))
           PY
       - name: Execute axis-aware whole-symbol repair
