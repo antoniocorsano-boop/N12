@@ -163,6 +163,50 @@ def _extract_local_line_segments(gray: Any, bbox_px: list[float]) -> list[list[f
     return result
 
 
+def merge_local_line_evidence(
+    primary: list[list[float]],
+    short_tick_channel: list[list[float]],
+    *,
+    max_tick_length_px: float = 90.0,
+) -> list[list[float]]:
+    """Append only bounded short-line evidence without replacing main-line evidence.
+
+    The primary Hough channel remains authoritative for local line reconstruction.
+    A secondary channel may contribute short terminal-tick candidates only; long
+    structural diagonals are discarded before the document-grammar gate.
+    """
+
+    if max_tick_length_px <= 0:
+        raise ValueError("CAL01_LOCAL_TICK_LENGTH_POLICY_INVALID")
+
+    result: list[list[float]] = []
+    seen: set[tuple[float, float, float, float]] = set()
+
+    def add(line: list[float]) -> None:
+        if not isinstance(line, (list, tuple)) or len(line) != 4:
+            raise ValueError("CAL01_LOCAL_LINE_SEGMENT_INVALID")
+        normalized = [float(value) for value in line]
+        key = tuple(normalized)
+        if key in seen:
+            return
+        seen.add(key)
+        result.append(normalized)
+
+    for line in primary:
+        add(line)
+
+    for line in short_tick_channel:
+        if not isinstance(line, (list, tuple)) or len(line) != 4:
+            raise ValueError("CAL01_LOCAL_LINE_SEGMENT_INVALID")
+        x1, y1, x2, y2 = (float(value) for value in line)
+        length = hypot(x2 - x1, y2 - y1)
+        if length < 4.0 or length > max_tick_length_px:
+            continue
+        add([x1, y1, x2, y2])
+
+    return result
+
+
 def _confirmation_observations(gray: Any, cluster: dict[str, Any]) -> tuple[list[dict[str, Any]], int]:
     import cv2
 
