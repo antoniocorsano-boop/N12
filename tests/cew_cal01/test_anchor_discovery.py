@@ -5,10 +5,10 @@ from experiments.cew_cal01.anchor_discovery import (
     normalize_dimension_text,
     proposal_from_ocr_token,
 )
-from experiments.cew_cal01.exact_source import (
+from experiments.cew_cal01.exact_source import _normalize_hough_lines
+from experiments.cew_cal01.oriented_discovery import (
     _iter_tile_bounds,
     _map_oriented_bbox_to_page,
-    _normalize_hough_lines,
 )
 
 
