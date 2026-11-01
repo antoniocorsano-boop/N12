@@ -1,6 +1,6 @@
 import unittest
 
-from experiments.cew_cal01.semantic_replay import refine_numeric_proposal
+from experiments.cew_cal01.semantic_replay import refine_location_cluster, refine_numeric_proposal
 
 
 class Cal01SemanticReplayContractTests(unittest.TestCase):
@@ -87,6 +87,48 @@ class Cal01SemanticReplayContractTests(unittest.TestCase):
         )
         self.assertEqual(result["role"], "SECTION_MEASURE")
         self.assertEqual(result["documented_text"], "40")
+        self.assertFalse(result["primary_anchor_authorized"])
+
+    def test_location_cluster_uses_consensus_text_orientation_not_highest_wrong_reading(self):
+        cluster = {
+            "readings": ["120", "120", "120", "420"],
+            "observations": [
+                {"proposal_id": "A", "raw_ocr_text": "420", "ocr_confidence": 99.0, "ocr_rotation_degrees": 0, "bbox_px": [100, 160, 140, 220]},
+                {"proposal_id": "B", "raw_ocr_text": "120", "ocr_confidence": 88.0, "ocr_rotation_degrees": 90, "bbox_px": [101, 160, 141, 220]},
+                {"proposal_id": "C", "raw_ocr_text": "120", "ocr_confidence": 91.0, "ocr_rotation_degrees": 270, "bbox_px": [99, 161, 139, 221]},
+                {"proposal_id": "D", "raw_ocr_text": "120", "ocr_confidence": 86.0, "ocr_rotation_degrees": 270, "bbox_px": [100, 159, 140, 219]},
+            ],
+            "representative": {"proposal_id": "A", "raw_ocr_text": "420", "ocr_confidence": 99.0, "ocr_rotation_degrees": 0, "bbox_px": [100, 160, 140, 220]},
+        }
+        result = refine_location_cluster(
+            cluster,
+            line_segments=[
+                [120, 100, 120, 300],
+                [100, 100, 140, 100],
+                [100, 300, 140, 300],
+            ],
+            nearby_closed_frame=False,
+        )
+        self.assertEqual(result["consensus"]["text"], "120")
+        self.assertEqual(result["consensus_orientation"], "VERTICAL")
+        self.assertEqual(result["role"], "LINEAR_DIMENSION")
+        self.assertIn(result["selected_proposal_id"], {"B", "C", "D"})
+        self.assertFalse(result["primary_anchor_authorized"])
+
+    def test_location_cluster_fails_closed_when_consensus_orientation_is_split(self):
+        cluster = {
+            "readings": ["120", "120", "120", "120"],
+            "observations": [
+                {"proposal_id": "A", "raw_ocr_text": "120", "ocr_confidence": 90.0, "ocr_rotation_degrees": 0, "bbox_px": [100, 160, 140, 220]},
+                {"proposal_id": "B", "raw_ocr_text": "120", "ocr_confidence": 89.0, "ocr_rotation_degrees": 180, "bbox_px": [100, 160, 140, 220]},
+                {"proposal_id": "C", "raw_ocr_text": "120", "ocr_confidence": 88.0, "ocr_rotation_degrees": 90, "bbox_px": [100, 160, 140, 220]},
+                {"proposal_id": "D", "raw_ocr_text": "120", "ocr_confidence": 87.0, "ocr_rotation_degrees": 270, "bbox_px": [100, 160, 140, 220]},
+            ],
+            "representative": {"proposal_id": "A", "raw_ocr_text": "120", "ocr_confidence": 90.0, "ocr_rotation_degrees": 0, "bbox_px": [100, 160, 140, 220]},
+        }
+        result = refine_location_cluster(cluster, line_segments=[], nearby_closed_frame=False)
+        self.assertEqual(result["role"], "UNRESOLVED")
+        self.assertEqual(result["reason"], "OCR_ORIENTATION_CONSENSUS_INSUFFICIENT")
         self.assertFalse(result["primary_anchor_authorized"])
 
 
