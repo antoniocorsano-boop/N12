@@ -1,0 +1,240 @@
+name: CEW-COL-03D Historical Package Recovery
+
+on:
+  pull_request:
+    branches:
+      - feat/cew-col03c-governed-cross-document-materialization
+    paths:
+      - 'archive/historical_packages/v25/**'
+      - 'experiments/cew_col03d/**'
+      - 'tests/cew_col03d/**'
+      - '.github/workflows/validate-cew-col03d-historical-package-recovery.yml'
+      - 'docs/superpowers/specs/2026-11-01-cew-col03d-historical-package-recovery-design.md'
+      - 'docs/superpowers/plans/2026-11-01-cew-col03d-historical-package-recovery.md'
+      - 'docs/superpowers/specs/2026-11-01-cew-col03d-bin01-lossless-package-transport-design.md'
+      - 'docs/superpowers/plans/2026-11-01-cew-col03d-bin01-lossless-package-transport.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Run COL-03D unit contracts
+        run: python -m unittest discover -s tests/cew_col03d -p 'test_*.py' -v
+
+  exact-source:
+    needs: unit
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Verify exact candidate and qualified COL-03C ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git merge-base --is-ancestor a9daa18ddfb56eaf1834ad17f329e2f2db0af72e HEAD
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install frozen COL-03C PDF dependency
+        run: python -m pip install 'pypdfium2==5.14.0'
+      - name: Run COL-03C regression suite
+        run: python -m unittest discover -s tests/cew_col03c -p 'test_*.py' -v
+      - name: Verify pinned private release asset metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/430435574" \
+            -o /tmp/cew-col03d-release.json
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/assets/697696555" \
+            -o /tmp/cew-col03d-asset.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from experiments.cew_col03d.package_asset import (
+              load_package_asset_manifest,
+              validate_package_asset_metadata,
+          )
+
+          release = json.loads(Path('/tmp/cew-col03d-release.json').read_text(encoding='utf-8'))
+          asset = json.loads(Path('/tmp/cew-col03d-asset.json').read_text(encoding='utf-8'))
+          metadata = {
+              'release_id': release.get('id'),
+              'release_draft': release.get('draft'),
+              'asset_id': asset.get('id'),
+              'name': asset.get('name'),
+              'content_type': asset.get('content_type'),
+              'size': asset.get('size'),
+              'digest': asset.get('digest'),
+              'state': asset.get('state'),
+          }
+          verified = validate_package_asset_metadata(load_package_asset_manifest(), metadata)
+          assert verified['asset_id'] == 697696555
+          assert verified['identity_promotion_authorized'] is False
+          print('CEW_COL03D_PACKAGE_ASSET_METADATA=PASS')
+          PY
+      - name: Download and byte-verify pinned historical package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/octet-stream" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/assets/697696555" \
+            -o /tmp/Ariano_Irpino_DXF_strutturale_v25.zip
+          python - <<'PY'
+          from pathlib import Path
+          from experiments.cew_col03d.package_asset import verify_downloaded_package_asset
+
+          witness = verify_downloaded_package_asset(Path('/tmp/Ariano_Irpino_DXF_strutturale_v25.zip'))
+          assert witness['sha256'] == '10eba8c6fea2c04feeea0294278f90d90a080a247f07028cd1eaf106a2d52c8d'
+          assert witness['size_bytes'] == 5345286
+          assert witness['member_count'] == 91
+          assert witness['repository_materialized'] is True
+          assert witness['exact_source_replayable'] is True
+          assert witness['identity_promotion_authorized'] is False
+          assert witness['structural_identity_authorized'] is False
+          assert witness['canonical_geometry_authorized'] is False
+          assert witness['canonical_write_authorized'] is False
+          print('CEW_COL03D_PACKAGE_ASSET_BYTES=PASS')
+          PY
+      - name: Build governed COL-03D recovery evidence
+        run: |
+          python -m experiments.cew_col03d.exact_source \
+            --output evidence/cew-col03d \
+            --transport-root archive/historical_packages/v25/transport \
+            --package-path /tmp/Ariano_Irpino_DXF_strutturale_v25.zip
+      - name: Assert final COL-03D exact-source qualification
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('evidence/cew-col03d')
+          expected_files = {
+              'historical-package-recovery-manifest.json',
+              'historical-member-manifest.json',
+              'historical-derived-data-quality.json',
+              'historical-recovery-reconciliation.json',
+              'historical-recovery-closure.json',
+          }
+          actual_files = {path.name for path in root.iterdir() if path.is_file()}
+          assert actual_files == expected_files, (actual_files, expected_files)
+
+          package = json.loads((root / 'historical-package-recovery-manifest.json').read_text(encoding='utf-8'))
+          members = json.loads((root / 'historical-member-manifest.json').read_text(encoding='utf-8'))
+          quality = json.loads((root / 'historical-derived-data-quality.json').read_text(encoding='utf-8'))
+          reconciliation = json.loads((root / 'historical-recovery-reconciliation.json').read_text(encoding='utf-8'))
+          closure = json.loads((root / 'historical-recovery-closure.json').read_text(encoding='utf-8'))
+
+          assert package['predecessor_sha'] == 'a9daa18ddfb56eaf1834ad17f329e2f2db0af72e'
+          assert package['sha256'] == '10eba8c6fea2c04feeea0294278f90d90a080a247f07028cd1eaf106a2d52c8d'
+          assert package['size_bytes'] == 5345286
+          assert package['member_count'] == 91
+          assert package['historical_package_source_verified'] is True
+          assert package['historical_package_repository_materialized'] is True
+          assert package['historical_package_exact_source_replayable'] is True
+          assert package['identity_promotion_authorized'] is False
+
+          assert members['required_member_count'] == 8
+          assert members['materialized_verified_count'] == 8
+          assert members['required_historical_members_materialized'] is True
+          assert len(members['members']) == 8
+          assert all(row['materialization_state'] == 'MATERIALIZED_VERIFIED' for row in members['members'])
+          assert all(row['promotion_authorized'] is False for row in members['members'])
+
+          assert quality['row_counts'] == {
+              'ABACO_ASSOCIAZIONE_PILASTRI_TAV5_TAV7_v19.csv': 27,
+              'ABACO_TOPOLOGICO_TAV5_v11.csv': 57,
+              'ABACO_TRAVI_TAV6_v23.csv': 46,
+              'ASSOCIAZIONE_TRAVI_TAV5_TAV6_v25.csv': 46,
+              'MATRICE_PILASTRI_27x5_v22.csv': 135,
+          }
+          assert quality['historical_row_level_evidence_recovered'] is True
+          assert quality['identity_promotion_authorized'] is False
+          assert quality['structural_identity_authorized'] is False
+          assert quality['section_assignment_authorized'] is False
+          assert quality['vertical_chain_assignment_authorized'] is False
+          assert quality['fixed_line_assignment_authorized'] is False
+          assert quality['canonical_geometry_authorized'] is False
+          assert quality['canonical_write_authorized'] is False
+
+          assert reconciliation['inventory_reconciliation_complete'] is True
+          assert len(reconciliation['recovered_member_names']) == 8
+          assert 'ASSOCIAZIONE_TRAVI_TAV5_TAV6_v25.csv' in reconciliation['recovered_member_names']
+          assert 'TABELLA_CORRISPONDENZE_TRAVI_v25.csv' not in reconciliation['recovered_member_names']
+          assert reconciliation['identity_promotion_authorized'] is False
+
+          assert closure['historical_package_source_verified'] is True
+          assert closure['historical_package_recovery_complete'] is True
+          assert closure['historical_package_repository_materialized'] is True
+          assert closure['historical_package_exact_source_replayable'] is True
+          assert closure['required_historical_members_materialized'] is True
+          assert closure['historical_row_level_evidence_recovered'] is True
+          assert closure['historical_evidence_identity_promoted'] is False
+          assert closure['recovery_evidence_complete'] is True
+          assert closure['col03d_exact_source_qualification_complete'] is True
+          assert closure['qualification_blockers'] == []
+
+          authority_keys = (
+              'support_identity_authorized',
+              'text_identity_binding_authorized',
+              'family_assignment_authorized',
+              'section_assignment_authorized',
+              'fixed_line_assignment_authorized',
+              'vertical_chain_assignment_authorized',
+              'structural_identity_authorized',
+              'canonical_node_assignment_authorized',
+              'canonical_geometry_authorized',
+              'canonical_write_authorized',
+              'g2c_promotion_authorized',
+              'g3_authorized',
+              'merge_authorized',
+          )
+          for key in authority_keys:
+              assert closure[key] is False, key
+
+          print('CEW_COL03D_EXACT_SOURCE_QUALIFICATION=PASS')
+          print('CEW_COL03D_AUTHORITY_PROMOTION=NONE')
+          PY
+      - name: Upload COL-03D governed recovery evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-col03d-historical-recovery-evidence
+          path: evidence/cew-col03d/
+          if-no-files-found: error
+          retention-days: 30

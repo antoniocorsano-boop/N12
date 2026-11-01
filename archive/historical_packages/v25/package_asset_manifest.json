@@ -1,0 +1,14 @@
+{
+  "schema": "CEW_COL03D_PACKAGE_ASSET_V1",
+  "repository": "antoniocorsano-boop/N12",
+  "release_id": 430435574,
+  "release_must_remain_draft": true,
+  "asset_id": 697696555,
+  "asset_name": "Ariano_Irpino_DXF_strutturale_v25.zip",
+  "asset_content_type": "application/zip",
+  "package_sha256": "10eba8c6fea2c04feeea0294278f90d90a080a247f07028cd1eaf106a2d52c8d",
+  "package_size_bytes": 5345286,
+  "package_member_count": 91,
+  "authority": "HISTORICAL_DERIVED_EVIDENCE",
+  "identity_promotion_authorized": false
+}
