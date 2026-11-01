@@ -4,6 +4,7 @@ from pathlib import Path
 
 from experiments.cew_cal01.anchor_inventory import (
     ALLOWED_ANCHOR_CLASSES,
+    FIT_ELIGIBLE_METRIC_SOURCE_POLICY,
     build_primary_anchor_inventory,
     make_anchor_candidate,
 )
@@ -25,6 +26,8 @@ class Cal01PrimaryAnchorContractTests(unittest.TestCase):
             "evidence_refs": ["TAV5:axis-A", "TAV5:axis-3"],
             "metric_source_kind": "PRIMARY_TAV5_DOCUMENTED_RELATION",
             "source_layer": "ORIGINAL_DRAWING",
+            "metric_validation_state": "PRIMARY_VISUAL_VALIDATED",
+            "metric_validation_ref": "CEW-CAL01-PRIMARY-REVIEW:synthetic-fixture",
         }
         kwargs.update(overrides)
         return make_anchor_candidate(**kwargs)
@@ -79,10 +82,13 @@ class Cal01PrimaryAnchorContractTests(unittest.TestCase):
             source_point_px=None,
             metric_source_kind="OCR_TEXT_ONLY",
             evidence_refs=["OCR:470"],
+            metric_validation_state=None,
+            metric_validation_ref=None,
         )
         self.assertFalse(row["eligible_for_fit"])
         self.assertIn("SOURCE_POINT_MISSING", row["rejection_reasons"])
         self.assertIn("OCR_TEXT_WITHOUT_GEOMETRIC_BINDING", row["rejection_reasons"])
+        self.assertIn("METRIC_SOURCE_KIND_NOT_FIT_ELIGIBLE", row["rejection_reasons"])
 
     def test_metric_coordinates_require_supported_provenance(self):
         missing = self._valid(metric_xy_m=None)
@@ -97,6 +103,11 @@ class Cal01PrimaryAnchorContractTests(unittest.TestCase):
         self.assertTrue(SCHEMA.exists())
         schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
         self.assertEqual(set(schema["allowed_anchor_classes"]), ALLOWED_ANCHOR_CLASSES)
+        self.assertEqual(
+            {key: set(values) for key, values in schema["fit_eligible_metric_source_policy"].items()},
+            FIT_ELIGIBLE_METRIC_SOURCE_POLICY,
+        )
+        self.assertTrue(schema["metric_validation_reference_required"])
         self.assertFalse(schema["authority"]["canonical_geometry_authorized"])
         self.assertFalse(schema["authority"]["structural_identity_authorized"])
 
