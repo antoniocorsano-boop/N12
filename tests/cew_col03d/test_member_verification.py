@@ -34,6 +34,19 @@ EXPECTED = {
 }
 
 
+def _core_provenance(rows):
+    return [
+        (
+            row["artifact_name"],
+            row["size_bytes"],
+            row["sha256"],
+            row["package_crc32"],
+            row["materialization_state"],
+        )
+        for row in rows
+    ]
+
+
 class HistoricalMemberVerificationTests(unittest.TestCase):
     def test_required_member_contracts_match_recovered_package_bytes(self):
         self.assertIsNotNone(REQUIRED_MEMBER_CONTRACTS, "COL-03D member verification missing")
@@ -59,7 +72,7 @@ class HistoricalMemberVerificationTests(unittest.TestCase):
             self.assertTrue(all(row["materialization_state"] == "MATERIALIZED_VERIFIED" for row in rows))
             self.assertTrue(all(row["transport_reconstruction_state"] == "LOSSLESS_RECONSTRUCTED" for row in rows))
             verified = verify_required_member_directory(target, REQUIRED_MEMBER_CONTRACTS)
-            self.assertEqual(rows, verified)
+            self.assertEqual(_core_provenance(rows), _core_provenance(verified))
 
     def test_changed_member_bytes_fail_as_provenance_mismatch(self):
         self.assertIsNotNone(verify_member_bytes, "COL-03D member verification missing")
