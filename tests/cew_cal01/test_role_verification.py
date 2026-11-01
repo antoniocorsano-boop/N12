@@ -1,5 +1,7 @@
+import itertools
 import unittest
 
+import experiments.cew_cal01.role_verification as role_verification
 from experiments.cew_cal01.role_verification import (
     detect_nearby_closed_frame,
     select_ocr_consensus,
@@ -61,6 +63,37 @@ class Cal01RoleVerificationContractTests(unittest.TestCase):
             max_distance_px=60,
         )
         self.assertFalse(result["detected"])
+
+    def test_dense_context_does_not_regenerate_vertical_pair_space_per_horizontal_pair(self):
+        segments = []
+        for y in range(20, 201, 10):
+            segments.append((20, y, 200, y))
+        for x in range(20, 201, 10):
+            segments.append((x, 20, x, 200))
+
+        real_combinations = itertools.combinations
+        invocation_count = 0
+
+        def counted_combinations(iterable, r):
+            nonlocal invocation_count
+            invocation_count += 1
+            if invocation_count > 2:
+                raise AssertionError("CAL01_CLOSED_FRAME_CARTESIAN_REGENERATION")
+            return real_combinations(iterable, r)
+
+        original = role_verification.combinations
+        role_verification.combinations = counted_combinations
+        try:
+            result = role_verification.detect_nearby_closed_frame(
+                segments,
+                token_bbox_px=[92, 92, 108, 108],
+                max_distance_px=60,
+            )
+        finally:
+            role_verification.combinations = original
+
+        self.assertTrue(result["detected"])
+        self.assertLessEqual(invocation_count, 2)
 
 
 if __name__ == "__main__":
