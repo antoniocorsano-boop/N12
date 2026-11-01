@@ -95,7 +95,7 @@ class TargetedObservationNormalizationTests(unittest.TestCase):
             occurrence_id="COL-OCC-0002",
             region_class="FOOTPRINT",
             ocr_configuration="PSM6",
-            crop_bounds=(50, 150, 250, 350),
+            crop_bounds=(50, 80, 250, 280),
             scale=2.0,
             page_width=500,
             page_height=500,
@@ -111,7 +111,7 @@ class TargetedObservationNormalizationTests(unittest.TestCase):
         self.assertEqual(row["region_class"], "FOOTPRINT")
         self.assertEqual(row["relation"], "INTERNAL")
         self.assertTrue(row["exact_source_reconstructible"])
-        self.assertEqual(row["page_bbox"], {"x": 0.14, "y": 0.34, "width": 0.02, "height": 0.02})
+        self.assertEqual(row["page_bbox"], {"x": 0.14, "y": 0.20, "width": 0.02, "height": 0.02})
         self.assertIn("COL-OCC-0002:FOOTPRINT:PSM6:001", row["provenance_ref"])
 
     def test_normalization_order_is_stable_even_when_anchor_input_is_reversed(self):
