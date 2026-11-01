@@ -1,0 +1,12 @@
+{
+  "program": "CEW-CAL-01",
+  "state": "PLAN_SAVED_EXECUTION_STARTED",
+  "base_exact_sha": "ee23c221118064022fa77b694ff88119530cc454",
+  "branch": "feat/cew-cal01-primary-metric-calibration",
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false
+  }
+}
