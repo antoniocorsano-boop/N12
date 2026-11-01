@@ -201,6 +201,12 @@ jobs:
           test -f evidence/cew-col03f/review/primary-bridge-atlas.png
           test "$(find evidence/cew-col03f/review -maxdepth 1 -name 'COL-OCC-*-source-only.png' | wc -l)" -eq 22
           test "$(find evidence/cew-col03f/review -maxdepth 1 -name 'COL-OCC-*-target-overlay.png' | wc -l)" -eq 22
+      - name: Semantically qualify COL-03F evidence and authority closure
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python -m experiments.cew_col03f.validate_artifact evidence/cew-col03f
       - name: Run COL-03E regression suite
         shell: bash
         run: |
