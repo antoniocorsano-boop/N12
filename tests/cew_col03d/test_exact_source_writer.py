@@ -1,18 +1,23 @@
 from __future__ import annotations
 
+from contextlib import redirect_stdout
 import hashlib
+from io import StringIO
 import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 try:
     from experiments.cew_col03d.exact_source import (
         build_exact_source_recovery,
+        main,
         write_col03d_artifacts,
     )
 except (ImportError, ModuleNotFoundError):
     build_exact_source_recovery = None
+    main = None
     write_col03d_artifacts = None
 
 
@@ -61,6 +66,38 @@ class ExactSourceWriterTests(unittest.TestCase):
         self.assertTrue(closure["col03d_exact_source_qualification_complete"])
         self.assertEqual(closure["qualification_blockers"], [])
         self.assertFalse(closure["historical_evidence_identity_promoted"])
+
+    def test_cli_summary_does_not_claim_qualification_when_closure_is_blocked(self):
+        self.assertIsNotNone(main, "COL-03D exact-source CLI missing")
+        artifacts = {name: {} for name in EXPECTED_OUTPUTS}
+        artifacts["historical-recovery-closure.json"] = {
+            "col03d_exact_source_qualification_complete": False,
+            "historical_evidence_identity_promoted": False,
+            "historical_package_exact_source_replayable": False,
+            "qualification_blockers": ["SYNTHETIC_BLOCKER"],
+            "required_historical_members_materialized": True,
+        }
+        with (
+            patch(
+                "experiments.cew_col03d.exact_source.build_exact_source_recovery",
+                return_value=artifacts,
+            ),
+            patch(
+                "experiments.cew_col03d.exact_source._load_frozen_inventory",
+                return_value="",
+            ),
+            patch(
+                "experiments.cew_col03d.exact_source.write_col03d_artifacts",
+                return_value=[Path(name) for name in EXPECTED_OUTPUTS],
+            ),
+        ):
+            stdout = StringIO()
+            with redirect_stdout(stdout):
+                result = main([])
+        self.assertEqual(result, 0)
+        summary = json.loads(stdout.getvalue().strip().split("=", 1)[1])
+        self.assertEqual(summary["qualification_blockers"], ["SYNTHETIC_BLOCKER"])
+        self.assertEqual(summary["status"], "RECOVERY_EVIDENCE_CHECKPOINT_COMPLETE")
 
     def test_writer_persists_only_the_five_governed_json_artifacts_deterministically(self):
         self.assertIsNotNone(build_exact_source_recovery, "COL-03D exact-source implementation missing")
