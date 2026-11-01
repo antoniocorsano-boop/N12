@@ -1,0 +1,86 @@
+name: Diagnose CEW-COL-03D Git Blob Forensics
+
+on:
+  push:
+    branches:
+      - diag/cew-col03d-raster-renderer-forensics
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout all reachable refs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Scan every reachable Git blob by exact size and SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import subprocess
+          from collections import defaultdict
+
+          TARGETS = {
+              'Ariano_Irpino_DXF_strutturale_v25.zip': (5345286, '10eba8c6fea2c04feeea0294278f90d90a080a247f07028cd1eaf106a2d52c8d'),
+              'TAV5_CARPENTERIA_raster.jpg': (1701955, '20810b04fa96d4a12d2c93767ae3f205b69e0abe34749567e362989601875e02'),
+              'TAV6_TRAVI_raster.jpg': (1658546, 'fe6a29b74d3c8abefae0e3ac50bd3db94ab8aa23949197b4970e21442e04a8ad'),
+              'TAV7_PILASTRI_raster.jpg': (1658463, 'd56fd2feb2849e237af94f7af46efc591c4c2cdbad828618565621e7288a3595'),
+          }
+          target_sizes = {size for size, _ in TARGETS.values()}
+
+          rev = subprocess.check_output(['git','rev-list','--objects','--all'], text=True, errors='replace')
+          paths_by_oid = defaultdict(set)
+          oids = []
+          for line in rev.splitlines():
+              if not line:
+                  continue
+              oid, *rest = line.split(' ', 1)
+              oids.append(oid)
+              if rest:
+                  paths_by_oid[oid].add(rest[0])
+
+          proc = subprocess.Popen(
+              ['git','cat-file','--batch-check=%(objectname) %(objecttype) %(objectsize)'],
+              stdin=subprocess.PIPE,
+              stdout=subprocess.PIPE,
+              text=True,
+          )
+          out, _ = proc.communicate('\n'.join(oids) + '\n')
+          if proc.returncode != 0:
+              raise SystemExit(proc.returncode)
+
+          candidates = []
+          for line in out.splitlines():
+              parts = line.split()
+              if len(parts) != 3:
+                  continue
+              oid, typ, size_text = parts
+              if typ != 'blob':
+                  continue
+              size = int(size_text)
+              if size in target_sizes:
+                  candidates.append((oid, size, sorted(paths_by_oid.get(oid, set()))))
+
+          print('CEW_COL03D_TARGET_SIZE_CANDIDATE_COUNT', len(candidates))
+          exact_hits = []
+          for oid, size, paths in candidates:
+              data = subprocess.check_output(['git','cat-file','blob',oid])
+              digest = hashlib.sha256(data).hexdigest()
+              print('CANDIDATE', oid, 'size', size, 'sha256', digest, 'paths', paths[:20])
+              for name, (expected_size, expected_sha) in TARGETS.items():
+                  if size == expected_size and digest == expected_sha:
+                      exact_hits.append((name, oid, paths))
+                      print('CEW_COL03D_EXACT_GIT_BLOB_HIT', name, oid, paths)
+
+          hit_names = {name for name, _, _ in exact_hits}
+          for name in TARGETS:
+              print('TARGET_RESULT', name, 'FOUND' if name in hit_names else 'NOT_FOUND')
+          print('CEW_COL03D_EXACT_GIT_BLOB_HIT_COUNT', len(exact_hits))
+          PY
