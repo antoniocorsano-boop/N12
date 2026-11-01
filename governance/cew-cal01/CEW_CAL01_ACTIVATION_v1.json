@@ -1,0 +1,33 @@
+{
+  "program": "CEW-CAL-01",
+  "state": "ACTIVE_SUCCESSOR",
+  "predecessor": {
+    "exact_sha": "ee23c221118064022fa77b694ff88119530cc454",
+    "workflow_run_id": 41317800420,
+    "jobs": {
+      "adapter-contracts": "PASS",
+      "dxf-documentary-exact-source": "PASS",
+      "structural-candidate-exact-source": "PASS"
+    }
+  },
+  "diagnostic_metric_baseline": {
+    "artifact_id": 13088253052,
+    "artifact_digest": "sha256:c0ffc5ed72db1bc26db242f27b1f7bea5fbecb9977681ec6b61e2d32bf107974",
+    "comparison_count": 22,
+    "min_distance_m": 0.2107452723974942,
+    "median_distance_m": 1.9936776850705247,
+    "max_distance_m": 2.663704443235022,
+    "unique_nearest_historical_node_count": 19,
+    "semantics": "DISTANCE_AUDIT_ONLY_NO_BINDING_NO_THRESHOLD",
+    "may_be_used_for_calibration": false
+  },
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "historical_support_identity_authorized": false,
+    "engineering_authority_effect": "NONE"
+  },
+  "next_required_action": "BUILD_PRIMARY_METRIC_CALIBRATION"
+}
