@@ -7,13 +7,17 @@ import unittest
 try:
     from experiments.cew_col03d.member_verification import (
         HISTORICAL_MEMBER_ROOT,
+        HISTORICAL_TRANSPORT_ROOT,
         REQUIRED_MEMBER_CONTRACTS,
+        reconstruct_required_member_directory,
         verify_member_bytes,
         verify_required_member_directory,
     )
 except (ImportError, ModuleNotFoundError):
     HISTORICAL_MEMBER_ROOT = None
+    HISTORICAL_TRANSPORT_ROOT = None
     REQUIRED_MEMBER_CONTRACTS = None
+    reconstruct_required_member_directory = None
     verify_member_bytes = None
     verify_required_member_directory = None
 
@@ -38,16 +42,24 @@ class HistoricalMemberVerificationTests(unittest.TestCase):
             for row in REQUIRED_MEMBER_CONTRACTS
         }
         self.assertEqual(actual, EXPECTED)
+        self.assertTrue(all(row["transport_encoding"] == "XZ_BASE64" for row in REQUIRED_MEMBER_CONTRACTS))
         self.assertTrue(all(row["authority"] == "HISTORICAL_DERIVED_EVIDENCE" for row in REQUIRED_MEMBER_CONTRACTS))
         self.assertTrue(all(row["promotion_authorized"] is False for row in REQUIRED_MEMBER_CONTRACTS))
 
-    def test_all_eight_exact_members_are_materialized_and_verified_in_checkout(self):
-        self.assertIsNotNone(verify_required_member_directory, "COL-03D member verification missing")
+    def test_checkout_transport_reconstructs_all_eight_exact_members(self):
+        self.assertIsNotNone(reconstruct_required_member_directory, "COL-03D lossless transport reconstruction missing")
+        self.assertEqual(HISTORICAL_TRANSPORT_ROOT, "archive/historical_packages/v25/transport")
         self.assertEqual(HISTORICAL_MEMBER_ROOT, "archive/historical_packages/v25/members")
-        rows = verify_required_member_directory(Path(HISTORICAL_MEMBER_ROOT), REQUIRED_MEMBER_CONTRACTS)
-        self.assertEqual([row["artifact_name"] for row in rows], sorted(EXPECTED))
-        self.assertTrue(all(row["materialization_state"] == "MATERIALIZED_VERIFIED" for row in rows))
-        self.assertTrue(all(row["promotion_authorized"] is False for row in rows))
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp) / "members"
+            rows = reconstruct_required_member_directory(
+                Path(HISTORICAL_TRANSPORT_ROOT), target, REQUIRED_MEMBER_CONTRACTS
+            )
+            self.assertEqual([row["artifact_name"] for row in rows], sorted(EXPECTED))
+            self.assertTrue(all(row["materialization_state"] == "MATERIALIZED_VERIFIED" for row in rows))
+            self.assertTrue(all(row["transport_reconstruction_state"] == "LOSSLESS_RECONSTRUCTED" for row in rows))
+            verified = verify_required_member_directory(target, REQUIRED_MEMBER_CONTRACTS)
+            self.assertEqual(rows, verified)
 
     def test_changed_member_bytes_fail_as_provenance_mismatch(self):
         self.assertIsNotNone(verify_member_bytes, "COL-03D member verification missing")
@@ -55,18 +67,24 @@ class HistoricalMemberVerificationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "PROVENANCE_MISMATCH"):
             verify_member_bytes(contract["artifact_name"], b"changed", contract)
 
-    def test_missing_required_member_fails_closed(self):
-        self.assertIsNotNone(verify_required_member_directory, "COL-03D member verification missing")
+    def test_missing_transport_payload_fails_closed(self):
+        self.assertIsNotNone(reconstruct_required_member_directory, "COL-03D lossless transport reconstruction missing")
         with tempfile.TemporaryDirectory() as tmp:
-            with self.assertRaisesRegex(ValueError, "REQUIRED_MEMBER_NOT_MATERIALIZED"):
-                verify_required_member_directory(Path(tmp), REQUIRED_MEMBER_CONTRACTS)
+            with self.assertRaisesRegex(ValueError, "REQUIRED_MEMBER_TRANSPORT_NOT_FOUND"):
+                reconstruct_required_member_directory(Path(tmp), Path(tmp) / "out", REQUIRED_MEMBER_CONTRACTS)
 
     def test_verification_order_is_contract_order_independent(self):
-        self.assertIsNotNone(verify_required_member_directory, "COL-03D member verification missing")
-        root = Path(HISTORICAL_MEMBER_ROOT)
-        forward = verify_required_member_directory(root, REQUIRED_MEMBER_CONTRACTS)
-        reverse = verify_required_member_directory(root, list(reversed(REQUIRED_MEMBER_CONTRACTS)))
-        self.assertEqual(forward, reverse)
+        self.assertIsNotNone(reconstruct_required_member_directory, "COL-03D lossless transport reconstruction missing")
+        with tempfile.TemporaryDirectory() as tmp:
+            target_a = Path(tmp) / "a"
+            target_b = Path(tmp) / "b"
+            forward = reconstruct_required_member_directory(
+                Path(HISTORICAL_TRANSPORT_ROOT), target_a, REQUIRED_MEMBER_CONTRACTS
+            )
+            reverse = reconstruct_required_member_directory(
+                Path(HISTORICAL_TRANSPORT_ROOT), target_b, list(reversed(REQUIRED_MEMBER_CONTRACTS))
+            )
+            self.assertEqual(forward, reverse)
 
 
 if __name__ == "__main__":
