@@ -1,4 +1,4 @@
-name: CEW-SPIRAL-01 Grammar Adapter
+name: CEW-SPIRAL-01 Grammar and Reuse Adapters
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - '.github/workflows/validate-cew-spiral-grammar-adapter.yml'
 
 jobs:
-  grammar-contract:
+  adapter-contracts:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout exact candidate head
@@ -22,5 +22,5 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Run grammar adapter contract
-        run: python -m unittest tests.cew_spiral.test_grammar_adapter_contract -v
+      - name: Run CEW spiral adapter contracts
+        run: python -m unittest discover -s tests/cew_spiral -p 'test_*.py' -v
