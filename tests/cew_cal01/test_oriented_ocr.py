@@ -124,6 +124,11 @@ class Cal01OrientedOcrContractTests(unittest.TestCase):
         self.assertEqual(first["supporting_tile_ids"], ["1", "2", "3"])
         self.assertEqual(first["representative"]["raw_ocr_text"], "120")
         self.assertEqual(first["representative"]["ocr_confidence"], 92.0)
+        self.assertEqual(len(first["observations"]), 3)
+        self.assertEqual(
+            sorted(item["raw_ocr_text"] for item in first["observations"]),
+            ["120", "120", "420"],
+        )
 
 
 if __name__ == "__main__":
