@@ -52,6 +52,21 @@
       "note": "Relazione metrica primaria validata visualmente; non e' ancora un punto di ancoraggio assoluto."
     },
     {
+      "review_id": "C4",
+      "cluster_index": 4,
+      "source_bbox_px": [1282.0, 6376.0, 1285.0, 6431.0],
+      "human_reading": "25 x 70 cm",
+      "object_class": "PERIMETER_BEAM",
+      "property": "SECTION_DIMENSIONS",
+      "value": {"width_m": 0.25, "height_m": 0.70},
+      "evidence_class": "DOC",
+      "semantic_interpretation_class": "RIF",
+      "human_context_note": "Controllo visuale: 25 cm e 70 cm sono entrambi leggibili. Il 70 rappresenta l'altezza della sezione della trave vista in planimetria; il 25 completa la sezione della trave di contorno.",
+      "calibration_role": "SECTION_MEASURE",
+      "eligible_for_metric_calibration": false,
+      "primary_anchor_authorized": false
+    },
+    {
       "review_id": "C5",
       "cluster_index": 5,
       "source_bbox_px": [1242.0, 7171.0, 1360.0, 7208.0],
@@ -124,11 +139,12 @@
       "object_class": "BEAM_SECTION_WITH_SLAB_EXTENSIONS",
       "property": "SECTION_DIMENSIONS",
       "documented_value": null,
-      "analogical_candidate_value": {"width_m": 0.30, "depth_m": 0.70},
+      "analogical_candidate_value": {"width_m": 0.25, "height_m": 0.70},
       "analogical_candidate_provenance": "INF",
+      "analogical_support_ref": "C4",
       "evidence_class": "ND",
       "semantic_interpretation_class": "RIF",
-      "human_context_note": "La sezione appare identica alle travi di contorno dell'edificio; 30 x 70 cm e' soltanto una stima per analogia e non e' riportata nel ritaglio.",
+      "human_context_note": "La sezione appare identica alle travi di contorno dell'edificio. Dopo il controllo visuale C4, la sezione analoga documentata e' 25 x 70 cm. Per C12 questo resta comunque un valore inferito per analogia, non riportato direttamente nel ritaglio.",
       "model_use_authorized": false,
       "calibration_role": "NOT_A_DOCUMENTED_DIMENSION",
       "eligible_for_metric_calibration": false,
@@ -151,13 +167,14 @@
     }
   ],
   "summary": {
-    "reviewed_count": 8,
-    "section_measure_count": 6,
+    "reviewed_count": 9,
+    "section_measure_count": 7,
     "not_documented_dimension_count": 1,
     "linear_dimension_count": 1,
     "validated_metric_relation_count": 1,
     "fit_eligible_anchor_count": 0,
-    "machine_reading_corrections": ["C2: 420 -> 120", "C5: 48 -> 20", "C6: 0 -> 40x40 context", "C10: 420 -> 120", "C12: 4 -> no documented dimension", "C13: 20 -> 50x20 context"]
+    "machine_reading_corrections": ["C2: 420 -> 120", "C5: 48 -> 20", "C6: 0 -> 40x40 context", "C10: 420 -> 120", "C12: 4 -> no documented dimension", "C13: 20 -> 50x20 context"],
+    "human_revision_notes": ["C4 confirms perimeter beam section 25 x 70 cm (70 cm height).", "C12 analogical candidate corrected from 30 x 70 cm to 25 x 70 cm using C4 as documentary analogical support; C12 remains INF/ND locally."]
   },
   "authority": {
     "structural_identity_authorized": false,
