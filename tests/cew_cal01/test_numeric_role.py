@@ -31,6 +31,39 @@ class Cal01NumericRoleGateTests(unittest.TestCase):
         self.assertEqual(relation["endpoint_a_px"], [100.0, 20.0])
         self.assertEqual(relation["endpoint_b_px"], [100.0, 180.0])
 
+    def test_vertical_dimension_accepts_two_short_diagonal_slash_ticks(self):
+        segments = [
+            (100, 20, 100, 180),
+            (88, 8, 112, 32),
+            (88, 168, 112, 192),
+        ]
+        relation = dimension_tick_relation(
+            segments,
+            token_bbox_px=[106, 80, 128, 120],
+            expected_orientation="VERTICAL",
+        )
+        self.assertTrue(relation["confirmed"])
+        self.assertEqual(relation["tick_style"], "DIAGONAL_SLASH")
+        self.assertEqual(relation["terminal_tick_count"], 2)
+        self.assertEqual(relation["endpoint_a_px"], [100.0, 20.0])
+        self.assertEqual(relation["endpoint_b_px"], [100.0, 180.0])
+
+    def test_horizontal_dimension_accepts_two_short_diagonal_slash_ticks(self):
+        segments = [
+            (20, 100, 180, 100),
+            (8, 88, 32, 112),
+            (168, 88, 192, 112),
+        ]
+        relation = dimension_tick_relation(
+            segments,
+            token_bbox_px=[80, 106, 120, 128],
+            expected_orientation="HORIZONTAL",
+        )
+        self.assertTrue(relation["confirmed"])
+        self.assertEqual(relation["tick_style"], "DIAGONAL_SLASH")
+        self.assertEqual(relation["endpoint_a_px"], [20.0, 100.0])
+        self.assertEqual(relation["endpoint_b_px"], [180.0, 100.0])
+
     def test_long_structural_crossings_do_not_count_as_dimension_ticks(self):
         segments = [
             (100, 20, 100, 180),
@@ -44,6 +77,19 @@ class Cal01NumericRoleGateTests(unittest.TestCase):
         )
         self.assertFalse(relation["confirmed"])
         self.assertEqual(relation["reason"], "TWO_SHORT_TERMINAL_TICKS_NOT_OBSERVED")
+
+    def test_long_diagonal_structural_lines_do_not_count_as_slash_ticks(self):
+        segments = [
+            (100, 20, 100, 180),
+            (0, -80, 200, 120),
+            (0, 80, 200, 280),
+        ]
+        relation = dimension_tick_relation(
+            segments,
+            token_bbox_px=[106, 80, 128, 120],
+            expected_orientation="VERTICAL",
+        )
+        self.assertFalse(relation["confirmed"])
 
     def test_orientation_mismatch_fails_closed(self):
         segments = [
