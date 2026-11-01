@@ -96,6 +96,10 @@ def _bbox_distance(
     return (dx * dx + dy * dy) ** 0.5
 
 
+def _interval_distance(a0: float, a1: float, b0: float, b1: float) -> float:
+    return max(a0 - b1, b0 - a1, 0.0)
+
+
 def detect_nearby_closed_frame(
     line_segments: Iterable[Sequence[float]],
     *,
@@ -109,6 +113,12 @@ def detect_nearby_closed_frame(
 
     This is only document-role context. It does not identify a column, section,
     or structural object and never authorizes metric/canonical promotion.
+
+    Dense scanned drawings can yield hundreds of local Hough segments. Candidate
+    vertical edges are therefore filtered against each admissible horizontal pair
+    before vertical pairs are formed. This preserves the original rectangle
+    criteria while avoiding a Cartesian pair-space regeneration for every
+    horizontal pair.
     """
 
     if len(token_bbox_px) != 4:
@@ -127,37 +137,60 @@ def detect_nearby_closed_frame(
         if is_v and min_side_px <= y1 - y0 <= max_side_px:
             verticals.append((x, y0, y1))
 
-    candidates: list[tuple[float, tuple[float, float, float, float]]] = []
+    best: tuple[float, tuple[float, float, float, float]] | None = None
+    token_left, token_top, token_right, token_bottom = token
+
     for first_h, second_h in combinations(horizontals, 2):
         y0, y1 = sorted((first_h[0], second_h[0]))
         height = y1 - y0
         if not (min_side_px <= height <= max_side_px):
             continue
-        for first_v, second_v in combinations(verticals, 2):
-            x0, x1 = sorted((first_v[0], second_v[0]))
-            width = x1 - x0
-            if not (min_side_px <= width <= max_side_px):
-                continue
+        if _interval_distance(y0, y1, token_top, token_bottom) > max_distance_px:
+            continue
 
-            horizontal_span_ok = all(
-                h[1] - corner_tolerance_px <= x0 <= h[2] + corner_tolerance_px
-                and h[1] - corner_tolerance_px <= x1 <= h[2] + corner_tolerance_px
-                for h in (first_h, second_h)
-            )
-            vertical_span_ok = all(
-                v[1] - corner_tolerance_px <= y0 <= v[2] + corner_tolerance_px
-                and v[1] - corner_tolerance_px <= y1 <= v[2] + corner_tolerance_px
-                for v in (first_v, second_v)
-            )
-            if not (horizontal_span_ok and vertical_span_ok):
-                continue
+        common_left = max(
+            first_h[1] - corner_tolerance_px,
+            second_h[1] - corner_tolerance_px,
+        )
+        common_right = min(
+            first_h[2] + corner_tolerance_px,
+            second_h[2] + corner_tolerance_px,
+        )
+        if common_right - common_left < min_side_px:
+            continue
 
-            frame = (x0, y0, x1, y1)
-            distance = _bbox_distance(frame, token)
-            if distance <= max_distance_px:
-                candidates.append((distance, frame))
+        closing_verticals = [
+            vertical
+            for vertical in verticals
+            if common_left <= vertical[0] <= common_right
+            and vertical[1] - corner_tolerance_px <= y0 <= vertical[2] + corner_tolerance_px
+            and vertical[1] - corner_tolerance_px <= y1 <= vertical[2] + corner_tolerance_px
+        ]
+        if len(closing_verticals) < 2:
+            continue
+        closing_verticals.sort(key=lambda item: (item[0], item[1], item[2]))
 
-    if not candidates:
+        for first_index, first_v in enumerate(closing_verticals[:-1]):
+            x0 = first_v[0]
+            for second_v in closing_verticals[first_index + 1 :]:
+                x1 = second_v[0]
+                width = x1 - x0
+                if width > max_side_px:
+                    break
+                if width < min_side_px:
+                    continue
+                if _interval_distance(x0, x1, token_left, token_right) > max_distance_px:
+                    continue
+
+                frame = (x0, y0, x1, y1)
+                distance = _bbox_distance(frame, token)
+                if distance > max_distance_px:
+                    continue
+                candidate = (distance, frame)
+                if best is None or candidate < best:
+                    best = candidate
+
+    if best is None:
         return {
             "detected": False,
             "bbox_px": None,
@@ -166,8 +199,7 @@ def detect_nearby_closed_frame(
             "engineering_authority_effect": "NONE",
         }
 
-    candidates.sort(key=lambda item: (item[0], item[1]))
-    distance, frame = candidates[0]
+    distance, frame = best
     return {
         "detected": True,
         "bbox_px": [float(value) for value in frame],
