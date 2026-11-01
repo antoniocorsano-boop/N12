@@ -57,17 +57,22 @@ def _vertical(line: tuple[float, float, float, float]) -> tuple[bool, float, flo
     )
 
 
+def _same_span(a0: float, a1: float, b0: float, b1: float, *, tolerance: float = 12.0) -> bool:
+    return abs(a0 - b0) <= tolerance and abs(a1 - b1) <= tolerance
+
+
 def dimension_tick_relation(
     line_segments: Iterable[Sequence[float]],
     *,
     token_bbox_px: Sequence[float],
     expected_orientation: str,
 ) -> dict[str, Any]:
-    """Confirm a bounded dimension grammar from line segments only.
+    """Confirm bounded dimension grammar without confusing a closed frame for a dimension.
 
-    A valid relation needs a principal dimension line close to the numeric
-    token plus two SHORT perpendicular terminal ticks. Long structural/grid
-    crossings are intentionally rejected as terminal ticks.
+    A valid relation needs a principal dimension line close to the numeric token
+    plus two SHORT perpendicular terminal ticks. Long structural/grid crossings
+    are rejected. A second parallel line connected by the same two perpendicular
+    segments is treated as a closed-frame pattern and therefore not a dimension.
     """
 
     orientation = str(expected_orientation).upper()
@@ -79,6 +84,7 @@ def dimension_tick_relation(
     cy = (top + bottom) / 2.0
     token_w = right - left
     token_h = bottom - top
+    closed_frame_seen = False
 
     if orientation == "VERTICAL":
         main_candidates: list[tuple[float, float, float]] = []
@@ -108,6 +114,22 @@ def dimension_tick_relation(
                 continue
             if last[0] - first[0] < max(40.0, token_h * 1.25):
                 continue
+
+            parallel = [
+                (other_x, other_y0, other_y1)
+                for other_x, other_y0, other_y1 in main_candidates
+                if other_x != x
+                and 10.0 <= abs(other_x - x) <= 80.0
+                and _same_span(y0, y1, other_y0, other_y1)
+            ]
+            if any(
+                first[1] - 6.0 <= other_x <= first[2] + 6.0
+                and last[1] - 6.0 <= other_x <= last[2] + 6.0
+                for other_x, _, _ in parallel
+            ):
+                closed_frame_seen = True
+                continue
+
             return {
                 "confirmed": True,
                 "orientation": "VERTICAL",
@@ -117,8 +139,8 @@ def dimension_tick_relation(
                 "reason": None,
             }
     else:
-        main_candidates = []
-        tick_candidates = []
+        main_candidates: list[tuple[float, float, float]] = []
+        tick_candidates: list[tuple[float, float, float]] = []
         for line in segments:
             is_h, x0, x1, y = _horizontal(line)
             if is_h and x1 - x0 >= max(50.0, token_w * 1.5) and abs(y - cy) <= max(70.0, token_h * 4.0):
@@ -144,6 +166,22 @@ def dimension_tick_relation(
                 continue
             if last[0] - first[0] < max(40.0, token_w * 1.25):
                 continue
+
+            parallel = [
+                (other_y, other_x0, other_x1)
+                for other_y, other_x0, other_x1 in main_candidates
+                if other_y != y
+                and 10.0 <= abs(other_y - y) <= 80.0
+                and _same_span(x0, x1, other_x0, other_x1)
+            ]
+            if any(
+                first[1] - 6.0 <= other_y <= first[2] + 6.0
+                and last[1] - 6.0 <= other_y <= last[2] + 6.0
+                for other_y, _, _ in parallel
+            ):
+                closed_frame_seen = True
+                continue
+
             return {
                 "confirmed": True,
                 "orientation": "HORIZONTAL",
@@ -159,7 +197,7 @@ def dimension_tick_relation(
         "terminal_tick_count": 0,
         "endpoint_a_px": None,
         "endpoint_b_px": None,
-        "reason": "TWO_SHORT_TERMINAL_TICKS_NOT_OBSERVED",
+        "reason": "CLOSED_FRAME_PATTERN" if closed_frame_seen else "TWO_SHORT_TERMINAL_TICKS_NOT_OBSERVED",
     }
 
 
