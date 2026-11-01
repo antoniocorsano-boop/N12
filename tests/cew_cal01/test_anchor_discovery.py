@@ -5,6 +5,7 @@ from experiments.cew_cal01.anchor_discovery import (
     normalize_dimension_text,
     proposal_from_ocr_token,
 )
+from experiments.cew_cal01.exact_source import _normalize_hough_lines
 
 
 def blank_image(width=420, height=240):
@@ -41,7 +42,6 @@ class Cal01DimensionDiscoveryContractTests(unittest.TestCase):
 
     def test_horizontal_dimension_geometry_requires_two_extension_references(self):
         image = blank_image()
-        # Main horizontal dimension line and two vertical extension/tick references.
         draw_black_rect(image, 70, 120, 350, 123)
         draw_black_rect(image, 70, 65, 73, 175)
         draw_black_rect(image, 347, 65, 350, 175)
@@ -65,6 +65,13 @@ class Cal01DimensionDiscoveryContractTests(unittest.TestCase):
         )
         self.assertFalse(geometry["geometrically_bound"])
         self.assertEqual(geometry["reason"], "TWO_REFERENCE_LINES_NOT_OBSERVED")
+
+    def test_hough_line_normalizer_accepts_opencv_4_and_5_shapes(self):
+        shape_n_4 = [[1, 2, 3, 4], [5, 6, 7, 8]]
+        shape_n_1_4 = [[[1, 2, 3, 4]], [[5, 6, 7, 8]]]
+        expected = [(1.0, 2.0, 3.0, 4.0), (5.0, 6.0, 7.0, 8.0)]
+        self.assertEqual(_normalize_hough_lines(shape_n_4), expected)
+        self.assertEqual(_normalize_hough_lines(shape_n_1_4), expected)
 
 
 if __name__ == "__main__":
