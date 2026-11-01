@@ -2,6 +2,7 @@ import unittest
 
 from experiments.cew_cal01.oriented_refinement import (
     backproject_rotated_bbox,
+    cluster_numeric_observations_by_location,
     deduplicate_metric_observations,
     generate_tile_windows,
 )
@@ -78,6 +79,51 @@ class Cal01OrientedOcrContractTests(unittest.TestCase):
         self.assertEqual(first["rotation_deg"], 270)
         self.assertEqual(first["supporting_observation_count"], 2)
         self.assertEqual(sorted(first["observed_rotations_deg"]), [0, 270])
+
+    def test_location_cluster_preserves_conflicting_readings_before_consensus(self):
+        observations = [
+            {
+                "raw_ocr_text": "120",
+                "normalized_metric_text": "1.20",
+                "bbox_px": [100.0, 200.0, 140.0, 220.0],
+                "ocr_confidence": 88.0,
+                "ocr_rotation_degrees": 270,
+                "tile_index": 1,
+            },
+            {
+                "raw_ocr_text": "420",
+                "normalized_metric_text": "4.20",
+                "bbox_px": [104.0, 202.0, 144.0, 222.0],
+                "ocr_confidence": 61.0,
+                "ocr_rotation_degrees": 270,
+                "tile_index": 2,
+            },
+            {
+                "raw_ocr_text": "120",
+                "normalized_metric_text": "1.20",
+                "bbox_px": [98.0, 198.0, 138.0, 218.0],
+                "ocr_confidence": 92.0,
+                "ocr_rotation_degrees": 90,
+                "tile_index": 3,
+            },
+            {
+                "raw_ocr_text": "470",
+                "normalized_metric_text": "4.70",
+                "bbox_px": [500.0, 800.0, 560.0, 830.0],
+                "ocr_confidence": 91.0,
+                "ocr_rotation_degrees": 90,
+                "tile_index": 4,
+            },
+        ]
+        clusters = cluster_numeric_observations_by_location(observations, centroid_tolerance_px=16.0)
+        self.assertEqual(len(clusters), 2)
+        first = clusters[0]
+        self.assertEqual(first["observation_count"], 3)
+        self.assertEqual(first["readings"], ["120", "120", "420"])
+        self.assertEqual(first["observed_rotations_deg"], [90, 270])
+        self.assertEqual(first["supporting_tile_ids"], ["1", "2", "3"])
+        self.assertEqual(first["representative"]["raw_ocr_text"], "120")
+        self.assertEqual(first["representative"]["ocr_confidence"], 92.0)
 
 
 if __name__ == "__main__":
