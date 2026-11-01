@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "CEW_DXF01_OBSERVATION_RECEIPT_v1",
+  "title": "CEW-DXF-01 Observation Receipt v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "slice",
+    "status",
+    "source_count",
+    "toolchain",
+    "observations",
+    "authority",
+    "observation_bundle_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "CEW_DXF01_OBSERVATION_RECEIPT_v1"},
+    "slice": {"const": "CEW-DXF-01"},
+    "status": {"const": "READ_QUERY_PASS"},
+    "source_count": {"const": 3},
+    "toolchain": {
+      "type": "object",
+      "required": ["ezdxf_version", "direct_pin"],
+      "properties": {
+        "ezdxf_version": {"const": "1.4.5"},
+        "direct_pin": {"const": "ezdxf==1.4.5"}
+      }
+    },
+    "observations": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "authority": {
+      "type": "object",
+      "required": [
+        "authority_effect",
+        "primary_source_identity_bridge",
+        "structural_identity_authorized",
+        "canonical_geometry_authorized",
+        "canonical_write_authorized",
+        "m0g_authorized"
+      ],
+      "properties": {
+        "authority_effect": {"const": "NONE"},
+        "primary_source_identity_bridge": {"const": false},
+        "structural_identity_authorized": {"const": false},
+        "canonical_geometry_authorized": {"const": false},
+        "canonical_write_authorized": {"const": false},
+        "m0g_authorized": {"const": false}
+      }
+    },
+    "observation_bundle_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

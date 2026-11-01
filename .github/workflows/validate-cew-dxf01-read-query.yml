@@ -49,9 +49,83 @@ jobs:
           assert version('ezdxf') == '1.4.5', version('ezdxf')
           print('CEW_DXF01_EZDXF_DIRECT_PIN=PASS')
           PY
-      - name: Run CEW-DXF-01 contract tests
+      - name: Run CEW-DXF-01 reader contracts
         shell: bash
         run: |
           set -euo pipefail
           source "$RUNNER_TEMP/cew-dxf01/bin/activate"
-          python -m unittest discover -s tests/cew_dxf01 -p 'test_*.py' -v
+          python -m unittest discover -s tests/cew_dxf01 -p 'test_contract.py' -v
+          python -m unittest discover -s tests/cew_dxf01 -p 'test_inventory.py' -v
+          python -m unittest discover -s tests/cew_dxf01 -p 'test_fail_closed.py' -v
+
+  exact-source:
+    needs: contract
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Verify exact candidate and qualified COL-03F terminal handoff ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git merge-base --is-ancestor c163c8ccea9594b31367a18d0451e232569dc534 HEAD
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install direct CEW-DXF-01 toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-dxf01"
+          source "$RUNNER_TEMP/cew-dxf01/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-dxf01.lock.txt
+          python -m pip check
+          test "$(python -c 'from importlib.metadata import version; print(version("'"'ezdxf'"'"'))')" = '1.4.5'
+      - name: Run CEW-DXF-01 exact-source contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-dxf01/bin/activate"
+          python -m unittest discover -s tests/cew_dxf01 -p 'test_exact_source.py' -v
+      - name: Rebuild CEW-DXF-01 exact-source evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-dxf01/bin/activate"
+          rm -rf evidence/cew-dxf01
+          python -m experiments.cew_dxf01.exact_source --output evidence/cew-dxf01
+          python -m experiments.cew_dxf01.validate_artifact evidence/cew-dxf01
+      - name: Assert governed artifact surface and byte determinism
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-dxf01/bin/activate"
+          test -f evidence/cew-dxf01/dxf-observations.json
+          test -f evidence/cew-dxf01/dxf-observation-receipt.json
+          test -f evidence/cew-dxf01/dxf-read-query-closure.json
+          test "$(find evidence/cew-dxf01 -maxdepth 1 -type f | wc -l)" -eq 3
+          tmp="$(mktemp -d)"
+          python -m experiments.cew_dxf01.exact_source --output "$tmp"
+          cmp evidence/cew-dxf01/dxf-observations.json "$tmp/dxf-observations.json"
+          cmp evidence/cew-dxf01/dxf-observation-receipt.json "$tmp/dxf-observation-receipt.json"
+          cmp evidence/cew-dxf01/dxf-read-query-closure.json "$tmp/dxf-read-query-closure.json"
+      - name: Run independent COL-03D DXF regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-dxf01/bin/activate"
+          python -m unittest discover -s tests/cew_col03d -p 'test_dxf_evidence.py' -v
+      - name: Upload CEW-DXF-01 read-query evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-dxf01-read-query-evidence
+          path: evidence/cew-dxf01/
+          if-no-files-found: error
+          retention-days: 30
