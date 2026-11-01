@@ -114,6 +114,109 @@ def _centroid(bbox: Sequence[int | float]) -> tuple[float, float]:
     return (left + right) / 2.0, (top + bottom) / 2.0
 
 
+def cluster_numeric_observations_by_location(
+    observations: Iterable[dict[str, Any]],
+    *,
+    centroid_tolerance_px: float = 16.0,
+) -> list[dict[str, Any]]:
+    """Cluster OCR observations by source position before deciding numeric text.
+
+    Unlike value-based deduplication, this stage intentionally keeps conflicting
+    readings together when they refer to the same source location. The result is
+    evidence for later OCR consensus; it does not repair digits or assign metric
+    or engineering authority.
+    """
+
+    if centroid_tolerance_px < 0:
+        raise ValueError("CAL01_REFINEMENT_CLUSTER_TOLERANCE_INVALID")
+
+    ordered = sorted(
+        (dict(item) for item in observations),
+        key=lambda item: (
+            _centroid(item["bbox_px"])[1],
+            _centroid(item["bbox_px"])[0],
+            str(item.get("raw_ocr_text") or ""),
+            -float(item.get("ocr_confidence", 0.0)),
+        ),
+    )
+    groups: list[dict[str, Any]] = []
+
+    for item in ordered:
+        raw_text = str(item.get("raw_ocr_text") or "").strip()
+        if not raw_text:
+            raise ValueError("CAL01_REFINEMENT_RAW_TEXT_REQUIRED")
+        center = _centroid(item["bbox_px"])
+        candidates: list[tuple[float, int, dict[str, Any]]] = []
+        for index, group in enumerate(groups):
+            gx, gy = group["cluster_centroid_px"]
+            distance = hypot(center[0] - gx, center[1] - gy)
+            if distance <= centroid_tolerance_px:
+                candidates.append((distance, index, group))
+
+        if not candidates:
+            groups.append(
+                {
+                    "cluster_centroid_px": [center[0], center[1]],
+                    "members": [item],
+                }
+            )
+            continue
+
+        _, _, matched = min(candidates, key=lambda value: (value[0], value[1]))
+        matched["members"].append(item)
+        centers = [_centroid(member["bbox_px"]) for member in matched["members"]]
+        matched["cluster_centroid_px"] = [
+            sum(value[0] for value in centers) / len(centers),
+            sum(value[1] for value in centers) / len(centers),
+        ]
+
+    result: list[dict[str, Any]] = []
+    for group in groups:
+        members = group["members"]
+        best = max(
+            members,
+            key=lambda item: (
+                float(item.get("ocr_confidence", 0.0)),
+                str(item.get("raw_ocr_text") or ""),
+                -int(item.get("ocr_rotation_degrees", item.get("rotation_deg", 0))),
+            ),
+        )
+        readings = sorted(str(member.get("raw_ocr_text") or "").strip() for member in members)
+        rotations = sorted(
+            {
+                int(member.get("ocr_rotation_degrees", member.get("rotation_deg", 0))) % 360
+                for member in members
+            }
+        )
+        tile_ids = sorted(
+            {
+                str(member.get("tile_index", member.get("tile_id", "")))
+                for member in members
+            }
+        )
+        result.append(
+            {
+                "cluster_centroid_px": list(group["cluster_centroid_px"]),
+                "observation_count": len(members),
+                "readings": readings,
+                "observed_rotations_deg": rotations,
+                "supporting_tile_ids": tile_ids,
+                "representative": dict(best),
+                "primary_anchor_authorized": False,
+                "canonical_geometry_authorized": False,
+                "engineering_authority_effect": "NONE",
+            }
+        )
+
+    result.sort(
+        key=lambda item: (
+            item["cluster_centroid_px"][1],
+            item["cluster_centroid_px"][0],
+        )
+    )
+    return result
+
+
 def deduplicate_metric_observations(
     observations: Iterable[dict[str, Any]],
     *,
