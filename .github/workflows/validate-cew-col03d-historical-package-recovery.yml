@@ -42,8 +42,12 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
-      - name: Prove qualified COL-03C ancestry
-        run: git merge-base --is-ancestor a9daa18ddfb56eaf1834ad17f329e2f2db0af72e HEAD
+      - name: Verify exact candidate and qualified COL-03C ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git merge-base --is-ancestor a9daa18ddfb56eaf1834ad17f329e2f2db0af72e HEAD
       - name: Set up Python 3.12.15
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
@@ -53,12 +57,111 @@ jobs:
         run: python -m pip install 'pypdfium2==5.14.0'
       - name: Run COL-03C regression suite
         run: python -m unittest discover -s tests/cew_col03c -p 'test_*.py' -v
-      - name: RED - invoke COL-03D exact-source writer entrypoint
+      - name: Build governed COL-03D recovery evidence
         run: |
+          python -m experiments.cew_col03d.exact_source \
+            --output evidence/cew-col03d \
+            --transport-root archive/historical_packages/v25/transport
+      - name: Assert COL-03D recovery evidence checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
           python - <<'PY'
-          from experiments.cew_col03d.exact_source import main
-          raise SystemExit(main([
-              '--output', 'evidence/cew-col03d',
-              '--transport-root', 'archive/historical_packages/v25/transport',
-          ]))
+          import json
+          from pathlib import Path
+
+          root = Path('evidence/cew-col03d')
+          expected_files = {
+              'historical-package-recovery-manifest.json',
+              'historical-member-manifest.json',
+              'historical-derived-data-quality.json',
+              'historical-recovery-reconciliation.json',
+              'historical-recovery-closure.json',
+          }
+          actual_files = {path.name for path in root.iterdir() if path.is_file()}
+          assert actual_files == expected_files, (actual_files, expected_files)
+
+          package = json.loads((root / 'historical-package-recovery-manifest.json').read_text(encoding='utf-8'))
+          members = json.loads((root / 'historical-member-manifest.json').read_text(encoding='utf-8'))
+          quality = json.loads((root / 'historical-derived-data-quality.json').read_text(encoding='utf-8'))
+          reconciliation = json.loads((root / 'historical-recovery-reconciliation.json').read_text(encoding='utf-8'))
+          closure = json.loads((root / 'historical-recovery-closure.json').read_text(encoding='utf-8'))
+
+          assert package['predecessor_sha'] == 'a9daa18ddfb56eaf1834ad17f329e2f2db0af72e'
+          assert package['sha256'] == '10eba8c6fea2c04feeea0294278f90d90a080a247f07028cd1eaf106a2d52c8d'
+          assert package['size_bytes'] == 5345286
+          assert package['member_count'] == 91
+          assert package['historical_package_source_verified'] is True
+          assert package['historical_package_repository_materialized'] is False
+          assert package['historical_package_exact_source_replayable'] is False
+          assert package['identity_promotion_authorized'] is False
+
+          assert members['required_member_count'] == 8
+          assert members['materialized_verified_count'] == 8
+          assert members['required_historical_members_materialized'] is True
+          assert len(members['members']) == 8
+          assert all(row['materialization_state'] == 'MATERIALIZED_VERIFIED' for row in members['members'])
+          assert all(row['promotion_authorized'] is False for row in members['members'])
+
+          assert quality['row_counts'] == {
+              'ABACO_ASSOCIAZIONE_PILASTRI_TAV5_TAV7_v19.csv': 27,
+              'ABACO_TOPOLOGICO_TAV5_v11.csv': 57,
+              'ABACO_TRAVI_TAV6_v23.csv': 46,
+              'ASSOCIAZIONE_TRAVI_TAV5_TAV6_v25.csv': 46,
+              'MATRICE_PILASTRI_27x5_v22.csv': 135,
+          }
+          assert quality['historical_row_level_evidence_recovered'] is True
+          assert quality['identity_promotion_authorized'] is False
+          assert quality['structural_identity_authorized'] is False
+          assert quality['section_assignment_authorized'] is False
+          assert quality['vertical_chain_assignment_authorized'] is False
+          assert quality['fixed_line_assignment_authorized'] is False
+          assert quality['canonical_geometry_authorized'] is False
+          assert quality['canonical_write_authorized'] is False
+
+          assert reconciliation['inventory_reconciliation_complete'] is True
+          assert len(reconciliation['recovered_member_names']) == 8
+          assert 'ASSOCIAZIONE_TRAVI_TAV5_TAV6_v25.csv' in reconciliation['recovered_member_names']
+          assert 'TABELLA_CORRISPONDENZE_TRAVI_v25.csv' not in reconciliation['recovered_member_names']
+          assert reconciliation['identity_promotion_authorized'] is False
+
+          assert closure['historical_package_source_verified'] is True
+          assert closure['historical_package_recovery_complete'] is True
+          assert closure['historical_package_repository_materialized'] is False
+          assert closure['historical_package_exact_source_replayable'] is False
+          assert closure['required_historical_members_materialized'] is True
+          assert closure['historical_row_level_evidence_recovered'] is True
+          assert closure['historical_evidence_identity_promoted'] is False
+          assert closure['recovery_evidence_complete'] is True
+          assert closure['col03d_exact_source_qualification_complete'] is False
+          assert closure['qualification_blockers'] == ['HISTORICAL_PACKAGE_NOT_REPOSITORY_REPLAYABLE']
+
+          authority_keys = (
+              'support_identity_authorized',
+              'text_identity_binding_authorized',
+              'family_assignment_authorized',
+              'section_assignment_authorized',
+              'fixed_line_assignment_authorized',
+              'vertical_chain_assignment_authorized',
+              'structural_identity_authorized',
+              'canonical_node_assignment_authorized',
+              'canonical_geometry_authorized',
+              'canonical_write_authorized',
+              'g2c_promotion_authorized',
+              'g3_authorized',
+              'merge_authorized',
+          )
+          for key in authority_keys:
+              assert closure[key] is False, key
+
+          print('CEW_COL03D_RECOVERY_EVIDENCE_CHECKPOINT=PASS')
+          print('CEW_COL03D_FINAL_PHASE_QUALIFICATION=BLOCKED')
+          print('CEW_COL03D_BLOCKER=HISTORICAL_PACKAGE_NOT_REPOSITORY_REPLAYABLE')
           PY
+      - name: Upload COL-03D governed recovery evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-col03d-historical-recovery-evidence
+          path: evidence/cew-col03d/
+          if-no-files-found: error
+          retention-days: 30
