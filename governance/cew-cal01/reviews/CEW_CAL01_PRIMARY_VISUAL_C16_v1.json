@@ -1,0 +1,24 @@
+{
+  "schema": "CEW_CAL01_PRIMARY_VISUAL_REVIEW_v1",
+  "program": "CEW-CAL-01",
+  "review_id": "C16",
+  "source_document": "TAV.5",
+  "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+  "source_page": 0,
+  "cluster_index": 16,
+  "human_validation": {
+    "object_class": "COLUMN",
+    "object_reference": "PILASTRO_24",
+    "section_cm": [40, 40],
+    "calibration_role": "SECTION_MEASURE",
+    "eligible_for_metric_calibration": false,
+    "primary_anchor_authorized": false
+  },
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}
