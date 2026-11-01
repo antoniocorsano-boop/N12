@@ -35,24 +35,45 @@ AUTHORITY_KEYS = (
 def _col03b_ledger():
     rows = []
     for index in range(1, 23):
+        occurrence_id = f"COL-OCC-{index:04d}"
         hypotheses = []
+        internal_text_evidence = []
         if index == 1:
+            evidence_id = "COL-OCC-0001-TXT-001"
             hypotheses = [{
                 "candidate_value": "4",
+                "hypothesis_id": "HYP-COL-OCC-0001-DOCUMENTARY_LABEL_CANDIDATE-4",
                 "state": "SINGLE_CHANNEL",
                 "promotion_authorized": False,
-                "supporting_evidence_ids": ["TXT-001"],
+                "supporting_evidence_ids": [evidence_id],
+            }]
+            internal_text_evidence = [{
+                "evidence_id": evidence_id,
+                "provenance_ref": "CEW-N12-XFORM-TAV05S-P001:TXT-001",
+                "exact_source_reconstructible": True,
             }]
         elif index == 15:
+            evidence_id = "COL-OCC-0015-TXT-006"
             hypotheses = [{
                 "candidate_value": "30",
+                "hypothesis_id": "HYP-COL-OCC-0015-DOCUMENTARY_LABEL_CANDIDATE-30",
                 "state": "SINGLE_CHANNEL",
                 "promotion_authorized": False,
-                "supporting_evidence_ids": ["TXT-006"],
+                "supporting_evidence_ids": [evidence_id],
+            }]
+            internal_text_evidence = [{
+                "evidence_id": evidence_id,
+                "provenance_ref": "CEW-N12-XFORM-TAV05S-P001:TXT-006",
+                "exact_source_reconstructible": True,
             }]
         rows.append({
-            "occurrence_id": f"COL-OCC-{index:04d}",
+            "occurrence_id": occurrence_id,
             "hypotheses": hypotheses,
+            "internal_text_evidence": internal_text_evidence,
+            "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
+            "page_id": "CEW-N12-PAGE-TAV05S-P001",
+            "page_transform_id": "CEW-N12-XFORM-TAV05S-P001",
+            "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
             "conflict_state": "NONE",
         })
     return {"occurrence_count": 22, "occurrences": rows}
@@ -67,6 +88,12 @@ def _col03c_ledger():
                 "conflict_state": "NONE",
                 "tav07_match_state": "EVALUATED_NO_MATCH",
                 "tav07_source_state": "MATERIALIZED_VERIFIED",
+                "tav07_source_ref": {
+                    "catalogue_id": "TAV-07A",
+                    "archive_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+                    "source_path": "archive/documentazione_originaria/tavola7.pdf",
+                    "sha256": "38a0cce18dcda0b9a36d8473f0d428735c4b89934975d551d4bfffd24fe54a2b",
+                },
                 "hypotheses": [],
                 "cross_document_identity_resolved": False,
             }
@@ -141,6 +168,55 @@ class AdjudicationDossierTests(unittest.TestCase):
             self.assertFalse(row["identity_promoted"])
             for key in AUTHORITY_KEYS:
                 self.assertFalse(row[key], (row["occurrence_id"], key))
+
+    def test_candidate_dossier_exposes_replayable_documentary_and_primary_source_provenance(self):
+        self.assertIsNotNone(build_adjudication_dossiers)
+        first = build_adjudication_dossiers(
+            col03b_ledger=_col03b_ledger(),
+            col03c_ledger=_col03c_ledger(),
+            historical_quality=_historical_quality(),
+            predecessor_sha=PREDECESSOR_SHA,
+        )[0]
+
+        channels = first["evidence_channels"]
+        documentary = channels["documentary"]
+        self.assertEqual(len(documentary), 1)
+        self.assertEqual(documentary[0]["candidate_value"], "4")
+        self.assertEqual(documentary[0]["hypothesis_state"], "SINGLE_CHANNEL")
+        self.assertEqual(documentary[0]["supporting_evidence_ids"], ["COL-OCC-0001-TXT-001"])
+        self.assertEqual(
+            documentary[0]["provenance"],
+            [{
+                "evidence_id": "COL-OCC-0001-TXT-001",
+                "provenance_ref": "CEW-N12-XFORM-TAV05S-P001:TXT-001",
+                "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
+                "page_id": "CEW-N12-PAGE-TAV05S-P001",
+                "page_transform_id": "CEW-N12-XFORM-TAV05S-P001",
+                "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+                "exact_source_reconstructible": True,
+            }],
+        )
+        cross_document = channels["cross_document"]
+        self.assertEqual(cross_document["source_state"], "MATERIALIZED_VERIFIED")
+        self.assertEqual(cross_document["match_state"], "EVALUATED_NO_MATCH")
+        self.assertEqual(cross_document["source_ref"]["catalogue_id"], "TAV-07A")
+        self.assertEqual(
+            cross_document["source_ref"]["sha256"],
+            "38a0cce18dcda0b9a36d8473f0d428735c4b89934975d551d4bfffd24fe54a2b",
+        )
+        self.assertEqual(channels["historical"]["bridge_state"], "UNBOUND")
+
+    def test_candidate_without_replayable_supporting_provenance_fails_closed(self):
+        self.assertIsNotNone(build_adjudication_dossiers)
+        col03b = _col03b_ledger()
+        col03b["occurrences"][0]["internal_text_evidence"] = []
+        with self.assertRaisesRegex(ValueError, "COL03E_DOCUMENTARY_PROVENANCE_INCOMPLETE"):
+            build_adjudication_dossiers(
+                col03b_ledger=col03b,
+                col03c_ledger=_col03c_ledger(),
+                historical_quality=_historical_quality(),
+                predecessor_sha=PREDECESSOR_SHA,
+            )
 
     def test_unbound_historical_rows_remain_context_and_do_not_create_occurrence_identity(self):
         self.assertIsNotNone(build_adjudication_dossiers)
