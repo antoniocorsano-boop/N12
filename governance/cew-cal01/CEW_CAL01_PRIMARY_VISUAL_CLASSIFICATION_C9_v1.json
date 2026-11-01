@@ -1,0 +1,31 @@
+{
+  "schema": "CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_v1",
+  "program": "CEW-CAL-01",
+  "review_id": "C9",
+  "cluster_index": 9,
+  "review_date_local": "2026-11-01",
+  "reviewer_role": "HUMAN_PROFESSIONAL_USER",
+  "source": {
+    "document": "TAV.5",
+    "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+    "source_page": 0,
+    "qualified_discovery_artifact_id": 13095968594
+  },
+  "human_decision": {
+    "human_reading": "70 cm",
+    "object_class": "BEAM",
+    "property": "SECTION_HEIGHT",
+    "value": {"height_m": 0.70},
+    "calibration_role": "SECTION_MEASURE",
+    "evidence_class": "DOC",
+    "eligible_for_metric_relation_network": false,
+    "eligible_for_metric_calibration": false,
+    "primary_anchor_authorized": false,
+    "note": "Il riquadro non contiene una quota 120; 70 cm rappresenta l'altezza della sezione di una trave."
+  },
+  "authority": {
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}
