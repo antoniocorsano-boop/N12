@@ -87,7 +87,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements/cew-dxf01.lock.txt
           python -m pip check
-          test "$(python -c 'from importlib.metadata import version; print(version("'"'ezdxf'"'"'))')" = '1.4.5'
+          python - <<'PY'
+          from importlib.metadata import version
+          assert version('ezdxf') == '1.4.5', version('ezdxf')
+          print('CEW_DXF01_EZDXF_DIRECT_PIN=PASS')
+          PY
       - name: Run CEW-DXF-01 exact-source contracts
         shell: bash
         run: |
