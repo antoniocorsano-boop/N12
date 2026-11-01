@@ -1,0 +1,79 @@
+name: Diagnose CEW-COL-03D Raster Source
+
+on:
+  pull_request:
+    branches:
+      - feat/cew-col03c-governed-cross-document-materialization
+    paths:
+      - '.github/workflows/diagnose-cew-col03d-raster-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Materialize archived source PDFs
+        run: |
+          mkdir -p /tmp/col03d-raster-source
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:'archive/documentazione_originaria/tavola 5.pdf' > /tmp/col03d-raster-source/tavola5.pdf
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:'archive/documentazione_originaria/tavola 6.pdf' > /tmp/col03d-raster-source/tavola6.pdf
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:'archive/documentazione_originaria/tavola7.pdf' > /tmp/col03d-raster-source/tavola7.pdf
+          sha256sum /tmp/col03d-raster-source/*.pdf
+      - name: Install read-only PDF image inspector
+        run: python -m pip install --disable-pip-version-check PyMuPDF==1.26.5
+      - name: Audit embedded raster candidates
+        run: |
+          python - <<'PY'
+          import fitz
+          import hashlib
+          from pathlib import Path
+
+          EXPECTED = {
+              'tavola5.pdf': ((4060, 2274), '20810b04fa96d4a12d2c93767ae3f205b69e0abe34749567e362989601875e02'),
+              'tavola6.pdf': ((8222, 1393), 'fe6a29b74d3c8abefae0e3ac50bd3db94ab8aa23949197b4970e21442e04a8ad'),
+              'tavola7.pdf': ((6731, 1393), 'd56fd2feb2849e237af94f7af46efc591c4c2cdbad828618565621e7288a3595'),
+          }
+          root = Path('/tmp/col03d-raster-source')
+          for filename, (expected_dims, expected_sha) in EXPECTED.items():
+              doc = fitz.open(root / filename)
+              seen = set()
+              candidates = []
+              for page_index, page in enumerate(doc):
+                  for image in page.get_images(full=True):
+                      xref = image[0]
+                      if xref in seen:
+                          continue
+                      seen.add(xref)
+                      extracted = doc.extract_image(xref)
+                      data = extracted['image']
+                      row = {
+                          'page': page_index + 1,
+                          'xref': xref,
+                          'ext': extracted.get('ext'),
+                          'width': extracted.get('width'),
+                          'height': extracted.get('height'),
+                          'size': len(data),
+                          'sha256': hashlib.sha256(data).hexdigest(),
+                      }
+                      candidates.append(row)
+              print('PDF', filename, 'EXPECTED_DIMS', expected_dims, 'EXPECTED_SHA', expected_sha)
+              print('EMBEDDED_IMAGE_COUNT', len(candidates))
+              for row in candidates:
+                  match_dims = (row['width'], row['height']) == expected_dims
+                  match_sha = row['sha256'] == expected_sha
+                  print('IMAGE', row, 'MATCH_DIMS', match_dims, 'MATCH_SHA', match_sha)
+              print('EXACT_RASTER_MATCH', any(r['sha256'] == expected_sha for r in candidates))
+          PY
