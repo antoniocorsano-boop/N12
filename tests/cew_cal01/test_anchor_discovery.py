@@ -5,7 +5,11 @@ from experiments.cew_cal01.anchor_discovery import (
     normalize_dimension_text,
     proposal_from_ocr_token,
 )
-from experiments.cew_cal01.exact_source import _normalize_hough_lines
+from experiments.cew_cal01.exact_source import (
+    _iter_tile_bounds,
+    _map_oriented_bbox_to_page,
+    _normalize_hough_lines,
+)
 
 
 def blank_image(width=420, height=240):
@@ -72,6 +76,42 @@ class Cal01DimensionDiscoveryContractTests(unittest.TestCase):
         expected = [(1.0, 2.0, 3.0, 4.0), (5.0, 6.0, 7.0, 8.0)]
         self.assertEqual(_normalize_hough_lines(shape_n_4), expected)
         self.assertEqual(_normalize_hough_lines(shape_n_1_4), expected)
+
+    def test_overlapping_tiles_cover_page_edges_deterministically(self):
+        first = _iter_tile_bounds(1000, 900, tile_size=400, overlap=100)
+        second = _iter_tile_bounds(1000, 900, tile_size=400, overlap=100)
+        self.assertEqual(first, second)
+        self.assertEqual(first[0], (0, 0, 400, 400))
+        self.assertIn((600, 500, 1000, 900), first)
+        self.assertEqual(len(first), len(set(first)))
+
+    def test_oriented_bbox_roundtrips_to_original_page_frame(self):
+        tile = (100, 200, 300, 500)  # local width 200, height 300
+        expected = [120.0, 230.0, 160.0, 250.0]
+        cases = {
+            0: [20.0, 30.0, 60.0, 50.0],
+            90: [250.0, 20.0, 270.0, 60.0],
+            180: [140.0, 250.0, 180.0, 270.0],
+            270: [30.0, 140.0, 50.0, 180.0],
+        }
+        for rotation, rotated_bbox in cases.items():
+            with self.subTest(rotation=rotation):
+                actual = _map_oriented_bbox_to_page(
+                    rotated_bbox,
+                    tile_bounds=tile,
+                    rotation_degrees=rotation,
+                    ocr_scale=1.0,
+                )
+                self.assertEqual(actual, expected)
+
+    def test_oriented_bbox_mapping_undoes_ocr_upscale(self):
+        actual = _map_oriented_bbox_to_page(
+            [500.0, 40.0, 540.0, 120.0],
+            tile_bounds=(100, 200, 300, 500),
+            rotation_degrees=90,
+            ocr_scale=2.0,
+        )
+        self.assertEqual(actual, [120.0, 230.0, 160.0, 250.0])
 
 
 if __name__ == "__main__":
