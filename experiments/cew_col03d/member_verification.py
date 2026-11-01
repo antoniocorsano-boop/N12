@@ -81,10 +81,11 @@ def _read_transport_payload(transport_root: Path, artifact_name: str) -> bytes:
         encoded = "".join(ch for ch in raw_transport if ch in _BASE64_ALPHABET)
         padding_start = encoded.find("=")
         if padding_start >= 0:
-            padding_end = padding_start
-            while padding_end < len(encoded) and encoded[padding_end] == "=":
-                padding_end += 1
-            encoded = encoded[:padding_end]
+            data_part = encoded[:padding_start]
+            required_padding = "=" * ((4 - (len(data_part) % 4)) % 4)
+            if len(required_padding) > 2:
+                raise binascii.Error("invalid base64 padding")
+            encoded = data_part + required_padding
         compressed = base64.b64decode(encoded, validate=True)
         return lzma.decompress(compressed, format=lzma.FORMAT_XZ)
     except (OSError, UnicodeError, binascii.Error, lzma.LZMAError) as exc:
