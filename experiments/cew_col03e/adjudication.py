@@ -76,6 +76,88 @@ def _candidate_values(row: dict[str, Any]) -> list[str]:
     return sorted(set(values))
 
 
+def _documentary_channel(row: dict[str, Any]) -> list[dict[str, Any]]:
+    evidence_by_id: dict[str, dict[str, Any]] = {}
+    for channel_name in (
+        "internal_text_evidence",
+        "intersecting_text_evidence",
+        "nearby_text_evidence",
+        "callout_evidence",
+    ):
+        channel_rows = row.get(channel_name) or []
+        if not isinstance(channel_rows, list):
+            raise ValueError("COL03E_DOCUMENTARY_PROVENANCE_INCOMPLETE")
+        for evidence in channel_rows:
+            if not isinstance(evidence, dict):
+                continue
+            evidence_id = str(evidence.get("evidence_id") or "")
+            if evidence_id:
+                evidence_by_id[evidence_id] = evidence
+
+    hypotheses = row.get("hypotheses") or []
+    if not isinstance(hypotheses, list):
+        raise ValueError("COL03E_HYPOTHESIS_SURFACE_INVALID")
+
+    source_fields = {
+        "source_version_id": str(row.get("source_version_id") or ""),
+        "page_id": str(row.get("page_id") or ""),
+        "page_transform_id": str(row.get("page_transform_id") or ""),
+        "source_sha256": str(row.get("source_sha256") or ""),
+    }
+    entries: list[dict[str, Any]] = []
+    for hypothesis in hypotheses:
+        if not isinstance(hypothesis, dict):
+            raise ValueError("COL03E_HYPOTHESIS_SURFACE_INVALID")
+        candidate_value = str(hypothesis.get("candidate_value") or "")
+        if not candidate_value:
+            continue
+        hypothesis_id = str(hypothesis.get("hypothesis_id") or "")
+        hypothesis_state = str(hypothesis.get("state") or "")
+        supporting = hypothesis.get("supporting_evidence_ids")
+        if (
+            not hypothesis_id
+            or not hypothesis_state
+            or not isinstance(supporting, list)
+            or not supporting
+            or not all(source_fields.values())
+        ):
+            raise ValueError("COL03E_DOCUMENTARY_PROVENANCE_INCOMPLETE")
+
+        supporting_ids = sorted(str(value) for value in supporting if str(value))
+        if len(supporting_ids) != len(supporting):
+            raise ValueError("COL03E_DOCUMENTARY_PROVENANCE_INCOMPLETE")
+
+        provenance: list[dict[str, Any]] = []
+        for evidence_id in supporting_ids:
+            evidence = evidence_by_id.get(evidence_id)
+            if (
+                evidence is None
+                or evidence.get("exact_source_reconstructible") is not True
+                or not evidence.get("provenance_ref")
+            ):
+                raise ValueError("COL03E_DOCUMENTARY_PROVENANCE_INCOMPLETE")
+            provenance.append(
+                {
+                    "evidence_id": evidence_id,
+                    "provenance_ref": str(evidence["provenance_ref"]),
+                    **source_fields,
+                    "exact_source_reconstructible": True,
+                }
+            )
+
+        entries.append(
+            {
+                "candidate_value": candidate_value,
+                "hypothesis_id": hypothesis_id,
+                "hypothesis_state": hypothesis_state,
+                "supporting_evidence_ids": supporting_ids,
+                "provenance": provenance,
+            }
+        )
+
+    return sorted(entries, key=lambda item: (item["candidate_value"], item["hypothesis_id"]))
+
+
 def _historical_context(historical_quality: dict[str, Any]) -> dict[str, Any]:
     csv_evidence = historical_quality.get("csv_evidence") or []
     if not isinstance(csv_evidence, list):
@@ -147,6 +229,7 @@ def build_adjudication_dossiers(
         b_row = col03b[occurrence_id]
         c_row = col03c[occurrence_id]
         documentary_candidates = _candidate_values(b_row)
+        documentary_channel = _documentary_channel(b_row)
         cross_document_candidates = _candidate_values(c_row)
 
         conflict_states = {
@@ -156,7 +239,16 @@ def build_adjudication_dossiers(
         }
         conflict_state = sorted(conflict_states)[0] if conflict_states else "NONE"
         match_state = str(c_row.get("tav07_match_state") or "")
-        provenance_complete = c_row.get("tav07_source_state") == "MATERIALIZED_VERIFIED"
+        tav07_source_ref = c_row.get("tav07_source_ref")
+        if not isinstance(tav07_source_ref, dict):
+            tav07_source_ref = {}
+        provenance_complete = (
+            c_row.get("tav07_source_state") == "MATERIALIZED_VERIFIED"
+            and bool(tav07_source_ref.get("catalogue_id"))
+            and bool(tav07_source_ref.get("archive_commit"))
+            and bool(tav07_source_ref.get("source_path"))
+            and bool(tav07_source_ref.get("sha256"))
+        )
 
         # Historical rows are intentionally unbound in COL-03E. They cannot block or
         # support one specific occurrence unless a governed bridge exists upstream.
@@ -193,6 +285,16 @@ def build_adjudication_dossiers(
             "cross_document_match_state": match_state,
             "cross_document_identity_resolved": c_row.get("cross_document_identity_resolved") is True,
             "conflict_state": conflict_state,
+            "evidence_channels": {
+                "documentary": documentary_channel,
+                "cross_document": {
+                    "source_state": str(c_row.get("tav07_source_state") or ""),
+                    "source_ref": dict(sorted(tav07_source_ref.items())),
+                    "match_state": match_state,
+                    "candidate_values": cross_document_candidates,
+                },
+                "historical": dict(historical_context),
+            },
             "unbound_historical_context": dict(historical_context),
             "occurrence_specific_historical_ids": [],
             "missing_evidence": sorted(set(missing_evidence)),
