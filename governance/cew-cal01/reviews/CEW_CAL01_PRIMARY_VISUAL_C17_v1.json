@@ -1,0 +1,31 @@
+{
+  "schema": "CEW_CAL01_PRIMARY_VISUAL_COMPONENT_REVIEW_v1",
+  "program": "CEW-CAL-01",
+  "review_id": "C17",
+  "cluster_index": 17,
+  "review_date_local": "2026-11-01",
+  "reviewer_role": "HUMAN_PROFESSIONAL_USER",
+  "source": {
+    "document": "TAV.5",
+    "sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+    "page": 0,
+    "review_image_origin": "DIRECT_EXTRACT_FROM_PRIMARY_TAV5_RASTER"
+  },
+  "human_decision": {
+    "object_class": "PERIMETER_EDGE_BEAM_SECTION",
+    "description": "Sezione trasversale di una trave di bordo/contorno",
+    "section_dimensions_m": {
+      "height": 0.70,
+      "width": 0.25
+    },
+    "human_reading": "70 x 25 cm",
+    "calibration_role": "SECTION_MEASURE",
+    "eligible_for_metric_calibration": false,
+    "primary_anchor_authorized": false
+  },
+  "authority": {
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}
