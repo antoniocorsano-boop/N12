@@ -32,3 +32,31 @@ jobs:
           check-latest: false
       - name: Run COL-03D unit contracts
         run: python -m unittest discover -s tests/cew_col03d -p 'test_*.py' -v
+
+  exact-source:
+    needs: unit
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Prove qualified COL-03C ancestry
+        run: git merge-base --is-ancestor a9daa18ddfb56eaf1834ad17f329e2f2db0af72e HEAD
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Run COL-03C regression suite
+        run: python -m unittest discover -s tests/cew_col03c -p 'test_*.py' -v
+      - name: RED - invoke COL-03D exact-source writer entrypoint
+        run: |
+          python - <<'PY'
+          from experiments.cew_col03d.exact_source import main
+          raise SystemExit(main([
+              '--output', 'evidence/cew-col03d',
+              '--transport-root', 'archive/historical_packages/v25/transport',
+          ]))
+          PY
