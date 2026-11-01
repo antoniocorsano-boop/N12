@@ -1,6 +1,6 @@
 import unittest
 
-from experiments.cew_cal01.oriented_ocr import (
+from experiments.cew_cal01.oriented_discovery import (
     backproject_rotated_bbox,
     deduplicate_metric_observations,
     generate_tile_windows,
@@ -30,7 +30,6 @@ class Cal01OrientedOcrContractTests(unittest.TestCase):
 
     def test_backprojection_preserves_page_coordinates_for_all_quadrant_rotations(self):
         tile = [100, 200, 200, 260]  # width=100, height=60
-        original_local = [10, 20, 30, 40]
         rotated_boxes = {
             0: [10, 20, 30, 40],
             90: [20, 10, 40, 30],
