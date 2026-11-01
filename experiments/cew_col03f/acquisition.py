@@ -243,6 +243,15 @@ def _validate_source_ref(source_ref: dict[str, Any]) -> dict[str, Any]:
     return deepcopy(source_ref)
 
 
+def _dossier_identity_promoted(dossier: dict[str, Any]) -> Any:
+    if "identity_promoted" in dossier:
+        return dossier.get("identity_promoted")
+    identity_claim = dossier.get("identity_claim")
+    if isinstance(identity_claim, dict):
+        return identity_claim.get("identity_promoted")
+    return None
+
+
 def build_primary_bridge_ledger(
     *,
     occurrence_ledger: dict[str, Any],
@@ -270,7 +279,7 @@ def build_primary_bridge_ledger(
     for queue_index, occurrence_id in enumerate(order, start=1):
         occurrence = occurrence_rows[occurrence_id]
         dossier = dossier_rows[occurrence_id]
-        if dossier.get("identity_promoted") is not False:
+        if _dossier_identity_promoted(dossier) is not False:
             raise ValueError("COL03F_PREDECESSOR_IDENTITY_AUTHORITY_DRIFT")
         dossier_digest = str(dossier.get("dossier_digest") or "")
         if not dossier_digest:
