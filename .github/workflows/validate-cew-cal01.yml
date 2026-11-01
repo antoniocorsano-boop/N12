@@ -70,7 +70,13 @@ jobs:
             --image "$RUNNER_TEMP/cew-cal01-dimension-discovery/tav5-primary-300dpi.png" \
             --base-discovery "$RUNNER_TEMP/cew-cal01-dimension-discovery/dimension-discovery.json" \
             --output-dir "$RUNNER_TEMP/cew-cal01-dimension-discovery/oriented"
-      - name: Assert exact-source discovery boundary
+      - name: Replay semantic numeric roles on exact-source clusters
+        run: |
+          python -m experiments.cew_cal01.semantic_exact_source \
+            --image "$RUNNER_TEMP/cew-cal01-dimension-discovery/tav5-primary-300dpi.png" \
+            --oriented-discovery "$RUNNER_TEMP/cew-cal01-dimension-discovery/oriented/oriented-dimension-discovery.json" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-dimension-discovery/semantic"
+      - name: Assert exact-source discovery and semantic boundary
         run: |
           python - <<'PY'
           import json, os
@@ -78,9 +84,11 @@ jobs:
           root = Path(os.environ['RUNNER_TEMP']) / 'cew-cal01-dimension-discovery'
           data = json.loads((root / 'dimension-discovery.json').read_text())
           oriented = json.loads((root / 'oriented' / 'oriented-dimension-discovery.json').read_text())
+          semantic = json.loads((root / 'semantic' / 'semantic-role-replay.json').read_text())
           expected_sha = '2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580'
           assert data['source']['sha256'] == expected_sha
           assert oriented['source']['sha256'] == expected_sha
+          assert semantic['source']['sha256'] == expected_sha
           assert data['numeric_proposal_count'] > 0
           assert data['historical_comparator_loaded'] is False
           assert data['historical_affine_loaded'] is False
@@ -88,21 +96,36 @@ jobs:
           assert oriented['historical_comparator_loaded'] is False
           assert oriented['historical_affine_loaded'] is False
           assert oriented['tav02s_evidence_loaded'] is False
+          assert semantic['historical_comparator_loaded'] is False
+          assert semantic['historical_affine_loaded'] is False
+          assert semantic['tav02s_evidence_loaded'] is False
           assert data['primary_anchor_count'] == 0
           assert oriented['primary_anchor_count'] == 0
+          assert semantic['primary_anchor_count'] == 0
           assert oriented['tile_strategy']['rotations_degrees'] == [0, 90, 180, 270]
           assert oriented['tile_count_selected'] > 0
           assert oriented['ocr_pass_count'] == oriented['tile_count_selected'] * 4
+          assert oriented['raw_numeric_observation_count'] >= oriented['oriented_numeric_proposal_count']
+          assert oriented['location_cluster_count'] > 0
+          assert len(oriented['location_clusters']) == oriented['location_cluster_count']
+          assert semantic['location_cluster_count'] == oriented['location_cluster_count']
+          assert sum(semantic['role_counts'].values()) == semantic['location_cluster_count']
           assert data['authority']['canonical_geometry_authorized'] is False
           assert oriented['authority']['canonical_geometry_authorized'] is False
+          assert semantic['authority']['canonical_geometry_authorized'] is False
           assert data['authority']['structural_identity_authorized'] is False
           assert oriented['authority']['structural_identity_authorized'] is False
+          assert semantic['authority']['structural_identity_authorized'] is False
           print(json.dumps({
               'global_numeric_proposal_count': data['numeric_proposal_count'],
               'global_bound_count': data['geometrically_bound_dimension_count'],
+              'raw_numeric_observation_count': oriented['raw_numeric_observation_count'],
+              'location_cluster_count': oriented['location_cluster_count'],
               'oriented_numeric_proposal_count': oriented['oriented_numeric_proposal_count'],
               'oriented_bound_count': oriented['geometrically_bound_dimension_count'],
-              'oriented_discovery_digest': oriented['oriented_discovery_digest'],
+              'semantic_consensus_confirmed_count': semantic['consensus_confirmed_count'],
+              'semantic_role_counts': semantic['role_counts'],
+              'semantic_replay_digest': semantic['semantic_replay_digest'],
           }, sort_keys=True))
           PY
       - name: Upload governed CAL-01 dimension discovery evidence
