@@ -1,0 +1,57 @@
+name: CEW-DXF-01 Read Query
+
+on:
+  pull_request:
+    branches:
+      - feat/cew-col03f-primary-identity-bridge-evidence
+    paths:
+      - 'experiments/cew_dxf01/**'
+      - 'tests/cew_dxf01/**'
+      - 'governance/cew-dxf01/**'
+      - 'requirements/cew-dxf01.lock.txt'
+      - '.github/workflows/validate-cew-dxf01-read-query.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Verify exact candidate and qualified COL-03F terminal handoff ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git merge-base --is-ancestor c163c8ccea9594b31367a18d0451e232569dc534 HEAD
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install direct CEW-DXF-01 toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-dxf01"
+          source "$RUNNER_TEMP/cew-dxf01/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-dxf01.lock.txt
+          python -m pip check
+          python - <<'PY'
+          from importlib.metadata import version
+          assert version('ezdxf') == '1.4.5', version('ezdxf')
+          print('CEW_DXF01_EZDXF_DIRECT_PIN=PASS')
+          PY
+      - name: Run CEW-DXF-01 contract tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-dxf01/bin/activate"
+          python -m unittest discover -s tests/cew_dxf01 -p 'test_*.py' -v

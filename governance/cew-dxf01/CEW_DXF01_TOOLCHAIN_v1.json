@@ -1,0 +1,82 @@
+{
+  "schema": "CEW_DXF01_TOOLCHAIN_v1",
+  "slice": "CEW-DXF-01",
+  "status": "RED_CONTRACT_IMPLEMENTATION_REQUIRED",
+  "purpose": "Read and query exact recovered historical DXF bytes as non-authoritative source-bound observations.",
+  "successor_base_sha": "c163c8ccea9594b31367a18d0451e232569dc534",
+  "runtime": {
+    "os": "ubuntu-24.04",
+    "python": "3.12.15",
+    "direct_dependency": "ezdxf==1.4.5",
+    "direct_dependency_authority": "QUALIFY_IN_THIS_SLICE_ONLY",
+    "observed_transitive_precedent": "B01 build123d==0.13.0 resolved ezdxf 1.4.5",
+    "transitive_precedent_grants_qualification": false
+  },
+  "independent_low_level_verifier": {
+    "module": "experiments.cew_col03d.dxf_evidence",
+    "callable": "audit_dxf_member",
+    "required_acad_version": "AC1027",
+    "role": "RAW_ASCII_DXF_FAIL_CLOSED_CROSSCHECK"
+  },
+  "source_scope": [
+    {
+      "artifact_name": "N12_TAV7_PILASTRI.dxf",
+      "sha256": "c61731902df0d42266487ca77954af75dc2f0912f3bce94f3e81e2b48cecbd57",
+      "size_bytes": 454818,
+      "historical_role": "derived_historical_dxf_pillar_mapping",
+      "evidentiary_class": "HISTORICAL_DERIVED_REFERENCE"
+    },
+    {
+      "artifact_name": "N12_TAV6_TIPO.dxf",
+      "sha256": "78d0a7a58785edd586e1115b7d8ae820436c22e24dfc7d7f2cbd81914de78afb",
+      "size_bytes": 493006,
+      "historical_role": "derived_historical_dxf_typical_floor",
+      "evidentiary_class": "HISTORICAL_DERIVED_REFERENCE"
+    },
+    {
+      "artifact_name": "N12_TAV5A_QUARTO.dxf",
+      "sha256": "f3c525ccb6926d80157db5b106f615dc0ff752c5d827b485f4d1e90fb8263e52",
+      "size_bytes": 470016,
+      "historical_role": "derived_historical_dxf_fourth_floor",
+      "evidentiary_class": "HISTORICAL_DERIVED_REFERENCE"
+    }
+  ],
+  "required_observation_surface": [
+    "DXF_VERSION_AND_UNITS_WHEN_OBSERVABLE",
+    "LAYERS",
+    "ENTITY_COUNTS",
+    "TEXT_AND_MTEXT_WITH_PLACEMENT",
+    "INSERT_AND_BLOCK_REFERENCES",
+    "BLOCK_DEFINITIONS_AND_ATTRIBUTES_WHEN_OBSERVABLE",
+    "DIMENSIONS",
+    "DETERMINISTIC_EXTENTS",
+    "STABLE_SOURCE_BOUND_ENTITY_IDS",
+    "NORMALIZED_OUTPUT_SHA256"
+  ],
+  "source_identity_policy": {
+    "exact_sha256_required": true,
+    "exact_size_required": true,
+    "source_bytes_must_remain_unchanged": true,
+    "stable_ids_must_bind_to_source_and_entity_locator": true,
+    "semantic_guess_may_enter_stable_id": false
+  },
+  "authority": {
+    "authority_effect": "NONE",
+    "primary_source_identity_bridge": false,
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "family_assignment_authorized": false,
+    "section_assignment_authorized": false,
+    "m0g_authorized": false
+  },
+  "forbidden_actions": [
+    "WRITE_DXF",
+    "MODIFY_SOURCE_BYTES",
+    "PROMOTE_STRUCTURAL_IDENTITY",
+    "PROMOTE_FAMILY",
+    "PROMOTE_SECTION",
+    "CANONICAL_WRITE",
+    "USE_HISTORICAL_DXF_AS_COL03F_PRIMARY_IDENTITY_BRIDGE"
+  ]
+}

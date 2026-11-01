@@ -1,0 +1,3 @@
+# CEW-DXF-01 direct toolchain baseline.
+# This direct pin is qualified by CEW-DXF-01; transitive B01 presence grants no authority.
+ezdxf==1.4.5
