@@ -43,18 +43,59 @@ def _inputs():
     b_rows = []
     c_rows = []
     for index in range(1, 23):
+        occurrence_id = f"COL-OCC-{index:04d}"
         b_hypotheses = []
+        internal_text_evidence = []
         if index == 1:
-            b_hypotheses = [{"candidate_value": "4", "state": "SINGLE_CHANNEL", "promotion_authorized": False}]
+            evidence_id = "COL-OCC-0001-TXT-001"
+            b_hypotheses = [{
+                "candidate_value": "4",
+                "hypothesis_id": "HYP-COL-OCC-0001-DOCUMENTARY_LABEL_CANDIDATE-4",
+                "state": "SINGLE_CHANNEL",
+                "promotion_authorized": False,
+                "supporting_evidence_ids": [evidence_id],
+            }]
+            internal_text_evidence = [{
+                "evidence_id": evidence_id,
+                "provenance_ref": "CEW-N12-XFORM-TAV05S-P001:TXT-001",
+                "exact_source_reconstructible": True,
+            }]
         elif index == 15:
-            b_hypotheses = [{"candidate_value": "30", "state": "SINGLE_CHANNEL", "promotion_authorized": False}]
-        b_rows.append({"occurrence_id": f"COL-OCC-{index:04d}", "hypotheses": b_hypotheses, "conflict_state": "NONE"})
+            evidence_id = "COL-OCC-0015-TXT-006"
+            b_hypotheses = [{
+                "candidate_value": "30",
+                "hypothesis_id": "HYP-COL-OCC-0015-DOCUMENTARY_LABEL_CANDIDATE-30",
+                "state": "SINGLE_CHANNEL",
+                "promotion_authorized": False,
+                "supporting_evidence_ids": [evidence_id],
+            }]
+            internal_text_evidence = [{
+                "evidence_id": evidence_id,
+                "provenance_ref": "CEW-N12-XFORM-TAV05S-P001:TXT-006",
+                "exact_source_reconstructible": True,
+            }]
+        b_rows.append({
+            "occurrence_id": occurrence_id,
+            "hypotheses": b_hypotheses,
+            "internal_text_evidence": internal_text_evidence,
+            "source_version_id": "CEW-N12-SRC-TAV05S-V2143DBCF",
+            "page_id": "CEW-N12-PAGE-TAV05S-P001",
+            "page_transform_id": "CEW-N12-XFORM-TAV05S-P001",
+            "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+            "conflict_state": "NONE",
+        })
         c_rows.append({
-            "occurrence_id": f"COL-OCC-{index:04d}",
+            "occurrence_id": occurrence_id,
             "hypotheses": [],
             "conflict_state": "NONE",
             "tav07_match_state": "EVALUATED_NO_MATCH",
             "tav07_source_state": "MATERIALIZED_VERIFIED",
+            "tav07_source_ref": {
+                "catalogue_id": "TAV-07A",
+                "archive_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+                "source_path": "archive/documentazione_originaria/tavola7.pdf",
+                "sha256": "38a0cce18dcda0b9a36d8473f0d428735c4b89934975d551d4bfffd24fe54a2b",
+            },
             "cross_document_identity_resolved": False,
         })
     note = "armatura di tipo documentata in TAV7; associazione al singolo pilastro non ancora dimostrata"
