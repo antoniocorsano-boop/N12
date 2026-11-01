@@ -18,6 +18,12 @@ FORBIDDEN_METRIC_SOURCE_KINDS = {
     "HISTORICAL_CEW_DERIVED_ANNOTATION",
 }
 
+FIT_ELIGIBLE_METRIC_SOURCE_POLICY = {
+    "PRIMARY_TAV5_DOCUMENTED_RELATION": {"PRIMARY_VISUAL_VALIDATED"},
+    "PRIMARY_TAV5_SOURCE_NATIVE_METRIC": {"SOURCE_NATIVE_VERIFIED"},
+    "PRIMARY_MEASURED_CONTROL": {"MEASURED_CONTROL_VALIDATED"},
+}
+
 FIT_ELIGIBLE_METRIC_PROVENANCE = {"DOC", "MIS", "RIF"}
 
 AUTHORITY_CLOSED = {
@@ -45,6 +51,8 @@ def _anchor_identity_payload(
     evidence_refs: list[str],
     metric_source_kind: str,
     source_layer: str | None,
+    metric_validation_state: str | None,
+    metric_validation_ref: str | None,
 ) -> dict[str, Any]:
     return {
         "anchor_class": anchor_class,
@@ -56,6 +64,8 @@ def _anchor_identity_payload(
         "evidence_refs": evidence_refs,
         "metric_source_kind": metric_source_kind,
         "source_layer": source_layer,
+        "metric_validation_state": metric_validation_state,
+        "metric_validation_ref": metric_validation_ref,
     }
 
 
@@ -70,11 +80,15 @@ def make_anchor_candidate(
     evidence_refs: Iterable[str],
     metric_source_kind: str,
     source_layer: str | None = None,
+    metric_validation_state: str | None = None,
+    metric_validation_ref: str | None = None,
 ) -> dict[str, Any]:
     point = None if source_point_px is None else [float(source_point_px[0]), float(source_point_px[1])]
     metric = None if metric_xy_m is None else [float(metric_xy_m[0]), float(metric_xy_m[1])]
     refs = sorted(str(ref) for ref in evidence_refs)
     provenance = {"x": metric_provenance.get("x"), "y": metric_provenance.get("y")}
+    validation_state = None if metric_validation_state is None else str(metric_validation_state).strip() or None
+    validation_ref = None if metric_validation_ref is None else str(metric_validation_ref).strip() or None
 
     reasons: list[str] = []
     if anchor_class not in ALLOWED_ANCHOR_CLASSES:
@@ -89,6 +103,15 @@ def make_anchor_candidate(
         reasons.append("FORBIDDEN_METRIC_SOURCE")
     if metric_source_kind == "OCR_TEXT_ONLY":
         reasons.append("OCR_TEXT_WITHOUT_GEOMETRIC_BINDING")
+
+    eligible_validation_states = FIT_ELIGIBLE_METRIC_SOURCE_POLICY.get(metric_source_kind)
+    if eligible_validation_states is None:
+        reasons.append("METRIC_SOURCE_KIND_NOT_FIT_ELIGIBLE")
+    elif validation_state not in eligible_validation_states:
+        reasons.append("METRIC_VALIDATION_STATE_NOT_ELIGIBLE")
+    if not validation_ref:
+        reasons.append("METRIC_VALIDATION_REFERENCE_MISSING")
+
     if metric is None:
         reasons.append("METRIC_COORDINATE_MISSING")
     if provenance["x"] not in FIT_ELIGIBLE_METRIC_PROVENANCE or provenance["y"] not in FIT_ELIGIBLE_METRIC_PROVENANCE:
@@ -106,6 +129,8 @@ def make_anchor_candidate(
         evidence_refs=refs,
         metric_source_kind=metric_source_kind,
         source_layer=source_layer,
+        metric_validation_state=validation_state,
+        metric_validation_ref=validation_ref,
     )
     anchor_id = "CEW-CAL01-ANCHOR-" + hashlib.sha256(
         json.dumps(identity, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
