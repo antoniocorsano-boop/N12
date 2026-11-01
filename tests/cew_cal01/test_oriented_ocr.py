@@ -1,6 +1,6 @@
 import unittest
 
-from experiments.cew_cal01.oriented_discovery import (
+from experiments.cew_cal01.oriented_refinement import (
     backproject_rotated_bbox,
     deduplicate_metric_observations,
     generate_tile_windows,
