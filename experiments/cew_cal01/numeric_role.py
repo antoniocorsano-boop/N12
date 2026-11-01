@@ -249,6 +249,15 @@ def classify_numeric_graphic_role(
         token_bbox_px=token_bbox_px,
         expected_orientation=orientation,
     )
+
+    if relation["confirmed"] and bool(nearby_closed_frame):
+        return {
+            **base,
+            "role": ROLE_UNRESOLVED,
+            "reason": "DIMENSION_SECTION_ROLE_CONFLICT",
+            "dimension_relation": relation,
+        }
+
     if relation["confirmed"]:
         return {
             **base,
