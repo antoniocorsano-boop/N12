@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 try:
     from experiments.cew_cal01.perimeter_dimension import (
@@ -105,6 +106,15 @@ class Cal01PerimeterDimensionContractTests(unittest.TestCase):
         self.assertEqual(result["candidate_count"], 0)
         self.assertEqual(result["status"], "PERIMETER_DIMENSION_CHAINS_NOT_OBSERVED")
         self.assertEqual(result["primary_anchor_count"], 0)
+
+    def test_workflow_runs_and_asserts_perimeter_exact_source_stage(self):
+        workflow = Path(".github/workflows/validate-cew-cal01.yml").read_text(encoding="utf-8")
+        self.assertIn("python -m experiments.cew_cal01.perimeter_dimension", workflow)
+        self.assertIn("perimeter/perimeter-dimension-discovery.json", workflow)
+        self.assertIn("assert perimeter['primary_anchor_count'] == 0", workflow)
+        self.assertIn("assert len(perimeter['bands']) == 4", workflow)
+        self.assertIn("assert perimeter['historical_comparator_loaded'] is False", workflow)
+        self.assertIn("assert perimeter['authority']['canonical_write_authorized'] is False", workflow)
 
 
 if __name__ == "__main__":
