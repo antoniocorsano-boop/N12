@@ -1,6 +1,6 @@
 import unittest
 
-from experiments.cew_cal01.semantic_exact_source import (
+from experiments.cew_cal01.tight_confirmation import (
     build_tight_confirmation_plan,
     select_diverse_tight_consensus,
 )
