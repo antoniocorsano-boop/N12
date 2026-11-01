@@ -111,7 +111,7 @@ class Cal01PerimeterDimensionContractTests(unittest.TestCase):
         workflow = Path(".github/workflows/validate-cew-cal01.yml").read_text(encoding="utf-8")
         self.assertIn("python -m experiments.cew_cal01.perimeter_dimension", workflow)
         self.assertIn("'perimeter' / 'perimeter-dimension-discovery.json'", workflow)
-        self.assertIn("for payload in (data, perimeter, oriented, semantic, tight):", workflow)
+        self.assertIn("for payload in (data, perimeter, internal, oriented, semantic, tight):", workflow)
         self.assertIn("assert payload['primary_anchor_count'] == 0", workflow)
         self.assertIn("assert payload['historical_comparator_loaded'] is False", workflow)
         self.assertIn("assert payload['authority']['canonical_write_authorized'] is False", workflow)
