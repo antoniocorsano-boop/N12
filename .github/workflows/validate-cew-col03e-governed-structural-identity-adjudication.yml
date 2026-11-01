@@ -1,0 +1,40 @@
+name: CEW-COL-03E Governed Structural Identity Adjudication
+
+on:
+  pull_request:
+    branches:
+      - feat/cew-col03d-bin01-exact-package-replay
+    paths:
+      - 'archive/qualified_evidence/**'
+      - 'experiments/cew_col03e/**'
+      - 'tests/cew_col03e/**'
+      - '.github/workflows/validate-cew-col03e-governed-structural-identity-adjudication.yml'
+      - 'docs/superpowers/specs/2026-11-01-cew-col03e-governed-structural-identity-adjudication-design.md'
+      - 'docs/superpowers/plans/2026-11-01-cew-col03e-governed-structural-identity-adjudication.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Verify exact candidate and qualified predecessor ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git merge-base --is-ancestor df4a0a38d00d18dace597e9ca1cf449edfefca03 HEAD
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Run COL-03E unit contracts
+        run: python -m unittest discover -s tests/cew_col03e -p 'test_*.py' -v
