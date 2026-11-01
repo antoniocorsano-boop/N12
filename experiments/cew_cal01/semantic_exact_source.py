@@ -123,10 +123,7 @@ def select_confirmation_token(
     return dict(candidates[0][3])
 
 
-def _extract_local_line_segments(gray: Any, bbox_px: list[float]) -> list[list[float]]:
-    import cv2
-    import numpy as np
-
+def _local_line_crop(gray: Any, bbox_px: list[float]) -> tuple[Any, int, int]:
     height, width = gray.shape[:2]
     left, top, right, bottom = [float(value) for value in bbox_px]
     token_span = max(right - left, bottom - top)
@@ -135,7 +132,14 @@ def _extract_local_line_segments(gray: Any, bbox_px: list[float]) -> list[list[f
     y0 = max(0, int(top) - padding)
     x1 = min(width, int(right) + padding)
     y1 = min(height, int(bottom) + padding)
-    crop = gray[y0:y1, x0:x1]
+    return gray[y0:y1, x0:x1], x0, y0
+
+
+def _extract_local_line_segments(gray: Any, bbox_px: list[float]) -> list[list[float]]:
+    import cv2
+    import numpy as np
+
+    crop, x0, y0 = _local_line_crop(gray, bbox_px)
     if crop.size == 0:
         return []
 
@@ -159,6 +163,43 @@ def _extract_local_line_segments(gray: Any, bbox_px: list[float]) -> list[list[f
     result: list[list[float]] = []
     for x_a, y_a, x_b, y_b in _normalize_hough_lines(lines):
         result.append([x_a + x0, y_a + y0, x_b + x0, y_b + y0])
+    result.sort(key=lambda item: (item[1], item[0], item[3], item[2]))
+    return result
+
+
+def _extract_local_short_tick_segments(gray: Any, bbox_px: list[float]) -> list[list[float]]:
+    """Recover bounded short line candidates missed by the primary Hough channel."""
+
+    import cv2
+    import numpy as np
+
+    crop, x0, y0 = _local_line_crop(gray, bbox_px)
+    if crop.size == 0:
+        return []
+
+    blurred = cv2.GaussianBlur(crop, (3, 3), 0)
+    binary = cv2.adaptiveThreshold(
+        blurred,
+        255,
+        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv2.THRESH_BINARY_INV,
+        31,
+        11,
+    )
+    lines = cv2.HoughLinesP(
+        binary,
+        1,
+        np.pi / 180.0,
+        threshold=12,
+        minLineLength=4,
+        maxLineGap=4,
+    )
+    result: list[list[float]] = []
+    for x_a, y_a, x_b, y_b in _normalize_hough_lines(lines):
+        segment = [x_a + x0, y_a + y0, x_b + x0, y_b + y0]
+        length = hypot(segment[2] - segment[0], segment[3] - segment[1])
+        if 4.0 <= length <= 90.0:
+            result.append(segment)
     result.sort(key=lambda item: (item[1], item[0], item[3], item[2]))
     return result
 
@@ -205,6 +246,20 @@ def merge_local_line_evidence(
         add([x1, y1, x2, y2])
 
     return result
+
+
+def collect_local_line_evidence(gray: Any, bbox_px: list[float]) -> tuple[list[list[float]], dict[str, Any]]:
+    """Collect primary lines plus bounded short-tick candidates for role grammar."""
+
+    primary = _extract_local_line_segments(gray, bbox_px)
+    short_tick_channel = _extract_local_short_tick_segments(gray, bbox_px)
+    merged = merge_local_line_evidence(primary, short_tick_channel, max_tick_length_px=90.0)
+    return merged, {
+        "primary_line_segment_count": len(primary),
+        "short_tick_candidate_count": len(short_tick_channel),
+        "merged_line_segment_count": len(merged),
+        "_primary_line_segments": primary,
+    }
 
 
 def _confirmation_observations(gray: Any, cluster: dict[str, Any]) -> tuple[list[dict[str, Any]], int]:
@@ -335,9 +390,10 @@ def build_semantic_role_replay(
         bbox = representative.get("bbox_px")
         if not isinstance(bbox, list) or len(bbox) != 4:
             raise RuntimeError("CAL01_SEMANTIC_CLUSTER_BBOX_INVALID")
-        segments = _extract_local_line_segments(gray, bbox)
+        segments, line_evidence = collect_local_line_evidence(gray, bbox)
+        primary_segments = line_evidence.pop("_primary_line_segments")
         frame = detect_nearby_closed_frame(
-            segments,
+            primary_segments,
             token_bbox_px=bbox,
             max_distance_px=60.0,
         )
@@ -355,6 +411,7 @@ def build_semantic_role_replay(
                 "confirmation_observation_count": added_count,
                 "effective_observation_count": int(enhanced_cluster.get("observation_count") or 0),
                 "local_line_segment_count": len(segments),
+                **line_evidence,
                 "closed_frame_context": frame,
             }
         )
@@ -378,6 +435,13 @@ def build_semantic_role_replay(
             "psm": _CONFIRMATION_PSM,
             "preprocess_modes": list(_CONFIRMATION_MODES),
             "no_global_search_expansion": True,
+        },
+        "line_evidence_strategy": {
+            "primary_hough_threshold": 24,
+            "short_tick_hough_threshold": 12,
+            "short_tick_min_length_px": 4,
+            "short_tick_max_length_px": 90,
+            "closed_frame_uses_primary_channel_only": True,
         },
         "confirmation_pass_count": total_confirmation_passes,
         "confirmation_observation_count": total_confirmation_observations,
