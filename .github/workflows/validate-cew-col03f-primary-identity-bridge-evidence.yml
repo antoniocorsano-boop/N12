@@ -1,0 +1,234 @@
+name: CEW-COL-03F Primary Identity Bridge Evidence
+
+on:
+  pull_request:
+    branches:
+      - feat/cew-col03e-governed-structural-identity-adjudication
+    paths:
+      - 'experiments/cew_col03f/**'
+      - 'tests/cew_col03f/**'
+      - '.github/workflows/validate-cew-col03f-primary-identity-bridge-evidence.yml'
+      - 'docs/superpowers/specs/2026-11-01-cew-col03f-primary-identity-bridge-evidence-design.md'
+      - 'docs/superpowers/plans/2026-11-01-cew-col03f-primary-identity-bridge-evidence.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Verify exact candidate and qualified COL-03E ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git merge-base --is-ancestor cbf57e9261228a7376df826baadc79abe2da254c HEAD
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Run COL-03F unit contracts
+        run: python -m unittest discover -s tests/cew_col03f -p 'test_*.py' -v
+
+  exact-source:
+    needs: unit
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Verify exact candidate and qualified COL-03E ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          git merge-base --is-ancestor cbf57e9261228a7376df826baadc79abe2da254c HEAD
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install frozen Tesseract system package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+      - name: Install frozen evidence toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-col03f"
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip install 'pypdfium2==5.14.0'
+          python -m pip check
+      - name: Fetch frozen archive and historical registration commits
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+          git fetch --no-tags --depth=1 origin 643dc8934ec0c8ac37613ec2880cf9e02f5a9df2
+      - name: Rebuild COL-02 exact-source evidence chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python -m experiments.cew_col02.exact_source_audit
+          python -m experiments.cew_col02.review_atlas evidence/cew-col02/footprint-text-binding/col02-audit.json
+          python -m experiments.cew_col02.prototype_guided_exact_source
+          python -m experiments.cew_col02.occurrence_sweep_exact_source
+          python -m experiments.cew_col02.residual_occurrence_reconciliation_exact_source
+          python -m experiments.cew_col02.axis_aware_whole_symbol_exact_source
+          python -m experiments.cew_col02.occurrence_coverage_closure
+      - name: Rebuild qualified COL-03A occurrence ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python -m experiments.cew_col03a.exact_source
+      - name: Verify frozen COL-03A predecessor digests
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+
+          expected = {
+              'column-occurrence-ledger.json': '8d77811401f3804bdc9aa89c758035ff6dd6edc9d43ad6b3a504ccced0f89be0',
+              'column-occurrence-reconciliation.json': '996b3a08bfa5cd2f67d862c6dd1f118e4498521059399d662ed011cfc6200c65',
+              'column-occurrence-ledger-closure.json': 'ec3b8f34ec85b00ca2dee63f9dbaf2b858ea943821acf9879a5c7717c9ac8165',
+          }
+          root = Path('evidence/cew-col03a')
+          for name, digest in expected.items():
+              actual = hashlib.sha256((root / name).read_bytes()).hexdigest()
+              assert actual == digest, (name, actual, digest)
+          print('CEW_COL03A_FROZEN_DIGESTS=PASS')
+          PY
+      - name: Rebuild qualified COL-03B documentary evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python -m experiments.cew_col03b.exact_source
+      - name: Rebuild qualified COL-03C cross-document evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python -m experiments.cew_col03c.exact_source
+      - name: Rebuild qualified COL-03D historical recovery evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python -m experiments.cew_col03d.exact_source \
+            --output evidence/cew-col03d \
+            --transport-root archive/historical_packages/v25/transport
+      - name: Rebuild qualified COL-03E adjudication dossiers
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from experiments.cew_col03e.exact_source import build_exact_source_artifacts, write_col03e_artifacts
+          from experiments.cew_col03e.predecessor import load_qualified_predecessor_evidence
+
+          predecessor = load_qualified_predecessor_evidence(
+              Path('evidence/cew-col03b'),
+              Path('evidence/cew-col03c'),
+          )
+          quality = json.loads(
+              Path('evidence/cew-col03d/historical-derived-data-quality.json').read_text(encoding='utf-8')
+          )
+          artifacts = build_exact_source_artifacts(
+              col03b_ledger=predecessor['col03b_ledger'],
+              col03c_ledger=predecessor['col03c_ledger'],
+              historical_quality=quality,
+              predecessor_sha='df4a0a38d00d18dace597e9ca1cf449edfefca03',
+          )
+          written = write_col03e_artifacts(Path('evidence/cew-col03e'), artifacts)
+          assert len(written) == 3
+          print('CEW_COL03E_REPLAY=PASS')
+          PY
+      - name: Assert frozen COL-03E checkpoint before COL-03F
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('evidence/cew-col03e')
+          dossiers = json.loads((root / 'identity-adjudication-dossiers.json').read_text(encoding='utf-8'))
+          closure = json.loads((root / 'identity-adjudication-closure.json').read_text(encoding='utf-8'))
+          assert dossiers['occurrence_count'] == 22
+          assert all(row['review_readiness_state'] == 'INSUFFICIENT_EVIDENCE' for row in dossiers['dossiers'])
+          assert closure['any_identity_resolved'] is False
+          assert closure['next_required_action'] == 'ACQUIRE_NEW_IDENTITY_BRIDGE_EVIDENCE'
+          print('CEW_COL03E_FROZEN_CHECKPOINT=PASS')
+          PY
+      - name: Acquire COL-03F primary-source identity bridge evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python -m experiments.cew_col03f.exact_source --output evidence/cew-col03f
+      - name: Assert COL-03F artifact surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f evidence/cew-col03f/primary-bridge-evidence-ledger.json
+          test -f evidence/cew-col03f/primary-bridge-inspection-queue.json
+          test -f evidence/cew-col03f/primary-bridge-closure.json
+          test -f evidence/cew-col03f/review/primary-bridge-atlas.png
+          test "$(find evidence/cew-col03f/review -maxdepth 1 -name 'COL-OCC-*-source-only.png' | wc -l)" -eq 22
+          test "$(find evidence/cew-col03f/review -maxdepth 1 -name 'COL-OCC-*-target-overlay.png' | wc -l)" -eq 22
+      - name: Semantically qualify COL-03F evidence and authority closure
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python -m experiments.cew_col03f.validate_artifact evidence/cew-col03f
+      - name: Run COL-03E regression suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python -m unittest discover -s tests/cew_col03e -p 'test_*.py' -v
+      - name: Run COL-03D regression suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python -m unittest discover -s tests/cew_col03d -p 'test_*.py' -v
+      - name: Run COL-03C regression suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-col03f/bin/activate"
+          python -m unittest discover -s tests/cew_col03c -p 'test_*.py' -v
+      - name: Upload COL-03F primary bridge evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-col03f-primary-identity-bridge-evidence
+          path: evidence/cew-col03f/
+          if-no-files-found: error
+          retention-days: 30
