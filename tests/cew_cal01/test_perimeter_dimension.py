@@ -2,13 +2,13 @@ import unittest
 
 try:
     from experiments.cew_cal01.perimeter_dimension import (
-        _normalize_for_plan_detection,
+        _normalized_plan_frame,
         _select_structural_envelope_bbox,
         build_perimeter_bands,
         classify_perimeter_observations,
     )
 except (ImportError, ModuleNotFoundError):
-    _normalize_for_plan_detection = None
+    _normalized_plan_frame = None
     _select_structural_envelope_bbox = None
     build_perimeter_bands = None
     classify_perimeter_observations = None
@@ -16,17 +16,13 @@ except (ImportError, ModuleNotFoundError):
 
 class Cal01PerimeterDimensionContractTests(unittest.TestCase):
     def test_contract_functions_exist(self):
-        self.assertTrue(callable(_normalize_for_plan_detection))
+        self.assertTrue(callable(_normalized_plan_frame))
         self.assertTrue(callable(_select_structural_envelope_bbox))
         self.assertTrue(callable(build_perimeter_bands))
         self.assertTrue(callable(classify_perimeter_observations))
 
     def test_portrait_page_is_normalized_counterclockwise_for_plan_detection(self):
-        import numpy as np
-
-        image = np.full((100, 50), 255, dtype=np.uint8)
-        normalized, record = _normalize_for_plan_detection(image)
-        self.assertEqual(normalized.shape, (50, 100))
+        record = _normalized_plan_frame(source_width_px=50, source_height_px=100)
         self.assertEqual(record["transform"], "ROTATE_90_COUNTERCLOCKWISE")
         self.assertEqual(record["source_width_px"], 50)
         self.assertEqual(record["source_height_px"], 100)
