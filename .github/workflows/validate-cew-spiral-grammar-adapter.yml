@@ -8,6 +8,7 @@ on:
     paths:
       - 'cew_spiral/**'
       - 'tests/cew_spiral/**'
+      - 'governance/cew-spiral01/**'
       - '.github/workflows/validate-cew-spiral-grammar-adapter.yml'
 
 jobs:
@@ -24,3 +25,75 @@ jobs:
           python-version: '3.12'
       - name: Run CEW spiral adapter contracts
         run: python -m unittest discover -s tests/cew_spiral -p 'test_*.py' -v
+
+  dxf-documentary-exact-source:
+    needs: adapter-contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head with frozen history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+      - name: Install qualified CEW-DXF-01 direct toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-dxf01"
+          source "$RUNNER_TEMP/cew-dxf01/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-dxf01.lock.txt
+          python -m pip check
+          python - <<'PY'
+          from importlib.metadata import version
+          assert version('ezdxf') == '1.4.5', version('ezdxf')
+          PY
+      - name: Rebuild qualified DXF-01 observations and analyze grammar origin
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-dxf01/bin/activate"
+          rm -rf "$RUNNER_TEMP/cew-dxf01-evidence" evidence/cew-spiral01
+          python -m experiments.cew_dxf01.exact_source --output "$RUNNER_TEMP/cew-dxf01-evidence"
+          mkdir -p evidence/cew-spiral01
+          python -m cew_spiral.dxf_documentary_bridge \
+            --input "$RUNNER_TEMP/cew-dxf01-evidence/dxf-observations.json" \
+            --output evidence/cew-spiral01/dxf-documentary-grammar.json
+      - name: Assert exact N12 vector observations and provenance boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('evidence/cew-spiral01/dxf-documentary-grammar.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          assert data['source_count'] == 3
+          sources = {row['artifact_name']: row for row in data['sources']}
+          assert sources['TAV5_CARPENTERIA.dxf']['summary']['text_token_count'] == 750
+          assert sources['TAV6_TRAVI.dxf']['summary']['text_token_count'] == 22
+          assert sources['TAV7_PILASTRI.dxf']['summary']['text_token_count'] == 42
+          tav5 = sources['TAV5_CARPENTERIA.dxf']
+          assert tav5['summary']['token_class_counts']['HISTORICAL_N_LABEL_TOKEN'] == 143
+          assert tav5['summary']['cross_layer_pattern_count'] == 27
+          for pattern in tav5['cross_layer_patterns']:
+              assert pattern['eligible_to_teach_original_drafter_grammar'] is False
+              assert pattern['structural_identity_authorized'] is False
+              assert abs(pattern['delta_x'] + 30.0) < 0.1
+              assert abs(pattern['delta_y'] + 30.0) < 0.1
+          assert data['authority']['original_drafter_grammar_promotion_authorized'] is False
+          assert data['authority']['canonical_write_authorized'] is False
+          assert data['interpretation_boundary']['historical_cew_annotations_may_teach_original_drafter_grammar'] is False
+          print('CEW_SPIRAL_DXF_DOCUMENTARY_EXACT_SOURCE=PASS')
+          PY
+      - name: Upload governed documentary-grammar evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-spiral01-dxf-documentary-grammar
+          path: evidence/cew-spiral01/
+          if-no-files-found: error
+          retention-days: 30

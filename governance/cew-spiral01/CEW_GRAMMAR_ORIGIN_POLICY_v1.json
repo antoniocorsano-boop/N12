@@ -1,0 +1,41 @@
+{
+  "schema": "CEW_GRAMMAR_ORIGIN_POLICY_v1",
+  "program": "CEW-SPIRAL-01",
+  "principle": "DO_NOT_CONFUSE_ORIGINAL_DRAFTER_GRAMMAR_WITH_CEW_DERIVED_ANNOTATION_GRAMMAR",
+  "grammar_origins": {
+    "ORIGINAL_DRAFTER_PRIMARY": {
+      "description": "Convention observed on an immutable primary source attributable to the original drawing production.",
+      "may_support_original_drafter_grammar": true,
+      "promotion_requires": [
+        "source_bound_observation",
+        "independent_corroborating_occurrence_or_human_taught_project_rule",
+        "counterexample_check",
+        "human_review_when_structurally_material"
+      ]
+    },
+    "HISTORICAL_CEW_DERIVED_ANNOTATION": {
+      "description": "Annotation, label, metric or overlay introduced by historical CEW reconstruction or processing.",
+      "may_support_original_drafter_grammar": false,
+      "may_support_recovery_proposals": true,
+      "authority_effect": "NONE"
+    },
+    "UNDETERMINED_SOURCE_GRAPHICS": {
+      "description": "Graphic/text content whose authorship or derivation is not yet proven.",
+      "may_support_original_drafter_grammar": false,
+      "may_support_recovery_proposals": true,
+      "authority_effect": "NONE_UNTIL_PROVENANCE_RESOLVED"
+    }
+  },
+  "anti_circularity": {
+    "rule_may_not_be_corroborated_only_by_interpretations_generated_from_itself": true,
+    "derived_cew_annotations_may_not_reclassify_themselves_as_primary": true,
+    "counterexamples_reopen_or_narrow_rule_scope": true
+  },
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "original_drafter_grammar_promotion_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}
