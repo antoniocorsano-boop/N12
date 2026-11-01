@@ -1,12 +1,20 @@
 import unittest
 
-import numpy as np
-
 from experiments.cew_cal01.anchor_discovery import (
     discover_dimension_geometry,
     normalize_dimension_text,
     proposal_from_ocr_token,
 )
+
+
+def blank_image(width=420, height=240):
+    return [[255 for _ in range(width)] for _ in range(height)]
+
+
+def draw_black_rect(image, left, top, right, bottom):
+    for y in range(top, bottom):
+        for x in range(left, right):
+            image[y][x] = 0
 
 
 class Cal01DimensionDiscoveryContractTests(unittest.TestCase):
@@ -32,11 +40,11 @@ class Cal01DimensionDiscoveryContractTests(unittest.TestCase):
         self.assertIsNone(normalize_dimension_text("30"))
 
     def test_horizontal_dimension_geometry_requires_two_extension_references(self):
-        image = np.full((240, 420), 255, dtype=np.uint8)
+        image = blank_image()
         # Main horizontal dimension line and two vertical extension/tick references.
-        image[120:123, 70:350] = 0
-        image[65:175, 70:73] = 0
-        image[65:175, 347:350] = 0
+        draw_black_rect(image, 70, 120, 350, 123)
+        draw_black_rect(image, 70, 65, 73, 175)
+        draw_black_rect(image, 347, 65, 350, 175)
         geometry = discover_dimension_geometry(
             image,
             token_bbox_px=[185, 88, 235, 112],
@@ -48,9 +56,9 @@ class Cal01DimensionDiscoveryContractTests(unittest.TestCase):
         self.assertFalse(geometry["metric_anchor_promoted"])
 
     def test_single_reference_fails_closed(self):
-        image = np.full((240, 420), 255, dtype=np.uint8)
-        image[120:123, 70:350] = 0
-        image[65:175, 70:73] = 0
+        image = blank_image()
+        draw_black_rect(image, 70, 120, 350, 123)
+        draw_black_rect(image, 70, 65, 73, 175)
         geometry = discover_dimension_geometry(
             image,
             token_bbox_px=[185, 88, 235, 112],
