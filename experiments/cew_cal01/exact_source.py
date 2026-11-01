@@ -114,6 +114,25 @@ def _run_tesseract_tsv(image_path: Path, *, psm: int) -> list[dict[str, Any]]:
     return rows
 
 
+def _normalize_hough_lines(raw_lines: Any) -> list[tuple[float, float, float, float]]:
+    """Normalize OpenCV HoughLinesP outputs across (N,4) and (N,1,4) shapes."""
+
+    if raw_lines is None:
+        return []
+    normalized: list[tuple[float, float, float, float]] = []
+    for item in raw_lines:
+        candidate = item
+        if isinstance(candidate, (list, tuple)) and len(candidate) == 1 and isinstance(candidate[0], (list, tuple)):
+            candidate = candidate[0]
+        if not isinstance(candidate, (list, tuple)) or len(candidate) != 4:
+            raise ValueError("CAL01_HOUGH_LINE_SHAPE_INVALID")
+        try:
+            normalized.append(tuple(float(value) for value in candidate))
+        except (TypeError, ValueError) as exc:
+            raise ValueError("CAL01_HOUGH_LINE_VALUE_INVALID") from exc
+    return normalized
+
+
 def _dimension_geometry_cv2(gray: Any, bbox: list[float]) -> dict[str, Any]:
     import cv2
     import numpy as np
@@ -153,8 +172,8 @@ def _dimension_geometry_cv2(gray: Any, bbox: list[float]) -> dict[str, Any]:
         return {"geometrically_bound": False, "reason": "NO_LOCAL_LINES"}
 
     global_lines: list[tuple[float, float, float, float]] = []
-    for raw in lines[:, 0, :]:
-        lx1, ly1, lx2, ly2 = [float(value) for value in raw]
+    raw_lines = lines.tolist() if hasattr(lines, "tolist") else lines
+    for lx1, ly1, lx2, ly2 in _normalize_hough_lines(raw_lines):
         global_lines.append((lx1 + x0, ly1 + y0, lx2 + x0, ly2 + y0))
 
     cx = (left + right) / 2.0
@@ -278,7 +297,6 @@ def build_exact_source_dimension_inventory(source_repo: Path, output_dir: Path) 
     for item in proposals:
         left, top, right, bottom = [int(round(value)) for value in item["bbox_px"]]
         bound = item["geometry"].get("geometrically_bound") is True
-        # Annotation colors are only review visualization; they carry no authority.
         color = (0, 180, 0) if bound else (0, 140, 255)
         cv2.rectangle(overlay, (left, top), (right, bottom), color, 2)
         if bound:
