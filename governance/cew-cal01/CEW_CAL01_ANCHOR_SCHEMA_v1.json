@@ -8,6 +8,12 @@
     "STRUCTURAL_AXIS_INTERSECTION"
   ],
   "fit_eligible_metric_provenance": ["DOC", "MIS", "RIF"],
+  "fit_eligible_metric_source_policy": {
+    "PRIMARY_MEASURED_CONTROL": ["MEASURED_CONTROL_VALIDATED"],
+    "PRIMARY_TAV5_DOCUMENTED_RELATION": ["PRIMARY_VISUAL_VALIDATED"],
+    "PRIMARY_TAV5_SOURCE_NATIVE_METRIC": ["SOURCE_NATIVE_VERIFIED"]
+  },
+  "metric_validation_reference_required": true,
   "forbidden_metric_source_kinds": [
     "HISTORICAL_AFFINE_REGISTRATION",
     "HISTORICAL_CEW_DERIVED_ANNOTATION",
@@ -15,6 +21,7 @@
   ],
   "historical_cew_layer_prefix": "S-",
   "ocr_text_alone_fit_eligible": false,
+  "ocr_consensus_alone_fit_eligible": false,
   "historical_n_label_required": false,
   "authority": {
     "structural_identity_authorized": false,
