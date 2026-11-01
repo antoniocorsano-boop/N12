@@ -1,4 +1,5 @@
-"""CEW-DXF-01 governed read/query slice.
+"""CEW-DXF-01 governed read/query slice."""
 
-Production reader intentionally absent in the RED contract commit.
-"""
+from experiments.cew_dxf01.reader import read_dxf_path
+
+__all__ = ["read_dxf_path"]
