@@ -1,0 +1,278 @@
+name: CEW-SPIRAL-01 Grammar and Reuse Adapters
+
+on:
+  push:
+    branches:
+      - feat/cew-spiral01-grammar-adapter
+  pull_request:
+    paths:
+      - 'cew_spiral/**'
+      - 'tests/cew_spiral/**'
+      - 'governance/cew-spiral01/**'
+      - '.github/workflows/validate-cew-spiral-grammar-adapter.yml'
+
+jobs:
+  adapter-contracts:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run CEW spiral adapter contracts
+        run: python -m unittest discover -s tests/cew_spiral -p 'test_*.py' -v
+
+  dxf-documentary-exact-source:
+    needs: adapter-contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head with frozen history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+      - name: Install qualified CEW-DXF-01 direct toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-dxf01"
+          source "$RUNNER_TEMP/cew-dxf01/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-dxf01.lock.txt
+          python -m pip check
+          python - <<'PY'
+          from importlib.metadata import version
+          assert version('ezdxf') == '1.4.5', version('ezdxf')
+          PY
+      - name: Rebuild qualified DXF-01 observations and analyze grammar origin
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-dxf01/bin/activate"
+          rm -rf "$RUNNER_TEMP/cew-dxf01-evidence" evidence/cew-spiral01
+          python -m experiments.cew_dxf01.exact_source --output "$RUNNER_TEMP/cew-dxf01-evidence"
+          mkdir -p evidence/cew-spiral01
+          python -m cew_spiral.dxf_documentary_bridge \
+            --input "$RUNNER_TEMP/cew-dxf01-evidence/dxf-observations.json" \
+            --output evidence/cew-spiral01/dxf-documentary-grammar.json
+      - name: Assert exact N12 vector observations and provenance boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('evidence/cew-spiral01/dxf-documentary-grammar.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          assert data['source_count'] == 3
+          sources = {row['artifact_name']: row for row in data['sources']}
+          assert sources['TAV5_CARPENTERIA.dxf']['summary']['text_token_count'] == 750
+          assert sources['TAV6_TRAVI.dxf']['summary']['text_token_count'] == 22
+          assert sources['TAV7_PILASTRI.dxf']['summary']['text_token_count'] == 42
+          tav5 = sources['TAV5_CARPENTERIA.dxf']
+          assert tav5['summary']['token_class_counts']['HISTORICAL_N_LABEL_TOKEN'] == 143
+          assert tav5['summary']['cross_layer_pattern_count'] == 27
+          for pattern in tav5['cross_layer_patterns']:
+              assert pattern['eligible_to_teach_original_drafter_grammar'] is False
+              assert pattern['structural_identity_authorized'] is False
+              assert abs(pattern['delta_x'] + 30.0) < 0.1
+              assert abs(pattern['delta_y'] + 30.0) < 0.1
+          assert data['authority']['original_drafter_grammar_promotion_authorized'] is False
+          assert data['authority']['canonical_write_authorized'] is False
+          assert data['interpretation_boundary']['historical_cew_annotations_may_teach_original_drafter_grammar'] is False
+          print('CEW_SPIRAL_DXF_DOCUMENTARY_EXACT_SOURCE=PASS')
+          PY
+      - name: Upload governed documentary-grammar evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-spiral01-dxf-documentary-grammar
+          path: evidence/cew-spiral01/
+          if-no-files-found: error
+          retention-days: 30
+
+  structural-candidate-exact-source:
+    needs: adapter-contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head with frozen history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Verify exact candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install frozen Tesseract system package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+      - name: Install frozen B01 evidence toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-spiral-structural"
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
+      - name: Fetch frozen primary source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+      - name: Rebuild governed COL-02 exact-source evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          python -m experiments.cew_col02.exact_source_audit
+          python -m experiments.cew_col02.review_atlas evidence/cew-col02/footprint-text-binding/col02-audit.json
+          python -m experiments.cew_col02.prototype_guided_exact_source
+          python -m experiments.cew_col02.occurrence_sweep_exact_source
+          python -m experiments.cew_col02.residual_occurrence_reconciliation_exact_source
+          python -m experiments.cew_col02.axis_aware_whole_symbol_exact_source
+          python -m experiments.cew_col02.occurrence_coverage_closure
+      - name: Rebuild governed COL-03A occurrence ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          python -m experiments.cew_col03a.exact_source
+      - name: Assert frozen COL-03A predecessor digests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          expected = {
+              'column-occurrence-ledger.json': '8d77811401f3804bdc9aa89c758035ff6dd6edc9d43ad6b3a504ccced0f89be0',
+              'column-occurrence-reconciliation.json': '996b3a08bfa5cd2f67d862c6dd1f118e4498521059399d662ed011cfc6200c65',
+              'column-occurrence-ledger-closure.json': 'ec3b8f34ec85b00ca2dee63f9dbaf2b858ea943821acf9879a5c7717c9ac8165',
+          }
+          root = Path('evidence/cew-col03a')
+          for name, digest in expected.items():
+              actual = hashlib.sha256((root / name).read_bytes()).hexdigest()
+              assert actual == digest, (name, actual, digest)
+          print('CEW_COL03A_FROZEN_DIGESTS=PASS')
+          PY
+      - name: Build first exact-source StructuralObjectCandidate bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          rm -rf evidence/cew-spiral01/structural-candidate evidence/cew-spiral01/source-probe
+          mkdir -p evidence/cew-spiral01/structural-candidate
+          python -m cew_spiral.exact_source_structural_candidate_bridge \
+            --output evidence/cew-spiral01/structural-candidate/structural-candidate-bridge.json \
+            --probe-root evidence/cew-spiral01/source-probe
+      - name: Assert first model-delta boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('evidence/cew-spiral01/structural-candidate/structural-candidate-bridge.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          q = data['qualification']
+          bridge = data['bridge']
+          bundle = bridge['pre_comparator_bundle']
+          assert q['exact_source_replayable'] is True
+          assert q['deterministic_replay'] is True
+          assert q['occurrence_count'] == 22
+          assert q['structural_candidate_count'] == 22
+          assert q['historical_support_identifier_required'] is False
+          assert q['historical_comparator_loaded'] is False
+          assert bundle['evidence_candidate_count'] == 22
+          assert bundle['structural_candidate_count'] == 22
+          assert bundle['review_summary']['accepted'] == 22
+          assert bundle['review_summary']['rejected'] == 0
+          assert bundle['review_summary']['ambiguous'] == 0
+          assert bundle['review_summary']['unreviewed'] == 0
+          assert bundle['historical_comparator_loaded'] is False
+          assert all(row['support_identifier'] is None for row in bridge['structural_candidates'])
+          assert all(row['section_family'] is None for row in bridge['structural_candidates'])
+          assert all(row['structural_identity_authorized'] is False for row in bridge['structural_candidates'])
+          assert bridge['authority']['canonical_write_authorized'] is False
+          assert bridge['authority']['m0g_authorized'] is False
+          print('CEW_SPIRAL_FIRST_STRUCTURAL_CANDIDATE_BUNDLE=PASS')
+          PY
+      - name: Upload first governed StructuralObjectCandidate evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-spiral01-structural-candidate-bridge
+          path: |
+            evidence/cew-spiral01/structural-candidate/
+            evidence/cew-spiral01/source-probe/pdf-probe-result.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Fetch frozen historical metric witnesses
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 15b55e3711f27f4499eb97a9e4d99bfa5f8f2e57
+          git fetch --no-tags --depth=1 origin dba5c4c2f09161b731a26bb0f8eab5826f1d136b
+      - name: Build exact-source metric witness comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          rm -rf evidence/cew-spiral01/metric-comparison
+          python -m cew_spiral.metric_comparison_replay \
+            --structural-bridge evidence/cew-spiral01/structural-candidate/structural-candidate-bridge.json \
+            --output evidence/cew-spiral01/metric-comparison/metric-comparison-replay.json
+      - name: Assert metric witness comparison boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('evidence/cew-spiral01/metric-comparison/metric-comparison-replay.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          comparison = data['comparison']
+          assert data['schema'] == 'CEW_SPIRAL_METRIC_COMPARISON_REPLAY_v1'
+          assert data['input_boundary']['structural_candidate_count'] == 22
+          assert data['input_boundary']['historical_comparator_loaded_before_replay'] is False
+          assert data['input_boundary']['registration_commit'] == '15b55e3711f27f4499eb97a9e4d99bfa5f8f2e57'
+          assert data['input_boundary']['comparator_commit'] == 'dba5c4c2f09161b731a26bb0f8eab5826f1d136b'
+          assert comparison['projection_count'] == 22
+          assert comparison['comparison_count'] == 22
+          assert comparison['summary']['distance_count'] == 22
+          assert comparison['comparison_semantics'] == 'DISTANCE_AUDIT_ONLY_NO_BINDING_NO_THRESHOLD'
+          assert all(row['binding_status'] == 'NO_AUTOMATIC_BINDING' for row in comparison['comparisons'])
+          assert all(row['historical_witness_may_mutate_current_candidate'] is False for row in comparison['comparisons'])
+          for authority in (data['authority'], comparison['authority']):
+              assert authority['structural_identity_authorized'] is False
+              assert authority['canonical_geometry_authorized'] is False
+              assert authority['canonical_write_authorized'] is False
+              assert authority['m0g_authorized'] is False
+          print('CEW_SPIRAL_METRIC_COMPARISON_EXACT_SOURCE=PASS')
+          print(json.dumps(comparison['summary'], sort_keys=True))
+          PY
+      - name: Upload governed metric comparison evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-spiral01-metric-comparison
+          path: evidence/cew-spiral01/metric-comparison/
+          if-no-files-found: error
+          retention-days: 30
