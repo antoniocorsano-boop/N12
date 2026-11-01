@@ -23,13 +23,18 @@ jobs:
         with:
           python-version: '3.12.15'
           check-latest: false
-      - name: Install image inspector
-        run: python -m pip install --disable-pip-version-check Pillow==13.0.0
+      - name: Install image and PDF renderer tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils ghostscript
+          python -m pip install --disable-pip-version-check Pillow==13.0.0
       - name: Report available renderers
         run: |
-          pdftoppm -v 2>&1 | head -n 2 || true
-          pdftocairo -v 2>&1 | head -n 2 || true
-          gs --version || true
+          pdftoppm -v 2>&1 | head -n 2
+          pdftocairo -v 2>&1 | head -n 2
+          gs --version
       - name: Materialize frozen primary PDFs
         shell: bash
         run: |
@@ -44,7 +49,7 @@ jobs:
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          import hashlib, subprocess, shutil
+          import hashlib, subprocess
           from PIL import Image
 
           root = Path('/tmp/col03d-renderer-forensics')
@@ -60,8 +65,9 @@ jobs:
               variants = [('native', im), ('r90', im.transpose(Image.Transpose.ROTATE_90)), ('r270', im.transpose(Image.Transpose.ROTATE_270))]
               for rotation, candidate in variants:
                   digest = hashlib.sha256(candidate.tobytes()).hexdigest()
-                  print('RESULT', label, rotation, 'dims', candidate.size, 'rgb_sha', digest, 'MATCH', candidate.size == expected_dims and digest == expected_rgb)
-                  if candidate.size == expected_dims and digest == expected_rgb:
+                  match = candidate.size == expected_dims and digest == expected_rgb
+                  print('RESULT', label, rotation, 'dims', candidate.size, 'rgb_sha', digest, 'MATCH', match)
+                  if match:
                       print('CEW_COL03D_HISTORICAL_RASTER_RENDERER_MATCH', label, rotation)
                       return True
               return False
@@ -70,15 +76,15 @@ jobs:
           for stem, meta in cases.items():
               pdf = root/'src'/f'{stem}.pdf'
               case_out = out/stem; case_out.mkdir(exist_ok=True)
-
-              commands = []
-              commands.append(('pdftoppm-default', ['pdftoppm','-f','1','-singlefile','-r','97.2','-png',str(pdf),str(case_out/'pdftoppm-default')], case_out/'pdftoppm-default.png'))
-              commands.append(('pdftocairo-default', ['pdftocairo','-f','1','-l','1','-singlefile','-r','97.2','-png',str(pdf),str(case_out/'pdftocairo-default')], case_out/'pdftocairo-default.png'))
+              commands = [
+                  ('pdftoppm-default', ['pdftoppm','-f','1','-singlefile','-r','97.2','-png',str(pdf),str(case_out/'pdftoppm-default')], case_out/'pdftoppm-default.png'),
+                  ('pdftocairo-default', ['pdftocairo','-f','1','-l','1','-singlefile','-r','97.2','-png',str(pdf),str(case_out/'pdftocairo-default')], case_out/'pdftocairo-default.png'),
+              ]
               for aa in ('1','2','4'):
                   for gaa in ('1','2','4'):
                       label=f'gs-aa{aa}-gaa{gaa}'
                       target=case_out/f'{label}.png'
-                      cmd=['gs','-q','-dSAFER','-dBATCH','-dNOPAUSE','-sDEVICE=png16m','-dFirstPage=1','-dLastPage=1',f'-r97.2',f'-dTextAlphaBits={aa}',f'-dGraphicsAlphaBits={gaa}',f'-sOutputFile={target}',str(pdf)]
+                      cmd=['gs','-q','-dSAFER','-dBATCH','-dNOPAUSE','-sDEVICE=png16m','-dFirstPage=1','-dLastPage=1','-r97.2',f'-dTextAlphaBits={aa}',f'-dGraphicsAlphaBits={gaa}',f'-sOutputFile={target}',str(pdf)]
                       commands.append((label,cmd,target))
 
               for label, cmd, target in commands:
