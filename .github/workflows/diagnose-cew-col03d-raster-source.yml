@@ -24,7 +24,6 @@ jobs:
         run: |
           python - <<'PY'
           import subprocess
-
           names = {
               'Ariano_Irpino_DXF_strutturale_v25.zip',
               'Ariano_Irpino_DXF_strutturale_v25(1).zip',
@@ -33,17 +32,15 @@ jobs:
               'TAV7_PILASTRI_raster.jpg',
           }
           target_sizes = {5345286, 1701955, 1658546, 1658463}
-          refs = subprocess.check_output(
-              ['git', 'for-each-ref', '--format=%(refname)', 'refs/remotes/origin'], text=True
-          ).splitlines()
+          refs = subprocess.check_output(['git','for-each-ref','--format=%(refname)','refs/remotes/origin'], text=True).splitlines()
           exact_name_hits = []
           exact_size_hits = []
           for ref in refs:
-              listing = subprocess.check_output(['git', 'ls-tree', '-rl', ref], text=True, errors='replace')
+              listing = subprocess.check_output(['git','ls-tree','-rl',ref], text=True, errors='replace')
               for line in listing.splitlines():
                   if '\t' not in line:
                       continue
-                  meta, path = line.split('\t', 1)
+                  meta, path = line.split('\t',1)
                   parts = meta.split()
                   if len(parts) < 4 or parts[1] != 'blob':
                       continue
@@ -51,11 +48,11 @@ jobs:
                       size = int(parts[3])
                   except ValueError:
                       continue
-                  basename = path.rsplit('/', 1)[-1]
+                  basename = path.rsplit('/',1)[-1]
                   if basename in names:
-                      exact_name_hits.append((ref, path, size, parts[2]))
+                      exact_name_hits.append((ref,path,size,parts[2]))
                   if size in target_sizes:
-                      exact_size_hits.append((ref, path, size, parts[2]))
+                      exact_size_hits.append((ref,path,size,parts[2]))
           print('EXACT_NAME_HITS', exact_name_hits)
           print('EXACT_SIZE_HITS', exact_size_hits)
           PY
@@ -73,7 +70,7 @@ jobs:
           sha256sum /tmp/col03d-raster-source/*.pdf
       - name: Install read-only raster inspectors
         run: python -m pip install --disable-pip-version-check PyMuPDF==1.26.5 Pillow
-      - name: Audit embedded raster candidates and deterministic transforms
+      - name: Probe exact historical raster reconstruction
         run: |
           python - <<'PY'
           import fitz
@@ -83,56 +80,55 @@ jobs:
           from PIL import Image, __version__ as PILLOW_VERSION
 
           EXPECTED = {
-              'tavola5.pdf': ((4060, 2274), '20810b04fa96d4a12d2c93767ae3f205b69e0abe34749567e362989601875e02'),
-              'tavola6.pdf': ((8222, 1393), 'fe6a29b74d3c8abefae0e3ac50bd3db94ab8aa23949197b4970e21442e04a8ad'),
-              'tavola7.pdf': ((6731, 1393), 'd56fd2feb2849e237af94f7af46efc591c4c2cdbad828618565621e7288a3595'),
-          }
-          RESAMPLERS = {
-              'NEAREST': Image.Resampling.NEAREST,
-              'BOX': Image.Resampling.BOX,
-              'BILINEAR': Image.Resampling.BILINEAR,
-              'HAMMING': Image.Resampling.HAMMING,
-              'BICUBIC': Image.Resampling.BICUBIC,
-              'LANCZOS': Image.Resampling.LANCZOS,
-          }
-          ROTATIONS = {
-              'R90': Image.Transpose.ROTATE_90,
-              'R270': Image.Transpose.ROTATE_270,
+              'tavola5.pdf': ((4060,2274), '20810b04fa96d4a12d2c93767ae3f205b69e0abe34749567e362989601875e02'),
+              'tavola6.pdf': ((8222,1393), 'fe6a29b74d3c8abefae0e3ac50bd3db94ab8aa23949197b4970e21442e04a8ad'),
+              'tavola7.pdf': ((6731,1393), 'd56fd2feb2849e237af94f7af46efc591c4c2cdbad828618565621e7288a3595'),
           }
           root = Path('/tmp/col03d-raster-source')
-          print('PILLOW_VERSION', PILLOW_VERSION)
+          print('PILLOW_VERSION', PILLOW_VERSION, 'PYMUPDF_VERSION', fitz.VersionBind)
           for filename, (expected_dims, expected_sha) in EXPECTED.items():
               doc = fitz.open(root / filename)
               page = doc[0]
               print('PDF', filename, 'PAGE_RECT', tuple(page.rect), 'ROTATION', page.rotation)
-              images = page.get_images(full=True)
-              if len(images) != 1:
-                  raise SystemExit(f'EXPECTED_ONE_EMBEDDED_IMAGE:{filename}:{len(images)}')
-              extracted = doc.extract_image(images[0][0])
-              raw = extracted['image']
-              print('EMBEDDED', extracted.get('ext'), extracted.get('width'), extracted.get('height'), len(raw), hashlib.sha256(raw).hexdigest())
-              source = Image.open(BytesIO(raw)).convert('RGB')
               matches = []
-              attempts = 0
-              for rotation_name, transpose in ROTATIONS.items():
-                  rotated = source.transpose(transpose)
-                  for resample_name, resample in RESAMPLERS.items():
-                      resized = rotated.resize(expected_dims, resample=resample)
-                      for optimize in (False, True):
-                          buf = BytesIO()
-                          resized.save(
-                              buf,
-                              format='JPEG',
-                              quality=95,
-                              subsampling=2,
-                              optimize=optimize,
-                              progressive=False,
-                          )
-                          data = buf.getvalue()
-                          digest = hashlib.sha256(data).hexdigest()
-                          attempts += 1
-                          if digest == expected_sha:
-                              matches.append((rotation_name, resample_name, optimize, len(data), digest))
-              print('TRANSFORM_ATTEMPTS', attempts, 'TARGET_DIMS', expected_dims, 'EXPECTED_SHA', expected_sha)
-              print('EXACT_TRANSFORM_MATCHES', matches)
+
+              # Candidate A: render at exact historical scale, then lossless quarter-turn in PIL.
+              pix = page.get_pixmap(matrix=fitz.Matrix(1.35,1.35), alpha=False)
+              print('SCALE_135_PIX', pix.width, pix.height)
+              base = Image.frombytes('RGB', (pix.width,pix.height), pix.samples)
+              for rot_name, transpose in [('R90',Image.Transpose.ROTATE_90),('R270',Image.Transpose.ROTATE_270)]:
+                  rotated = base.transpose(transpose)
+                  for optimize in (False,True):
+                      buf = BytesIO()
+                      rotated.save(buf, format='JPEG', quality=95, subsampling=2, optimize=optimize, progressive=False)
+                      data = buf.getvalue()
+                      digest = hashlib.sha256(data).hexdigest()
+                      print('PIL_RENDER', rot_name, 'opt', optimize, 'dims', rotated.size, 'size', len(data), 'sha', digest)
+                      if digest == expected_sha:
+                          matches.append(('PIL_RENDER',rot_name,optimize,len(data),digest))
+
+              # Candidate B: prerotate inside MuPDF, then encode with MuPDF or Pillow.
+              for angle in (90,-90,270):
+                  matrix = fitz.Matrix(1.35,1.35).prerotate(angle)
+                  rp = page.get_pixmap(matrix=matrix, alpha=False)
+                  print('MUPDF_PREROTATE_PIX', angle, rp.width, rp.height)
+                  try:
+                      data = rp.tobytes('jpeg', jpg_quality=95)
+                      digest = hashlib.sha256(data).hexdigest()
+                      print('MUPDF_JPEG', angle, 'size', len(data), 'sha', digest)
+                      if digest == expected_sha:
+                          matches.append(('MUPDF_JPEG',angle,len(data),digest))
+                  except TypeError as exc:
+                      print('MUPDF_JPEG_UNSUPPORTED', angle, repr(exc))
+                  pil = Image.frombytes('RGB',(rp.width,rp.height),rp.samples)
+                  for optimize in (False,True):
+                      buf=BytesIO()
+                      pil.save(buf,format='JPEG',quality=95,subsampling=2,optimize=optimize,progressive=False)
+                      data=buf.getvalue(); digest=hashlib.sha256(data).hexdigest()
+                      print('PIL_PREROTATE',angle,'opt',optimize,'size',len(data),'sha',digest)
+                      if digest == expected_sha:
+                          matches.append(('PIL_PREROTATE',angle,optimize,len(data),digest))
+
+              print('EXPECTED', expected_dims, expected_sha)
+              print('EXACT_RENDER_MATCHES', matches)
           PY
