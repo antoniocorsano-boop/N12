@@ -1,9 +1,9 @@
 # CEW-SPIRAL-01 — Spiral Reconstruction Implementation Plan
 
 **Date:** 2026-11-01  
-**Status:** `QUEUED_SUCCESSOR / NOT_ACTIVE`  
-**Activation:** only after `CEW-COL-03F` closure and WIP slot release  
-**Current branch role:** documentation of successor only; no second active WIP  
+**Status:** `QUEUED_SUCCESSOR / CONDITIONAL_ACTIVATION`  
+**Activation:** only after `CEW-COL-03F` reaches `TERMINAL_UNRESOLVED` on a fresh exact-SHA qualification and the single CEW WIP slot is released  
+**Current branch role:** successor documentation and terminal handoff only; no second active WIP  
 **Authority effect:** `NONE`
 
 ## Goal
@@ -27,7 +27,9 @@ Throughout Tasks 0–11:
 - `structural_identity_authorized=false` unless a later dedicated gate changes it;
 - `m0g_authorized=false` until a model-specific gate exists;
 - similarity/prototypes/grammar remain proposal-only;
-- historical DXF cannot satisfy the current COL-03F primary-source identity gate;
+- historical DXF cannot satisfy the COL-03F primary-source identity gate;
+- a terminally unresolved COL-03F is a valid bounded phase outcome, not an identity resolution;
+- the unresolved primary-identity residual remains open and can re-enter the spiral when new primary/manual evidence becomes available;
 - no new generic family-discovery, learning-receipt or similarity subsystem may be created.
 
 ---
@@ -36,13 +38,15 @@ Throughout Tasks 0–11:
 
 **Files:** governance/state documentation only.
 
-1. Verify COL-03F is closed/qualified according to its own contract.
-2. Verify the CEW WIP slot is released.
-3. Freeze the exact successor base SHA and current authority flags.
-4. Record the exact frozen refs listed above and verify they remain retrievable.
-5. Create the implementation branch only after steps 1–4 pass.
+1. Verify the commit containing `governance/cew-col03f/COL03F_TERMINAL_HANDOFF_v1.json` has fresh exact-SHA PASS for the COL-03F unit and exact-source jobs.
+2. Verify the semantic validator reports: `candidate_count=0`, `any_identity_resolved=false`, all authority flags closed, and `next_required_action=ACQUIRE_EXTERNAL_OR_MANUAL_PRIMARY_IDENTITY_EVIDENCE`.
+3. Record COL-03F as `TERMINAL_UNRESOLVED`; this closes the bounded acquisition phase without asserting structural identity.
+4. Release the single CEW WIP slot from COL-03F.
+5. Freeze the exact successor base SHA and current authority flags.
+6. Record the frozen reuse refs listed above and verify they remain retrievable.
+7. Create the implementation branch only after steps 1–6 pass.
 
-**Acceptance:** no implementation begins while COL-03F is the active WIP.
+**Acceptance:** CEW-SPIRAL-01 activates only after fresh exact-SHA evidence proves the COL-03F terminal fail-closed outcome. No successor may reinterpret historical DXF as the missing primary bridge evidence.
 
 ---
 
@@ -55,18 +59,22 @@ Throughout Tasks 0–11:
 - `tests/cew_dxf01/test_inventory.py`
 - `tests/cew_dxf01/test_fail_closed.py`
 - `governance/cew-dxf01/CEW_DXF01_TOOLCHAIN_v1.json`
+- `requirements/cew-dxf01.lock.txt`
 
 Write failing tests requiring:
 
 - exact input SHA/package lineage;
-- pinned `ezdxf==1.4.4` for the first baseline;
+- explicit direct pin `ezdxf==1.4.5` in the dedicated CEW-DXF-01 lock file;
+- qualification of that direct pin inside CEW-DXF-01 rather than inheritance of authority from a transitive dependency;
 - read-only operation;
 - stable entity/layer/text/block/dimension inventory;
 - deterministic normalized digest;
 - `authority_effect=NONE`;
 - rejection of mutation/promotion fields.
 
-**RED evidence:** tests must fail because no CEW-DXF-01 reader exists.
+Version rationale: the current qualified Python 3.12.15 / Ubuntu 24.04 B01 environment resolved `ezdxf 1.4.5` transitively through `build123d==0.13.0`. This observation selects the first CEW-DXF-01 candidate baseline only. Transitive presence is not CEW qualification and grants no authority.
+
+**RED evidence:** tests must fail because no CEW-DXF-01 reader/direct toolchain contract exists yet.
 
 ---
 
@@ -269,6 +277,7 @@ With the first model delta materialized:
 Before declaring CEW-SPIRAL-01 complete, require fresh exact-SHA evidence for:
 
 - CEW-DXF-01 unit + exact-source replay;
+- direct `ezdxf` toolchain pin and version receipt;
 - grammar adapter regressions;
 - prototype/similarity adapter regressions;
 - spiral routing determinism;
@@ -282,8 +291,9 @@ Before declaring CEW-SPIRAL-01 complete, require fresh exact-SHA evidence for:
 
 Stop and return `REWORK_REQUIRED` rather than patching around the gate if:
 
-- COL-03F is still active when implementation is about to begin;
-- the recovered historical DXF is being used as primary truth;
+- COL-03F has not achieved fresh exact-SHA `TERMINAL_UNRESOLVED` qualification when implementation is about to begin;
+- the recovered historical DXF is being used as primary truth or as a substitute for the missing COL-03F primary identity evidence;
+- a transitive `ezdxf` installation is treated as a CEW-qualified toolchain;
 - a new subsystem duplicates grammar, prototype memory or generic similarity;
 - an OCR score is used as engineering confidence;
 - a model engine is allowed to create CEW identity;

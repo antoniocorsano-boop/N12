@@ -1,0 +1,66 @@
+{
+  "schema": "CEW_COL03F_TERMINAL_HANDOFF_v1",
+  "phase": "CEW-COL-03F",
+  "bounded_scope": "PRIMARY_SOURCE_IDENTITY_BRIDGE_EVIDENCE_ACQUISITION",
+  "terminal_semantics": {
+    "state": "TERMINAL_UNRESOLVED",
+    "bounded_acquisition_complete": true,
+    "identity_resolved": false,
+    "candidate_count": 0,
+    "candidate_occurrence_ids": [],
+    "occurrence_count": 22,
+    "state_counts": {
+      "NO_DIRECT_LABEL_OBSERVED": 16,
+      "SINGLE_CONFIG_DIRECT_OBSERVATION": 4,
+      "AMBIGUOUS_DIRECT_LABELS": 2
+    },
+    "next_required_action": "ACQUIRE_EXTERNAL_OR_MANUAL_PRIMARY_IDENTITY_EVIDENCE"
+  },
+  "qualified_evidence_precedent": {
+    "sha": "9a8469a53174f801fdecbaa847469d29b58bf285",
+    "workflow_run_id": 41297420646,
+    "artifact_id": 13080093722,
+    "artifact_digest": "sha256:e978649a2ca6808284233ef0147000b705adffdc31ff22cc52272eb6c4949d74",
+    "semantic_validator_passed": true
+  },
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "family_assignment_authorized": false,
+    "section_assignment_authorized": false,
+    "fixed_line_assignment_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  },
+  "interpretation": {
+    "terminal_unresolved_is_valid_phase_closure": true,
+    "terminal_unresolved_means_identity_resolved": false,
+    "historical_dxf_may_satisfy_missing_primary_identity_bridge": false,
+    "similarity_or_ocr_confidence_may_satisfy_missing_primary_identity_bridge": false,
+    "unresolved_primary_identity_residual_remains_open": true
+  },
+  "wip_release_policy": {
+    "state": "CONDITIONAL",
+    "qualification_target": "COMMIT_CONTAINING_THIS_HANDOFF",
+    "required_checks": [
+      "CEW Repository Memory Gate=SUCCESS",
+      "CEW-COL-03F Primary Identity Bridge Evidence/unit=SUCCESS",
+      "CEW-COL-03F Primary Identity Bridge Evidence/exact-source=SUCCESS"
+    ],
+    "required_semantic_result": {
+      "candidate_count": 0,
+      "any_identity_resolved": false,
+      "all_authority_closed": true,
+      "next_required_action": "ACQUIRE_EXTERNAL_OR_MANUAL_PRIMARY_IDENTITY_EVIDENCE"
+    },
+    "effect_on_gate_pass": "RELEASE_COL03F_WIP_AS_TERMINAL_UNRESOLVED_AND_ACTIVATE_CEW_SPIRAL01_TASK0",
+    "effect_on_gate_fail": "KEEP_COL03F_WIP_ACTIVE_REWORK_REQUIRED"
+  },
+  "successor": {
+    "program": "CEW-SPIRAL-01",
+    "first_implementation_slice": "CEW-DXF-01",
+    "successor_authority_effect": "NONE_UNTIL_SEPARATE_GATES_PASS",
+    "primary_identity_residual_carries_forward": true
+  }
+}
