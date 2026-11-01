@@ -92,6 +92,25 @@ class Cal01NumericRoleGateTests(unittest.TestCase):
         self.assertIsNone(result["metric_value_m"])
         self.assertFalse(result["primary_anchor_authorized"])
 
+    def test_dimension_and_section_evidence_conflict_stays_unresolved(self):
+        segments = [
+            (100, 20, 100, 180),
+            (84, 20, 116, 20),
+            (84, 180, 116, 180),
+        ]
+        result = classify_numeric_graphic_role(
+            raw_text="120",
+            consensus_text="120",
+            consensus_count=4,
+            ocr_rotation_degrees=270,
+            token_bbox_px=[106, 80, 128, 120],
+            line_segments=segments,
+            nearby_closed_frame=True,
+        )
+        self.assertEqual(result["role"], "UNRESOLVED")
+        self.assertEqual(result["reason"], "DIMENSION_SECTION_ROLE_CONFLICT")
+        self.assertFalse(result["primary_anchor_authorized"])
+
     def test_low_consensus_remains_unresolved(self):
         result = classify_numeric_graphic_role(
             raw_text="129",
