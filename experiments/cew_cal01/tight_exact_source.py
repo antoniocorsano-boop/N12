@@ -28,6 +28,34 @@ def _canonical_digest(value: Any) -> str:
     return "sha256:" + hashlib.sha256(payload).hexdigest()
 
 
+def select_tight_replay_cluster_indices(semantic_replay: Mapping[str, Any]) -> list[int]:
+    """Select only clusters unresolved because OCR consensus is insufficient."""
+
+    results = semantic_replay.get("results")
+    if not isinstance(results, list):
+        raise ValueError("CAL01_TIGHT_SEMANTIC_RESULTS_REQUIRED")
+
+    seen: set[int] = set()
+    selected: list[int] = []
+    for row in results:
+        if not isinstance(row, Mapping):
+            raise ValueError("CAL01_TIGHT_SEMANTIC_ROW_INVALID")
+        try:
+            index = int(row["cluster_index"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("CAL01_TIGHT_SEMANTIC_CLUSTER_INDEX_REQUIRED") from exc
+        if index < 0:
+            raise ValueError("CAL01_TIGHT_SEMANTIC_CLUSTER_INDEX_INVALID")
+        if index in seen:
+            raise ValueError("CAL01_TIGHT_SEMANTIC_CLUSTER_DUPLICATE")
+        seen.add(index)
+        if str(row.get("reason") or "") == "OCR_CONSENSUS_INSUFFICIENT":
+            selected.append(index)
+
+    selected.sort()
+    return selected
+
+
 def build_tight_replay_manifest(
     *,
     source: Mapping[str, Any],
