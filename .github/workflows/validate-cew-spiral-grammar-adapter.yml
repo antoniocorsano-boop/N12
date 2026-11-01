@@ -97,3 +97,131 @@ jobs:
           path: evidence/cew-spiral01/
           if-no-files-found: error
           retention-days: 30
+
+  structural-candidate-exact-source:
+    needs: adapter-contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head with frozen history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Verify exact candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install frozen Tesseract system package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+      - name: Install frozen B01 evidence toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-spiral-structural"
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
+      - name: Fetch frozen primary source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+      - name: Rebuild governed COL-02 exact-source evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          python -m experiments.cew_col02.exact_source_audit
+          python -m experiments.cew_col02.review_atlas evidence/cew-col02/footprint-text-binding/col02-audit.json
+          python -m experiments.cew_col02.prototype_guided_exact_source
+          python -m experiments.cew_col02.occurrence_sweep_exact_source
+          python -m experiments.cew_col02.residual_occurrence_reconciliation_exact_source
+          python -m experiments.cew_col02.axis_aware_whole_symbol_exact_source
+          python -m experiments.cew_col02.occurrence_coverage_closure
+      - name: Rebuild governed COL-03A occurrence ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          python -m experiments.cew_col03a.exact_source
+      - name: Assert frozen COL-03A predecessor digests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          expected = {
+              'column-occurrence-ledger.json': '8d77811401f3804bdc9aa89c758035ff6dd6edc9d43ad6b3a504ccced0f89be0',
+              'column-occurrence-reconciliation.json': '996b3a08bfa5cd2f67d862c6dd1f118e4498521059399d662ed011cfc6200c65',
+              'column-occurrence-ledger-closure.json': 'ec3b8f34ec85b00ca2dee63f9dbaf2b858ea943821acf9879a5c7717c9ac8165',
+          }
+          root = Path('evidence/cew-col03a')
+          for name, digest in expected.items():
+              actual = hashlib.sha256((root / name).read_bytes()).hexdigest()
+              assert actual == digest, (name, actual, digest)
+          print('CEW_COL03A_FROZEN_DIGESTS=PASS')
+          PY
+      - name: Build first exact-source StructuralObjectCandidate bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          rm -rf evidence/cew-spiral01/structural-candidate evidence/cew-spiral01/source-probe
+          mkdir -p evidence/cew-spiral01/structural-candidate
+          python -m cew_spiral.exact_source_structural_candidate_bridge \
+            --output evidence/cew-spiral01/structural-candidate/structural-candidate-bridge.json \
+            --probe-root evidence/cew-spiral01/source-probe
+      - name: Assert first model-delta boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('evidence/cew-spiral01/structural-candidate/structural-candidate-bridge.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          q = data['qualification']
+          bridge = data['bridge']
+          bundle = bridge['pre_comparator_bundle']
+          assert q['exact_source_replayable'] is True
+          assert q['deterministic_replay'] is True
+          assert q['occurrence_count'] == 22
+          assert q['structural_candidate_count'] == 22
+          assert q['historical_support_identifier_required'] is False
+          assert q['historical_comparator_loaded'] is False
+          assert bundle['evidence_candidate_count'] == 22
+          assert bundle['structural_candidate_count'] == 22
+          assert bundle['review_summary']['accepted'] == 22
+          assert bundle['review_summary']['rejected'] == 0
+          assert bundle['review_summary']['ambiguous'] == 0
+          assert bundle['review_summary']['unreviewed'] == 0
+          assert bundle['historical_comparator_loaded'] is False
+          assert all(row['support_identifier'] is None for row in bridge['structural_candidates'])
+          assert all(row['section_family'] is None for row in bridge['structural_candidates'])
+          assert all(row['structural_identity_authorized'] is False for row in bridge['structural_candidates'])
+          assert bridge['authority']['canonical_write_authorized'] is False
+          assert bridge['authority']['m0g_authorized'] is False
+          print('CEW_SPIRAL_FIRST_STRUCTURAL_CANDIDATE_BUNDLE=PASS')
+          PY
+      - name: Upload first governed StructuralObjectCandidate evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-spiral01-structural-candidate-bridge
+          path: |
+            evidence/cew-spiral01/structural-candidate/
+            evidence/cew-spiral01/source-probe/pdf-probe-result.json
+          if-no-files-found: error
+          retention-days: 30
