@@ -15,7 +15,7 @@ HISTORICAL_V25_PACKAGE: dict[str, Any] = {
     "member_count": 91,
     "authority": "HISTORICAL_DERIVED_EVIDENCE",
     "identity_promotion_authorized": False,
-    "repository_materialized": False,
+    "repository_materialized": True,
 }
 
 _FROZEN_KEYS = (
@@ -26,6 +26,7 @@ _FROZEN_KEYS = (
     "member_count",
     "authority",
     "identity_promotion_authorized",
+    "repository_materialized",
 )
 
 

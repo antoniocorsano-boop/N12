@@ -37,6 +37,9 @@ class ExactSourceWriterTests(unittest.TestCase):
             predecessor_sha=PREDECESSOR_SHA,
         )
         self.assertEqual(set(artifacts), EXPECTED_OUTPUTS)
+        package = artifacts["historical-package-recovery-manifest.json"]
+        self.assertTrue(package["historical_package_repository_materialized"])
+        self.assertTrue(package["historical_package_exact_source_replayable"])
         members = artifacts["historical-member-manifest.json"]
         self.assertEqual(members["required_member_count"], 8)
         self.assertEqual(members["materialized_verified_count"], 8)
@@ -53,8 +56,10 @@ class ExactSourceWriterTests(unittest.TestCase):
         closure = artifacts["historical-recovery-closure.json"]
         self.assertTrue(closure["required_historical_members_materialized"])
         self.assertTrue(closure["historical_row_level_evidence_recovered"])
-        self.assertFalse(closure["historical_package_repository_materialized"])
-        self.assertFalse(closure["historical_package_exact_source_replayable"])
+        self.assertTrue(closure["historical_package_repository_materialized"])
+        self.assertTrue(closure["historical_package_exact_source_replayable"])
+        self.assertTrue(closure["col03d_exact_source_qualification_complete"])
+        self.assertEqual(closure["qualification_blockers"], [])
         self.assertFalse(closure["historical_evidence_identity_promoted"])
 
     def test_writer_persists_only_the_five_governed_json_artifacts_deterministically(self):

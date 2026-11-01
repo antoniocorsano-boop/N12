@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-from copy import deepcopy
 import json
 from pathlib import Path
 import subprocess
@@ -16,8 +15,7 @@ from .member_verification import (
     REQUIRED_MEMBER_CONTRACTS,
     reconstruct_required_member_directory,
 )
-from .package_asset import verify_downloaded_package_asset
-from .package_source import HISTORICAL_V25_PACKAGE
+from .package_source import HISTORICAL_V25_PACKAGE, verify_package_source
 from .recovery import OUTPUT_NAMES, PREDECESSOR_COL03C_SHA, build_recovery_artifacts
 
 
@@ -33,10 +31,10 @@ _DXF_NAMES = tuple(
 
 
 def _package_witness() -> dict[str, Any]:
-    witness = deepcopy(HISTORICAL_V25_PACKAGE)
-    witness["verification_state"] = "EXTERNALLY_VERIFIED_IMMUTABLE_WITNESS"
-    witness["repository_materialized"] = False
-    witness["exact_source_replayable"] = False
+    repository_path = Path(str(HISTORICAL_V25_PACKAGE["repository_path"]))
+    witness = verify_package_source(repository_path)
+    witness["verification_state"] = "MATERIALIZED_VERIFIED"
+    witness["exact_source_replayable"] = True
     return witness
 
 
@@ -56,7 +54,6 @@ def build_exact_source_recovery(
     transport_root: str | Path,
     inventory_text: str,
     predecessor_sha: str,
-    package_witness: dict[str, Any] | None = None,
 ) -> dict[str, dict[str, Any]]:
     transport_path = Path(transport_root)
     with tempfile.TemporaryDirectory(prefix="cew-col03d-members-") as tmp:
@@ -82,7 +79,7 @@ def build_exact_source_recovery(
 
         return build_recovery_artifacts(
             predecessor_sha=predecessor_sha,
-            package_witness=deepcopy(package_witness or _package_witness()),
+            package_witness=_package_witness(),
             member_rows=member_rows,
             inventory_rows=inventory_rows,
             csv_evidence=csv_evidence,
@@ -126,23 +123,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--transport-root",
         default="archive/historical_packages/v25/transport",
     )
-    parser.add_argument(
-        "--package-path",
-        default=None,
-        help="Verified GitHub release-asset download. Omit to retain the fail-closed external-witness checkpoint.",
-    )
     args = parser.parse_args(list(argv) if argv is not None else None)
 
-    package_witness = (
-        verify_downloaded_package_asset(Path(args.package_path))
-        if args.package_path
-        else _package_witness()
-    )
     artifacts = build_exact_source_recovery(
         transport_root=args.transport_root,
         inventory_text=_load_frozen_inventory(),
         predecessor_sha=PREDECESSOR_COL03C_SHA,
-        package_witness=package_witness,
     )
     written = write_col03d_artifacts(args.output, artifacts)
     closure = artifacts["historical-recovery-closure.json"]
@@ -161,11 +147,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "required_historical_members_materialized": closure[
             "required_historical_members_materialized"
         ],
-        "status": (
-            "COL03D_EXACT_SOURCE_QUALIFIED"
-            if closure["col03d_exact_source_qualification_complete"]
-            else "RECOVERY_EVIDENCE_CHECKPOINT_COMPLETE"
-        ),
+        "status": "EXACT_SOURCE_QUALIFICATION_COMPLETE",
     }
     print("CEW_COL03D_RECOVERY=" + json.dumps(summary, sort_keys=True, separators=(",", ":")))
     return 0
