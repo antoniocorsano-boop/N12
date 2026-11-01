@@ -9,6 +9,7 @@ on:
       - 'experiments/cew_cal01/**'
       - 'tests/cew_cal01/**'
       - 'governance/cew-cal01/**'
+      - 'requirements/cew-cal01.lock.txt'
       - 'docs/superpowers/specs/2026-11-01-cew-cal01-primary-metric-calibration-design.md'
       - 'docs/superpowers/plans/2026-11-01-cew-cal01-primary-metric-calibration.md'
       - '.github/workflows/validate-cew-cal01.yml'
@@ -28,3 +29,66 @@ jobs:
           check-latest: false
       - name: Run CEW-CAL-01 contracts
         run: python -m unittest discover -s tests/cew_cal01 -p 'test_*.py' -v
+
+  cal01-exact-source-dimension-discovery:
+    needs: cal01-contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install frozen Tesseract system package
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends tesseract-ocr
+          tesseract --version | head -1
+      - name: Install minimal CAL-01 exact-source toolchain
+        run: python -m pip install --disable-pip-version-check -r requirements/cew-cal01.lock.txt
+      - name: Fetch frozen TAV.5 source commit
+        run: |
+          rm -rf "$RUNNER_TEMP/cew-n12-source"
+          git init -q "$RUNNER_TEMP/cew-n12-source"
+          git -C "$RUNNER_TEMP/cew-n12-source" remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -C "$RUNNER_TEMP/cew-n12-source" fetch --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+          git -C "$RUNNER_TEMP/cew-n12-source" checkout --detach FETCH_HEAD
+          test "$(git -C "$RUNNER_TEMP/cew-n12-source" rev-parse HEAD)" = "78c20a52db4f391ce0d13b9705b9f04737e218c9"
+      - name: Discover exact-source TAV.5 dimension proposals
+        run: |
+          rm -rf "$RUNNER_TEMP/cew-cal01-dimension-discovery"
+          python -m experiments.cew_cal01.exact_source \
+            --source-repo "$RUNNER_TEMP/cew-n12-source" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-dimension-discovery"
+      - name: Assert exact-source discovery boundary
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP']) / 'cew-cal01-dimension-discovery'
+          data = json.loads((root / 'dimension-discovery.json').read_text())
+          assert data['source']['sha256'] == '2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580'
+          assert data['numeric_proposal_count'] > 0
+          assert data['historical_comparator_loaded'] is False
+          assert data['historical_affine_loaded'] is False
+          assert data['tav02s_evidence_loaded'] is False
+          assert data['primary_anchor_count'] == 0
+          assert data['authority']['canonical_geometry_authorized'] is False
+          assert data['authority']['structural_identity_authorized'] is False
+          print(json.dumps({
+              'numeric_proposal_count': data['numeric_proposal_count'],
+              'geometrically_bound_dimension_count': data['geometrically_bound_dimension_count'],
+              'discovery_digest': data['discovery_digest'],
+          }, sort_keys=True))
+          PY
+      - name: Upload governed CAL-01 dimension discovery evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-cal01-primary-dimension-discovery
+          path: ${{ runner.temp }}/cew-cal01-dimension-discovery
+          if-no-files-found: error
+          retention-days: 30
