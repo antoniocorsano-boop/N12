@@ -1,0 +1,31 @@
+{
+  "schema": "CEW_CAL01_PRIMARY_VISUAL_REVIEW_v1",
+  "program": "CEW-CAL-01",
+  "review_id": "C11",
+  "cluster_index": 11,
+  "review_date_local": "2026-11-01",
+  "reviewer_role": "HUMAN_PROFESSIONAL_USER",
+  "source_document": "TAV.5",
+  "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+  "source_page": 0,
+  "object_class": "COLUMN",
+  "object_reference": "PILASTRO_29",
+  "property": "SECTION_DIMENSIONS",
+  "human_reading": "30 x 45 cm",
+  "value": {
+    "dimension_a_m": 0.30,
+    "dimension_b_m": 0.45
+  },
+  "evidence_class": "DOC",
+  "semantic_interpretation_class": "RIF",
+  "calibration_role": "SECTION_MEASURE",
+  "eligible_for_metric_calibration": false,
+  "primary_anchor_authorized": false,
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}
