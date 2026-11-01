@@ -1,104 +1,170 @@
 from __future__ import annotations
 
-from collections import Counter
+from copy import deepcopy
+import json
 from pathlib import Path
+import tempfile
 import unittest
 
 try:
-    from experiments.cew_col03e.predecessor import load_qualified_predecessor_snapshots
+    from experiments.cew_col03e.predecessor import load_qualified_predecessor_evidence
 except (ImportError, ModuleNotFoundError):
-    load_qualified_predecessor_snapshots = None
+    load_qualified_predecessor_evidence = None
 
 
-COL03B_ROOT = Path("archive/qualified_evidence/col03b")
-COL03C_ROOT = Path("archive/qualified_evidence/col03c")
+COL03B_SHA = "cfd9382b703d0a974daf63c23dc2b6d3d81eadad"
+AUTHORITY_KEYS = (
+    "support_identity_authorized",
+    "text_identity_binding_authorized",
+    "family_assignment_authorized",
+    "section_assignment_authorized",
+    "fixed_line_assignment_authorized",
+    "structural_identity_authorized",
+    "canonical_geometry_authorized",
+    "canonical_write_authorized",
+    "g2c_promotion_authorized",
+    "g3_authorized",
+    "merge_authorized",
+)
+COL03C_AUTHORITY_KEYS = AUTHORITY_KEYS + ("vertical_chain_assignment_authorized", "canonical_node_assignment_authorized")
 
 
-class QualifiedPredecessorSnapshotTests(unittest.TestCase):
-    def test_exact_qualified_snapshots_are_repository_replayable(self):
-        self.assertIsNotNone(
-            load_qualified_predecessor_snapshots,
-            "COL-03E qualified predecessor snapshot loader missing",
-        )
-        snapshots = load_qualified_predecessor_snapshots(COL03B_ROOT, COL03C_ROOT)
+def _closed(keys=AUTHORITY_KEYS):
+    return {key: False for key in keys}
 
-        self.assertEqual(
-            snapshots["col03b_manifest"]["source_sha"],
-            "cfd9382b703d0a974daf63c23dc2b6d3d81eadad",
-        )
-        self.assertEqual(snapshots["col03b_manifest"]["workflow_run_id"], 41239465886)
-        self.assertEqual(snapshots["col03b_manifest"]["artifact_id"], 13057251710)
-        self.assertEqual(
-            snapshots["col03b_manifest"]["artifact_digest"],
-            "sha256:aaddc342e81983bbbd4f164a8e5c70dcbc14de5626bfc821ba7489b576821391",
-        )
 
-        self.assertEqual(
-            snapshots["col03c_manifest"]["source_sha"],
-            "a9daa18ddfb56eaf1834ad17f329e2f2db0af72e",
-        )
-        self.assertEqual(snapshots["col03c_manifest"]["workflow_run_id"], 41244244236)
-        self.assertEqual(snapshots["col03c_manifest"]["artifact_id"], 13058716773)
-        self.assertEqual(
-            snapshots["col03c_manifest"]["artifact_digest"],
-            "sha256:468108dc107d813e9d4759a208560b566d7395b2db6eedf07787375238a91a2f",
-        )
+def _valid_col03b_ledger():
+    occurrences = []
+    for index in range(1, 23):
+        hypotheses = []
+        if index == 1:
+            hypotheses = [{"candidate_value": "4", "promotion_authorized": False, "state": "SINGLE_CHANNEL"}]
+        elif index == 15:
+            hypotheses = [{"candidate_value": "30", "promotion_authorized": False, "state": "SINGLE_CHANNEL"}]
+        occurrences.append({
+            "occurrence_id": f"COL-OCC-{index:04d}",
+            "hypotheses": hypotheses,
+            **_closed(),
+        })
+    return {"occurrence_count": 22, "occurrences": occurrences}
 
-    def test_qualified_snapshot_file_digests_are_frozen(self):
-        self.assertIsNotNone(load_qualified_predecessor_snapshots)
-        snapshots = load_qualified_predecessor_snapshots(COL03B_ROOT, COL03C_ROOT)
 
-        self.assertEqual(
-            snapshots["col03b_manifest"]["files"],
+def _valid_col03b_closure():
+    return {
+        "occurrence_count": 22,
+        "documentary_identity_evidence_collection_complete": True,
+        "all_occurrences_identity_resolved": False,
+        "blocking_reasons": [],
+        "authority": _closed(),
+    }
+
+
+def _valid_col03c_ledger():
+    return {
+        "schema": "CEW_COL03C_CROSS_DOCUMENT_EVIDENCE_LEDGER_v1",
+        "occurrence_count": 22,
+        "occurrences": [
             {
-                "documentary-identity-evidence-closure.json": "a7daadcb6395951f6a478f48c2e4c90b98ebadcf4824058562a7d9f9fb59239b",
-                "documentary-identity-evidence-ledger.json": "058af83c8df0f9da1a9b1308adeb85f4162055163ce02c30739cfb93ff59e8cb",
-                "documentary-identity-hypotheses.json": "b5d71542cdc57384e49c2e5f66068dba492bf1a4d1e68b0228586fadd0b6361c",
-                "documentary-identity-reconciliation.json": "2904a28f6762c8db5623f893bf97959c53a508b6388a55478b030ad3c9e07e3b",
-            },
-        )
-        self.assertEqual(
-            snapshots["col03c_manifest"]["files"],
-            {
-                "cross-document-evidence-closure.json": "beb6d4a904e5340113d994601c94e7b53e5c3ac162d520a8f5be922b1e11e903",
-                "cross-document-evidence-ledger.json": "16bbb69f7650468d8530fa7d839c34082f302f972a100b32fe5b8ff7fa0812af",
-                "cross-document-reconciliation.json": "e6c9aff757dd54be66748af222a93175bda1978ec7dc68ada33fa72133edc352",
-                "derived-reference-quality.json": "dc8a6d32d4bcfd3491647023e26c52ff01c9ef3cf42200a4706ab4e103602eca",
-                "source-materialization-manifest.json": "86534627c796e5414c626eb4d4ccfc7a8ad04e72f886471589e18598d5ec41b0",
-            },
-        )
+                "occurrence_id": f"COL-OCC-{index:04d}",
+                "tav07_match_state": "EVALUATED_NO_MATCH",
+                "hypotheses": [],
+                "cross_document_identity_resolved": False,
+                **_closed(COL03C_AUTHORITY_KEYS),
+            }
+            for index in range(1, 23)
+        ],
+    }
 
-    def test_real_candidate_distribution_is_preserved(self):
-        self.assertIsNotNone(load_qualified_predecessor_snapshots)
-        snapshots = load_qualified_predecessor_snapshots(COL03B_ROOT, COL03C_ROOT)
-        col03b = snapshots["col03b_ledger"]
-        col03c = snapshots["col03c_ledger"]
 
-        self.assertEqual(col03b["occurrence_count"], 22)
-        self.assertEqual(col03c["occurrence_count"], 22)
+def _valid_col03c_closure():
+    return {
+        "schema": "CEW_COL03C_CROSS_DOCUMENT_EVIDENCE_CLOSURE_v1",
+        "qualified_col03b_sha": COL03B_SHA,
+        "occurrence_count": 22,
+        "available_cross_document_evidence_evaluated": True,
+        "all_occurrences_cross_document_resolved": False,
+        "blocking_reasons": [],
+        "authority": _closed(COL03C_AUTHORITY_KEYS),
+    }
 
-        b_distribution = Counter(len(row.get("hypotheses", [])) for row in col03b["occurrences"])
-        self.assertEqual(b_distribution, Counter({0: 20, 1: 2}))
-        candidate_rows = {
-            row["occurrence_id"]: row["hypotheses"][0]["candidate_value"]
-            for row in col03b["occurrences"]
-            if row.get("hypotheses")
-        }
-        self.assertEqual(candidate_rows, {"COL-OCC-0001": "4", "COL-OCC-0015": "30"})
 
-        self.assertTrue(all(row["tav07_match_state"] == "EVALUATED_NO_MATCH" for row in col03c["occurrences"]))
-        self.assertTrue(all(row["hypotheses"] == [] for row in col03c["occurrences"]))
-        self.assertTrue(all(row["cross_document_identity_resolved"] is False for row in col03c["occurrences"]))
+def _valid_col03c_source():
+    return {
+        "schema": "CEW_COL03C_SOURCE_MATERIALIZATION_MANIFEST_v1",
+        "qualified_col03b_sha": COL03B_SHA,
+    }
 
-    def test_snapshot_authority_drift_fails_closed(self):
-        self.assertIsNotNone(load_qualified_predecessor_snapshots)
-        snapshots = load_qualified_predecessor_snapshots(COL03B_ROOT, COL03C_ROOT)
-        for occurrence in snapshots["col03c_ledger"]["occurrences"]:
-            self.assertFalse(occurrence["support_identity_authorized"])
-            self.assertFalse(occurrence["structural_identity_authorized"])
-            self.assertFalse(occurrence["canonical_geometry_authorized"])
-            self.assertFalse(occurrence["canonical_write_authorized"])
-            self.assertFalse(occurrence["merge_authorized"])
+
+def _write_json(root: Path, name: str, value: dict) -> None:
+    (root / name).write_text(json.dumps(value, sort_keys=True), encoding="utf-8")
+
+
+def _fixture_roots(tmp: str) -> tuple[Path, Path]:
+    root = Path(tmp)
+    b = root / "cew-col03b"
+    c = root / "cew-col03c"
+    b.mkdir()
+    c.mkdir()
+    _write_json(b, "documentary-identity-evidence-ledger.json", _valid_col03b_ledger())
+    _write_json(b, "documentary-identity-evidence-closure.json", _valid_col03b_closure())
+    _write_json(c, "cross-document-evidence-ledger.json", _valid_col03c_ledger())
+    _write_json(c, "cross-document-evidence-closure.json", _valid_col03c_closure())
+    _write_json(c, "source-materialization-manifest.json", _valid_col03c_source())
+    return b, c
+
+
+class QualifiedPredecessorReplayTests(unittest.TestCase):
+    def test_replayed_predecessors_preserve_exact_occurrence_and_candidate_contract(self):
+        self.assertIsNotNone(load_qualified_predecessor_evidence, "COL-03E predecessor validator missing")
+        with tempfile.TemporaryDirectory() as tmp:
+            b, c = _fixture_roots(tmp)
+            result = load_qualified_predecessor_evidence(b, c)
+        self.assertEqual(result["occurrence_ids"], [f"COL-OCC-{i:04d}" for i in range(1, 23)])
+        self.assertEqual(result["documentary_candidates"], {"COL-OCC-0001": ["4"], "COL-OCC-0015": ["30"]})
+        self.assertEqual(result["cross_document_candidate_count"], 0)
+        self.assertTrue(result["predecessor_evidence_validated"])
+
+    def test_occurrence_set_drift_fails_closed(self):
+        self.assertIsNotNone(load_qualified_predecessor_evidence)
+        with tempfile.TemporaryDirectory() as tmp:
+            b, c = _fixture_roots(tmp)
+            ledger = json.loads((c / "cross-document-evidence-ledger.json").read_text(encoding="utf-8"))
+            ledger["occurrences"].pop()
+            ledger["occurrence_count"] = 21
+            _write_json(c, "cross-document-evidence-ledger.json", ledger)
+            with self.assertRaisesRegex(ValueError, "COL03E_OCCURRENCE_SET_DRIFT"):
+                load_qualified_predecessor_evidence(b, c)
+
+    def test_cross_document_resolution_or_candidate_drift_fails_closed(self):
+        self.assertIsNotNone(load_qualified_predecessor_evidence)
+        with tempfile.TemporaryDirectory() as tmp:
+            b, c = _fixture_roots(tmp)
+            ledger = json.loads((c / "cross-document-evidence-ledger.json").read_text(encoding="utf-8"))
+            ledger["occurrences"][0]["cross_document_identity_resolved"] = True
+            ledger["occurrences"][0]["hypotheses"] = [{"candidate_value": "4", "promotion_authorized": False}]
+            _write_json(c, "cross-document-evidence-ledger.json", ledger)
+            with self.assertRaisesRegex(ValueError, "COL03E_PREDECESSOR_STATE_DRIFT"):
+                load_qualified_predecessor_evidence(b, c)
+
+    def test_authority_drift_fails_closed(self):
+        self.assertIsNotNone(load_qualified_predecessor_evidence)
+        with tempfile.TemporaryDirectory() as tmp:
+            b, c = _fixture_roots(tmp)
+            ledger = json.loads((b / "documentary-identity-evidence-ledger.json").read_text(encoding="utf-8"))
+            ledger["occurrences"][0]["structural_identity_authorized"] = True
+            _write_json(b, "documentary-identity-evidence-ledger.json", ledger)
+            with self.assertRaisesRegex(ValueError, "COL03E_AUTHORITY_DRIFT"):
+                load_qualified_predecessor_evidence(b, c)
+
+    def test_wrong_col03b_lineage_fails_closed(self):
+        self.assertIsNotNone(load_qualified_predecessor_evidence)
+        with tempfile.TemporaryDirectory() as tmp:
+            b, c = _fixture_roots(tmp)
+            source = deepcopy(_valid_col03c_source())
+            source["qualified_col03b_sha"] = "wrong"
+            _write_json(c, "source-materialization-manifest.json", source)
+            with self.assertRaisesRegex(ValueError, "COL03E_COL03B_LINEAGE_DRIFT"):
+                load_qualified_predecessor_evidence(b, c)
 
 
 if __name__ == "__main__":
