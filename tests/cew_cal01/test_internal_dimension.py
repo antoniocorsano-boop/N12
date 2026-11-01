@@ -152,7 +152,7 @@ class Cal01InternalDimensionContractTests(unittest.TestCase):
         self.assertIn("--perimeter-discovery", workflow)
         self.assertIn("perimeter/perimeter-dimension-discovery.json", workflow)
         self.assertIn("--output-dir \"$RUNNER_TEMP/cew-cal01-dimension-discovery/internal\"", workflow)
-        self.assertIn("internal/internal-dimension-discovery.json", workflow)
+        self.assertIn("'internal' / 'internal-dimension-discovery.json'", workflow)
         self.assertIn("assert internal['source']['sha256'] == expected_sha", workflow)
         self.assertIn("assert internal['primary_anchor_count'] == 0", workflow)
         self.assertIn("assert internal['perimeter_trigger']['candidate_count'] == 0", workflow)
