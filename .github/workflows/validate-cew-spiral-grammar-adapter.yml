@@ -225,3 +225,54 @@ jobs:
             evidence/cew-spiral01/source-probe/pdf-probe-result.json
           if-no-files-found: error
           retention-days: 30
+      - name: Fetch frozen historical metric witnesses
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 15b55e3711f27f4499eb97a9e4d99bfa5f8f2e57
+          git fetch --no-tags --depth=1 origin dba5c4c2f09161b731a26bb0f8eab5826f1d136b
+      - name: Build exact-source metric witness comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          rm -rf evidence/cew-spiral01/metric-comparison
+          python -m cew_spiral.metric_comparison_replay \
+            --structural-bridge evidence/cew-spiral01/structural-candidate/structural-candidate-bridge.json \
+            --output evidence/cew-spiral01/metric-comparison/metric-comparison-replay.json
+      - name: Assert metric witness comparison boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('evidence/cew-spiral01/metric-comparison/metric-comparison-replay.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          comparison = data['comparison']
+          assert data['schema'] == 'CEW_SPIRAL_METRIC_COMPARISON_REPLAY_v1'
+          assert data['input_boundary']['structural_candidate_count'] == 22
+          assert data['input_boundary']['historical_comparator_loaded_before_replay'] is False
+          assert data['input_boundary']['registration_commit'] == '15b55e3711f27f4499eb97a9e4d99bfa5f8f2e57'
+          assert data['input_boundary']['comparator_commit'] == 'dba5c4c2f09161b731a26bb0f8eab5826f1d136b'
+          assert comparison['projection_count'] == 22
+          assert comparison['comparison_count'] == 22
+          assert comparison['summary']['distance_count'] == 22
+          assert comparison['comparison_semantics'] == 'DISTANCE_AUDIT_ONLY_NO_BINDING_NO_THRESHOLD'
+          assert all(row['binding_status'] == 'NO_AUTOMATIC_BINDING' for row in comparison['comparisons'])
+          assert all(row['historical_witness_may_mutate_current_candidate'] is False for row in comparison['comparisons'])
+          for authority in (data['authority'], comparison['authority']):
+              assert authority['structural_identity_authorized'] is False
+              assert authority['canonical_geometry_authorized'] is False
+              assert authority['canonical_write_authorized'] is False
+              assert authority['m0g_authorized'] is False
+          print('CEW_SPIRAL_METRIC_COMPARISON_EXACT_SOURCE=PASS')
+          print(json.dumps(comparison['summary'], sort_keys=True))
+          PY
+      - name: Upload governed metric comparison evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-spiral01-metric-comparison
+          path: evidence/cew-spiral01/metric-comparison/
+          if-no-files-found: error
+          retention-days: 30
