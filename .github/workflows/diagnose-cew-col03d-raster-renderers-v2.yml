@@ -1,0 +1,94 @@
+name: Diagnose CEW-COL-03D Raster Renderers v2
+
+on:
+  push:
+    branches:
+      - diag/cew-col03d-raster-renderer-forensics
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare-renderers:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout diagnostic branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install image inspector
+        run: python -m pip install --disable-pip-version-check Pillow==13.0.0
+      - name: Report available renderers
+        run: |
+          pdftoppm -v 2>&1 | head -n 2 || true
+          pdftocairo -v 2>&1 | head -n 2 || true
+          gs --version || true
+      - name: Materialize frozen primary PDFs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/col03d-renderer-forensics/src
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:'archive/documentazione_originaria/tavola 5.pdf' > /tmp/col03d-renderer-forensics/src/tavola5.pdf
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:'archive/documentazione_originaria/tavola 6.pdf' > /tmp/col03d-renderer-forensics/src/tavola6.pdf
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:'archive/documentazione_originaria/tavola7.pdf' > /tmp/col03d-renderer-forensics/src/tavola7.pdf
+      - name: Compare Poppler and Ghostscript pixel output
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, subprocess, shutil
+          from PIL import Image
+
+          root = Path('/tmp/col03d-renderer-forensics')
+          out = root / 'out'; out.mkdir(parents=True, exist_ok=True)
+          cases = {
+              'tavola5': {'expected_dims': (4060,2274), 'expected_rgb': 'adeccc645272b547a584b81ae5caaeb33c3a39f96384bb601434f828ad2afea1'},
+              'tavola6': {'expected_dims': (8222,1393), 'expected_rgb': 'f2e06fddc3e2e9d2b5498ba1f902e3df461515b87096b974b126b7237e7777a5'},
+              'tavola7': {'expected_dims': (6731,1393), 'expected_rgb': 'a03c1f1a2730b6118adb525da515456fce3f5438ca5a8b11c0a8e857839db686'},
+          }
+
+          def inspect(label, path, expected_dims, expected_rgb):
+              im = Image.open(path).convert('RGB')
+              variants = [('native', im), ('r90', im.transpose(Image.Transpose.ROTATE_90)), ('r270', im.transpose(Image.Transpose.ROTATE_270))]
+              for rotation, candidate in variants:
+                  digest = hashlib.sha256(candidate.tobytes()).hexdigest()
+                  print('RESULT', label, rotation, 'dims', candidate.size, 'rgb_sha', digest, 'MATCH', candidate.size == expected_dims and digest == expected_rgb)
+                  if candidate.size == expected_dims and digest == expected_rgb:
+                      print('CEW_COL03D_HISTORICAL_RASTER_RENDERER_MATCH', label, rotation)
+                      return True
+              return False
+
+          any_match = False
+          for stem, meta in cases.items():
+              pdf = root/'src'/f'{stem}.pdf'
+              case_out = out/stem; case_out.mkdir(exist_ok=True)
+
+              commands = []
+              commands.append(('pdftoppm-default', ['pdftoppm','-f','1','-singlefile','-r','97.2','-png',str(pdf),str(case_out/'pdftoppm-default')], case_out/'pdftoppm-default.png'))
+              commands.append(('pdftocairo-default', ['pdftocairo','-f','1','-l','1','-singlefile','-r','97.2','-png',str(pdf),str(case_out/'pdftocairo-default')], case_out/'pdftocairo-default.png'))
+              for aa in ('1','2','4'):
+                  for gaa in ('1','2','4'):
+                      label=f'gs-aa{aa}-gaa{gaa}'
+                      target=case_out/f'{label}.png'
+                      cmd=['gs','-q','-dSAFER','-dBATCH','-dNOPAUSE','-sDEVICE=png16m','-dFirstPage=1','-dLastPage=1',f'-r97.2',f'-dTextAlphaBits={aa}',f'-dGraphicsAlphaBits={gaa}',f'-sOutputFile={target}',str(pdf)]
+                      commands.append((label,cmd,target))
+
+              for label, cmd, target in commands:
+                  print('RUN', stem, label, ' '.join(cmd))
+                  proc=subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+                  if proc.returncode != 0 or not target.exists():
+                      print('RENDER_FAIL', stem, label, proc.returncode, proc.stdout[-1000:])
+                      continue
+                  if inspect(f'{stem}:{label}', target, meta['expected_dims'], meta['expected_rgb']):
+                      any_match=True
+
+          print('CEW_COL03D_ANY_RENDERER_MATCH', any_match)
+          PY
