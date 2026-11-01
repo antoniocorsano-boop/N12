@@ -1,6 +1,9 @@
 import unittest
 
-from experiments.cew_cal01.tight_exact_source import build_tight_replay_manifest
+from experiments.cew_cal01.tight_exact_source import (
+    build_tight_replay_manifest,
+    select_tight_replay_cluster_indices,
+)
 
 
 SOURCE = {
@@ -72,6 +75,27 @@ class Cal01TightExactSourceContractTests(unittest.TestCase):
         second = build_tight_replay_manifest(source=SOURCE, rows=[b, a])
         self.assertEqual(first["tight_replay_digest"], second["tight_replay_digest"])
         self.assertEqual([row["cluster_index"] for row in first["rows"]], [1, 2])
+
+    def test_selector_targets_only_ocr_consensus_insufficient_clusters(self):
+        semantic = {
+            "results": [
+                {"cluster_index": 0, "reason": "OCR_CONSENSUS_INSUFFICIENT"},
+                {"cluster_index": 1, "reason": "DIMENSION_ROLE_NOT_CONFIRMED"},
+                {"cluster_index": 2, "reason": "OCR_CONSENSUS_INSUFFICIENT"},
+                {"cluster_index": 3, "reason": "CONSENSUS_NEAR_CLOSED_FRAME_WITHOUT_DIMENSION_TICK_GRAMMAR"},
+            ]
+        }
+        self.assertEqual(select_tight_replay_cluster_indices(semantic), [0, 2])
+
+    def test_selector_rejects_duplicate_cluster_indices(self):
+        semantic = {
+            "results": [
+                {"cluster_index": 1, "reason": "OCR_CONSENSUS_INSUFFICIENT"},
+                {"cluster_index": 1, "reason": "OCR_CONSENSUS_INSUFFICIENT"},
+            ]
+        }
+        with self.assertRaisesRegex(ValueError, "CAL01_TIGHT_SEMANTIC_CLUSTER_DUPLICATE"):
+            select_tight_replay_cluster_indices(semantic)
 
 
 if __name__ == "__main__":
