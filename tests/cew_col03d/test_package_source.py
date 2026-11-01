@@ -4,6 +4,7 @@ import hashlib
 from pathlib import Path
 import tempfile
 import unittest
+import zipfile
 
 try:
     from experiments.cew_col03d.package_source import (
@@ -25,17 +26,14 @@ class HistoricalPackageSourceTests(unittest.TestCase):
         self.assertEqual(HISTORICAL_V25_PACKAGE["member_count"], 91)
         self.assertEqual(HISTORICAL_V25_PACKAGE["authority"], "HISTORICAL_DERIVED_EVIDENCE")
         self.assertFalse(HISTORICAL_V25_PACKAGE["identity_promotion_authorized"])
+        self.assertFalse(HISTORICAL_V25_PACKAGE["repository_materialized"])
 
-    def test_exact_repository_package_verifies_without_promoting_authority(self):
+    def test_unmaterialized_repository_package_fails_closed(self):
         self.assertIsNotNone(verify_package_source, "COL-03D package source implementation missing")
         contract = dict(HISTORICAL_V25_PACKAGE)
-        verified = verify_package_source(Path(contract["repository_path"]), contract)
-        self.assertEqual(verified["materialization_state"], "MATERIALIZED_VERIFIED")
-        self.assertEqual(verified["sha256"], contract["sha256"])
-        self.assertEqual(verified["size_bytes"], contract["size_bytes"])
-        self.assertEqual(verified["member_count"], contract["member_count"])
-        self.assertEqual(verified["authority"], "HISTORICAL_DERIVED_EVIDENCE")
-        self.assertFalse(verified["identity_promotion_authorized"])
+        self.assertFalse(Path(contract["repository_path"]).exists())
+        with self.assertRaisesRegex(ValueError, "PACKAGE_SOURCE_NOT_FOUND"):
+            verify_package_source(Path(contract["repository_path"]), contract)
 
     def test_changed_bytes_fail_as_provenance_mismatch_before_zip_semantics(self):
         self.assertIsNotNone(verify_package_source, "COL-03D package source implementation missing")
@@ -46,6 +44,23 @@ class HistoricalPackageSourceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "PROVENANCE_MISMATCH"):
                 verify_package_source(path, contract)
 
+    def test_verified_synthetic_zip_keeps_historical_authority_closed(self):
+        self.assertIsNotNone(verify_package_source, "COL-03D package source implementation missing")
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "synthetic.zip"
+            with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr("member.txt", b"historical")
+            data = path.read_bytes()
+            contract = dict(HISTORICAL_V25_PACKAGE)
+            contract["sha256"] = hashlib.sha256(data).hexdigest()
+            contract["size_bytes"] = len(data)
+            contract["member_count"] = 1
+            verified = verify_package_source(path, contract, allow_test_digest_override=True)
+            self.assertEqual(verified["materialization_state"], "MATERIALIZED_VERIFIED")
+            self.assertEqual(verified["member_count"], 1)
+            self.assertEqual(verified["authority"], "HISTORICAL_DERIVED_EVIDENCE")
+            self.assertFalse(verified["identity_promotion_authorized"])
+
     def test_missing_package_fails_closed(self):
         self.assertIsNotNone(verify_package_source, "COL-03D package source implementation missing")
         with tempfile.TemporaryDirectory() as tmp:
@@ -53,7 +68,7 @@ class HistoricalPackageSourceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "PACKAGE_SOURCE_NOT_FOUND"):
                 verify_package_source(path, dict(HISTORICAL_V25_PACKAGE))
 
-    def test_test_override_still_requires_valid_zip_and_exact_member_count(self):
+    def test_test_override_still_requires_valid_zip(self):
         self.assertIsNotNone(verify_package_source, "COL-03D package source implementation missing")
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "bad.zip"
