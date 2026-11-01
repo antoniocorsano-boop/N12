@@ -2,6 +2,8 @@ import json
 import unittest
 from pathlib import Path
 
+from experiments.cew_col03d.member_verification import REQUIRED_MEMBER_CONTRACTS
+
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACT = ROOT / "governance/cew-dxf01/CEW_DXF01_TOOLCHAIN_v1.json"
@@ -28,32 +30,30 @@ class Dxf01ContractTests(unittest.TestCase):
         ]
         self.assertEqual(pins, ["ezdxf==1.4.5"])
 
-    def test_source_scope_is_exact_and_historical_only(self):
+    def test_source_scope_matches_recovered_package_contracts(self):
         payload = json.loads(CONTRACT.read_text(encoding="utf-8"))
+        expected = {
+            row["artifact_name"]: {
+                "sha256": row["sha256"],
+                "size_bytes": row["size_bytes"],
+                "package_crc32": row["package_crc32"],
+                "historical_role": row["qualified_role"],
+                "evidentiary_class": row["authority"],
+            }
+            for row in REQUIRED_MEMBER_CONTRACTS
+            if str(row["artifact_name"]).lower().endswith(".dxf")
+        }
         observed = {
-            row["artifact_name"]: (row["sha256"], row["size_bytes"], row["evidentiary_class"])
+            row["artifact_name"]: {
+                "sha256": row["sha256"],
+                "size_bytes": row["size_bytes"],
+                "package_crc32": row["package_crc32"],
+                "historical_role": row["historical_role"],
+                "evidentiary_class": row["evidentiary_class"],
+            }
             for row in payload["source_scope"]
         }
-        self.assertEqual(
-            observed,
-            {
-                "N12_TAV7_PILASTRI.dxf": (
-                    "c61731902df0d42266487ca77954af75dc2f0912f3bce94f3e81e2b48cecbd57",
-                    454818,
-                    "HISTORICAL_DERIVED_REFERENCE",
-                ),
-                "N12_TAV6_TIPO.dxf": (
-                    "78d0a7a58785edd586e1115b7d8ae820436c22e24dfc7d7f2cbd81914de78afb",
-                    493006,
-                    "HISTORICAL_DERIVED_REFERENCE",
-                ),
-                "N12_TAV5A_QUARTO.dxf": (
-                    "f3c525ccb6926d80157db5b106f615dc0ff752c5d827b485f4d1e90fb8263e52",
-                    470016,
-                    "HISTORICAL_DERIVED_REFERENCE",
-                ),
-            },
-        )
+        self.assertEqual(observed, expected)
         self.assertFalse(payload["authority"]["primary_source_identity_bridge"])
         self.assertIn(
             "USE_HISTORICAL_DXF_AS_COL03F_PRIMARY_IDENTITY_BRIDGE",

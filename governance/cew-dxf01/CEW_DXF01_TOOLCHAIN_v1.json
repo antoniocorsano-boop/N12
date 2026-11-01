@@ -20,25 +20,28 @@
   },
   "source_scope": [
     {
-      "artifact_name": "N12_TAV7_PILASTRI.dxf",
-      "sha256": "c61731902df0d42266487ca77954af75dc2f0912f3bce94f3e81e2b48cecbd57",
-      "size_bytes": 454818,
-      "historical_role": "derived_historical_dxf_pillar_mapping",
-      "evidentiary_class": "HISTORICAL_DERIVED_REFERENCE"
+      "artifact_name": "TAV5_CARPENTERIA.dxf",
+      "sha256": "f8daddb352ac52399f83d34995dada371ab8940d4866baa9d5acaa913b67e3ec",
+      "size_bytes": 717875,
+      "package_crc32": "02ca74cf",
+      "historical_role": "DERIVED_GRAPHICAL_REFERENCE",
+      "evidentiary_class": "HISTORICAL_DERIVED_EVIDENCE"
     },
     {
-      "artifact_name": "N12_TAV6_TIPO.dxf",
-      "sha256": "78d0a7a58785edd586e1115b7d8ae820436c22e24dfc7d7f2cbd81914de78afb",
-      "size_bytes": 493006,
-      "historical_role": "derived_historical_dxf_typical_floor",
-      "evidentiary_class": "HISTORICAL_DERIVED_REFERENCE"
+      "artifact_name": "TAV6_TRAVI.dxf",
+      "sha256": "770eda8e5cf37f386427229aba68e414a3da3b6bda81f6cd557cf11cea1d14c1",
+      "size_bytes": 379309,
+      "package_crc32": "66e49298",
+      "historical_role": "DERIVED_GRAPHICAL_REFERENCE",
+      "evidentiary_class": "HISTORICAL_DERIVED_EVIDENCE"
     },
     {
-      "artifact_name": "N12_TAV5A_QUARTO.dxf",
-      "sha256": "f3c525ccb6926d80157db5b106f615dc0ff752c5d827b485f4d1e90fb8263e52",
-      "size_bytes": 470016,
-      "historical_role": "derived_historical_dxf_fourth_floor",
-      "evidentiary_class": "HISTORICAL_DERIVED_REFERENCE"
+      "artifact_name": "TAV7_PILASTRI.dxf",
+      "sha256": "6ab095fee72db4f5163dac6cc85e04b8b47e6b54a9f4d8090a9c515512bec47d",
+      "size_bytes": 454309,
+      "package_crc32": "944223a9",
+      "historical_role": "DERIVED_GRAPHICAL_REFERENCE",
+      "evidentiary_class": "HISTORICAL_DERIVED_EVIDENCE"
     }
   ],
   "required_observation_surface": [
