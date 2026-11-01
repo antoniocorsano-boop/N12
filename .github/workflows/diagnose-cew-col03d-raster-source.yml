@@ -71,48 +71,68 @@ jobs:
           git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:'archive/documentazione_originaria/tavola 6.pdf' > /tmp/col03d-raster-source/tavola6.pdf
           git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:'archive/documentazione_originaria/tavola7.pdf' > /tmp/col03d-raster-source/tavola7.pdf
           sha256sum /tmp/col03d-raster-source/*.pdf
-      - name: Install read-only PDF image inspector
-        run: python -m pip install --disable-pip-version-check PyMuPDF==1.26.5
-      - name: Audit embedded raster candidates
+      - name: Install read-only raster inspectors
+        run: python -m pip install --disable-pip-version-check PyMuPDF==1.26.5 Pillow
+      - name: Audit embedded raster candidates and deterministic transforms
         run: |
           python - <<'PY'
           import fitz
           import hashlib
           from pathlib import Path
+          from io import BytesIO
+          from PIL import Image, __version__ as PILLOW_VERSION
 
           EXPECTED = {
               'tavola5.pdf': ((4060, 2274), '20810b04fa96d4a12d2c93767ae3f205b69e0abe34749567e362989601875e02'),
               'tavola6.pdf': ((8222, 1393), 'fe6a29b74d3c8abefae0e3ac50bd3db94ab8aa23949197b4970e21442e04a8ad'),
               'tavola7.pdf': ((6731, 1393), 'd56fd2feb2849e237af94f7af46efc591c4c2cdbad828618565621e7288a3595'),
           }
+          RESAMPLERS = {
+              'NEAREST': Image.Resampling.NEAREST,
+              'BOX': Image.Resampling.BOX,
+              'BILINEAR': Image.Resampling.BILINEAR,
+              'HAMMING': Image.Resampling.HAMMING,
+              'BICUBIC': Image.Resampling.BICUBIC,
+              'LANCZOS': Image.Resampling.LANCZOS,
+          }
+          ROTATIONS = {
+              'R90': Image.Transpose.ROTATE_90,
+              'R270': Image.Transpose.ROTATE_270,
+          }
           root = Path('/tmp/col03d-raster-source')
+          print('PILLOW_VERSION', PILLOW_VERSION)
           for filename, (expected_dims, expected_sha) in EXPECTED.items():
               doc = fitz.open(root / filename)
-              seen = set()
-              candidates = []
-              for page_index, page in enumerate(doc):
-                  for image in page.get_images(full=True):
-                      xref = image[0]
-                      if xref in seen:
-                          continue
-                      seen.add(xref)
-                      extracted = doc.extract_image(xref)
-                      data = extracted['image']
-                      row = {
-                          'page': page_index + 1,
-                          'xref': xref,
-                          'ext': extracted.get('ext'),
-                          'width': extracted.get('width'),
-                          'height': extracted.get('height'),
-                          'size': len(data),
-                          'sha256': hashlib.sha256(data).hexdigest(),
-                      }
-                      candidates.append(row)
-              print('PDF', filename, 'EXPECTED_DIMS', expected_dims, 'EXPECTED_SHA', expected_sha)
-              print('EMBEDDED_IMAGE_COUNT', len(candidates))
-              for row in candidates:
-                  match_dims = (row['width'], row['height']) == expected_dims
-                  match_sha = row['sha256'] == expected_sha
-                  print('IMAGE', row, 'MATCH_DIMS', match_dims, 'MATCH_SHA', match_sha)
-              print('EXACT_RASTER_MATCH', any(r['sha256'] == expected_sha for r in candidates))
+              page = doc[0]
+              print('PDF', filename, 'PAGE_RECT', tuple(page.rect), 'ROTATION', page.rotation)
+              images = page.get_images(full=True)
+              if len(images) != 1:
+                  raise SystemExit(f'EXPECTED_ONE_EMBEDDED_IMAGE:{filename}:{len(images)}')
+              extracted = doc.extract_image(images[0][0])
+              raw = extracted['image']
+              print('EMBEDDED', extracted.get('ext'), extracted.get('width'), extracted.get('height'), len(raw), hashlib.sha256(raw).hexdigest())
+              source = Image.open(BytesIO(raw)).convert('RGB')
+              matches = []
+              attempts = 0
+              for rotation_name, transpose in ROTATIONS.items():
+                  rotated = source.transpose(transpose)
+                  for resample_name, resample in RESAMPLERS.items():
+                      resized = rotated.resize(expected_dims, resample=resample)
+                      for optimize in (False, True):
+                          buf = BytesIO()
+                          resized.save(
+                              buf,
+                              format='JPEG',
+                              quality=95,
+                              subsampling=2,
+                              optimize=optimize,
+                              progressive=False,
+                          )
+                          data = buf.getvalue()
+                          digest = hashlib.sha256(data).hexdigest()
+                          attempts += 1
+                          if digest == expected_sha:
+                              matches.append((rotation_name, resample_name, optimize, len(data), digest))
+              print('TRANSFORM_ATTEMPTS', attempts, 'TARGET_DIMS', expected_dims, 'EXPECTED_SHA', expected_sha)
+              print('EXACT_TRANSFORM_MATCHES', matches)
           PY
