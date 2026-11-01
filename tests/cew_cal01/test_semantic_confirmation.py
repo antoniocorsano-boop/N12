@@ -1,8 +1,10 @@
 import unittest
+from unittest.mock import patch
 
 from experiments.cew_cal01.numeric_role import dimension_tick_relation
 from experiments.cew_cal01.semantic_exact_source import (
     build_confirmation_pass_plan,
+    collect_local_line_evidence,
     merge_local_line_evidence,
     select_confirmation_token,
 )
@@ -75,6 +77,30 @@ class Cal01SemanticConfirmationContractTests(unittest.TestCase):
         self.assertEqual(relation["tick_style"], "DIAGONAL_SLASH")
         self.assertLess(relation["endpoint_a_px"][1], 5900.0)
         self.assertGreater(relation["endpoint_b_px"][1], 6100.0)
+
+    @patch(
+        "experiments.cew_cal01.semantic_exact_source._extract_local_short_tick_segments",
+        return_value=[
+            [2400.0, 5870.0, 2406.0, 5884.0],
+            [2388.0, 6111.0, 2419.0, 6122.0],
+            [2000.0, 5800.0, 2600.0, 6400.0],
+        ],
+    )
+    @patch(
+        "experiments.cew_cal01.semantic_exact_source._extract_local_line_segments",
+        return_value=[[2400.0, 5847.0, 2405.0, 6140.0]],
+    )
+    def test_runtime_collector_merges_primary_and_bounded_short_tick_channels(self, primary_mock, short_mock):
+        merged, evidence = collect_local_line_evidence(object(), [2413.0, 5940.0, 2452.0, 6033.0])
+        self.assertEqual(merged[0], [2400.0, 5847.0, 2405.0, 6140.0])
+        self.assertIn([2400.0, 5870.0, 2406.0, 5884.0], merged)
+        self.assertIn([2388.0, 6111.0, 2419.0, 6122.0], merged)
+        self.assertNotIn([2000.0, 5800.0, 2600.0, 6400.0], merged)
+        self.assertEqual(evidence["primary_line_segment_count"], 1)
+        self.assertEqual(evidence["short_tick_candidate_count"], 3)
+        self.assertEqual(evidence["merged_line_segment_count"], 3)
+        primary_mock.assert_called_once()
+        short_mock.assert_called_once()
 
 
 if __name__ == "__main__":
