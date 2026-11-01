@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import base64
+import binascii
 import hashlib
+import lzma
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 import zlib
 
 
 HISTORICAL_MEMBER_ROOT = "archive/historical_packages/v25/members"
+HISTORICAL_TRANSPORT_ROOT = "archive/historical_packages/v25/transport"
 
 _REQUIRED_ROWS = (
     ("TAV5_CARPENTERIA.dxf", 717875, "f8daddb352ac52399f83d34995dada371ab8940d4866baa9d5acaa913b67e3ec", "02ca74cf", "DERIVED_GRAPHICAL_REFERENCE"),
@@ -27,6 +31,7 @@ REQUIRED_MEMBER_CONTRACTS: tuple[dict[str, Any], ...] = tuple(
         "sha256": sha256,
         "package_crc32": crc32,
         "qualified_role": role,
+        "transport_encoding": "XZ_BASE64",
         "authority": "HISTORICAL_DERIVED_EVIDENCE",
         "promotion_authorized": False,
     }
@@ -59,6 +64,51 @@ def verify_member_bytes(artifact_name: str, data: bytes, contract: dict[str, Any
         "authority": "HISTORICAL_DERIVED_EVIDENCE",
         "promotion_authorized": False,
     }
+
+
+def _read_transport_payload(transport_root: Path, artifact_name: str) -> bytes:
+    single = transport_root / f"{artifact_name}.xz.b64"
+    if single.is_file():
+        payload_paths = [single]
+    else:
+        payload_paths = sorted(transport_root.glob(f"{artifact_name}.xz.b64.part*"))
+    if not payload_paths:
+        raise ValueError(f"REQUIRED_MEMBER_TRANSPORT_NOT_FOUND:{artifact_name}")
+    try:
+        encoded = "".join(
+            "".join(path.read_text(encoding="ascii").split())
+            for path in payload_paths
+        )
+        compressed = base64.b64decode(encoded, validate=True)
+        return lzma.decompress(compressed, format=lzma.FORMAT_XZ)
+    except (OSError, UnicodeError, binascii.Error, lzma.LZMAError) as exc:
+        raise ValueError(f"TRANSPORT_DECODE_FAILED:{artifact_name}") from exc
+
+
+def reconstruct_required_member_directory(
+    transport_root: str | Path,
+    output_root: str | Path,
+    contracts: Iterable[dict[str, Any]] = REQUIRED_MEMBER_CONTRACTS,
+) -> list[dict[str, Any]]:
+    transport_path = Path(transport_root)
+    output_path = Path(output_root)
+    reconstructed: list[dict[str, Any]] = []
+    for contract in sorted(contracts, key=lambda row: str(row.get("artifact_name") or "")):
+        name = str(contract.get("artifact_name") or "")
+        if contract.get("transport_encoding") != "XZ_BASE64":
+            raise ValueError(f"HISTORICAL_MEMBER_TRANSPORT_CONTRACT_DRIFT:{name}")
+        data = _read_transport_payload(transport_path, name)
+        verified = verify_member_bytes(name, data, contract)
+        output_path.mkdir(parents=True, exist_ok=True)
+        (output_path / name).write_bytes(data)
+        reconstructed.append(
+            {
+                **verified,
+                "transport_encoding": "XZ_BASE64",
+                "transport_reconstruction_state": "LOSSLESS_RECONSTRUCTED",
+            }
+        )
+    return reconstructed
 
 
 def verify_required_member_directory(
