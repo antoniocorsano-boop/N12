@@ -147,7 +147,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         "required_historical_members_materialized": closure[
             "required_historical_members_materialized"
         ],
-        "status": "EXACT_SOURCE_QUALIFICATION_COMPLETE",
+        "status": (
+            "EXACT_SOURCE_QUALIFICATION_COMPLETE"
+            if closure["col03d_exact_source_qualification_complete"]
+            else "RECOVERY_EVIDENCE_CHECKPOINT_COMPLETE"
+        ),
     }
     print("CEW_COL03D_RECOVERY=" + json.dumps(summary, sort_keys=True, separators=(",", ":")))
     return 0
