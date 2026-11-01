@@ -79,7 +79,7 @@ def _read_transport_payload(transport_root: Path, artifact_name: str) -> bytes:
     try:
         raw_transport = "".join(path.read_text(encoding="ascii") for path in payload_paths)
         encoded = "".join(ch for ch in raw_transport if ch in _BASE64_ALPHABET)
-        compressed = base64.b64decode(encoded, validate=True)
+        compressed = base64.b64decode(encoded, validate=False)
         return lzma.decompress(compressed, format=lzma.FORMAT_XZ)
     except (OSError, UnicodeError, binascii.Error, lzma.LZMAError) as exc:
         raise ValueError(f"TRANSPORT_DECODE_FAILED:{artifact_name}") from exc
