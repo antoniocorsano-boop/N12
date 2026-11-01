@@ -4,7 +4,7 @@
 
 ## Intent
 
-Close the sole COL-03D blocker `HISTORICAL_PACKAGE_NOT_REPOSITORY_REPLAYABLE` by preserving the exact original bytes of `Ariano_Irpino_DXF_strutturale_v25.zip` in repository-owned storage that is reproducible from an exact checkout.
+Close the sole COL-03D blocker `HISTORICAL_PACKAGE_NOT_REPOSITORY_REPLAYABLE` by preserving the exact original bytes of `Ariano_Irpino_DXF_strutturale_v25.zip` in repository-owned storage that GitHub Actions can retrieve reproducibly without a public host.
 
 Frozen package identity:
 
@@ -12,59 +12,106 @@ Frozen package identity:
 - SHA-256: `10eba8c6fea2c04feeea0294278f90d90a080a247f07028cd1eaf106a2d52c8d`;
 - ZIP members: `91`.
 
-The persistent Library copy has been independently re-verified against those three values and ZIP integrity.
+The persistent Library copy was independently re-verified against those values and ZIP integrity before transfer.
 
-## Ruling: split raw-byte repository transport
+## Ruling superseding the provisional split-blob design
 
-The available GitHub write surface cannot upload the 5.3 MB ZIP as one binary file without routing the payload through model text. COL-03D therefore uses a binary-safe repository transport made of raw byte segments.
+A repository-owned binary channel became available after the initial RED contract: a **private draft GitHub release asset**. It avoids routing 5.3 MB through model text, avoids public file hosting and preserves the original bytes as one GitHub-managed object.
 
-- source transport root: `archive/historical_packages/v25/package_transport/`;
-- file naming: `Ariano_Irpino_DXF_strutturale_v25.zip.part000` ... in zero-padded lexical order;
-- maximum part payload: `262144` bytes (256 KiB), except the final part;
-- expected part count: `21`;
-- Git blob bytes are raw slices of the exact original ZIP, not base64 text files and not recompressed data;
-- reconstruction is strict byte concatenation in manifest order;
-- every part has frozen byte size and SHA-256 in `package_transport_manifest.json`;
-- the reconstructed package is accepted only after full size, SHA-256, ZIP integrity and exact member-count verification.
+The provisional 21-part split design is therefore SUPERSEDED before implementation. No split package parts are canonical.
 
-This transport is lossless segmentation, not regeneration. The package is considered `repository_materialized = true` only when the complete governed transport is present and reconstructs the frozen package exactly from the checkout.
+Governed storage identity:
+
+- GitHub repository: `antoniocorsano-boop/N12`;
+- draft release id: `430435574`;
+- release tag contract: `cew-col03d-v25-package-10eba8c6`;
+- release state required by qualification: `draft = true`;
+- asset id: `697696555`;
+- asset name: `Ariano_Irpino_DXF_strutturale_v25.zip`;
+- asset content type: `application/zip`;
+- asset size: `5,345,286` bytes;
+- GitHub asset digest: `sha256:10eba8c6fea2c04feeea0294278f90d90a080a247f07028cd1eaf106a2d52c8d`.
+
+The asset upload itself was performed only after an independent SHA-256 and size check. Transfer used an authenticated/private temporary file bridge; the bridge is not a qualification source.
+
+## Immutability model
+
+GitHub does not mutate release-asset bytes in place. Replacing the payload requires deleting the asset and uploading a new asset, which yields a different asset identity. COL-03D therefore pins **asset id + repository + expected name + size + SHA-256**.
+
+Qualification fails closed if asset id `697696555` is unavailable, renamed unexpectedly, has a different size/digest, or downloads bytes that fail the frozen package verification. A different asset with the same filename is not an authorized substitute.
+
+The release remains **draft/private**. Publishing the release is not required and is not authorized by COL-03D.
+
+## Retrieval contract
+
+GitHub Actions retrieves the pinned asset through the GitHub REST asset endpoint:
+
+`GET /repos/antoniocorsano-boop/N12/releases/assets/697696555`
+
+with `Accept: application/octet-stream` and the workflow `GITHUB_TOKEN`. The workflow must not use the browser download URL as an unpinned public source.
+
+The downloaded file is accepted only after `verify_package_source()` proves:
+
+1. exact byte size `5,345,286`;
+2. exact SHA-256 `10eba8c6fea2c04feeea0294278f90d90a080a247f07028cd1eaf106a2d52c8d`;
+3. ZIP integrity PASS;
+4. exact member count `91`.
+
+## Repository manifest
+
+Add `archive/historical_packages/v25/package_asset_manifest.json` containing only non-secret immutable retrieval metadata:
+
+- repository owner/name;
+- release id;
+- required release state (`draft`);
+- asset id;
+- asset name/content type;
+- expected size/digest;
+- package member count;
+- authority `HISTORICAL_DERIVED_EVIDENCE`;
+- all promotion flags false.
+
+No bearer token, signed URL, Drive URL or temporary transfer locator may be committed.
+
+## Code interfaces
+
+Add `experiments/cew_col03d/package_asset.py` with pure/fail-closed helpers:
+
+- `load_package_asset_manifest(path: Path) -> dict[str, Any]`;
+- `validate_package_asset_metadata(manifest: dict[str, Any], metadata: dict[str, Any]) -> dict[str, Any]`;
+- `verify_downloaded_package_asset(path: Path, manifest: dict[str, Any]) -> dict[str, Any]`.
+
+The first two helpers validate the pinned GitHub metadata. The third delegates byte-level package verification to existing `verify_package_source()` and may then return a witness with:
+
+- `repository_materialized = true`;
+- `exact_source_replayable = true`;
+- `verification_state = MATERIALIZED_VERIFIED`;
+- historical-evidence authority unchanged;
+- identity promotion false.
+
+`exact_source.build_exact_source_recovery()` accepts a verified package witness supplied by the exact-source workflow. Local unit paths may use a verified downloaded fixture only; no network call belongs inside evidence parsing code.
 
 ## Fail-closed rules
 
 Qualification MUST fail for any of:
 
-- missing part;
-- extra ungoverned part;
-- duplicate part index;
-- part-size drift;
-- part SHA-256 drift;
-- reordered or renamed part surface;
-- reconstructed size or package SHA drift;
+- release not draft;
+- asset id mismatch or unavailable;
+- asset name/content-type/size/digest metadata drift;
+- downloaded size or SHA-256 drift;
 - invalid ZIP integrity;
-- member count other than 91.
-
-No fallback to PDF rendering, JPEG regeneration, lossy conversion, public host or unpinned external URL is permitted.
-
-## Interfaces
-
-Add `experiments/cew_col03d/package_transport.py` with:
-
-- `load_package_transport_manifest(path: Path) -> dict[str, Any]`;
-- `verify_package_transport(transport_root: Path, manifest: dict[str, Any]) -> list[dict[str, Any]]`;
-- `reconstruct_historical_package_from_transport(transport_root: Path, output_path: Path, manifest: dict[str, Any]) -> dict[str, Any]`.
-
-The reconstruction result must carry the existing historical-evidence authority closure and may set `repository_materialized = true` and `exact_source_replayable = true` only after `verify_package_source()` accepts the reconstructed ZIP against the frozen package contract.
-
-`exact_source.build_exact_source_recovery()` must use the package transport as its package witness while continuing to use the already qualified eight-member transport for row/DXF evidence. No historical member semantics are promoted.
+- member count other than 91;
+- fallback to a same-name but different asset;
+- fallback to PDF rendering, JPEG regeneration, lossy conversion, public host or unpinned URL.
 
 ## Qualification
 
 Fresh exact-SHA qualification must prove:
 
-1. transport contract RED before implementation;
-2. all 21 repository parts are present and individually verified;
-3. reconstructed ZIP is exactly 5,345,286 bytes with the frozen SHA-256;
-4. ZIP integrity PASS and 91 members;
+1. a causal RED exists before the release-asset implementation;
+2. pinned release/asset metadata are retrieved using authenticated GitHub API access;
+3. exact asset bytes download without manual intervention;
+4. downloaded ZIP is exactly 5,345,286 bytes with the frozen SHA-256, ZIP integrity PASS and 91 members;
 5. all eight governed member checks remain PASS;
 6. COL-03C regression remains PASS;
 7. generated COL-03D closure has no qualification blockers and `col03d_exact_source_qualification_complete = true`;
