@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 try:
     from experiments.cew_cal01.internal_dimension import (
@@ -144,6 +145,19 @@ class Cal01InternalDimensionContractTests(unittest.TestCase):
         self.assertFalse(first["tav02s_evidence_loaded"])
         self.assertFalse(first["authority"]["canonical_geometry_authorized"])
         self.assertFalse(first["authority"]["canonical_write_authorized"])
+
+    def test_workflow_runs_and_asserts_internal_exact_source_stage(self):
+        workflow = Path(".github/workflows/validate-cew-cal01.yml").read_text(encoding="utf-8")
+        self.assertIn("python -m experiments.cew_cal01.internal_dimension", workflow)
+        self.assertIn("--perimeter-discovery", workflow)
+        self.assertIn("perimeter/perimeter-dimension-discovery.json", workflow)
+        self.assertIn("--output-dir \"$RUNNER_TEMP/cew-cal01-dimension-discovery/internal\"", workflow)
+        self.assertIn("internal/internal-dimension-discovery.json", workflow)
+        self.assertIn("assert internal['source']['sha256'] == expected_sha", workflow)
+        self.assertIn("assert internal['primary_anchor_count'] == 0", workflow)
+        self.assertIn("assert internal['perimeter_trigger']['candidate_count'] == 0", workflow)
+        self.assertIn("INTERNAL_LINEAR_DIMENSION_CANDIDATES_OBSERVED", workflow)
+        self.assertIn("INTERNAL_DIMENSION_CHAINS_NOT_OBSERVED", workflow)
 
 
 if __name__ == "__main__":
