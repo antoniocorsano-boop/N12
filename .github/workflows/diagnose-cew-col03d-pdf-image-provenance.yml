@@ -1,0 +1,117 @@
+name: Diagnose CEW-COL-03D PDF Image Provenance
+
+on:
+  push:
+    branches:
+      - diag/cew-col03d-raster-renderer-forensics
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout diagnostic branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install frozen inspectors
+        run: python -m pip install --disable-pip-version-check PyMuPDF==1.26.5 Pillow==13.0.0
+      - name: Materialize frozen primary PDFs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/col03d-pdf-images
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:'archive/documentazione_originaria/tavola 5.pdf' > /tmp/col03d-pdf-images/tavola5.pdf
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:'archive/documentazione_originaria/tavola 6.pdf' > /tmp/col03d-pdf-images/tavola6.pdf
+          git show 78c20a52db4f391ce0d13b9705b9f04737e218c9:'archive/documentazione_originaria/tavola7.pdf' > /tmp/col03d-pdf-images/tavola7.pdf
+      - name: Inspect embedded image bytes and deterministic transforms
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import fitz
+          import hashlib
+          from io import BytesIO
+          from pathlib import Path
+          from PIL import Image
+
+          CASES = {
+              'tavola5.pdf': {
+                  'expected_dims': (4060,2274),
+                  'expected_jpeg_sha': '20810b04fa96d4a12d2c93767ae3f205b69e0abe34749567e362989601875e02',
+                  'expected_rgb_sha': 'adeccc645272b547a584b81ae5caaeb33c3a39f96384bb601434f828ad2afea1',
+              },
+              'tavola6.pdf': {
+                  'expected_dims': (8222,1393),
+                  'expected_jpeg_sha': 'fe6a29b74d3c8abefae0e3ac50bd3db94ab8aa23949197b4970e21442e04a8ad',
+                  'expected_rgb_sha': 'f2e06fddc3e2e9d2b5498ba1f902e3df461515b87096b974b126b7237e7777a5',
+              },
+              'tavola7.pdf': {
+                  'expected_dims': (6731,1393),
+                  'expected_jpeg_sha': 'd56fd2feb2849e237af94f7af46efc591c4c2cdbad828618565621e7288a3595',
+                  'expected_rgb_sha': 'a03c1f1a2730b6118adb525da515456fce3f5438ca5a8b11c0a8e857839db686',
+              },
+          }
+          root=Path('/tmp/col03d-pdf-images')
+          any_match=False
+
+          def rgb_sha(img):
+              return hashlib.sha256(img.convert('RGB').tobytes()).hexdigest()
+
+          for filename, meta in CASES.items():
+              doc=fitz.open(root/filename)
+              page=doc[0]
+              images=page.get_images(full=True)
+              print('PDF_IMAGE_COUNT',filename,len(images))
+              for index,row in enumerate(images):
+                  xref=row[0]
+                  info=doc.extract_image(xref)
+                  data=info['image']
+                  digest=hashlib.sha256(data).hexdigest()
+                  print('EMBEDDED_IMAGE',filename,index,'xref',xref,'ext',info.get('ext'),'width',info.get('width'),'height',info.get('height'),'bytes',len(data),'sha256',digest,'JPEG_MATCH',digest==meta['expected_jpeg_sha'])
+                  if digest==meta['expected_jpeg_sha']:
+                      print('CEW_COL03D_EMBEDDED_JPEG_EXACT_MATCH',filename,index,xref)
+                      any_match=True
+                  try:
+                      img=Image.open(BytesIO(data)).convert('RGB')
+                  except Exception as exc:
+                      print('EMBEDDED_IMAGE_PIL_FAIL',filename,index,repr(exc))
+                      continue
+                  variants=[('native',img),('r90',img.transpose(Image.Transpose.ROTATE_90)),('r270',img.transpose(Image.Transpose.ROTATE_270))]
+                  for label,candidate in variants:
+                      digest_rgb=rgb_sha(candidate)
+                      match=candidate.size==meta['expected_dims'] and digest_rgb==meta['expected_rgb_sha']
+                      print('EMBEDDED_RGB',filename,index,label,'dims',candidate.size,'sha',digest_rgb,'MATCH',match)
+                      if match:
+                          print('CEW_COL03D_EMBEDDED_RGB_EXACT_MATCH',filename,index,label)
+                          any_match=True
+
+                  # Only deterministic Pillow resampling from each orientation.
+                  for orientation,base in variants:
+                      if base.size == meta['expected_dims']:
+                          continue
+                      for resampler in (
+                          Image.Resampling.NEAREST,
+                          Image.Resampling.BILINEAR,
+                          Image.Resampling.BICUBIC,
+                          Image.Resampling.LANCZOS,
+                      ):
+                          resized=base.resize(meta['expected_dims'], resampler)
+                          digest_rgb=rgb_sha(resized)
+                          match=digest_rgb==meta['expected_rgb_sha']
+                          print('RESIZE_RGB',filename,index,orientation,resampler.name,'from',base.size,'to',resized.size,'sha',digest_rgb,'MATCH',match)
+                          if match:
+                              print('CEW_COL03D_EMBEDDED_RESIZE_EXACT_MATCH',filename,index,orientation,resampler.name)
+                              any_match=True
+
+          print('CEW_COL03D_PDF_EMBEDDED_IMAGE_ANY_MATCH',any_match)
+          PY
