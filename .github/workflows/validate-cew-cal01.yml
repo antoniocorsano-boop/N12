@@ -12,8 +12,10 @@ on:
       - 'requirements/cew-cal01.lock.txt'
       - 'docs/superpowers/specs/2026-11-01-cew-cal01-primary-metric-calibration-design.md'
       - 'docs/superpowers/specs/2026-11-01-cew-cal01-perimeter-dimension-chain-design.md'
+      - 'docs/superpowers/specs/2026-11-01-cew-cal01-internal-dimension-chain-design.md'
       - 'docs/superpowers/plans/2026-11-01-cew-cal01-primary-metric-calibration.md'
       - 'docs/superpowers/plans/2026-11-01-cew-cal01-perimeter-dimension-chain.md'
+      - 'docs/superpowers/plans/2026-11-01-cew-cal01-internal-dimension-chain.md'
       - '.github/workflows/validate-cew-cal01.yml'
 
 jobs:
@@ -72,6 +74,13 @@ jobs:
             --image "$RUNNER_TEMP/cew-cal01-dimension-discovery/tav5-primary-300dpi.png" \
             --base-discovery "$RUNNER_TEMP/cew-cal01-dimension-discovery/dimension-discovery.json" \
             --output-dir "$RUNNER_TEMP/cew-cal01-dimension-discovery/perimeter"
+      - name: Discover internal TAV.5 dimension chains
+        run: |
+          python -m experiments.cew_cal01.internal_dimension \
+            --image "$RUNNER_TEMP/cew-cal01-dimension-discovery/tav5-primary-300dpi.png" \
+            --base-discovery "$RUNNER_TEMP/cew-cal01-dimension-discovery/dimension-discovery.json" \
+            --perimeter-discovery "$RUNNER_TEMP/cew-cal01-dimension-discovery/perimeter/perimeter-dimension-discovery.json" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-dimension-discovery/internal"
       - name: Discover oriented tiled TAV.5 dimension proposals
         run: |
           python -m experiments.cew_cal01.oriented_discovery \
@@ -91,7 +100,7 @@ jobs:
             --oriented-discovery "$RUNNER_TEMP/cew-cal01-dimension-discovery/oriented/oriented-dimension-discovery.json" \
             --semantic-replay "$RUNNER_TEMP/cew-cal01-dimension-discovery/semantic/semantic-role-replay.json" \
             --output-dir "$RUNNER_TEMP/cew-cal01-dimension-discovery/tight"
-      - name: Assert exact-source discovery semantic, perimeter and tight boundaries
+      - name: Assert exact-source discovery semantic, perimeter, internal and tight boundaries
         run: |
           python - <<'PY'
           import json, os
@@ -99,17 +108,19 @@ jobs:
           root = Path(os.environ['RUNNER_TEMP']) / 'cew-cal01-dimension-discovery'
           data = json.loads((root / 'dimension-discovery.json').read_text())
           perimeter = json.loads((root / 'perimeter' / 'perimeter-dimension-discovery.json').read_text())
+          internal = json.loads((root / 'internal' / 'internal-dimension-discovery.json').read_text())
           oriented = json.loads((root / 'oriented' / 'oriented-dimension-discovery.json').read_text())
           semantic = json.loads((root / 'semantic' / 'semantic-role-replay.json').read_text())
           tight = json.loads((root / 'tight' / 'tight-exact-source-replay.json').read_text())
           expected_sha = '2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580'
           assert data['source']['sha256'] == expected_sha
           assert perimeter['source']['sha256'] == expected_sha
+          assert internal['source']['sha256'] == expected_sha
           assert oriented['source']['sha256'] == expected_sha
           assert semantic['source']['sha256'] == expected_sha
           assert tight['source']['sha256'] == expected_sha
           assert data['numeric_proposal_count'] > 0
-          for payload in (data, perimeter, oriented, semantic, tight):
+          for payload in (data, perimeter, internal, oriented, semantic, tight):
               assert payload['historical_comparator_loaded'] is False
               assert payload['historical_affine_loaded'] is False
               assert payload['tav02s_evidence_loaded'] is False
@@ -124,6 +135,15 @@ jobs:
               'PERIMETER_DIMENSION_CHAINS_NOT_OBSERVED',
           }
           assert all(row['semantic_role'] == 'PERIMETER_LINEAR_DIMENSION_CANDIDATE' for row in perimeter['candidates'])
+          assert internal['perimeter_trigger']['candidate_count'] == 0
+          assert internal['perimeter_trigger']['status'] == 'PERIMETER_DIMENSION_CHAINS_NOT_OBSERVED'
+          assert internal['primary_anchor_count'] == 0
+          assert internal['candidate_count'] <= internal['location_cluster_count']
+          assert internal['status'] in {
+              'INTERNAL_LINEAR_DIMENSION_CANDIDATES_OBSERVED',
+              'INTERNAL_DIMENSION_CHAINS_NOT_OBSERVED',
+          }
+          assert all(row['semantic_role'] == 'INTERNAL_LINEAR_DIMENSION_CANDIDATE' for row in internal['candidates'])
           assert oriented['tile_strategy']['rotations_degrees'] == [0, 90, 180, 270]
           assert oriented['tile_count_selected'] > 0
           assert oriented['ocr_pass_count'] == oriented['tile_count_selected'] * 4
@@ -147,6 +167,12 @@ jobs:
               'perimeter_candidate_count': perimeter['candidate_count'],
               'perimeter_status': perimeter['status'],
               'perimeter_discovery_digest': perimeter['perimeter_discovery_digest'],
+              'internal_numeric_observation_count': internal['numeric_observation_count'],
+              'internal_location_cluster_count': internal['location_cluster_count'],
+              'internal_role_counts': internal['role_counts'],
+              'internal_candidate_count': internal['candidate_count'],
+              'internal_status': internal['status'],
+              'internal_discovery_digest': internal['internal_discovery_digest'],
               'location_cluster_count': oriented['location_cluster_count'],
               'semantic_consensus_confirmed_count': semantic['consensus_confirmed_count'],
               'semantic_role_counts': semantic['role_counts'],
