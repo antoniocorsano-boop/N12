@@ -32,6 +32,26 @@
       "primary_anchor_authorized": false
     },
     {
+      "review_id": "C2",
+      "cluster_index": 2,
+      "source_bbox_px": [2413.0, 5940.0, 2452.0, 6033.0],
+      "machine_semantic_consensus": "420",
+      "human_reading": "120 cm",
+      "object_class": "CORNICE_OVERHANG_LAST_LEVEL",
+      "property": "PLAN_PROJECTION",
+      "value": {"projection_m": 1.20},
+      "evidence_class": "DOC",
+      "semantic_interpretation_class": "RIF",
+      "human_context_note": "Sporgenza del cornicione dell'ultimo livello.",
+      "calibration_role": "LINEAR_DIMENSION",
+      "metric_relation_state": "PRIMARY_VISUAL_VALIDATED",
+      "metric_source_kind": "PRIMARY_TAV5_DOCUMENTED_RELATION",
+      "eligible_for_metric_relation_network": true,
+      "eligible_for_metric_calibration": false,
+      "primary_anchor_authorized": false,
+      "note": "Relazione metrica primaria validata visualmente; non e' ancora un punto di ancoraggio assoluto."
+    },
+    {
       "review_id": "C5",
       "cluster_index": 5,
       "source_bbox_px": [1242.0, 7171.0, 1360.0, 7208.0],
@@ -131,12 +151,13 @@
     }
   ],
   "summary": {
-    "reviewed_count": 7,
+    "reviewed_count": 8,
     "section_measure_count": 6,
     "not_documented_dimension_count": 1,
-    "linear_dimension_count": 0,
+    "linear_dimension_count": 1,
+    "validated_metric_relation_count": 1,
     "fit_eligible_anchor_count": 0,
-    "machine_reading_corrections": ["C5: 48 -> 20", "C6: 0 -> 40x40 context", "C10: 420 -> 120", "C12: 4 -> no documented dimension", "C13: 20 -> 50x20 context"]
+    "machine_reading_corrections": ["C2: 420 -> 120", "C5: 48 -> 20", "C6: 0 -> 40x40 context", "C10: 420 -> 120", "C12: 4 -> no documented dimension", "C13: 20 -> 50x20 context"]
   },
   "authority": {
     "structural_identity_authorized": false,
