@@ -26,14 +26,20 @@ class HistoricalPackageSourceTests(unittest.TestCase):
         self.assertEqual(HISTORICAL_V25_PACKAGE["member_count"], 91)
         self.assertEqual(HISTORICAL_V25_PACKAGE["authority"], "HISTORICAL_DERIVED_EVIDENCE")
         self.assertFalse(HISTORICAL_V25_PACKAGE["identity_promotion_authorized"])
-        self.assertFalse(HISTORICAL_V25_PACKAGE["repository_materialized"])
+        self.assertTrue(HISTORICAL_V25_PACKAGE["repository_materialized"])
 
-    def test_unmaterialized_repository_package_fails_closed(self):
+    def test_repository_package_is_materialized_and_verified(self):
         self.assertIsNotNone(verify_package_source, "COL-03D package source implementation missing")
         contract = dict(HISTORICAL_V25_PACKAGE)
-        self.assertFalse(Path(contract["repository_path"]).exists())
-        with self.assertRaisesRegex(ValueError, "PACKAGE_SOURCE_NOT_FOUND"):
-            verify_package_source(Path(contract["repository_path"]), contract)
+        path = Path(contract["repository_path"])
+        self.assertTrue(path.is_file())
+        verified = verify_package_source(path, contract)
+        self.assertEqual(verified["sha256"], HISTORICAL_V25_PACKAGE["sha256"])
+        self.assertEqual(verified["size_bytes"], 5_345_286)
+        self.assertEqual(verified["member_count"], 91)
+        self.assertEqual(verified["materialization_state"], "MATERIALIZED_VERIFIED")
+        self.assertTrue(verified["repository_materialized"])
+        self.assertFalse(verified["identity_promotion_authorized"])
 
     def test_changed_bytes_fail_as_provenance_mismatch_before_zip_semantics(self):
         self.assertIsNotNone(verify_package_source, "COL-03D package source implementation missing")
@@ -60,6 +66,7 @@ class HistoricalPackageSourceTests(unittest.TestCase):
             self.assertEqual(verified["member_count"], 1)
             self.assertEqual(verified["authority"], "HISTORICAL_DERIVED_EVIDENCE")
             self.assertFalse(verified["identity_promotion_authorized"])
+            self.assertFalse(verified["repository_materialized"])
 
     def test_missing_package_fails_closed(self):
         self.assertIsNotNone(verify_package_source, "COL-03D package source implementation missing")
