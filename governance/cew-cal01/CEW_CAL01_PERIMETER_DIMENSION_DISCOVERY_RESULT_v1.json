@@ -1,0 +1,49 @@
+{
+  "schema": "CEW_CAL01_PERIMETER_DIMENSION_DISCOVERY_RESULT_v1",
+  "program": "CEW-CAL-01",
+  "source": {
+    "repository": "antoniocorsano-boop/N12",
+    "commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+    "path": "archive/documentazione_originaria/tavola 5.pdf",
+    "page_index": 0,
+    "sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580"
+  },
+  "qualified_candidate": {
+    "head_sha": "9b3df2c1886b5a171bab1e52a35dfdb1c0674959",
+    "workflow_run_id": 41347507193,
+    "workflow_conclusion": "SUCCESS",
+    "artifact_id": 13100047510,
+    "artifact_name": "cew-cal01-primary-dimension-discovery",
+    "artifact_digest": "sha256:1f2dd043f45490ca3ca663088314daa273def4274c2a3d4c030099e8738e7625"
+  },
+  "perimeter_discovery": {
+    "perimeter_discovery_digest": "sha256:4f84ac1e3dbdd7f051eecbfd258d9bb8135a221d75c4374351b999f2a3116eeb",
+    "status": "PERIMETER_DIMENSION_CHAINS_NOT_OBSERVED",
+    "numeric_observation_count": 0,
+    "candidate_count": 0,
+    "rejected_observation_count": 0,
+    "ocr_pass_count": 48,
+    "primary_anchor_count": 0,
+    "structural_plan_envelope_source_px": [347.0, 3759.0, 6384.0, 11061.0],
+    "normalized_frame_transform": "ROTATE_90_COUNTERCLOCKWISE",
+    "bands_normalized_px": [
+      {"side": "TOP", "bbox_px": [3759, 0, 11061, 878]},
+      {"side": "RIGHT", "bbox_px": [10815, 632, 11763, 6669]},
+      {"side": "BOTTOM", "bbox_px": [3759, 6423, 11061, 7016]},
+      {"side": "LEFT", "bbox_px": [3057, 632, 4005, 6669]}
+    ]
+  },
+  "assessment": {
+    "human_review_warranted_for_external_candidates": false,
+    "finding": "The four external rectangular perimeter bands contain no numeric observations. Exact-source overlay inspection shows the bands lie predominantly outside the dimensioned structural drawing, while useful dimension text and linework remain on the internal side of the detected envelope.",
+    "next_governed_step": "INTERNAL_DIMENSION_CHAIN_DISCOVERY",
+    "no_anchor_manufacture": true
+  },
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}
