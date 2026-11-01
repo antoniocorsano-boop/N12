@@ -20,6 +20,45 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
+      - name: Search all fetched refs for historical package/raster blobs
+        run: |
+          python - <<'PY'
+          import subprocess
+
+          names = {
+              'Ariano_Irpino_DXF_strutturale_v25.zip',
+              'Ariano_Irpino_DXF_strutturale_v25(1).zip',
+              'TAV5_CARPENTERIA_raster.jpg',
+              'TAV6_TRAVI_raster.jpg',
+              'TAV7_PILASTRI_raster.jpg',
+          }
+          target_sizes = {5345286, 1701955, 1658546, 1658463}
+          refs = subprocess.check_output(
+              ['git', 'for-each-ref', '--format=%(refname)', 'refs/remotes/origin'], text=True
+          ).splitlines()
+          exact_name_hits = []
+          exact_size_hits = []
+          for ref in refs:
+              listing = subprocess.check_output(['git', 'ls-tree', '-rl', ref], text=True, errors='replace')
+              for line in listing.splitlines():
+                  if '\t' not in line:
+                      continue
+                  meta, path = line.split('\t', 1)
+                  parts = meta.split()
+                  if len(parts) < 4 or parts[1] != 'blob':
+                      continue
+                  try:
+                      size = int(parts[3])
+                  except ValueError:
+                      continue
+                  basename = path.rsplit('/', 1)[-1]
+                  if basename in names:
+                      exact_name_hits.append((ref, path, size, parts[2]))
+                  if size in target_sizes:
+                      exact_size_hits.append((ref, path, size, parts[2]))
+          print('EXACT_NAME_HITS', exact_name_hits)
+          print('EXACT_SIZE_HITS', exact_size_hits)
+          PY
       - name: Set up Python 3.12.15
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
