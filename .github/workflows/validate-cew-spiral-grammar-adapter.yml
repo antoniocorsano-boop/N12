@@ -1,0 +1,26 @@
+name: CEW-SPIRAL-01 Grammar Adapter
+
+on:
+  push:
+    branches:
+      - feat/cew-spiral01-grammar-adapter
+  pull_request:
+    paths:
+      - 'cew_spiral/**'
+      - 'tests/cew_spiral/**'
+      - '.github/workflows/validate-cew-spiral-grammar-adapter.yml'
+
+jobs:
+  grammar-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run grammar adapter contract
+        run: python -m unittest tests.cew_spiral.test_grammar_adapter_contract -v
