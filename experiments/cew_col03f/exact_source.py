@@ -3,6 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
+from experiments.cew_col01.number_anchor import parse_support_like_tsv
 from experiments.cew_col03b.local_evidence import classify_text_relation
 
 
@@ -70,6 +71,27 @@ def crop_specs(
         "FOOTPRINT": _expand_bounds(base, margin=footprint_margin, width=width, height=height),
         "LOCAL": _expand_bounds(base, margin=local_margin, width=width, height=height),
         "CONTEXT": _expand_bounds(base, margin=context_margin, width=width, height=height),
+    }
+
+
+def context_region_from_bounds(
+    bounds: tuple[int, int, int, int],
+    *,
+    page_width: int,
+    page_height: int,
+) -> dict[str, float]:
+    """Project exact page-pixel bounds to a normalized region for relation classification."""
+
+    if page_width <= 0 or page_height <= 0:
+        raise ValueError("COL03F_PAGE_DIMENSIONS_INVALID")
+    left, top, right, bottom = bounds
+    if left < 0 or top < 0 or right <= left or bottom <= top or right > page_width or bottom > page_height:
+        raise ValueError("COL03F_CROP_BOUNDS_INVALID")
+    return {
+        "x": left / page_width,
+        "y": top / page_height,
+        "width": (right - left) / page_width,
+        "height": (bottom - top) / page_height,
     }
 
 
@@ -194,3 +216,37 @@ def normalize_targeted_anchors(
             }
         )
     return observations
+
+
+def parse_targeted_tsv(
+    tsv_text: str,
+    *,
+    occurrence_id: str,
+    region_class: str,
+    ocr_configuration: str,
+    crop_bounds: tuple[int, int, int, int],
+    scale: float,
+    page_width: int,
+    page_height: int,
+    occurrence_bbox: dict[str, Any],
+    local_region: dict[str, Any],
+    provenance_prefix: str,
+) -> list[dict[str, Any]]:
+    """Parse a frozen Tesseract TSV result and map numeric support-like tokens to the primary page."""
+
+    if ocr_configuration not in {"PSM6", "PSM11"}:
+        raise ValueError("COL03F_OCR_CONFIGURATION_INVALID")
+    anchors = parse_support_like_tsv(tsv_text, min_confidence=25.0)
+    return normalize_targeted_anchors(
+        anchors=anchors,
+        occurrence_id=occurrence_id,
+        region_class=region_class,
+        ocr_configuration=ocr_configuration,
+        crop_bounds=crop_bounds,
+        scale=scale,
+        page_width=page_width,
+        page_height=page_height,
+        occurrence_bbox=occurrence_bbox,
+        local_region=local_region,
+        provenance_prefix=provenance_prefix,
+    )
