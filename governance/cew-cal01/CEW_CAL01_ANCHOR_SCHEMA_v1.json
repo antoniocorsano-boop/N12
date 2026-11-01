@@ -1,0 +1,26 @@
+{
+  "schema": "CEW_CAL01_ANCHOR_SCHEMA_v1",
+  "program": "CEW-CAL-01",
+  "allowed_anchor_classes": [
+    "DIMENSION_CHAIN_ENDPOINT",
+    "DOCUMENTED_REFERENCE_INTERSECTION",
+    "SOURCE_NATIVE_METRIC_POINT",
+    "STRUCTURAL_AXIS_INTERSECTION"
+  ],
+  "fit_eligible_metric_provenance": ["DOC", "MIS", "RIF"],
+  "forbidden_metric_source_kinds": [
+    "HISTORICAL_AFFINE_REGISTRATION",
+    "HISTORICAL_CEW_DERIVED_ANNOTATION",
+    "HISTORICAL_M0G"
+  ],
+  "historical_cew_layer_prefix": "S-",
+  "ocr_text_alone_fit_eligible": false,
+  "historical_n_label_required": false,
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}
