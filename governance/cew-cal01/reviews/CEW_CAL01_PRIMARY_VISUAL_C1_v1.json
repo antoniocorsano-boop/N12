@@ -1,0 +1,30 @@
+{
+  "schema": "CEW_CAL01_PRIMARY_VISUAL_REVIEW_v1",
+  "program": "CEW-CAL-01",
+  "review_id": "C1",
+  "cluster_index": 1,
+  "review_date_local": "2026-11-01",
+  "reviewer_role": "HUMAN_PROFESSIONAL_USER",
+  "source_document": "TAV.5",
+  "source_sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+  "source_page": 0,
+  "human_reading": "45 x 30 cm",
+  "object_class": "COLUMN",
+  "object_reference": "PILASTRO_10",
+  "property": "SECTION_DIMENSIONS",
+  "value": {
+    "dimension_a_m": 0.45,
+    "dimension_b_m": 0.30
+  },
+  "evidence_class": "DOC",
+  "semantic_interpretation_class": "RIF",
+  "calibration_role": "SECTION_MEASURE",
+  "eligible_for_metric_calibration": false,
+  "primary_anchor_authorized": false,
+  "human_correction_note": "Il valore visivamente ambiguo non e' 40: il pilastro n. 10 ha sezione 45 x 30 cm.",
+  "authority": {
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}
