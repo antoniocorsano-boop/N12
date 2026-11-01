@@ -31,4 +31,4 @@ jobs:
           python-version: '3.12.15'
           check-latest: false
       - name: Run COL-03D package-source contract
-        run: python -m pytest -q tests/cew_col03d/test_package_source.py
+        run: python -m unittest tests.cew_col03d.test_package_source -v
