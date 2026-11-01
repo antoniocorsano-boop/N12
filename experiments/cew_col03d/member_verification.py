@@ -38,6 +38,8 @@ REQUIRED_MEMBER_CONTRACTS: tuple[dict[str, Any], ...] = tuple(
     for name, size, sha256, crc32, role in _REQUIRED_ROWS
 )
 
+_BASE64_ALPHABET = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=")
+
 
 def verify_member_bytes(artifact_name: str, data: bytes, contract: dict[str, Any]) -> dict[str, Any]:
     if artifact_name != contract.get("artifact_name"):
@@ -75,10 +77,8 @@ def _read_transport_payload(transport_root: Path, artifact_name: str) -> bytes:
     if not payload_paths:
         raise ValueError(f"REQUIRED_MEMBER_TRANSPORT_NOT_FOUND:{artifact_name}")
     try:
-        encoded = "".join(
-            "".join(path.read_text(encoding="ascii").split())
-            for path in payload_paths
-        )
+        raw_transport = "".join(path.read_text(encoding="ascii") for path in payload_paths)
+        encoded = "".join(ch for ch in raw_transport if ch in _BASE64_ALPHABET)
         compressed = base64.b64decode(encoded, validate=True)
         return lzma.decompress(compressed, format=lzma.FORMAT_XZ)
     except (OSError, UnicodeError, binascii.Error, lzma.LZMAError) as exc:
