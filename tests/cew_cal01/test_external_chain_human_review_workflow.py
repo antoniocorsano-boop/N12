@@ -73,6 +73,25 @@ class ExternalChainHumanReviewWorkflowContractTests(unittest.TestCase):
         self.assertIn("assert metric_gate['authority']['canonical_write_authorized'] is False", text)
         self.assertIn("assert metric_network['eligible_for_metric_calibration'] is False", text)
 
+    def test_workflow_materializes_tav02_local_reference_lattice(self):
+        text = WORKFLOW.read_text(encoding='utf-8')
+        self.assertIn("'experiments/cew_cal01/reference_lattice.py'", text)
+        self.assertIn("'tests/cew_cal01/test_reference_lattice.py'", text)
+        self.assertIn('python -m experiments.cew_cal01.reference_lattice', text)
+        self.assertIn('tav02-reference-lattice.json', text)
+        self.assertIn("assert tav02_lattice['schema'] == 'CEW_CAL01_TAV02_REFERENCE_LATTICE_v1'", text)
+        self.assertIn("assert tav02_lattice['coordinate_frame'] == 'LOCAL_RELATIVE_METRIC'", text)
+        self.assertIn("assert tav02_lattice['x_reference_count'] == 7", text)
+        self.assertIn("assert tav02_lattice['y_reference_count'] == 3", text)
+        self.assertIn("assert tav02_lattice['lattice_node_count'] == 21", text)
+        self.assertIn("assert [row['local_m'] for row in tav02_lattice['x_references']] == [0.0, 4.7, 9.8, 13.95, 18.1, 23.4, 28.1]", text)
+        self.assertIn("assert [row['local_m'] for row in tav02_lattice['y_references']] == [0.0, 2.1, 5.55]", text)
+        self.assertIn("assert tav02_lattice['absolute_origin_authorized'] is False", text)
+        self.assertIn("assert tav02_lattice['eligible_for_metric_calibration'] is False", text)
+        self.assertIn("assert all(row['fit_eligible'] is False for row in tav02_lattice['lattice_nodes'])", text)
+        self.assertIn("assert tav02_lattice['authority']['canonical_geometry_authorized'] is False", text)
+        self.assertIn("assert tav02_lattice['authority']['canonical_write_authorized'] is False", text)
+
 
 if __name__ == '__main__':
     unittest.main()
