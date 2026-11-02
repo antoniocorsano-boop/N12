@@ -12,12 +12,15 @@ on:
       - 'experiments/cew_cal01/interval_text_review.py'
       - 'experiments/cew_cal01/interval_text_exact.py'
       - 'experiments/cew_cal01/interval_text_review_exact.py'
+      - 'experiments/cew_cal01/interval_ocr_compare.py'
+      - 'experiments/cew_cal01/interval_ocr_exact.py'
       - 'tests/cew_cal01/test_external_dimension_chain.py'
       - 'tests/cew_cal01/test_external_chain_postprocess.py'
       - 'tests/cew_cal01/test_external_chain_refinement.py'
       - 'tests/cew_cal01/test_external_chain_workflow.py'
       - 'tests/cew_cal01/test_interval_text_review.py'
       - 'tests/cew_cal01/test_interval_text_exact.py'
+      - 'tests/cew_cal01/test_interval_ocr_compare.py'
       - '.github/workflows/validate-cew-cal01-external-chain.yml'
   pull_request:
     paths:
@@ -28,12 +31,15 @@ on:
       - 'experiments/cew_cal01/interval_text_review.py'
       - 'experiments/cew_cal01/interval_text_exact.py'
       - 'experiments/cew_cal01/interval_text_review_exact.py'
+      - 'experiments/cew_cal01/interval_ocr_compare.py'
+      - 'experiments/cew_cal01/interval_ocr_exact.py'
       - 'tests/cew_cal01/test_external_dimension_chain.py'
       - 'tests/cew_cal01/test_external_chain_postprocess.py'
       - 'tests/cew_cal01/test_external_chain_refinement.py'
       - 'tests/cew_cal01/test_external_chain_workflow.py'
       - 'tests/cew_cal01/test_interval_text_review.py'
       - 'tests/cew_cal01/test_interval_text_exact.py'
+      - 'tests/cew_cal01/test_interval_ocr_compare.py'
       - '.github/workflows/validate-cew-cal01-external-chain.yml'
 
 jobs:
@@ -126,6 +132,16 @@ jobs:
             --refined "$RUNNER_TEMP/cew-cal01-external-chain/refined-external-chain/TAV-02S/refined-external-dimension-chain.json" \
             --image "$RUNNER_TEMP/cew-cal01-external-chain/TAV-02S-primary-300dpi.png" \
             --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S"
+
+      - name: Run comparative interval OCR on TAV-01S
+        run: |
+          python -m experiments.cew_cal01.interval_ocr_exact \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-01S"
+
+      - name: Run comparative interval OCR on TAV-02S
+        run: |
+          python -m experiments.cew_cal01.interval_ocr_exact \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S"
 
       - name: Assert external-chain authority boundaries
         run: |
@@ -224,12 +240,45 @@ jobs:
                   assert row['crop_sha256'].startswith('sha256:')
                   assert row['local_alignment']['governed_geometry_changed'] is False
 
+          tav01_ocr = json.loads(
+              (root / 'interval-text-review' / 'TAV-01S' / 'interval-ocr-comparison.json').read_text()
+          )
+          tav02_ocr = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'interval-ocr-comparison.json').read_text()
+          )
+          assert tav01_ocr['review_count'] == 15
+          assert tav02_ocr['review_count'] == 19
+          for ocr, review, source_id in (
+              (tav01_ocr, tav01_review, 'TAV-01S'),
+              (tav02_ocr, tav02_review, 'TAV-02S'),
+          ):
+              assert ocr['source']['source_id'] == source_id
+              assert ocr['source']['sha256'] == expected[source_id]
+              assert ocr['review_manifest_digest'] == review['review_digest']
+              assert ocr['local_recognizer']['provider_id'] == 'TESSERACT'
+              assert ocr['local_recognizer']['family_count'] == 3
+              assert ocr['external_recognizer']['observation_count'] == 0
+              assert ocr['external_recognizer']['network_inference_performed'] is False
+              assert ocr['external_recognizer']['model_download_performed'] is False
+              assert all(row['human_review_required'] is True for row in ocr['reviews'])
+              assert all(row['primary_anchor_authorized'] is False for row in ocr['reviews'])
+              assert all(row['eligible_for_metric_calibration'] is False for row in ocr['reviews'])
+              assert ocr['primary_anchor_count'] == 0
+              assert ocr['eligible_for_metric_calibration'] is False
+              assert ocr['authority']['canonical_geometry_authorized'] is False
+              assert ocr['authority']['canonical_write_authorized'] is False
+              manifest_crops = {row['review_id']: row['crop_sha256'] for row in review['review_requests']}
+              comparison_crops = {row['review_id']: row['crop_sha256'] for row in ocr['reviews']}
+              assert comparison_crops == manifest_crops
+
           results['TAV-01S']['refined_external_chain_count'] = tav01['refined_external_chain_count']
           results['TAV-01S']['refined_external_chain_digest'] = tav01['refined_external_chain_digest']
           results['TAV-01S']['interval_text_review_digest'] = tav01_review['review_digest']
+          results['TAV-01S']['interval_ocr_comparison_digest'] = tav01_ocr['comparison_digest']
           results['TAV-02S']['refined_external_chain_count'] = tav02['refined_external_chain_count']
           results['TAV-02S']['refined_external_chain_digest'] = tav02['refined_external_chain_digest']
           results['TAV-02S']['interval_text_review_digest'] = tav02_review['review_digest']
+          results['TAV-02S']['interval_ocr_comparison_digest'] = tav02_ocr['comparison_digest']
           print(json.dumps(results, sort_keys=True))
           PY
 
