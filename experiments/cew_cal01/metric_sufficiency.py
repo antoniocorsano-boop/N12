@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 from collections import Counter
 from itertools import combinations
+from pathlib import Path
 from statistics import median
 from typing import Any
 
@@ -475,3 +477,48 @@ def evaluate_metric_sufficiency(
     }
     gate["gate_digest"] = _canonical_digest(gate)
     return gate
+
+
+def materialize_metric_sufficiency(review_dir: Path) -> tuple[dict[str, Any], dict[str, Any]]:
+    review_dir = Path(review_dir)
+    manifest_path = review_dir / "interval-text-review-manifest.json"
+    packet_path = review_dir / "external-chain-human-review-packet.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    packet = json.loads(packet_path.read_text(encoding="utf-8"))
+    network = build_metric_relation_network(manifest, packet)
+    gate = evaluate_metric_sufficiency(network)
+    (review_dir / "metric-relation-network.json").write_text(
+        json.dumps(network, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    (review_dir / "metric-sufficiency-gate.json").write_text(
+        json.dumps(gate, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    return network, gate
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Materialize CEW-CAL-01 metric sufficiency artifacts")
+    parser.add_argument("--review-dir", required=True, type=Path)
+    args = parser.parse_args(argv)
+    network, gate = materialize_metric_sufficiency(args.review_dir)
+    print(
+        json.dumps(
+            {
+                "source_id": network["source"]["source_id"],
+                "relation_count": network["relation_count"],
+                "pending_review_count": network["pending_review_count"],
+                "gate_state": gate["gate_state"],
+                "next_action": gate["next_action"],
+                "network_digest": network["network_digest"],
+                "gate_digest": gate["gate_digest"],
+            },
+            sort_keys=True,
+        )
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
