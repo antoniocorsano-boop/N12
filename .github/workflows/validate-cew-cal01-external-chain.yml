@@ -15,6 +15,7 @@ on:
       - 'experiments/cew_cal01/interval_ocr_compare.py'
       - 'experiments/cew_cal01/interval_ocr_exact.py'
       - 'experiments/cew_cal01/external_chain_human_review.py'
+      - 'experiments/cew_cal01/metric_sufficiency.py'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_01_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json'
@@ -30,6 +31,8 @@ on:
       - 'tests/cew_cal01/test_interval_text_review.py'
       - 'tests/cew_cal01/test_interval_text_exact.py'
       - 'tests/cew_cal01/test_interval_ocr_compare.py'
+      - 'tests/cew_cal01/test_metric_sufficiency.py'
+      - 'tests/cew_cal01/test_metric_sufficiency_gate.py'
       - '.github/workflows/validate-cew-cal01-external-chain.yml'
   pull_request:
     paths:
@@ -43,6 +46,7 @@ on:
       - 'experiments/cew_cal01/interval_ocr_compare.py'
       - 'experiments/cew_cal01/interval_ocr_exact.py'
       - 'experiments/cew_cal01/external_chain_human_review.py'
+      - 'experiments/cew_cal01/metric_sufficiency.py'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_01_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json'
@@ -58,6 +62,8 @@ on:
       - 'tests/cew_cal01/test_interval_text_review.py'
       - 'tests/cew_cal01/test_interval_text_exact.py'
       - 'tests/cew_cal01/test_interval_ocr_compare.py'
+      - 'tests/cew_cal01/test_metric_sufficiency.py'
+      - 'tests/cew_cal01/test_metric_sufficiency_gate.py'
       - '.github/workflows/validate-cew-cal01-external-chain.yml'
 
 jobs:
@@ -184,6 +190,16 @@ jobs:
             --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I5_v1.json \
             --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_RIGHT_I0_v1.json \
             --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_RIGHT_I1_v1.json
+
+      - name: Materialize source-local metric sufficiency on TAV-01S
+        run: |
+          python -m experiments.cew_cal01.metric_sufficiency \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-01S"
+
+      - name: Materialize source-local metric sufficiency on TAV-02S
+        run: |
+          python -m experiments.cew_cal01.metric_sufficiency \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S"
 
       - name: Assert external-chain authority boundaries
         run: |
@@ -355,16 +371,59 @@ jobs:
               board_path = root / 'interval-text-review' / source_id / 'external-chain-human-review.html'
               assert board_path.is_file()
 
+          tav01_metric_network = json.loads(
+              (root / 'interval-text-review' / 'TAV-01S' / 'metric-relation-network.json').read_text()
+          )
+          tav01_metric_gate = json.loads(
+              (root / 'interval-text-review' / 'TAV-01S' / 'metric-sufficiency-gate.json').read_text()
+          )
+          tav02_metric_network = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'metric-relation-network.json').read_text()
+          )
+          tav02_metric_gate = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'metric-sufficiency-gate.json').read_text()
+          )
+
+          assert tav01_metric_gate['gate_state'] == 'TARGETED_HUMAN_REVIEW'
+          assert 1 <= len(tav01_metric_gate['targeted_human_review_ids']) <= 4
+          assert tav02_metric_network['relation_count'] == 10
+          assert tav02_metric_network['orientation_counts'] == {'HORIZONTAL': 8, 'VERTICAL': 2}
+          assert 'TOP:R1' in tav02_metric_network['complete_chain_ids']
+          assert tav02_metric_gate['relation_audit']['diagnostic_status'] == 'RELATION_NETWORK_DIAGNOSTIC_SUFFICIENT'
+          assert tav02_metric_gate['gate_state'] == 'INSUFFICIENT'
+          assert tav02_metric_gate['blockers'] == ['PRIMARY_ANCHOR_REQUIRED']
+          assert tav02_metric_gate['next_action'] == 'PRIMARY_ANCHOR_DISCOVERY'
+
+          for metric_network, metric_gate, source_id in (
+              (tav01_metric_network, tav01_metric_gate, 'TAV-01S'),
+              (tav02_metric_network, tav02_metric_gate, 'TAV-02S'),
+          ):
+              assert metric_network['source']['source_id'] == source_id
+              assert metric_network['source']['sha256'] == expected[source_id]
+              assert metric_network['eligible_for_metric_calibration'] is False
+              assert metric_network['primary_anchor_count'] == 0
+              assert metric_network['authority']['canonical_geometry_authorized'] is False
+              assert metric_network['authority']['canonical_write_authorized'] is False
+              assert metric_gate['source']['source_id'] == source_id
+              assert metric_gate['source']['sha256'] == expected[source_id]
+              assert metric_gate['authority']['canonical_geometry_authorized'] is False
+              assert metric_gate['authority']['canonical_write_authorized'] is False
+              assert metric_gate['primary_anchor_authorized'] is False
+
           results['TAV-01S']['refined_external_chain_count'] = tav01['refined_external_chain_count']
           results['TAV-01S']['refined_external_chain_digest'] = tav01['refined_external_chain_digest']
           results['TAV-01S']['interval_text_review_digest'] = tav01_review['review_digest']
           results['TAV-01S']['interval_ocr_comparison_digest'] = tav01_ocr['comparison_digest']
           results['TAV-01S']['human_review_packet_digest'] = tav01_human['packet_digest']
+          results['TAV-01S']['metric_relation_network_digest'] = tav01_metric_network['network_digest']
+          results['TAV-01S']['metric_sufficiency_gate_digest'] = tav01_metric_gate['gate_digest']
           results['TAV-02S']['refined_external_chain_count'] = tav02['refined_external_chain_count']
           results['TAV-02S']['refined_external_chain_digest'] = tav02['refined_external_chain_digest']
           results['TAV-02S']['interval_text_review_digest'] = tav02_review['review_digest']
           results['TAV-02S']['interval_ocr_comparison_digest'] = tav02_ocr['comparison_digest']
           results['TAV-02S']['human_review_packet_digest'] = tav02_human['packet_digest']
+          results['TAV-02S']['metric_relation_network_digest'] = tav02_metric_network['network_digest']
+          results['TAV-02S']['metric_sufficiency_gate_digest'] = tav02_metric_gate['gate_digest']
           print(json.dumps(results, sort_keys=True))
           PY
 
