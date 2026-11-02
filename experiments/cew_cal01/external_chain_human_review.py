@@ -288,6 +288,7 @@ def build_human_review_packet(
     comparison: dict[str, Any],
     receipts: Iterable[dict[str, Any]],
     *,
+    direct_decisions: Iterable[dict[str, Any]] = (),
     source_width_px: float,
 ) -> dict[str, Any]:
     source = dict(manifest.get("source") or {})
@@ -331,6 +332,7 @@ def build_human_review_packet(
         receipts,
         source_width_px=source_width_px,
     )
+    direct_reconciliation = reconcile_direct_human_decisions(manifest, direct_decisions)
 
     reviews: list[dict[str, Any]] = []
     for review_id in sorted(request_by_id):
@@ -342,17 +344,37 @@ def build_human_review_packet(
         ):
             raise ValueError("CAL01_HUMAN_REVIEW_CROP_BINDING_DRIFT")
 
-        binding = reconciliation["bindings"].get(review_id)
-        if binding is None:
+        prior_binding = reconciliation["bindings"].get(review_id)
+        direct_binding = direct_reconciliation["bindings"].get(review_id)
+        corroborating_human_receipt_ref = None
+
+        if prior_binding is not None and direct_binding is not None:
+            if float(prior_binding["value_m"]) != float(direct_binding["value_m"]):
+                raise ValueError("CAL01_HUMAN_EVIDENCE_VALUE_CONFLICT")
+            review_state = "DIRECT_HUMAN_DECISION"
+            validated_value_m = float(direct_binding["value_m"])
+            human_receipt_ref = None
+            human_decision_ref = str(direct_binding["decision_ref"])
+            existing_human_reading = direct_binding.get("human_reading")
+            corroborating_human_receipt_ref = str(prior_binding["receipt_review_id"])
+        elif direct_binding is not None:
+            review_state = "DIRECT_HUMAN_DECISION"
+            validated_value_m = float(direct_binding["value_m"])
+            human_receipt_ref = None
+            human_decision_ref = str(direct_binding["decision_ref"])
+            existing_human_reading = direct_binding.get("human_reading")
+        elif prior_binding is not None:
+            review_state = "REUSED_HUMAN_RECEIPT"
+            validated_value_m = float(prior_binding["value_m"])
+            human_receipt_ref = str(prior_binding["receipt_review_id"])
+            human_decision_ref = None
+            existing_human_reading = prior_binding.get("human_reading")
+        else:
             review_state = "PENDING_HUMAN_REVIEW"
             validated_value_m = None
             human_receipt_ref = None
+            human_decision_ref = None
             existing_human_reading = None
-        else:
-            review_state = "REUSED_HUMAN_RECEIPT"
-            validated_value_m = float(binding["value_m"])
-            human_receipt_ref = str(binding["receipt_review_id"])
-            existing_human_reading = binding.get("human_reading")
 
         reviews.append(
             {
@@ -369,13 +391,18 @@ def build_human_review_packet(
                 "review_state": review_state,
                 "validated_value_m": validated_value_m,
                 "human_receipt_ref": human_receipt_ref,
+                "human_decision_ref": human_decision_ref,
+                "corroborating_human_receipt_ref": corroborating_human_receipt_ref,
                 "existing_human_reading": existing_human_reading,
-                "human_decision_required": binding is None,
+                "human_decision_required": review_state == "PENDING_HUMAN_REVIEW",
                 "eligible_for_metric_calibration": False,
                 "primary_anchor_authorized": False,
             }
         )
 
+    reused_count = sum(1 for row in reviews if row["review_state"] == "REUSED_HUMAN_RECEIPT")
+    direct_count = sum(1 for row in reviews if row["review_state"] == "DIRECT_HUMAN_DECISION")
+    pending_count = sum(1 for row in reviews if row["review_state"] == "PENDING_HUMAN_REVIEW")
     packet = {
         "schema": "CEW_CAL01_EXTERNAL_CHAIN_HUMAN_REVIEW_PACKET_v1",
         "program": "CEW-CAL-01",
@@ -383,16 +410,16 @@ def build_human_review_packet(
         "review_manifest_digest": manifest.get("review_digest"),
         "ocr_comparison_digest": comparison.get("comparison_digest"),
         "review_count": len(reviews),
-        "reused_human_receipt_count": sum(
-            1 for row in reviews if row["review_state"] == "REUSED_HUMAN_RECEIPT"
-        ),
-        "pending_human_review_count": sum(
-            1 for row in reviews if row["review_state"] == "PENDING_HUMAN_REVIEW"
-        ),
+        "reused_human_receipt_count": reused_count,
+        "direct_human_decision_count": direct_count,
+        "validated_human_relation_count": reused_count + direct_count,
+        "pending_human_review_count": pending_count,
         "reconciliation": {
             "unmatched_receipt_ids": reconciliation["unmatched_receipt_ids"],
             "ineligible_receipt_ids": reconciliation["ineligible_receipt_ids"],
             "source_mismatch_receipt_ids": reconciliation["source_mismatch_receipt_ids"],
+            "ineligible_direct_decision_ids": direct_reconciliation["ineligible_decision_ids"],
+            "source_mismatch_direct_decision_ids": direct_reconciliation["source_mismatch_decision_ids"],
         },
         "reviews": reviews,
         "primary_anchor_count": 0,
@@ -434,8 +461,9 @@ def render_human_review_board(packet: dict[str, Any]) -> str:
         "img{max-width:520px;max-height:180px;object-fit:contain;background:#fff}code{font-size:.9em}"
         "</style></head><body>"
         f"<h1>CEW-CAL-01 — revisione catene esterne — {source_id}</h1>"
-        f"<p>Righe: {int(packet.get('review_count', 0))}; ricevute umane riusate: "
-        f"{int(packet.get('reused_human_receipt_count', 0))}; da revisionare: "
+        f"<p>Righe: {int(packet.get('review_count', 0))}; ricevute pregresse riusate: "
+        f"{int(packet.get('reused_human_receipt_count', 0))}; decisioni umane dirette: "
+        f"{int(packet.get('direct_human_decision_count', 0))}; da revisionare: "
         f"{int(packet.get('pending_human_review_count', 0))}.</p>"
         "<p>Questa tavola è un ausilio di revisione. I valori OCR non sono autoritativi e le righe pendenti non contengono valori umani precompilati.</p>"
         "<table><thead><tr><th>ID</th><th>Ritaglio esatto</th><th>Stato</th><th>OCR</th><th>Proposte OCR</th><th>Valore umano già qualificato</th></tr></thead><tbody>"
@@ -452,15 +480,18 @@ def materialize_human_review_packet(
     review_dir: Path,
     *,
     receipt_paths: Iterable[Path],
+    direct_decision_paths: Iterable[Path] = (),
     source_width_px: float,
 ) -> dict[str, Any]:
     manifest = _load_json(review_dir / "interval-text-review-manifest.json")
     comparison = _load_json(review_dir / "interval-ocr-comparison.json")
     receipts = [_load_json(path) for path in receipt_paths]
+    direct_decisions = [_load_json(path) for path in direct_decision_paths]
     packet = build_human_review_packet(
         manifest,
         comparison,
         receipts,
+        direct_decisions=direct_decisions,
         source_width_px=source_width_px,
     )
     (review_dir / "external-chain-human-review-packet.json").write_text(
@@ -481,10 +512,12 @@ def main() -> int:
     parser.add_argument("--review-dir", required=True)
     parser.add_argument("--source-width-px", required=True, type=float)
     parser.add_argument("--receipt", action="append", default=[])
+    parser.add_argument("--decision", action="append", default=[])
     args = parser.parse_args()
     packet = materialize_human_review_packet(
         Path(args.review_dir),
         receipt_paths=[Path(value) for value in args.receipt],
+        direct_decision_paths=[Path(value) for value in args.decision],
         source_width_px=args.source_width_px,
     )
     print(
@@ -493,6 +526,8 @@ def main() -> int:
                 "source_id": packet["source"]["source_id"],
                 "review_count": packet["review_count"],
                 "reused_human_receipt_count": packet["reused_human_receipt_count"],
+                "direct_human_decision_count": packet["direct_human_decision_count"],
+                "validated_human_relation_count": packet["validated_human_relation_count"],
                 "pending_human_review_count": packet["pending_human_review_count"],
                 "packet_digest": packet["packet_digest"],
                 "primary_anchor_count": packet["primary_anchor_count"],
