@@ -15,6 +15,11 @@ from experiments.cew_cal01.anchor_inventory import AUTHORITY_CLOSED
 VALIDATED_REVIEW_STATES = {"REUSED_HUMAN_RECEIPT", "DIRECT_HUMAN_DECISION"}
 PENDING_REVIEW_STATE = "PENDING_HUMAN_REVIEW"
 SUPPORTED_ORIENTATIONS = {"HORIZONTAL", "VERTICAL"}
+METRIC_RELATION_CONFLICT_BLOCKERS = {
+    "HORIZONTAL_SCALE_OUTLIER",
+    "VERTICAL_SCALE_OUTLIER",
+    "ORIENTATION_SCALE_DRIFT",
+}
 SCALE_TOLERANCE_RATIO = 0.05
 MIN_RELATIONS = 4
 MIN_PER_ORIENTATION = 2
@@ -444,7 +449,11 @@ def evaluate_metric_sufficiency(
 
     if audit["diagnostic_status"] != "RELATION_NETWORK_DIAGNOSTIC_SUFFICIENT":
         blockers = list(audit["blockers"])
-        if pending:
+        documented_conflict = bool(METRIC_RELATION_CONFLICT_BLOCKERS.intersection(blockers))
+        if documented_conflict:
+            gate_state = "INSUFFICIENT"
+            next_action = "RESOLVE_METRIC_RELATION_CONFLICT"
+        elif pending:
             gate_state = "TARGETED_HUMAN_REVIEW"
             next_action = "TARGETED_HUMAN_REVIEW"
             targeted_ids = rank_targeted_human_review(network)
