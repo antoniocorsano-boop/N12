@@ -181,7 +181,9 @@ jobs:
             --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I2_v1.json \
             --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I3_v1.json \
             --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I4_v1.json \
-            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I5_v1.json
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I5_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_RIGHT_I0_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_RIGHT_I1_v1.json
 
       - name: Assert external-chain authority boundaries
         run: |
@@ -324,12 +326,14 @@ jobs:
           assert tav01_human['pending_human_review_count'] == 14
           assert tav02_human['review_count'] == 19
           assert tav02_human['reused_human_receipt_count'] == 2
-          assert tav02_human['direct_human_decision_count'] == 6
-          assert tav02_human['validated_human_relation_count'] == 8
-          assert tav02_human['pending_human_review_count'] == 11
+          assert tav02_human['direct_human_decision_count'] == 8
+          assert tav02_human['validated_human_relation_count'] == 10
+          assert tav02_human['pending_human_review_count'] == 9
           tav02_states = {row['review_id']: row['review_state'] for row in tav02_human['reviews']}
           assert tav02_states['TAV-02S:TOP:TOP:R1:I0'] == 'DIRECT_HUMAN_DECISION'
           assert tav02_states['TAV-02S:TOP:TOP:R1:I5'] == 'DIRECT_HUMAN_DECISION'
+          assert tav02_states['TAV-02S:RIGHT:RIGHT:R1:I0'] == 'DIRECT_HUMAN_DECISION'
+          assert tav02_states['TAV-02S:RIGHT:RIGHT:R1:I1'] == 'DIRECT_HUMAN_DECISION'
           assert tav02_states['TAV-02S:BOTTOM:BOTTOM:R1:I2'] == 'REUSED_HUMAN_RECEIPT'
           assert tav02_states['TAV-02S:BOTTOM:BOTTOM:R1:I3'] == 'REUSED_HUMAN_RECEIPT'
           for human, review, source_id in (
