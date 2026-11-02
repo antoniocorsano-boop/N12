@@ -17,6 +17,10 @@ _ENDPOINT_TICK_DISTANCE_PX = 50.0
 _OBSERVATION_SUPPORT_DISTANCE_PX = 100.0
 _ASSIGNMENT_AMBIGUITY_PX = 8.0
 _MAX_PERIMETER_OFFSET_PX = 500.0
+_MIN_CHAIN_INTERVAL_PX = 32.0
+_MIN_CHAIN_INTERVAL_FRACTION = 0.04
+_LOCATION_OVERLAP_FRACTION = 0.50
+_LOCATION_CENTER_TOLERANCE_PX = 16.0
 
 
 def _segment(raw: Sequence[float]) -> tuple[float, float, float, float]:
@@ -220,6 +224,105 @@ def _crossing_tick_positions(
     return _cluster_positions(positions)
 
 
+def _normalize_tick_sequence(
+    *,
+    positions: Sequence[float],
+    carrier: dict[str, float],
+    horizontal: bool,
+    plan_envelope_bbox: Sequence[float],
+) -> list[float] | None:
+    ordered = sorted(float(value) for value in positions)
+    if not ordered:
+        return []
+    left, top, right, bottom = _bbox(plan_envelope_bbox)
+    plan_span = (right - left) if horizontal else (bottom - top)
+    minimum_interval = max(_MIN_CHAIN_INTERVAL_PX, plan_span * _MIN_CHAIN_INTERVAL_FRACTION)
+
+    proximity_groups: list[list[float]] = [[ordered[0]]]
+    for value in ordered[1:]:
+        if value - proximity_groups[-1][-1] < minimum_interval:
+            proximity_groups[-1].append(value)
+        else:
+            proximity_groups.append([value])
+
+    normalized: list[float] = []
+    for group in proximity_groups:
+        if len(group) == 1:
+            normalized.append(group[0])
+            continue
+        if len(group) >= 3:
+            return None
+        endpoint_candidates = [
+            value
+            for value in group
+            if min(
+                abs(value - float(carrier["start"])),
+                abs(value - float(carrier["end"])),
+            )
+            <= _ENDPOINT_TICK_DISTANCE_PX
+        ]
+        if len(endpoint_candidates) != 1:
+            return None
+        normalized.append(endpoint_candidates[0])
+    return normalized
+
+
+def _same_graphic_location(left_observation: dict[str, Any], right_observation: dict[str, Any]) -> bool:
+    left = _bbox(left_observation.get("bbox_normalized_px") or [])
+    right = _bbox(right_observation.get("bbox_normalized_px") or [])
+    lx0, ly0, lx1, ly1 = left
+    rx0, ry0, rx1, ry1 = right
+    intersection_width = max(0.0, min(lx1, rx1) - max(lx0, rx0))
+    intersection_height = max(0.0, min(ly1, ry1) - max(ly0, ry0))
+    intersection_area = intersection_width * intersection_height
+    left_area = (lx1 - lx0) * (ly1 - ly0)
+    right_area = (rx1 - rx0) * (ry1 - ry0)
+    if min(left_area, right_area) > 0.0:
+        overlap_fraction = intersection_area / min(left_area, right_area)
+        if overlap_fraction >= _LOCATION_OVERLAP_FRACTION:
+            return True
+    left_center = ((lx0 + lx1) / 2.0, (ly0 + ly1) / 2.0)
+    right_center = ((rx0 + rx1) / 2.0, (ry0 + ry1) / 2.0)
+    return (
+        abs(left_center[0] - right_center[0]) <= _LOCATION_CENTER_TOLERANCE_PX
+        and abs(left_center[1] - right_center[1]) <= _LOCATION_CENTER_TOLERANCE_PX
+    )
+
+
+def _cluster_observation_locations(
+    observation_ids: Iterable[str],
+    *,
+    observation_by_id: dict[str, dict[str, Any]],
+    horizontal: bool,
+) -> list[list[str]]:
+    rows: list[tuple[float, float, str]] = []
+    for observation_id in sorted(set(str(value) for value in observation_ids)):
+        observation = observation_by_id[observation_id]
+        cx, cy = _observation_center(observation)
+        rows.append((cx if horizontal else cy, cy if horizontal else cx, observation_id))
+    rows.sort(key=lambda row: (row[0], row[1], row[2]))
+
+    groups: list[list[str]] = []
+    for _along, _perpendicular, observation_id in rows:
+        observation = observation_by_id[observation_id]
+        target_group = None
+        for group_index, group in enumerate(groups):
+            if any(
+                _same_graphic_location(observation, observation_by_id[member_id])
+                for member_id in group
+            ):
+                target_group = group_index
+                break
+        if target_group is None:
+            groups.append([observation_id])
+        else:
+            groups[target_group].append(observation_id)
+
+    for group in groups:
+        group.sort()
+    return groups
+
+
 def _carrier_order(side: str, carrier: dict[str, Any], plan_envelope_bbox: Sequence[float]) -> tuple[float, float]:
     left, top, right, bottom = _bbox(plan_envelope_bbox)
     edge = {"TOP": top, "RIGHT": right, "BOTTOM": bottom, "LEFT": left}[side]
@@ -239,6 +342,12 @@ def build_refined_external_chains(
         raise ValueError("CAL01_EXTERNAL_CHAIN_REFINEMENT_SIDE_INVALID")
     _bbox(plan_envelope_bbox)
     observation_rows = [dict(row) for row in observations]
+    observation_by_id: dict[str, dict[str, Any]] = {}
+    for observation in observation_rows:
+        observation_id = str(observation.get("observation_id") or "")
+        if not observation_id:
+            raise ValueError("CAL01_EXTERNAL_CHAIN_REFINEMENT_OBSERVATION_ID_REQUIRED")
+        observation_by_id[observation_id] = observation
     horizontal = normalized_side in {"TOP", "BOTTOM"}
     orientation = "HORIZONTAL" if horizontal else "VERTICAL"
 
@@ -261,12 +370,18 @@ def build_refined_external_chains(
         )
         if not support:
             continue
-        tick_positions = _crossing_tick_positions(
+        raw_tick_positions = _crossing_tick_positions(
             side=normalized_side,
             carrier=carrier,
             tick_segments=tick_segments,
         )
-        if len(tick_positions) < 3:
+        tick_positions = _normalize_tick_sequence(
+            positions=raw_tick_positions,
+            carrier=carrier,
+            horizontal=horizontal,
+            plan_envelope_bbox=plan_envelope_bbox,
+        )
+        if tick_positions is None or len(tick_positions) < 3:
             continue
         intervals = [
             {
@@ -276,7 +391,6 @@ def build_refined_external_chains(
                 "member_observation_ids": [],
             }
             for index in range(len(tick_positions) - 1)
-            if tick_positions[index + 1] - tick_positions[index] >= 20.0
         ]
         if len(intervals) < 2:
             continue
@@ -304,8 +418,6 @@ def build_refined_external_chains(
         if str(observation.get("search_band") or "").upper() != normalized_side:
             continue
         observation_id = str(observation.get("observation_id") or "")
-        if not observation_id:
-            raise ValueError("CAL01_EXTERNAL_CHAIN_REFINEMENT_OBSERVATION_ID_REQUIRED")
         cx, cy = _observation_center(observation)
         along = cx if horizontal else cy
         perpendicular = cy if horizontal else cx
@@ -326,16 +438,34 @@ def build_refined_external_chains(
             continue
         _distance, chain_index, interval_index = options[0]
         chains[chain_index]["intervals"][interval_index]["member_observation_ids"].append(observation_id)
-        chains[chain_index]["member_observation_ids"].append((along, observation_id))
+        chains[chain_index]["member_observation_ids"].append(observation_id)
 
     for chain in chains:
+        chain_location_groups = _cluster_observation_locations(
+            chain["member_observation_ids"],
+            observation_by_id=observation_by_id,
+            horizontal=horizontal,
+        )
+        chain["member_location_groups"] = chain_location_groups
         chain["member_observation_ids"] = [
             observation_id
-            for _along, observation_id in sorted(chain["member_observation_ids"], key=lambda row: (row[0], row[1]))
+            for group in chain_location_groups
+            for observation_id in group
         ]
+        chain["member_observation_count"] = len(chain_location_groups)
         for interval in chain["intervals"]:
-            interval["member_observation_ids"] = sorted(set(interval["member_observation_ids"]))
-        chain["member_observation_count"] = len(chain["member_observation_ids"])
+            interval_location_groups = _cluster_observation_locations(
+                interval["member_observation_ids"],
+                observation_by_id=observation_by_id,
+                horizontal=horizontal,
+            )
+            interval["member_location_groups"] = interval_location_groups
+            interval["member_observation_ids"] = [
+                observation_id
+                for group in interval_location_groups
+                for observation_id in group
+            ]
+            interval["member_observation_count"] = len(interval_location_groups)
 
     return {
         "schema": "CEW_CAL01_REFINED_EXTERNAL_DIMENSION_CHAIN_v1",
