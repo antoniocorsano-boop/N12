@@ -37,11 +37,21 @@ EXPECTED = {
         "crop_sha256": "sha256:12f4d75da50352dd47ba1a93070356ecc843092f26822917947f67c37b152695",
         "value_m": 4.70,
     },
+    "T02_RIGHT_I0": {
+        "review_id": "TAV-02S:RIGHT:RIGHT:R1:I0",
+        "crop_sha256": "sha256:7c3e42250196f7cd4e754dcc4b67eb6935a715b9629f1495a2a84acacf77067c",
+        "value_m": 2.10,
+    },
+    "T02_RIGHT_I1": {
+        "review_id": "TAV-02S:RIGHT:RIGHT:R1:I1",
+        "crop_sha256": "sha256:ca6f7871bcc800ed263aff6672dad7cf0aeba96a473485e6878c5fd315b6aad6",
+        "value_m": 3.45,
+    },
 }
 
 
 class ExternalChainHumanDecisionReceiptTests(unittest.TestCase):
-    def test_tav02_top_human_decisions_are_exact_crop_bound_and_relation_only(self):
+    def test_tav02_human_decisions_are_exact_crop_bound_and_relation_only(self):
         for suffix, expected in EXPECTED.items():
             path = ROOT / f"CEW_CAL01_EXTERNAL_CHAIN_HUMAN_{suffix}_v1.json"
             payload = json.loads(path.read_text(encoding="utf-8"))
