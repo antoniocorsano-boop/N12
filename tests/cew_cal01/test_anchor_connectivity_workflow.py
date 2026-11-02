@@ -11,10 +11,9 @@ class AnchorConnectivityWorkflowContractTests(unittest.TestCase):
         self.assertTrue(PRIMARY_WORKFLOW.exists(), 'primary metric workflow must exist')
         text = PRIMARY_WORKFLOW.read_text(encoding='utf-8')
         self.assertIn('ref: ${{ github.event.pull_request.head.sha || github.sha }}', text)
-        self.assertIn("'experiments/cew_cal01/intersource_correspondence.py'", text)
-        self.assertIn("'experiments/cew_cal01/intersource_governance.py'", text)
-        self.assertIn("'experiments/cew_cal01/intersource_split.py'", text)
-        self.assertIn("'tests/cew_cal01/test_anchor_connectivity_workflow.py'", text)
+        self.assertIn("'experiments/cew_cal01/**'", text)
+        self.assertIn("'tests/cew_cal01/**'", text)
+        self.assertIn("python -m unittest discover -s tests/cew_cal01 -p 'test_*.py' -v", text)
 
     def test_external_gate_replays_canonical_tav5_bridge_and_stops_fail_closed(self):
         self.assertTrue(EXTERNAL_WORKFLOW.exists(), 'external-chain workflow must exist')
