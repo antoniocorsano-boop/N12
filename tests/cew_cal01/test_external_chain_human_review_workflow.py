@@ -52,6 +52,27 @@ class ExternalChainHumanReviewWorkflowContractTests(unittest.TestCase):
         self.assertIn("assert tav02_states['TAV-02S:BOTTOM:BOTTOM:R1:I2'] == 'REUSED_HUMAN_RECEIPT'", text)
         self.assertIn("assert tav02_states['TAV-02S:BOTTOM:BOTTOM:R1:I3'] == 'REUSED_HUMAN_RECEIPT'", text)
 
+    def test_workflow_materializes_source_local_metric_sufficiency_gate(self):
+        text = WORKFLOW.read_text(encoding='utf-8')
+        self.assertIn("'experiments/cew_cal01/metric_sufficiency.py'", text)
+        self.assertIn("'tests/cew_cal01/test_metric_sufficiency.py'", text)
+        self.assertIn("'tests/cew_cal01/test_metric_sufficiency_gate.py'", text)
+        self.assertGreaterEqual(text.count('python -m experiments.cew_cal01.metric_sufficiency'), 2)
+        self.assertIn('metric-relation-network.json', text)
+        self.assertIn('metric-sufficiency-gate.json', text)
+        self.assertIn("assert tav01_metric_gate['gate_state'] == 'TARGETED_HUMAN_REVIEW'", text)
+        self.assertIn("assert 1 <= len(tav01_metric_gate['targeted_human_review_ids']) <= 4", text)
+        self.assertIn("assert tav02_metric_network['relation_count'] == 10", text)
+        self.assertIn("assert tav02_metric_network['orientation_counts'] == {'HORIZONTAL': 8, 'VERTICAL': 2}", text)
+        self.assertIn("assert 'TOP:R1' in tav02_metric_network['complete_chain_ids']", text)
+        self.assertIn("assert tav02_metric_gate['relation_audit']['diagnostic_status'] == 'RELATION_NETWORK_DIAGNOSTIC_SUFFICIENT'", text)
+        self.assertIn("assert tav02_metric_gate['gate_state'] == 'INSUFFICIENT'", text)
+        self.assertIn("assert tav02_metric_gate['blockers'] == ['PRIMARY_ANCHOR_REQUIRED']", text)
+        self.assertIn("assert tav02_metric_gate['next_action'] == 'PRIMARY_ANCHOR_DISCOVERY'", text)
+        self.assertIn("assert metric_gate['authority']['canonical_geometry_authorized'] is False", text)
+        self.assertIn("assert metric_gate['authority']['canonical_write_authorized'] is False", text)
+        self.assertIn("assert metric_network['eligible_for_metric_calibration'] is False", text)
+
 
 if __name__ == '__main__':
     unittest.main()
