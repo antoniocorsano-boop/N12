@@ -10,7 +10,10 @@ import subprocess
 import tempfile
 from typing import Any, Callable, Iterable
 
-from experiments.cew_cal01.interval_ocr_compare import build_interval_ocr_comparison
+from experiments.cew_cal01.interval_ocr_compare import (
+    build_interval_ocr_comparison,
+    import_trocr_observations,
+)
 
 
 LOCAL_OCR_FAMILIES: tuple[dict[str, Any], ...] = (
@@ -206,14 +209,22 @@ def run_local_interval_ocr(
                 }
             )
 
-    if external_observations:
-        raise ValueError("CAL01_INTERVAL_OCR_EXTERNAL_PROVIDER_NOT_YET_BOUND")
+    external_rows = list(external_observations or [])
+    if external_rows:
+        observations.extend(import_trocr_observations(manifest, external_rows))
 
     result = build_interval_ocr_comparison(manifest, observations)
     result["local_recognizer"] = {
         "provider_id": "TESSERACT",
         "family_count": len(LOCAL_OCR_FAMILIES),
         "families": [dict(row) for row in LOCAL_OCR_FAMILIES],
+    }
+    result["external_recognizer"] = {
+        "provider_id": "TROCR",
+        "observation_count": len(external_rows),
+        "execution_mode": "EXTERNAL_OBSERVATIONS_ONLY",
+        "network_inference_performed": False,
+        "model_download_performed": False,
     }
     payload = {key: value for key, value in result.items() if key != "comparison_digest"}
     result["comparison_digest"] = "sha256:" + hashlib.sha256(
@@ -226,13 +237,27 @@ def run_local_interval_ocr(
     return result
 
 
+def _load_external_observations(path: Path | None) -> list[dict[str, Any]]:
+    if path is None:
+        return []
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, list) or not all(isinstance(row, dict) for row in payload):
+        raise ValueError("CAL01_INTERVAL_OCR_EXTERNAL_PAYLOAD_INVALID")
+    return [dict(row) for row in payload]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run deterministic comparative OCR on CEW-CAL-01 exact interval review crops"
     )
     parser.add_argument("--review-dir", required=True)
+    parser.add_argument("--external-observations-json")
     args = parser.parse_args()
-    result = run_local_interval_ocr(Path(args.review_dir))
+    external_path = Path(args.external_observations_json) if args.external_observations_json else None
+    result = run_local_interval_ocr(
+        Path(args.review_dir),
+        external_observations=_load_external_observations(external_path),
+    )
     print(
         json.dumps(
             {
@@ -240,6 +265,7 @@ def main() -> int:
                 "review_count": result["review_count"],
                 "comparison_digest": result["comparison_digest"],
                 "primary_anchor_count": result["primary_anchor_count"],
+                "external_observation_count": result["external_recognizer"]["observation_count"],
             },
             sort_keys=True,
         )
