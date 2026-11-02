@@ -26,6 +26,20 @@ class Cal01StructuralGridDimensionContractTests(unittest.TestCase):
         self.assertEqual(result["selection_mode"], "FRAGMENT_CLUSTER")
         self.assertEqual(result["member_count"], 4)
 
+    def test_component_rounding_overflow_is_clipped_to_page_frame(self):
+        components = [
+            {"bbox_px": [0, 120, 510, 1002], "ink_area_px": 16000},
+            {"bbox_px": [530, 120, 1001, 1002], "ink_area_px": 15000},
+        ]
+        result = select_structural_grid_envelope_bbox(
+            components,
+            page_width=1000,
+            page_height=1000,
+            join_gap_px=30,
+        )
+        self.assertEqual(result["bbox_px"], [0, 120, 1000, 1000])
+        self.assertTrue(all(0 <= value <= 1000 for value in result["bbox_px"]))
+
     def test_only_two_reference_geometry_becomes_grid_candidate(self):
         observations = [
             {
