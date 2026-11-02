@@ -62,10 +62,10 @@ def select_structural_grid_envelope_bbox(
 ) -> dict[str, Any]:
     """Select a structural-plan envelope while allowing an aligned fragmented grid.
 
-    TAV.5 often appears as one connected component after bounded dilation. The
-    structural-grid sheets can remain split into aligned beam/column/dimension
-    fragments. This fallback groups only horizontally or vertically aligned
-    fragments; diagonal proximity alone cannot absorb a title block.
+    Connected-component bboxes are first clipped to the normalized page frame
+    because scale-back rounding can exceed the source boundary by a few pixels.
+    If no single component qualifies, horizontally/vertically aligned fragments
+    are grouped; diagonal proximity alone cannot absorb a title block.
     """
 
     if page_width <= 0 or page_height <= 0:
@@ -75,9 +75,27 @@ def select_structural_grid_envelope_bbox(
     if join_gap_px < 0:
         raise ValueError("CAL01_STRUCTURAL_GRID_JOIN_GAP_INVALID")
 
+    bounded: list[dict[str, Any]] = []
+    for component in components:
+        bbox = _component_bbox(component)
+        if bbox is None:
+            continue
+        left, top, right, bottom = bbox
+        clipped = [
+            max(0, min(page_width, left)),
+            max(0, min(page_height, top)),
+            max(0, min(page_width, right)),
+            max(0, min(page_height, bottom)),
+        ]
+        if clipped[2] <= clipped[0] or clipped[3] <= clipped[1]:
+            continue
+        bounded.append({**component, "bbox_px": clipped})
+    if not bounded:
+        raise RuntimeError("CAL01_PLAN_ENVELOPE_NOT_FOUND")
+
     try:
         bbox = _select_structural_envelope_bbox(
-            components,
+            bounded,
             page_width=page_width,
             page_height=page_height,
             min_width_fraction=min_width_fraction,
@@ -93,15 +111,7 @@ def select_structural_grid_envelope_bbox(
         if str(exc) != "CAL01_PLAN_ENVELOPE_NOT_FOUND":
             raise
 
-    valid: list[dict[str, Any]] = []
-    for component in components:
-        bbox = _component_bbox(component)
-        if bbox is None:
-            continue
-        valid.append({**component, "bbox_px": bbox})
-    if not valid:
-        raise RuntimeError("CAL01_PLAN_ENVELOPE_NOT_FOUND")
-
+    valid = bounded
     parent = list(range(len(valid)))
 
     def find(index: int) -> int:
