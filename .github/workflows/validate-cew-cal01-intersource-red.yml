@@ -9,6 +9,8 @@ on:
       - 'experiments/cew_cal01/intersource_correspondence.py'
       - 'tests/cew_cal01/test_intersource_governance.py'
       - 'experiments/cew_cal01/intersource_governance.py'
+      - 'tests/cew_cal01/test_intersource_split.py'
+      - 'experiments/cew_cal01/intersource_split.py'
       - '.github/workflows/validate-cew-cal01-intersource-red.yml'
 
 jobs:
