@@ -28,10 +28,10 @@ class Cal01StructuralGridDimensionContractTests(unittest.TestCase):
 
     def test_fragment_cluster_does_not_bridge_to_title_block_through_tiny_marks(self):
         components = [
-            {"bbox_px": [420, 180, 610, 470], "ink_area_px": 9000},
-            {"bbox_px": [630, 180, 820, 470], "ink_area_px": 8800},
-            {"bbox_px": [420, 490, 610, 820], "ink_area_px": 9200},
-            {"bbox_px": [630, 490, 820, 820], "ink_area_px": 9100},
+            {"bbox_px": [400, 180, 630, 470], "ink_area_px": 9000},
+            {"bbox_px": [650, 180, 900, 470], "ink_area_px": 8800},
+            {"bbox_px": [400, 490, 630, 820], "ink_area_px": 9200},
+            {"bbox_px": [650, 490, 900, 820], "ink_area_px": 9100},
             {"bbox_px": [20, 500, 250, 820], "ink_area_px": 8500},
             {"bbox_px": [270, 790, 285, 805], "ink_area_px": 120},
             {"bbox_px": [305, 790, 320, 805], "ink_area_px": 120},
@@ -44,7 +44,7 @@ class Cal01StructuralGridDimensionContractTests(unittest.TestCase):
             page_height=1000,
             join_gap_px=30,
         )
-        self.assertEqual(result["bbox_px"], [420, 180, 820, 820])
+        self.assertEqual(result["bbox_px"], [400, 180, 900, 820])
         self.assertEqual(result["selection_mode"], "FRAGMENT_CLUSTER")
         self.assertEqual(result["member_count"], 4)
 
