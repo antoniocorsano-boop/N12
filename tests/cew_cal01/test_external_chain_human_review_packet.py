@@ -137,6 +137,28 @@ def _receipt(review_id, source_bbox, value_m):
     }
 
 
+def _direct_decision(review_id, crop_sha256, value_m):
+    return {
+        "schema": "CEW_CAL01_EXTERNAL_CHAIN_HUMAN_DECISION_v1",
+        "program": "CEW-CAL-01",
+        "reviewer_role": "HUMAN_PROFESSIONAL_USER",
+        "source_document": "TAV-02S",
+        "source_sha256": SOURCE_SHA,
+        "interval_review_id": review_id,
+        "crop_sha256": crop_sha256,
+        "human_reading": f"{value_m:.2f} m",
+        "decision": "DOCUMENTED_LINEAR_DIMENSION",
+        "value": {"length_m": value_m},
+        "calibration_role": "LINEAR_DIMENSION",
+        "metric_relation_state": "PRIMARY_VISUAL_VALIDATED",
+        "metric_source_kind": "PRIMARY_TAV02S_DOCUMENTED_RELATION",
+        "eligible_for_metric_relation_network": True,
+        "eligible_for_metric_calibration": False,
+        "primary_anchor_authorized": False,
+        "authority": dict(AUTHORITY_CLOSED),
+    }
+
+
 class ExternalChainHumanReviewPacketTests(unittest.TestCase):
     def test_packet_reuses_exact_human_receipts_and_leaves_other_rows_pending(self):
         receipts = [
@@ -151,11 +173,44 @@ class ExternalChainHumanReviewPacketTests(unittest.TestCase):
         )
         self.assertEqual(packet["review_count"], 3)
         self.assertEqual(packet["reused_human_receipt_count"], 2)
+        self.assertEqual(packet["direct_human_decision_count"], 0)
+        self.assertEqual(packet["validated_human_relation_count"], 2)
         self.assertEqual(packet["pending_human_review_count"], 1)
         states = {row["review_id"]: row["review_state"] for row in packet["reviews"]}
         self.assertEqual(states["TAV-02S:BOTTOM:BOTTOM:R1:I2"], "REUSED_HUMAN_RECEIPT")
         self.assertEqual(states["TAV-02S:BOTTOM:BOTTOM:R1:I3"], "REUSED_HUMAN_RECEIPT")
         self.assertEqual(states["TAV-02S:TOP:TOP:R1:I0"], "PENDING_HUMAN_REVIEW")
+
+    def test_packet_accepts_direct_human_decision_without_conflating_prior_receipts(self):
+        receipts = [
+            _receipt("SG-T02-01", [492.0, 8291.0, 541.0, 8499.0], 4.95),
+            _receipt("SG-T02-02", [486.0, 6865.0, 536.0, 7069.0], 6.25),
+        ]
+        direct = _direct_decision(
+            "TAV-02S:TOP:TOP:R1:I0",
+            "sha256:" + "4" * 64,
+            4.70,
+        )
+        packet = build_human_review_packet(
+            _manifest(),
+            _comparison(),
+            receipts,
+            direct_decisions=[direct],
+            source_width_px=7016,
+        )
+        self.assertEqual(packet["review_count"], 3)
+        self.assertEqual(packet["reused_human_receipt_count"], 2)
+        self.assertEqual(packet["direct_human_decision_count"], 1)
+        self.assertEqual(packet["validated_human_relation_count"], 3)
+        self.assertEqual(packet["pending_human_review_count"], 0)
+        top = next(row for row in packet["reviews"] if row["review_id"] == "TAV-02S:TOP:TOP:R1:I0")
+        self.assertEqual(top["review_state"], "DIRECT_HUMAN_DECISION")
+        self.assertEqual(top["validated_value_m"], 4.70)
+        self.assertEqual(top["human_decision_ref"], "TAV-02S:TOP:TOP:R1:I0")
+        self.assertIsNone(top["human_receipt_ref"])
+        self.assertFalse(top["human_decision_required"])
+        self.assertFalse(top["eligible_for_metric_calibration"])
+        self.assertFalse(top["primary_anchor_authorized"])
 
     def test_packet_preserves_exact_crop_binding_and_does_not_invent_pending_value(self):
         packet = build_human_review_packet(
@@ -170,6 +225,7 @@ class ExternalChainHumanReviewPacketTests(unittest.TestCase):
         self.assertEqual(row["review_state"], "PENDING_HUMAN_REVIEW")
         self.assertIsNone(row["validated_value_m"])
         self.assertIsNone(row["human_receipt_ref"])
+        self.assertIsNone(row["human_decision_ref"])
         self.assertFalse(row["eligible_for_metric_calibration"])
         self.assertFalse(row["primary_anchor_authorized"])
 
@@ -179,15 +235,25 @@ class ExternalChainHumanReviewPacketTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "CAL01_HUMAN_REVIEW_CROP_BINDING_DRIFT"):
             build_human_review_packet(_manifest(), comparison, [], source_width_px=7016)
 
-    def test_packet_digest_is_independent_of_receipt_input_order(self):
+    def test_packet_digest_is_independent_of_receipt_and_direct_decision_input_order(self):
         receipts = [
             _receipt("SG-T02-01", [492.0, 8291.0, 541.0, 8499.0], 4.95),
             _receipt("SG-T02-02", [486.0, 6865.0, 536.0, 7069.0], 6.25),
         ]
-        forward = build_human_review_packet(_manifest(), _comparison(), receipts, source_width_px=7016)
-        reverse = build_human_review_packet(_manifest(), _comparison(), list(reversed(receipts)), source_width_px=7016)
+        direct = _direct_decision(
+            "TAV-02S:TOP:TOP:R1:I0",
+            "sha256:" + "4" * 64,
+            4.70,
+        )
+        forward = build_human_review_packet(
+            _manifest(), _comparison(), receipts, direct_decisions=[direct, dict(direct)], source_width_px=7016
+        )
+        reverse = build_human_review_packet(
+            _manifest(), _comparison(), list(reversed(receipts)), direct_decisions=[dict(direct), direct], source_width_px=7016
+        )
         self.assertEqual(forward["packet_digest"], reverse["packet_digest"])
         self.assertEqual(forward["reviews"], reverse["reviews"])
+        self.assertEqual(forward["direct_human_decision_count"], 1)
 
     def test_packet_authority_remains_closed(self):
         packet = build_human_review_packet(_manifest(), _comparison(), [], source_width_px=7016)
