@@ -29,6 +29,7 @@ from experiments.cew_cal01.perimeter_dimension import (
 
 
 _SOURCE_ORDER = {"TAV-01S": 0, "TAV-02S": 1}
+_FRAGMENT_CORE_INK_FRACTIONS = (0.002, 0.001, 0.0005, 0.0002, 0.0001, 0.0)
 
 
 def _component_bbox(component: dict[str, Any]) -> list[int] | None:
@@ -65,7 +66,9 @@ def select_structural_grid_envelope_bbox(
     Connected-component bboxes are first clipped to the normalized page frame
     because scale-back rounding can exceed the source boundary by a few pixels.
     If no single component qualifies, horizontally/vertically aligned fragments
-    are grouped; diagonal proximity alone cannot absorb a title block.
+    are grouped. Fragment grouping is seeded from progressively weaker ink-area
+    cores so tiny page marks cannot form a transitive bridge from the structural
+    grid into a title block; the unrestricted grouping remains the final fallback.
     """
 
     if page_width <= 0 or page_height <= 0:
@@ -106,61 +109,82 @@ def select_structural_grid_envelope_bbox(
             "selection_mode": "SINGLE_COMPONENT",
             "member_count": 1,
             "join_gap_px": join_gap_px,
+            "core_min_ink_fraction": None,
         }
     except RuntimeError as exc:
         if str(exc) != "CAL01_PLAN_ENVELOPE_NOT_FOUND":
             raise
 
-    valid = bounded
-    parent = list(range(len(valid)))
-
-    def find(index: int) -> int:
-        while parent[index] != index:
-            parent[index] = parent[parent[index]]
-            index = parent[index]
-        return index
-
-    def union(left: int, right: int) -> None:
-        root_left = find(left)
-        root_right = find(right)
-        if root_left != root_right:
-            parent[root_right] = root_left
-
-    for left in range(len(valid)):
-        for right in range(left + 1, len(valid)):
-            if _axis_aligned_neighbors(valid[left]["bbox_px"], valid[right]["bbox_px"], join_gap_px=join_gap_px):
-                union(left, right)
-
-    groups: dict[int, list[dict[str, Any]]] = {}
-    for index, component in enumerate(valid):
-        groups.setdefault(find(index), []).append(component)
-
-    qualified: list[tuple[int, int, int, list[int]]] = []
-    for members in groups.values():
-        if len(members) < 2:
+    page_area = float(page_width * page_height)
+    for core_min_ink_fraction in _FRAGMENT_CORE_INK_FRACTIONS:
+        min_ink_area = page_area * core_min_ink_fraction
+        valid = [
+            component
+            for component in bounded
+            if float(component.get("ink_area_px") or 0) >= min_ink_area
+        ]
+        if len(valid) < 2:
             continue
-        left = min(row["bbox_px"][0] for row in members)
-        top = min(row["bbox_px"][1] for row in members)
-        right = max(row["bbox_px"][2] for row in members)
-        bottom = max(row["bbox_px"][3] for row in members)
-        width = right - left
-        height = bottom - top
-        if width < page_width * min_width_fraction or height < page_height * min_height_fraction:
-            continue
-        bbox_area = width * height
-        ink_area = sum(int(row.get("ink_area_px") or 0) for row in members)
-        qualified.append((len(members), bbox_area, ink_area, [left, top, right, bottom]))
 
-    if not qualified:
-        raise RuntimeError("CAL01_PLAN_ENVELOPE_NOT_FOUND")
-    qualified.sort(key=lambda row: (row[0], row[1], row[2], -row[3][1], -row[3][0]), reverse=True)
-    member_count, _bbox_area, _ink_area, bbox = qualified[0]
-    return {
-        "bbox_px": bbox,
-        "selection_mode": "FRAGMENT_CLUSTER",
-        "member_count": member_count,
-        "join_gap_px": join_gap_px,
-    }
+        parent = list(range(len(valid)))
+
+        def find(index: int) -> int:
+            while parent[index] != index:
+                parent[index] = parent[parent[index]]
+                index = parent[index]
+            return index
+
+        def union(left: int, right: int) -> None:
+            root_left = find(left)
+            root_right = find(right)
+            if root_left != root_right:
+                parent[root_right] = root_left
+
+        for left in range(len(valid)):
+            for right in range(left + 1, len(valid)):
+                if _axis_aligned_neighbors(
+                    valid[left]["bbox_px"],
+                    valid[right]["bbox_px"],
+                    join_gap_px=join_gap_px,
+                ):
+                    union(left, right)
+
+        groups: dict[int, list[dict[str, Any]]] = {}
+        for index, component in enumerate(valid):
+            groups.setdefault(find(index), []).append(component)
+
+        qualified: list[tuple[int, int, int, list[int]]] = []
+        for members in groups.values():
+            if len(members) < 2:
+                continue
+            left = min(row["bbox_px"][0] for row in members)
+            top = min(row["bbox_px"][1] for row in members)
+            right = max(row["bbox_px"][2] for row in members)
+            bottom = max(row["bbox_px"][3] for row in members)
+            width = right - left
+            height = bottom - top
+            if width < page_width * min_width_fraction or height < page_height * min_height_fraction:
+                continue
+            bbox_area = width * height
+            ink_area = sum(int(row.get("ink_area_px") or 0) for row in members)
+            qualified.append((ink_area, bbox_area, len(members), [left, top, right, bottom]))
+
+        if not qualified:
+            continue
+        qualified.sort(
+            key=lambda row: (row[0], row[1], row[2], -row[3][1], -row[3][0]),
+            reverse=True,
+        )
+        _ink_area, _bbox_area, member_count, bbox = qualified[0]
+        return {
+            "bbox_px": bbox,
+            "selection_mode": "FRAGMENT_CLUSTER",
+            "member_count": member_count,
+            "join_gap_px": join_gap_px,
+            "core_min_ink_fraction": core_min_ink_fraction,
+        }
+
+    raise RuntimeError("CAL01_PLAN_ENVELOPE_NOT_FOUND")
 
 
 def detect_structural_grid_plan_envelope(gray: Any) -> dict[str, Any]:
@@ -216,6 +240,7 @@ def detect_structural_grid_plan_envelope(gray: Any) -> dict[str, Any]:
             "selection_mode": selection["selection_mode"],
             "selected_member_count": selection["member_count"],
             "join_gap_px": selection["join_gap_px"],
+            "core_min_ink_fraction": selection["core_min_ink_fraction"],
         },
         "envelope_bbox_normalized_px": envelope_normalized,
         "envelope_bbox_source_px": envelope_source,
