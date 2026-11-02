@@ -340,12 +340,12 @@ def rank_targeted_human_review(network: dict[str, Any], limit: int = 4) -> list[
         validated = int(stat.get("validated_interval_count", 0))
         pending_count = int(stat.get("pending_interval_count", 0))
         one_missing_partial_chain = validated > 0 and pending_count == 1
-        underrepresented_orientation = orientation_counts[str(row["orientation"])] < MIN_PER_ORIENTATION
+        orientation_count = int(orientation_counts[str(row["orientation"])])
         new_side = str(row["side"]) not in represented_sides
         partial_chain = validated > 0
         return (
             0 if one_missing_partial_chain else 1,
-            0 if underrepresented_orientation else 1,
+            orientation_count,
             0 if new_side else 1,
             0 if partial_chain else 1,
             str(row["review_id"]),
