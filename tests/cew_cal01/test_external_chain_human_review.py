@@ -2,6 +2,7 @@ import unittest
 
 from experiments.cew_cal01.external_chain_human_review import (
     normalize_source_bbox_ccw,
+    reconcile_direct_human_decisions,
     reconcile_human_receipts,
 )
 
@@ -75,6 +76,39 @@ def _receipt(
         "eligible_for_metric_relation_network": relation_network,
         "eligible_for_metric_calibration": False,
         "primary_anchor_authorized": primary_anchor_authorized,
+        "authority": dict(AUTHORITY_CLOSED),
+    }
+
+
+def _direct_decision(
+    interval_review_id,
+    source_id,
+    source_sha,
+    crop_sha256,
+    value_m,
+    *,
+    reviewer_role="HUMAN_PROFESSIONAL_USER",
+    decision="DOCUMENTED_LINEAR_DIMENSION",
+    metric_relation_state="PRIMARY_VISUAL_VALIDATED",
+    calibration_role="LINEAR_DIMENSION",
+):
+    return {
+        "schema": "CEW_CAL01_EXTERNAL_CHAIN_HUMAN_DECISION_v1",
+        "program": "CEW-CAL-01",
+        "reviewer_role": reviewer_role,
+        "source_document": source_id,
+        "source_sha256": source_sha,
+        "interval_review_id": interval_review_id,
+        "crop_sha256": crop_sha256,
+        "human_reading": f"{value_m:.2f} m",
+        "decision": decision,
+        "value": {"length_m": value_m},
+        "calibration_role": calibration_role,
+        "metric_relation_state": metric_relation_state,
+        "metric_source_kind": f"PRIMARY_{source_id.replace('-', '')}_DOCUMENTED_RELATION",
+        "eligible_for_metric_relation_network": True,
+        "eligible_for_metric_calibration": False,
+        "primary_anchor_authorized": False,
         "authority": dict(AUTHORITY_CLOSED),
     }
 
@@ -226,6 +260,81 @@ class ExternalChainHumanReceiptReconciliationTests(unittest.TestCase):
         ]
         with self.assertRaisesRegex(ValueError, "CAL01_HUMAN_RECEIPT_VALUE_CONFLICT"):
             reconcile_human_receipts(manifest, receipts, source_width_px=7016)
+
+
+class ExternalChainDirectHumanDecisionTests(unittest.TestCase):
+    def setUp(self):
+        self.source_sha = "cd03839589e60ee46b3fd398d6a9fabca1a446859e6693a47d0f83d0e930520f"
+        self.review_id = "TAV-02S:TOP:TOP:R1:I4"
+        self.request = _request(self.review_id, [8509, 345, 9729, 605], "5")
+        self.manifest = _manifest("TAV-02S", self.source_sha, [self.request])
+
+    def test_direct_decision_binds_by_exact_interval_and_crop_without_source_bbox(self):
+        decision = _direct_decision(
+            self.review_id,
+            "TAV-02S",
+            self.source_sha,
+            self.request["crop_sha256"],
+            5.30,
+        )
+        result = reconcile_direct_human_decisions(self.manifest, [decision])
+        self.assertEqual(result["direct_count"], 1)
+        binding = result["bindings"][self.review_id]
+        self.assertEqual(binding["review_state"], "DIRECT_HUMAN_DECISION")
+        self.assertEqual(binding["value_m"], 5.30)
+        self.assertEqual(binding["crop_sha256"], self.request["crop_sha256"])
+
+    def test_direct_decision_crop_sha_mismatch_fails_closed(self):
+        decision = _direct_decision(
+            self.review_id,
+            "TAV-02S",
+            self.source_sha,
+            "sha256:" + "9" * 64,
+            5.30,
+        )
+        with self.assertRaisesRegex(ValueError, "CAL01_DIRECT_HUMAN_DECISION_CROP_MISMATCH"):
+            reconcile_direct_human_decisions(self.manifest, [decision])
+
+    def test_direct_decision_unknown_interval_fails_closed(self):
+        decision = _direct_decision(
+            "TAV-02S:TOP:TOP:R1:I99",
+            "TAV-02S",
+            self.source_sha,
+            self.request["crop_sha256"],
+            5.30,
+        )
+        with self.assertRaisesRegex(ValueError, "CAL01_DIRECT_HUMAN_DECISION_INTERVAL_UNKNOWN"):
+            reconcile_direct_human_decisions(self.manifest, [decision])
+
+    def test_duplicate_same_value_direct_decisions_deduplicate(self):
+        decision = _direct_decision(
+            self.review_id,
+            "TAV-02S",
+            self.source_sha,
+            self.request["crop_sha256"],
+            5.30,
+        )
+        result = reconcile_direct_human_decisions(self.manifest, [decision, dict(decision)])
+        self.assertEqual(result["direct_count"], 1)
+        self.assertEqual(result["bindings"][self.review_id]["value_m"], 5.30)
+
+    def test_conflicting_direct_decisions_fail_closed(self):
+        first = _direct_decision(
+            self.review_id,
+            "TAV-02S",
+            self.source_sha,
+            self.request["crop_sha256"],
+            5.30,
+        )
+        second = _direct_decision(
+            self.review_id,
+            "TAV-02S",
+            self.source_sha,
+            self.request["crop_sha256"],
+            4.70,
+        )
+        with self.assertRaisesRegex(ValueError, "CAL01_DIRECT_HUMAN_DECISION_VALUE_CONFLICT"):
+            reconcile_direct_human_decisions(self.manifest, [first, second])
 
 
 if __name__ == "__main__":
