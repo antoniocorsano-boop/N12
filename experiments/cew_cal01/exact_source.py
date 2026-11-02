@@ -10,6 +10,7 @@ from typing import Any
 
 from cew_b01.source_contract import load_source_contract, materialize_source, validate_frozen_n12_tav5
 from experiments.cew_cal01.anchor_discovery import normalize_dimension_text, proposal_from_ocr_token
+from experiments.cew_cal01.numeric_role import dimension_tick_relation
 
 
 SOURCE_CONTRACT_PATH = Path("governance/cew-b01/N12_TAV5_SOURCE_v1.json")
@@ -215,6 +216,7 @@ def _dimension_geometry_cv2(gray: Any, bbox: list[float]) -> dict[str, Any]:
                 "endpoint_a_px": [refs[0][1], y_line],
                 "endpoint_b_px": [refs[1][1], y_line],
                 "geometry_role": "DIMENSION_LINE_WITH_TWO_REFERENCES",
+                "reference_style": "HOUGH_ENDPOINT_REFERENCES",
                 "metric_anchor_promoted": False,
             }
 
@@ -244,8 +246,28 @@ def _dimension_geometry_cv2(gray: Any, bbox: list[float]) -> dict[str, Any]:
                 "endpoint_a_px": [x_line, refs[0][1]],
                 "endpoint_b_px": [x_line, refs[1][1]],
                 "geometry_role": "DIMENSION_LINE_WITH_TWO_REFERENCES",
+                "reference_style": "HOUGH_ENDPOINT_REFERENCES",
                 "metric_anchor_promoted": False,
             }
+
+    tick_relations = [
+        dimension_tick_relation(global_lines, token_bbox_px=bbox, expected_orientation=orientation)
+        for orientation in ("HORIZONTAL", "VERTICAL")
+    ]
+    confirmed = [relation for relation in tick_relations if relation.get("confirmed") is True]
+    if len(confirmed) == 1:
+        relation = confirmed[0]
+        return {
+            "geometrically_bound": True,
+            "orientation": relation["orientation"],
+            "endpoint_a_px": relation["endpoint_a_px"],
+            "endpoint_b_px": relation["endpoint_b_px"],
+            "geometry_role": "DIMENSION_LINE_WITH_TWO_REFERENCES",
+            "reference_style": relation["tick_style"],
+            "metric_anchor_promoted": False,
+        }
+    if len(confirmed) > 1:
+        return {"geometrically_bound": False, "reason": "AMBIGUOUS_DIMENSION_ORIENTATION"}
 
     return {"geometrically_bound": False, "reason": "TWO_REFERENCE_LINES_NOT_OBSERVED"}
 
