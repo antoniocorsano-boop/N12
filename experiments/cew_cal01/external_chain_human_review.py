@@ -12,6 +12,8 @@ from typing import Any, Iterable
 REQUIRED_REVIEWER_ROLE = "HUMAN_PROFESSIONAL_USER"
 REQUIRED_METRIC_RELATION_STATE = "PRIMARY_VISUAL_VALIDATED"
 REQUIRED_CALIBRATION_ROLE = "LINEAR_DIMENSION"
+DIRECT_DECISION_SCHEMA = "CEW_CAL01_EXTERNAL_CHAIN_HUMAN_DECISION_v1"
+DIRECT_LINEAR_DECISION = "DOCUMENTED_LINEAR_DIMENSION"
 
 
 def _canonical_digest(payload: Any) -> str:
@@ -75,6 +77,19 @@ def _source_bbox(receipt: dict[str, Any]) -> list[float] | None:
 def _is_reusable_human_receipt(receipt: dict[str, Any]) -> bool:
     return (
         receipt.get("reviewer_role") == REQUIRED_REVIEWER_ROLE
+        and receipt.get("metric_relation_state") == REQUIRED_METRIC_RELATION_STATE
+        and receipt.get("calibration_role") == REQUIRED_CALIBRATION_ROLE
+        and receipt.get("eligible_for_metric_relation_network") is True
+        and receipt.get("eligible_for_metric_calibration") is False
+        and receipt.get("primary_anchor_authorized") is False
+    )
+
+
+def _is_direct_human_decision(receipt: dict[str, Any]) -> bool:
+    return (
+        receipt.get("schema") == DIRECT_DECISION_SCHEMA
+        and receipt.get("reviewer_role") == REQUIRED_REVIEWER_ROLE
+        and receipt.get("decision") == DIRECT_LINEAR_DECISION
         and receipt.get("metric_relation_state") == REQUIRED_METRIC_RELATION_STATE
         and receipt.get("calibration_role") == REQUIRED_CALIBRATION_ROLE
         and receipt.get("eligible_for_metric_relation_network") is True
@@ -188,6 +203,81 @@ def reconcile_human_receipts(
         "unmatched_receipt_ids": sorted(unmatched),
         "ineligible_receipt_ids": sorted(ineligible),
         "source_mismatch_receipt_ids": sorted(source_mismatch),
+        "primary_anchor_count": 0,
+        "eligible_for_metric_calibration": False,
+    }
+
+
+def reconcile_direct_human_decisions(
+    manifest: dict[str, Any],
+    decisions: Iterable[dict[str, Any]],
+) -> dict[str, Any]:
+    source = dict(manifest.get("source") or {})
+    source_id = str(source.get("source_id") or "")
+    source_sha = str(source.get("sha256") or "")
+    if not source_id or not source_sha:
+        raise ValueError("CAL01_DIRECT_HUMAN_DECISION_SOURCE_INVALID")
+
+    requests = [dict(row) for row in manifest.get("review_requests", [])]
+    if int(manifest.get("review_request_count", len(requests))) != len(requests):
+        raise ValueError("CAL01_DIRECT_HUMAN_DECISION_REVIEW_COUNT_DRIFT")
+    request_by_id = {str(row.get("review_id") or ""): row for row in requests}
+    if "" in request_by_id or len(request_by_id) != len(requests):
+        raise ValueError("CAL01_DIRECT_HUMAN_DECISION_REVIEW_ID_INVALID")
+
+    candidates: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    ineligible: list[str] = []
+    source_mismatch: list[str] = []
+
+    for raw in decisions:
+        decision = dict(raw)
+        interval_review_id = str(decision.get("interval_review_id") or "")
+        decision_ref = interval_review_id or str(decision.get("review_id") or "") or "<missing>"
+        if not _is_direct_human_decision(decision):
+            ineligible.append(decision_ref)
+            continue
+        if decision.get("source_document") != source_id or decision.get("source_sha256") != source_sha:
+            source_mismatch.append(decision_ref)
+            continue
+        if interval_review_id not in request_by_id:
+            raise ValueError("CAL01_DIRECT_HUMAN_DECISION_INTERVAL_UNKNOWN")
+        request = request_by_id[interval_review_id]
+        if decision.get("crop_sha256") != request.get("crop_sha256"):
+            raise ValueError("CAL01_DIRECT_HUMAN_DECISION_CROP_MISMATCH")
+        _closed_authority(dict(decision.get("authority") or {}))
+        candidates[interval_review_id].append(
+            {
+                "review_state": "DIRECT_HUMAN_DECISION",
+                "decision_ref": interval_review_id,
+                "crop_sha256": request.get("crop_sha256"),
+                "value_m": _receipt_value_m(decision),
+                "human_reading": decision.get("human_reading"),
+                "metric_relation_state": decision.get("metric_relation_state"),
+                "metric_source_kind": decision.get("metric_source_kind"),
+                "eligible_for_metric_calibration": False,
+                "primary_anchor_authorized": False,
+            }
+        )
+
+    bindings: dict[str, dict[str, Any]] = {}
+    for interval_review_id, rows in sorted(candidates.items()):
+        values = {float(row["value_m"]) for row in rows}
+        if len(values) > 1:
+            raise ValueError("CAL01_DIRECT_HUMAN_DECISION_VALUE_CONFLICT")
+        bindings[interval_review_id] = sorted(
+            rows,
+            key=lambda row: (
+                float(row["value_m"]),
+                str(row.get("human_reading") or ""),
+            ),
+        )[0]
+
+    return {
+        "source": source,
+        "direct_count": len(bindings),
+        "bindings": bindings,
+        "ineligible_decision_ids": sorted(ineligible),
+        "source_mismatch_decision_ids": sorted(source_mismatch),
         "primary_anchor_count": 0,
         "eligible_for_metric_calibration": False,
     }
