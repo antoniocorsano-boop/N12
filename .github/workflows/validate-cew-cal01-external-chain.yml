@@ -16,6 +16,7 @@ on:
       - 'experiments/cew_cal01/interval_ocr_exact.py'
       - 'experiments/cew_cal01/external_chain_human_review.py'
       - 'experiments/cew_cal01/metric_sufficiency.py'
+      - 'experiments/cew_cal01/reference_lattice.py'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_01_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json'
@@ -33,6 +34,7 @@ on:
       - 'tests/cew_cal01/test_interval_ocr_compare.py'
       - 'tests/cew_cal01/test_metric_sufficiency.py'
       - 'tests/cew_cal01/test_metric_sufficiency_gate.py'
+      - 'tests/cew_cal01/test_reference_lattice.py'
       - '.github/workflows/validate-cew-cal01-external-chain.yml'
   pull_request:
     paths:
@@ -47,6 +49,7 @@ on:
       - 'experiments/cew_cal01/interval_ocr_exact.py'
       - 'experiments/cew_cal01/external_chain_human_review.py'
       - 'experiments/cew_cal01/metric_sufficiency.py'
+      - 'experiments/cew_cal01/reference_lattice.py'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_01_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json'
@@ -64,6 +67,7 @@ on:
       - 'tests/cew_cal01/test_interval_ocr_compare.py'
       - 'tests/cew_cal01/test_metric_sufficiency.py'
       - 'tests/cew_cal01/test_metric_sufficiency_gate.py'
+      - 'tests/cew_cal01/test_reference_lattice.py'
       - '.github/workflows/validate-cew-cal01-external-chain.yml'
 
 jobs:
@@ -199,6 +203,11 @@ jobs:
       - name: Materialize source-local metric sufficiency on TAV-02S
         run: |
           python -m experiments.cew_cal01.metric_sufficiency \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S"
+
+      - name: Materialize TAV-02S local metric reference lattice
+        run: |
+          python -m experiments.cew_cal01.reference_lattice \
             --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S"
 
       - name: Assert external-chain authority boundaries
@@ -383,6 +392,9 @@ jobs:
           tav02_metric_gate = json.loads(
               (root / 'interval-text-review' / 'TAV-02S' / 'metric-sufficiency-gate.json').read_text()
           )
+          tav02_lattice = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'tav02-reference-lattice.json').read_text()
+          )
 
           assert tav01_metric_gate['gate_state'] == 'TARGETED_HUMAN_REVIEW'
           assert 1 <= len(tav01_metric_gate['targeted_human_review_ids']) <= 4
@@ -393,6 +405,25 @@ jobs:
           assert tav02_metric_gate['gate_state'] == 'INSUFFICIENT'
           assert tav02_metric_gate['blockers'] == ['PRIMARY_ANCHOR_REQUIRED']
           assert tav02_metric_gate['next_action'] == 'PRIMARY_ANCHOR_DISCOVERY'
+
+          assert tav02_lattice['schema'] == 'CEW_CAL01_TAV02_REFERENCE_LATTICE_v1'
+          assert tav02_lattice['source']['source_id'] == 'TAV-02S'
+          assert tav02_lattice['source']['sha256'] == expected['TAV-02S']
+          assert tav02_lattice['metric_network_digest'] == tav02_metric_network['network_digest']
+          assert tav02_lattice['coordinate_frame'] == 'LOCAL_RELATIVE_METRIC'
+          assert tav02_lattice['x_reference_count'] == 7
+          assert tav02_lattice['y_reference_count'] == 3
+          assert tav02_lattice['lattice_node_count'] == 21
+          assert [row['local_m'] for row in tav02_lattice['x_references']] == [0.0, 4.7, 9.8, 13.95, 18.1, 23.4, 28.1]
+          assert [row['local_m'] for row in tav02_lattice['y_references']] == [0.0, 2.1, 5.55]
+          assert tav02_lattice['absolute_origin_authorized'] is False
+          assert tav02_lattice['eligible_for_metric_calibration'] is False
+          assert all(row['fit_eligible'] is False for row in tav02_lattice['lattice_nodes'])
+          assert all(row['primary_anchor_authorized'] is False for row in tav02_lattice['lattice_nodes'])
+          assert tav02_lattice['authority']['structural_identity_authorized'] is False
+          assert tav02_lattice['authority']['canonical_geometry_authorized'] is False
+          assert tav02_lattice['authority']['canonical_write_authorized'] is False
+          assert tav02_lattice['authority']['m0g_authorized'] is False
 
           for metric_network, metric_gate, source_id in (
               (tav01_metric_network, tav01_metric_gate, 'TAV-01S'),
@@ -424,6 +455,7 @@ jobs:
           results['TAV-02S']['human_review_packet_digest'] = tav02_human['packet_digest']
           results['TAV-02S']['metric_relation_network_digest'] = tav02_metric_network['network_digest']
           results['TAV-02S']['metric_sufficiency_gate_digest'] = tav02_metric_gate['gate_digest']
+          results['TAV-02S']['reference_lattice_digest'] = tav02_lattice['lattice_digest']
           print(json.dumps(results, sort_keys=True))
           PY
 
