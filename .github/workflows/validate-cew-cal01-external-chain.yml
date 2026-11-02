@@ -17,6 +17,14 @@ on:
       - 'experiments/cew_cal01/external_chain_human_review.py'
       - 'experiments/cew_cal01/metric_sufficiency.py'
       - 'experiments/cew_cal01/reference_lattice.py'
+      - 'experiments/cew_cal01/intersource_correspondence.py'
+      - 'experiments/cew_cal01/intersource_governance.py'
+      - 'experiments/cew_cal01/intersource_split.py'
+      - 'experiments/cew_col02/**'
+      - 'experiments/cew_col03a/**'
+      - 'cew_spiral/exact_source_structural_candidate_bridge.py'
+      - 'cew_spiral/structural_candidate_bridge.py'
+      - 'requirements/cew-b01.lock.txt'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_01_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json'
@@ -35,6 +43,7 @@ on:
       - 'tests/cew_cal01/test_metric_sufficiency.py'
       - 'tests/cew_cal01/test_metric_sufficiency_gate.py'
       - 'tests/cew_cal01/test_reference_lattice.py'
+      - 'tests/cew_cal01/test_anchor_connectivity_workflow.py'
       - '.github/workflows/validate-cew-cal01-external-chain.yml'
   pull_request:
     paths:
@@ -50,6 +59,14 @@ on:
       - 'experiments/cew_cal01/external_chain_human_review.py'
       - 'experiments/cew_cal01/metric_sufficiency.py'
       - 'experiments/cew_cal01/reference_lattice.py'
+      - 'experiments/cew_cal01/intersource_correspondence.py'
+      - 'experiments/cew_cal01/intersource_governance.py'
+      - 'experiments/cew_cal01/intersource_split.py'
+      - 'experiments/cew_col02/**'
+      - 'experiments/cew_col03a/**'
+      - 'cew_spiral/exact_source_structural_candidate_bridge.py'
+      - 'cew_spiral/structural_candidate_bridge.py'
+      - 'requirements/cew-b01.lock.txt'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_01_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json'
@@ -68,6 +85,7 @@ on:
       - 'tests/cew_cal01/test_metric_sufficiency.py'
       - 'tests/cew_cal01/test_metric_sufficiency_gate.py'
       - 'tests/cew_cal01/test_reference_lattice.py'
+      - 'tests/cew_cal01/test_anchor_connectivity_workflow.py'
       - '.github/workflows/validate-cew-cal01-external-chain.yml'
 
 jobs:
@@ -88,11 +106,21 @@ jobs:
       - name: Install frozen Tesseract system package
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends tesseract-ocr
-          tesseract --version | head -1
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
 
       - name: Install minimal CAL-01 exact-source toolchain
         run: python -m pip install --disable-pip-version-check -r requirements/cew-cal01.lock.txt
+
+      - name: Install frozen B01 structural-candidate toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-spiral-structural"
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
 
       - name: Fetch frozen structural-grid source commit
         run: |
@@ -102,6 +130,12 @@ jobs:
           git -C "$RUNNER_TEMP/cew-n12-external-chain-source" fetch --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
           git -C "$RUNNER_TEMP/cew-n12-external-chain-source" checkout --detach FETCH_HEAD
           test "$(git -C "$RUNNER_TEMP/cew-n12-external-chain-source" rev-parse HEAD)" = "78c20a52db4f391ce0d13b9705b9f04737e218c9"
+
+      - name: Fetch frozen TAV.5 exact-source commit into candidate history
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
 
       - name: Render frozen structural-grid primary sources
         run: |
@@ -209,6 +243,109 @@ jobs:
         run: |
           python -m experiments.cew_cal01.reference_lattice \
             --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S"
+
+      - name: Rebuild governed TAV.5 structural occurrence ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          python -m experiments.cew_col02.exact_source_audit
+          python -m experiments.cew_col02.review_atlas evidence/cew-col02/footprint-text-binding/col02-audit.json
+          python -m experiments.cew_col02.prototype_guided_exact_source
+          python -m experiments.cew_col02.occurrence_sweep_exact_source
+          python -m experiments.cew_col02.residual_occurrence_reconciliation_exact_source
+          python -m experiments.cew_col02.axis_aware_whole_symbol_exact_source
+          python -m experiments.cew_col02.occurrence_coverage_closure
+          python -m experiments.cew_col03a.exact_source
+
+      - name: Materialize canonical TAV.5 StructuralObjectCandidate bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          python -m cew_spiral.exact_source_structural_candidate_bridge \
+            --output "$RUNNER_TEMP/cew-cal01-external-chain/structural-candidate-bridge.json" \
+            --probe-root "$RUNNER_TEMP/cew-cal01-external-chain/tav5-source-probe"
+
+      - name: Materialize governed inter-source fail-closed state
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from experiments.cew_cal01.intersource_correspondence import discover_correspondence_candidates
+          from experiments.cew_cal01.intersource_governance import govern_correspondences
+          from experiments.cew_cal01.intersource_split import freeze_registration_split
+
+          root = Path(os.environ['RUNNER_TEMP']) / 'cew-cal01-external-chain'
+          bridge = json.loads((root / 'structural-candidate-bridge.json').read_text(encoding='utf-8'))
+          lattice = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'tav02-reference-lattice.json').read_text(encoding='utf-8')
+          )
+          candidates = discover_correspondence_candidates(bridge, lattice)
+          governed = govern_correspondences(candidates)
+          split = freeze_registration_split(governed)
+
+          output = root / 'intersource'
+          output.mkdir(parents=True, exist_ok=True)
+          payloads = {
+              'tav5-tav02-correspondence-candidates.json': candidates,
+              'tav5-tav02-governed-correspondences.json': governed,
+              'tav5-tav02-registration-split.json': split,
+          }
+          for name, payload in payloads.items():
+              (output / name).write_text(
+                  json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2) + '\n',
+                  encoding='utf-8',
+              )
+          PY
+
+      - name: Assert exact-source inter-source fail-closed boundary
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          root = Path(os.environ['RUNNER_TEMP']) / 'cew-cal01-external-chain'
+          bridge = json.loads((root / 'structural-candidate-bridge.json').read_text(encoding='utf-8'))
+          lattice = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'tav02-reference-lattice.json').read_text(encoding='utf-8')
+          )
+          candidates = json.loads(
+              (root / 'intersource' / 'tav5-tav02-correspondence-candidates.json').read_text(encoding='utf-8')
+          )
+          governed = json.loads(
+              (root / 'intersource' / 'tav5-tav02-governed-correspondences.json').read_text(encoding='utf-8')
+          )
+          split = json.loads(
+              (root / 'intersource' / 'tav5-tav02-registration-split.json').read_text(encoding='utf-8')
+          )
+
+          assert bridge['qualification']['occurrence_count'] == 22
+          assert bridge['qualification']['structural_candidate_count'] == 22
+          assert bridge['qualification']['historical_comparator_loaded'] is False
+          assert lattice['lattice_node_count'] == 21
+          assert lattice['lattice_digest'].startswith('sha256:')
+          assert candidates['source_candidate_count'] == 22
+          assert candidates['classification_counts'] == {'AMBIGUOUS': 0, 'HOMOLOGY_PROPOSAL': 0, 'UNMATCHED': 22}
+          assert candidates['governed_correspondence_count'] == 0
+          assert candidates['historical_comparator_loaded'] is False
+          assert candidates['historical_affine_loaded'] is False
+          assert governed['governed_correspondence_count'] == 0
+          assert governed['readiness_state'] == 'INSUFFICIENT_INTERSOURCE_CORRESPONDENCES'
+          assert governed['next_action'] == 'TARGETED_INTERSOURCE_HUMAN_REVIEW'
+          assert split['state'] == 'INSUFFICIENT_INTERSOURCE_CORRESPONDENCES'
+          assert split['next_action'] == 'TARGETED_INTERSOURCE_HUMAN_REVIEW'
+          assert split['affine_fit_performed'] is False
+          assert split['ready_for_affine_fit'] is False
+          assert split['historical_m0g_loaded'] is False
+
+          for payload in (candidates, governed, split):
+              assert payload['authority']['structural_identity_authorized'] is False
+              assert payload['authority']['canonical_geometry_authorized'] is False
+              assert payload['authority']['canonical_write_authorized'] is False
+              assert payload['authority']['m0g_authorized'] is False
+              assert payload['authority']['engineering_authority_effect'] == 'NONE'
+          PY
 
       - name: Assert external-chain authority boundaries
         run: |
