@@ -7,6 +7,8 @@ on:
     paths:
       - 'tests/cew_cal01/test_intersource_correspondence.py'
       - 'experiments/cew_cal01/intersource_correspondence.py'
+      - 'tests/cew_cal01/test_intersource_governance.py'
+      - 'experiments/cew_cal01/intersource_governance.py'
       - '.github/workflows/validate-cew-cal01-intersource-red.yml'
 
 jobs:
