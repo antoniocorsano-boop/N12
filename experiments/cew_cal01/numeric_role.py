@@ -141,14 +141,21 @@ def dimension_tick_relation(
         for x, y0, y1 in main_candidates:
             ticks = [(y, x0, x1) for y, x0, x1 in tick_candidates if x0 - 6.0 <= x <= x1 + 6.0 and y0 - 8.0 <= y <= y1 + 8.0]
             if len(ticks) >= 2:
-                first = min(ticks, key=lambda item: abs(item[0] - y0))
-                last = min(ticks, key=lambda item: abs(item[0] - y1))
-                if first is not last and abs(first[0] - y0) <= 14.0 and abs(last[0] - y1) <= 14.0 and last[0] - first[0] >= max(40.0, token_h * 1.25):
+                pair = _bracketing_pair(
+                    [tick[0] for tick in ticks],
+                    top + 20.0,
+                    bottom - 20.0,
+                    max(40.0, token_h * 1.25),
+                )
+                if pair is not None:
+                    first_y, last_y = pair
+                    first = min((tick for tick in ticks if abs(tick[0] - first_y) <= 1e-6), key=lambda item: (item[1], item[2]))
+                    last = min((tick for tick in ticks if abs(tick[0] - last_y) <= 1e-6), key=lambda item: (item[1], item[2]))
                     parallel = [(ox, oy0, oy1) for ox, oy0, oy1 in main_candidates if ox != x and 10.0 <= abs(ox - x) <= 80.0 and _same_span(y0, y1, oy0, oy1)]
                     if any(first[1] - 6.0 <= ox <= first[2] + 6.0 and last[1] - 6.0 <= ox <= last[2] + 6.0 for ox, _, _ in parallel):
                         closed_frame_seen = True
                     else:
-                        return {"confirmed": True, "orientation": "VERTICAL", "terminal_tick_count": 2, "tick_style": "PERPENDICULAR", "endpoint_a_px": [float(x), float(first[0])], "endpoint_b_px": [float(x), float(last[0])], "reason": None}
+                        return {"confirmed": True, "orientation": "VERTICAL", "terminal_tick_count": 2, "tick_style": "PERPENDICULAR", "endpoint_a_px": [float(x), float(first_y)], "endpoint_b_px": [float(x), float(last_y)], "reason": None}
 
             slash_positions = []
             for line in segments:
@@ -175,14 +182,21 @@ def dimension_tick_relation(
         for y, x0, x1 in main_candidates:
             ticks = [(x, y0, y1) for x, y0, y1 in tick_candidates if y0 - 6.0 <= y <= y1 + 6.0 and x0 - 8.0 <= x <= x1 + 8.0]
             if len(ticks) >= 2:
-                first = min(ticks, key=lambda item: abs(item[0] - x0))
-                last = min(ticks, key=lambda item: abs(item[0] - x1))
-                if first is not last and abs(first[0] - x0) <= 14.0 and abs(last[0] - x1) <= 14.0 and last[0] - first[0] >= max(40.0, token_w * 1.25):
+                pair = _bracketing_pair(
+                    [tick[0] for tick in ticks],
+                    left + 20.0,
+                    right - 20.0,
+                    max(40.0, token_w * 1.25),
+                )
+                if pair is not None:
+                    first_x, last_x = pair
+                    first = min((tick for tick in ticks if abs(tick[0] - first_x) <= 1e-6), key=lambda item: (item[1], item[2]))
+                    last = min((tick for tick in ticks if abs(tick[0] - last_x) <= 1e-6), key=lambda item: (item[1], item[2]))
                     parallel = [(oy, ox0, ox1) for oy, ox0, ox1 in main_candidates if oy != y and 10.0 <= abs(oy - y) <= 80.0 and _same_span(x0, x1, ox0, ox1)]
                     if any(first[1] - 6.0 <= oy <= first[2] + 6.0 and last[1] - 6.0 <= oy <= last[2] + 6.0 for oy, _, _ in parallel):
                         closed_frame_seen = True
                     else:
-                        return {"confirmed": True, "orientation": "HORIZONTAL", "terminal_tick_count": 2, "tick_style": "PERPENDICULAR", "endpoint_a_px": [float(first[0]), float(y)], "endpoint_b_px": [float(last[0]), float(y)], "reason": None}
+                        return {"confirmed": True, "orientation": "HORIZONTAL", "terminal_tick_count": 2, "tick_style": "PERPENDICULAR", "endpoint_a_px": [float(first_x), float(y)], "endpoint_b_px": [float(last_x), float(y)], "reason": None}
 
             slash_positions = []
             for line in segments:
