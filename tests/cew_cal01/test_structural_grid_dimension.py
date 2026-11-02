@@ -37,7 +37,8 @@ class Cal01StructuralGridDimensionContractTests(unittest.TestCase):
             page_height=1000,
             join_gap_px=30,
         )
-        self.assertEqual(result["bbox_px"], [0, 120, 1000, 1000])
+        self.assertEqual(result["bbox_px"], [0, 120, 510, 1000])
+        self.assertEqual(result["selection_mode"], "SINGLE_COMPONENT")
         self.assertTrue(all(0 <= value <= 1000 for value in result["bbox_px"]))
 
     def test_only_two_reference_geometry_becomes_grid_candidate(self):
