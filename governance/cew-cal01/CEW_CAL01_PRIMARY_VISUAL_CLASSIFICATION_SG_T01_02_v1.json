@@ -1,0 +1,49 @@
+{
+  "schema": "CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_STRUCTURAL_GRID_v1",
+  "program": "CEW-CAL-01",
+  "review_date_local": "2026-11-02",
+  "reviewer_role": "HUMAN_PROFESSIONAL_USER",
+  "review_id": "SG-T01-02",
+  "source_document": "TAV-01S",
+  "source_path": "archive/documentazione_originaria/tavola1-2.pdf",
+  "source_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+  "source_sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+  "source_page": 0,
+  "source_bbox_px": [6552.0, 11788.0, 6659.5, 11822.0],
+  "geometry": {
+    "orientation": "HORIZONTAL",
+    "reference_style": "PERPENDICULAR",
+    "endpoint_a_px": [6347.0, 11837.0],
+    "endpoint_b_px": [6874.0, 11837.0]
+  },
+  "machine_reading": "2.00",
+  "machine_ocr_confidence": 90.209526,
+  "machine_reading_disposition": "CONFIRMED_BY_HUMAN_REVIEW",
+  "human_reading": "2.00 m",
+  "property": "STRUCTURAL_GRID_LINEAR_DIMENSION",
+  "value": {
+    "length_m": 2.0
+  },
+  "evidence_class": "DOC",
+  "semantic_interpretation_class": "RIF",
+  "calibration_role": "LINEAR_DIMENSION",
+  "metric_relation_state": "PRIMARY_VISUAL_VALIDATED",
+  "metric_source_kind": "PRIMARY_TAV01S_DOCUMENTED_RELATION",
+  "eligible_for_metric_relation_network": true,
+  "eligible_for_metric_calibration": false,
+  "primary_anchor_authorized": false,
+  "review_note": "Human visual review confirms the machine OCR reading 2.00 m for the source-bound documented linear dimension. This receipt authorizes the metric relation only; it does not establish an absolute calibration anchor.",
+  "qualified_discovery_basis": {
+    "head_sha": "02c637e401229d3e4b6cad5cdfd369e026f6aeef",
+    "workflow_run_id": 41412272369,
+    "artifact_id": 13126665323,
+    "artifact_digest": "sha256:cec2e4fee5eebbbfec1ab70f4b53735e6b10f27983b2a9ff8b84808d14a9d27f"
+  },
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}

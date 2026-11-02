@@ -1,0 +1,175 @@
+# SDD ledger — plan: docs/superpowers/plans/2026-11-02-cew-cal01-external-dimension-chain.md
+
+- Execution mode: inline on existing branch `feat/cew-cal01-primary-metric-calibration`; local container cannot resolve github.com, so GitHub Actions is the execution/verification environment.
+- Pre-flight: Task 1 produces `detect_external_dimension_chains()` consumed by exact-source integration; no interface conflict with existing TAV.5 grammar because `numeric_role.py` and `dimension_tick_relation()` are unchanged.
+- Task 1 RED: exact SHA `69d2f416d41851249a40ea725b30aa05a156169c`, CEW-CAL-01 run `41429351117`, `cal01-contracts` failed after 95 tests with the sole new error `ModuleNotFoundError: No module named 'experiments.cew_cal01.external_dimension_chain'`; existing tests were green.
+- Task 1 GREEN contract evidence: exact SHA `176fd18fd1ca5fe322e761be4e225b0742a6a48d`, CEW-CAL-01 run `41429506489`, `cal01-contracts` SUCCESS; Repository Memory Gate `41429506739` SUCCESS. Exact-source jobs were still running when Task 2 started.
+- Task 2 Ruling: implement the first exact-source integration as a separate post-processor/workflow rather than editing `structural_grid_dimension.py` immediately. Reason: the approved design explicitly requires preservation of legacy `candidate_count/candidates` during first qualification, and a separate post-process stage gives the cleanest A/B evidence while avoiding a large replacement edit of an already-qualified discovery module. Cost if wrong: one extra intermediate artifact/workflow; promotion into the main structural-grid discovery can follow after source evidence is satisfactory.
+
+## Qualified interval OCR checkpoint — 2026-11-02
+
+- Exact qualified candidate: `f415433b070ba8a539460cd66a74841e63dca433`.
+- CEW-CAL-01 Primary Metric Calibration run `41448174196`: PASS.
+- CEW-CAL-01 External Dimension Chains run `41448174359`: PASS.
+- Repository Memory Gate run `41448174420`: PASS.
+- Governed artifact `13144370491`, digest `sha256:c723d68b20d202e91986c5d77637fecc338b04d01ce3db8af382377f73018627`.
+- TAV-01S: 15 exact intervals; local comparative OCR produced 12 `OCR_NO_PROPOSAL`, 3 `OCR_COMPARATIVE_INSUFFICIENT`, 0 cross-family agreements; comparison digest `sha256:6715d8117af894473c3304039f318bb32cf881a758390ecf4cb759fadd170b49`.
+- TAV-02S: 19 exact intervals; local comparative OCR produced 18 `OCR_NO_PROPOSAL`, 1 `OCR_COMPARATIVE_INSUFFICIENT`, 0 cross-family agreements; comparison digest `sha256:e0eba10872cbc71552b44eb97182e664ae19583865ec62ab6b6411226223ee3c`.
+- TrOCR remains optional and external-observation-only, bound by exact `review_id + crop_sha256`; no model download or network inference is part of the governed replay.
+- OCR output remains diagnostic only: `primary_anchor_count = 0`, `eligible_for_metric_calibration = false`; structural identity, canonical geometry, M0-G and canonical write authority remain closed.
+
+## Qualified external-chain human-review preparation checkpoint — 2026-11-02
+
+Design and plan:
+
+- `docs/superpowers/specs/2026-11-02-cew-cal01-external-chain-human-review-design.md`
+- `docs/superpowers/plans/2026-11-02-cew-cal01-external-chain-human-review.md`
+
+Qualification evidence:
+
+- Exact qualified implementation candidate: `bd57285c43bd2557891aeffed15273496900dc9c`.
+- CEW-CAL-01 Primary Metric Calibration run `41453478709`: PASS.
+- CEW-CAL-01 External Dimension Chains run `41453478759`: PASS.
+- Repository Memory Gate run `41453478731`: PASS.
+- Governed external-chain artifact `13145119457`, digest `sha256:803fa42b04d91bbdc8b8cc89575ca6fe6caae1160026021908dba307d837cf14`.
+
+Deterministic human-review packets:
+
+- TAV-01S packet digest `sha256:b93ded1fbf84c805b5c59dd6ad4cb7c3bf2004d56f1efe2a3a69cfcfe2616051`: 15 intervals = 1 `REUSED_HUMAN_RECEIPT` + 14 `PENDING_HUMAN_REVIEW`.
+- TAV-02S packet digest `sha256:0f81a80faf0915c01f69d2f1c57116fc8cfeb84c76bc296cda43eecf99be34bc`: 19 intervals = 2 `REUSED_HUMAN_RECEIPT` + 17 `PENDING_HUMAN_REVIEW`.
+- Total: 34 exact intervals = 3 existing qualified human receipts reused + 31 intervals still requiring professional review.
+
+Existing receipt reconciliation:
+
+- `SG-T01-02` → `TAV-01S:RIGHT:RIGHT:R1:I0`, existing human reading `2.00 m`.
+- `SG-T02-02` → `TAV-02S:BOTTOM:BOTTOM:R1:I2`, existing human reading `6.25 m`.
+- `SG-T02-01` → `TAV-02S:BOTTOM:BOTTOM:R1:I3`, existing human reading `4.95 m`.
+- `SG-T01-01` (`4.05 m`) does not geometrically bind to any qualified external-chain interval crop and is therefore deliberately not reused in this packet.
+
+Governance boundary:
+
+- Reconciliation requires `HUMAN_PROFESSIONAL_USER`, `PRIMARY_VISUAL_VALIDATED`, `LINEAR_DIMENSION`, exact source SHA and unambiguous transformed source-frame containment.
+- The AI visual precheck remains `REFERENCE_ONLY` and cannot satisfy the human gate.
+- Pending rows contain no generated human value: `validated_value_m = null` and `human_receipt_ref = null`.
+- Reused receipts validate only an existing documented metric relation; they do not become absolute calibration anchors.
+- For every row and at packet level: `eligible_for_metric_calibration = false`, `primary_anchor_authorized = false`; all structural/canonical/M0-G authority remains closed.
+- The governed artifact contains `external-chain-human-review-packet.json` and `external-chain-human-review.html` for each source. The HTML board is review assistance only.
+- No new `HUMAN_PROFESSIONAL_USER` receipt was generated automatically. The next gate is actual professional review of the 31 pending intervals.
+- No merge or deploy is authorized by this checkpoint.
+
+## Qualified direct human-decision reconciliation checkpoint — 2026-11-02
+
+Professional decisions persisted before qualification:
+
+- `TAV-02S:TOP:TOP:R1:I0` → `4.70 m`.
+- `TAV-02S:TOP:TOP:R1:I1` → `5.10 m`.
+- `TAV-02S:TOP:TOP:R1:I2` → `4.15 m`.
+- `TAV-02S:TOP:TOP:R1:I3` → `4.15 m`.
+- `TAV-02S:TOP:TOP:R1:I4` → `5.30 m`.
+- `TAV-02S:TOP:TOP:R1:I5` → `4.70 m`.
+
+Qualification evidence:
+
+- Exact qualified implementation candidate: `0239a06c06d51c4dfb73ae786e8fcbce9beb699a`.
+- CEW-CAL-01 Primary Metric Calibration run `41460061801`: PASS.
+- CEW-CAL-01 External Dimension Chains run `41460061837`: PASS.
+- Repository Memory Gate run `41460061779`: PASS.
+- Governed external-chain artifact `13150340091`, digest `sha256:7b861b6168ba986f81641ea6f00bc974c0b51dd362c52236101a88e803cce479`.
+
+Governed packet state verified from the uploaded artifact:
+
+- TAV-01S packet digest `sha256:97f78c5c3deee6c10745f889074adf6a138bc557d1f1bc842acb10163684041c`: 15 intervals = 1 `REUSED_HUMAN_RECEIPT` + 0 `DIRECT_HUMAN_DECISION` + 14 `PENDING_HUMAN_REVIEW`; 1 validated human relation.
+- TAV-02S packet digest `sha256:6b73018b972a61cd5d6102a706ccdd6da914dde39473dc170335807919625fa8`: 19 intervals = 2 `REUSED_HUMAN_RECEIPT` + 6 `DIRECT_HUMAN_DECISION` + 11 `PENDING_HUMAN_REVIEW`; 8 validated human relations.
+- Total: 34 exact intervals = 9 validated human relations + 25 intervals still pending professional review.
+
+Reconciliation behavior qualified on the exact candidate:
+
+- Earlier human receipts remain a separate provenance path and require exact source SHA plus geometric reconciliation after the governed source-frame transform.
+- Direct human decisions require exact source SHA + exact `interval_review_id + crop_sha256`; they do not require a source bounding box.
+- Unknown interval ids, crop-digest mismatches, source mismatches, invalid human-decision state and conflicting values fail closed.
+- Same-value duplicate direct evidence is deterministically deduplicated.
+- A direct decision and a geometrically reused prior receipt on the same interval must agree; conflicting values fail closed.
+- `DIRECT_HUMAN_DECISION` is kept distinct from `REUSED_HUMAN_RECEIPT` in the governed packet.
+- Exact crop ids and digests remain the evidentiary binding. Human-facing rotation or context expansion is presentation-only and cannot mutate governed geometry.
+
+Authority boundary remains unchanged:
+
+- all validated entries are documented metric relations only;
+- `primary_anchor_count = 0`;
+- `eligible_for_metric_calibration = false`;
+- `primary_anchor_authorized = false` for every row;
+- structural identity, canonical geometry, M0-G and canonical write authority remain closed;
+- no merge or deploy is authorized by this checkpoint.
+
+## Qualified TAV-02S RIGHT human-decision extension — 2026-11-02
+
+Professional decisions added after presentation-only reorientation/context expansion of the qualified primary raster:
+
+- `TAV-02S:RIGHT:RIGHT:R1:I0` → `2.10 m`, bound to crop digest `sha256:7c3e42250196f7cd4e754dcc4b67eb6935a715b9629f1495a2a84acacf77067c`.
+- `TAV-02S:RIGHT:RIGHT:R1:I1` → `3.45 m`, bound to crop digest `sha256:ca6f7871bcc800ed263aff6672dad7cf0aeba96a473485e6878c5fd315b6aad6`.
+
+TDD evidence:
+
+- Receipt-contract RED candidate `70e124810ee5c9f0cea0d596e1430ab90636602f`: 160 tests with the sole error caused by the intentionally absent RIGHT I0 decision file.
+- Workflow-contract RED candidate `3a6ba2acadad7b9cba9cd600fa0791be8a028c36`: 160 tests with 159 PASS and the sole failure requiring `--decision ...T02_RIGHT_I0_v1.json` in the exact-source replay.
+
+Qualification evidence:
+
+- Exact qualified implementation candidate: `5ed2534ee4980b4ce6025faf62e929a4b9fe8a8d`.
+- CEW-CAL-01 Primary Metric Calibration run `41463044719`: PASS.
+- CEW-CAL-01 External Dimension Chains run `41463044696`: PASS.
+- Repository Memory Gate run `41463044650`: PASS.
+- Governed external-chain artifact `13149207998`, digest `sha256:b3e7c1219cb57b200e40a2a58872de679686d20e643cac92759d7c9d557223d8`.
+
+Governed packet state verified from the uploaded artifact:
+
+- TAV-01S packet digest `sha256:97f78c5c3deee6c10745f889074adf6a138bc557d1f1bc842acb10163684041c`: 15 intervals = 1 reused + 0 direct + 14 pending; 1 validated human relation.
+- TAV-02S packet digest `sha256:331b8ac7db91fddedd25d5a61c2f57a2f41d0bbbe11fb101a00591880f612fc0`: 19 intervals = 2 `REUSED_HUMAN_RECEIPT` + 8 `DIRECT_HUMAN_DECISION` + 9 `PENDING_HUMAN_REVIEW`; 10 validated human relations.
+- Total: 34 exact intervals = 11 validated human relations + 23 intervals still pending professional review.
+- Artifact inspection confirms RIGHT I0 `validated_value_m = 2.10` and RIGHT I1 `validated_value_m = 3.45`, both in state `DIRECT_HUMAN_DECISION`, with the exact canonical crop digests above.
+
+Authority boundary remains unchanged:
+
+- the reoriented/expanded human-facing view is presentation-only and does not alter the canonical crop binding;
+- `primary_anchor_count = 0`;
+- `eligible_for_metric_calibration = false`;
+- both new rows have `primary_anchor_authorized = false`;
+- structural identity, canonical geometry, M0-G and canonical write authority remain closed;
+- no merge or deploy is authorized by this checkpoint.
+
+## Qualified source-local metric sufficiency gate — 2026-11-02
+
+Design and plan:
+
+- `docs/superpowers/specs/2026-11-02-cew-cal01-metric-sufficiency-gate-design.md`
+- `docs/superpowers/plans/2026-11-02-cew-cal01-metric-sufficiency-gate.md`
+
+Independent-review repair before final qualification:
+
+- RED candidate `fd9ccc53fa01a997b1fd6c7b4075ad656aaa1f6e`: 174 CAL-01 tests with 173 PASS and the sole failure `test_batch_diversifies_planned_coverage_after_each_selection`.
+- The RED exposed a real targeting defect: static ranking selected three BOTTOM intervals before diversifying.
+- The repair makes the review batch greedy: planned orientation and side coverage are recomputed after every selected review id; existing one-missing-chain priority remains first and metric values are never proposed.
+
+Qualification evidence:
+
+- Exact qualified implementation candidate: `fe542aa5a83f93c00d33ca5e304a141f9d8a946d`.
+- CEW-CAL-01 Primary Metric Calibration run `41474399139`: PASS.
+- CEW-CAL-01 External Dimension Chains run `41474399165`: PASS.
+- Repository Memory Gate run `41474399613`: PASS.
+- Governed external-chain artifact `13155679866`, digest `sha256:015c3213d8ebab1868913e31a2c9ab70876e4a98df224becb5143fb63618b0c5`.
+
+Source-local gate results verified directly from the uploaded artifact:
+
+- TAV-01S metric relation network digest `sha256:740ad3f7c7a169267ba4653a92e9c4fc4d0cbd1f034f7cc82db5c1527b9e60d7`: 1 validated vertical relation + 14 pending; no complete chain; gate digest `sha256:40e4f4f4082bc827ad590adb31e652dafe86e73b44b8b7e6aa4f1f245e3833eb`; state `TARGETED_HUMAN_REVIEW`.
+- TAV-01S deterministic diversified review batch: `TAV-01S:BOTTOM:BOTTOM:R1:I0`, `TAV-01S:LEFT:LEFT:R1:I0`, `TAV-01S:TOP:TOP:R1:I0`, `TAV-01S:RIGHT:RIGHT:R1:I1`. No suggested row contains or infers a metric value.
+- TAV-02S metric relation network digest `sha256:ad1b5620326e47d3cf7dbf0c5b8d1a2ede1e0ea3437ab0abcb0fa53f99a6b1ef`: 10 validated relations = 8 horizontal + 2 vertical, with `TOP:R1` complete.
+- TAV-02S relation audit is `RELATION_NETWORK_DIAGNOSTIC_SUFFICIENT`: horizontal maximum relative deviation `0.015019250927018528`, vertical maximum relative deviation `0.011875283730915634`, cross-orientation median drift `0.00918331450091221`, all below the governed `0.05` threshold.
+- TAV-02S gate digest `sha256:e13e6a0240a67140056e3c810c2cf96e458a242e8bd04dbecca03a4dc623e926`; state `INSUFFICIENT`; sole blocker `PRIMARY_ANCHOR_REQUIRED`; next action `PRIMARY_ANCHOR_DISCOVERY`.
+
+Governance consequence:
+
+- TAV-01S and TAV-02S remain separate source-local metric graphs; coordinates and scale diagnostics are never combined across source frames.
+- TAV-02S no longer requires indiscriminate reading of the remaining nine intervals for relation-network diagnosis; the blocker has moved to primary-anchor discovery.
+- Relation edges remain `eligible_for_metric_calibration = false` and `primary_anchor_authorized = false`; the current source-local network is diagnostic relation evidence only.
+- `canonical_geometry_authorized = false`, `structural_identity_authorized = false`, `canonical_write_authorized = false`, `m0g_authorized = false`, `engineering_authority_effect = NONE`.
+- No affine fit, calibration candidate, merge or deploy is authorized by this checkpoint.

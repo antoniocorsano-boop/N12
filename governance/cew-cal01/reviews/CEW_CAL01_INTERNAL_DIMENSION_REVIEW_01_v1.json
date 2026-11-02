@@ -1,0 +1,48 @@
+{
+  "schema": "CEW_CAL01_INTERNAL_DIMENSION_HUMAN_REVIEW_v1",
+  "program": "CEW-CAL-01",
+  "review_id": "INTDIM-01",
+  "source": {
+    "repository": "antoniocorsano-boop/N12",
+    "source_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+    "path": "archive/documentazione_originaria/tavola 5.pdf",
+    "page_index": 0,
+    "sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580"
+  },
+  "qualified_discovery": {
+    "candidate_sha": "310a302adac37b315f6bb5bfebfe0ed64e7c1241",
+    "artifact_id": 13101796029,
+    "artifact_digest": "sha256:a095a6c6bb53ac4baea908818769217b67434ddc1b99da433cc0a32dc2f2c967"
+  },
+  "candidate": {
+    "candidate_id": "CEW-CAL01-INTDIM-6cbbdc8d09f28347701d",
+    "cluster_index": 6,
+    "source_bbox_px": [2412.0, 5941.0, 2450.0, 6032.0],
+    "orientation": "VERTICAL",
+    "ocr_documented_text": "420",
+    "ocr_proposed_metric_value_m": 4.2,
+    "human_documented_text": "120",
+    "human_metric_value_m": 1.2,
+    "human_value_status": "PRIMARY_VISUAL_VALIDATED",
+    "semantic_role": "LINEAR_DIMENSION",
+    "relation_semantics_status": "PRIMARY_VISUAL_VALIDATED",
+    "relation_type": "PERIMETER_BEAM_OUTER_EDGE_TO_CORNICE_OUTER_EDGE",
+    "reference_a": "OUTER_EDGE_OF_PERIMETER_BEAM",
+    "reference_b": "OUTER_EDGE_OF_CORNICE_PROJECTION",
+    "human_relation_description": "120 cm between the outermost edge of the perimeter beam and the outer edge of the cornice projection.",
+    "primary_metric_relation": true,
+    "eligible_for_metric_relation_network": true,
+    "validation_state": "HUMAN_REVIEW_COMPLETE",
+    "fit_eligible": false,
+    "eligible_for_anchor": false,
+    "metric_anchor_promoted": false
+  },
+  "review_note": "Human review corrects the OCR reading from 420 to 120 cm and confirms the geometric meaning: the documented relation is the 1.20 m cornice projection measured from the outer edge of the perimeter beam to the outer edge of the cornice. This is a validated primary linear metric relation, but it is not by itself an absolute calibration anchor and remains excluded from affine fitting until incorporated into a sufficiently constrained primary metric network.",
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}

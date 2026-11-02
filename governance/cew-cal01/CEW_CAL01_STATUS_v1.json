@@ -1,0 +1,45 @@
+{
+  "program": "CEW-CAL-01",
+  "state": "STRUCTURAL_GRID_EXTERNAL_CHAIN_GEOMETRY_QUALIFIED_OCR_INTERVAL_PENDING",
+  "base_exact_sha": "ee23c221118064022fa77b694ff88119530cc454",
+  "branch": "feat/cew-cal01-primary-metric-calibration",
+  "structural_grid_review": {
+    "qualified_discovery_head_sha": "02c637e401229d3e4b6cad5cdfd369e026f6aeef",
+    "human_validated_groups": [
+      "SG-T01-01",
+      "SG-T01-02",
+      "SG-T02-01",
+      "SG-T02-02"
+    ],
+    "human_validated_values_m": {
+      "SG-T01-01": 4.05,
+      "SG-T01-02": 2.00,
+      "SG-T02-01": 4.95,
+      "SG-T02-02": 6.25
+    },
+    "external_chain_geometry": {
+      "qualified_head_sha": "ae390544b0f6f5f066a394bd5bc867bdd9c2cf7c",
+      "result_receipt": "governance/cew-cal01/CEW_CAL01_REFINED_EXTERNAL_CHAIN_RESULT_v1.json",
+      "workflow_run_id": 41438819668,
+      "artifact_id": 13137398013,
+      "artifact_digest": "sha256:be4f4838e8217d5eaaf51c9fb5938d0d6819bf03f913cff855cf3c8cb047be23",
+      "TAV-02S": {
+        "chain_count": 5,
+        "side_chain_counts": {"TOP": 1, "RIGHT": 2, "BOTTOM": 1, "LEFT": 1},
+        "interval_counts": {"TOP": [6], "RIGHT": [3, 2], "BOTTOM": [4], "LEFT": [4]},
+        "geometry_state": "QUALIFIED_EXTERNAL_CHAIN_GEOMETRY"
+      }
+    },
+    "next_stage": "INTERVAL_CENTERED_OCR",
+    "next_stage_rule": "Use geometry-derived interval windows to recover numeric text. Preserve OCR alternatives by graphic location and require human validation before any metric relation promotion.",
+    "legacy_review_groups": ["SG-T02-03", "SG-T02-04", "SG-T02-05"],
+    "legacy_review_disposition": "SUPERSEDED_AS_PRIMARY_WORK_UNIT_BY_EXTERNAL_CHAIN_INTERVALS",
+    "external_chain_visual_precheck": "governance/cew-cal01/CEW_CAL01_EXTERNAL_CHAIN_VISUAL_PRECHECK_v1.json"
+  },
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false
+  }
+}

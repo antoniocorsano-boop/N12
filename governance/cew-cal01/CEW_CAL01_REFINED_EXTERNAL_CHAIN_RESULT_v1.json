@@ -1,0 +1,66 @@
+{
+  "schema": "CEW_CAL01_REFINED_EXTERNAL_CHAIN_RESULT_v1",
+  "program": "CEW-CAL-01",
+  "review_date_local": "2026-11-02",
+  "qualified_candidate": {
+    "head_sha": "ae390544b0f6f5f066a394bd5bc867bdd9c2cf7c",
+    "external_chain_workflow_run_id": 41438819668,
+    "external_chain_workflow_conclusion": "SUCCESS",
+    "primary_metric_workflow_run_id": 41438819809,
+    "primary_metric_workflow_conclusion": "SUCCESS",
+    "repository_memory_gate_run_id": 41438819719,
+    "repository_memory_gate_conclusion": "SUCCESS",
+    "artifact_id": 13137398013,
+    "artifact_name": "cew-cal01-external-dimension-chains",
+    "artifact_digest": "sha256:be4f4838e8217d5eaaf51c9fb5938d0d6819bf03f913cff855cf3c8cb047be23"
+  },
+  "refined_sources": {
+    "TAV-01S": {
+      "source_sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "refined_external_chain_count": 4,
+      "side_chain_counts": {"TOP": 1, "RIGHT": 1, "BOTTOM": 1, "LEFT": 1},
+      "interval_counts": {"TOP": [5], "RIGHT": [3], "BOTTOM": [3], "LEFT": [4]},
+      "unique_member_location_count": 12,
+      "refined_external_chain_digest": "sha256:2c5280665e4b385266933afaf45328f68ac3c47321b1ab3591cbf8e5103f609e"
+    },
+    "TAV-02S": {
+      "source_sha256": "cd03839589e60ee46b3fd398d6a9fabca1a446859e6693a47d0f83d0e930520f",
+      "refined_external_chain_count": 5,
+      "side_chain_counts": {"TOP": 1, "RIGHT": 2, "BOTTOM": 1, "LEFT": 1},
+      "interval_counts": {"TOP": [6], "RIGHT": [3, 2], "BOTTOM": [4], "LEFT": [4]},
+      "unique_member_location_count": 9,
+      "refined_external_chain_digest": "sha256:8bf16e80145c8028910973c88b2e3d0cf348e9368751f112fec9f74779ee104f",
+      "topology_assessment": "QUALIFIED_EXTERNAL_CHAIN_GEOMETRY",
+      "human_visual_precheck_alignment": "PASS_TOPOLOGY",
+      "note": "The refined chain topology matches the visually reviewed external-chain structure: six TOP intervals, two nested RIGHT chains with three and two intervals, four BOTTOM intervals and four LEFT intervals. OCR alternatives at the same graphic location remain grouped rather than promoted as independent metric relations."
+    }
+  },
+  "hardening": {
+    "red_evidence": {
+      "head_sha": "992203f1a6eff7d5dad0d314979b8df9df405f28",
+      "contract_test_count": 112,
+      "passing_before_fix": 110,
+      "causal_failures": [
+        "dense structural crossings were accepted as a dimension chain",
+        "overlapping OCR alternatives were counted as separate graphic locations"
+      ]
+    },
+    "green_behavior": [
+      "A single too-close tick pair is collapsed only when exactly one member is a carrier-endpoint tick.",
+      "Three or more too-close ticks fail closed as a dense crossing cluster.",
+      "Overlapping OCR alternatives are grouped as one graphic location while preserving every raw observation id."
+    ]
+  },
+  "next_stage": {
+    "state": "INTERVAL_CENTERED_OCR_REQUIRED",
+    "reason": "Chain geometry is qualified, but global perimeter OCR does not populate every recovered interval. Numeric text must be searched inside geometry-derived interval windows, with alternatives preserved and human validation still required before any metric relation is promoted.",
+    "primary_anchor_count": 0
+  },
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}

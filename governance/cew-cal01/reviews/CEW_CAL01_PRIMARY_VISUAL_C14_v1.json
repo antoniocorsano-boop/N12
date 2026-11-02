@@ -1,0 +1,43 @@
+{
+  "schema": "CEW_CAL01_PRIMARY_VISUAL_REVIEW_v1",
+  "program": "CEW-CAL-01",
+  "review_id": "C14",
+  "cluster_index": 14,
+  "review_date_local": "2026-11-01",
+  "reviewer_role": "HUMAN_PROFESSIONAL_USER",
+  "source": {
+    "document": "TAV.5",
+    "sha256": "2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580",
+    "page_index": 0
+  },
+  "primary_observation": {
+    "object_class": "COLUMN",
+    "object_reference": "PILASTRO_33",
+    "property": "SECTION_DIMENSIONS",
+    "human_reading": "40 x 40 cm",
+    "value": {"width_m": 0.40, "depth_m": 0.40},
+    "evidence_class": "DOC",
+    "semantic_interpretation_class": "RIF",
+    "calibration_role": "SECTION_MEASURE",
+    "eligible_for_metric_calibration": false,
+    "primary_anchor_authorized": false
+  },
+  "contextual_observation": {
+    "object_class": "BEAM",
+    "property": "SECTION_DIMENSIONS",
+    "human_reading": "25 x 70 cm",
+    "value": {"width_m": 0.25, "height_m": 0.70},
+    "location_note": "Visibile piu' in alto nello stesso estratto C14.",
+    "evidence_class": "DOC",
+    "semantic_interpretation_class": "RIF",
+    "calibration_role": "SECTION_MEASURE",
+    "eligible_for_metric_calibration": false,
+    "primary_anchor_authorized": false
+  },
+  "authority": {
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "CEW_CAL01_EXTERNAL_CHAIN_HUMAN_DECISION_v1",
+  "program": "CEW-CAL-01",
+  "review_date_local": "2026-11-02",
+  "reviewer_role": "HUMAN_PROFESSIONAL_USER",
+  "source_document": "TAV-02S",
+  "source_sha256": "cd03839589e60ee46b3fd398d6a9fabca1a446859e6693a47d0f83d0e930520f",
+  "source_page": 0,
+  "interval_review_id": "TAV-02S:RIGHT:RIGHT:R1:I0",
+  "crop_file": "review-crops/TAV-02S_RIGHT_RIGHT_R1_I0.png",
+  "crop_sha256": "sha256:7c3e42250196f7cd4e754dcc4b67eb6935a715b9629f1495a2a84acacf77067c",
+  "crop_bbox_normalized_px": [11111, 3820, 11371, 4275],
+  "human_reading": "2.10 m",
+  "decision": "DOCUMENTED_LINEAR_DIMENSION",
+  "value": {"length_m": 2.10},
+  "evidence_class": "DOC",
+  "semantic_interpretation_class": "RIF",
+  "calibration_role": "LINEAR_DIMENSION",
+  "metric_relation_state": "PRIMARY_VISUAL_VALIDATED",
+  "metric_source_kind": "PRIMARY_TAV02S_DOCUMENTED_RELATION",
+  "eligible_for_metric_relation_network": true,
+  "eligible_for_metric_calibration": false,
+  "primary_anchor_authorized": false,
+  "qualified_interval_basis": {
+    "head_sha": "bd57285c43bd2557891aeffed15273496900dc9c",
+    "workflow_run_id": 41453478759,
+    "artifact_id": 13145119457,
+    "artifact_digest": "sha256:803fa42b04d91bbdc8b8cc89575ca6fe6caae1160026021908dba307d837cf14",
+    "review_manifest_digest": "sha256:7846d6a181916679b7c9fada9bde0ec24c8b9d8e621b6cc62a832da45c9dde26",
+    "ocr_comparison_digest": "sha256:e0eba10872cbc71552b44eb97182e664ae19583865ec62ab6b6411226223ee3c",
+    "review_packet_digest": "sha256:0f81a80faf0915c01f69d2f1c57116fc8cfeb84c76bc296cda43eecf99be34bc"
+  },
+  "review_note": "Human professional review confirms the exact TAV-02S RIGHT:R1:I0 reading as 2.10 m after presentation-only reorientation/context expansion from the qualified primary raster. Exact interval_review_id and crop_sha256 remain the evidentiary binding. Relation-only validation; no absolute anchor authority.",
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}

@@ -1,0 +1,29 @@
+name: CEW-CAL-01 Intersource Correspondence RED
+
+on:
+  push:
+    branches:
+      - feat/cew-cal01-primary-metric-calibration
+    paths:
+      - 'tests/cew_cal01/test_intersource_correspondence.py'
+      - 'experiments/cew_cal01/intersource_correspondence.py'
+      - 'tests/cew_cal01/test_intersource_governance.py'
+      - 'experiments/cew_cal01/intersource_governance.py'
+      - 'tests/cew_cal01/test_intersource_split.py'
+      - 'experiments/cew_cal01/intersource_split.py'
+      - '.github/workflows/validate-cew-cal01-intersource-red.yml'
+
+jobs:
+  intersource-correspondence-contracts:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+      - name: Run complete CEW-CAL-01 suite
+        run: python -m unittest discover -s tests/cew_cal01 -p 'test_*.py' -v

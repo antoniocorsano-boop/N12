@@ -1,0 +1,90 @@
+{
+  "schema": "CEW_CAL01_EXTERNAL_CHAIN_VISUAL_PRECHECK_v1",
+  "program": "CEW-CAL-01",
+  "review_date_local": "2026-11-02",
+  "reviewer_role": "AI_VISUAL_PRECHECK",
+  "source": {
+    "source_id": "TAV-02S",
+    "path": "archive/documentazione_originaria/tavola2-2.pdf",
+    "source_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+    "sha256": "cd03839589e60ee46b3fd398d6a9fabca1a446859e6693a47d0f83d0e930520f",
+    "qualified_discovery_head_sha": "02c637e401229d3e4b6cad5cdfd369e026f6aeef",
+    "workflow_run_id": 41412272369,
+    "artifact_id": 13126665323,
+    "artifact_digest": "sha256:cec2e4fee5eebbbfec1ab70f4b53735e6b10f27983b2a9ff8b84808d14a9d27f",
+    "raster": "TAV-02S-primary-300dpi.png",
+    "normalization": "ROTATE_90_COUNTERCLOCKWISE"
+  },
+  "external_dimension_chains": [
+    {
+      "side_normalized": "TOP",
+      "values_m": [4.70, 5.10, 4.15, 4.15, 5.30, 4.70],
+      "visual_state": "AI_TRANSCRIBED_PENDING_HUMAN_CONFIRMATION"
+    },
+    {
+      "side_normalized": "BOTTOM",
+      "values_m": [4.70, 4.05, 6.25, 4.95],
+      "visual_state": "AI_TRANSCRIBED_PENDING_HUMAN_CONFIRMATION",
+      "note": "The already human-validated SG-T02-02 = 6.25 m and SG-T02-01 = 4.95 m are members of this visible external chain."
+    },
+    {
+      "side_normalized": "LEFT",
+      "values_m": [3.45, 3.45, 5.50, 5.60],
+      "visual_state": "AI_TRANSCRIBED_PENDING_HUMAN_CONFIRMATION"
+    },
+    {
+      "side_normalized": "RIGHT",
+      "nested_chains": [
+        [4.70, 3.45, 2.10],
+        [6.45, 4.65]
+      ],
+      "visual_state": "AI_TRANSCRIBED_PENDING_HUMAN_CONFIRMATION"
+    }
+  ],
+  "candidate_precheck": [
+    {
+      "review_group_id": "SG-T02-03",
+      "machine_alternatives": ["1.50", "4.50"],
+      "visual_text": "150",
+      "precheck_assessment": "OCR_1_50_SUPPORTED_4_50_REJECTED",
+      "metric_interpretation": "PENDING_HUMAN_CONFIRMATION",
+      "note": "The primary raster visibly reads 150 at the local dimension. The normalized 1.50 m interpretation remains non-authoritative until human confirmation."
+    },
+    {
+      "review_group_id": "SG-T02-04",
+      "machine_reading": "4.21",
+      "visual_text": "70",
+      "precheck_assessment": "FALSE_GEOMETRIC_BINDING_CANDIDATE",
+      "metric_interpretation": "REJECT_FOR_STRUCTURAL_GRID_CHAIN_PENDING_HUMAN_CONFIRMATION",
+      "note": "The OCR bbox belongs to a short local 70 dimension, while the recorded Hough geometry references a different long nearby line."
+    },
+    {
+      "review_group_id": "SG-T02-05",
+      "machine_reading": "5.60",
+      "visual_text": "5.60",
+      "precheck_assessment": "OCR_SUPPORTED",
+      "metric_interpretation": "PENDING_HUMAN_CONFIRMATION",
+      "note": "The value is visibly part of the normalized LEFT external dimension chain."
+    }
+  ],
+  "geometry_diagnostic": {
+    "state": "CHAIN_LEVEL_REWORK_REQUIRED",
+    "root_cause": "The local two-reference/Hough binding can associate a numeric token with nearby structural edges or local dimensions without proving membership in the long external dimension chain. The issue affects geometric endpoint authority, not the already human-confirmed text values 4.95 m and 6.25 m.",
+    "observed_examples": [
+      "SG-T02-01 text 4.95 m is visible on an external long dimension carrier, while recorded Hough endpoints lie on a nearby structural/local edge.",
+      "SG-T02-02 text 6.25 m is visible on the same external chain, while recorded Hough endpoints lie on a nearby structural/local edge.",
+      "SG-T02-04 machine text 4.21 is visually a local 70 dimension and is paired with a different long line."
+    ],
+    "required_next_behavior": "Detect and qualify long external dimension carriers and repeated chain intervals before promoting any token-to-geometry relation; keep isolated local dimensions separate from structural-grid chain evidence."
+  },
+  "governance": {
+    "human_validation_required": true,
+    "changes_existing_human_value_receipts": false,
+    "primary_anchor_count": 0,
+    "eligible_for_metric_calibration": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}

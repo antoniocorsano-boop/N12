@@ -1,0 +1,605 @@
+name: CEW-CAL-01 External Dimension Chains
+
+on:
+  push:
+    branches:
+      - feat/cew-cal01-primary-metric-calibration
+    paths:
+      - 'experiments/cew_cal01/external_dimension_chain.py'
+      - 'experiments/cew_cal01/external_chain_postprocess.py'
+      - 'experiments/cew_cal01/external_chain_refinement.py'
+      - 'experiments/cew_cal01/external_chain_refined_exact.py'
+      - 'experiments/cew_cal01/interval_text_review.py'
+      - 'experiments/cew_cal01/interval_text_exact.py'
+      - 'experiments/cew_cal01/interval_text_review_exact.py'
+      - 'experiments/cew_cal01/interval_ocr_compare.py'
+      - 'experiments/cew_cal01/interval_ocr_exact.py'
+      - 'experiments/cew_cal01/external_chain_human_review.py'
+      - 'experiments/cew_cal01/metric_sufficiency.py'
+      - 'experiments/cew_cal01/reference_lattice.py'
+      - 'experiments/cew_cal01/intersource_correspondence.py'
+      - 'experiments/cew_cal01/intersource_governance.py'
+      - 'experiments/cew_cal01/intersource_split.py'
+      - 'experiments/cew_col02/**'
+      - 'experiments/cew_col03a/**'
+      - 'cew_spiral/exact_source_structural_candidate_bridge.py'
+      - 'cew_spiral/structural_candidate_bridge.py'
+      - 'requirements/cew-b01.lock.txt'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_01_v1.json'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_02_v1.json'
+      - 'governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_*_v1.json'
+      - 'tests/cew_cal01/test_external_dimension_chain.py'
+      - 'tests/cew_cal01/test_external_chain_postprocess.py'
+      - 'tests/cew_cal01/test_external_chain_refinement.py'
+      - 'tests/cew_cal01/test_external_chain_workflow.py'
+      - 'tests/cew_cal01/test_external_chain_human_review.py'
+      - 'tests/cew_cal01/test_external_chain_human_review_packet.py'
+      - 'tests/cew_cal01/test_external_chain_human_review_workflow.py'
+      - 'tests/cew_cal01/test_interval_text_review.py'
+      - 'tests/cew_cal01/test_interval_text_exact.py'
+      - 'tests/cew_cal01/test_interval_ocr_compare.py'
+      - 'tests/cew_cal01/test_metric_sufficiency.py'
+      - 'tests/cew_cal01/test_metric_sufficiency_gate.py'
+      - 'tests/cew_cal01/test_reference_lattice.py'
+      - 'tests/cew_cal01/test_anchor_connectivity_workflow.py'
+      - '.github/workflows/validate-cew-cal01-external-chain.yml'
+  pull_request:
+    paths:
+      - 'experiments/cew_cal01/external_dimension_chain.py'
+      - 'experiments/cew_cal01/external_chain_postprocess.py'
+      - 'experiments/cew_cal01/external_chain_refinement.py'
+      - 'experiments/cew_cal01/external_chain_refined_exact.py'
+      - 'experiments/cew_cal01/interval_text_review.py'
+      - 'experiments/cew_cal01/interval_text_exact.py'
+      - 'experiments/cew_cal01/interval_text_review_exact.py'
+      - 'experiments/cew_cal01/interval_ocr_compare.py'
+      - 'experiments/cew_cal01/interval_ocr_exact.py'
+      - 'experiments/cew_cal01/external_chain_human_review.py'
+      - 'experiments/cew_cal01/metric_sufficiency.py'
+      - 'experiments/cew_cal01/reference_lattice.py'
+      - 'experiments/cew_cal01/intersource_correspondence.py'
+      - 'experiments/cew_cal01/intersource_governance.py'
+      - 'experiments/cew_cal01/intersource_split.py'
+      - 'experiments/cew_col02/**'
+      - 'experiments/cew_col03a/**'
+      - 'cew_spiral/exact_source_structural_candidate_bridge.py'
+      - 'cew_spiral/structural_candidate_bridge.py'
+      - 'requirements/cew-b01.lock.txt'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_01_v1.json'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_02_v1.json'
+      - 'governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_*_v1.json'
+      - 'tests/cew_cal01/test_external_dimension_chain.py'
+      - 'tests/cew_cal01/test_external_chain_postprocess.py'
+      - 'tests/cew_cal01/test_external_chain_refinement.py'
+      - 'tests/cew_cal01/test_external_chain_workflow.py'
+      - 'tests/cew_cal01/test_external_chain_human_review.py'
+      - 'tests/cew_cal01/test_external_chain_human_review_packet.py'
+      - 'tests/cew_cal01/test_external_chain_human_review_workflow.py'
+      - 'tests/cew_cal01/test_interval_text_review.py'
+      - 'tests/cew_cal01/test_interval_text_exact.py'
+      - 'tests/cew_cal01/test_interval_ocr_compare.py'
+      - 'tests/cew_cal01/test_metric_sufficiency.py'
+      - 'tests/cew_cal01/test_metric_sufficiency_gate.py'
+      - 'tests/cew_cal01/test_reference_lattice.py'
+      - 'tests/cew_cal01/test_anchor_connectivity_workflow.py'
+      - '.github/workflows/validate-cew-cal01-external-chain.yml'
+
+jobs:
+  cal01-external-chain-exact-source:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+
+      - name: Install frozen Tesseract system package
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr=5.3.4-1build5
+          test "$(dpkg-query -W -f='${Version}' tesseract-ocr)" = '5.3.4-1build5'
+
+      - name: Install minimal CAL-01 exact-source toolchain
+        run: python -m pip install --disable-pip-version-check -r requirements/cew-cal01.lock.txt
+
+      - name: Install frozen B01 structural-candidate toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/cew-spiral-structural"
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/cew-b01.lock.txt
+          python -m pip check
+
+      - name: Fetch frozen structural-grid source commit
+        run: |
+          rm -rf "$RUNNER_TEMP/cew-n12-external-chain-source"
+          git init -q "$RUNNER_TEMP/cew-n12-external-chain-source"
+          git -C "$RUNNER_TEMP/cew-n12-external-chain-source" remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -C "$RUNNER_TEMP/cew-n12-external-chain-source" fetch --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+          git -C "$RUNNER_TEMP/cew-n12-external-chain-source" checkout --detach FETCH_HEAD
+          test "$(git -C "$RUNNER_TEMP/cew-n12-external-chain-source" rev-parse HEAD)" = "78c20a52db4f391ce0d13b9705b9f04737e218c9"
+
+      - name: Fetch frozen TAV.5 exact-source commit into candidate history
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+
+      - name: Render frozen structural-grid primary sources
+        run: |
+          rm -rf "$RUNNER_TEMP/cew-cal01-external-chain"
+          python -m experiments.cew_cal01.structural_grid_sources \
+            --source-repo "$RUNNER_TEMP/cew-n12-external-chain-source" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain"
+
+      - name: Replay legacy structural-grid discovery
+        run: |
+          python -m experiments.cew_cal01.structural_grid_dimension \
+            --source-manifest "$RUNNER_TEMP/cew-cal01-external-chain/structural-grid-primary-sources.json" \
+            --raster-root "$RUNNER_TEMP/cew-cal01-external-chain" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/discovery"
+
+      - name: Detect external dimension chains on TAV-01S
+        run: |
+          python -m experiments.cew_cal01.external_chain_postprocess \
+            --discovery "$RUNNER_TEMP/cew-cal01-external-chain/discovery/TAV-01S/structural-grid-dimension-discovery.json" \
+            --image "$RUNNER_TEMP/cew-cal01-external-chain/TAV-01S-primary-300dpi.png" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/external-chain/TAV-01S"
+
+      - name: Detect external dimension chains on TAV-02S
+        run: |
+          python -m experiments.cew_cal01.external_chain_postprocess \
+            --discovery "$RUNNER_TEMP/cew-cal01-external-chain/discovery/TAV-02S/structural-grid-dimension-discovery.json" \
+            --image "$RUNNER_TEMP/cew-cal01-external-chain/TAV-02S-primary-300dpi.png" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/external-chain/TAV-02S"
+
+      - name: Refine external dimension chains on TAV-01S
+        run: |
+          python -m experiments.cew_cal01.external_chain_refined_exact \
+            --discovery "$RUNNER_TEMP/cew-cal01-external-chain/discovery/TAV-01S/structural-grid-dimension-discovery.json" \
+            --image "$RUNNER_TEMP/cew-cal01-external-chain/TAV-01S-primary-300dpi.png" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/refined-external-chain/TAV-01S"
+
+      - name: Refine external dimension chains on TAV-02S
+        run: |
+          python -m experiments.cew_cal01.external_chain_refined_exact \
+            --discovery "$RUNNER_TEMP/cew-cal01-external-chain/discovery/TAV-02S/structural-grid-dimension-discovery.json" \
+            --image "$RUNNER_TEMP/cew-cal01-external-chain/TAV-02S-primary-300dpi.png" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/refined-external-chain/TAV-02S"
+
+      - name: Materialize exact interval text review assets on TAV-01S
+        run: |
+          python -m experiments.cew_cal01.interval_text_review_exact \
+            --discovery "$RUNNER_TEMP/cew-cal01-external-chain/discovery/TAV-01S/structural-grid-dimension-discovery.json" \
+            --refined "$RUNNER_TEMP/cew-cal01-external-chain/refined-external-chain/TAV-01S/refined-external-dimension-chain.json" \
+            --image "$RUNNER_TEMP/cew-cal01-external-chain/TAV-01S-primary-300dpi.png" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-01S"
+
+      - name: Materialize exact interval text review assets on TAV-02S
+        run: |
+          python -m experiments.cew_cal01.interval_text_review_exact \
+            --discovery "$RUNNER_TEMP/cew-cal01-external-chain/discovery/TAV-02S/structural-grid-dimension-discovery.json" \
+            --refined "$RUNNER_TEMP/cew-cal01-external-chain/refined-external-chain/TAV-02S/refined-external-dimension-chain.json" \
+            --image "$RUNNER_TEMP/cew-cal01-external-chain/TAV-02S-primary-300dpi.png" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S"
+
+      - name: Run comparative interval OCR on TAV-01S
+        run: |
+          python -m experiments.cew_cal01.interval_ocr_exact \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-01S"
+
+      - name: Run comparative interval OCR on TAV-02S
+        run: |
+          python -m experiments.cew_cal01.interval_ocr_exact \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S"
+
+      - name: Build governed human-review packet on TAV-01S
+        run: |
+          python -m experiments.cew_cal01.external_chain_human_review \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-01S" \
+            --source-width-px 9933 \
+            --receipt governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_01_v1.json \
+            --receipt governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json
+
+      - name: Build governed human-review packet on TAV-02S
+        run: |
+          python -m experiments.cew_cal01.external_chain_human_review \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S" \
+            --source-width-px 7016 \
+            --receipt governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json \
+            --receipt governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_02_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I0_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I1_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I2_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I3_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I4_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I5_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_RIGHT_I0_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_RIGHT_I1_v1.json
+
+      - name: Materialize source-local metric sufficiency on TAV-01S
+        run: |
+          python -m experiments.cew_cal01.metric_sufficiency \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-01S"
+
+      - name: Materialize source-local metric sufficiency on TAV-02S
+        run: |
+          python -m experiments.cew_cal01.metric_sufficiency \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S"
+
+      - name: Materialize TAV-02S local metric reference lattice
+        run: |
+          python -m experiments.cew_cal01.reference_lattice \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S"
+
+      - name: Rebuild governed TAV.5 structural occurrence ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          python -m experiments.cew_col02.exact_source_audit
+          python -m experiments.cew_col02.review_atlas evidence/cew-col02/footprint-text-binding/col02-audit.json
+          python -m experiments.cew_col02.prototype_guided_exact_source
+          python -m experiments.cew_col02.occurrence_sweep_exact_source
+          python -m experiments.cew_col02.residual_occurrence_reconciliation_exact_source
+          python -m experiments.cew_col02.axis_aware_whole_symbol_exact_source
+          python -m experiments.cew_col02.occurrence_coverage_closure
+          python -m experiments.cew_col03a.exact_source
+
+      - name: Materialize canonical TAV.5 StructuralObjectCandidate bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/cew-spiral-structural/bin/activate"
+          python -m cew_spiral.exact_source_structural_candidate_bridge \
+            --output "$RUNNER_TEMP/cew-cal01-external-chain/structural-candidate-bridge.json" \
+            --probe-root "$RUNNER_TEMP/cew-cal01-external-chain/tav5-source-probe"
+
+      - name: Materialize governed inter-source fail-closed state
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from experiments.cew_cal01.intersource_correspondence import discover_correspondence_candidates
+          from experiments.cew_cal01.intersource_governance import govern_correspondences
+          from experiments.cew_cal01.intersource_split import freeze_registration_split
+
+          root = Path(os.environ['RUNNER_TEMP']) / 'cew-cal01-external-chain'
+          bridge = json.loads((root / 'structural-candidate-bridge.json').read_text(encoding='utf-8'))
+          lattice = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'tav02-reference-lattice.json').read_text(encoding='utf-8')
+          )
+          candidates = discover_correspondence_candidates(bridge, lattice)
+          governed = govern_correspondences(candidates)
+          split = freeze_registration_split(governed)
+
+          output = root / 'intersource'
+          output.mkdir(parents=True, exist_ok=True)
+          payloads = {
+              'tav5-tav02-correspondence-candidates.json': candidates,
+              'tav5-tav02-governed-correspondences.json': governed,
+              'tav5-tav02-registration-split.json': split,
+          }
+          for name, payload in payloads.items():
+              (output / name).write_text(
+                  json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2) + '\n',
+                  encoding='utf-8',
+              )
+          PY
+
+      - name: Assert exact-source inter-source fail-closed boundary
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          root = Path(os.environ['RUNNER_TEMP']) / 'cew-cal01-external-chain'
+          bridge = json.loads((root / 'structural-candidate-bridge.json').read_text(encoding='utf-8'))
+          lattice = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'tav02-reference-lattice.json').read_text(encoding='utf-8')
+          )
+          candidates = json.loads(
+              (root / 'intersource' / 'tav5-tav02-correspondence-candidates.json').read_text(encoding='utf-8')
+          )
+          governed = json.loads(
+              (root / 'intersource' / 'tav5-tav02-governed-correspondences.json').read_text(encoding='utf-8')
+          )
+          split = json.loads(
+              (root / 'intersource' / 'tav5-tav02-registration-split.json').read_text(encoding='utf-8')
+          )
+
+          assert bridge['qualification']['occurrence_count'] == 22
+          assert bridge['qualification']['structural_candidate_count'] == 22
+          assert bridge['qualification']['historical_comparator_loaded'] is False
+          assert lattice['lattice_node_count'] == 21
+          assert lattice['lattice_digest'].startswith('sha256:')
+          assert candidates['source_candidate_count'] == 22
+          assert candidates['classification_counts'] == {'AMBIGUOUS': 0, 'HOMOLOGY_PROPOSAL': 0, 'UNMATCHED': 22}
+          assert candidates['governed_correspondence_count'] == 0
+          assert candidates['historical_comparator_loaded'] is False
+          assert candidates['historical_affine_loaded'] is False
+          assert governed['governed_correspondence_count'] == 0
+          assert governed['readiness_state'] == 'INSUFFICIENT_INTERSOURCE_CORRESPONDENCES'
+          assert governed['next_action'] == 'TARGETED_INTERSOURCE_HUMAN_REVIEW'
+          assert split['state'] == 'INSUFFICIENT_INTERSOURCE_CORRESPONDENCES'
+          assert split['next_action'] == 'TARGETED_INTERSOURCE_HUMAN_REVIEW'
+          assert split['affine_fit_performed'] is False
+          assert split['ready_for_affine_fit'] is False
+          assert split['historical_m0g_loaded'] is False
+
+          for payload in (candidates, governed, split):
+              assert payload['authority']['structural_identity_authorized'] is False
+              assert payload['authority']['canonical_geometry_authorized'] is False
+              assert payload['authority']['canonical_write_authorized'] is False
+              assert payload['authority']['m0g_authorized'] is False
+              assert payload['authority']['engineering_authority_effect'] == 'NONE'
+          PY
+
+      - name: Assert external-chain authority boundaries
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          root = Path(os.environ['RUNNER_TEMP']) / 'cew-cal01-external-chain'
+          expected = {
+              'TAV-01S': 'abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8',
+              'TAV-02S': 'cd03839589e60ee46b3fd398d6a9fabca1a446859e6693a47d0f83d0e930520f',
+          }
+          results = {}
+          for source_id in ('TAV-01S', 'TAV-02S'):
+              payload = json.loads(
+                  (root / 'external-chain' / source_id / 'external-dimension-chain-postprocess.json').read_text()
+              )
+              assert payload['source']['source_id'] == source_id
+              assert payload['source']['sha256'] == expected[source_id]
+              assert payload['side_order'] == ['TOP', 'RIGHT', 'BOTTOM', 'LEFT']
+              assert len(payload['sides']) == 4
+              assert payload['external_chain_count'] >= 0
+              assert payload['external_chain_member_count'] >= 0
+              assert payload['legacy_candidate_count'] <= payload['legacy_numeric_observation_count']
+              assert payload['primary_anchor_count'] == 0
+              assert payload['eligible_for_metric_calibration'] is False
+              assert payload['historical_comparator_loaded'] is False
+              assert payload['historical_affine_loaded'] is False
+              assert payload['authority']['canonical_geometry_authorized'] is False
+              assert payload['authority']['canonical_write_authorized'] is False
+              assert all(side['primary_anchor_count'] == 0 for side in payload['sides'])
+              assert all(side['eligible_for_metric_calibration'] is False for side in payload['sides'])
+              results[source_id] = {
+                  'legacy_candidate_count': payload['legacy_candidate_count'],
+                  'legacy_numeric_observation_count': payload['legacy_numeric_observation_count'],
+                  'external_chain_count': payload['external_chain_count'],
+                  'external_chain_member_count': payload['external_chain_member_count'],
+                  'external_chain_digest': payload['external_chain_digest'],
+              }
+
+          tav01 = json.loads(
+              (root / 'refined-external-chain' / 'TAV-01S' / 'refined-external-dimension-chain.json').read_text()
+          )
+          tav02 = json.loads(
+              (root / 'refined-external-chain' / 'TAV-02S' / 'refined-external-dimension-chain.json').read_text()
+          )
+          for payload, source_id in ((tav01, 'TAV-01S'), (tav02, 'TAV-02S')):
+              assert payload['source']['source_id'] == source_id
+              assert payload['source']['sha256'] == expected[source_id]
+              assert payload['side_order'] == ['TOP', 'RIGHT', 'BOTTOM', 'LEFT']
+              assert payload['legacy_candidate_count'] <= payload['legacy_numeric_observation_count']
+              assert payload['primary_anchor_count'] == 0
+              assert payload['eligible_for_metric_calibration'] is False
+              assert payload['historical_comparator_loaded'] is False
+              assert payload['historical_affine_loaded'] is False
+              assert payload['authority']['canonical_geometry_authorized'] is False
+              assert payload['authority']['canonical_write_authorized'] is False
+              assert all(side['primary_anchor_count'] == 0 for side in payload['sides'])
+              assert all(side['eligible_for_metric_calibration'] is False for side in payload['sides'])
+
+          assert tav02['refined_external_chain_count'] == 5
+          tav02_side_counts = {side['side']: side['chain_count'] for side in tav02['sides']}
+          assert tav02_side_counts == {'TOP': 1, 'RIGHT': 2, 'BOTTOM': 1, 'LEFT': 1}
+          tav02_interval_counts = {
+              side['side']: [len(chain['intervals']) for chain in side['chains']]
+              for side in tav02['sides']
+          }
+          assert tav02_interval_counts == {'TOP': [6], 'RIGHT': [3, 2], 'BOTTOM': [4], 'LEFT': [4]}
+
+          assert tav01['refined_external_chain_count'] == 4
+          tav01_side_counts = {side['side']: side['chain_count'] for side in tav01['sides']}
+          assert tav01_side_counts == {'TOP': 1, 'RIGHT': 1, 'BOTTOM': 1, 'LEFT': 1}
+
+          tav01_review = json.loads(
+              (root / 'interval-text-review' / 'TAV-01S' / 'interval-text-review-manifest.json').read_text()
+          )
+          tav02_review = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'interval-text-review-manifest.json').read_text()
+          )
+          assert tav01_review['review_request_count'] == 15
+          assert tav02_review['review_request_count'] == 19
+          for review, source_id in ((tav01_review, 'TAV-01S'), (tav02_review, 'TAV-02S')):
+              assert review['source']['source_id'] == source_id
+              assert review['source']['sha256'] == expected[source_id]
+              assert review['recognizer_binding_status'] == 'HANDWRITTEN_RECOGNIZER_NOT_BOUND'
+              assert review['primary_anchor_count'] == 0
+              assert review['eligible_for_metric_calibration'] is False
+              assert review['authority']['canonical_geometry_authorized'] is False
+              assert review['authority']['canonical_write_authorized'] is False
+              assert all(row['recognition_status'] == 'HANDWRITTEN_RECOGNIZER_REQUIRED' for row in review['review_requests'])
+              assert all(row['primary_anchor_authorized'] is False for row in review['review_requests'])
+              assert all(row['eligible_for_metric_calibration'] is False for row in review['review_requests'])
+              for row in review['review_requests']:
+                  crop_path = root / 'interval-text-review' / source_id / row['crop_file']
+                  assert crop_path.is_file()
+                  assert row['crop_sha256'].startswith('sha256:')
+                  assert row['local_alignment']['governed_geometry_changed'] is False
+
+          tav01_ocr = json.loads(
+              (root / 'interval-text-review' / 'TAV-01S' / 'interval-ocr-comparison.json').read_text()
+          )
+          tav02_ocr = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'interval-ocr-comparison.json').read_text()
+          )
+          assert tav01_ocr['review_count'] == 15
+          assert tav02_ocr['review_count'] == 19
+          for ocr, review, source_id in (
+              (tav01_ocr, tav01_review, 'TAV-01S'),
+              (tav02_ocr, tav02_review, 'TAV-02S'),
+          ):
+              assert ocr['source']['source_id'] == source_id
+              assert ocr['source']['sha256'] == expected[source_id]
+              assert ocr['review_manifest_digest'] == review['review_digest']
+              assert ocr['local_recognizer']['provider_id'] == 'TESSERACT'
+              assert ocr['local_recognizer']['family_count'] == 3
+              assert ocr['external_recognizer']['observation_count'] == 0
+              assert ocr['external_recognizer']['network_inference_performed'] is False
+              assert ocr['external_recognizer']['model_download_performed'] is False
+              assert all(row['human_review_required'] is True for row in ocr['reviews'])
+              assert all(row['primary_anchor_authorized'] is False for row in ocr['reviews'])
+              assert all(row['eligible_for_metric_calibration'] is False for row in ocr['reviews'])
+              assert ocr['primary_anchor_count'] == 0
+              assert ocr['eligible_for_metric_calibration'] is False
+              assert ocr['authority']['canonical_geometry_authorized'] is False
+              assert ocr['authority']['canonical_write_authorized'] is False
+              manifest_crops = {row['review_id']: row['crop_sha256'] for row in review['review_requests']}
+              comparison_crops = {row['review_id']: row['crop_sha256'] for row in ocr['reviews']}
+              assert comparison_crops == manifest_crops
+
+          tav01_human = json.loads(
+              (root / 'interval-text-review' / 'TAV-01S' / 'external-chain-human-review-packet.json').read_text()
+          )
+          tav02_human = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'external-chain-human-review-packet.json').read_text()
+          )
+          assert tav01_human['review_count'] == 15
+          assert tav01_human['reused_human_receipt_count'] == 1
+          assert tav01_human['direct_human_decision_count'] == 0
+          assert tav01_human['validated_human_relation_count'] == 1
+          assert tav01_human['pending_human_review_count'] == 14
+          assert tav02_human['review_count'] == 19
+          assert tav02_human['reused_human_receipt_count'] == 2
+          assert tav02_human['direct_human_decision_count'] == 8
+          assert tav02_human['validated_human_relation_count'] == 10
+          assert tav02_human['pending_human_review_count'] == 9
+          tav02_states = {row['review_id']: row['review_state'] for row in tav02_human['reviews']}
+          assert tav02_states['TAV-02S:TOP:TOP:R1:I0'] == 'DIRECT_HUMAN_DECISION'
+          assert tav02_states['TAV-02S:TOP:TOP:R1:I5'] == 'DIRECT_HUMAN_DECISION'
+          assert tav02_states['TAV-02S:RIGHT:RIGHT:R1:I0'] == 'DIRECT_HUMAN_DECISION'
+          assert tav02_states['TAV-02S:RIGHT:RIGHT:R1:I1'] == 'DIRECT_HUMAN_DECISION'
+          assert tav02_states['TAV-02S:BOTTOM:BOTTOM:R1:I2'] == 'REUSED_HUMAN_RECEIPT'
+          assert tav02_states['TAV-02S:BOTTOM:BOTTOM:R1:I3'] == 'REUSED_HUMAN_RECEIPT'
+          for human, review, source_id in (
+              (tav01_human, tav01_review, 'TAV-01S'),
+              (tav02_human, tav02_review, 'TAV-02S'),
+          ):
+              assert human['source']['source_id'] == source_id
+              assert human['source']['sha256'] == expected[source_id]
+              assert human['review_manifest_digest'] == review['review_digest']
+              assert all(row['eligible_for_metric_calibration'] is False for row in human['reviews'])
+              assert all(row['primary_anchor_authorized'] is False for row in human['reviews'])
+              assert human['primary_anchor_count'] == 0
+              assert human['eligible_for_metric_calibration'] is False
+              assert human['authority']['canonical_geometry_authorized'] is False
+              assert human['authority']['canonical_write_authorized'] is False
+              manifest_crops = {row['review_id']: row['crop_sha256'] for row in review['review_requests']}
+              packet_crops = {row['review_id']: row['crop_sha256'] for row in human['reviews']}
+              assert packet_crops == manifest_crops
+              board_path = root / 'interval-text-review' / source_id / 'external-chain-human-review.html'
+              assert board_path.is_file()
+
+          tav01_metric_network = json.loads(
+              (root / 'interval-text-review' / 'TAV-01S' / 'metric-relation-network.json').read_text()
+          )
+          tav01_metric_gate = json.loads(
+              (root / 'interval-text-review' / 'TAV-01S' / 'metric-sufficiency-gate.json').read_text()
+          )
+          tav02_metric_network = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'metric-relation-network.json').read_text()
+          )
+          tav02_metric_gate = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'metric-sufficiency-gate.json').read_text()
+          )
+          tav02_lattice = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'tav02-reference-lattice.json').read_text()
+          )
+
+          assert tav01_metric_gate['gate_state'] == 'TARGETED_HUMAN_REVIEW'
+          assert 1 <= len(tav01_metric_gate['targeted_human_review_ids']) <= 4
+          assert tav02_metric_network['relation_count'] == 10
+          assert tav02_metric_network['orientation_counts'] == {'HORIZONTAL': 8, 'VERTICAL': 2}
+          assert 'TOP:R1' in tav02_metric_network['complete_chain_ids']
+          assert tav02_metric_gate['relation_audit']['diagnostic_status'] == 'RELATION_NETWORK_DIAGNOSTIC_SUFFICIENT'
+          assert tav02_metric_gate['gate_state'] == 'INSUFFICIENT'
+          assert tav02_metric_gate['blockers'] == ['PRIMARY_ANCHOR_REQUIRED']
+          assert tav02_metric_gate['next_action'] == 'PRIMARY_ANCHOR_DISCOVERY'
+
+          assert tav02_lattice['schema'] == 'CEW_CAL01_TAV02_REFERENCE_LATTICE_v1'
+          assert tav02_lattice['source']['source_id'] == 'TAV-02S'
+          assert tav02_lattice['source']['sha256'] == expected['TAV-02S']
+          assert tav02_lattice['metric_network_digest'] == tav02_metric_network['network_digest']
+          assert tav02_lattice['coordinate_frame'] == 'LOCAL_RELATIVE_METRIC'
+          assert tav02_lattice['x_reference_count'] == 7
+          assert tav02_lattice['y_reference_count'] == 3
+          assert tav02_lattice['lattice_node_count'] == 21
+          assert [row['local_m'] for row in tav02_lattice['x_references']] == [0.0, 4.7, 9.8, 13.95, 18.1, 23.4, 28.1]
+          assert [row['local_m'] for row in tav02_lattice['y_references']] == [0.0, 2.1, 5.55]
+          assert tav02_lattice['absolute_origin_authorized'] is False
+          assert tav02_lattice['eligible_for_metric_calibration'] is False
+          assert all(row['fit_eligible'] is False for row in tav02_lattice['lattice_nodes'])
+          assert all(row['primary_anchor_authorized'] is False for row in tav02_lattice['lattice_nodes'])
+          assert tav02_lattice['authority']['structural_identity_authorized'] is False
+          assert tav02_lattice['authority']['canonical_geometry_authorized'] is False
+          assert tav02_lattice['authority']['canonical_write_authorized'] is False
+          assert tav02_lattice['authority']['m0g_authorized'] is False
+
+          for metric_network, metric_gate, source_id in (
+              (tav01_metric_network, tav01_metric_gate, 'TAV-01S'),
+              (tav02_metric_network, tav02_metric_gate, 'TAV-02S'),
+          ):
+              assert metric_network['source']['source_id'] == source_id
+              assert metric_network['source']['sha256'] == expected[source_id]
+              assert metric_network['eligible_for_metric_calibration'] is False
+              assert metric_network['primary_anchor_count'] == 0
+              assert metric_network['authority']['canonical_geometry_authorized'] is False
+              assert metric_network['authority']['canonical_write_authorized'] is False
+              assert metric_gate['source']['source_id'] == source_id
+              assert metric_gate['source']['sha256'] == expected[source_id]
+              assert metric_gate['authority']['canonical_geometry_authorized'] is False
+              assert metric_gate['authority']['canonical_write_authorized'] is False
+              assert metric_gate['primary_anchor_authorized'] is False
+
+          results['TAV-01S']['refined_external_chain_count'] = tav01['refined_external_chain_count']
+          results['TAV-01S']['refined_external_chain_digest'] = tav01['refined_external_chain_digest']
+          results['TAV-01S']['interval_text_review_digest'] = tav01_review['review_digest']
+          results['TAV-01S']['interval_ocr_comparison_digest'] = tav01_ocr['comparison_digest']
+          results['TAV-01S']['human_review_packet_digest'] = tav01_human['packet_digest']
+          results['TAV-01S']['metric_relation_network_digest'] = tav01_metric_network['network_digest']
+          results['TAV-01S']['metric_sufficiency_gate_digest'] = tav01_metric_gate['gate_digest']
+          results['TAV-02S']['refined_external_chain_count'] = tav02['refined_external_chain_count']
+          results['TAV-02S']['refined_external_chain_digest'] = tav02['refined_external_chain_digest']
+          results['TAV-02S']['interval_text_review_digest'] = tav02_review['review_digest']
+          results['TAV-02S']['interval_ocr_comparison_digest'] = tav02_ocr['comparison_digest']
+          results['TAV-02S']['human_review_packet_digest'] = tav02_human['packet_digest']
+          results['TAV-02S']['metric_relation_network_digest'] = tav02_metric_network['network_digest']
+          results['TAV-02S']['metric_sufficiency_gate_digest'] = tav02_metric_gate['gate_digest']
+          results['TAV-02S']['reference_lattice_digest'] = tav02_lattice['lattice_digest']
+          print(json.dumps(results, sort_keys=True))
+          PY
+
+      - name: Upload governed external-chain evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-cal01-external-dimension-chains
+          path: ${{ runner.temp }}/cew-cal01-external-chain
+          if-no-files-found: error
+          retention-days: 30

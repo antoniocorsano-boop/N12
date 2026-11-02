@@ -1,0 +1,66 @@
+{
+  "schema": "CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_STRUCTURAL_GRID_v1",
+  "program": "CEW-CAL-01",
+  "review_date_local": "2026-11-02",
+  "reviewer_role": "HUMAN_PROFESSIONAL_USER",
+  "review_id": "SG-T02-02",
+  "source_document": "TAV-02S",
+  "source_path": "archive/documentazione_originaria/tavola2-2.pdf",
+  "source_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+  "source_sha256": "cd03839589e60ee46b3fd398d6a9fabca1a446859e6693a47d0f83d0e930520f",
+  "source_page": 0,
+  "source_bbox_union_px": [486.0, 6865.0, 536.0, 7069.0],
+  "machine_alternatives": [
+    {
+      "reading": "6.25",
+      "ocr_confidence": 94.16597,
+      "ocr_rotation_degrees": 0,
+      "preprocess_mode": "RAW_GRAYSCALE",
+      "supporting_ocr_families": [["RAW_GRAYSCALE", 0]],
+      "disposition": "CONFIRMED_BY_HUMAN_REVIEW"
+    },
+    {
+      "reading": "9.45",
+      "ocr_confidence": 0.0,
+      "ocr_rotation_degrees": 0,
+      "preprocess_mode": "BINARY_OTSU",
+      "supporting_ocr_families": [["BINARY_OTSU", 0]],
+      "disposition": "REJECTED_BY_HUMAN_REVIEW"
+    }
+  ],
+  "geometry": {
+    "orientation": "VERTICAL",
+    "reference_style": "HOUGH_ENDPOINT_REFERENCES",
+    "validated_relation": "SAME_SOURCE_GRAPHIC_LOCATION"
+  },
+  "human_reading": "6.25 m",
+  "property": "STRUCTURAL_GRID_LINEAR_DIMENSION",
+  "value": {"length_m": 6.25},
+  "evidence_class": "DOC",
+  "semantic_interpretation_class": "RIF",
+  "calibration_role": "LINEAR_DIMENSION",
+  "metric_relation_state": "PRIMARY_VISUAL_VALIDATED",
+  "metric_source_kind": "PRIMARY_TAV02S_DOCUMENTED_RELATION",
+  "eligible_for_metric_relation_network": true,
+  "eligible_for_metric_calibration": false,
+  "primary_anchor_authorized": false,
+  "ocr_diagnostic": {
+    "state": "SAME_ORIENTATION_PREPROCESSING_AMBIGUITY",
+    "evidence": "Both machine readings originate from the 0-degree OCR pass at the same graphic location. Human review confirms the high-confidence RAW_GRAYSCALE reading 6.25 and rejects the zero-confidence BINARY_OTSU reading 9.45.",
+    "follow_up": "Preserve preprocessing family and confidence as ranking evidence; do not treat overlapping OCR alternatives as independent metric relations."
+  },
+  "review_note": "Human visual review validates the documented linear dimension as 6.25 m. Of two overlapping 0-degree OCR alternatives, 6.25 is confirmed and 9.45 is rejected. This receipt authorizes the metric relation only; it does not establish an absolute calibration anchor.",
+  "qualified_discovery_basis": {
+    "head_sha": "02c637e401229d3e4b6cad5cdfd369e026f6aeef",
+    "workflow_run_id": 41412272369,
+    "artifact_id": 13126665323,
+    "artifact_digest": "sha256:cec2e4fee5eebbbfec1ab70f4b53735e6b10f27983b2a9ff8b84808d14a9d27f"
+  },
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}
