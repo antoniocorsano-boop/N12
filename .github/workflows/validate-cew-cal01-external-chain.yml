@@ -14,10 +14,18 @@ on:
       - 'experiments/cew_cal01/interval_text_review_exact.py'
       - 'experiments/cew_cal01/interval_ocr_compare.py'
       - 'experiments/cew_cal01/interval_ocr_exact.py'
+      - 'experiments/cew_cal01/external_chain_human_review.py'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_01_v1.json'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_02_v1.json'
       - 'tests/cew_cal01/test_external_dimension_chain.py'
       - 'tests/cew_cal01/test_external_chain_postprocess.py'
       - 'tests/cew_cal01/test_external_chain_refinement.py'
       - 'tests/cew_cal01/test_external_chain_workflow.py'
+      - 'tests/cew_cal01/test_external_chain_human_review.py'
+      - 'tests/cew_cal01/test_external_chain_human_review_packet.py'
+      - 'tests/cew_cal01/test_external_chain_human_review_workflow.py'
       - 'tests/cew_cal01/test_interval_text_review.py'
       - 'tests/cew_cal01/test_interval_text_exact.py'
       - 'tests/cew_cal01/test_interval_ocr_compare.py'
@@ -33,10 +41,18 @@ on:
       - 'experiments/cew_cal01/interval_text_review_exact.py'
       - 'experiments/cew_cal01/interval_ocr_compare.py'
       - 'experiments/cew_cal01/interval_ocr_exact.py'
+      - 'experiments/cew_cal01/external_chain_human_review.py'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_01_v1.json'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json'
+      - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_02_v1.json'
       - 'tests/cew_cal01/test_external_dimension_chain.py'
       - 'tests/cew_cal01/test_external_chain_postprocess.py'
       - 'tests/cew_cal01/test_external_chain_refinement.py'
       - 'tests/cew_cal01/test_external_chain_workflow.py'
+      - 'tests/cew_cal01/test_external_chain_human_review.py'
+      - 'tests/cew_cal01/test_external_chain_human_review_packet.py'
+      - 'tests/cew_cal01/test_external_chain_human_review_workflow.py'
       - 'tests/cew_cal01/test_interval_text_review.py'
       - 'tests/cew_cal01/test_interval_text_exact.py'
       - 'tests/cew_cal01/test_interval_ocr_compare.py'
@@ -142,6 +158,22 @@ jobs:
         run: |
           python -m experiments.cew_cal01.interval_ocr_exact \
             --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S"
+
+      - name: Build governed human-review packet on TAV-01S
+        run: |
+          python -m experiments.cew_cal01.external_chain_human_review \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-01S" \
+            --source-width-px 9933 \
+            --receipt governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_01_v1.json \
+            --receipt governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json
+
+      - name: Build governed human-review packet on TAV-02S
+        run: |
+          python -m experiments.cew_cal01.external_chain_human_review \
+            --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S" \
+            --source-width-px 7016 \
+            --receipt governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json \
+            --receipt governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_02_v1.json
 
       - name: Assert external-chain authority boundaries
         run: |
@@ -271,14 +303,47 @@ jobs:
               comparison_crops = {row['review_id']: row['crop_sha256'] for row in ocr['reviews']}
               assert comparison_crops == manifest_crops
 
+          tav01_human = json.loads(
+              (root / 'interval-text-review' / 'TAV-01S' / 'external-chain-human-review-packet.json').read_text()
+          )
+          tav02_human = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'external-chain-human-review-packet.json').read_text()
+          )
+          assert tav01_human['review_count'] == 15
+          assert tav01_human['reused_human_receipt_count'] == 1
+          assert tav01_human['pending_human_review_count'] == 14
+          assert tav02_human['review_count'] == 19
+          assert tav02_human['reused_human_receipt_count'] == 2
+          assert tav02_human['pending_human_review_count'] == 17
+          for human, review, source_id in (
+              (tav01_human, tav01_review, 'TAV-01S'),
+              (tav02_human, tav02_review, 'TAV-02S'),
+          ):
+              assert human['source']['source_id'] == source_id
+              assert human['source']['sha256'] == expected[source_id]
+              assert human['review_manifest_digest'] == review['review_digest']
+              assert all(row['eligible_for_metric_calibration'] is False for row in human['reviews'])
+              assert all(row['primary_anchor_authorized'] is False for row in human['reviews'])
+              assert human['primary_anchor_count'] == 0
+              assert human['eligible_for_metric_calibration'] is False
+              assert human['authority']['canonical_geometry_authorized'] is False
+              assert human['authority']['canonical_write_authorized'] is False
+              manifest_crops = {row['review_id']: row['crop_sha256'] for row in review['review_requests']}
+              packet_crops = {row['review_id']: row['crop_sha256'] for row in human['reviews']}
+              assert packet_crops == manifest_crops
+              board_path = root / 'interval-text-review' / source_id / 'external-chain-human-review.html'
+              assert board_path.is_file()
+
           results['TAV-01S']['refined_external_chain_count'] = tav01['refined_external_chain_count']
           results['TAV-01S']['refined_external_chain_digest'] = tav01['refined_external_chain_digest']
           results['TAV-01S']['interval_text_review_digest'] = tav01_review['review_digest']
           results['TAV-01S']['interval_ocr_comparison_digest'] = tav01_ocr['comparison_digest']
+          results['TAV-01S']['human_review_packet_digest'] = tav01_human['packet_digest']
           results['TAV-02S']['refined_external_chain_count'] = tav02['refined_external_chain_count']
           results['TAV-02S']['refined_external_chain_digest'] = tav02['refined_external_chain_digest']
           results['TAV-02S']['interval_text_review_digest'] = tav02_review['review_digest']
           results['TAV-02S']['interval_ocr_comparison_digest'] = tav02_ocr['comparison_digest']
+          results['TAV-02S']['human_review_packet_digest'] = tav02_human['packet_digest']
           print(json.dumps(results, sort_keys=True))
           PY
 
