@@ -1,3 +1,4 @@
+# RED trigger: run the complete CAL-01 suite with the conflict-gate contract.
 import copy
 import unittest
 
