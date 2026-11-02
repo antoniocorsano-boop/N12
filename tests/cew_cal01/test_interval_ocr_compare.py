@@ -136,6 +136,22 @@ class IntervalOcrComparisonContractTests(unittest.TestCase):
         self.assertEqual(row["distinct_family_count"], 1)
         self.assertIsNone(row["consensus_normalized_text"])
 
+    def test_conflicting_valid_readings_from_same_family_remain_conflict(self):
+        manifest = _manifest()
+        crop = manifest["review_requests"][0]["crop_sha256"]
+        result = build_interval_ocr_comparison(
+            manifest,
+            [
+                _obs("TAV-02S:TOP:C1:I0", crop, "GRAY_PSM7", "470", 0.82),
+                _obs("TAV-02S:TOP:C1:I0", crop, "GRAY_PSM7", "405", 0.91),
+            ],
+        )
+        row = result["reviews"][0]
+        self.assertEqual(row["comparison_status"], "OCR_COMPARATIVE_CONFLICT")
+        self.assertEqual(row["normalized_texts"], ["4.05", "4.70"])
+        self.assertEqual(row["distinct_family_count"], 1)
+        self.assertIsNone(row["consensus_normalized_text"])
+
     def test_two_distinct_families_can_form_diagnostic_agreement_only(self):
         manifest = _manifest()
         crop = manifest["review_requests"][0]["crop_sha256"]
