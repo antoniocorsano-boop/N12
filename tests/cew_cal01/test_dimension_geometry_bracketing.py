@@ -1,50 +1,50 @@
 import unittest
 
-try:
-    from experiments.cew_cal01.exact_source import _bracketing_reference_pair
-except (ImportError, ModuleNotFoundError):
-    _bracketing_reference_pair = None
+from experiments.cew_cal01.numeric_role import dimension_tick_relation
 
 
 class Cal01DimensionGeometryBracketingTests(unittest.TestCase):
-    def test_long_horizontal_dimension_line_uses_internal_references_bracketing_token(self):
-        self.assertTrue(callable(_bracketing_reference_pair))
-        pair = _bracketing_reference_pair(
-            main=(20.0, 100.0, 280.0, 100.0),
-            perpendicular=[
-                (80.0, 60.0, 80.0, 140.0),
-                (220.0, 60.0, 220.0, 140.0),
+    def test_long_horizontal_dimension_line_uses_internal_perpendicular_ticks_bracketing_token(self):
+        relation = dimension_tick_relation(
+            [
+                (20.0, 100.0, 280.0, 100.0),
+                (80.0, 80.0, 80.0, 120.0),
+                (220.0, 80.0, 220.0, 120.0),
             ],
-            token_center=(150.0, 100.0),
-            orientation="HORIZONTAL",
+            token_bbox_px=[130.0, 90.0, 170.0, 110.0],
+            expected_orientation="HORIZONTAL",
         )
-        self.assertEqual(pair, ((80.0, 100.0), (220.0, 100.0)))
+        self.assertTrue(relation["confirmed"])
+        self.assertEqual(relation["tick_style"], "PERPENDICULAR")
+        self.assertEqual(relation["endpoint_a_px"], [80.0, 100.0])
+        self.assertEqual(relation["endpoint_b_px"], [220.0, 100.0])
 
-    def test_references_on_same_side_of_token_do_not_bind(self):
-        self.assertTrue(callable(_bracketing_reference_pair))
-        pair = _bracketing_reference_pair(
-            main=(20.0, 100.0, 280.0, 100.0),
-            perpendicular=[
-                (40.0, 60.0, 40.0, 140.0),
-                (80.0, 60.0, 80.0, 140.0),
+    def test_perpendicular_ticks_on_same_side_of_token_do_not_bind(self):
+        relation = dimension_tick_relation(
+            [
+                (20.0, 100.0, 280.0, 100.0),
+                (40.0, 80.0, 40.0, 120.0),
+                (80.0, 80.0, 80.0, 120.0),
             ],
-            token_center=(150.0, 100.0),
-            orientation="HORIZONTAL",
+            token_bbox_px=[130.0, 90.0, 170.0, 110.0],
+            expected_orientation="HORIZONTAL",
         )
-        self.assertIsNone(pair)
+        self.assertFalse(relation["confirmed"])
 
-    def test_long_vertical_dimension_line_uses_internal_references_bracketing_token(self):
-        self.assertTrue(callable(_bracketing_reference_pair))
-        pair = _bracketing_reference_pair(
-            main=(100.0, 20.0, 100.0, 280.0),
-            perpendicular=[
-                (60.0, 80.0, 140.0, 80.0),
-                (60.0, 220.0, 140.0, 220.0),
+    def test_long_vertical_dimension_line_uses_internal_perpendicular_ticks_bracketing_token(self):
+        relation = dimension_tick_relation(
+            [
+                (100.0, 20.0, 100.0, 280.0),
+                (80.0, 80.0, 120.0, 80.0),
+                (80.0, 220.0, 120.0, 220.0),
             ],
-            token_center=(100.0, 150.0),
-            orientation="VERTICAL",
+            token_bbox_px=[90.0, 130.0, 110.0, 170.0],
+            expected_orientation="VERTICAL",
         )
-        self.assertEqual(pair, ((100.0, 80.0), (100.0, 220.0)))
+        self.assertTrue(relation["confirmed"])
+        self.assertEqual(relation["tick_style"], "PERPENDICULAR")
+        self.assertEqual(relation["endpoint_a_px"], [100.0, 80.0])
+        self.assertEqual(relation["endpoint_b_px"], [100.0, 220.0])
 
 
 if __name__ == "__main__":
