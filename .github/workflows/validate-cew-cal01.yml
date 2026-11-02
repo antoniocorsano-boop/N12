@@ -13,9 +13,11 @@ on:
       - 'docs/superpowers/specs/2026-11-01-cew-cal01-primary-metric-calibration-design.md'
       - 'docs/superpowers/specs/2026-11-01-cew-cal01-perimeter-dimension-chain-design.md'
       - 'docs/superpowers/specs/2026-11-01-cew-cal01-internal-dimension-chain-design.md'
+      - 'docs/superpowers/specs/2026-11-02-cew-cal01-structural-grid-primary-sources-design.md'
       - 'docs/superpowers/plans/2026-11-01-cew-cal01-primary-metric-calibration.md'
       - 'docs/superpowers/plans/2026-11-01-cew-cal01-perimeter-dimension-chain.md'
       - 'docs/superpowers/plans/2026-11-01-cew-cal01-internal-dimension-chain.md'
+      - 'docs/superpowers/plans/2026-11-02-cew-cal01-structural-grid-primary-sources.md'
       - '.github/workflows/validate-cew-cal01.yml'
 
 jobs:
@@ -33,6 +35,108 @@ jobs:
           check-latest: false
       - name: Run CEW-CAL-01 contracts
         run: python -m unittest discover -s tests/cew_cal01 -p 'test_*.py' -v
+
+  cal01-structural-grid-source-discovery:
+    needs: cal01-contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+      - name: Install frozen Tesseract system package
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends tesseract-ocr
+          tesseract --version | head -1
+      - name: Install minimal CAL-01 exact-source toolchain
+        run: python -m pip install --disable-pip-version-check -r requirements/cew-cal01.lock.txt
+      - name: Fetch frozen structural-grid source commit
+        run: |
+          rm -rf "$RUNNER_TEMP/cew-n12-structural-grid-source"
+          git init -q "$RUNNER_TEMP/cew-n12-structural-grid-source"
+          git -C "$RUNNER_TEMP/cew-n12-structural-grid-source" remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -C "$RUNNER_TEMP/cew-n12-structural-grid-source" fetch --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+          git -C "$RUNNER_TEMP/cew-n12-structural-grid-source" checkout --detach FETCH_HEAD
+          test "$(git -C "$RUNNER_TEMP/cew-n12-structural-grid-source" rev-parse HEAD)" = "78c20a52db4f391ce0d13b9705b9f04737e218c9"
+      - name: Render frozen TAV-01S and TAV-02S structural grid sources
+        run: |
+          rm -rf "$RUNNER_TEMP/cew-cal01-structural-grid"
+          python -m experiments.cew_cal01.structural_grid_sources \
+            --source-repo "$RUNNER_TEMP/cew-n12-structural-grid-source" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-structural-grid"
+      - name: Discover structural grid dimension chains
+        run: |
+          python -m experiments.cew_cal01.structural_grid_dimension \
+            --source-manifest "$RUNNER_TEMP/cew-cal01-structural-grid/structural-grid-primary-sources.json" \
+            --raster-root "$RUNNER_TEMP/cew-cal01-structural-grid" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-structural-grid/discovery"
+      - name: Assert structural grid source and authority boundaries
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP']) / 'cew-cal01-structural-grid'
+          manifest = json.loads((root / 'structural-grid-primary-sources.json').read_text())
+          summary = json.loads((root / 'discovery' / 'structural-grid-cross-sheet-summary.json').read_text())
+          expected = {
+              'TAV-01S': 'abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8',
+              'TAV-02S': 'cd03839589e60ee46b3fd398d6a9fabca1a446859e6693a47d0f83d0e930520f',
+          }
+          assert manifest['source_count'] == 2
+          assert [row['source_id'] for row in manifest['sources']] == ['TAV-01S', 'TAV-02S']
+          assert manifest['primary_anchor_count'] == 0
+          assert manifest['historical_comparator_loaded'] is False
+          assert manifest['historical_affine_loaded'] is False
+          assert manifest['authority']['canonical_geometry_authorized'] is False
+          assert manifest['authority']['canonical_write_authorized'] is False
+          assert summary['source_order'] == ['TAV-01S', 'TAV-02S']
+          assert summary['cross_sheet_relation_count'] == 0
+          assert summary['cross_sheet_matching_status'] == 'PENDING_HUMAN_VALIDATION'
+          assert summary['primary_anchor_count'] == 0
+          assert summary['authority']['canonical_geometry_authorized'] is False
+          results = {}
+          for source in manifest['sources']:
+              source_id = source['source_id']
+              assert source['sha256'] == expected[source_id]
+              discovery = json.loads((root / 'discovery' / source_id / 'structural-grid-dimension-discovery.json').read_text())
+              assert discovery['source']['source_id'] == source_id
+              assert discovery['source']['sha256'] == expected[source_id]
+              assert len(discovery['bands']) == 4
+              assert [row['side'] for row in discovery['bands']] == ['TOP', 'RIGHT', 'BOTTOM', 'LEFT']
+              assert discovery['candidate_count'] <= discovery['numeric_observation_count']
+              assert discovery['primary_anchor_count'] == 0
+              assert discovery['historical_comparator_loaded'] is False
+              assert discovery['historical_affine_loaded'] is False
+              assert discovery['authority']['canonical_geometry_authorized'] is False
+              assert discovery['authority']['canonical_write_authorized'] is False
+              assert all(row['semantic_role'] == 'STRUCTURAL_GRID_LINEAR_DIMENSION_CANDIDATE' for row in discovery['candidates'])
+              assert all(row['fit_eligible'] is False for row in discovery['candidates'])
+              results[source_id] = {
+                  'numeric_observation_count': discovery['numeric_observation_count'],
+                  'candidate_count': discovery['candidate_count'],
+                  'status': discovery['status'],
+                  'discovery_digest': discovery['discovery_digest'],
+              }
+          print(json.dumps({
+              'TAV-01S': results['TAV-01S'],
+              'TAV-02S': results['TAV-02S'],
+              'cross_sheet_digest': summary['cross_sheet_digest'],
+              'primary_anchor_count': summary['primary_anchor_count'],
+          }, sort_keys=True))
+          PY
+      - name: Upload governed structural grid primary source evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-cal01-structural-grid-primary-sources
+          path: ${{ runner.temp }}/cew-cal01-structural-grid
+          if-no-files-found: error
+          retention-days: 30
 
   cal01-exact-source-dimension-discovery:
     needs: cal01-contracts
