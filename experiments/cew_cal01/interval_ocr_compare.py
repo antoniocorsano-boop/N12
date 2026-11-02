@@ -29,6 +29,64 @@ def _validate_authority(authority: dict[str, Any]) -> dict[str, Any]:
     return dict(authority)
 
 
+def _review_request_map(manifest: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    requests = [dict(row) for row in manifest.get("review_requests", [])]
+    request_by_id: dict[str, dict[str, Any]] = {}
+    for request in requests:
+        review_id = str(request.get("review_id") or "")
+        crop_sha256 = str(request.get("crop_sha256") or "")
+        if not review_id or review_id in request_by_id:
+            raise ValueError("CAL01_INTERVAL_OCR_REVIEW_ID_INVALID")
+        if not crop_sha256.startswith("sha256:"):
+            raise ValueError("CAL01_INTERVAL_OCR_CROP_DIGEST_INVALID")
+        request_by_id[review_id] = request
+    if int(manifest.get("review_request_count", len(requests))) != len(requests):
+        raise ValueError("CAL01_INTERVAL_OCR_REVIEW_COUNT_DRIFT")
+    return request_by_id
+
+
+def import_trocr_observations(
+    manifest: dict[str, Any],
+    observations: Iterable[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    request_by_id = _review_request_map(manifest)
+    imported: list[dict[str, Any]] = []
+    for raw in observations:
+        row = dict(raw)
+        if str(row.get("provider_id") or "").strip() != "TROCR":
+            raise ValueError("CAL01_INTERVAL_OCR_EXTERNAL_PROVIDER_INVALID")
+        review_id = str(row.get("review_id") or "").strip()
+        request = request_by_id.get(review_id)
+        if request is None:
+            raise ValueError("CAL01_INTERVAL_OCR_REVIEW_ID_UNKNOWN")
+        crop_sha256 = str(row.get("crop_sha256") or "").strip()
+        if crop_sha256 != str(request["crop_sha256"]):
+            raise ValueError("CAL01_INTERVAL_OCR_CROP_DIGEST_MISMATCH")
+        model_id = str(row.get("model_id") or "").strip()
+        if not model_id:
+            raise ValueError("CAL01_INTERVAL_OCR_EXTERNAL_MODEL_ID_INVALID")
+        imported_row = {
+            "review_id": review_id,
+            "crop_sha256": crop_sha256,
+            "provider_id": "TROCR",
+            "family_id": f"TROCR:{model_id}",
+            "model_id": model_id,
+            "raw_text": str(row.get("raw_text") or "").strip(),
+            "confidence": row.get("confidence"),
+        }
+        if row.get("provider_version") is not None:
+            imported_row["provider_version"] = str(row.get("provider_version"))
+        imported.append(imported_row)
+    return sorted(
+        imported,
+        key=lambda row: (
+            str(row["review_id"]),
+            str(row["family_id"]),
+            str(row["raw_text"]),
+        ),
+    )
+
+
 def _normalize_observation(
     observation: dict[str, Any],
     *,
@@ -108,19 +166,7 @@ def build_interval_ocr_comparison(
         raise ValueError("CAL01_INTERVAL_OCR_SOURCE_INVALID")
 
     authority = _validate_authority(dict(manifest.get("authority") or {}))
-    requests = [dict(row) for row in manifest.get("review_requests", [])]
-    request_by_id: dict[str, dict[str, Any]] = {}
-    for request in requests:
-        review_id = str(request.get("review_id") or "")
-        crop_sha256 = str(request.get("crop_sha256") or "")
-        if not review_id or review_id in request_by_id:
-            raise ValueError("CAL01_INTERVAL_OCR_REVIEW_ID_INVALID")
-        if not crop_sha256.startswith("sha256:"):
-            raise ValueError("CAL01_INTERVAL_OCR_CROP_DIGEST_INVALID")
-        request_by_id[review_id] = request
-
-    if int(manifest.get("review_request_count", len(requests))) != len(requests):
-        raise ValueError("CAL01_INTERVAL_OCR_REVIEW_COUNT_DRIFT")
+    request_by_id = _review_request_map(manifest)
 
     observations_by_review: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for raw_observation in observations:
