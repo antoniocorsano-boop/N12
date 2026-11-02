@@ -9,10 +9,15 @@ on:
       - 'experiments/cew_cal01/external_chain_postprocess.py'
       - 'experiments/cew_cal01/external_chain_refinement.py'
       - 'experiments/cew_cal01/external_chain_refined_exact.py'
+      - 'experiments/cew_cal01/interval_text_review.py'
+      - 'experiments/cew_cal01/interval_text_exact.py'
+      - 'experiments/cew_cal01/interval_text_review_exact.py'
       - 'tests/cew_cal01/test_external_dimension_chain.py'
       - 'tests/cew_cal01/test_external_chain_postprocess.py'
       - 'tests/cew_cal01/test_external_chain_refinement.py'
       - 'tests/cew_cal01/test_external_chain_workflow.py'
+      - 'tests/cew_cal01/test_interval_text_review.py'
+      - 'tests/cew_cal01/test_interval_text_exact.py'
       - '.github/workflows/validate-cew-cal01-external-chain.yml'
   pull_request:
     paths:
@@ -20,10 +25,15 @@ on:
       - 'experiments/cew_cal01/external_chain_postprocess.py'
       - 'experiments/cew_cal01/external_chain_refinement.py'
       - 'experiments/cew_cal01/external_chain_refined_exact.py'
+      - 'experiments/cew_cal01/interval_text_review.py'
+      - 'experiments/cew_cal01/interval_text_exact.py'
+      - 'experiments/cew_cal01/interval_text_review_exact.py'
       - 'tests/cew_cal01/test_external_dimension_chain.py'
       - 'tests/cew_cal01/test_external_chain_postprocess.py'
       - 'tests/cew_cal01/test_external_chain_refinement.py'
       - 'tests/cew_cal01/test_external_chain_workflow.py'
+      - 'tests/cew_cal01/test_interval_text_review.py'
+      - 'tests/cew_cal01/test_interval_text_exact.py'
       - '.github/workflows/validate-cew-cal01-external-chain.yml'
 
 jobs:
@@ -101,6 +111,22 @@ jobs:
             --image "$RUNNER_TEMP/cew-cal01-external-chain/TAV-02S-primary-300dpi.png" \
             --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/refined-external-chain/TAV-02S"
 
+      - name: Materialize exact interval text review assets on TAV-01S
+        run: |
+          python -m experiments.cew_cal01.interval_text_review_exact \
+            --discovery "$RUNNER_TEMP/cew-cal01-external-chain/discovery/TAV-01S/structural-grid-dimension-discovery.json" \
+            --refined "$RUNNER_TEMP/cew-cal01-external-chain/refined-external-chain/TAV-01S/refined-external-dimension-chain.json" \
+            --image "$RUNNER_TEMP/cew-cal01-external-chain/TAV-01S-primary-300dpi.png" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-01S"
+
+      - name: Materialize exact interval text review assets on TAV-02S
+        run: |
+          python -m experiments.cew_cal01.interval_text_review_exact \
+            --discovery "$RUNNER_TEMP/cew-cal01-external-chain/discovery/TAV-02S/structural-grid-dimension-discovery.json" \
+            --refined "$RUNNER_TEMP/cew-cal01-external-chain/refined-external-chain/TAV-02S/refined-external-dimension-chain.json" \
+            --image "$RUNNER_TEMP/cew-cal01-external-chain/TAV-02S-primary-300dpi.png" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S"
+
       - name: Assert external-chain authority boundaries
         run: |
           python - <<'PY'
@@ -173,10 +199,37 @@ jobs:
           tav01_side_counts = {side['side']: side['chain_count'] for side in tav01['sides']}
           assert tav01_side_counts == {'TOP': 1, 'RIGHT': 1, 'BOTTOM': 1, 'LEFT': 1}
 
+          tav01_review = json.loads(
+              (root / 'interval-text-review' / 'TAV-01S' / 'interval-text-review-manifest.json').read_text()
+          )
+          tav02_review = json.loads(
+              (root / 'interval-text-review' / 'TAV-02S' / 'interval-text-review-manifest.json').read_text()
+          )
+          assert tav01_review['review_request_count'] == 15
+          assert tav02_review['review_request_count'] == 19
+          for review, source_id in ((tav01_review, 'TAV-01S'), (tav02_review, 'TAV-02S')):
+              assert review['source']['source_id'] == source_id
+              assert review['source']['sha256'] == expected[source_id]
+              assert review['recognizer_binding_status'] == 'HANDWRITTEN_RECOGNIZER_NOT_BOUND'
+              assert review['primary_anchor_count'] == 0
+              assert review['eligible_for_metric_calibration'] is False
+              assert review['authority']['canonical_geometry_authorized'] is False
+              assert review['authority']['canonical_write_authorized'] is False
+              assert all(row['recognition_status'] == 'HANDWRITTEN_RECOGNIZER_REQUIRED' for row in review['review_requests'])
+              assert all(row['primary_anchor_authorized'] is False for row in review['review_requests'])
+              assert all(row['eligible_for_metric_calibration'] is False for row in review['review_requests'])
+              for row in review['review_requests']:
+                  crop_path = root / 'interval-text-review' / source_id / row['crop_file']
+                  assert crop_path.is_file()
+                  assert row['crop_sha256'].startswith('sha256:')
+                  assert row['local_alignment']['governed_geometry_changed'] is False
+
           results['TAV-01S']['refined_external_chain_count'] = tav01['refined_external_chain_count']
           results['TAV-01S']['refined_external_chain_digest'] = tav01['refined_external_chain_digest']
+          results['TAV-01S']['interval_text_review_digest'] = tav01_review['review_digest']
           results['TAV-02S']['refined_external_chain_count'] = tav02['refined_external_chain_count']
           results['TAV-02S']['refined_external_chain_digest'] = tav02['refined_external_chain_digest']
+          results['TAV-02S']['interval_text_review_digest'] = tav02_review['review_digest']
           print(json.dumps(results, sort_keys=True))
           PY
 
