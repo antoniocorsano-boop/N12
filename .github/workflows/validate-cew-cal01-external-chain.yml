@@ -19,6 +19,7 @@ on:
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_02_v1.json'
+      - 'governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_*_v1.json'
       - 'tests/cew_cal01/test_external_dimension_chain.py'
       - 'tests/cew_cal01/test_external_chain_postprocess.py'
       - 'tests/cew_cal01/test_external_chain_refinement.py'
@@ -46,6 +47,7 @@ on:
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json'
       - 'governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_02_v1.json'
+      - 'governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_*_v1.json'
       - 'tests/cew_cal01/test_external_dimension_chain.py'
       - 'tests/cew_cal01/test_external_chain_postprocess.py'
       - 'tests/cew_cal01/test_external_chain_refinement.py'
@@ -173,7 +175,13 @@ jobs:
             --review-dir "$RUNNER_TEMP/cew-cal01-external-chain/interval-text-review/TAV-02S" \
             --source-width-px 7016 \
             --receipt governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_01_v1.json \
-            --receipt governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_02_v1.json
+            --receipt governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T02_02_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I0_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I1_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I2_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I3_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I4_v1.json \
+            --decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I5_v1.json
 
       - name: Assert external-chain authority boundaries
         run: |
@@ -311,10 +319,19 @@ jobs:
           )
           assert tav01_human['review_count'] == 15
           assert tav01_human['reused_human_receipt_count'] == 1
+          assert tav01_human['direct_human_decision_count'] == 0
+          assert tav01_human['validated_human_relation_count'] == 1
           assert tav01_human['pending_human_review_count'] == 14
           assert tav02_human['review_count'] == 19
           assert tav02_human['reused_human_receipt_count'] == 2
-          assert tav02_human['pending_human_review_count'] == 17
+          assert tav02_human['direct_human_decision_count'] == 6
+          assert tav02_human['validated_human_relation_count'] == 8
+          assert tav02_human['pending_human_review_count'] == 11
+          tav02_states = {row['review_id']: row['review_state'] for row in tav02_human['reviews']}
+          assert tav02_states['TAV-02S:TOP:TOP:R1:I0'] == 'DIRECT_HUMAN_DECISION'
+          assert tav02_states['TAV-02S:TOP:TOP:R1:I5'] == 'DIRECT_HUMAN_DECISION'
+          assert tav02_states['TAV-02S:BOTTOM:BOTTOM:R1:I2'] == 'REUSED_HUMAN_RECEIPT'
+          assert tav02_states['TAV-02S:BOTTOM:BOTTOM:R1:I3'] == 'REUSED_HUMAN_RECEIPT'
           for human, review, source_id in (
               (tav01_human, tav01_review, 'TAV-01S'),
               (tav02_human, tav02_review, 'TAV-02S'),
