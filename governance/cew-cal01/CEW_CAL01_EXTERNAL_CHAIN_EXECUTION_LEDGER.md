@@ -56,3 +56,47 @@ Governance boundary:
 - The governed artifact contains `external-chain-human-review-packet.json` and `external-chain-human-review.html` for each source. The HTML board is review assistance only.
 - No new `HUMAN_PROFESSIONAL_USER` receipt was generated automatically. The next gate is actual professional review of the 31 pending intervals.
 - No merge or deploy is authorized by this checkpoint.
+
+## Qualified direct human-decision reconciliation checkpoint — 2026-11-02
+
+Professional decisions persisted before qualification:
+
+- `TAV-02S:TOP:TOP:R1:I0` → `4.70 m`.
+- `TAV-02S:TOP:TOP:R1:I1` → `5.10 m`.
+- `TAV-02S:TOP:TOP:R1:I2` → `4.15 m`.
+- `TAV-02S:TOP:TOP:R1:I3` → `4.15 m`.
+- `TAV-02S:TOP:TOP:R1:I4` → `5.30 m`.
+- `TAV-02S:TOP:TOP:R1:I5` → `4.70 m`.
+
+Qualification evidence:
+
+- Exact qualified implementation candidate: `0239a06c06d51c4dfb73ae786e8fcbce9beb699a`.
+- CEW-CAL-01 Primary Metric Calibration run `41460061801`: PASS.
+- CEW-CAL-01 External Dimension Chains run `41460061837`: PASS.
+- Repository Memory Gate run `41460061779`: PASS.
+- Governed external-chain artifact `13150340091`, digest `sha256:7b861b6168ba986f81641ea6f00bc974c0b51dd362c52236101a88e803cce479`.
+
+Governed packet state verified from the uploaded artifact:
+
+- TAV-01S packet digest `sha256:97f78c5c3deee6c10745f889074adf6a138bc557d1f1bc842acb10163684041c`: 15 intervals = 1 `REUSED_HUMAN_RECEIPT` + 0 `DIRECT_HUMAN_DECISION` + 14 `PENDING_HUMAN_REVIEW`; 1 validated human relation.
+- TAV-02S packet digest `sha256:6b73018b972a61cd5d6102a706ccdd6da914dde39473dc170335807919625fa8`: 19 intervals = 2 `REUSED_HUMAN_RECEIPT` + 6 `DIRECT_HUMAN_DECISION` + 11 `PENDING_HUMAN_REVIEW`; 8 validated human relations.
+- Total: 34 exact intervals = 9 validated human relations + 25 intervals still pending professional review.
+
+Reconciliation behavior qualified on the exact candidate:
+
+- Earlier human receipts remain a separate provenance path and require exact source SHA plus geometric reconciliation after the governed source-frame transform.
+- Direct human decisions require exact source SHA + exact `interval_review_id + crop_sha256`; they do not require a source bounding box.
+- Unknown interval ids, crop-digest mismatches, source mismatches, invalid human-decision state and conflicting values fail closed.
+- Same-value duplicate direct evidence is deterministically deduplicated.
+- A direct decision and a geometrically reused prior receipt on the same interval must agree; conflicting values fail closed.
+- `DIRECT_HUMAN_DECISION` is kept distinct from `REUSED_HUMAN_RECEIPT` in the governed packet.
+- Exact crop ids and digests remain the evidentiary binding. Human-facing rotation or context expansion is presentation-only and cannot mutate governed geometry.
+
+Authority boundary remains unchanged:
+
+- all validated entries are documented metric relations only;
+- `primary_anchor_count = 0`;
+- `eligible_for_metric_calibration = false`;
+- `primary_anchor_authorized = false` for every row;
+- structural identity, canonical geometry, M0-G and canonical write authority remain closed;
+- no merge or deploy is authorized by this checkpoint.
