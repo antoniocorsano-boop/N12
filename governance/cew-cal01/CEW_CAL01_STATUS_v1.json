@@ -1,8 +1,32 @@
 {
   "program": "CEW-CAL-01",
-  "state": "PLAN_SAVED_EXECUTION_STARTED",
+  "state": "STRUCTURAL_GRID_EXTERNAL_CHAIN_REWORK_IDENTIFIED",
   "base_exact_sha": "ee23c221118064022fa77b694ff88119530cc454",
   "branch": "feat/cew-cal01-primary-metric-calibration",
+  "structural_grid_review": {
+    "qualified_discovery_head_sha": "02c637e401229d3e4b6cad5cdfd369e026f6aeef",
+    "human_validated_groups": [
+      "SG-T01-01",
+      "SG-T01-02",
+      "SG-T02-01",
+      "SG-T02-02"
+    ],
+    "human_validated_values_m": {
+      "SG-T01-01": 4.05,
+      "SG-T01-02": 2.00,
+      "SG-T02-01": 4.95,
+      "SG-T02-02": 6.25
+    },
+    "next_human_review_group": "SG-T02-03",
+    "remaining_groups": [
+      "SG-T02-03",
+      "SG-T02-04",
+      "SG-T02-05"
+    ],
+    "external_chain_visual_precheck": "governance/cew-cal01/CEW_CAL01_EXTERNAL_CHAIN_VISUAL_PRECHECK_v1.json",
+    "geometry_binding_rework_required": true,
+    "geometry_binding_rework_reason": "Local two-reference/Hough geometry can bind dimension text to nearby structural or local edges instead of the long external dimension carrier. Existing human-confirmed text values remain valid; recorded geometric endpoints are not promoted."
+  },
   "authority": {
     "structural_identity_authorized": false,
     "canonical_geometry_authorized": false,
