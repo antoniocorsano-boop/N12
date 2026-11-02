@@ -136,3 +136,40 @@ Authority boundary remains unchanged:
 - both new rows have `primary_anchor_authorized = false`;
 - structural identity, canonical geometry, M0-G and canonical write authority remain closed;
 - no merge or deploy is authorized by this checkpoint.
+
+## Qualified source-local metric sufficiency gate — 2026-11-02
+
+Design and plan:
+
+- `docs/superpowers/specs/2026-11-02-cew-cal01-metric-sufficiency-gate-design.md`
+- `docs/superpowers/plans/2026-11-02-cew-cal01-metric-sufficiency-gate.md`
+
+Independent-review repair before final qualification:
+
+- RED candidate `fd9ccc53fa01a997b1fd6c7b4075ad656aaa1f6e`: 174 CAL-01 tests with 173 PASS and the sole failure `test_batch_diversifies_planned_coverage_after_each_selection`.
+- The RED exposed a real targeting defect: static ranking selected three BOTTOM intervals before diversifying.
+- The repair makes the review batch greedy: planned orientation and side coverage are recomputed after every selected review id; existing one-missing-chain priority remains first and metric values are never proposed.
+
+Qualification evidence:
+
+- Exact qualified implementation candidate: `fe542aa5a83f93c00d33ca5e304a141f9d8a946d`.
+- CEW-CAL-01 Primary Metric Calibration run `41474399139`: PASS.
+- CEW-CAL-01 External Dimension Chains run `41474399165`: PASS.
+- Repository Memory Gate run `41474399613`: PASS.
+- Governed external-chain artifact `13155679866`, digest `sha256:015c3213d8ebab1868913e31a2c9ab70876e4a98df224becb5143fb63618b0c5`.
+
+Source-local gate results verified directly from the uploaded artifact:
+
+- TAV-01S metric relation network digest `sha256:740ad3f7c7a169267ba4653a92e9c4fc4d0cbd1f034f7cc82db5c1527b9e60d7`: 1 validated vertical relation + 14 pending; no complete chain; gate digest `sha256:40e4f4f4082bc827ad590adb31e652dafe86e73b44b8b7e6aa4f1f245e3833eb`; state `TARGETED_HUMAN_REVIEW`.
+- TAV-01S deterministic diversified review batch: `TAV-01S:BOTTOM:BOTTOM:R1:I0`, `TAV-01S:LEFT:LEFT:R1:I0`, `TAV-01S:TOP:TOP:R1:I0`, `TAV-01S:RIGHT:RIGHT:R1:I1`. No suggested row contains or infers a metric value.
+- TAV-02S metric relation network digest `sha256:ad1b5620326e47d3cf7dbf0c5b8d1a2ede1e0ea3437ab0abcb0fa53f99a6b1ef`: 10 validated relations = 8 horizontal + 2 vertical, with `TOP:R1` complete.
+- TAV-02S relation audit is `RELATION_NETWORK_DIAGNOSTIC_SUFFICIENT`: horizontal maximum relative deviation `0.015019250927018528`, vertical maximum relative deviation `0.011875283730915634`, cross-orientation median drift `0.00918331450091221`, all below the governed `0.05` threshold.
+- TAV-02S gate digest `sha256:e13e6a0240a67140056e3c810c2cf96e458a242e8bd04dbecca03a4dc623e926`; state `INSUFFICIENT`; sole blocker `PRIMARY_ANCHOR_REQUIRED`; next action `PRIMARY_ANCHOR_DISCOVERY`.
+
+Governance consequence:
+
+- TAV-01S and TAV-02S remain separate source-local metric graphs; coordinates and scale diagnostics are never combined across source frames.
+- TAV-02S no longer requires indiscriminate reading of the remaining nine intervals for relation-network diagnosis; the blocker has moved to primary-anchor discovery.
+- Relation edges remain `eligible_for_metric_calibration = false` and `primary_anchor_authorized = false`; the current source-local network is diagnostic relation evidence only.
+- `canonical_geometry_authorized = false`, `structural_identity_authorized = false`, `canonical_write_authorized = false`, `m0g_authorized = false`, `engineering_authority_effect = NONE`.
+- No affine fit, calibration candidate, merge or deploy is authorized by this checkpoint.
