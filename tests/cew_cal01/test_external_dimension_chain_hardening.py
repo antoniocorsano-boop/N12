@@ -20,19 +20,19 @@ def obs(observation_id, cx, cy, *, side, width=40.0, height=24.0):
 
 
 class ExternalDimensionChainHardeningTests(unittest.TestCase):
-    def test_bottom_carrier_inside_plan_envelope_is_not_external(self):
-        axis = [(120.0, 680.0, 880.0, 680.0)]
+    def test_bottom_carrier_beyond_governed_inside_tolerance_is_not_external(self):
+        axis = [(120.0, 550.0, 880.0, 550.0)]
         ticks = [
-            (150.0, 660.0, 150.0, 700.0),
-            (350.0, 660.0, 350.0, 700.0),
-            (600.0, 660.0, 600.0, 700.0),
-            (850.0, 660.0, 850.0, 700.0),
+            (150.0, 530.0, 150.0, 570.0),
+            (350.0, 530.0, 350.0, 570.0),
+            (600.0, 530.0, 600.0, 570.0),
+            (850.0, 530.0, 850.0, 570.0),
         ]
         result = build_refined_external_chains(
             side="BOTTOM",
             axis_segments=axis,
             tick_segments=ticks,
-            observations=[obs("inside", 475.0, 660.0, side="BOTTOM")],
+            observations=[obs("inside", 475.0, 540.0, side="BOTTOM")],
             plan_envelope_bbox=PLAN,
         )
         self.assertEqual(result["chain_count"], 0)
