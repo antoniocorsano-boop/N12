@@ -1,0 +1,104 @@
+{
+  "schema": "CEW_CAL01_STRUCTURAL_GRID_PRIMARY_SOURCE_RESULT_v1",
+  "program": "CEW-CAL-01",
+  "qualified_candidate": {
+    "head_sha": "09b3de4229bd5addf45685f03694c19a42e147ec",
+    "workflow_run_id": 41409423131,
+    "workflow_conclusion": "SUCCESS",
+    "artifact_id": 13124623460,
+    "artifact_name": "cew-cal01-structural-grid-primary-sources",
+    "artifact_digest": "sha256:7de33febd8c979837cce053bdce273e3c6fe362c02c08a4896ed37c14fc6752b"
+  },
+  "sources": [
+    {
+      "source_id": "TAV-01S",
+      "path": "archive/documentazione_originaria/tavola1-2.pdf",
+      "source_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+      "sha256": "abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8",
+      "discovery_digest": "sha256:e51bb7e664e2b6e9319250a5b607900a1698c7fd3617168512f2b49f9c3a3517",
+      "status": "STRUCTURAL_GRID_DIMENSION_CHAINS_NOT_OBSERVED",
+      "numeric_observation_count": 37,
+      "candidate_count": 0,
+      "rejected_observation_count": 37,
+      "primary_anchor_count": 0,
+      "plan_envelope_normalized_px": [4356, 2721, 11529, 9026],
+      "plan_envelope_source_px": [907.0, 4356.0, 7212.0, 11529.0],
+      "envelope_selection_mode": "FRAGMENT_CLUSTER",
+      "selected_member_count": 11,
+      "core_min_ink_fraction": 0.001,
+      "assessment": "The repaired structural envelope excludes the title block and places the search bands around the structural grid. External dimension text is now visible to OCR, but all 37 observations remain rejected by the exact two-reference geometry gate. No value is promoted."
+    },
+    {
+      "source_id": "TAV-02S",
+      "path": "archive/documentazione_originaria/tavola2-2.pdf",
+      "source_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+      "sha256": "cd03839589e60ee46b3fd398d6a9fabca1a446859e6693a47d0f83d0e930520f",
+      "discovery_digest": "sha256:865d1e8d3ea4ba3989b8055e31a7c7f28107fa180976cac2c92abca10327d44c",
+      "status": "STRUCTURAL_GRID_DIMENSION_CHAINS_OBSERVED",
+      "numeric_observation_count": 20,
+      "candidate_count": 6,
+      "rejected_observation_count": 14,
+      "primary_anchor_count": 0,
+      "plan_envelope_normalized_px": [3845, 992, 11094, 6357],
+      "plan_envelope_source_px": [659.0, 3845.0, 6024.0, 11094.0],
+      "envelope_selection_mode": "FRAGMENT_CLUSTER",
+      "selected_member_count": 6,
+      "core_min_ink_fraction": 0.002,
+      "candidate_location_groups": [
+        {
+          "review_group_id": "SG-T02-01",
+          "search_band": "BOTTOM",
+          "source_bbox_px": [492.0, 8291.0, 541.0, 8499.0],
+          "machine_readings": ["5.67"],
+          "human_review_state": "PENDING"
+        },
+        {
+          "review_group_id": "SG-T02-02",
+          "search_band": "BOTTOM",
+          "source_bbox_union_px": [486.0, 6865.0, 536.0, 7069.0],
+          "machine_readings": ["6.25", "9.45"],
+          "human_review_state": "PENDING",
+          "note": "Alternative OCR readings overlap the same graphic location and must not be treated as independent metric relations before human review."
+        },
+        {
+          "review_group_id": "SG-T02-03",
+          "search_band": "RIGHT",
+          "source_bbox_union_px": [5146.5, 11015.0, 5185.0, 11088.0],
+          "machine_readings": ["1.50", "4.50"],
+          "human_review_state": "PENDING",
+          "note": "Alternative OCR readings overlap the same graphic location and must not be treated as independent metric relations before human review."
+        },
+        {
+          "review_group_id": "SG-T02-04",
+          "search_band": "TOP",
+          "source_bbox_px": [5805.0, 9146.0, 5873.0, 9342.0],
+          "machine_readings": ["4.21"],
+          "human_review_state": "PENDING"
+        }
+      ],
+      "assessment": "Six machine candidates reduce to four distinct review locations because two pairs are overlapping OCR alternatives. All remain non-fit-eligible and require primary visual validation."
+    }
+  ],
+  "cross_sheet": {
+    "cross_sheet_digest": "sha256:14260fc5e9000447ca872fd1284db0ac7f373ed63042d5c817d13f0792110ac8",
+    "cross_sheet_relation_count": 0,
+    "cross_sheet_matching_status": "PENDING_HUMAN_VALIDATION",
+    "primary_anchor_count": 0
+  },
+  "human_review": {
+    "required": true,
+    "review_unit": "SOURCE_GRAPHIC_LOCATION",
+    "first_available_source": "TAV-02S",
+    "reason_tav01_not_first": "TAV-01S has zero geometrically bound candidates on this qualified artifact; zero candidates is an admissible closed result.",
+    "next_review_group": "SG-T02-01",
+    "promotion_rule": "Only a human PRIMARY_VISUAL_VALIDATED decision may convert a machine candidate into a governed metric relation. OCR text and geometric binding alone are insufficient.",
+    "tav01_follow_up": "After the TAV-02S human review handoff, evaluate a separate terminal/oblique dimension-marker grammar for TAV-01S without weakening the current two-reference contract."
+  },
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}
