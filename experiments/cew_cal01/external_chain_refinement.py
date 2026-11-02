@@ -16,6 +16,7 @@ _MIN_BALANCED_ARM_PX = 15.0
 _ENDPOINT_TICK_DISTANCE_PX = 50.0
 _OBSERVATION_SUPPORT_DISTANCE_PX = 100.0
 _ASSIGNMENT_AMBIGUITY_PX = 8.0
+_MAX_PERIMETER_OFFSET_PX = 500.0
 
 
 def _segment(raw: Sequence[float]) -> tuple[float, float, float, float]:
@@ -134,6 +135,9 @@ def _merge_axis_segments(
 
 def _side_plausible(*, side: str, carrier_axis: float, plan_envelope_bbox: Sequence[float]) -> bool:
     left, top, right, bottom = _bbox(plan_envelope_bbox)
+    edge = {"TOP": top, "RIGHT": right, "BOTTOM": bottom, "LEFT": left}[side]
+    if abs(carrier_axis - edge) > _MAX_PERIMETER_OFFSET_PX:
+        return False
     cross_span = (bottom - top) if side in {"TOP", "BOTTOM"} else (right - left)
     inside_tolerance = max(120.0, cross_span * 0.02)
     if side == "TOP":
