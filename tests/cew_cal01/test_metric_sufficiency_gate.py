@@ -1,4 +1,3 @@
-import copy
 import unittest
 
 from experiments.cew_cal01.metric_sufficiency import (
@@ -152,8 +151,12 @@ class MetricRelationAuditTests(unittest.TestCase):
 
     def test_relation_scale_outlier_above_five_percent_fails_diagnostic_sufficiency(self):
         network = _coherent_network()
-        network["relations"][1]["px_per_m"] = 230.0
-        network["relations"][1]["pixel_span"] = 230.0
+        horizontal = next(
+            row for row in network["relations"]
+            if row["review_id"] == "TAV-X:TOP:TOP:R1:I1"
+        )
+        horizontal["px_per_m"] = 230.0
+        horizontal["pixel_span"] = 230.0
         audit = audit_metric_relation_network(network)
         self.assertEqual(audit["diagnostic_status"], "RELATION_NETWORK_DIAGNOSTIC_INSUFFICIENT")
         self.assertIn("HORIZONTAL_SCALE_OUTLIER", audit["blockers"])
