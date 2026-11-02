@@ -4,7 +4,10 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from experiments.cew_cal01.interval_ocr_compare import build_interval_ocr_comparison
+from experiments.cew_cal01.interval_ocr_compare import (
+    build_interval_ocr_comparison,
+    import_trocr_observations,
+)
 from experiments.cew_cal01.interval_ocr_exact import LOCAL_OCR_FAMILIES, run_local_interval_ocr
 
 
@@ -58,6 +61,17 @@ def _obs(review_id, crop_sha256, family_id, raw_text, confidence=0.8, provider_i
         "model_id": "tesseract-system" if provider_id == "TESSERACT" else "trocr-candidate",
         "raw_text": raw_text,
         "confidence": confidence,
+    }
+
+
+def _trocr(review_id, crop_sha256, *, provider_id="TROCR", raw_text="470"):
+    return {
+        "review_id": review_id,
+        "crop_sha256": crop_sha256,
+        "provider_id": provider_id,
+        "model_id": "microsoft/trocr-base-handwritten",
+        "raw_text": raw_text,
+        "confidence": 0.73,
     }
 
 
@@ -241,6 +255,75 @@ class IntervalOcrExactContractTests(unittest.TestCase):
                         "provider_version": "tesseract-test",
                     },
                 )
+
+
+class IntervalOcrTrocrImportContractTests(unittest.TestCase):
+    def test_valid_trocr_observation_is_bound_to_review_and_crop(self):
+        manifest = _manifest()
+        request = manifest["review_requests"][0]
+        rows = import_trocr_observations(
+            manifest,
+            [_trocr(request["review_id"], request["crop_sha256"])],
+        )
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["provider_id"], "TROCR")
+        self.assertEqual(rows[0]["family_id"], "TROCR:microsoft/trocr-base-handwritten")
+        self.assertEqual(rows[0]["review_id"], request["review_id"])
+        self.assertEqual(rows[0]["crop_sha256"], request["crop_sha256"])
+        self.assertEqual(rows[0]["raw_text"], "470")
+
+    def test_absent_trocr_input_is_valid(self):
+        self.assertEqual(import_trocr_observations(_manifest(), []), [])
+
+    def test_non_trocr_external_provider_is_rejected(self):
+        manifest = _manifest()
+        request = manifest["review_requests"][0]
+        with self.assertRaisesRegex(ValueError, "CAL01_INTERVAL_OCR_EXTERNAL_PROVIDER_INVALID"):
+            import_trocr_observations(
+                manifest,
+                [_trocr(request["review_id"], request["crop_sha256"], provider_id="REMOTE_OCR")],
+            )
+
+    def test_unknown_review_id_is_rejected(self):
+        manifest = _manifest()
+        request = manifest["review_requests"][0]
+        with self.assertRaisesRegex(ValueError, "CAL01_INTERVAL_OCR_REVIEW_ID_UNKNOWN"):
+            import_trocr_observations(
+                manifest,
+                [_trocr("TAV-02S:TOP:C1:UNKNOWN", request["crop_sha256"])],
+            )
+
+    def test_trocr_crop_digest_mismatch_is_rejected(self):
+        manifest = _manifest()
+        request = manifest["review_requests"][0]
+        with self.assertRaisesRegex(ValueError, "CAL01_INTERVAL_OCR_CROP_DIGEST_MISMATCH"):
+            import_trocr_observations(
+                manifest,
+                [_trocr(request["review_id"], "sha256:" + "9" * 64)],
+            )
+
+    def test_exact_runner_can_include_validated_trocr_without_opening_authority(self):
+        with tempfile.TemporaryDirectory() as temp:
+            review_dir, _ = _write_review_dir(Path(temp))
+            manifest = json.loads(
+                (review_dir / "interval-text-review-manifest.json").read_text(encoding="utf-8")
+            )
+            request = manifest["review_requests"][0]
+
+            result = run_local_interval_ocr(
+                review_dir,
+                ocr_runner=lambda crop_path, family: {
+                    "raw_text": "470",
+                    "confidence": 0.8,
+                    "provider_version": "tesseract-test",
+                },
+                external_observations=[_trocr(request["review_id"], request["crop_sha256"])],
+            )
+            first = result["reviews"][0]
+            self.assertTrue(any(row["provider_id"] == "TROCR" for row in first["observations"]))
+            self.assertTrue(first["human_review_required"])
+            self.assertFalse(first["primary_anchor_authorized"])
+            self.assertFalse(result["eligible_for_metric_calibration"])
 
 
 if __name__ == "__main__":
