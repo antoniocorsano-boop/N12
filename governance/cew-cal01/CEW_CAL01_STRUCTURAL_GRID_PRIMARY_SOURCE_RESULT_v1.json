@@ -109,8 +109,16 @@
             "endpoint_a_px": [1024.0, 5727.0],
             "endpoint_b_px": [1024.0, 6685.0]
           },
-          "human_review_state": "PENDING",
-          "note": "Graphic binding is present but OCR confidence is zero; the text value must not be accepted without primary visual review."
+          "human_review_state": "PRIMARY_VISUAL_VALIDATED",
+          "machine_reading_disposition": "REJECTED_BY_HUMAN_REVIEW",
+          "human_reading": "4.05 m",
+          "metric_value_m": 4.05,
+          "metric_relation_state": "PRIMARY_VISUAL_VALIDATED",
+          "eligible_for_metric_relation_network": true,
+          "eligible_for_metric_calibration": false,
+          "primary_anchor_authorized": false,
+          "review_receipt": "governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_01_v1.json",
+          "note": "Human visual review corrects machine OCR 4.90 to documented value 4.05 m. The relation is validated, but it is not an absolute calibration anchor."
         },
         {
           "review_group_id": "SG-T01-02",
@@ -127,7 +135,7 @@
           "human_review_state": "PENDING"
         }
       ],
-      "assessment": "The corrected envelope plus governed internal-tick grammar recovers two source-bound machine candidates from the previously rejected 37 observations. Both remain non-fit-eligible and require primary visual validation."
+      "assessment": "The corrected envelope plus governed internal-tick grammar recovers two source-bound machine candidates. SG-T01-01 is human-validated as 4.05 m after correcting OCR 4.90; SG-T01-02 remains pending. No primary calibration anchor is authorized."
     },
     {
       "source_id": "TAV-02S",
@@ -204,10 +212,13 @@
     "required": true,
     "review_unit": "SOURCE_GRAPHIC_LOCATION",
     "first_available_source": "TAV-01S",
-    "next_review_group": "SG-T01-01",
+    "next_review_group": "SG-T01-02",
     "promotion_rule": "Only a human PRIMARY_VISUAL_VALIDATED decision may convert a machine candidate into a governed metric relation. OCR text and geometric binding alone are insufficient.",
     "machine_candidate_count": 9,
     "distinct_review_location_count": 7,
+    "validated_metric_relation_count": 1,
+    "pending_review_location_count": 6,
+    "primary_anchor_count": 0,
     "review_order": [
       "SG-T01-01",
       "SG-T01-02",
