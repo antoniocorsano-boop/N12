@@ -25,16 +25,8 @@
       "current_numeric_observation_count": 29,
       "base_candidate_count": 2,
       "current_candidate_count": 2,
-      "base_role_counts": {
-        "LINEAR_DIMENSION": 2,
-        "SECTION_MEASURE": 0,
-        "UNRESOLVED": 21
-      },
-      "current_role_counts": {
-        "LINEAR_DIMENSION": 2,
-        "SECTION_MEASURE": 0,
-        "UNRESOLVED": 21
-      }
+      "base_role_counts": {"LINEAR_DIMENSION": 2, "SECTION_MEASURE": 0, "UNRESOLVED": 21},
+      "current_role_counts": {"LINEAR_DIMENSION": 2, "SECTION_MEASURE": 0, "UNRESOLVED": 21}
     },
     "tav5_oriented": {
       "base_geometrically_bound_dimension_count": 16,
@@ -42,16 +34,8 @@
       "location_cluster_count": 18
     },
     "tav5_semantic": {
-      "base_role_counts": {
-        "LINEAR_DIMENSION": 0,
-        "SECTION_MEASURE": 2,
-        "UNRESOLVED": 16
-      },
-      "current_role_counts": {
-        "LINEAR_DIMENSION": 1,
-        "SECTION_MEASURE": 2,
-        "UNRESOLVED": 15
-      },
+      "base_role_counts": {"LINEAR_DIMENSION": 0, "SECTION_MEASURE": 2, "UNRESOLVED": 16},
+      "current_role_counts": {"LINEAR_DIMENSION": 1, "SECTION_MEASURE": 2, "UNRESOLVED": 15},
       "new_machine_linear_dimension": {
         "cluster_index": 2,
         "documented_text": "420",
@@ -67,15 +51,7 @@
     "tav5_tight": {
       "base_tight_consensus_confirmed_count": 7,
       "current_tight_consensus_confirmed_count": 7,
-      "confirmed_text_counts_unchanged": {
-        "0": 1,
-        "4": 1,
-        "20": 1,
-        "40": 1,
-        "48": 1,
-        "120": 1,
-        "420": 1
-      }
+      "confirmed_text_counts_unchanged": {"0": 1, "4": 1, "20": 1, "40": 1, "48": 1, "120": 1, "420": 1}
     },
     "assessment": "The governed perpendicular-tick bracketing change preserves TAV.5 exact-source, perimeter, internal and tight counts. It adds one geometrically bound oriented observation and promotes one machine semantic role from UNRESOLVED to LINEAR_DIMENSION for documented text 420, while primary-anchor and canonical authority remain closed."
   },
@@ -132,10 +108,19 @@
             "endpoint_a_px": [6347.0, 11837.0],
             "endpoint_b_px": [6874.0, 11837.0]
           },
-          "human_review_state": "PENDING"
+          "human_review_state": "PRIMARY_VISUAL_VALIDATED",
+          "machine_reading_disposition": "CONFIRMED_BY_HUMAN_REVIEW",
+          "human_reading": "2.00 m",
+          "metric_value_m": 2.0,
+          "metric_relation_state": "PRIMARY_VISUAL_VALIDATED",
+          "eligible_for_metric_relation_network": true,
+          "eligible_for_metric_calibration": false,
+          "primary_anchor_authorized": false,
+          "review_receipt": "governance/cew-cal01/CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_SG_T01_02_v1.json",
+          "note": "Human visual review confirms machine OCR 2.00 m as the documented linear dimension. The relation is validated, but it is not an absolute calibration anchor."
         }
       ],
-      "assessment": "The corrected envelope plus governed internal-tick grammar recovers two source-bound machine candidates. SG-T01-01 is human-validated as 4.05 m after correcting OCR 4.90; SG-T01-02 remains pending. No primary calibration anchor is authorized."
+      "assessment": "Both recovered TAV-01S source-bound candidates are now human-validated: SG-T01-01 = 4.05 m after correcting OCR 4.90, and SG-T01-02 = 2.00 m confirming OCR. Both enter the documented metric relation network; neither authorizes an absolute calibration anchor."
     },
     {
       "source_id": "TAV-02S",
@@ -211,23 +196,15 @@
   "human_review": {
     "required": true,
     "review_unit": "SOURCE_GRAPHIC_LOCATION",
-    "first_available_source": "TAV-01S",
-    "next_review_group": "SG-T01-02",
+    "first_available_source": "TAV-02S",
+    "next_review_group": "SG-T02-01",
     "promotion_rule": "Only a human PRIMARY_VISUAL_VALIDATED decision may convert a machine candidate into a governed metric relation. OCR text and geometric binding alone are insufficient.",
     "machine_candidate_count": 9,
     "distinct_review_location_count": 7,
-    "validated_metric_relation_count": 1,
-    "pending_review_location_count": 6,
+    "validated_metric_relation_count": 2,
+    "pending_review_location_count": 5,
     "primary_anchor_count": 0,
-    "review_order": [
-      "SG-T01-01",
-      "SG-T01-02",
-      "SG-T02-01",
-      "SG-T02-02",
-      "SG-T02-03",
-      "SG-T02-04",
-      "SG-T02-05"
-    ]
+    "review_order": ["SG-T01-01", "SG-T01-02", "SG-T02-01", "SG-T02-02", "SG-T02-03", "SG-T02-04", "SG-T02-05"]
   },
   "authority": {
     "structural_identity_authorized": false,
