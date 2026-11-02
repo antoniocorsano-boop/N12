@@ -209,6 +209,69 @@ class TargetedHumanReviewTests(unittest.TestCase):
         self.assertLess(ranked.index("TAV-X:BOTTOM:BOTTOM:R1:I0"), ranked.index("TAV-X:LEFT:LEFT:R1:I0"))
         self.assertLess(ranked.index("TAV-X:TOP:TOP:R1:I0"), ranked.index("TAV-X:LEFT:LEFT:R1:I0"))
 
+    def test_batch_diversifies_planned_coverage_after_each_selection(self):
+        relations = [
+            _relation("TAV-X:RIGHT:RIGHT:R1:I0", "RIGHT", "RIGHT:R1", 0, "VERTICAL")
+        ]
+        pending = [
+            *[
+                _pending(f"TAV-X:BOTTOM:BOTTOM:R1:I{index}", "BOTTOM", "BOTTOM:R1", index, "HORIZONTAL")
+                for index in range(3)
+            ],
+            *[
+                _pending(f"TAV-X:TOP:TOP:R1:I{index}", "TOP", "TOP:R1", index, "HORIZONTAL")
+                for index in range(5)
+            ],
+            *[
+                _pending(f"TAV-X:LEFT:LEFT:R1:I{index}", "LEFT", "LEFT:R1", index, "VERTICAL")
+                for index in range(4)
+            ],
+            *[
+                _pending(f"TAV-X:RIGHT:RIGHT:R1:I{index}", "RIGHT", "RIGHT:R1", index, "VERTICAL")
+                for index in (1, 2)
+            ],
+        ]
+        chain_stats = [
+            {
+                "chain_id": "BOTTOM:R1",
+                "total_interval_count": 3,
+                "validated_interval_count": 0,
+                "pending_interval_count": 3,
+                "complete": False,
+            },
+            {
+                "chain_id": "LEFT:R1",
+                "total_interval_count": 4,
+                "validated_interval_count": 0,
+                "pending_interval_count": 4,
+                "complete": False,
+            },
+            {
+                "chain_id": "RIGHT:R1",
+                "total_interval_count": 3,
+                "validated_interval_count": 1,
+                "pending_interval_count": 2,
+                "complete": False,
+            },
+            {
+                "chain_id": "TOP:R1",
+                "total_interval_count": 5,
+                "validated_interval_count": 0,
+                "pending_interval_count": 5,
+                "complete": False,
+            },
+        ]
+        ranked = rank_targeted_human_review(_network(relations, pending, chain_stats))
+        self.assertEqual(
+            ranked,
+            [
+                "TAV-X:BOTTOM:BOTTOM:R1:I0",
+                "TAV-X:LEFT:LEFT:R1:I0",
+                "TAV-X:TOP:TOP:R1:I0",
+                "TAV-X:RIGHT:RIGHT:R1:I1",
+            ],
+        )
+
     def test_tav01_like_network_requests_targeted_review_without_inventing_values(self):
         relations = [
             _relation("TAV-X:RIGHT:RIGHT:R1:I0", "RIGHT", "RIGHT:R1", 0, "VERTICAL")
