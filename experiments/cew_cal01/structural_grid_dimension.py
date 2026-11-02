@@ -9,7 +9,12 @@ from experiments.cew_cal01.anchor_discovery import normalize_dimension_text, pro
 from experiments.cew_cal01.exact_source import AUTHORITY_CLOSED, _canonical_digest, _dimension_geometry_cv2
 from experiments.cew_cal01.oriented_discovery import _map_oriented_bbox_to_page, _rotate_image
 from experiments.cew_cal01.perimeter_dimension import (
+    DETECTION_DILATION_KERNEL,
+    DETECTION_TARGET_WIDTH_PX,
+    DETECTION_THRESHOLD,
     INNER_OVERLAP_FRACTION,
+    MIN_PLAN_HEIGHT_FRACTION,
+    MIN_PLAN_WIDTH_FRACTION,
     OCR_PREPROCESS_MODES,
     OCR_ROTATIONS,
     OCR_SCALE,
@@ -18,12 +23,193 @@ from experiments.cew_cal01.perimeter_dimension import (
     _normalized_bbox_to_source,
     _prepare_ocr_variant,
     _run_numeric_tesseract,
+    _select_structural_envelope_bbox,
     build_perimeter_bands,
-    detect_structural_plan_envelope,
 )
 
 
 _SOURCE_ORDER = {"TAV-01S": 0, "TAV-02S": 1}
+
+
+def _component_bbox(component: dict[str, Any]) -> list[int] | None:
+    bbox = [int(value) for value in component.get("bbox_px", [])]
+    if len(bbox) != 4:
+        return None
+    left, top, right, bottom = bbox
+    if right <= left or bottom <= top:
+        return None
+    return bbox
+
+
+def _axis_aligned_neighbors(a: list[int], b: list[int], *, join_gap_px: int) -> bool:
+    ax0, ay0, ax1, ay1 = a
+    bx0, by0, bx1, by1 = b
+    x_gap = max(ax0 - bx1, bx0 - ax1, 0)
+    y_gap = max(ay0 - by1, by0 - ay1, 0)
+    x_overlap = min(ax1, bx1) - max(ax0, bx0)
+    y_overlap = min(ay1, by1) - max(ay0, by0)
+    return (x_gap <= join_gap_px and y_overlap > 0) or (y_gap <= join_gap_px and x_overlap > 0)
+
+
+def select_structural_grid_envelope_bbox(
+    components: list[dict[str, Any]],
+    *,
+    page_width: int,
+    page_height: int,
+    join_gap_px: int | None = None,
+    min_width_fraction: float = MIN_PLAN_WIDTH_FRACTION,
+    min_height_fraction: float = MIN_PLAN_HEIGHT_FRACTION,
+) -> dict[str, Any]:
+    """Select a structural-plan envelope while allowing an aligned fragmented grid.
+
+    TAV.5 often appears as one connected component after bounded dilation. The
+    structural-grid sheets can remain split into aligned beam/column/dimension
+    fragments. This fallback groups only horizontally or vertically aligned
+    fragments; diagonal proximity alone cannot absorb a title block.
+    """
+
+    if page_width <= 0 or page_height <= 0:
+        raise ValueError("CAL01_PLAN_FRAME_INVALID")
+    if join_gap_px is None:
+        join_gap_px = max(12, int(round(min(page_width, page_height) * 0.035)))
+    if join_gap_px < 0:
+        raise ValueError("CAL01_STRUCTURAL_GRID_JOIN_GAP_INVALID")
+
+    try:
+        bbox = _select_structural_envelope_bbox(
+            components,
+            page_width=page_width,
+            page_height=page_height,
+            min_width_fraction=min_width_fraction,
+            min_height_fraction=min_height_fraction,
+        )
+        return {
+            "bbox_px": bbox,
+            "selection_mode": "SINGLE_COMPONENT",
+            "member_count": 1,
+            "join_gap_px": join_gap_px,
+        }
+    except RuntimeError as exc:
+        if str(exc) != "CAL01_PLAN_ENVELOPE_NOT_FOUND":
+            raise
+
+    valid: list[dict[str, Any]] = []
+    for component in components:
+        bbox = _component_bbox(component)
+        if bbox is None:
+            continue
+        valid.append({**component, "bbox_px": bbox})
+    if not valid:
+        raise RuntimeError("CAL01_PLAN_ENVELOPE_NOT_FOUND")
+
+    parent = list(range(len(valid)))
+
+    def find(index: int) -> int:
+        while parent[index] != index:
+            parent[index] = parent[parent[index]]
+            index = parent[index]
+        return index
+
+    def union(left: int, right: int) -> None:
+        root_left = find(left)
+        root_right = find(right)
+        if root_left != root_right:
+            parent[root_right] = root_left
+
+    for left in range(len(valid)):
+        for right in range(left + 1, len(valid)):
+            if _axis_aligned_neighbors(valid[left]["bbox_px"], valid[right]["bbox_px"], join_gap_px=join_gap_px):
+                union(left, right)
+
+    groups: dict[int, list[dict[str, Any]]] = {}
+    for index, component in enumerate(valid):
+        groups.setdefault(find(index), []).append(component)
+
+    qualified: list[tuple[int, int, int, list[int]]] = []
+    for members in groups.values():
+        if len(members) < 2:
+            continue
+        left = min(row["bbox_px"][0] for row in members)
+        top = min(row["bbox_px"][1] for row in members)
+        right = max(row["bbox_px"][2] for row in members)
+        bottom = max(row["bbox_px"][3] for row in members)
+        width = right - left
+        height = bottom - top
+        if width < page_width * min_width_fraction or height < page_height * min_height_fraction:
+            continue
+        bbox_area = width * height
+        ink_area = sum(int(row.get("ink_area_px") or 0) for row in members)
+        qualified.append((len(members), bbox_area, ink_area, [left, top, right, bottom]))
+
+    if not qualified:
+        raise RuntimeError("CAL01_PLAN_ENVELOPE_NOT_FOUND")
+    qualified.sort(key=lambda row: (row[0], row[1], row[2], -row[3][1], -row[3][0]), reverse=True)
+    member_count, _bbox_area, _ink_area, bbox = qualified[0]
+    return {
+        "bbox_px": bbox,
+        "selection_mode": "FRAGMENT_CLUSTER",
+        "member_count": member_count,
+        "join_gap_px": join_gap_px,
+    }
+
+
+def detect_structural_grid_plan_envelope(gray: Any) -> dict[str, Any]:
+    import cv2
+
+    normalized, frame = _normalize_image_for_plan_detection(gray)
+    normalized_height, normalized_width = normalized.shape[:2]
+    scale = min(1.0, float(DETECTION_TARGET_WIDTH_PX) / float(normalized_width))
+    if scale < 1.0:
+        thumbnail = cv2.resize(normalized, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+    else:
+        thumbnail = normalized
+    _, mask = cv2.threshold(thumbnail, DETECTION_THRESHOLD, 255, cv2.THRESH_BINARY_INV)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (DETECTION_DILATION_KERNEL, DETECTION_DILATION_KERNEL))
+    joined = cv2.dilate(mask, kernel, iterations=1)
+    count, _labels, stats, _centroids = cv2.connectedComponentsWithStats(joined, 8)
+
+    components: list[dict[str, Any]] = []
+    for index in range(1, count):
+        x, y, width, height, area = [int(value) for value in stats[index]]
+        if width <= 0 or height <= 0:
+            continue
+        components.append(
+            {
+                "component_index": index,
+                "bbox_px": [
+                    int(round(x / scale)),
+                    int(round(y / scale)),
+                    int(round((x + width) / scale)),
+                    int(round((y + height) / scale)),
+                ],
+                "ink_area_px": int(round(area / (scale * scale))),
+            }
+        )
+
+    selection = select_structural_grid_envelope_bbox(
+        components,
+        page_width=normalized_width,
+        page_height=normalized_height,
+    )
+    envelope_normalized = selection["bbox_px"]
+    envelope_source = _normalized_bbox_to_source([float(value) for value in envelope_normalized], frame)
+    return {
+        "normalization": frame,
+        "detection": {
+            "target_width_px": DETECTION_TARGET_WIDTH_PX,
+            "threshold": DETECTION_THRESHOLD,
+            "dilation_kernel_px_at_detection_scale": DETECTION_DILATION_KERNEL,
+            "min_width_fraction": MIN_PLAN_WIDTH_FRACTION,
+            "min_height_fraction": MIN_PLAN_HEIGHT_FRACTION,
+            "scale": scale,
+            "component_count": len(components),
+            "selection_mode": selection["selection_mode"],
+            "selected_member_count": selection["member_count"],
+            "join_gap_px": selection["join_gap_px"],
+        },
+        "envelope_bbox_normalized_px": envelope_normalized,
+        "envelope_bbox_source_px": envelope_source,
+    }
 
 
 def classify_structural_grid_observations(observations: Iterable[dict[str, Any]]) -> dict[str, Any]:
@@ -126,7 +312,7 @@ def discover_structural_grid_dimensions(*, image_path: Path, source_record: dict
 
     normalized, frame = _normalize_image_for_plan_detection(source_gray)
     normalized_height, normalized_width = normalized.shape[:2]
-    envelope = detect_structural_plan_envelope(source_gray)
+    envelope = detect_structural_grid_plan_envelope(source_gray)
     envelope_bbox = [int(value) for value in envelope["envelope_bbox_normalized_px"]]
     outer_margin = max(1, int(round(normalized_height * OUTER_MARGIN_FRACTION)))
     inner_overlap = max(1, int(round(normalized_height * INNER_OVERLAP_FRACTION)))
