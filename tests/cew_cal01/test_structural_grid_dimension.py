@@ -3,10 +3,29 @@ import unittest
 from experiments.cew_cal01.structural_grid_dimension import (
     build_cross_sheet_summary,
     classify_structural_grid_observations,
+    select_structural_grid_envelope_bbox,
 )
 
 
 class Cal01StructuralGridDimensionContractTests(unittest.TestCase):
+    def test_fragmented_grid_components_are_grouped_without_absorbing_title_block(self):
+        components = [
+            {"bbox_px": [200, 150, 490, 440], "ink_area_px": 12000},
+            {"bbox_px": [510, 150, 800, 440], "ink_area_px": 11500},
+            {"bbox_px": [200, 460, 490, 850], "ink_area_px": 13000},
+            {"bbox_px": [510, 460, 800, 850], "ink_area_px": 12500},
+            {"bbox_px": [20, 20, 180, 130], "ink_area_px": 9000},
+        ]
+        result = select_structural_grid_envelope_bbox(
+            components,
+            page_width=1000,
+            page_height=1000,
+            join_gap_px=30,
+        )
+        self.assertEqual(result["bbox_px"], [200, 150, 800, 850])
+        self.assertEqual(result["selection_mode"], "FRAGMENT_CLUSTER")
+        self.assertEqual(result["member_count"], 4)
+
     def test_only_two_reference_geometry_becomes_grid_candidate(self):
         observations = [
             {
