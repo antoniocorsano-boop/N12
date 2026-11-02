@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections import Counter, defaultdict
+from collections import Counter
+from itertools import combinations
+from statistics import median
 from typing import Any
 
 from experiments.cew_cal01.anchor_inventory import AUTHORITY_CLOSED
@@ -11,6 +13,13 @@ from experiments.cew_cal01.anchor_inventory import AUTHORITY_CLOSED
 VALIDATED_REVIEW_STATES = {"REUSED_HUMAN_RECEIPT", "DIRECT_HUMAN_DECISION"}
 PENDING_REVIEW_STATE = "PENDING_HUMAN_REVIEW"
 SUPPORTED_ORIENTATIONS = {"HORIZONTAL", "VERTICAL"}
+SCALE_TOLERANCE_RATIO = 0.05
+MIN_RELATIONS = 4
+MIN_PER_ORIENTATION = 2
+MIN_SIDES = 2
+MIN_COMPLETE_CHAINS = 1
+MIN_ELIGIBLE_ANCHORS = 4
+FIT_POINT_COUNT = 3
 
 
 def _canonical_digest(payload: Any) -> str:
@@ -197,3 +206,272 @@ def build_metric_relation_network(manifest: dict[str, Any], packet: dict[str, An
     }
     network["network_digest"] = _canonical_digest(network)
     return network
+
+
+def _validate_network(network: dict[str, Any]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    if network.get("schema") != "CEW_CAL01_METRIC_RELATION_NETWORK_v1":
+        raise ValueError("CAL01_METRIC_GATE_NETWORK_SCHEMA_INVALID")
+    _source(network)
+    _require_closed_authority(network, "CAL01_METRIC_GATE_AUTHORITY_ESCALATION")
+    if network.get("eligible_for_metric_calibration") is not False or int(network.get("primary_anchor_count", 0)) != 0:
+        raise ValueError("CAL01_METRIC_GATE_AUTHORITY_ESCALATION")
+
+    relations = [dict(row) for row in network.get("relations", [])]
+    pending = [dict(row) for row in network.get("pending_reviews", [])]
+    if int(network.get("relation_count", len(relations))) != len(relations):
+        raise ValueError("CAL01_METRIC_GATE_RELATION_COUNT_DRIFT")
+    if int(network.get("pending_review_count", len(pending))) != len(pending):
+        raise ValueError("CAL01_METRIC_GATE_PENDING_COUNT_DRIFT")
+
+    relation_ids: set[str] = set()
+    for row in relations:
+        review_id = str(row.get("review_id") or "")
+        if not review_id or review_id in relation_ids:
+            raise ValueError("CAL01_METRIC_GATE_REVIEW_ID_INVALID")
+        relation_ids.add(review_id)
+        if str(row.get("orientation") or "") not in SUPPORTED_ORIENTATIONS:
+            raise ValueError("CAL01_METRIC_GATE_ORIENTATION_INVALID")
+        if float(row.get("pixel_span", 0.0)) <= 0 or float(row.get("validated_value_m", 0.0)) <= 0:
+            raise ValueError("CAL01_METRIC_GATE_RELATION_INVALID")
+        if float(row.get("px_per_m", 0.0)) <= 0:
+            raise ValueError("CAL01_METRIC_GATE_RELATION_INVALID")
+        if row.get("eligible_for_metric_calibration") is not False or row.get("primary_anchor_authorized") is not False:
+            raise ValueError("CAL01_METRIC_GATE_AUTHORITY_ESCALATION")
+
+    pending_ids: set[str] = set()
+    for row in pending:
+        review_id = str(row.get("review_id") or "")
+        if not review_id or review_id in pending_ids or review_id in relation_ids:
+            raise ValueError("CAL01_METRIC_GATE_REVIEW_ID_INVALID")
+        pending_ids.add(review_id)
+        if str(row.get("orientation") or "") not in SUPPORTED_ORIENTATIONS:
+            raise ValueError("CAL01_METRIC_GATE_ORIENTATION_INVALID")
+        if row.get("validated_value_m") is not None:
+            raise ValueError("CAL01_METRIC_GATE_PENDING_VALUE_PRESENT")
+    return relations, pending
+
+
+def audit_metric_relation_network(network: dict[str, Any]) -> dict[str, Any]:
+    relations, _ = _validate_network(network)
+    blockers: list[str] = []
+
+    if len(relations) < MIN_RELATIONS:
+        blockers.append("RELATION_COUNT_INSUFFICIENT")
+
+    orientation_diagnostics: dict[str, dict[str, Any]] = {}
+    orientation_medians: dict[str, float] = {}
+    for orientation in ("HORIZONTAL", "VERTICAL"):
+        rows = [row for row in relations if row["orientation"] == orientation]
+        values = [float(row["px_per_m"]) for row in rows]
+        if len(values) < MIN_PER_ORIENTATION:
+            blockers.append(f"{orientation}_RELATION_COUNT_INSUFFICIENT")
+        if values:
+            med = float(median(values))
+            max_deviation = max(abs(value - med) / med for value in values)
+            orientation_medians[orientation] = med
+        else:
+            med = None
+            max_deviation = None
+        orientation_diagnostics[orientation] = {
+            "relation_count": len(values),
+            "median_px_per_m": med,
+            "max_relative_deviation": max_deviation,
+        }
+        if max_deviation is not None and max_deviation > SCALE_TOLERANCE_RATIO:
+            blockers.append(f"{orientation}_SCALE_OUTLIER")
+
+    side_count = len({str(row.get("side") or "") for row in relations if str(row.get("side") or "")})
+    if side_count < MIN_SIDES:
+        blockers.append("SIDE_COVERAGE_INSUFFICIENT")
+
+    complete_chain_ids = sorted(str(value) for value in network.get("complete_chain_ids", []) if str(value))
+    if len(complete_chain_ids) < MIN_COMPLETE_CHAINS:
+        blockers.append("COMPLETE_CHAIN_REQUIRED")
+
+    cross_orientation_drift = None
+    if set(orientation_medians) == SUPPORTED_ORIENTATIONS:
+        horizontal = orientation_medians["HORIZONTAL"]
+        vertical = orientation_medians["VERTICAL"]
+        reference = (horizontal + vertical) / 2.0
+        cross_orientation_drift = abs(horizontal - vertical) / reference
+        if cross_orientation_drift > SCALE_TOLERANCE_RATIO:
+            blockers.append("ORIENTATION_SCALE_DRIFT")
+
+    blockers = sorted(set(blockers))
+    audit: dict[str, Any] = {
+        "schema": "CEW_CAL01_METRIC_RELATION_AUDIT_v1",
+        "program": "CEW-CAL-01",
+        "source": dict(network["source"]),
+        "network_digest": network.get("network_digest"),
+        "diagnostic_status": (
+            "RELATION_NETWORK_DIAGNOSTIC_SUFFICIENT"
+            if not blockers
+            else "RELATION_NETWORK_DIAGNOSTIC_INSUFFICIENT"
+        ),
+        "relation_count": len(relations),
+        "side_count": side_count,
+        "complete_chain_ids": complete_chain_ids,
+        "orientation_diagnostics": orientation_diagnostics,
+        "cross_orientation_median_drift_ratio": cross_orientation_drift,
+        "scale_tolerance_ratio": SCALE_TOLERANCE_RATIO,
+        "blockers": blockers,
+        "eligible_for_metric_calibration": False,
+        "authority": dict(AUTHORITY_CLOSED),
+    }
+    audit["audit_digest"] = _canonical_digest(audit)
+    return audit
+
+
+def rank_targeted_human_review(network: dict[str, Any], limit: int = 4) -> list[str]:
+    relations, pending = _validate_network(network)
+    if limit <= 0:
+        return []
+    orientation_counts = Counter(str(row["orientation"]) for row in relations)
+    represented_sides = {str(row.get("side") or "") for row in relations}
+    chain_stats = {
+        str(row.get("chain_id") or ""): dict(row)
+        for row in network.get("chain_stats", [])
+        if str(row.get("chain_id") or "")
+    }
+
+    def rank(row: dict[str, Any]) -> tuple[Any, ...]:
+        chain_id = str(row["chain_id"])
+        stat = chain_stats.get(chain_id, {})
+        validated = int(stat.get("validated_interval_count", 0))
+        pending_count = int(stat.get("pending_interval_count", 0))
+        one_missing_partial_chain = validated > 0 and pending_count == 1
+        underrepresented_orientation = orientation_counts[str(row["orientation"])] < MIN_PER_ORIENTATION
+        new_side = str(row["side"]) not in represented_sides
+        partial_chain = validated > 0
+        return (
+            0 if one_missing_partial_chain else 1,
+            0 if underrepresented_orientation else 1,
+            0 if new_side else 1,
+            0 if partial_chain else 1,
+            str(row["review_id"]),
+        )
+
+    return [str(row["review_id"]) for row in sorted(pending, key=rank)[:limit]]
+
+
+def _triangle_area2(points: list[list[float]]) -> float:
+    (x1, y1), (x2, y2), (x3, y3) = points
+    return abs((x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1))
+
+
+def _anchor_readiness(network: dict[str, Any], anchor_inventory: dict[str, Any] | None) -> dict[str, Any]:
+    if anchor_inventory is None:
+        return {
+            "eligible_primary_anchor_count": 0,
+            "holdout_anchor_capacity": 0,
+            "fit_geometry_nondegenerate": False,
+            "blockers": ["PRIMARY_ANCHOR_REQUIRED"],
+        }
+
+    if anchor_inventory.get("artifact") != "CEW_CAL01_PRIMARY_ANCHOR_INVENTORY_v1":
+        raise ValueError("CAL01_METRIC_GATE_ANCHOR_INVENTORY_SCHEMA_INVALID")
+    _require_closed_authority(anchor_inventory, "CAL01_METRIC_GATE_AUTHORITY_ESCALATION")
+    source_sha = str(network["source"]["sha256"])
+    if anchor_inventory.get("source_version_sha256") != source_sha:
+        raise ValueError("CAL01_METRIC_GATE_ANCHOR_SOURCE_DRIFT")
+
+    anchors = [dict(row) for row in anchor_inventory.get("anchors", [])]
+    eligible = []
+    for row in anchors:
+        _require_closed_authority(row, "CAL01_METRIC_GATE_AUTHORITY_ESCALATION")
+        if row.get("eligible_for_fit") is not True:
+            continue
+        if row.get("source_version_sha256") != source_sha:
+            raise ValueError("CAL01_METRIC_GATE_ANCHOR_SOURCE_DRIFT")
+        source_point = row.get("source_point_px")
+        metric_point = row.get("metric_xy_m")
+        if not isinstance(source_point, list) or len(source_point) != 2:
+            raise ValueError("CAL01_METRIC_GATE_ANCHOR_GEOMETRY_INVALID")
+        if not isinstance(metric_point, list) or len(metric_point) != 2:
+            raise ValueError("CAL01_METRIC_GATE_ANCHOR_GEOMETRY_INVALID")
+        eligible.append(row)
+
+    count = len(eligible)
+    geometry_nondegenerate = False
+    if count >= FIT_POINT_COUNT:
+        for triple in combinations(eligible, FIT_POINT_COUNT):
+            source_points = [[float(v) for v in row["source_point_px"]] for row in triple]
+            metric_points = [[float(v) for v in row["metric_xy_m"]] for row in triple]
+            if _triangle_area2(source_points) > 1e-9 and _triangle_area2(metric_points) > 1e-9:
+                geometry_nondegenerate = True
+                break
+
+    blockers: list[str] = []
+    if count < MIN_ELIGIBLE_ANCHORS:
+        blockers.append("PRIMARY_ANCHOR_COUNT_INSUFFICIENT")
+    if count >= FIT_POINT_COUNT and not geometry_nondegenerate:
+        blockers.append("PRIMARY_ANCHOR_GEOMETRY_DEGENERATE")
+    elif count < FIT_POINT_COUNT:
+        blockers.append("PRIMARY_ANCHOR_GEOMETRY_INSUFFICIENT")
+    holdout_capacity = max(0, count - FIT_POINT_COUNT)
+    if holdout_capacity < 1:
+        blockers.append("PRIMARY_ANCHOR_HOLDOUT_REQUIRED")
+
+    return {
+        "eligible_primary_anchor_count": count,
+        "holdout_anchor_capacity": holdout_capacity,
+        "fit_geometry_nondegenerate": geometry_nondegenerate,
+        "blockers": sorted(set(blockers)),
+    }
+
+
+def evaluate_metric_sufficiency(
+    network: dict[str, Any],
+    anchor_inventory: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    audit = audit_metric_relation_network(network)
+    _, pending = _validate_network(network)
+    targeted_ids: list[str] = []
+    blockers: list[str]
+    eligible = False
+
+    if audit["diagnostic_status"] != "RELATION_NETWORK_DIAGNOSTIC_SUFFICIENT":
+        blockers = list(audit["blockers"])
+        if pending:
+            gate_state = "TARGETED_HUMAN_REVIEW"
+            next_action = "TARGETED_HUMAN_REVIEW"
+            targeted_ids = rank_targeted_human_review(network)
+        else:
+            gate_state = "INSUFFICIENT"
+            next_action = "ACQUIRE_METRIC_RELATIONS"
+        anchor_readiness = {
+            "eligible_primary_anchor_count": 0,
+            "holdout_anchor_capacity": 0,
+            "fit_geometry_nondegenerate": False,
+            "blockers": [],
+        }
+    else:
+        anchor_readiness = _anchor_readiness(network, anchor_inventory)
+        blockers = list(anchor_readiness["blockers"])
+        if blockers:
+            gate_state = "INSUFFICIENT"
+            next_action = "PRIMARY_ANCHOR_DISCOVERY"
+        else:
+            gate_state = "SUFFICIENT_FOR_CALIBRATION_CANDIDATE"
+            next_action = "BUILD_CALIBRATION_CANDIDATE"
+            eligible = True
+
+    gate: dict[str, Any] = {
+        "schema": "CEW_CAL01_METRIC_SUFFICIENCY_GATE_v1",
+        "program": "CEW-CAL-01",
+        "source": dict(network["source"]),
+        "network_digest": network.get("network_digest"),
+        "gate_state": gate_state,
+        "blockers": sorted(set(blockers)),
+        "next_action": next_action,
+        "targeted_human_review_ids": targeted_ids,
+        "relation_audit": audit,
+        "eligible_primary_anchor_count": int(anchor_readiness["eligible_primary_anchor_count"]),
+        "holdout_anchor_capacity": int(anchor_readiness["holdout_anchor_capacity"]),
+        "fit_geometry_nondegenerate": bool(anchor_readiness["fit_geometry_nondegenerate"]),
+        "eligible_for_metric_calibration": eligible,
+        "primary_anchor_authorized": False,
+        "authority": dict(AUTHORITY_CLOSED),
+    }
+    gate["gate_digest"] = _canonical_digest(gate)
+    return gate
