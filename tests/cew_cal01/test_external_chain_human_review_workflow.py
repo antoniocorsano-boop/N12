@@ -18,6 +18,11 @@ class ExternalChainHumanReviewWorkflowContractTests(unittest.TestCase):
                 f'--decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_TOP_I{index}_v1.json',
                 text,
             )
+        for index in range(2):
+            self.assertIn(
+                f'--decision governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_T02_RIGHT_I{index}_v1.json',
+                text,
+            )
         self.assertIn("'governance/cew-cal01/reviews/CEW_CAL01_EXTERNAL_CHAIN_HUMAN_*_v1.json'", text)
         self.assertIn('--source-width-px 9933', text)
         self.assertIn('--source-width-px 7016', text)
@@ -30,9 +35,9 @@ class ExternalChainHumanReviewWorkflowContractTests(unittest.TestCase):
         self.assertIn("assert tav01_human['pending_human_review_count'] == 14", text)
         self.assertIn("assert tav02_human['review_count'] == 19", text)
         self.assertIn("assert tav02_human['reused_human_receipt_count'] == 2", text)
-        self.assertIn("assert tav02_human['direct_human_decision_count'] == 6", text)
-        self.assertIn("assert tav02_human['validated_human_relation_count'] == 8", text)
-        self.assertIn("assert tav02_human['pending_human_review_count'] == 11", text)
+        self.assertIn("assert tav02_human['direct_human_decision_count'] == 8", text)
+        self.assertIn("assert tav02_human['validated_human_relation_count'] == 10", text)
+        self.assertIn("assert tav02_human['pending_human_review_count'] == 9", text)
         self.assertIn("assert all(row['eligible_for_metric_calibration'] is False for row in human['reviews'])", text)
         self.assertIn("assert all(row['primary_anchor_authorized'] is False for row in human['reviews'])", text)
         self.assertIn("assert human['primary_anchor_count'] == 0", text)
@@ -42,6 +47,8 @@ class ExternalChainHumanReviewWorkflowContractTests(unittest.TestCase):
         self.assertIn("assert packet_crops == manifest_crops", text)
         self.assertIn("assert tav02_states['TAV-02S:TOP:TOP:R1:I0'] == 'DIRECT_HUMAN_DECISION'", text)
         self.assertIn("assert tav02_states['TAV-02S:TOP:TOP:R1:I5'] == 'DIRECT_HUMAN_DECISION'", text)
+        self.assertIn("assert tav02_states['TAV-02S:RIGHT:RIGHT:R1:I0'] == 'DIRECT_HUMAN_DECISION'", text)
+        self.assertIn("assert tav02_states['TAV-02S:RIGHT:RIGHT:R1:I1'] == 'DIRECT_HUMAN_DECISION'", text)
         self.assertIn("assert tav02_states['TAV-02S:BOTTOM:BOTTOM:R1:I2'] == 'REUSED_HUMAN_RECEIPT'", text)
         self.assertIn("assert tav02_states['TAV-02S:BOTTOM:BOTTOM:R1:I3'] == 'REUSED_HUMAN_RECEIPT'", text)
 
