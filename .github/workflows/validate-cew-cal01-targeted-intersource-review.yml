@@ -1,0 +1,209 @@
+name: CEW-CAL-01 Targeted Inter-Source Human Review
+
+on:
+  push:
+    branches:
+      - feat/cew-cal01-primary-metric-calibration
+    paths:
+      - 'experiments/cew_cal01/intersource_human_review.py'
+      - 'tests/cew_cal01/test_intersource_human_review.py'
+      - 'tests/cew_cal01/test_intersource_human_review_assets.py'
+      - 'tests/cew_cal01/test_targeted_intersource_review_workflow.py'
+      - '.github/workflows/validate-cew-cal01-targeted-intersource-review.yml'
+      - 'governance/cew-cal01/CEW_CAL01_EXTERNAL_CHAIN_EXECUTION_LEDGER.md'
+  pull_request:
+    paths:
+      - 'experiments/cew_cal01/intersource_human_review.py'
+      - 'tests/cew_cal01/test_intersource_human_review.py'
+      - 'tests/cew_cal01/test_intersource_human_review_assets.py'
+      - 'tests/cew_cal01/test_targeted_intersource_review_workflow.py'
+      - '.github/workflows/validate-cew-cal01-targeted-intersource-review.yml'
+      - 'governance/cew-cal01/CEW_CAL01_EXTERNAL_CHAIN_EXECUTION_LEDGER.md'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  targeted-intersource-human-review:
+    runs-on: ubuntu-24.04
+    env:
+      artifact_id: 13168600387
+      PREDECESSOR_SHA: ebac21fc2cc49bff75e0cc7656ee30d219d44f14
+      PREDECESSOR_ARTIFACT_SHA256: 116b00d94bf1e2c427eb7b873d531b27adcf97d9a027dc47f41076764f553def
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+
+      - name: Install frozen CAL-01 exact-source toolchain
+        run: python -m pip install --disable-pip-version-check -r requirements/cew-cal01.lock.txt
+
+      - name: Fetch frozen qualified Task 5 predecessor artifact
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP="$RUNNER_TEMP/cew-cal01-task5-${artifact_id}.zip"
+          ROOT="$RUNNER_TEMP/cew-cal01-task5-${artifact_id}"
+          curl --fail-with-body -L \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" \
+            -o "$ZIP"
+          echo "${PREDECESSOR_ARTIFACT_SHA256}  ${ZIP}" | sha256sum -c -
+          rm -rf "$ROOT"
+          mkdir -p "$ROOT"
+          unzip -q "$ZIP" -d "$ROOT"
+          test -f "$ROOT/intersource/tav5-tav02-correspondence-candidates.json"
+          test -f "$ROOT/intersource/tav5-tav02-governed-correspondences.json"
+          test -f "$ROOT/intersource/tav5-tav02-registration-split.json"
+          test -f "$ROOT/tav5-source-probe/tav5-page0-300dpi.png"
+          test -f "$ROOT/TAV-02S-primary-300dpi.png"
+          test -f "$ROOT/discovery/TAV-02S/structural-grid-dimension-discovery.json"
+          printf '%s\n' "$PREDECESSOR_SHA" > "$ROOT/QUALIFIED_PREDECESSOR_SHA.txt"
+
+      - name: Materialize targeted inter-source human review package
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/cew-cal01-task5-${artifact_id}"
+          OUT="$RUNNER_TEMP/cew-cal01-targeted-intersource-review"
+          rm -rf "$OUT"
+          python -m experiments.cew_cal01.intersource_human_review \
+            --candidates "$ROOT/intersource/tav5-tav02-correspondence-candidates.json" \
+            --tav5-image "$ROOT/tav5-source-probe/tav5-page0-300dpi.png" \
+            --tav02-image "$ROOT/TAV-02S-primary-300dpi.png" \
+            --tav02-discovery "$ROOT/discovery/TAV-02S/structural-grid-dimension-discovery.json" \
+            --output-dir "$OUT" \
+            --batch-size 8
+
+      - name: Assert targeted review package and authority boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          artifact_id = os.environ['artifact_id']
+          predecessor = Path(os.environ['RUNNER_TEMP']) / f'cew-cal01-task5-{artifact_id}'
+          output = Path(os.environ['RUNNER_TEMP']) / 'cew-cal01-targeted-intersource-review'
+
+          candidates = json.loads(
+              (predecessor / 'intersource' / 'tav5-tav02-correspondence-candidates.json').read_text(encoding='utf-8')
+          )
+          governed = json.loads(
+              (predecessor / 'intersource' / 'tav5-tav02-governed-correspondences.json').read_text(encoding='utf-8')
+          )
+          split = json.loads(
+              (predecessor / 'intersource' / 'tav5-tav02-registration-split.json').read_text(encoding='utf-8')
+          )
+          review_path = output / 'targeted-intersource-human-review.json'
+          board_path = output / 'targeted-intersource-human-review.html'
+          review = json.loads(review_path.read_text(encoding='utf-8'))
+
+          assert (predecessor / 'QUALIFIED_PREDECESSOR_SHA.txt').read_text().strip() == 'ebac21fc2cc49bff75e0cc7656ee30d219d44f14'
+          assert review['schema'] == 'CEW_CAL01_INTERSOURCE_TARGETED_HUMAN_REVIEW_v1'
+          assert review['candidate_digest'] == candidates['candidate_digest']
+          assert review['tav5_source'] == candidates['tav5_source']
+          assert review['tav5_raster'] == candidates['tav5_raster']
+          assert review['tav02_source'] == candidates['tav02_source']
+          assert review['tav02_lattice_digest'] == candidates['tav02_lattice_digest']
+          assert review['source_candidate_count'] == 22
+          assert review['target_lattice_node_count'] == 21
+          assert review['review_item_count'] == 8
+          assert review['selection_strategy'] == 'SOURCE_ONLY_FARTHEST_POINT_COVERAGE_V1'
+          assert review['target_geometry_used_for_selection'] is False
+          assert review['target_node_ranking_performed'] is False
+          assert review['automatic_homology_proposed'] is False
+          assert review['selected_occurrence_ids'] == [
+              'COL-OCC-0013',
+              'COL-OCC-0016',
+              'COL-OCC-0005',
+              'COL-OCC-0002',
+              'COL-OCC-0022',
+              'COL-OCC-0020',
+              'COL-OCC-0001',
+              'COL-OCC-0021',
+          ]
+          assert review['target_overview_asset']['normalization_transform'] == 'ROTATE_90_COUNTERCLOCKWISE'
+          assert review['target_overview_asset']['normalized_width_px'] == 12914
+          assert review['target_overview_asset']['normalized_height_px'] == 7016
+          assert review['target_overview_asset']['sha256'].startswith('sha256:')
+          assert all(row['source_context_asset']['sha256'].startswith('sha256:') for row in review['review_items'])
+          assert review['decision_required'] == 'IDENTIFY_PRIMARY_HOMOLOGOUS_LATTICE_NODE_OR_REJECT'
+          assert review['human_confirmation_required'] is True
+          assert review['eligible_for_registration_fit'] is False
+          assert review['historical_comparator_loaded'] is False
+          assert review['historical_affine_loaded'] is False
+          assert review['historical_m0g_loaded'] is False
+
+          assert candidates['governed_correspondence_count'] == 0
+          assert governed['governed_correspondence_count'] == 0
+          assert governed['readiness_state'] == 'INSUFFICIENT_INTERSOURCE_CORRESPONDENCES'
+          assert governed['next_action'] == 'TARGETED_INTERSOURCE_HUMAN_REVIEW'
+          assert split['state'] == 'INSUFFICIENT_INTERSOURCE_CORRESPONDENCES'
+          assert split['next_action'] == 'TARGETED_INTERSOURCE_HUMAN_REVIEW'
+          assert split['affine_fit_performed'] is False
+          assert split['ready_for_affine_fit'] is False
+          assert split['historical_m0g_loaded'] is False
+
+          for payload in (review, candidates, governed, split):
+              assert payload['authority']['structural_identity_authorized'] is False
+              assert payload['authority']['canonical_geometry_authorized'] is False
+              assert payload['authority']['canonical_write_authorized'] is False
+              assert payload['authority']['m0g_authorized'] is False
+              assert payload['authority']['engineering_authority_effect'] == 'NONE'
+
+          def digest(path: Path) -> str:
+              return 'sha256:' + hashlib.sha256(path.read_bytes()).hexdigest()
+
+          assert board_path.is_file()
+          assert digest(output / review['target_overview_asset']['file']) == review['target_overview_asset']['sha256']
+          for row in review['review_items']:
+              asset = row['source_context_asset']
+              assert digest(output / asset['file']) == asset['sha256']
+
+          serialized = review_path.read_text(encoding='utf-8').lower()
+          board = board_path.read_text(encoding='utf-8').lower()
+          for forbidden in ('nearest', 'suggested_identity', 'suggested_target', 'similarity_score', 'confidence_score'):
+              assert forbidden not in serialized
+              assert forbidden not in board
+
+          summary = {
+              'qualified_predecessor_sha': os.environ['PREDECESSOR_SHA'],
+              'qualified_predecessor_artifact_id': int(artifact_id),
+              'qualified_predecessor_artifact_sha256': 'sha256:' + os.environ['PREDECESSOR_ARTIFACT_SHA256'],
+              'review_package_digest': review['review_package_digest'],
+              'selected_occurrence_ids': review['selected_occurrence_ids'],
+              'governed_correspondence_count': governed['governed_correspondence_count'],
+              'registration_state': split['state'],
+              'affine_fit_performed': split['affine_fit_performed'],
+              'engineering_authority_effect': review['authority']['engineering_authority_effect'],
+          }
+          (output / 'qualification-summary.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(summary, sort_keys=True))
+          PY
+
+      - name: Upload targeted inter-source human review evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-cal01-targeted-intersource-human-review
+          path: ${{ runner.temp }}/cew-cal01-targeted-intersource-review
+          if-no-files-found: error
+          retention-days: 30
