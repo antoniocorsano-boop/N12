@@ -100,3 +100,39 @@ Authority boundary remains unchanged:
 - `primary_anchor_authorized = false` for every row;
 - structural identity, canonical geometry, M0-G and canonical write authority remain closed;
 - no merge or deploy is authorized by this checkpoint.
+
+## Qualified TAV-02S RIGHT human-decision extension — 2026-11-02
+
+Professional decisions added after presentation-only reorientation/context expansion of the qualified primary raster:
+
+- `TAV-02S:RIGHT:RIGHT:R1:I0` → `2.10 m`, bound to crop digest `sha256:7c3e42250196f7cd4e754dcc4b67eb6935a715b9629f1495a2a84acacf77067c`.
+- `TAV-02S:RIGHT:RIGHT:R1:I1` → `3.45 m`, bound to crop digest `sha256:ca6f7871bcc800ed263aff6672dad7cf0aeba96a473485e6878c5fd315b6aad6`.
+
+TDD evidence:
+
+- Receipt-contract RED candidate `70e124810ee5c9f0cea0d596e1430ab90636602f`: 160 tests with the sole error caused by the intentionally absent RIGHT I0 decision file.
+- Workflow-contract RED candidate `3a6ba2acadad7b9cba9cd600fa0791be8a028c36`: 160 tests with 159 PASS and the sole failure requiring `--decision ...T02_RIGHT_I0_v1.json` in the exact-source replay.
+
+Qualification evidence:
+
+- Exact qualified implementation candidate: `5ed2534ee4980b4ce6025faf62e929a4b9fe8a8d`.
+- CEW-CAL-01 Primary Metric Calibration run `41463044719`: PASS.
+- CEW-CAL-01 External Dimension Chains run `41463044696`: PASS.
+- Repository Memory Gate run `41463044650`: PASS.
+- Governed external-chain artifact `13149207998`, digest `sha256:b3e7c1219cb57b200e40a2a58872de679686d20e643cac92759d7c9d557223d8`.
+
+Governed packet state verified from the uploaded artifact:
+
+- TAV-01S packet digest `sha256:97f78c5c3deee6c10745f889074adf6a138bc557d1f1bc842acb10163684041c`: 15 intervals = 1 reused + 0 direct + 14 pending; 1 validated human relation.
+- TAV-02S packet digest `sha256:331b8ac7db91fddedd25d5a61c2f57a2f41d0bbbe11fb101a00591880f612fc0`: 19 intervals = 2 `REUSED_HUMAN_RECEIPT` + 8 `DIRECT_HUMAN_DECISION` + 9 `PENDING_HUMAN_REVIEW`; 10 validated human relations.
+- Total: 34 exact intervals = 11 validated human relations + 23 intervals still pending professional review.
+- Artifact inspection confirms RIGHT I0 `validated_value_m = 2.10` and RIGHT I1 `validated_value_m = 3.45`, both in state `DIRECT_HUMAN_DECISION`, with the exact canonical crop digests above.
+
+Authority boundary remains unchanged:
+
+- the reoriented/expanded human-facing view is presentation-only and does not alter the canonical crop binding;
+- `primary_anchor_count = 0`;
+- `eligible_for_metric_calibration = false`;
+- both new rows have `primary_anchor_authorized = false`;
+- structural identity, canonical geometry, M0-G and canonical write authority remain closed;
+- no merge or deploy is authorized by this checkpoint.
