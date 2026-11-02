@@ -11,6 +11,8 @@ _AXIS_MAX_TOLERANCE_PX = 30.0
 _TICK_CLUSTER_TOLERANCE_PX = 8.0
 _MIN_CROSSING_TICK_PX = 50.0
 _MAX_CROSSING_TICK_PX = 120.0
+_MIN_BALANCED_SHORT_TICK_PX = 36.0
+_MIN_BALANCED_ARM_PX = 15.0
 _ENDPOINT_TICK_DISTANCE_PX = 50.0
 _OBSERVATION_SUPPORT_DISTANCE_PX = 100.0
 _ASSIGNMENT_AMBIGUITY_PX = 8.0
@@ -192,17 +194,23 @@ def _crossing_tick_positions(
             continue
 
         crossing_length = cross_end - cross_start
+        before_axis = max(0.0, axis - cross_start)
+        after_axis = max(0.0, cross_end - axis)
         endpoint_distance = min(
             abs(position - carrier["start"]),
             abs(position - carrier["end"]),
         )
         strong_tick = _MIN_CROSSING_TICK_PX <= crossing_length <= _MAX_CROSSING_TICK_PX
+        balanced_short_tick = (
+            _MIN_BALANCED_SHORT_TICK_PX <= crossing_length < _MIN_CROSSING_TICK_PX
+            and min(before_axis, after_axis) >= _MIN_BALANCED_ARM_PX
+        )
         weak_endpoint_tick = (
             crossing_length >= 16.0
             and crossing_length < _MIN_CROSSING_TICK_PX
             and endpoint_distance <= _ENDPOINT_TICK_DISTANCE_PX
         )
-        if strong_tick or weak_endpoint_tick:
+        if strong_tick or balanced_short_tick or weak_endpoint_tick:
             positions.append(float(position))
 
     return _cluster_positions(positions)
