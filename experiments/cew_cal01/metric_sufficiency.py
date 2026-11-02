@@ -328,32 +328,42 @@ def rank_targeted_human_review(network: dict[str, Any], limit: int = 4) -> list[
     relations, pending = _validate_network(network)
     if limit <= 0:
         return []
-    orientation_counts = Counter(str(row["orientation"]) for row in relations)
-    represented_sides = {str(row.get("side") or "") for row in relations}
+
+    planned_orientation_counts = Counter(str(row["orientation"]) for row in relations)
+    planned_sides = {str(row.get("side") or "") for row in relations}
     chain_stats = {
         str(row.get("chain_id") or ""): dict(row)
         for row in network.get("chain_stats", [])
         if str(row.get("chain_id") or "")
     }
+    remaining = [dict(row) for row in pending]
+    selected: list[str] = []
 
-    def rank(row: dict[str, Any]) -> tuple[Any, ...]:
-        chain_id = str(row["chain_id"])
-        stat = chain_stats.get(chain_id, {})
-        validated = int(stat.get("validated_interval_count", 0))
-        pending_count = int(stat.get("pending_interval_count", 0))
-        one_missing_partial_chain = validated > 0 and pending_count == 1
-        orientation_count = int(orientation_counts[str(row["orientation"])])
-        new_side = str(row["side"]) not in represented_sides
-        partial_chain = validated > 0
-        return (
-            0 if one_missing_partial_chain else 1,
-            orientation_count,
-            0 if new_side else 1,
-            0 if partial_chain else 1,
-            str(row["review_id"]),
-        )
+    while remaining and len(selected) < limit:
+        def rank(row: dict[str, Any]) -> tuple[Any, ...]:
+            chain_id = str(row["chain_id"])
+            stat = chain_stats.get(chain_id, {})
+            validated = int(stat.get("validated_interval_count", 0))
+            pending_count = int(stat.get("pending_interval_count", 0))
+            one_missing_partial_chain = validated > 0 and pending_count == 1
+            orientation_count = int(planned_orientation_counts[str(row["orientation"])])
+            new_side = str(row["side"]) not in planned_sides
+            partial_chain = validated > 0
+            return (
+                0 if one_missing_partial_chain else 1,
+                orientation_count,
+                0 if new_side else 1,
+                0 if partial_chain else 1,
+                str(row["review_id"]),
+            )
 
-    return [str(row["review_id"]) for row in sorted(pending, key=rank)[:limit]]
+        chosen = min(remaining, key=rank)
+        selected.append(str(chosen["review_id"]))
+        planned_orientation_counts[str(chosen["orientation"])] += 1
+        planned_sides.add(str(chosen["side"]))
+        remaining.remove(chosen)
+
+    return selected
 
 
 def _triangle_area2(points: list[list[float]]) -> float:
