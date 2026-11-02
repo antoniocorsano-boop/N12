@@ -150,6 +150,8 @@ def _comparison_status(rows: list[dict[str, Any]]) -> tuple[str, str | None, int
 
     if not sorted_texts:
         return "OCR_NO_PROPOSAL", None, 0, []
+    if len(sorted_texts) > 1:
+        return "OCR_COMPARATIVE_CONFLICT", None, distinct_family_count, sorted_texts
     if len(family_votes) < 2:
         return "OCR_COMPARATIVE_INSUFFICIENT", None, distinct_family_count, sorted_texts
     if len(set(family_votes)) == 1 and all(len(values) == 1 for values in by_family.values()):
