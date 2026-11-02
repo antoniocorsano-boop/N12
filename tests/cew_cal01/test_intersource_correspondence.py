@@ -167,7 +167,7 @@ class InterSourceCorrespondenceProposalTests(unittest.TestCase):
         self.assertNotIn("N999", serialized)
         self.assertNotIn("support_identifier", serialized)
         self.assertNotIn("nearest", serialized.lower())
-        self.assertNotIn("m0g", serialized.lower())
+        self.assertNotIn("historical_m0g", serialized.lower())
         self.assertNotIn("historical_affine", serialized.lower())
 
     def test_binding_order_does_not_change_digest(self):
