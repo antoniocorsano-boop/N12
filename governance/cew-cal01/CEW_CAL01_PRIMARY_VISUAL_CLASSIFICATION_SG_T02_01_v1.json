@@ -1,0 +1,55 @@
+{
+  "schema": "CEW_CAL01_PRIMARY_VISUAL_CLASSIFICATION_STRUCTURAL_GRID_v1",
+  "program": "CEW-CAL-01",
+  "review_date_local": "2026-11-02",
+  "reviewer_role": "HUMAN_PROFESSIONAL_USER",
+  "review_id": "SG-T02-01",
+  "source_document": "TAV-02S",
+  "source_path": "archive/documentazione_originaria/tavola2-2.pdf",
+  "source_commit": "78c20a52db4f391ce0d13b9705b9f04737e218c9",
+  "source_sha256": "cd03839589e60ee46b3fd398d6a9fabca1a446859e6693a47d0f83d0e930520f",
+  "source_page": 0,
+  "source_bbox_px": [492.0, 8291.0, 541.0, 8499.0],
+  "geometry": {
+    "orientation": "VERTICAL",
+    "reference_style": "HOUGH_ENDPOINT_REFERENCES",
+    "endpoint_a_px": [722.0, 8308.5],
+    "endpoint_b_px": [722.0, 8473.0]
+  },
+  "machine_reading": "5.67",
+  "machine_ocr_confidence": 55.875011,
+  "machine_ocr_rotation_degrees": 180,
+  "machine_ocr_preprocess_mode": "BINARY_OTSU",
+  "machine_supporting_ocr_families": [["BINARY_OTSU", 180]],
+  "machine_reading_disposition": "REJECTED_BY_HUMAN_REVIEW",
+  "human_reading": "4.95 m",
+  "property": "STRUCTURAL_GRID_LINEAR_DIMENSION",
+  "value": {"length_m": 4.95},
+  "evidence_class": "DOC",
+  "semantic_interpretation_class": "RIF",
+  "calibration_role": "LINEAR_DIMENSION",
+  "metric_relation_state": "PRIMARY_VISUAL_VALIDATED",
+  "metric_source_kind": "PRIMARY_TAV02S_DOCUMENTED_RELATION",
+  "eligible_for_metric_relation_network": true,
+  "eligible_for_metric_calibration": false,
+  "primary_anchor_authorized": false,
+  "orientation_diagnostic": {
+    "state": "REVERSED_OCR_ORIENTATION_OBSERVED",
+    "evidence": "The machine reading was produced only by the 180-degree OCR pass; human inspection of the primary raster reads 4.95 m in the opposite reading direction.",
+    "follow_up": "Use the remaining human-reviewed vertical candidates to determine whether orientation-aware OCR ranking needs a governed repair. Do not auto-correct numeric text from orientation alone."
+  },
+  "review_note": "Human visual review rejects machine OCR 5.67 and validates the documented linear dimension as 4.95 m. The mismatch is traced to the sole 180-degree OCR family for this location. This receipt authorizes the metric relation only; it does not establish an absolute calibration anchor.",
+  "qualified_discovery_basis": {
+    "head_sha": "02c637e401229d3e4b6cad5cdfd369e026f6aeef",
+    "workflow_run_id": 41412272369,
+    "artifact_id": 13126665323,
+    "artifact_digest": "sha256:cec2e4fee5eebbbfec1ab70f4b53735e6b10f27983b2a9ff8b84808d14a9d27f"
+  },
+  "authority": {
+    "structural_identity_authorized": false,
+    "canonical_geometry_authorized": false,
+    "canonical_write_authorized": false,
+    "m0g_authorized": false,
+    "engineering_authority_effect": "NONE"
+  }
+}
