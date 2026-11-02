@@ -89,6 +89,22 @@ class ExternalChainRefinementContractTests(unittest.TestCase):
         self.assertEqual(result["chains"][0]["tick_positions_px"], [865.0, 2187.0, 3493.0, 4304.0, 5119.0])
         self.assertEqual(len(result["chains"][0]["intervals"]), 4)
 
+    def test_distant_left_carrier_is_not_perimeter_chain(self):
+        result = build_refined_external_chains(
+            side="LEFT",
+            axis_segments=[(3200.0, 4360.0, 3200.0, 6060.0)],
+            tick_segments=[
+                (3170.0, 4550.0, 3230.0, 4550.0),
+                (3170.0, 4920.0, 3230.0, 4920.0),
+                (3170.0, 5550.0, 3230.0, 5550.0),
+                (3170.0, 6000.0, 3230.0, 6000.0),
+            ],
+            observations=[obs("far-left", "LEFT", 3205.0, 4800.0)],
+            plan_envelope_bbox=PLAN,
+        )
+        self.assertEqual(result["chain_count"], 0)
+        self.assertEqual(result["unresolved_observation_ids"], ["far-left"])
+
     def test_right_recovers_weak_endpoint_tick_but_rejects_inside_unsupported_carrier(self):
         axis = [
             (11146.0, 3769.0, 11146.0, 6247.0),
