@@ -1,0 +1,131 @@
+name: CEW-CAL-01 External Dimension Chains
+
+on:
+  push:
+    branches:
+      - feat/cew-cal01-primary-metric-calibration
+    paths:
+      - 'experiments/cew_cal01/external_dimension_chain.py'
+      - 'experiments/cew_cal01/external_chain_postprocess.py'
+      - 'tests/cew_cal01/test_external_dimension_chain.py'
+      - 'tests/cew_cal01/test_external_chain_postprocess.py'
+      - 'tests/cew_cal01/test_external_chain_workflow.py'
+      - '.github/workflows/validate-cew-cal01-external-chain.yml'
+  pull_request:
+    paths:
+      - 'experiments/cew_cal01/external_dimension_chain.py'
+      - 'experiments/cew_cal01/external_chain_postprocess.py'
+      - 'tests/cew_cal01/test_external_dimension_chain.py'
+      - 'tests/cew_cal01/test_external_chain_postprocess.py'
+      - 'tests/cew_cal01/test_external_chain_workflow.py'
+      - '.github/workflows/validate-cew-cal01-external-chain.yml'
+
+jobs:
+  cal01-external-chain-exact-source:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python 3.12.15
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.15'
+          check-latest: false
+
+      - name: Install frozen Tesseract system package
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends tesseract-ocr
+          tesseract --version | head -1
+
+      - name: Install minimal CAL-01 exact-source toolchain
+        run: python -m pip install --disable-pip-version-check -r requirements/cew-cal01.lock.txt
+
+      - name: Fetch frozen structural-grid source commit
+        run: |
+          rm -rf "$RUNNER_TEMP/cew-n12-external-chain-source"
+          git init -q "$RUNNER_TEMP/cew-n12-external-chain-source"
+          git -C "$RUNNER_TEMP/cew-n12-external-chain-source" remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -C "$RUNNER_TEMP/cew-n12-external-chain-source" fetch --depth=1 origin 78c20a52db4f391ce0d13b9705b9f04737e218c9
+          git -C "$RUNNER_TEMP/cew-n12-external-chain-source" checkout --detach FETCH_HEAD
+          test "$(git -C "$RUNNER_TEMP/cew-n12-external-chain-source" rev-parse HEAD)" = "78c20a52db4f391ce0d13b9705b9f04737e218c9"
+
+      - name: Render frozen structural-grid primary sources
+        run: |
+          rm -rf "$RUNNER_TEMP/cew-cal01-external-chain"
+          python -m experiments.cew_cal01.structural_grid_sources \
+            --source-repo "$RUNNER_TEMP/cew-n12-external-chain-source" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain"
+
+      - name: Replay legacy structural-grid discovery
+        run: |
+          python -m experiments.cew_cal01.structural_grid_dimension \
+            --source-manifest "$RUNNER_TEMP/cew-cal01-external-chain/structural-grid-primary-sources.json" \
+            --raster-root "$RUNNER_TEMP/cew-cal01-external-chain" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/discovery"
+
+      - name: Detect external dimension chains on TAV-01S
+        run: |
+          python -m experiments.cew_cal01.external_chain_postprocess \
+            --discovery "$RUNNER_TEMP/cew-cal01-external-chain/discovery/TAV-01S/structural-grid-dimension-discovery.json" \
+            --image "$RUNNER_TEMP/cew-cal01-external-chain/TAV-01S-primary-300dpi.png" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/external-chain/TAV-01S"
+
+      - name: Detect external dimension chains on TAV-02S
+        run: |
+          python -m experiments.cew_cal01.external_chain_postprocess \
+            --discovery "$RUNNER_TEMP/cew-cal01-external-chain/discovery/TAV-02S/structural-grid-dimension-discovery.json" \
+            --image "$RUNNER_TEMP/cew-cal01-external-chain/TAV-02S-primary-300dpi.png" \
+            --output-dir "$RUNNER_TEMP/cew-cal01-external-chain/external-chain/TAV-02S"
+
+      - name: Assert external-chain authority boundaries
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          root = Path(os.environ['RUNNER_TEMP']) / 'cew-cal01-external-chain'
+          expected = {
+              'TAV-01S': 'abd6061c305f2e7222f04659f519d7ee73ed0759b815ac994ff66215f060fec8',
+              'TAV-02S': 'cd03839589e60ee46b3fd398d6a9fabca1a446859e6693a47d0f83d0e930520f',
+          }
+          results = {}
+          for source_id in ('TAV-01S', 'TAV-02S'):
+              payload = json.loads(
+                  (root / 'external-chain' / source_id / 'external-dimension-chain-postprocess.json').read_text()
+              )
+              assert payload['source']['source_id'] == source_id
+              assert payload['source']['sha256'] == expected[source_id]
+              assert payload['side_order'] == ['TOP', 'RIGHT', 'BOTTOM', 'LEFT']
+              assert len(payload['sides']) == 4
+              assert payload['external_chain_count'] >= 0
+              assert payload['external_chain_member_count'] >= 0
+              assert payload['legacy_candidate_count'] <= payload['legacy_numeric_observation_count']
+              assert payload['primary_anchor_count'] == 0
+              assert payload['eligible_for_metric_calibration'] is False
+              assert payload['historical_comparator_loaded'] is False
+              assert payload['historical_affine_loaded'] is False
+              assert payload['authority']['canonical_geometry_authorized'] is False
+              assert payload['authority']['canonical_write_authorized'] is False
+              assert all(side['primary_anchor_count'] == 0 for side in payload['sides'])
+              assert all(side['eligible_for_metric_calibration'] is False for side in payload['sides'])
+              results[source_id] = {
+                  'legacy_candidate_count': payload['legacy_candidate_count'],
+                  'legacy_numeric_observation_count': payload['legacy_numeric_observation_count'],
+                  'external_chain_count': payload['external_chain_count'],
+                  'external_chain_member_count': payload['external_chain_member_count'],
+                  'external_chain_digest': payload['external_chain_digest'],
+              }
+          print(json.dumps(results, sort_keys=True))
+          PY
+
+      - name: Upload governed external-chain evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cew-cal01-external-dimension-chains
+          path: ${{ runner.temp }}/cew-cal01-external-chain
+          if-no-files-found: error
+          retention-days: 30
