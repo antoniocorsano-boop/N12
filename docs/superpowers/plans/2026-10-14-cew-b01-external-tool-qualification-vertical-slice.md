@@ -485,3 +485,58 @@ Commit message: `docs(cew-b01): close vertical slice at human phase gate`
 - **Geometry scope:** B01 proves deterministic parametric geometry without pretending that page coordinates or uncertain storey heights are canonical building-space 3D geometry. Full canonical geometry remains Phase C.
 - **Human review:** Human review selects/labels machine/source-derived candidate IDs; it does not type replacement coordinates.
 - **Completion semantics:** B01 ends at `COMPLETED_AWAITING_HUMAN_PHASE_DECISION`; no automatic roadmap advance is possible.
+
+---
+
+## Execution alignment — 2026-11-07 (CEW-B01 / N12)
+
+**Status:** approved operational sequencing inside the existing CEW-B01 macro-task; planning checkpoint, **not** qualification, canonical-state transition, merge or deployment authority. This addendum does not replace historical Task 1–9 instructions or the verified source-anchor amendment.
+
+### Authority and source-of-truth boundaries
+
+- `CEW_MASTER_PLAN.md` remains the approved A–G roadmap; `CEW_CURRENT_STATE.json` remains the formal authorization record; `wip_limit=1` and `current_task.id=CEW-B01` are unchanged.
+- The actual B01 technical experiments advanced in stacked **Draft / unmerged** PRs; this does not mean those changes are in `main`, nor that CEW-B01 has passed the final qualification gate.
+- Do **not** change `CEW_CURRENT_STATE.json` to a terminal state before exact-head B01 PASS; Task 9 permits only `COMPLETED_AWAITING_HUMAN_PHASE_DECISION`, and no automatic Phase C activation. The older `AUTHORIZED_NOT_STARTED` field on `main` must be described as a formal-state/experimental-evidence discrepancy rather than silently overwritten.
+- PR #147 retains `READ_ONLY_DO_NOT_MODIFY_DO_NOT_CLOSE_DO_NOT_SUPERSEDE`; no new Gate Authority, FEM, SolverRun, Result, merge, deployment or canonical-write authorization.
+- The TAV.5 frozen SHA-256 is the **verified** `2143dbcfb101c7a83d0c5c7a59a11ceabdaf7d8b2568a7aeeae61fa60e66f580` under the authoritative 2026-10-14 source-anchor amendment; the old SHA in this historical plan is invalid.
+
+### Evidence baseline (observed on 2026-11-07, not requalified by this addendum)
+
+| Scope | Current observed evidence | Boundary |
+| --- | --- | --- |
+| Source and graphic recognition | Frozen TAV.5 source; 5,633 neutral primitives, 1,663 catalogued motifs in PR #165; downstream 22 governed human-positive column occurrences and 22 `StructuralObjectCandidate` in PR #186 | Counts concern the governed sample, not the complete building; no automatic canonical identity |
+| Documentary identity | PR #184 closed its bounded evidence acquisition as `TERMINAL_UNRESOLVED`; the historical `N###` and `S-*` data are not primary identity evidence | Keep support identifiers unresolved without independent primary evidence |
+| Cross-source homology | PR #187 checkpoint: 22 `UNMATCHED`, 0 approved homologies; eight primary TAV.5 occurrences selected for professional TAV.5 ↔ TAV-02S review | Human decisions **not yet recorded** |
+| Metric relations | TAV-01S: 1 validated relation; TAV-02S: 10 validated relations; total 11/34 reviewed and validated across separate source-local graphs | TAV-02S relation network diagnostically sufficient; this is **not** an absolute/local-to-source calibration anchor |
+| Primary calibration | `primary_anchor_count=0`; affine fit, independent holdout, current metric projection not authorized | `PRIMARY_ANCHOR_REQUIRED`; no fit or metric/canonical promotion |
+| Parametric geometry | Existing build123d/OCP B01 plan and adapters available for qualification | No current source-derived, canonical N12 3D model may be claimed from this checkpoint |
+
+Evidence locations: PR #151 (this plan); #152 (B01 direct source/tool qualification); #165 (drawing grammar); #184 (identity residual); #185 (governed historical DXF); #186 (22 source-derived structural candidates); #187 (primary metric calibration, metric sufficiency and targeted review). The detailed qualified predecessor and exact-SHA evidence remain in the respective PR descriptions and governance checkpoints.
+
+### Single operational sequence (work inside CEW-B01, currently CEW-CAL-01 / PR #187)
+
+1. **B4 — Inter-source primary homology review (NEXT).** Reuse the qualified eight-case package (`COL-OCC-0013`, `0016`, `0005`, `0002`, `0022`, `0020`, `0001`, `0021`). For each, record the exact TAV.5 source occurrence and the homologous labelled TAV-02S lattice node **only if visually/source-documentarily demonstrated**, otherwise explicit `REJECT/UNRESOLVED` with reason. Preserve source/crop digests, reviewer, review decision and conflict status. Do not auto-suggest the nearest target or synthesize human receipts. If review assets expire, rematerialize and verify the exact frozen upstream inputs/digests before reviewing.
+2. **B5a — Primary-anchor discovery.** Using only admissible, source-bound axes/intersections and documented metric relationships, identify enough geometrically independent primary correspondences to determine the TAV.5 ↔ governed metric reference transform. Treat the TAV-02S 21-node lattice as `LOCAL_RELATIVE_METRIC`, not a surveyed/global absolute frame. The already-sufficient TAV-02S relation network does **not** remove the `PRIMARY_ANCHOR_REQUIRED` blocker. TAV-01S receives targeted review only when its independent source-local needs justify it; avoid indiscriminate OCR/quote review.
+3. **B5b — Independent metric calibration.** Admit the minimum 3 non-collinear fit anchors + 2 spatially separated, pre-frozen holdouts (prefer more). Freeze selection without residual feedback; estimate only a source-derived 2D affine transform, report holdout errors and frame provenance. If insufficient or degenerate, stop with explicit insufficiency. Historical M0-G, historical affine coefficients, historical `S-*` and inferred `N###` cannot seed fit, target identity, or calibration acceptance.
+4. **B6 — Structural reconciliation.** After qualified calibration, project the 22 current candidate occurrences into a candidate metric frame with reproducible digests and uncertainty. Preserve a stable CEW candidate identity; promote no historical support identifier or section family without primary evidence. Select a **non-trivial, source-justified subset** for the next geometric proof; do not force 22/22 resolution or a historically expected count.
+5. **B7 — Deterministic geometry proof.** Regenerate the selected subset with build123d/OCP and exact Evidence→Object→Shape mapping receipts. Page/local-frame B-Rep proof is acceptable to B01; do **not** invent storey height, metric placement, armatures or full-building 3D placement. Record epistemic state for every uncertain dimension. Phase C canonical geometry remains separate and unauthorized.
+6. **B8 — Close the B01 vertical slice.** Issue exact-head reproducibility, provenance, tool decisions (`ADOPT/BENCHMARK/DEFER/REJECT`), residuals, ambiguity ledger, independent review and human decision packet. The only terminal B01 state proposed by the existing Task 9 remains `COMPLETED_AWAITING_HUMAN_PHASE_DECISION`; moving beyond B01 requires explicit owner approval.
+
+### Acceptance checks and stop conditions
+
+- `B4_PASS`: each reviewed homology has exact source binding and a reasoned human decision; zero accepted matches is a valid fail-closed result, **not** a fabricated pass.
+- `B5_PASS`: independently reproducible source-derived anchor inventory, non-degenerate fit, pre-frozen excluded holdouts and measured residuals. A metric network alone is not calibration.
+- `B6_PASS`: mapping for the chosen subset preserves documentary status, conflicts and provenance; an unresolved `N###` must remain unresolved.
+- `B7_PASS`: at least one real **non-trivial set** of N12 elements is replayed as parametric geometry from qualified CEW evidence without unproven manual coordinates and with matching object/shape digests.
+- `B8_PASS`: exact commit/toolchain/input/output digests, complete gate evidence and explicit external-tool decisions, followed by professional review; otherwise return `B01_NOT_QUALIFIED` and report blockers.
+- At every stage, `structural_identity_authorized=false`, `canonical_geometry_authorized=false`, `canonical_write_authorized=false`, `m0g_authorized=false` unless a **separate explicit human governance decision** later changes the corresponding boundary; no implicit authority from numeric/geometric agreement.
+
+### DXF and technology amendment boundary
+
+PR #185 now records governed recovered **historical DXF** with source-native text; this is a material development after the original B01 plan's `no immutable DXF` assumption. It justifies a narrowly evidenced future tool decision for `ezdxf`, **not** an automatic replacement of TAV.5 source authority or of this plan's verified immutable PDF source. Distinguish historical CEW-generated `S-*` annotations from the original designer's notation. CADCraft remains a separate non-blocking benchmark. RapidStructure is only an external future candidate for reinforcement representation, not an adopted B01 dependency.
+
+### Cross-PR coordination
+
+- This addendum belongs to the **existing B01 plan PR #151**, not a new roadmap or concurrent macro-task. The current technical next step stays in **Draft PR #187**; its result will be referenced by exact SHA and governed review receipts.
+- No source, test, product runtime, main, production deployment or authority document is modified by this planning checkpoint. Downstream stacked PRs must not be reported as newly qualified on an upstream documentation SHA without fresh exact-head checks where required.
+- Progress and exit criteria are evidence-based, not calendar-based. If an admissible primary anchor or homologous correspondence cannot be established, the correct next artifact is a diagnosed knowledge gap / targeted investigation request, not a guessed geometric model.
